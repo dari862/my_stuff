@@ -1,0 +1,116 @@
+#!/bin/bash
+
+#    bl-tint2-pipemenu - an Openbox pipemenu for tint2 manipulation
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+HELP='    bl-tint2-pipemenu an Openbox Pipe Menu for tint2 manipulation
+    It should normally be called from an openbox menu.
+
+Options:
+    -h --help   show this message
+
+    If bl-tint2-pipemenu is called with no options (the usual method),
+    it will output an xml openbox pipemenu for handling tint2 sessions,
+    and editing configuration files.
+
+For more information, see "man tint2"
+and "Help & Resources">"Tint2" in the mDmDmDmDmDmDmD menu.
+'
+# look for a help option somewhere
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+
+TINT2PATH="$HOME/.config/tint2"
+TINT2DEFAULT="$TINT2PATH/tint2rc"
+TMGR="style-manager --tint2manager"
+HELPFILE="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-conkytint2-manager.txt"
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+
+loadChooser(){
+    if type $TMGR &>/dev/null;then  # style-manager --tint2manager script found
+        menuItem "Tint2 Manager" "$TMGR"
+    fi
+}
+
+loadRestart(){
+    if pgrep -x -u "$USER" tint2 >/dev/null;then
+        menuItem "Restart Tint2" "tint2-session"
+    fi
+}
+
+loadReload(){
+    if type bl-tint2-session &>/dev/null;then
+        menuItem "Reload Default Session" "bl-tint2-session"
+    fi
+}
+
+loadEditSubmenu(){
+    local pid command TPATH TINT2
+    menuSubmenu "EditTint2" "Edit Tint2s"
+        if type style-manager &>/dev/null;then
+            menuItem "Tint2 Editor" "style-manager --tint2edit"
+        fi
+# tint2conf removed here but still available from "Applications" menu as Settings > Panel Manager
+#        menuItem "Tint2 Config GUI" "tint2conf"
+        menuItem "Default tint2rc" "my-text-editor '$TINT2DEFAULT'"
+        if pgrep -x -u "$USER" tint2 >/dev/null;then
+            menuSubmenu "RunningTint2" "Running Tint2s"
+            while read -r pid; do
+                mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
+                [[ ${command[0]} = 'tint2' ]]  || { echo "$0: pgrep parsing failed: command is not 'tint2'" >&2; continue;}
+                if (( ${#command[@]} > 1 )); then
+                    TPATH=${command[-1]} # tint2 takes no options other than -c, which is optional
+                    [[ $TPATH = /* ]] || TPATH="$HOME/$TPATH" # assume path is relative to $HOME
+                    TINT2=${TPATH#${TINT2PATH}/}
+                else
+                    TPATH="$TINT2DEFAULT"
+                    TINT2="Default tint2rc"
+                fi
+                [[ -f $TPATH ]] || { echo "$0: pgrep tint2 parsing failed: $TPATH is not a file" >&2; continue;}
+                menuItem "$TINT2" "my-text-editor ${TPATH@Q}"
+            done < <(pgrep -x 'tint2' -u "$USER")
+            menuSubmenuEnd
+        fi
+    menuSubmenuEnd
+}
+
+checkHelpfile(){
+    DLG="yad --text-info --center --borders=20 \
+    --title='mDmDmDmDmDmDmD Conky and Tint2 Manager Help' \
+    --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg \
+    --filename=$HELPFILE --fontname=Monospace \
+    --width=650 --height=700 \
+    --button=OK:0"
+    if [[ -e $HELPFILE ]];then
+        menuItem "Tint2 Manager Help" "$DLG"
+    fi
+}
+
+menuStart "Tintmenu" "Tint2"
+loadChooser
+loadRestart
+loadReload
+loadEditSubmenu
+menuSeparator
+checkHelpfile
+menuEnd

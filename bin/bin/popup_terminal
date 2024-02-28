@@ -1,0 +1,9 @@
+#!/bin/bash
+#===================================================================================
+
+if [ $1 == "--full" ];then
+	shift 1
+	kitty --start-as fullscreen --config /etc/xdg/kitty/kitty.conf "$@"
+else
+	kitty "$@"
+fi

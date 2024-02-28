@@ -1,0 +1,117 @@
+#!/bin/bash
+
+app_name=$(basename $0)
+extra_apps_=()
+
+###################################################################
+CONF_FILE_Path="/tmp"
+CONF_FILE_NAME="tmux.conf"
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+
+cat << 'EOF' > "${CONF_FILE_Path}/${CONF_FILE_NAME}"
+set-option -g prefix C-b
+bind-key n last-window
+bind-key m send-prefix
+
+# Set correct colors
+set -g default-terminal "xterm-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+
+# Set scroll with mouse
+set -g mouse on
+
+# new window with same directory
+bind c new-window      -c "#{pane_current_path}"
+bind % split-window -h -c "#{pane_current_path}"
+bind '"' split-window -v -c "#{pane_current_path}"
+
+# Toggle mouse on
+bind-key M \
+  set-option -g mouse on \;\
+  display-message 'Mouse: ON'
+
+# Toggle mouse off
+bind-key m \
+  set-option -g mouse off \;\
+  display-message 'Mouse: OFF'
+
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+set -g status-position bottom
+set -g status-bg colour234
+set -g status-fg colour137
+set -g status-style dim
+set -g status-left ''
+set -g status-right '#[fg=colour233,bg=colour241,bold] %d/%m #[fg=colour233,bg=colour245,bold] %H:%M:%S '
+set -g status-right-length 50
+set -g status-left-length 20
+
+setw -g window-status-current-style fg=colour81
+setw -g window-status-current-style bg=colour238
+setw -g window-status-current-style bold
+setw -g window-status-current-format ' #I#[fg=colour250]:#[fg=colour255]#W#[fg=colour50]#F '
+
+setw -g window-status-style fg=colour138
+setw -g window-status-style bg=colour235
+setw -g window-status-style none
+setw -g window-status-format ' #I#[fg=colour237]:#[fg=colour250]#W#[fg=colour244]#F '
+
+setw -g window-status-bell-style bold
+setw -g window-status-bell-style fg=colour255
+setw -g window-status-bell-style bg=colour1
+EOF
+	
+	sudo chown root:root "${CONF_FILE_Path}/${CONF_FILE_NAME}"
+	
+	say 'Installing package...' 1
+
+	Package_installer_ ${app_name} || continue
+	
+	say "Setting configs to all users..."
+	for d in  /etc/skel/  /home/*/ /root/; do
+    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes
+    	sudo cp -v "${CONF_FILE_Path}/${CONF_FILE_NAME}" "$d/.${CONF_FILE_NAME}" && sudo chown -R $(stat "$(dirname "$d/.${CONF_FILE_NAME}")" -c %u:%g) "$d/.${CONF_FILE_NAME}"
+    	echo "alias tmux='TERM=screen-256color tmux'" >> "$d/.bash_aliases"
+	done
+	if [[ -n "${extra_apps_[*]}" ]];then
+		say 'Installing extra packages...' 1
+		Package_installer_ "${extra_apps_[@]}" || continue
+		clear
+	fi
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

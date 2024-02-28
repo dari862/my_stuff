@@ -1,0 +1,83 @@
+configuration {
+  show-icons: true;
+  icon-theme: "Papirus";
+  display-drun: "";
+  display-window: "﩯 ";
+  display-combi: "  ";
+}
+
+@import "colors.rasi"
+
+* {
+    spacing: 2;
+    width: 30em;
+    margin: 0;
+    padding: 0;
+}
+
+#window {
+    background-color: @SBG;
+    border: 0;
+    padding: 0;
+    location: west;
+    anchor: west;
+    height: 100%;
+    margin: 0;
+}
+
+#mainbox {
+    background-color: @SBG;
+    spacing: 10px;
+    margin: 10px 0 0 0;
+    width: 200px;
+}
+
+#inputbar {
+    children: [prompt,entry];
+    background-color: @SBG;
+}
+
+#listview {
+    background-color: @SBG;
+    fixed-height: true;
+    margin: 5px 0 0 10px;
+}
+
+#element {
+    padding: 5px;
+    background-color: @SBG;
+    text-color: @SFG;
+}
+
+element selected {
+    background-color: @SBGS;
+    text-color: @SFG;
+}
+
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+}
+
+element-icon {
+    background-color: inherit;
+    margin: 0 4px 0 0;
+    size: 25px;
+}
+
+#entry {
+   background-color: @SBG;
+   text-color: @SFG;
+   placeholder: "Search";
+   placeholder-color: @grey;
+   font: "Sora Regular 20";
+}
+
+#prompt {
+   background-color: @SBG;
+   padding: 0 4px;
+   margin: 0 5px 0 0;
+   text-color: @SFG;
+   font: "Sora Regular 20";
+}
+

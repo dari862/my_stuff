@@ -1,0 +1,15 @@
+#!/bin/bash
+
+current_dir_name="$(dirname "$(readlink -f "$0")")"
+if [ -d "apps" ];then 
+	cd apps
+elif [ -d "${current_dir_name}/../apps" ];then 
+	cd ../apps
+else
+	echo "somthing is wrong"
+	exit 1
+fi
+find . -type f -exec sed -i 's|$DIRECTORY/manage|${DIRECTORY}/manage|g' {} +
+find . -type f -exec sed -i 's|"${DIRECTORY}/manage" install |manage_install |g' {} +
+find . -type f -exec sed -i 's|"${DIRECTORY}/manage" uninstall |manage_uninstall |g' {} +
+find . -type f -exec sed -i 's|"${DIRECTORY}/manage" install-if-not-installed|manage_install_if_not_installed |g' {} +

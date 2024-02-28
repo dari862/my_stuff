@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ "$(find $HOME/.config/openbox/* -type f \( -name "xfce4-*.xml" -o -name "old-menu.xml" \) 2> /dev/null)" ] 
+then
+	if [ $(command -v btmgmt >/dev/null) ] && [ "$(btmgmt info | awk 'BEGIN{split("1.0b 1.1 1.2 2.0 2.1 3.0 4.0 4.1 4.2 5.0 5.1 5.2 5.3",i," ")}')" != "" ] # check bluetooth
+	then
+		find $HOME/.config/openbox/* -type f \( -name "xfce4-*.xml" -o -name "old-menu.xml" \) -exec sed -i 's|<!--Disable_Bluetooth_session_script_|<!--Enable_Bluetooth_session_script_-->|g' {} \;
+		find $HOME/.config/openbox/* -type f \( -name "xfce4-*.xml" -o -name "old-menu.xml" \) -exec sed -i 's|End_of_Disable_Bluetooth_session_script_-->|<!--End_of_Enable_Bluetooth_session_script_-->|g' {} \;
+	else
+		find $HOME/.config/openbox/* -type f \( -name "xfce4-*.xml" -o -name "old-menu.xml" \) -exec sed -i 's|<!--Enable_Bluetooth_session_script_-->|<!--Disable_Bluetooth_session_script_|g' {} \;
+		find $HOME/.config/openbox/* -type f \( -name "xfce4-*.xml" -o -name "old-menu.xml" \) -exec sed -i 's|<!--End_of_Enable_Bluetooth_session_script_-->|End_of_Disable_Bluetooth_session_script_-->|g' {} \;
+	fi
+fi

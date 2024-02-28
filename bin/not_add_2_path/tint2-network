@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+## Network Executor For Tint2
+# Dependencies: `wireless_tools`
+# Arguments: [-N] ("Wi-Fi: " instead of icon) | [-M'custom name']
+
+ESSID="none"
+
+wifi=$(iwgetid | awk -F '"' '{ print $2 }')
+if [[ -n "$wifi" ]]; then
+    ESSID="$wifi"
+fi
+
+if [[ $1 == -N* ]]; then
+    echo "Wi-Fi: $ESSID"
+elif [[ $1 == -M* ]]; then
+    echo "$(echo $1 | cut -c3-) $ESSID"
+else
+    echo '󰤭 Disconnected'
+fi

@@ -1,0 +1,109 @@
+#!/bin/bash
+#    bl-conky-pipemenu - an Openbox pipemenu for manipulating conky
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+HELP='    bl-conky-pipemenu an Openbox Pipe Menu for use with conky
+    It should normally be called from an openbox menu or jgmenu.
+
+Options:
+    -h --help   show this message
+
+    If bl-conky-pipemenu is called with no options (the usual method),
+    it will output an xml openbox pipemenu for handling conky sessions.
+
+For more information, see "man conky"
+and "Help & Resources">"Conky" in the mDmDmDmDmDmDmD menu.
+'
+# look for a help option somewhere
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+
+CONKYPATH="$HOME/.config/conky"
+CONKYDEFAULT="$CONKYPATH/conky.conf"
+HELPFILE="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-conkytint2-manager.txt"
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+
+check_4_dependencies_if_installed yad
+
+loadChooser(){
+    if type style-manager &>/dev/null;then
+        menuItem "Conky Manager" "style-manager --conkymanager"
+    fi
+}
+
+loadReload(){
+    if type conky-session &>/dev/null;then
+        menuItem "Reload Startup Session" "conky-session"
+    fi
+}
+
+loadEditSubmenu(){
+    local pid command CPATH CONKY
+    menuSubmenu "EditConky" "Edit Conkys"
+        if type style-manager &>/dev/null;then  # style-manager --conkyedit script found
+            menuItem "Conky Editor" "style-manager --conkyedit"
+        fi
+        if pgrep -x -u "$USER" conky >/dev/null;then
+            menuSubmenu "RunningConky" "Running Conkys"
+            while read -r pid; do
+                mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
+                for i in "${!command[@]}"; do
+                    [[ ${command[i]} = '-c' ]] && { CPATH="${command[i+1]}"; break;}
+                    [[ ${command[i]} = '--config='* ]] && { CPATH="${command[i]#--config=}"; break;}
+                done
+                CONKY=${CPATH#${CONKYPATH}/}
+            done < <(pgrep -x 'conky' -u "$USER")
+            menuSubmenuEnd
+        fi
+    menuSubmenuEnd
+}
+
+loadMove(){
+    if type style-manager &>/dev/null;then
+        menuItem "Move a Conky" "style-manager --conkymove"
+    fi
+}
+
+checkHelpfile(){
+    DLG="yad --text-info --center --borders=20 \
+    --title='mDmDmDmDmDmDmD Conky and Tint2 Manager Help' \
+    --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg \
+    --filename=$HELPFILE --fontname=Monospace \
+    --width=650 --height=700 \
+    --button=OK:0"
+    if [[ -e $HELPFILE ]];then
+        menuItem "Conky Manager Help" "$DLG"
+    fi
+}
+
+menuStart "Conkymenu" "Conky"
+loadChooser
+loadEditSubmenu
+menuSeparator
+loadMove
+menuSeparator
+loadReload
+menuSeparator
+checkHelpfile
+menuEnd

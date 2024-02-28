@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#### Fix missing files        ########################################################################
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/panel"
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/polybar"
+
+if [ ! -s  ${_panel_name_path_} ] || [ -f  ${_rerun_panel_picker_} ]
+then
+	panel_manager --picker
+fi
+
+if [ "$_panel_name_" =  "polybar" ] && [ ! -f "${polybar_style_name_path}" ]; then
+	style-manager --set
+elif [ "$_panel_name_" =  "tint2" ] && [ ! -f "$HOME/.config/tint2/tint2-sessionfile" ]; then
+	style-manager --set
+elif [ ! -f ${rofi_style_name_path} ]; then
+	style-manager --set
+fi
+
+#### START SETTINGS  #################################################################################
+
+# Exec first script screenlayout found
+if [ "$(ls -A ~/.screenlayout &> /dev/null)" ] 
+then
+	"$(ls ~/.screenlayout/*.sh | head -1)"
+else
+	displayselect auto
+fi

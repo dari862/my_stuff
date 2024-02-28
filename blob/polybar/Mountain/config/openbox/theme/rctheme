@@ -1,0 +1,9 @@
+bottom=10
+top=0
+right=19
+left=19
+font=JetBrainsMono
+size=9
+theme=Kripton
+titleLayout=CMIL
+menu=menu-icons.xml

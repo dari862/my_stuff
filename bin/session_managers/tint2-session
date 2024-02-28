@@ -1,0 +1,68 @@
+#!/bin/bash
+#===================================================================================
+# FILE: tint2-session
+# DESCRIPTION: manage tint2 processes for start, restart and stop all tint2 instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+procname=tint2
+pid=$( pgrep -x -u "$USER" "$procname" )
+
+config_dir="$HOME/.config"
+tint2_config="${config_dir}/tint2"
+tint2_sessionfile_="${tint2_config}/tint2-sessionfile"
+if [[ ! -f $tint2_sessionfile_ ]]; then
+	echo "$0: There is no session file: ${tint2_sessionfile_}, generating now..." >&2
+	cd $HOME/.config/tint2
+	DEFAULTTINT2="/.config/tint2/$(ls -f | head -n 1)"
+	echo "${DEFAULTTINT2}" > "$tint2_sessionfile_"
+fi
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all tint2 process
+#===================================================================================
+function stop() {
+	if [[ -n "$pid" ]]; then
+		[ "$(pidof tint2)" ] && killall tint2
+		[ "$(pidof tint2)" ] && killall -9 tint2
+	fi
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: start tint2
+#===================================================================================
+function start() {
+	if [[ -z "$pid" ]]; then
+		while IFS="" read -r theme || [ -n "$theme" ]
+		do
+			if [ ! -f "${HOME}${theme}" ];then
+				theme="/.config/tint2/themes/default.tint2rc"
+				echo "$theme" > "$tint2_sessionfile_"
+				(tint2 -c "$HOME$theme" &>/dev/null) &
+				return
+			fi
+			(tint2 -c "$HOME$theme" &>/dev/null) &
+  			sleep 0.5
+		done < ${tint2_sessionfile_}
+	fi
+
+}
+
+# EXEC ACTION ACCORDING $1
+case "${1,,}" in
+	""|start|restart)
+		stop
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	*)	
+		echo "Usage: xfsettingsd-session [start|stop|restart]"
+	;;
+esac

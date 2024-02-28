@@ -1,0 +1,42 @@
+#!/bin/bash
+#    my-installer: a script to install Debian packages in a popup terminal window.
+
+HELP='my-installer: a script to install Debian packages in a popup terminal window.
+
+Usage:  my-installer --install app_name
+
+    -h --help                   show this message and exit
+    --install      <string>    install Debian packages
+    --script    <string>    run installer script
+    
+'
+# if help option anywhere in args, output $HELP and exit immediately
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+_SCRIPTS_LIBDIR='/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/apps_center'
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+
+app_name_="$2"
+app_location="$(find ${_SCRIPTS_LIBDIR}/. -name ${app_name_})"
+if [[ ${1-} = --install ]]; then 
+	popup_terminal -T "Running Script ${app_name_}." -e "${app_location}"
+elif [[ ${1-} = --script ]]; then
+	popup_terminal -T "Installing App ${app_name_}." -e "script_${app_location}"
+elif [[ ${1-} ]]; then
+    echo "$0: no such option $*" >&2
+    echo
+    echo "#################################################"
+    echo
+    echo "$HELP"
+    exit 1
+fi
+exit 0

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# The Sparky dashboard displays installed applications into yad based window. 
+# Created by Paweł "pavroo" Pijanowski 2018/05/09
+# Copyright 2018 under the GNU GPL2 License
+# Last updated 2018/05/17
+
+if [ -d /tmp/sparky-dash ]; then
+	rm -rf /tmp/sparky-dash
+fi
+mkdir /tmp/sparky-dash
+remove_from_array=($(grep -rwn 'NoDisplay=true' /usr/share/applications/*))
+apps_list=($(ls /usr/share/applications/*.desktop))
+for element in "${remove_from_array[@]}" ;do
+	apps_list=("${apps_list[@]/$element}")
+done
+for apps in "${apps_list[@]}" ;do
+	cp -a $apps /tmp/sparky-dash
+done
+
+yad --icons --read-dir=/tmp/sparky-dash --monitor --item-width=100\
+ --sort-by-name --center --undecorated --skip-taskbar --borders=20\
+ --button="Cancel!gtk-cancel":1 --buttons-layout=center --maximized
+
+rm -rf /tmp/sparky-dash
+exit 0
+

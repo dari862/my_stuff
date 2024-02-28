@@ -1,0 +1,185 @@
+#!/bin/bash
+
+app_name=$(basename $0)
+extra_apps_=()
+
+###################################################################
+RC_FILE_Path="/tmp"
+CONF_FILE_NAME="vimrc"
+comment_mark='"DEBIAN-OPENBOX-vim'
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+cat << 'EOF' > "${RC_FILE_Path}/${CONF_FILE_NAME}.local"
+set runtimepath+=/etc/vim/                  		"DEBIAN-OPENBOX-vim
+
+call plug#begin('/etc/vim/plugged')        			"DEBIAN-OPENBOX-vim
+
+"THEMES
+Plug 'kristijanhusak/vim-hybrid-material'   		"DEBIAN-OPENBOX-vim
+Plug 'w0ng/vim-hybrid'                      		"DEBIAN-OPENBOX-vim
+Plug 'romainl/Apprentice'                   		"DEBIAN-OPENBOX-vim
+Plug 'ErichDonGubler/vim-sublime-monokai' 			"DEBIAN-OPENBOX-vim
+Plug 'arcticicestudio/nord-vim' 					"DEBIAN-OPENBOX-vim
+
+"PLUGINS
+Plug 'preservim/nerdtree' 							"DEBIAN-OPENBOX-vim
+Plug 'preservim/nerdcommenter'              		"DEBIAN-OPENBOX-vim
+Plug 'psliwka/vim-smoothie'                 		"DEBIAN-OPENBOX-vim
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } "DEBIAN-OPENBOX-vim
+Plug 'junegunn/fzf.vim' 							"DEBIAN-OPENBOX-vim
+Plug 'ntpeters/vim-better-whitespace' 				"DEBIAN-OPENBOX-vim
+
+"DISABLED
+"Plug 'jiangmiao/auto-pairs' 						"DEBIAN-OPENBOX-vim
+"Plug 'mhinz/vim-startify'                  		"DEBIAN-OPENBOX-vim
+"Plug 'vim-airline/vim-airline'             		"DEBIAN-OPENBOX-vim
+"Plug 'vim-airline/vim-airline-themes'      		"DEBIAN-OPENBOX-vim
+"Plug 'godlygeek/csapprox'                  		"DEBIAN-OPENBOX-vim
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}	"DEBIAN-OPENBOX-vim
+
+call plug#end()                             		"DEBIAN-OPENBOX-vim
+EOF
+
+	sudo chown root:root "${RC_FILE_Path}/${CONF_FILE_NAME}.local"
+	
+cat << 'EOF' > "${RC_FILE_Path}/${CONF_FILE_NAME}"
+"### OPTIONS ######################################################
+syntax on                       "Syntax highlight
+set mouse-=a                    "Allow visual select with mouse
+set clipboard=unnamedplus		"Use system clipboard
+"set number                      "Show line numbers
+set hlsearch                    "Hightlight all matches on search
+set ignorecase                  "Search are case insensitive
+set smartcase                   "Search case sensitive if any caps are used
+set incsearch                   "Show matches highlight when typing
+"set expandtab 					"User apropiate number of spaces in autoindent and indent with <,>
+set tabstop=4                   "Tab=4 spaces
+set shiftwidth=4 				"Number of spaces to use for each step of (auto)indent
+set smartindent                 "Auto add tabs according nested code
+set showcmd						"Show partial command in status line
+let g:netrw_banner = 0          "Hide header in :Explore mode
+set cursorline 					"Hightlight current line
+set wildmenu					"Visual autocomplete for command menu
+
+
+
+"#### THEME #######################################################
+set background=dark             "Background color
+"let g:enable_bold_font = 1		"Enable bold in code
+let g:enable_italic_font = 1	"Enable italic in code (comments)
+
+"THEME IN 256 AND 88 COLORS
+if (&t_Co == 256 || &t_Co == 88) && !has('gui_running')
+	colorscheme hybrid_material
+	set termguicolors
+"THEME IN 8 AND 16 COLORS
+else
+  colorscheme apprentice
+endif
+
+
+"### PLUGINS OPTIONS ##############################################
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif   "Autoclose NERDTree if is last window
+let g:better_whitespace_ctermcolor='darkgrey'       "Better-whitespace color in cterm
+let g:better_whitespace_guicolor='darkgrey'         "Better-whitespace color in gui
+let g:coc_disable_startup_warning = 1
+
+
+"#### STATUSBAR ###############################################
+if (&t_Co == 256 || &t_Co == 88) && !has('gui_running')
+	set laststatus=2
+	set noshowmode
+	set statusline=
+	set statusline+=%#DiffAdd#%{(mode()=='n')?'\ \ NORMAL\ ':''}
+	set statusline+=%#DiffChange#%{(mode()=='i')?'\ \ INSERT\ ':''}
+	set statusline+=%#DiffDelete#%{(mode()=='r')?'\ \ RPLACE\ ':''}
+	set statusline+=%#Cursor#%{(mode()=='v')?'\ \ VISUAL\ ':''}
+	set statusline+=\ %n\           			" buffer number
+	set statusline+=%#Visual#       			" colour
+	set statusline+=%{&paste?'\ PASTE\ ':''}
+	set statusline+=%{&spell?'\ SPELL\ ':''}
+	set statusline+=%#CursorIM#     			" colour
+	set statusline+=%R                        	" readonly flag
+	set statusline+=%M                        	" modified [+] flag
+	set statusline+=%#Cursor#               	" colour
+	set statusline+=%#CursorLine#     			" colour
+	set statusline+=\ %t\                   	" short file name
+	set statusline+=%=                          " right align
+	set statusline+=%#CursorLine#   			" colour
+	set statusline+=\ %Y\                   	" file type
+	set statusline+=%#CursorIM#     			" colour
+	set statusline+=\ %3l:%-2c\         		" line + column
+	set statusline+=%#Cursor#       			" colour
+	set statusline+=\ %3p%%\                	" percentage
+	"##############################################################
+endif
+EOF
+
+	sudo chown root:root "${RC_FILE_Path}/${CONF_FILE_NAME}"
+	
+	say 'Installing package...' 1
+
+	Package_installer_ ${app_name} nodejs || continue
+	say "Installing vim plugins for all users in /etc/vim/ ..."
+
+	sudo mkdir -vp "/etc/vim/autoload"
+	sudo curl -fLo /etc/vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	sudo mkdir -p "/etc/vim/plugged/"
+	say "Adding plugins to /etc/vim/rc.local ..."
+	if [ -s "/etc/vim/${CONF_FILE_NAME}.local" ]; then
+		f=/etc/vim/${CONF_FILE_NAME}.local
+		sudo sed -i "/${comment_mark}/Id" "$f" 	# Delete all previous lines added
+		cat "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/${CONF_FILE_NAME}.local | sudo tee /etc/vim/${CONF_FILE_NAME}.local
+	else
+		sudo cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/
+	fi
+	vim +'PlugInstall --sync' +qa 		# Download all plugins non-interactively
+	
+	
+	# Copy users config
+	say "Setting configs to all users..."
+	for d in  /etc/skel/  /home/*/ /root/; do
+    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes 
+		
+		sudo cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}" "$d/.${CONF_FILE_NAME}" && sudo chown -R $(stat "$(dirname "$d/.${CONF_FILE_NAME}")" -c %u:%g) "$d/.${CONF_FILE_NAME}"
+	done
+
+	if [[ -n "${extra_apps_[*]}" ]];then
+		say 'Installing extra packages...' 1
+		Package_installer_ "${extra_apps_[@]}" || continue
+		clear
+	fi
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

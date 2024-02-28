@@ -1,0 +1,53 @@
+#!/bin/bash
+
+DESKTOP_SESSION_all_small_latter=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
+
+case $1 in
+logout)
+	if [[ "$DESKTOP_SESSION_all_small_latter" == "*openbox" ]] || [[ "$DESKTOP_SESSION_all_small_latter" == "openbox" ]]; then
+		openbox --exit
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "*bspwm" ]] || [[ "$DESKTOP_SESSION_all_small_latter" == "bspwm" ]]; then
+		bspc quit
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "i3" ]]; then
+		i3-msg exit
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "qtile" ]]; then	
+		qtile cmd-obj -o cmd -f shutdown
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "awesome" ]]; then	
+		awesome --replace
+	else
+		[[ $(command -v systemctl) ]] && systemctl --user exit || loginctl terminate-session $XDG_SESSION_ID
+	fi
+;; 
+reload)
+	if [[ "$DESKTOP_SESSION_all_small_latter" == "*openbox" ]]; then
+		openbox --reconfigure
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "*bspwm" ]]; then
+		bspc --restart
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "i3" ]]; then
+		i3-msg restart
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "qtile" ]]; then	
+		qtile cmd-obj -o cmd -f restart
+	elif [[ "$DESKTOP_SESSION_all_small_latter" == "awesome" ]]; then	
+		awesome --replace
+	fi
+;; 
+suspend)
+	# The systemd or elogind compatibility magic.   #
+	mpc -q pause 
+	amixer set Master mute 
+	[[ $(command -v systemctl) ]] && systemctl "$1" || loginctl "$1"
+	exit $?
+;;
+hibernate | hybrid-sleep | suspend-then-hibernate | reboot | poweroff )
+	# The systemd or elogind compatibility magic.   #
+	[[ $(command -v systemctl) ]] && systemctl "$1" || loginctl "$1"
+	exit $?
+;;
+lock)
+    my-locker || loginctl $1 $XDG_SESSION_ID
+    exit $?
+;;
+moniter_off)
+	xset dpms force off || ( xset s blank && xset s activate )
+;;
+esac

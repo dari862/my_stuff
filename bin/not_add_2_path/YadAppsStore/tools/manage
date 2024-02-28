@@ -1,0 +1,188 @@
+#!/bin/bash
+sysinfo_(){
+	cat << EOF
+
+-------------------
+System Information:
+-------------------
+
+# Display system information using various commands
+Hostname: $(hostname)
+Kernel Version: Linux $(uname -r)
+Distro: $(cat /etc/os-release | grep PRETTY_NAME | cut -d '"' -f 2)
+CPU: $(grep 'model name' /proc/cpuinfo | uniq | cut -d ':' -f 2 | sed -e 's/^[ \t]*//')
+Memory: $(free -m | awk '/Mem/ {printf "%dMB\n", $2}')
+
+-------------------
+
+EOF
+}
+
+install_package(){
+	package="$1"
+
+    if [[ "$package" == http* ]]; then
+        echo "Downloading and installing $package..."
+        wget "$package" -O ./package.deb 2>&1
+        sudo dpkg -i ./package.deb 2>&1
+        rm -r ./package.deb
+    elif [[ "$package" == *.deb ]]; then
+        echo "Installing $package using dpkg..."
+        sudo dpkg -i "$package" 2>&1
+    else
+        echo "Installing $package using apt..."
+        sudo apt update > /dev/null 2>&1
+        sudo apt install "$package" -y > /dev/null 2>&1
+    fi
+}
+
+remove_package(){
+	echo "Removing package ${1}"
+	sudo apt update > /dev/null 2>&1
+	sudo apt remove $1 > /dev/null 2>&1
+}
+
+manage_install_if_not_installed(){
+  #if not installed
+  if [ "$(app_status "$1")" != installed ];then
+    #install it
+    manage_now install "$1" || exit 1
+  fi
+}
+
+manage_install(){
+	app="$1"
+	manage_now install ${app}
+}
+
+manage_uninstall(){
+	app="$1"
+	manage_now uninstall ${app}
+}
+
+manage_now(){
+	if [ "$1" == 'install' ] || [ "$1" == 'uninstall' ];then
+  	#for this operation, a program name must be specified.
+  	app="$2"
+  	if [ -z "$app" ];then
+    	error "For this operation, you must specify which app to operate on."
+  	elif [ ! -d "${DIRECTORY}/apps/$app" ];then
+    	error "${DIRECTORY}/apps/$app does not exist!"
+  	fi
+  	
+  	if [ "$1" == install ];then
+    	action=install
+  	else
+    	action=uninstall
+  	fi
+  	
+  	if [ "$action" == install ];then
+    	#check for internet connection
+    	errors="$(command wget --spider https://github.com 2>&1)"
+    	if [ $? != 0 ];then
+      	error "No internet connection! (github.com failed to respond)\nErrors:\n$errors"
+    	fi
+  	fi
+  	
+  	#ensure not a disabled app
+  	if [ "$action" == install ] && [ "$(app_status "${app}")" == 'disabled' ];then
+    	warning "Not installing the $app app. IT IS DISABLED."
+    	exit 0
+  	fi
+  	
+  	#determine path for log file to be created
+  	logfile="${DIRECTORY}/logs/${action}-incomplete-${app}.log"
+  	if [ -f "$logfile" ] || [ -f "$(echo "$logfile" | sed 's+-incomplete-+-success-+g')" ] || [ -f "$(echo "$logfile" | sed 's+-incomplete-+-fail-+g')" ];then
+    	#append a number to logfile's file-extension if the original filename already exists
+    	i=1
+    	while true;do
+      	#if variable $i is 2, then example newlogfile value: /path/to/install-Discord.log2
+      	newlogfile="$logfile$i"
+      	if [ ! -f "$newlogfile" ] && [ ! -f "$(echo "$newlogfile" | sed 's+/-incomplete-+-success-+g')" ] && [ ! -f "$(echo "$newlogfile" | sed 's+-incomplete-+-fail-+g')" ];then
+        	logfile="${newlogfile}"
+        	break
+      	fi
+      	i=$((i+1))
+    	done
+  	fi
+	
+  	#if this app has scripts, determine which script to run
+  	if [ "$(app_type "$app")" == standard ];then
+    	if [ "$action" == install ];then
+      	scriptname="$(script_name_cpu "$app")" #will be install, install-32, or install-64
+      	if [ -z "$scriptname" ];then
+        	error "It appears $app does not have an install-${arch} script suitable for your ${arch}-bit OS." | tee -a "$logfile"
+        	exit 1
+      	fi
+    	else #uninstall mode
+      	scriptname=uninstall
+    	fi
+    	appscript=("${DIRECTORY}/apps/${app}/${scriptname}")
+    	chmod u+x "$appscript" &>/dev/null
+  	#if this app just lists a package-name, set the appscript to install that package
+  	
+  	else #package-app: directly use apt to install what is mentioned in the packages file
+    	appscript=(bash -c -o pipefail "apt_lock_wait ; sudo -E apt $(echo "$action" | sed 's/uninstall/purge --autoremove/g') -yf $(read_packages_file "$app") 2>&1 | less_apt")
+  	fi
+  	
+  	#print to terminal
+  	status "${action^}ing \e[1m${app}\e[0m\e[96m..." | tee -a "$logfile"
+  	echo
+  	cd $HOME
+  	if [ "$3" == "update" ]; then
+    	script_input="update"
+  	else
+    	script_input=""
+  	fi
+  	nice "${appscript[@]}" "$script_input" &> >(tee -a "$logfile")
+  	exitcode="${PIPESTATUS[0]}"
+  	
+  	#if app succeeded
+  	if [ $exitcode == 0 ];then
+    	
+    	#Contribute to app install/uninstall count as long as parent processes is NOT updater (during an app-reinstall)
+    	#See: https://askubuntu.com/a/1012236
+    	if [ "$(cat /proc/$PPID/comm)" != "updater" ] && [ "$3" != "update" ];then
+      	shlink_link "$app" "$action" &
+    	fi
+    	
+    	status_green "\n${action^}ed ${app} successfully." | tee -a "$logfile"
+    	echo "${action}ed" > "${DIRECTORY}/data/status/${app}"
+    	
+    	format_logfile "$logfile" #remove escape sequences from logfile
+    	mv "$logfile" "$(echo "$logfile" | sed 's+-incomplete-+-success-+g')" #rename logfile to indicate it was successful
+    	
+  	else #if app failed to install/uninstall
+    	
+    	#remove dummy deb if app failed to install (to avoid dummy debs being left on a users install for broken apps)
+    	package_name="$(app_to_pkgname "$app")"
+    	if [[ ${action} == "install" ]] && [[ "$(app_type "$app")" == standard ]] && package_installed "$package_name"; then
+      	#Run purge_packages
+      	echo $'\n'"Running purge_packages..." >> "$logfile"
+      	purge_packages 2>&1 | tee -a "$logfile" >/dev/null
+    	fi
+    	unset package_name
+    	
+    	echo -e "\n\e[91mFailed to ${action} ${app}!\e[39m
+	\e[40m\e[93m\e[5m◢◣\e[25m\e[39m\e[49m\e[93mNeed help? Copy the \e[1mENTIRE\e[0m\e[49m\e[93m terminal output or take a screenshot.
+	Please ask on Github: \e[94m\e[4mhttps://github.com/Botspot/pi-apps/issues/new/choose\e[24m\e[93m
+	Or on Discord: \e[94m\e[4mhttps://discord.gg/RXSTvaUvuu\e[0m" | tee -a "$logfile"
+    	
+    	#set the app's status to 'corrupted' if the diagnostics determine the error is NOT internet or system or package, AND if the app is a script-type app
+    	if ! [[ "$(log_diagnose "$logfile" | head -n1)" =~ ^(system|internet|package)$ ]] && [ "$(app_type "$app")" == standard ];then
+      	echo "corrupted" > "${DIRECTORY}/data/status/${app}"
+    	fi
+    	
+    	format_logfile "$logfile" #remove escape sequences from logfile
+    	mv "$logfile" "$(echo "$logfile" | sed 's+-incomplete-+-fail-+g')" #rename logfile to indicate it was unsuccessful
+  	fi
+ 	
+  	#if the app is a package, set its status to whatever dpkg thinks it is
+  	if [ "$(app_type "$app")" == package ];then
+    	refresh_pkgapp_status "$app"
+  	fi
+  	
+  	#exit the manage script with the same exit-code of the app's script
+  	exit $exitcode
+	fi
+}

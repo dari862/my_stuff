@@ -1,0 +1,7 @@
+#!/bin/bash
+purge_packages || exit 1
+
+# remove deprecated key locations
+sudo rm -f /usr/share/keyrings/box64-debs-archive-keyring.gpg /etc/apt/trusted.gpg.d/box64-debs-archive-keyring.gpg
+
+rm_external_repo "box64"

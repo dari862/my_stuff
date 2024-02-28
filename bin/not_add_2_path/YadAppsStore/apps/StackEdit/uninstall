@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo rm -f /usr/local/share/applications/stackedit.desktop /usr/local/share/icons/hicolor/64x64/apps/stackedit.png /usr/local/share/icons/hicolor/24x24/apps/stackedit.png /usr/local/bin/stackedit
+purge_packages || exit 1

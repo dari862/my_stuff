@@ -1,0 +1,49 @@
+#!/bin/bash
+#===================================================================================
+# FILE: audio-session
+# DESCRIPTION: manage audio processes for start, restart and stop all audio instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+
+if command -v pnmixer &> /dev/null; then
+	audio_app="pnmixer"
+else
+	audio_app="volumeicon"
+fi
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all audio process
+#===================================================================================
+function stop() {
+	[ "$(pidof ${audio_app})" ] && killall ${audio_app} 
+	[ "$(pidof ${audio_app})" ] && killall -9 ${audio_app}
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: start audio app
+#===================================================================================
+function start() {
+  sleep 2
+  ${audio_app} &
+}
+
+
+# EXEC ACTION ACCORDING $1
+case "${1,,}" in
+	""|start|restart)
+		stop
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	*)	
+		echo "Usage: audio-session [start|stop|restart]"
+	;;
+esac

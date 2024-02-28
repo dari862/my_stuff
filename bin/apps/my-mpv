@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# wrapper for mpv to enable use as alternative for my-media-player
+
+MPV_PROFILE=bl-pseudo-gui
+
+if ! hash mpv; then
+    echo "$0: mpv binary is missing. Please issue 'sudo apt-get install mpv'." >&2
+    exit 1
+fi
+
+if [[ -z "$@" ]];then
+	icon_name="yad-mpv"
+	icon="/usr/share/DmDmDmdMdMdM/images/${icon_name}.png"
+		
+    MPVFILE="$(yad --form --window-icon="${icon}" --title="yad-mpv" --width=500 --height=100 --button=gtk-close:1 --separator=" " --text="yad-mpv\n\nSelect the files you would like to play or input a url to play.\n\n\n" --field="File(s)":MFL "" )"
+    case $? in
+        0)
+           	$0 "${MPVFILE}"
+           	;;
+        1)
+           	exit 0
+            ;;
+    esac
+else
+	if (( $# > 0 )); then
+    	for ((i=1 ; i <= $# ; i++))
+    	do
+        	[[ ${!i} = - ]] && break # using stdin
+        	if [[ ${!i} = -- ]] # all following arguments are files
+        	then
+            	((i++))
+        	elif [[ ${!i} = -* ]] # skip options
+        	then
+            	continue
+        	fi
+        	URI="${!i}"
+        	break
+    	done
+	
+    	# Use the MIME type of the first file passed to us to determine the
+    	# playback profile.
+    	if [[ -s "$URI" && "$(file --mime-type --brief "$URI")" =~ ^audio/ ]]; then
+        	MPV_PROFILE=audio-only
+    	else
+        	case "$URI" in
+        	http://*)
+            	MPV_PROFILE=bl-http
+            	;;
+        	https://*)
+            	MPV_PROFILE=bl-https
+            	;;
+        	ytdl://*)
+            	MPV_PROFILE=bl-ytdl
+            	;;
+        	esac
+    	fi
+	fi
+	
+	exec mpv --profile=$MPV_PROFILE "$@"
+fi

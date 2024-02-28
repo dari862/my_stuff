@@ -1,0 +1,45 @@
+#!/bin/bash
+lightdmconf="/etc/lightdm/lightdm.conf"
+is_autologin_enable=$(grep "^autologin-user=" "${lightdmconf}")
+
+if [ "$1" = "--check" ];then
+	if test "${is_autologin_enable}"; then
+		echo enabled 
+	else
+		echo disabled
+	fi
+	exit 0
+fi
+tweek_name=$(basename $0)
+
+###################################################################
+
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+clear
+say
+say "run ${tweek_name}."
+say '------------------------'
+say "This script will ${tweek_name}."
+say
+prompt '  Run the script now?' || return
+
+clear
+
+say 'running tweek...' 1
+###################################################################
+
+say "Log in as ${USER@Q} via LightDM."
+sudo sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}
+sudo sed -i "s/^#autologin-user-timeout=/autologin-user-timeout=/g" ${lightdmconf}
+sudo sed -i "s/^autologin-user=.*$/autologin-user=${USER}/g" ${lightdmconf}
+
+###################################################################
+clear
+
+say
+say "${tweek_name} has been runed successfully."
+say
+say 'Hit any key to exit...'
+read -srn1
+

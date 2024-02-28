@@ -1,0 +1,61 @@
+#!/bin/bash
+
+app_name=$(basename $0)
+extra_apps_=()
+apt_pref_file="sublimetext.pref"
+###################################################################
+
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say "Configuring repositories..."
+	wget -qO - "https://download.sublimetext.com/sublimehq-pub.gpg" | sudo gpg --dearmor --yes -o /usr/share/keyrings/sublimetext-keyring.gpg
+	echo "deb [arch=amd64 signed-by=/usr/share/keyrings/sublimetext-keyring.gpg] https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublimetext.list
+	echo 'Package: *' | sudo tee /etc/apt/preferences.d/${apt_pref_file}; echo 'Pin: origin download.sublimetext.com' | sudo tee -a /etc/apt/preferences.d/${apt_pref_file}; echo 'Pin-Priority: 100' | sudo tee -a /etc/apt/preferences.d/${apt_pref_file}
+
+	
+	say 'Updating sources...' 1
+	sudo apt-get update
+	
+	clear
+	
+	
+	
+	say 'Installing package...' 1
+
+	Package_installer_ ${app_name} || continue
+	
+	if [[ -n "${extra_apps_[*]}" ]];then
+		say 'Installing extra packages...' 1
+		sudo apt-get install -t download.sublimetext.com -y "${extra_apps_[@]}" || continue
+		clear
+	fi
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

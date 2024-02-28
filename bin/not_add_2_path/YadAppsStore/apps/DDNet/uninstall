@@ -1,0 +1,25 @@
+#!/bin/bash
+
+purge_packages || exit 1
+
+# remove deprecated repofilename
+sudo rm -f /etc/apt/sources.list.d/rust-ubuntu.list
+# remove repofile if unused
+ppa_name="ubuntu-mozilla-security/rust-next"
+ppa_dist="bionic"
+remove_repofile_if_unused /etc/apt/sources.list.d/${ppa_name%/*}-ubuntu-${ppa_name#*/}-${ppa_dist}.list
+
+sudo rm -rf /usr/local/share/ddnet \
+/usr/local/bin/DDNet \
+/usr/local/bin/DDNet-Server \
+/usr/local/lib/ddnet \
+/usr/local/share/applications/ddnet.desktop \
+/usr/local/share/metainfo/ddnet.appdata.xml \
+/usr/local/share/icons/hicolor/16x16/apps/ddnet.png \
+/usr/local/share/icons/hicolor/16x16/apps/ddnet-server.png \
+/usr/local/share/icons/hicolor/32x32/apps/ddnet.png \
+/usr/local/share/icons/hicolor/32x32/apps/ddnet-server.png \
+/usr/local/share/icons/hicolor/48x48/apps/ddnet.png \
+/usr/local/share/icons/hicolor/48x48/apps/ddnet-server.png \
+/usr/local/share/icons/hicolor/256x256/apps/ddnet.png \
+/usr/local/share/icons/hicolor/256x256/apps/ddnet-server.png

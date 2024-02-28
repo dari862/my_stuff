@@ -1,0 +1,35 @@
+
+    # Position the notification in the top right corner
+    origin = top-right
+
+    # Offset from the origin
+    offset = 20x20
+
+    # Defines width in pixels of frame around the notification window.
+    # Set to 0 to disable.
+    frame_width = 6
+
+    ### Text ###
+    
+    font = JetBrains Mono 10
+
+# IMPORTANT: colors have to be defined in quotation marks.
+# Otherwise the "#" and following would be interpreted as a comment.
+[urgency_low]
+timeout = 2
+background = "#0C0E14"
+foreground = "#CED1CF"
+frame_color = "#16181E"
+
+[urgency_normal]
+timeout = 5
+background = "#0C0E14"
+foreground = "#CED1CF"
+frame_color = "#16181E"
+
+[urgency_critical]
+timeout = 0
+background = "#0C0E14"
+foreground = "#F37F97"
+frame_color = "#16181E"
+

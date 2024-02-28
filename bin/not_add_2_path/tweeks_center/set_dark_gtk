@@ -1,0 +1,53 @@
+#!/bin/bash
+
+gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
+isgtkdark=$(grep ^gtk-application-prefer-dark-theme= "${gtksettings}" | cut -d"=" -f2)
+
+if [ "$1" = "--check" ];then
+	if test "${isgtkdark}"; then
+		echo enabled 
+	else
+		echo disabled
+	fi
+	exit 0
+fi
+tweek_name=$(basename $0)
+
+###################################################################
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+clear
+say
+say "run ${tweek_name}."
+say '------------------------'
+say "This script will ${tweek_name}."
+say
+prompt '  Run the script now?' || return
+
+clear
+
+say 'running tweek...' 1
+###################################################################
+
+  say "Setting global dark theme for gtk applications."
+  if grep ^gtk-application-prefer-dark-theme= "${gtksettings}" > /dev/null 2>&1; then
+    sed -i "s/^gtk-application-prefer-dark-theme=${isgtkdark}$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
+  else
+    if [ -f "${gtksettings}" ]; then
+      echo "" >> "${gtksettings}"
+    else
+      mkdir -p "$(dirname "${gtksettings}")" && touch "${gtksettings}"
+    fi
+    echo "[Settings]" >> "${gtksettings}"
+    echo "gtk-application-prefer-dark-theme=1" >> "${gtksettings}"
+  fi
+
+###################################################################
+clear
+
+say
+say "${tweek_name} has been runed successfully."
+say
+say 'Hit any key to exit...'
+read -srn1
+

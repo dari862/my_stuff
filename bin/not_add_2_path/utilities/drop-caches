@@ -1,0 +1,15 @@
+#! /bin/bash
+# clear system cache
+set -eu
+
+if [ -e /proc/sys/vm/drop_caches ]; then
+  sync
+  sudo bash -c "echo 3 > /proc/sys/vm/drop_caches"
+  echo "Done!"
+elif check_command purge && [[ "${OSTYPE}" == "darwin"* ]]; then
+  sync
+  sudo purge
+else
+  echo "Not possible..."
+  exit 3
+fi

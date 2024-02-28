@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ "$(find $HOME/.config/openbox/menu-*.xml -type f 2> /dev/null)" ]
+then
+	if command -v qt5ct >/dev/null
+	then
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|<!--Disable_QT_ROOT_Menu|<!--Enable_QT_ROOT_Menu-->|g'  {} \;
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|End_of_Disable_QT_ROOT_Menu-->|<!--End_of_Enable_QT_ROOT_Menu-->|g'  {} \;
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|<!--Disable_QT_Normal_Menu|<!--Enable_QT_Normal_Menu-->|g'  {} \;
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|End_of_Disable_QT_Normal_Menu-->|<!--End_of_Enable_QT_Normal_Menu-->|g'  {} \;
+	else
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|<!--Enable_QT_ROOT_Menu-->|<!--Disable_QT_ROOT_Menu|g'  {} \;
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|<!--End_of_Enable_QT_ROOT_Menu-->|End_of_Disable_QT_ROOT_Menu-->|g'  {} \;
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|<!--Enable_QT_Normal_Menu-->|<!--Disable_QT_Normal_Menu|g'  {} \;
+		find $HOME/.config/openbox/menu-*.xml -type f -exec sed -i -e 's|<!--End_of_Enable_QT_Normal_Menu-->|End_of_Disable_QT_Normal_Menu-->|g'  {} \;
+	fi	
+fi

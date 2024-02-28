@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#############################################################################
+#############################################################################
+# var
+#############################################################################
+#############################################################################
+
+OPT__="${1-}"
+
+if [ "$OPT__" != "auto"  ]
+then
+	detection_mode="manual"
+	. "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
+	
+	rofi_command_simple="rofi -no-config -no-lazy-grab -dmenu -i -theme "$rofi_style_dir"/runner.rasi"
+	rofi_command_simpler="rofi -no-config -no-lazy-grab -theme "$rofi_style_dir"/runner.rasi"
+	
+fi
+
+chosen=""
+_xrandr_command=""
+
+# Get all possible displays
+allposs=$(xrandr -q | grep "connected")
+
+# Get all connected screens.
+screens=$(echo "$allposs" | awk '/ connected/ {print $1}')
+
+#############################################################################
+#############################################################################
+# functions
+#############################################################################
+#############################################################################
+
+# A UI for detecting and selecting all displays. Probes xrandr for connected
+# displays and lets user select one to use. User may also select "manual
+# selection" which opens arandr.
+
+twoscreen() { # If multi-monitor is selected and there are two screens.
+	if [ "$detection_mode" != "auto" ]
+	then
+    	mirror=$(printf "no\\nyes" | ${rofi_command_simple} -p "Mirror displays?")
+    fi
+    # Mirror displays using native resolution of external display and a scaled
+    # version for the internal display
+    if [ "$mirror" = "yes" ]; then
+    	if [ "$detection_mode" != "auto" ]
+		then
+        	external=$(echo "$screens" | ${rofi_command_simple} -p "Optimize resolution for:")
+        fi
+        	internal=$(echo "$screens" | grep -v "$external")
+		
+        res_external=$(xrandr --query | sed -n "/^$external/,/\+/p" | \
+            tail -n 1 | awk '{print $1}')
+        res_internal=$(xrandr --query | sed -n "/^$internal/,/\+/p" | \
+            tail -n 1 | awk '{print $1}')
+
+        res_ext_x=$(echo "$res_external" | sed 's/x.*//')
+        res_ext_y=$(echo "$res_external" | sed 's/.*x//')
+        res_int_x=$(echo "$res_internal" | sed 's/x.*//')
+        res_int_y=$(echo "$res_internal" | sed 's/.*x//')
+
+        scale_x=$(echo "$res_ext_x / $res_int_x" | bc -l)
+        scale_y=$(echo "$res_ext_y / $res_int_y" | bc -l)
+
+        _xrandr_command=$( printf "xrandr --output "$external" --auto --scale 1.0x1.0 --output "$internal" --auto --same-as "$external" --scale "$scale_x"x"$scale_y"")
+        
+    else
+
+        primary=$(echo "$screens" | ${rofi_command_simple} -p "Select primary display:")
+        secondary=$(echo "$screens" | grep -v "$primary")
+        direction=$(printf "left\\nright" | ${rofi_command_simple} -p "What side of $primary should $secondary be on?")
+        _xrandr_command=$( printf "xrandr --output "$primary" --auto --scale 1.0x1.0 --output "$secondary" --"$direction"-of "$primary" --auto --scale 1.0x1.0")
+    fi
+}
+
+morescreen() { # If multi-monitor is selected and there are more than two screens.
+	if [ "$detection_mode" != "auto" ]
+	then
+		primary=$(echo "$screens" | ${rofi_command_simple} -p "Select primary display:")
+		secondary=$(echo "$screens" | grep -v "$primary" | ${rofi_command_simple} -p "Select secondary display:")
+		direction=$(printf "left\\nright" | ${rofi_command_simple} -p "What side of $primary should $secondary be on?")
+		tertiary=$(echo "$screens" | grep -v "$primary" | grep -v "$secondary" | ${rofi_command_simple} -p "Select third display:")
+	fi
+	_xrandr_command=$( printf "xrandr --output "$primary" --auto --output "$secondary" --"$direction"-of "$primary" --auto --output "$tertiary" --"$(printf "left\\nright" | grep -v "$direction")"-of "$primary" --auto")
+}
+
+multimon() { # Multi-monitor handler.
+	case "$(echo "$screens" | wc -l)" in
+		2) twoscreen ;;
+		*) morescreen ;;
+	esac ;
+}
+
+onescreen() { # If only one output available or chosen.
+	_onescreen_optimal_settings="$(echo "$allposs" | grep -v "\b$1" | awk '{print "--output", $1, "--off"}' | paste -sd ' ' -)"
+	_xrandr_command=$( printf "xrandr --output "$1" --auto --scale 1.0x1.0 $_onescreen_optimal_settings")
+	chosen="single"
+}
+
+postrun() { # Stuff to run to clean up.
+	if [ ! -d "~/.config/autorandr" ]
+	then
+		mkdir -p ~/.config/autorandr
+	fi
+	
+	if [ "$chosen" != "manual selection" ]
+	then
+		autorandr -s $chosen &> /dev/null
+	fi
+	
+	my_session_manager reload # reload current sessions work with openbox bspwm i3-msg qtile and awesomewm
+	{ killall dunst ; setsid -f dunst ;} >/dev/null 2>&1 # Restart dunst to ensure proper location on screen
+}
+
+#############################################################################
+#############################################################################
+# manual
+#############################################################################
+#############################################################################
+
+manual_pick_settings(){
+	# If there's only one screen
+	[ "$(echo "$screens" | wc -l)" -lt 2 ] &&
+		{ onescreen "$screens"; postrun; notify-send "💻 Only one screen detected." "Using it in its optimal settings...";  exit ;}
+	
+	# Get user choice including multi-monitor and manual selection:
+	chosen=$(printf "%s\\nmulti-monitor\\nmanual selection" "$screens" | ${rofi_command_simple} -p "Select display arangement:") &&
+	case "$chosen" in
+		"manual selection") arandr ; exit ;;
+		"multi-monitor") multimon ;;
+		*) onescreen "$chosen" ;;
+	esac
+}
+
+#############################################################################
+#############################################################################
+# auto
+#############################################################################
+#############################################################################
+
+automatic_detect_dispaly(){
+	detection_mode="auto"
+	if [ "$(echo "$screens" | wc -l)" -lt 2 ] 
+	then
+		chosen="single"
+		onescreen "$screens"
+	elif [ "$(echo "$screens" | wc -l)" -eq 2 ] 
+	then
+		chosen="multi-monitor"
+		mirror="yes"
+		external="HDMI-1"
+		twoscreen
+	else
+		chosen="multi-monitor"
+		primary="$(echo $screens | awk '{print $1}')"
+		secondary="$(echo $screens | awk '{print $2}')"
+		direction="$(echo $screens | awk '{print $3}')"
+		tertiary="$(echo $screens | awk '{print $4}')"
+		morescreen
+	fi
+}
+
+#############################################################################
+#############################################################################
+# main
+#############################################################################
+#############################################################################
+
+help(){
+	echo help
+}
+
+main(){
+	case $OPT__ in
+		auto) automatic_detect_dispaly ;;
+		h) help ;;
+		*) manual_pick_settings
+	esac
+	
+	${_xrandr_command}
+	postrun
+}
+
+main

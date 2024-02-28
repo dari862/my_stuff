@@ -1,0 +1,9 @@
+bottom=0
+top=20
+right=20
+left=20
+font=Terminus
+size=9
+theme=Arc-Bitmap
+titleLayout=CLM
+menu=menu-simple.xml

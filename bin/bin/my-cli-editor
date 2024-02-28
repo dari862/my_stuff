@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+if [ "$1" = "sudo" ];then
+	shift 1
+	popup_terminal -T "${1##*/} - CLI Editor" -e sudo nano "$@"
+else
+	popup_terminal -T "${1##*/} - CLI Editor" -e nano "$@"
+fi

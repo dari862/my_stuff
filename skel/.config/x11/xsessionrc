@@ -1,0 +1,31 @@
+#! /bin/sh
+# Xsession - run as user
+case $SHELL in
+  */bash)
+    [ -z "$BASH" ] && exec $SHELL $0 "$@"
+	. ${HOME}/.config/myshell/bash/profile
+    ;;
+*/zsh)
+    [ -z "$ZSH_NAME" ] && exec $SHELL $0 "$@"
+    . ${HOME}/.config/myshell/zsh/zprofile
+    ;;
+  */csh|*/tcsh)
+    # [t]cshrc is always sourced automatically.
+    # Note that sourcing csh.login after .cshrc is non-standard.
+    xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
+    $SHELL -c "if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) so                                                                                                                                                                                 urce ~/.login; /bin/sh -c 'export -p' >! $xsess_tmp"
+    . $xsess_tmp
+    rm -f $xsess_tmp
+    ;;
+  */fish)
+    . ${HOME}/.config/myshell/bash/profile
+    xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
+    $SHELL --login -c "/bin/sh -c 'export -p' > $xsess_tmp"
+    . $xsess_tmp
+    rm -f $xsess_tmp
+    ;;
+  *) # Plain sh, ksh, and anything we do not know.
+    . ${HOME}/.config/myshell/bash/profile
+    ;;
+esac
+

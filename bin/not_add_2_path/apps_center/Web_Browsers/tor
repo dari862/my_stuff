@@ -1,0 +1,77 @@
+#!/bin/bash
+
+app_name=$(basename $0)
+extra_apps_=(deb.torproject.org-keyring)
+
+###################################################################
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	[ -f "/usr/lib/os-release" ] && os_release_location="/usr/lib/os-release"
+	[ -f "/etc/os-release" ] && os_release_location="/etc/os-release"
+	
+	DISTRO=$(grep "$os_release_location" -e "^ID=" | grep -Po '^.{3}\K.*')
+	DISTRO=${DISTRO^}
+	if [ "$DISTRO" == "Ubuntu" ]
+	then
+		Codename=$(grep "$os_release_location" -e "^UBUNTU_CODENAME=" | grep -Po '^.{16}\K.*' || :)
+	else
+		Codename=$(grep "$os_release_location" -e "^VERSION_CODENAME=" | grep -Po '^.{17}\K.*' || :)
+	fi	
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	say 'apt-transport-https package...' 1
+	Package_installer_ apt-transport-https
+	
+	say 'adding tor repo ...' 1
+	
+	echo "deb     [signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $Codename main" | sudo tee /etc/apt/sources.list.d/tor.list
+	echo "deb-src [signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $Codename main" | sudo tee -a /etc/apt/sources.list.d/tor.list
+	
+	wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/tor-archive-keyring.gpg >/dev/null
+	
+	say 'Updating new sources...' 1
+	Package_update_
+
+	clear
+
+	say 'Installing package...' 1
+
+	Package_installer_ ${app_name} || continue
+	
+	if [[ -n "${extra_apps_[*]}" ]];then
+		say 'Installing extra packages...' 1
+		Package_installer_ "${extra_apps_[@]}" || continue
+		clear
+	fi
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

@@ -1,0 +1,79 @@
+#!/bin/bash
+
+APP_STORE_DIRECTORY="apps"
+CATEGORIES_FILE="${DIRECTORY}/etc/categories"
+THEMES_DIRECTORY="/usr/share/themes"
+THEMES_FILE="${DIRECTORY}/etc/theme"
+exit_from_settings(){
+	exit 1
+}
+show_settings() {
+    pkill -f "yad.*"
+    themes=("System Default")
+    while IFS= read -r -d '' theme; do
+        # Extract just the name of the theme directory from its full path
+        theme_name=$(basename "$theme")
+        themes+=("$theme_name")
+    done < <(find "$THEMES_DIRECTORY" -maxdepth 1 -mindepth 1 -type d -print0 | sort -z)
+    theme_string=""
+    for theme in "${themes[@]}"; do
+        if [ -n "$theme_string" ]; then
+            theme_string+="!"
+        fi
+        theme_string+="$theme"
+    done
+
+    texteditors=("${yadeditor}!System Default!Visual Studio Code!Geany!Gedit!Mousepad!VSCodium")
+
+    settings=$(yad --form \
+        --title="Settings" \
+        --width="400" --height="150" --center --on-top --borders=20 \
+        --field="Theme":CB "$theme_string" \
+        --field="Text Editor":CB "$texteditors" \
+        --frame="Create/Import App":LBL \
+        --button="<b>Create App</b>!gtk-new":"bash -c '${DIRECTORY}/tools/createapp create'" \
+        --button="<b>Import App</b>!gtk-open":"bash -c '${DIRECTORY}/tools/createapp import'" \
+        --button="<b>OK</b>!gtk-ok":0 \
+        --button="<b>Cancel</b>!gtk-cancel":1)
+	if [ $? -eq 1 ]; then
+		exit_from_settings
+	fi
+    # Extracting the selected text editor value from settings
+    selected_text_editor=$(echo "$settings" | awk -F '|' '{print $2}')
+
+    # Echoing to the 'etc/editor' file based on the selected text editor
+    case "$selected_text_editor" in
+    "System Default"|"xdg-open")sed -i "s/yadeditor=.*/yadeditor=xdg-open/g" "${yadstore_conf_file}" ;;
+    "Visual Studio Code")sed -i "s/yadeditor=.*/yadeditor=code/g" "${yadstore_conf_file}" ;;
+    "Geany")sed -i "s/yadeditor=.*/yadeditor=geany/g" "${yadstore_conf_file}" ;;
+    "Gedit")sed -i "s/yadeditor=.*/yadeditor=gedit/g" "${yadstore_conf_file}" ;;
+    "Mousepad")sed -i "s/yadeditor=.*/yadeditor=mousepad/g" "${yadstore_conf_file}" ;;
+    "VSCodium")sed -i "s/yadeditor=.*/yadeditor=codium/g" "${yadstore_conf_file}" ;;
+    *)sed -i "s/yadeditor=.*/yadeditor=xdg-open/g" "${yadstore_conf_file}" ;;
+    esac
+
+    yad_ret=$?
+	if [[ $yad_ret -eq 0 ]]; then
+        selected_theme="${settings%%|*}"
+		
+        if [ -z "$selected_theme" ]; then
+            return
+        fi
+
+        if [[ "$selected_theme" = "System Default" ]]; then
+            selected_theme_path=""
+            echo "$selected_theme_path" >"$THEMES_FILE"
+        else
+            selected_theme_path=$(find "$THEMES_DIRECTORY" -maxdepth 1 -mindepth 1 -type d -name "$selected_theme" -exec basename {} \; -quit)
+            echo "$selected_theme_path" >"$THEMES_FILE"
+        fi
+            
+        ${DIRECTORY}/gui
+    elif [[ $yad_ret -eq 252 ]]; then
+        ${DIRECTORY}/gui
+    elif [[ $yad_ret -eq 1 ]]; then
+        exit_from_settings
+    fi
+}
+
+show_settings >/dev/null

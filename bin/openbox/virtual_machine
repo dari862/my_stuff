@@ -1,0 +1,36 @@
+#!/bin/bash
+
+ep_url="https://download.virtualbox.org/virtualbox/7.0.8/Oracle_VM_VirtualBox_Extension_Pack-7.0.8.vbox-extpack"
+
+failed_(){
+	echo ' --- Installtion Failed --- ' 
+	read -p '  Press any key to exit'
+	exit
+}  
+
+if command -v virtualbox &> /dev/null; then
+	virtualbox
+fi
+    
+if command -v virt-manager &> /dev/null; then
+	virt-manager
+fi
+
+
+echo 'Do you want to install VirtualBox or Virt-manager?'
+echo '[1 or b] for VirtualBox'
+echo '[2 or m] for Virt-manager'
+echo '[3 or v] for VMware player'
+read -p " " -n 1 -r
+if [[ $REPLY =~ ^[1bB]$ ]]; then
+	my-installer --install virtualbox
+elif [[ $REPLY =~ ^[2mM]$ ]]; then
+	my-installer --install virt-manager
+elif [[ $REPLY =~ ^[3vV]$ ]]; then
+	my-installer --installvmplayer
+else
+	echo "$0: no such install option $REPLY"
+    exit 1
+fi
+clear 
+echo ' --- Installtion Complated --- ' && read -p '  Press any key to exit'

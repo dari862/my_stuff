@@ -1,0 +1,82 @@
+# Usage: say text [delayAfterText|pause]
+say() {
+    local width=$(tput cols 2>/dev/tty)
+    fold -s -w $((width - 3)) <<< "${1-}" | sed 's/^/  /' # wraps text nicely and adds two leading spaces
+    if [[ ${2-} = 'pause' ]]
+    then
+        echo $'\nPress any key to continue.'
+        read -srn1
+    else
+        sleep "${2:-0}"
+    fi
+}
+
+# Usage: prompt text [ Y | N | Q | <string> ]
+prompt() {
+    local answer prompt default
+    if [[ ${2-} && ${2^} = Q ]]; then
+        while true; do
+            read -srn1 -p "$1" answer
+            echo
+            [[ ${answer^} = Q ]] && return 0
+            [[ ! $answer ]] && return 1
+        done
+    fi
+
+    if [[ ! ${2-} || ${2^} = Y ]]; then
+        prompt='Y/n'
+        default='Y'
+    elif [[ ${2^} = N ]]; then
+        prompt='y/N'
+        default='N'
+    else
+        prompt=
+        default=
+    fi
+
+    while true; do
+        read -r -p "$1 ${prompt:+[$prompt] }" answer
+
+        if [[ ! $prompt && ! $default ]]; then
+            # allow for quotes round string (may be unbalanced)
+            if [[ $answer =~ [\'\"]?${2-}[\'\"]? ]]; then
+                echo
+                return 0
+            elif [[ ${answer^} = Q ]]; then
+                echo
+                return 1
+            else
+                continue
+            fi
+        fi
+
+        [[ ! $answer ]] &&
+            answer=$default
+
+        if [[ ${answer^} = Y || ${answer^^} = YES ]]; then
+            echo
+            return 0
+        elif [[ ${answer^} = N || ${answer^^} = NO ]]; then
+            echo
+            return 1
+        fi
+    done
+}
+
+if command -v nala >/dev/null 2>&1; then
+	Package_installer_(){
+		sudo nala install -y "$@"
+	}
+	Package_update_(){
+		sudo nala update
+	}
+else
+	Package_installer_(){
+		sudo apt-get install -y "$@"
+	}
+	Package_update_(){
+		sudo apt-get update
+	}
+fi
+
+

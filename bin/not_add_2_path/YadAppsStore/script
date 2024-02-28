@@ -1,0 +1,62 @@
+#!/bin/bash
+run_on_this="fun"
+out_dir="$HOME/Desktop/${run_on_this}"
+vars=(
+__os_original_id
+__cpu_op_mode_32
+__os_desc
+__os_original_desc
+__os_release
+__os_id
+__os_codename
+DIRECTORY
+arch
+)
+fun=(
+add_external_repo
+adoptium_installer
+anything_installed_from_repo
+apt_lock_wait
+apt_update
+chmod
+debian_ppa_installer
+enable_module
+error
+flatpak_install
+flatpak_uninstall
+get_codename
+get_model
+git_clone
+install_packages
+less_apt
+list_intersect
+nproc
+package_available
+package_installed
+package_is_new_enough
+pipx_install
+pipx_uninstall
+purge_packages
+remove_repofile_if_unused
+rm_external_repo
+runonce
+status
+status_green
+ubuntu_ppa_installer
+unzip
+userinput_func
+warning
+wget
+manage
+)
+declare -n array_content="${run_on_this}" 
+##############################
+
+mkdir -p "${out_dir}"
+cd /home/dari/Desktop/my_stuff_installer/workon/YadAppsStore/apps/
+for ele in "${!array_content[@]}";do
+	ele="${array_content[${ele}]}"
+	if grep -r "${ele}" &>/dev/null;then
+		grep -r "${ele}" >> "${out_dir}/${ele}"
+	fi                                                                         
+done

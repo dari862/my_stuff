@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+#    bl-alternatives: a script to manage mDmDmDmDmDmDmD alternatives.
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+my_alternatives_path=/usr/share/DmDmDmdMdMdM/bin/apps
+ACTION="${1-}"
+
+MYALTS=(my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office)
+
+FILEMANAGERS=(thunar caja dolphin nautilus pcmanfm spacefm xfe)
+IMAGEVIEWERS=(viewnior sxiv eog eom geeqie gpicview gthumb mirage)
+MEDIAPLAYERS=(my-mpv vlc banshee dragonplayer celluloid gxine kaffeine parole smplayer totem)
+TEXTEDITORS=(featherpad mousepad gedit jedit kate medit scite emacs)
+WWWBROWSERS=(firefox-esr firefox)
+TERMINALEMULATORS=(terminator kitty)
+OFFICES=(libreoffice-writer)
+OFFICES+=(${TEXTEDITORS[@]})
+
+usage()
+{
+    cat <<EOF
+Usage: my-alternatives <action>
+  Perform the given action to manage mDmDmDmDmDmDmD alternatives.  Superuser
+  permission required to make changes.
+Action:
+  help      show help (also --help)
+  install   install mDmDmDmDmDmDmD alternatives with default packages
+  list      list all assigned mDmDmDmDmDmDmD alternatives
+  remove    remove all assigned mDmDmDmDmDmDmD alternatives
+  set	    update mDmDmDmDmDmDmD alternatives with typical installed packages
+EOF
+}
+
+case $ACTION in
+install)
+	[ $(id -u) != 0 ] && echo "Must be superuser" >&2 && exit 0
+    for ALT in "${MYALTS[@]}" ; do
+    	ALTSPACKAGES_array_name="$(echo $ALT | sed -e 's/^my-//' -e "s/-//" -e 's/$/s/' | tr '[:lower:]' '[:upper:]')"
+    	declare -n ALTSPACKAGES="$ALTSPACKAGES_array_name"
+    	for package in "${ALTSPACKAGES[@]}" ; do
+    		package_path="$(which "$package")"
+    		if [ -n "${package_path}" ];then
+    			sudo ln -sf ${package_path} "${my_alternatives_path}"/$ALT
+    			break
+    		fi
+    	done
+    	unset ALTSPACKAGES
+    done
+    ;;
+list)
+    for ALT in "${MYALTS[@]}" ; do
+    	LINK=$(readlink "${my_alternatives_path}"/$ALT)
+    	if [ "$LINK" ] ; then
+        	printf "%-22.22s uses %s\n" $ALT $LINK
+        	ALTSPACKAGES_array_name="$(echo $ALT | sed -e 's/^my-//' -e "s/-//" -e 's/$/s/' | tr '[:lower:]' '[:upper:]')"
+    		declare -n ALTSPACKAGES="$ALTSPACKAGES_array_name"
+        	for package in "${ALTSPACKAGES[@]}" ; do
+    			which ${package} | xargs printf "    %s\n"
+    		done
+    		unset ALTSPACKAGES
+    	else
+        	printf "%-22.22s unused\n" $ALT
+    	fi
+    done
+    ;;
+remove)
+    [ $(id -u) != 0 ] && echo "Must be superuser" >&2 && exit 0
+    for ALT in "${MYALTS[@]}" ; do
+        sudo rm -f "${my_alternatives_path}"/$ALT
+    done
+    ;;
+set)
+	[ $(id -u) != 0 ] && echo "Must be superuser" >&2 && exit 0
+	echo "which mDmDmDmDmDmDmD alternative do you want to change"
+	echo "================================="
+	count=1
+	for ALT in "${MYALTS[@]}" ; do
+		echo "$count - $ALT"
+		((++count))
+	done
+	
+	read -p "Enter Package Name: " alt_package
+	alt_package="$(which "$alt_package")"
+	
+	if [ ! -f "$alt_package" ];then
+   	   	echo "failed to locate $alt_package package"
+   		exit
+   	fi
+   	
+   	sudo ls -sf $alt_package "${my_alternatives_path}"/$ALT
+   	
+   	if [ -f "${my_alternatives_path}/$ALT" ];then
+   		echo "$ALT alternative created successfully"
+   	else
+   	   	echo "failed to create $ALT alternative"
+   	fi
+    ;;
+""|*help|-h)
+    usage
+    ;;
+*)
+    echo "Unknown action ($ACTION)" >&2
+    ;;
+esac
+
+exit 0

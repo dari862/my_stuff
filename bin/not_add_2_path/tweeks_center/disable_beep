@@ -1,0 +1,57 @@
+#!/bin/bash
+
+pcspkr_blacklist="/etc/modprobe.d/nobeep.conf"
+
+if [ "$1" = "--check" ];then
+	if [[ -z "$(ls $pcspkr_blacklist 2>/dev/null)" ]];then
+		echo enabled 
+	else
+		echo disabled
+	fi
+	exit 0
+fi
+tweek_name=$(basename $0)
+
+###################################################################
+
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+clear
+say
+say "run ${tweek_name}."
+say '------------------------'
+say "This script will ${tweek_name}."
+say
+prompt '  Run the script now?' || return
+
+clear
+
+say 'running tweek...' 1
+###################################################################
+
+say "Disable PC speaker beep."
+  say "Blacklisting pcspkr and snd_pcsp kernel modules."
+  if ! [ "$(ls -A /etc/modprobe.d/)" ]; then
+    sudo sh -c "echo 'blacklist pcspkr' >> ${pcspkr_blacklist}"
+    sudo sh -c "echo 'blacklist snd_pcsp' >> ${pcspkr_blacklist}"
+  else
+    if ! find /etc/modprobe.d/ -type f \
+         -exec grep "blacklist pcspkr" {} + > /dev/null 2>&1; then
+      sudo sh -c "echo 'blacklist pcspkr' >> ${pcspkr_blacklist}"
+    fi
+    if ! find /etc/modprobe.d/ -type f \
+         -exec grep "blacklist snd_pcsp" {} + > /dev/null 2>&1; then
+      sudo sh -c "echo 'blacklist snd_pcsp' >> ${pcspkr_blacklist}"
+    fi
+  fi
+  say "Blacklisted in ${pcspkr_blacklist@Q}."
+
+###################################################################
+clear
+
+say
+say "${tweek_name} has been runed successfully."
+say
+say 'Hit any key to exit...'
+read -srn1
+

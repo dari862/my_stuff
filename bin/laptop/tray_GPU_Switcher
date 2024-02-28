@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+NVIDIA_VENDOR="NVIDIA Corporation"
+AMD_VENDOR="AMD"
+SOFTWARE_VENDOR="Mesa/X.org"
+VMWARE_VENDOR="VMware, Inc."
+
+case $(glxinfo_vendor) in
+	"${NVIDIA_VENDOR}")
+		gpu_vendor_icon="NVIDIA_ICON"
+	;;
+	
+	"${AMD_VENDOR}")
+		gpu_vendor_icon="AMD_ICON"
+	;;
+	
+	"${SOFTWARE_VENDOR}")
+		gpu_vendor_icon="XORG_ICON"
+	;;
+	
+	"${VMWARE_VENDOR}")
+		gpu_vendor_icon="VMWARE_ICON"
+	;;
+	
+	*)
+		gpu_vendor_icon="UNKNOWN_ICON"
+	;;
+esac
+
+yad --notification \
+	--image="/usr/share/DmDmDmdMdMdM/images/GPU_ICONS/${gpu_vendor_icon}.svg" \
+	--icon-size=22 \
+	--command="gpu-switcher-session gui" \
+	--text="GPU Switcher"

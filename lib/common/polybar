@@ -1,0 +1,4 @@
+polybar_style_name_path="$HOME/.config/WM_common_config/Polybar_style"
+polybar_STYLE="$(cat ${polybar_style_name_path} 2>/dev/null || echo old)"
+polybar_dir="$HOME/.config/polybar"
+polybar_style_dir="$polybar_dir/$polybar_STYLE"

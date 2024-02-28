@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+get_script_path="/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/get_info"
+opt="${1-}"
+
+case $opt in
+		--public) ${get_script_path}/public_ip ;;
+esac

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+OpenBox_user_config="$HOME/.config/openbox"
+rc_file="$OpenBox_user_config/rc.xml"
+kbinds_file="$OpenBox_user_config/kbinds.txt"
+if [ "$1" == "" ] || [ ! -f "$OpenBox_user_config/kbinds.txt" ]
+then
+    echo "$(date) $rc_file keybinds " > $kbinds_file
+    echo "NEW_LINE_Plz---------------------------------------------------------------------------" >> $kbinds_file
+    sed -n '/<!-- ################################ Keybindings/,/<!-- ################################ Mouse Settings/p' $rc_file | \
+    grep -e '<keybind key=' -e '<!-- Title: ' -e '<!-- Description:' -e '<command>' | \
+    sed -e 's/^ *//g' -e '/^<!-- Title: / s/$/NEW_LINE_Plz#########################################NEW_LINE_Plz/' | \
+    sed -e 's/<!-- Title: /NEW_LINEs_Plz/g' -e 's/<!-- Description:\[execute\]//g' -e 's/">//g' -e 's/ -->//g' -e 's/-->//g' -e 's/<\/command>//g' -e 's/<!-- Description:\[run\] /Tab_here_plz/g' >> $kbinds_file
+
+    grep $kbinds_file -e '<command>' -B 2 | grep -e '<keybind key="' | while read -r line ; do
+        sed -i "s/$line/x$line/g" $kbinds_file
+    done
+
+    sed -i -e ':a;N;$!ba;s/\n//g' -e 's/x<keybind key="/\nx\t/g' -e 's/<keybind key="/\no\t/g' -e 's/<command>/\t/g' -e 's/Tab_here_plz/\t/g' -e 's/NEW_LINEs_Plz/\n\n/g' -e 's/NEW_LINE_Plz/\n/g' $kbinds_file
+
+    grep '<!ENTITY' $rc_file | while read -r a b c line ; do
+        sed -i "s|$b|$c|g" $kbinds_file
+    done
+
+    sed -i -e 's/&"//g' -e 's/">;//g' -e 's/W-/Win+/g' -e 's/C-/Ctl+/g' -e 's/A-/Alt+/g' -e 's/S-/Shift+/g' $kbinds_file
+fi
+
+if [ "$1" == "--gui" ]
+then
+        yad --button=Exit:1 --text-info --title='Openbox Keybinds' --filename=$kbinds_file --width=750 --height=600
+fi

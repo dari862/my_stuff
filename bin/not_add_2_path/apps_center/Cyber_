@@ -1,0 +1,71 @@
+#!/bin/bash
+
+platfrom_name=""
+REPLY="${1-}"
+
+function install_kali(){
+	# include_kali
+	echo -e "deb [arch=amd64 signed-by=/usr/share/keyrings/kali-archive-keyring.asc] https://http.kali.org/kali kali-rolling main non-free contrib" | sudo tee /etc/apt/sources.list.d/kali.list
+	echo 'Package: *' | sudo tee /etc/apt/preferences.d/${platfrom_name}.pref; echo 'Pin: release a=kali-rolling' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref; echo 'Pin-Priority: 50' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref
+	curl -s "https://archive.kali.org/archive-key.asc" | sudo tee /usr/share/keyrings/kali-archive-keyring.asc >/dev/null
+	sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade -y
+	sudo apt-get install -t kali-rolling -y kali-archive-keyring
+	
+	# install_kali
+	sudo apt-get -f install -y
+	sudo apt-get install -t kali-rolling -y -y linux-headers-4.14.0-kali3-amd64
+    clear
+}
+
+function install_parrot() {
+	# include_parrot
+    echo -e "deb http://mirrordirector.archive.parrotsec.org/parrot parrot main contrib non-free" | sudo tee /etc/apt/sources.list.d/parrot.list
+    echo 'Package: *' | sudo tee /etc/apt/preferences.d/${platfrom_name}.pref; echo 'Pin: release a=parrot' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref; echo 'Pin-Priority: 50' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref
+    curl -fsSL "https://deb.parrotsec.org/parrot/misc/parrotsec.gpg" | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/parrotsec.gpg
+    sudo apt-get update
+    sudo apt-get -y --force-yes -o Dpkg::Options::="--force-overwrite" install apt-parrot parrot-archive-keyring --no-install-recommends
+    parrot-mirror-selector default stable #change it if you want another mirror, launch it without parameters to get the full list of available mirrors
+    sudo apt-get update
+    sudo apt-get -y --force-yes -o Dpkg::Options::="--force-overwrite" install parrot-core
+    sudo apt-get -y --force-yes -o Dpkg::Options::="--force-overwrite" dist-upgrade
+    sudo apt-get -y --force-yes -o Dpkg::Options::="--force-overwrite" autoremove
+}
+
+function create_install_script() {
+	sudo ln -s /usr/share/DmDmDmdMdMdM/bin/not_add_2_path/${platfrom_name}_install /usr/share/DmDmDmdMdMdM/bin/bin
+    sudo mkdir -p /usr/share/DmDmDmdMdMdM/lib/auto_completion/
+    sudo ln -s /usr/share/DmDmDmdMdMdM/lib/auto_completion_do_not_add/${platfrom_name}_install /usr/share/DmDmDmdMdMdM/lib/auto_completion/
+}
+##############################################################################################
+
+echo 'Do you want to install Kali or Parrot?'
+echo '[1 or k] for Kali'
+echo '[2 or p] for Parrot'
+read -p " " -n 1 -r
+echo " "
+
+case "$REPLY" in
+	1|k|K)
+		platfrom_name="kali"
+		install_kali
+		create_install_script
+		kali_install #script at /usr/share/DmDmDmdMdMdM/bin/bin to install kali packages
+	;;
+	2|p|P)
+		platfrom_name="parrot"
+		install_parrot
+		create_install_script
+		parrot_install #script at /usr/share/DmDmDmdMdMdM/bin/bin to install parrot packages
+	;;
+	*)
+		echo "$0: no such install option $REPLY"
+   		exit 1
+	;;
+esac
+
+#clear 
+echo " "
+echo "To install ${platfrom_name} packages please using ${platfrom_name}_install <package name> or ${platfrom_name}_install to show basice menu"
+echo " "
+echo ' --- Installtion Complated --- ' 
+read -p "  Press any key to exit" -n 1 -r

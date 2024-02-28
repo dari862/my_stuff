@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+opt="${1-}"
+case $opt in
+		--system) hub bashtop
+		;;
+		--hardware) popup_terminal -e bash -c '{ echo -e \"\e[1mHARDWARE INFO: hwinfo\e[0m\"; hwinfo --short; echo -e \"\n\n\e[1mHARDWARE INFO: inxi\e[0m\"; inxi -F; echo; read; }'
+		;;
+		--memory) popup_terminal -e sudo bash -c 'tput civis; read -p "Text to resalt: " t; while true; do clear; out=$(/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/ps_mem.py -S); outl=$(echo "$out" | wc -l); sl=$(tput lines); if [ "$sl" -lt "$outl" ]; then echo "$out" | sed -e "3,$((outl-sl+4))d"; else echo "$out"; fi; read -t 2; done | egrep --color=auto -i "^|$t"' 
+		;;
+		--process) popup_terminal -e htop 
+		;;
+		--disk) popup_terminal -e bash -c '{ echo -e \"\e[1mHARDWARE INFO: lsblk\e[0m\"; lsblk -o name,size,type,mountpoint; echo -e \"\n\n\e[1mHARDWARE INFO: dfc\e[0m\"; dfc -f; read; }' 
+		;;
+		--cpu) popup_terminal -e s-tui
+		;;
+		--wifi) popup_terminal -e bash -c 'if [ "$(iw dev)" ]; then nmcli device wifi rescan; while true; do nmcli dev wifi list; read; clear; done; else echo "No WIFI interfaces found!"; read; fi'
+esac

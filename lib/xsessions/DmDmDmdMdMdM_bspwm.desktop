@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=mDmDmDmDmDmDmD bspwm
+Comment=Log in to a mDmDmDmDmDmDmD bspwm session
+Exec=/usr/share/DmDmDmdMdMdM/bin/xsession/bspwm
+TryExec=/usr/share/DmDmDmdMdMdM/bin/xsession/bspwm
+Icon=bspwm
+Type=Application

@@ -1,0 +1,33 @@
+#!/bin/bash
+#    my-installer: a script to install Debian packages in a popup terminal window.
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+
+HELP='my-tweeks: a script to run Debian Tweeks in a popup terminal window.
+
+Usage:  my-tweeks
+
+    --help                   show this message and exit
+    --list      <string>    list Debian Tweeks
+  
+'
+
+_SCRIPTS_DIR='/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/tweeks_center'
+
+opt_="${1-}"
+opt2_="${2-}"
+
+if [[ "${opt_}" = --help ]]; then 
+	echo "$0: no such option $*" >&2
+    echo
+    echo "#################################################"
+    echo
+    echo "$HELP"
+elif [[ "${opt_}" = --check ]]; then
+	${_SCRIPTS_DIR}/${opt2_} --check
+elif [[ "${opt_}" = --list ]]; then
+	ls ${_SCRIPTS_DIR}
+elif [[ "${opt_}" ]]; then
+	popup_terminal -T "Runing ${opt_}." -e "${_SCRIPTS_DIR}/${opt_}"
+fi
+exit 0

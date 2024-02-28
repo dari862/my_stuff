@@ -1,0 +1,4 @@
+A sync manager that syncs folders to different devices no matter where you are!
+
+To run: Menu -> Internet -> Syncthing
+To run in a terminal: syncthing
