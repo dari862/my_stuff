@@ -97,13 +97,6 @@ update_script() {
     exit 0
 }
 
-# checks if dependencies are present
-dep_ch() {
-    for dep; do
-        command -v "$dep" >/dev/null || die "Program \"$dep\" not found. Please install it."
-    done
-}
-
 # SCRAPING
 
 # extract the video links from reponse of embed urls, extract mp4 links form m3u8 lists
@@ -375,19 +368,19 @@ done
 [ "$use_external_menu" = "0" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-m"}"
 [ "$use_external_menu" = "1" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-multi-select"}"
 printf "\33[2K\r\033[1;34mChecking dependencies...\033\n[0m"
-dep_ch "curl" "sed" "grep" || true
-[ "$skip_intro" = 1 ] && (dep_ch "ani-skip" || true)
-if [ -z "$ANI_CLI_NON_INTERACTIVE" ]; then dep_ch fzf || true; fi
+check_4_dependencies_if_installed "curl" "sed" "grep"
+[ "$skip_intro" = 1 ] && (check_4_dependencies_if_installed "ani-skip")
+if [ -z "$ANI_CLI_NON_INTERACTIVE" ]; then check_4_dependencies_if_installed fzf ; fi
 case "$player_function" in
     debug) ;;
-    download) dep_ch "ffmpeg" "aria2c" ;;
+    download) check_4_dependencies_if_installed "ffmpeg" "aria2c" ;;
     flatpak*)
-        dep_ch "flatpak"
+        check_4_dependencies_if_installed "flatpak"
         flatpak info io.mpv.Mpv >/dev/null 2>&1 || die "Program \"mpv (flatpak)\" not found. Please install it."
         ;;
     android*) printf "\33[2K\rChecking of players on Android is disabled\n" ;;
     *iSH*) printf "\33[2K\rChecking of players on iOS is disabled\n" ;;
-    *) dep_ch "$player_function" ;;
+    *) check_4_dependencies_if_installed "$player_function" ;;
 esac
 
 # searching

@@ -5,6 +5,8 @@ set -euo pipefail
 
 ls_bin="/usr/bin/ls"
 opt___="${1-}"
+shift 1
+reset_of_opt___="${*}"
 _hub_script_dir="/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/hub_script"
 script_name_=""
 full_script_path=""
@@ -85,7 +87,7 @@ config_editer_hub()
 		
   		# Piping the above array (cleaned) into rofi.
   		# We use "printf '%s\n'" to format the array one item to a line.
-  		choice=$(printf '%s\n' "${!_clean_list[@]}" | sort | ${rofi_command} -p 'Edit config:' "$@")
+  		choice=$(printf '%s\n' "${!_clean_list[@]}" | sort | ${rofi_command} -p 'Edit config:')
 		
   		# What to do when/if we choose a file to edit.
   		if [ "$choice" ]; then
@@ -98,7 +100,11 @@ config_editer_hub()
   		fi
 	}
 	
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && run_editor_hub "$@"
+	if [[ -n "$reset_of_opt___" ]];then
+		CLI_EDITER "$reset_of_opt___"
+	else
+		run_editor_hub
+	fi
 }
 
 #############################################################################
@@ -160,7 +166,7 @@ main_rofi_menu()
 	MENU="$(echo -e "1- hub for executing script \n2- list of configuration files to edit" | ${rofi_command} -p '')"
 	case $MENU in
 		1-*) scripts_hub ;;
-		2-*) config_editer_hub ;;
+		2-*) config_editer_hub "$reset_of_opt___" ;;
 		*) main_rofi_menu ;;
 	esac
 }
@@ -185,10 +191,10 @@ main()
 	case $opt___ in
 		'') main_rofi_menu ;;
 		s) scripts_hub ;;
-		c) config_editer_hub ;;
+		c) config_editer_hub "$reset_of_opt___";;
 		h) help ;;
 		*) script_name_="${opt___}" && full_script_path="${_hub_script_dir}/${script_name_}" && execuite_scripts_ ;;
 	esac
 }
 
-main $opt___
+main

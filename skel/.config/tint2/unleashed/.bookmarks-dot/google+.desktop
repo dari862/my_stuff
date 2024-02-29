@@ -4,4 +4,4 @@ Name=Google+
 Type=Link
 URL=http://plus.google.com
 Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/google+.png
-Exec=firefox -new-tab http://plus.google.com
+Exec=my-www-browser -new-tab http://plus.google.com

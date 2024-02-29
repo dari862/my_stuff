@@ -31,7 +31,7 @@ ctrl + alt + t
 
 # Rofi Menus/Applets
 super + {w,m,x,r,s}
-	sh {rofi-windows,rofi-music,rofi-powermenu,apps_as_root,rofi-screenshot}
+	sh {rofi-windows,rofi-music,rofi-powermenu,rofi-root,rofi-screenshot}
 
 ##---------- Applications ----------##
 
@@ -45,7 +45,7 @@ ctrl + alt + {v,r,h}
 
 # Color Picker
 super + p
-	color-gpick
+	colorpick.sh
 
 # Lockscreen
 ctrl + alt + l

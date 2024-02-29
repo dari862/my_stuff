@@ -4,4 +4,4 @@ Name=Twitter
 Type=Link
 URL=http://twitter.com
 Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/twitter.png
-Exec=firefox -new-tab http://twitter.com
+Exec=my-www-browser -new-tab http://twitter.com

@@ -55,7 +55,7 @@ main()
 		ch) notify-send "🖥 CPU hogs" "$(ps axch -o cmd:15,%cpu --sort=-%cpu | head)\\n(100% per core)" ;;
 		mh) notify-send "🧠 Memory hogs" "$(ps axch -o cmd:15,%mem --sort=-%mem | head)" ;;
 		i) [[ "${BASH_SOURCE[0]}" == "${0}" ]] && get_ips "$@" ;;
-		E) my-cli-editor sudo "$(realpath "$0")";;	
+		E) apps_as_root_cmd my-cli-editor "$(realpath "$0")";;	
 		*) help ;;
 	esac
 }

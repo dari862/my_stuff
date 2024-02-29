@@ -4,4 +4,4 @@ Name=9gag
 Type=Link
 URL=http://9gag.com
 Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/9gag.png
-Exec=firefox -new-tab http://9gag.com
+Exec=my-www-browser -new-tab http://9gag.com

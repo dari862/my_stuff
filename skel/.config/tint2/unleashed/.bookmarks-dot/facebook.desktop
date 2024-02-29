@@ -4,4 +4,4 @@ Name=Facebook
 Type=Link
 URL=http://facebook.com
 Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/facebook.png
-Exec=firefox -new-tab http://facebook.com
+Exec=my-www-browser -new-tab http://facebook.com

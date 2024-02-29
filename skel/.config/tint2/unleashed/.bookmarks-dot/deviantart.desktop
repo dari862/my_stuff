@@ -4,4 +4,4 @@ Name=DeviantArt
 Type=Link
 URL=http://deviantart.com
 Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/deviantart.png
-Exec=firefox -new-tab http://deviantart.com
+Exec=my-www-browser -new-tab http://deviantart.com

@@ -417,7 +417,7 @@ main(){
 		4) Shows_the_current_moon_phase current ;;
 		5) Shows_the_current_moon_phase Moon_phase ;;
 		6) Location_Picker ;;
-		7) my-cli-editor sudo "$(realpath "$0")";;
+		7) app_2_run_as_root my-cli-editor "$(realpath "$0")";;
 		"") exit ;;
 		*) main
 	esac
