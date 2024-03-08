@@ -3,6 +3,8 @@
 . "/usr/share/DmDmDmdMdMdM/lib/common/polybar"
 . "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
 
+style_name=""
+
 if [ "$polybar_STYLE" == "blocks" ]
 then
 change_color() {
@@ -112,6 +114,12 @@ change_color() {
 elif [[ "$polybar_STYLE" == "panels/"* ]]
 then
 	change_panel() {
+		# Change Polybar style
+		echo "$style_name" > "$polybar_style_name_path"
+		
+		# Change rofi style
+		echo "$style_name" > "$rofi_style_name_path"
+		
 		# Change wallpaper
 		nitrogen --save --set-zoom-fill /usr/share/DmDmDmdMdMdM/my_wallpapers/"$bg"
 		
@@ -332,67 +340,67 @@ then
 elif [[ "$polybar_STYLE" == "panels/"* ]]
 then
 	if  [[ "$1" = "--budgie" ]]; then
-		echo "panels/budgie" > "$polybar_style_name_path"
+		style_name="panels/budgie"
 		bg="budgie.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--deepin" ]]; then
-		echo "panels/deepin" > "$polybar_style_name_path"
+		style_name="panels/deepin"
 		bg="deepin.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--elight" ]]; then
-		echo "panels/elementary" > "$polybar_style_name_path"
+		style_name="panels/elementary"
 		bg="elementary.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--edark" ]]; then
-		echo "panels/elementary_dark" > "$polybar_style_name_path"
+		style_name="panels/elementary_dark"
 		bg="elementary_2.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--gnome" ]]; then
-		echo "panels/gnome" > "$polybar_style_name_path"
+		style_name="panels/gnome"
 		bg="gnome.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--klight" ]]; then
-		echo "panels/kde" > "$polybar_style_name_path"
+		style_name="panels/kde"
 		bg="kde.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--kdark" ]]; then
-		echo "panels/kde_dark" > "$polybar_style_name_path"
+		style_name="panels/kde_dark"
 		bg="kde_2.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--liri" ]]; then
-		echo "panels/liri" > "$polybar_style_name_path"
+		style_name="panels/liri"
 		bg="liri.png"
 		change_panel
 
 	elif  [[ "$1" = "--mint" ]]; then
-		echo "panels/mint" > "$polybar_style_name_path"
+		style_name="panels/mint"
 		bg="mint.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--ugnome" ]]; then
-		echo "panels/ubuntu_gnome" > "$polybar_style_name_path"
+		style_name="panels/ubuntu_gnome"
 		bg="ubuntu.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--unity" ]]; then
-		echo "panels/ubuntu_unity" > "$polybar_style_name_path"
+		style_name="panels/ubuntu_unity"
 		bg="ubuntu.jpg"
 		change_panel
 
 	elif  [[ "$1" = "--xubuntu" ]]; then
-		echo "panels/xubuntu" > "$polybar_style_name_path"
+		style_name="panels/xubuntu"
 		bg="xubuntu.png"
 		change_panel
 
 	elif  [[ "$1" = "--zorin" ]]; then
-		echo "panels/zorin" > "$polybar_style_name_path"
+		style_name="panels/zorin"
 		bg="zorin.png"
 		change_panel
 

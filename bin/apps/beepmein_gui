@@ -1,5 +1,5 @@
 #!/bin/bash
-#    bl-beepmein-pipemenu - a bl-beepmein pipe menu for jgmenu
+#    bl-beepmein-pipemenu - a beepmein pipe menu for jgmenu
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-HELP="    bl-beepmein-pipemenu a bl-beepmein pipe menu for jgmenu
+HELP="    bl-beepmein-pipemenu a beepmein pipe menu for jgmenu
 
 Usage: (standalone) bl-beepmein-pipemenu | jgmenu --vsimple --at-pointer
         (or use --standalone option)
@@ -29,7 +29,7 @@ Options:
         call jgmenu directly
 
     If bl-beepmein-pipemenu is called with no options,
-    it will output a jgmenu pipemenu for using the bl-beepmein alarm clock.
+    it will output a jgmenu pipemenu for using the beepmein alarm clock.
 
     The standalone option can be used to start the menu from a launcher
     like a tint2 button instead of incorporating it in a menu.
@@ -48,7 +48,7 @@ else
 	runner_menu_="rofi-url-handler"
 fi
 
-title="bl-beepmein Alarm Clock (Time is now: $(date +%R))"
+title="beepmein Alarm Clock (Time is now: $(date +%R))"
 	
 # for display purposes
 future="$(date -d "+5 minutes" +%R)"
@@ -109,11 +109,10 @@ kill_queue_(){
 export -f kill_queue_
 	
 menu_picker_(){
-	if command -v jgmenu &>/dev/null;then
-		jgmenu_exist=true
-		use_jgmenu_
-	else
+	if command -v yad &>/dev/null;then
 		use_yad_
+	elif command -v jgmenu &>/dev/null;then
+		use_jgmenu_
 	fi
 }
 
@@ -129,9 +128,9 @@ _prepare_config_dir(){
 		if command -v yad >/dev/null 2>&1 ;then
 			yad --image="dialog-question" \
   					--title "Alert" \
-  					--text "$alarmSample does not exist genertating one" && bl-beepmein --set-alarm
+  					--text "$alarmSample does not exist genertating one" && beepmein --set-alarm
 		elif command -v gmrun >/dev/null 2>&1 ;then
-			echo "$alarmSample does not exist genertating one" && bl-beepmein --set-alarm
+			echo "$alarmSample does not exist genertating one" && beepmein --set-alarm
 		fi
 	fi
 	
@@ -139,9 +138,9 @@ _prepare_config_dir(){
 		if command -v yad >/dev/null 2>&1 ;then
 			yad --image="dialog-question" \
   					--title "Alert" \
-  					--text "$reminderSample does not exist genertating one" && bl-beepmein --set-remind
+  					--text "$reminderSample does not exist genertating one" && beepmein --set-remind
 		elif command -v gmrun >/dev/null 2>&1 ;then
-			echo "$reminderSample does not exist genertating one" && bl-beepmein --set-remind
+			echo "$reminderSample does not exist genertating one" && beepmein --set-remind
 		fi
 	fi
 }
@@ -202,25 +201,25 @@ use_jgmenu_(){
 	exec > >( jgmenu --simple --config-file=<( sed '/menu_padding_top/ { s/^/#/ }; $ a tabs = 0' ~/.config/jgmenu/jgmenurc ) )
 
 	# start to display jgmenu
-	echo "${title},popup_terminal -T bl-beepmein -e bash -c 'bl-beepmein -h; echo \"Press any key to close\"; read -srn1' "
+	echo "${title},popup_terminal -T beepmein -e bash -c 'beepmein -h; echo \"Press any key to close\"; read -srn1' "
 
 	# action
-	echo "＋ Reminder in 1 min., bl-beepmein --nr 1"
-	echo "＋ Reminder in 5 min., bl-beepmein --nr 5"
-	echo "＋ Reminder in 15 min (edit), ${runner_menu_} 'bl-beepmein 15'"
-	echo "＋ Reminder @ $future (edit), ${runner_menu_} 'bl-beepmein $future'"
-	echo "＋ Alarm @ $future (edit), ${runner_menu_} 'bl-beepmein $future --alarm'"
-	echo "＋ Alarm @ morning (edit), ${runner_menu_} 'bl-beepmein 7:00 --alarm'"
+	echo "＋ Reminder in 1 min., beepmein --nr 1"
+	echo "＋ Reminder in 5 min., beepmein --nr 5"
+	echo "＋ Reminder in 15 min (edit), ${runner_menu_} 'beepmein 15'"
+	echo "＋ Reminder @ $future (edit), ${runner_menu_} 'beepmein $future'"
+	echo "＋ Alarm @ $future (edit), ${runner_menu_} 'beepmein $future --alarm'"
+	echo "＋ Alarm @ morning (edit), ${runner_menu_} 'beepmein 7:00 --alarm'"
 	echo "◼  Stop all playback, killall bl-beepmein"
 	echo "Set sounds,^checkout(Set sounds:)"
 	
 	check_queue_
 	
 	echo "^tag(Set sounds:)"
-	echo "Set Alarm sound, bl-beepmein --set-alarm"
-	echo "▶  Alarm test, bl-beepmein --reaction --alarm alarm"
-	echo "Set Reminder sound, bl-beepmein --set-remind"
-	echo "▶  Reminder test, bl-beepmein --reaction reminder"
+	echo "Set Alarm sound, beepmein --set-alarm"
+	echo "▶  Alarm test, beepmein --reaction --alarm alarm"
+	echo "Set Reminder sound, beepmein --set-remind"
+	echo "▶  Reminder test, beepmein --reaction reminder"
 }
 
 use_yad_(){
@@ -242,12 +241,12 @@ use_yad_(){
 	yad --plug=$KEY --tabnum=1 --borders=10 \
 	--text="Set Alarms \n" --image=conky \
 	--form \
-	--field="＋ Reminder in 1 min.:FBTN" "bl-beepmein --nr 1" \
-	--field="＋ Reminder in 5 min.:FBTN" "bl-beepmein --nr 5" \
-	--field="＋ Reminder in 15 min (edit):FBTN" "${runner_menu_} bl-beepmein 15" \
-	--field="＋ Reminder @ $future (edit):FBTN" "${runner_menu_} bl-beepmein $future" \
-	--field="＋ Alarm @ $future (edit):FBTN" "${runner_menu_} bl-beepmein $future --alarm" \
-	--field="＋ Alarm @ morning (edit):FBTN" "${runner_menu_} bl-beepmein 7:00 --alarm" \
+	--field="＋ Reminder in 1 min.:FBTN" "beepmein --nr 1" \
+	--field="＋ Reminder in 5 min.:FBTN" "beepmein --nr 5" \
+	--field="＋ Reminder in 15 min (edit):FBTN" "${runner_menu_} beepmein 15" \
+	--field="＋ Reminder @ $future (edit):FBTN" "${runner_menu_} beepmein $future" \
+	--field="＋ Alarm @ $future (edit):FBTN" "${runner_menu_} beepmein $future --alarm" \
+	--field="＋ Alarm @ morning (edit):FBTN" "${runner_menu_} beepmein 7:00 --alarm" \
 	--field="◼  Stop all playback:FBTN" "killall bl-beepmein" \
 	--field="List Alarms:FBTN" "bash -c List_Alarms_2_Remove" \
 	> $res1 &
@@ -256,10 +255,10 @@ use_yad_(){
 	yad --plug=$KEY --tabnum=2 --borders=10 \
 	--text="Set sounds \n" --image=conky \
 	--form \
-	--field="Set Alarm sound:FBTN" "bl-beepmein --set-alarm" \
-	--field="▶  Alarm test:FBTN" "bl-beepmein --reaction --alarm alarm" \
-	--field="Set Reminder sound:FBTN" "bl-beepmein --set-remind" \
-	--field="▶  Reminder test:FBTN" "bl-beepmein --reaction reminder" \
+	--field="Set Alarm sound:FBTN" "beepmein --set-alarm" \
+	--field="▶  Alarm test:FBTN" "beepmein --reaction --alarm alarm" \
+	--field="Set Reminder sound:FBTN" "beepmein --set-remind" \
+	--field="▶  Reminder test:FBTN" "beepmein --reaction reminder" \
 	> $res2 &
 
 	#main window
@@ -278,8 +277,18 @@ do
         echo "$HELP"
         exit 0
         ;;
+    -y|--yad)
+        use_yad_
+        ;;
+    -j|--jgmenu)
+        use_jgmenu_
+        ;;
     -s|--standalone)
+        menu_picker_
+        ;;
+    *)
         menu_picker_
         ;;
     esac
 done
+		

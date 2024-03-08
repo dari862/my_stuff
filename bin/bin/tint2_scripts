@@ -25,6 +25,6 @@ case $opt in
 		--calendar) cal-popup --popup ;;
 		--pavucontrol) [ $(command -v pavucontrol &> /dev/null) ] && pavucontrol ;;
 		--powermenu) ac-powermenu --yad ;;
-		--beepmein) bl-beepmein-pipemenu --standalone ;;
+		--beepmein) beepmein_gui --standalone ;;
 		--notify-uname) notify-send "$(uname -srn)" ;;
 esac

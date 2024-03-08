@@ -18,7 +18,7 @@ if command -v rofi &>/dev/null;then
 	## execute the application
 	#sudo -A ${command_2_run} 2>/dev/null
 	SUDO_ASKPASS=$(rofi_askpass)
-	echo "${SUDO_ASKPASS}" | sudo -s ${command_2_run}
+	echo "${SUDO_ASKPASS}" | sudo -S ${command_2_run}
 else
 	pkexec ${command_2_run}
 fi

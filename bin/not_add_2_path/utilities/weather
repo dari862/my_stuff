@@ -278,14 +278,14 @@ Show_Weather_Doppler(){
 	source "${weather_conf}"
 	
 	getdoppler() {
-	notify-send "🌦️ Doppler RADAR" "Pulling most recent Doppler RADAR for $loc."
-	case "$cont" in
-		"US") curl -sL "https://radar.weather.gov/ridge/standard/${loc}_loop.gif" > "$doppler" ;;
-		"EU") curl -sL "https://api.sat24.com/animated/${loc}/rainTMC/2/" > "$doppler" ;;
-		"AF") curl -sL "https://api.sat24.com/animated/${loc}/rain/2/" > "$doppler" ;;
-		"DE") loc="$(echo "$loc" | tr "[:upper:]" "[:lower:]")"
-		curl -sL "https://www.dwd.de/DWD/wetter/radar/radfilm_${loc}_akt.gif" > "$doppler" ;;
-	esac
+		notify-send "🌦️ Doppler RADAR" "Pulling most recent Doppler RADAR for $loc."
+		case "$cont" in
+			"US") curl -sL "https://radar.weather.gov/ridge/standard/${loc}_loop.gif" > "$doppler" ;;
+			"EU") curl -sL "https://api.sat24.com/animated/${loc}/rainTMC/2/" > "$doppler" ;;
+			"AF") curl -sL "https://api.sat24.com/animated/${loc}/rain/2/" > "$doppler" ;;
+			"DE") loc="$(echo "$loc" | tr "[:upper:]" "[:lower:]")"
+			curl -sL "https://www.dwd.de/DWD/wetter/radar/radfilm_${loc}_akt.gif" > "$doppler" ;;
+		esac
 	}
 	
 	showdoppler() { setsid -f mpv --no-osc --loop=inf --no-terminal "$doppler" ;}
@@ -417,7 +417,7 @@ main(){
 		4) Shows_the_current_moon_phase current ;;
 		5) Shows_the_current_moon_phase Moon_phase ;;
 		6) Location_Picker ;;
-		7) app_2_run_as_root my-cli-editor "$(realpath "$0")";;
+		7) apps_as_root popup_terminal -e "$(which CLI_EDITER) $(realpath "$0")";;
 		"") exit ;;
 		*) main
 	esac

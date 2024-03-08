@@ -41,7 +41,7 @@ then
 	usr_autostart="$usr_confdir/${usr_session_name}/autostart"
 	usr_envfile="$usr_confdir/${usr_session_name}/environment"
 	default_autostart='/usr/share/DmDmDmdMdMdM/skel/.config/openbox'
-	
+		
 	# include DmDmDmdMdMdM/bin/openbox in PATH
 	if [ -d "/usr/share/DmDmDmdMdMdM/bin/openbox" ] ; then
     	PATH="/usr/share/DmDmDmdMdMdM/bin/openbox:$PATH"
@@ -112,7 +112,10 @@ fi
 
 
 if [ "$usr_session_name" = "openbox" ]
-then	
+then
+	# Create DB for quick load menu
+	/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/create_DB.sh &
+	
 	# Set up the specific environment.
 	test -r "$usr_envfile" && . "$usr_envfile" || echo "$0: cannot source $usr_envfile" >&2
 	

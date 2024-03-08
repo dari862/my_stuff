@@ -157,6 +157,7 @@ panel_changer(){
 		echo 'xfce4-panel' > ${_panel_name_path_}
 		panel_reload
 	fi
+	create_DB.sh --styles
 }
 
 panel_reload(){

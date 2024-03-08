@@ -14,8 +14,13 @@ Options (usually passed from the menu):
     (the package must be in one of the app lists in this file)
 
 '
-LIST_OF_APPS_SCRIPTS_=($(ls -d "$_SCRIPTS_LIBDIR"/*/ 2>/dev/null | grep -v "GAMING_SCRIPTS_LIBDIR"))
-LIST_OF_GAMES_SCRIPTS_=($(ls -d "$GAMING_SCRIPTS_LIBDIR"/*/ 2>/dev/null))
+
+source "/usr/share/DmDmDmdMdMdM/lib/common/DB"
+[ ! -f "${apps_db_path}" ] && /usr/share/DmDmDmdMdMdM/bin/not_add_2_path/create_DB.sh --apps
+[ ! -f "${gaming_db_path}" ] && /usr/share/DmDmDmdMdMdM/bin/not_add_2_path/create_DB.sh --apps
+
+LIST_OF_APPS_SCRIPTS_=($(cd "${apps_db_path}" && ls 2>/dev/null))
+LIST_OF_GAMES_SCRIPTS_=($(cd "${gaming_db_path}" && ls 2>/dev/null))
 ########################################################################
 
 # look for a help option somewhere
@@ -29,7 +34,7 @@ do
     esac
 done
 
-. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+source "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
 
 if [[ ${1-} = --openboxmenu ]]; then # pipemenu
 	# This function is specific to this script.
@@ -42,27 +47,18 @@ if [[ ${1-} = --openboxmenu ]]; then # pipemenu
         if [ "${#@}" -gt 0 ]; then
         	menuSubmenu "$tag" "$label"
         	for App in "${@}"; do
-        		if [[ $App == script_* ]]; then
-        			App=${App//script_/} 
-        			hash "${App}" 2>/dev/null || menuItem "Install ${App}" "${installation_script_name} --script ${App}"
-        		else
-        			App_name=$(echo "${App}" | awk -F"_" '{print $1}')
-                	hash "${App_name}" 2>/dev/null || menuItem "Install ${App}" "${installation_script_name} --install ${App}"
-                fi
+        		App_name=$(echo "${App}" | awk -F"_" '{print $1}')
+                menuItem "Install ${App_name}" "${installation_script_name} --install ${App}"
         	done
         	menuSubmenuEnd
         fi
     }
 	menuStart "installfavouritepackages" "Install Favourite Packages"
-	for d in "${LIST_OF_APPS_SCRIPTS_[@]}";do
-		apps_dir_name=$(basename $d)
-		apps_dir_id=$(echo "$apps_dir_name" | sed 's/_/ /')
-		apps_in_dir=()
-		cd $d
-		for script in *;do
-			apps_in_dir+=("$script")
-		done
-		generate_installmenu "$apps_dir_name" "$apps_dir_id" "${apps_in_dir[@]}"
+	cd "${apps_db_path}"
+	for dir in "${LIST_OF_APPS_SCRIPTS_[@]}";do
+		apps_dir_name=$(echo "$dir" | sed 's/_/ /')
+		apps_in_dir=($(cat "$dir" 2>/dev/null))
+		generate_installmenu "$dir" "$apps_dir_name" "${apps_in_dir[@]}"
 	done
 	if [ ! -f "/usr/share/DmDmDmdMdMdM/Gaming_ready" ];then
 		if [ ! -f "/usr/share/DmDmDmdMdMdM/Gaming_Drivers_ready" ];then
@@ -71,17 +67,13 @@ if [[ ${1-} = --openboxmenu ]]; then # pipemenu
 			menuItem "Gaming Essential (GamingMenu after install)" "${installation_script_name} --install Gaming_Essential_"
 		fi
 	else
+		cd "${gaming_db_path}"
 		menuSubmenu "GamingMenu" "Gaming"
-			for gd in "${LIST_OF_GAMES_SCRIPTS_[@]}";do
-				Gaming_dir_name=$(basename $gd)
-				Gaming_dir_id=$(echo "$Gaming_dir_name" | sed 's/_/ /')
-				Gaming_in_dir=()
-				cd $gd
-				for gscript in *;do
-					Gaming_in_dir+=("$gscript")
-				done
-				generate_installmenu "$Gaming_dir_name" "$Gaming_dir_id" "${Gaming_in_dir[@]}"
-			done
+		for gd in "${LIST_OF_GAMES_SCRIPTS_[@]}";do
+			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
+			Gaming_in_dir=($(cat "$d" 2>/dev/null))
+			generate_installmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir[@]}"
+		done
 		menuSubmenuEnd
 	fi
 	if [ ! -f /etc/apt/sources.list.d/kali.list ] || [ ! -f /etc/apt/sources.list.d/parrot.list ] || [ ! -f /etc/apt/preferences.d/kali.pref ] || [ ! -f /etc/apt/preferences.d/parrot.pref ];then
@@ -98,39 +90,26 @@ elif [[ ${1-} = --jgmenu ]]; then # pipemenu
         local label=$2
         shift 2
         for App in "${@}"; do
-       		if [[ $App == script_* ]]; then
-        		App=${App//script_/} 
-        		hash "${App}" 2>/dev/null || jgmenuItem "Install ${App}" "${installation_script_name} --script ${App}"
-        	else
-        		App_name=$(echo "${App}" | awk -F"_" '{print $1}')
-                hash "${App_name}" 2>/dev/null || jgmenuItem "Install ${App}" "${installation_script_name} --install ${App}"
-            fi
+        	App_name=$(echo "${App}" | awk -F"_" '{print $1}')
+            jgmenuItem "Install ${App_name}" "${installation_script_name} --install ${App}"
         done
         [[ -n ${menu_content[$tag]} ]] && jgmenuSubmenu 'root' "$tag" "$label"
     }
-	for d in $_SCRIPTS_LIBDIR/*;do
-			apps_dir_name=$(basename $d)
-			apps_dir_id=$(echo "$apps_dir_name" | sed 's/_/ /')
-			apps_in_dir=()
-			cd $d
-			for script in *;do
-				apps_in_dir+=("$script")
-			done
-			generate_installmenu_jgmenu "$apps_dir_name" "$apps_dir_id" "${apps_in_dir[@]}"
+	cd "${apps_db_path}"
+	for dir in "${LIST_OF_APPS_SCRIPTS_[@]}";do
+		apps_dir_name=$(echo "$dir" | sed 's/_/ /')
+		apps_in_dir=($(cat "$dir" 2>/dev/null))
+		generate_installmenu_jgmenu "$dir" "$apps_dir_name" "${apps_in_dir[@]}"
 	done
 	if [ ! -f "/usr/share/DmDmDmdMdMdM/Gaming_ready" ];then
 		jgmenuItem "GPU Driver (GamingMenu after install)" "${installation_script_name} --install GPU_Driver_"
 	else
+		cd "${gaming_db_path}"
 		jgmenuSubmenu 'root' "GamingMenu" "Gaming"
-			for gd in $GAMING_SCRIPTS_LIBDIR/*;do
-				Gaming_dir_name=$(basename $gd)
-				Gaming_dir_id=$(echo "$Gaming_dir_name" | sed 's/_/ /')
-				Gaming_in_dir=()
-				cd $gd
-				for gscript in *;do
-					Gaming_in_dir+=("$gscript")
-				done
-				generate_installmenu_jgmenu "$Gaming_dir_name" "$Gaming_dir_id" "${Gaming_in_dir[@]}"
+		for gd in "${LIST_OF_GAMES_SCRIPTS_[@]}";do
+			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
+			Gaming_in_dir=($(cat "$d" 2>/dev/null))
+			generate_installmenu_jgmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir[@]}"
 		done
 	fi
 	

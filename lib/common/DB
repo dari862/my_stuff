@@ -1,0 +1,6 @@
+db_dir="$HOME/.config/WM_common_config"
+tweeks_db_path="${db_dir}/tweeks_db"
+apps_db_path="${db_dir}/apps_db"
+gaming_db_path="${db_dir}/gaming_db"
+styles_db_path="${db_dir}/styles_db"
+bit_styles_db_path="${db_dir}/bit_styles_db"

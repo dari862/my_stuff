@@ -130,9 +130,9 @@ update_interval = 1,
 conky.text = [[
 ${color1}• ${color} Hello, ${execi 60 whoami}
 
-${color2}• ${color} Today will be ${execi 1800 ~/.config/conky/scripts/weather}
+${color2}• ${color} Today will be ${execi 1800 ~/.config/conky/scripts/DmDmDmdMdMdM_weather.sh}
 
-${color3}• ${color} ${execi 1800 ~/.config/conky/scripts/weather -t}
+${color3}• ${color} ${execi 1800 ~/.config/conky/scripts/DmDmDmdMdMdM_weather.sh -t}
 
 ${color4}• ${color} Here is some wise words for You..
 

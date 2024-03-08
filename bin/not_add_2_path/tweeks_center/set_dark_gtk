@@ -1,7 +1,7 @@
 #!/bin/bash
 
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-isgtkdark=$(grep ^gtk-application-prefer-dark-theme= "${gtksettings}" | cut -d"=" -f2)
+isgtkdark=$([ -f "${gtksettings}" ] && grep ^gtk-application-prefer-dark-theme= "${gtksettings}" | cut -d"=" -f2)
 
 if [ "$1" = "--check" ];then
 	if test "${isgtkdark}"; then

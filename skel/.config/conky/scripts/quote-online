@@ -28,13 +28,13 @@ if [ $? -eq 0 ]; then
         echo "$quote" | grep ERROR > /dev/null
         if [ $? -eq 0 ];then
             getquote
-            i=`expr $i + 1`
+            i=$(expr $i + 1)
         else
             break
         fi
     done
 else
-    a=`date|cut -c 19`
+    a=$(date|cut -c 19)
     var=(" Ever tried. Ever failed. No matter. Try Again. Fail again. Fail better.
     \n \t\t\t\t\t\t\t-Samuel Beckett " "Never give up, for that is just the place and time that the tide will turn.
     \n \t\t\t\t\t\t\t-Harriet Beecher Stowe " "Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.

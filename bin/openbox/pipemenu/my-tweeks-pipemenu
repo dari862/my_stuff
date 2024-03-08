@@ -2,8 +2,6 @@
 
 run_tweeks_script_name="my-tweeks"
 
-_TWEEKS_DIR="/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/tweeks_center"
-
 HELP='    my-tweeks-pipemenu a obmenu Pipe Menu for runing tweeks
     It should normally be called from a obmenu menu.
 
@@ -27,22 +25,24 @@ do
     esac
 done
 
-. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+source "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+source "/usr/share/DmDmDmdMdMdM/lib/common/DB"
+[ ! -f "${tweeks_db_path}" ] && /usr/share/DmDmDmdMdMdM/bin/not_add_2_path/create_DB.sh --tweeks
 
-TWEEKS=($(ls ${_TWEEKS_DIR}))
+TWEEKS=($(cat "${tweeks_db_path}"))
 
 if [[ ${1-} = --openboxmenu ]]; then # pipemenu
     shift 1
 	menuStart "RunDebianTweeks" "Run Debian Tweeks"
 	for tweek in "${TWEEKS[@]}"; do
-    	[ "$(${run_tweeks_script_name} --check ${tweek})" != "enabled" ] && menuItem "run ${tweek}" "${run_tweeks_script_name} ${tweek}"
+    	menuItem "run ${tweek}" "${run_tweeks_script_name} ${tweek}"
     done
     menuEnd
  #    menuEnd   
 elif [[ ${1-} = --jgmenu ]]; then # pipemenu
     shift 1
 	for tweek in "${TWEEKS[@]}"; do
-    	[ "$(${run_tweeks_script_name} --check ${tweek})" != "enabled" ] && jgmenuItem "run ${tweek}" "${run_tweeks_script_name} ${tweek}"
+    	jgmenuItem "run ${tweek}" "${run_tweeks_script_name} ${tweek}"
     done
     jgmenuEnd
 #    menuEnd

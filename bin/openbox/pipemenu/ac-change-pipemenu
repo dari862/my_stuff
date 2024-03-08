@@ -6,22 +6,19 @@
 ## Openbox Pipemenu to change openbox styles
 
 # Variables and functions
-. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
-. "/usr/share/DmDmDmdMdMdM/lib/common/panel"
+source "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+source "/usr/share/DmDmDmdMdMdM/lib/common/panel"
+OBPATH="$HOME/.config/openbox"
 
 ac-change-style(){
-	# Dir
-	dir="/usr/share/DmDmDmdMdMdM/blob/${_panel_name_}"
-	
-	# Styles
-	styles=(`cd $dir && ls -I Default -I "*-Bitmap" -I "*.jpg" 2>/dev/null`)
-	bitmap=(`cd $dir && ls *-Bitmap 2>/dev/null`)
-	
 	# Generate menu
 	gen_menu () {
     	local count=1
     	local bcount=1
-	
+		source "/usr/share/DmDmDmdMdMdM/lib/common/DB"	
+		[ ! -f "${styles_db_path}" ] && /usr/share/DmDmDmdMdMdM/bin/not_add_2_path/create_DB.sh --styles
+		# Styles
+		styles=($(cat "${styles_db_path}"))
 		menuStart
 		menuItem "Default" "style-manager --change Default"
 		menuSeparator "| Simple |"
@@ -29,13 +26,14 @@ ac-change-style(){
 			menuItem "${count}. ${style}" "style-manager --change ${style}"
 			count=$(($count+1))
 		done
-	if [ ! -f /etc/fonts/conf.d/70-no-bitmaps.conf ] ; then
-		menuSeparator "| Bitmap |"
-		for bmap in "${bitmap[@]}"; do
-			menuItem "${bcount}. ${bmap}" "style-manager --change ${bmap}"
-			bcount=$(($bcount+1))
-		done
-	fi
+		if [ ! -f /etc/fonts/conf.d/70-no-bitmaps.conf ] ; then
+			bitmap=($(cat "${bit_styles_db_path}"))
+			menuSeparator "| Bitmap |"
+			for bmap in "${bitmap[@]}"; do
+				menuItem "${bcount}. ${bmap}" "style-manager --change ${bmap}"
+				bcount=$(($bcount+1))
+			done
+		fi
 		menuEnd
 	}
 	
@@ -50,7 +48,7 @@ ac-change-fonts(){
 		exit 1
 	fi
 	tdir="$HOME/.config/alacritty"
-	odir="$HOME/.config/openbox"
+	odir="${OBPATH}"
 	ddir="$HOME/.config/dunst"
 	
 	# Font
@@ -92,8 +90,8 @@ ac-change-fonts(){
 	
 	font_ob () {
 		if [[ "$FONT" ]]; then
-			sed -i 's/font_var "'.*'"/font_var "'"$FNAME"'"/g' $HOME/.config/openbox/rc.xml
-			sed -i 's/size_var "'.*'"/size_var "'"$FSIZE"'"/g' $HOME/.config/openbox/rc.xml
+			sed -i 's/font_var "'.*'"/font_var "'"$FNAME"'"/g' ${OBPATH}/rc.xml
+			sed -i 's/size_var "'.*'"/size_var "'"$FSIZE"'"/g' ${OBPATH}/rc.xml
 			openbox --reconfigure
 		else
 			exit 0

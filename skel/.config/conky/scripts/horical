@@ -1,15 +1,15 @@
 #!/bin/bash
 # a script to display a horizontal calendar on conky (hence the name horical :D)
 # 
-TODAY=`date +%d`
+TODAY=$(date +%d)
 TOPLINE=" "
 OVER=" "
 REST=" "
 # -------- This part is to find out the number of days in a month to display-----------#
-a=`date +%-Y`
-e1=`expr $a % 400`
-e2=`expr $a % 100`
-e3=`expr $a % 4`
+a=$(date +%-Y)
+e1=$(expr $a % 400)
+e2=$(expr $a % 100)
+e3=$(expr $a % 4)
 if [ $e1 == 0 ]
   then c=1
   elif [ $e2 == 0 ]
@@ -18,7 +18,7 @@ if [ $e1 == 0 ]
   then c=1
   else c=0
 fi
-p=`date +%-m`
+p=$(date +%-m)
 # if the current year is not a leap one, c = 0
 if [ $c == 0 ] 
   then
@@ -65,9 +65,9 @@ then
     REST="$REST $b"
 fi
 #------------- the top line which displays the abbreviated weekday names-------#
-k=`date +%u`
-j=`date +%e`
-f=`expr $j % 7`
+k=$(date +%u)
+j=$(date +%e)
+f=$(expr $j % 7)
 if [ $k -lt $f ]
 then 
 	y=$[$k+8-$f]
