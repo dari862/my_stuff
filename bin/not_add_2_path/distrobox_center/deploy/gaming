@@ -1,0 +1,300 @@
+#!/usr/bin/env bash
+container_name="gaming"
+prefix="$HOME/.local/distrobox"
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+function echog() {
+   echo -e "${RED}${STEP_INDEX}${NC} : ${GREEN}$1${NC}"
+   sleep 0.5
+}
+function echor() {
+   echo -e "${RED}${STEP_INDEX}${NC} : ${RED}$1${NC}"
+   sleep 0.5
+}
+
+# Required on xorg setups
+if [[ -z "$WAYLAND_DISPLAY" ]]; then
+    xhost "+si:localuser:$USER"
+    if [ $? -ne 0 ]; then
+        echor "Couldn't use xhost, please install it and re-run installation"
+        exit 1
+    fi
+fi
+
+gpu_detect_command=$(lspci | grep -i vga | tr '[:upper:]' '[:lower:]')
+if [[ $gpu_detect_command == *"amd"* ]]; then
+	GPU="amd"
+elif [[ $gpu_detect_command == *"nvidia"* ]]; then
+	CUDA_LIBS="$(find /usr/lib* -iname "libcuda*.so*")"
+	if [[ -z "$CUDA_LIBS" ]]; then
+		echor "Couldn't find CUDA on host, please install it, reboot and try again, as it's required for NVENC encoder support."
+		exit 1
+	fi
+	GPU="nvidia"
+elif [[ $gpu_detect_command == *"intel"* ]]; then
+	GPU="intel"
+else
+	echor "Unsupported gpu found."
+	echor "exiting."
+   	exit 1
+fi
+
+MULTI_GPU="$(lspci | grep -ic vga)"
+
+if [[ -n "$(pgrep pipewire)" ]]; then
+	AUDIO_SYSTEM="pipewire"
+	echor "Do note that pulseaudio won't work with automatic microphone routing as it requires pipewire."
+elif [[ -n "$(pgrep pulseaudio)" ]]; then
+	AUDIO_SYSTEM="pulseaudio"
+else
+	echor "Unsupported audio system ($AUDIO_SYSTEM)."
+	echor "Could not determine audio system: $AUDIO_SYSTEM, you may have issues with audio!"
+	exit 1
+fi
+	
+tmp_folder=$(mktemp -d /tmp/${container_name}-container-XXXXXXXX)
+phase_file_1="${tmp_folder}/phase_1"
+phase_file_2="${tmp_folder}/phase_2"
+phase_file_3="${tmp_folder}/phase_3"
+phase_file_4="${tmp_folder}/phase_4"
+phase_file_5="${tmp_folder}/phase_5"
+
+################################################################################################################
+"${phase_file_1}"
+echo '#!/bin/bash' > "${phase_file_1}"
+echo 'sudo pacman -q --noprogressbar -Syu git base-devel --noconfirm || exit 1' >> "${phase_file_1}"
+echo 'git clone https://aur.archlinux.org/yay.git || exit 1' >> "${phase_file_1}"
+echo 'cd yay || exit 1' >> "${phase_file_1}"
+echo 'makepkg --noprogressbar -si --noconfirm || exit 1' >> "${phase_file_1}"
+chmod +x "${phase_file_1}"
+
+################################################################################################################
+
+"${phase_file_2}"
+echo '#!/bin/bash' > "${phase_file_2}"
+echo 'yay -q --noprogressbar -Syu gtk3-nocsd-git --noconfirm || exit 1' >> "${phase_file_2}"
+echo "sudo cp -r '/usr/share/doc/gtk3-nocsd/etc/xinit/xinitrc.d/30-gtk3-nocsd.sh' '/etc/X11/xinit/xinitrc.d/30-gtk3-nocsd.sh' || exit 1" >> "${phase_file_2}"
+chmod +x "${phase_file_2}"
+
+################################################################################################################
+
+cat <<'EOF' > "${phase_file_3}"
+#!/bin/bash	
+	# Renaming xdg-open from container because it will run host applications (like steam) instead of internal ones
+	sudo mv /usr/local/bin/xdg-open /usr/local/bin/xdg-open2
+	
+	# Setting up arch
+	echo "[multilib]" | sudo tee -a /etc/pacman.conf
+	echo "Include = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf
+	echo "en_US.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen
+	sudo pacman-key --init || exit 1
+	echo "LANG=en_US.UTF-8" | sudo tee /etc/locale.conf
+	echo "LC_ALL=en_US.UTF-8" | sudo tee /etc/locale.conf
+	echo "export LANG=en_US.UTF-8 | tee -a ~/.bashrc
+	echo "export LC_ALL=en_US.UTF-8 | tee -a ~/.bashrc
+	yay -q --noprogressbar -Syu glibc lib32-glibc xdg-utils qt5-tools qt5-multimedia at-spi2-core lib32-at-spi2-core tar wget --noconfirm || exit 1
+
+	exit 0
+EOF
+chmod +x "${phase_file_3}"	
+
+################################################################################################################
+
+cat <<'EOF' > "${phase_file_4}"
+#!/bin/bash
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+function echog() {
+   echo -e "${RED}${STEP_INDEX}${NC} : ${GREEN}$1${NC}"
+   sleep 0.5
+}
+function echor() {
+   echo -e "${RED}${STEP_INDEX}${NC} : ${RED}$1${NC}"
+   sleep 0.5
+}
+	yay -Syyu --noconfirm
+	
+	echog "### activating multilib..."
+	perl -0777 -i.orig -pe "s/#\[multilib\]\n#Include = \/etc\/pacman.d\/mirrorlist/\[multilib\]\nInclude = \/etc\/pacman.d\/mirrorlist/" /etc/pacman.conf
+	
+	echog "### updating pacman to load multilib..."
+	pacman -Sy --noconfirm
+	
+	echog "Installing packages for base functionality."
+	yay -q --noprogressbar -Syu git vim base-devel noto-fonts xdg-user-dirs fuse libx264 sdl2 libva-utils xorg-server --noconfirm || exit 1
+	
+	echog "Installing audio and driver packages."
+EOF
+	if [[ "$GPU" == "amd" ]]; then
+   		echo '	yay -q --noprogressbar -Syu libva-mesa-driver vulkan-radeon lib32-vulkan-radeon lib32-libva-mesa-driver --noconfirm || exit 1' >> "${phase_file_4}"
+	elif [[ "$GPU" == "nvidia" ]]; then
+   		echo '	echog "Using host system driver mounts, not installing nvidia drivers."' >> "${phase_file_4}"
+   		if [[ "$MULTI_GPU" == "1" ]]; then
+      		echo '	echog "Installing prime-run , games on your dedicated GPU."' >> "${phase_file_4}"
+      		echo '	yay -q --noprogressbar -Syu nvidia-prime --noconfirm --assume-installed nvidia-utils || exit 1' >> "${phase_file_4}"
+   		fi
+	elif [[ "$GPU" == "intel" ]]; then
+cat <<EOF >> "${phase_file_4}"
+   		yay -q --noprogressbar -Syu libva-mesa-driver vulkan-intel lib32-vulkan-intel intel-media-driver lib32-libva-intel-driver libva-intel-driver --noconfirm || exit 1
+   		# Thanks marioeatsdirt for tip!
+   		echog "Installing older vulkan-intel driver as newest one (24.0 at the moment of writing) doesnt work on Intel."
+   		yay --noprogressbar -U \
+      		https://archive.archlinux.org/packages/v/vulkan-intel/vulkan-intel-23.1.4-2-x86_64.pkg.tar.zst \
+      		https://archive.archlinux.org/packages/l/lib32-vulkan-intel/lib32-vulkan-intel-23.1.4-2-x86_64.pkg.tar.zst --noconfirm || exit 1
+   		echog "Pinning intel vulkan drivers"
+   		sudo sed -i "s/.*IgnorePkg.*/IgnorePkg = vulkan-intel lib32-vulkan-intel/g" /etc/pacman.conf || exit 1
+EOF
+	fi
+	
+	if [[ "$AUDIO_SYSTEM" == "pipewire" ]]; then
+   		echo '	yay -q --noprogressbar -Syu lib32-pipewire pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber --noconfirm || exit 1' >> "${phase_file_4}"
+	elif [[ "$AUDIO_SYSTEM" == "pulseaudio" ]]; then
+   		echo '	yay -q --noprogressbar -Syu pulseaudio pulseaudio-alsa --noconfirm || exit 1' >> "${phase_file_4}"
+	fi
+cat <<EOF >> "${phase_file_4}"
+	echog "Installing base packages and Steam."
+	
+	yay -q --noprogressbar -Syu steam --noconfirm --assume-installed vulkan-driver --assume-installed lib32-vulkan-driver || exit 1
+
+	# Define proper steam desktop file
+	mkdir ~/.config || exit 1
+	xdg-mime default steam.desktop x-scheme-handler/steam
+EOF
+cat <<'EOF' >> "${phase_file_4}"	
+	echog "add different libraries and wine-staging (have to be installed before winetricks) to install list"
+	list_of_pakages_2_install="wine giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader"
+	
+	echog " add dependencies for a lot of games to install list"
+	list_of_pakages_2_install="${list_of_pakages_2_install} wine-gecko wine-mono lib32-gnutls lib32-libldap lib32-libgpg-error lib32-sqlite lib32-libpulse vkd3d lib32-vkd3d lib32-libvdpau libvdpau lib32-libxml2 lib32-sdl2 lib32-freetype2 lib32-dbus sdl_image sdl_mixer"
+	
+	echog " add lutris winetricks gamemode to install list"
+	list_of_pakages_2_install="${list_of_pakages_2_install} lutris winetricks gamemode lib32-gamemode"
+	
+	echog " add xboxdrv mangohud goverlay bottles to install list"
+	list_of_pakages_2_install="${list_of_pakages_2_install} mangohud goverlay"
+	
+	echog "install install list."
+	yay -q --noprogressbar -Syu ${list_of_pakages_2_install} --noconfirm || exit 1
+EOF
+chmod +x "${phase_file_4}"
+
+################################################################################################################
+echo '#!/bin/bash' > "${phase_file_5}"
+echo 'yay -q --noprogressbar -Syu bottles --noconfirm || exit 1' >> "${phase_file_5}"
+chmod +x "${phase_file_5}"
+################################################################################################################
+
+install_distrobox(){
+	my-installer --distrobox --skip-test
+	if [ $? -ne 0 ]; then
+		echor "Couldn't install distrobox."
+		# envs are required! otherwise first time install won't have those env vars, despite them being even in bashrc, locale conf, profiles, etc
+		exit 1
+	fi
+	mkdir -p "$prefix/$container_name"
+}
+
+Createing_container_image(){
+	distrobox create --pull --image docker.io/archlinux/archlinux:latest \
+		--name "$container_name" \
+		--home "$prefix/$container_name" \
+		--pre-init-hooks "pacman -Syy reflector --noconfirm && reflector --country 'Canada,United States,France,Germany,Australia' --latest 5 --sort rate --save /etc/pacman.d/mirrorlist" "${enable_gpu}"
+	
+	if [ $? -ne 0 ]; then
+		echor "Couldn't create distrobox container."
+		echor "GPU: $GPU; AUDIO SYSTEM: $AUDIO_SYSTEM"
+		exit 1
+	fi
+}
+
+run_phase(){
+	Phase_number="${1-}"
+	Phase_number_file="${2-}"
+	
+	cd "${tmp_folder}"
+	
+	echog "Phase ${Phase_number}"
+	
+	distrobox enter --name "$container_name" --additional-flags "--env XDG_CURRENT_DESKTOP=X-Generic --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8" -- "${Phase_number_file}"
+	
+	if [ $? -ne 0 ]; then
+		echor "Couldn't install distrobox container first time at phase ${Phase_number}."
+		# envs are required! otherwise first time install won't have those env vars, despite them being even in bashrc, locale conf, profiles, etc
+		exit 1
+	fi
+	
+	distrobox stop "$container_name" --yes
+}
+
+################################################################################################################
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${container_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${container_name}."
+	say '------------------------'
+	say "This script will install ${container_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	sudo true
+	keep_Sudo_refresed &
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+	say 'install distrobox ...' 1
+	install_distrobox
+	
+	say 'Createing container image ...' 1
+	Createing_container_image
+	
+	say 'Deploy container image ...' 1
+	run_phase 1 "${phase_file_1}"
+	run_phase 2 "${phase_file_2}"
+	run_phase 3 "${phase_file_3}"
+	run_phase 4 "${phase_file_4}"
+	run_phase 5 "${phase_file_5}"
+
+################################################################################################################
+	say 'Createing container lanucher ...' 1
+	
+	echo '#!/bin/bash' > "${tmp_folder}"/"${container_name}"
+	echo "distrobox enter --name \"$container_name\"" >> "${tmp_folder}"/"${container_name}"
+	chmod +x "${tmp_folder}"/"${container_name}"
+	mv "${tmp_folder}"/"${container_name}" $HOME/Desktop
+	
+	[ -f "/usr/share/DmDmDmdMdMdM/GPU_Drivers_ready" ] && sudo rm -rf /usr/share/DmDmDmdMdMdM/GPU_Drivers_ready
+	sudo touch /usr/share/DmDmDmdMdMdM/Gaming_ready
+	
+	remove_from_db
+	
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+# Prevent host steam to be used during install, forcefully kill it (on steamos produces output like it tries to kill host processes and fails, fixme?...)
+# pkill -f steam
+

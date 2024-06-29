@@ -1,0 +1,324 @@
+#!/bin/bash
+set -e
+# https://github.com/Botspot/update-buddy
+#
+#
+current_dir_name="$(dirname "$(readlink -f "$0")")"
+
+cd "${current_dir_name}/apps" 2>/dev/null || cd "${current_dir_name}/../apps" 2>/dev/null || ( echo "somthing is wrong" && exit 1 )
+
+################################################
+find . -type f -exec sed -i 's|$DIRECTORY/manage|${DIRECTORY}/manage|g' {} +
+find . -type f -exec sed -i 's|"${DIRECTORY}/manage" install |manage_install |g' {} +
+find . -type f -exec sed -i 's|"${DIRECTORY}/manage" uninstall |manage_uninstall |g' {} +
+find . -type f -exec sed -i 's|"${DIRECTORY}/manage" install-if-not-installed|manage_install_if_not_installed |g' {} +
+find . -type f -exec sed -i 's/install_package /install_packages /g' {} +
+find . -type f -exec sed -i 's/git clone/git_clone/g' {} +
+################################################
+rm -rdf "CommanderPi"
+rm -rdf "Pi-Apps Terminal Plugin (bash)"
+rm -rdf "PiGro"
+rm -rdf "Pi Power Tools"
+rm -rdf "PiSafe"
+rm -rdf "Scratch 2"
+rm -rdf "Scratch 3"
+rm -rdf "Update Buddy"
+rm -rdf "Imager"
+rm -rdf "RiiTag-RPC"
+rm -rdf "Turbowarp"
+rm -rdf "Waveform"
+rm -rdf "Windows Flasher"
+rm -rdf "Browsh"
+rm -rdf "Amiberry"
+rm -rdf "Eagle CAD"
+rm -rdf "Box64"
+rm -rdf "Box86"
+rm -rdf "Https File Server"
+rm -rdf "Wechat"
+rm -rdf "Lego Digital Designer"
+rm -rdf "Wine (x86)"
+rm -rdf "Wine (x64)"
+rm -rdf "Windows Screensavers"
+rm -rdf "Minecraft Java GDLauncher"
+rm -rdf "Sonic Pi"
+rm -rdf "Descent 2"
+rm -rdf "Descent 1"
+rm -rdf "Webcord"
+rm -rdf "Caprine"
+rm -rdf "Ducopanel"
+rm -rdf "Mac OS Theme"
+rm -rdf "WACUP (new WinAmp)"
+rm -rdf "Puffin"
+rm -rdf "WPS Office"
+rm -rdf "eDEX-UI"
+rm -rdf "VMware Horizon Client"
+rm -rdf "ArmCord"
+rm -rdf "Sphero SDK"
+rm -rdf "Downgrade Chromium"
+rm -rdf "More RAM"
+################################################
+mv "Steam Link" Steam
+echo "steam-devices" > "Steam/packages"
+echo "tldr" > "tldr/packages"
+echo "deluge" > "Deluge/packages"
+echo "flameshot" > "Flameshot/packages"
+echo "gh" > "Github-CLI/packages"
+echo "timeshift" > "Timeshift/packages"
+echo "speedtest-cli" > "SpeedTest-CLI/packages"
+echo "keepassxc" > "KeePassXC/packages"
+echo "chromium" > "Chromium/packages"
+echo "ckb-next" > "ckb-next/packages"
+echo "obs-studio" > "OBS Studio/packages"
+echo "antimicro" > "AntiMicroX/packages"
+echo "cura" > "Cura/packages"
+echo "drawing" > "Drawing/packages"
+echo "fheroes2" > "Heroes 2/packages"
+echo "alacritty" > "Alacritty Terminal/packages"
+echo "tint" > "Tetris CLI/packages"
+echo "arduino" > "Arduino/packages"
+echo "qemu-user qemu-system qemu-system-gui qemu-block-extra qemu-utils" > "QEMU/packages"
+################################################
+rm "BleachBit/install"
+rm "BleachBit/uninstall"
+echo "bleachbit" > "BleachBit/packages"
+rm "Kodi/install"
+rm "Kodi/uninstall"
+echo "kodi" > "Kodi/packages"
+rm "XSnow/install"
+rm "XSnow/uninstall"
+echo "xsnow" > "XSnow/packages"
+################################################
+sed -i 's/aiwrpi.sh/aiwdebianubuntu.sh/g' "All Is Well/install"
+sed -i 's/aiwrpi.sh/aiwdebianubuntu.sh/g' "All Is Well/uninstall"
+sed -i 's/_arm64/_amd64/g' "Electron Fiddle/install-64"
+sed -i 's/_arm64/_amd64/g' "FreeTube/install-64"
+sed -i 's/ARMPreview//g' "Geekbench 5/install-64"
+sed -i 's/ARMPreview//g' "Geekbench 6/install-64"
+sed -i 's/5.5.0/6.2.2/g' "Geekbench 6/install-64"
+sed -i 's/_arm64/_amd64/g' "Hyper/install-64"
+sed -i 's|Jai-JAP/hyper-arm-builds|vercel/hyper|g' "Hyper/install-64"
+sed -i 's/_arm64/_amd64/g' "Min/install-64"
+sed -i 's/-arm64/-amd64/g' "Syncthing/install"
+sed -i 's/-arm64-/-amd64-/g' "Github Desktop/install-64"
+sed -i 's/_arm64/_amd64/g' "VSCodium/install-64"
+sed -i 's/_arm64/_amd64/g' "TeamViewer/install-64"
+sed -i 's/1.0.183/1.0.207/g' "Tabby/install-64"
+sed -i 's|Jai-JAP/tabby-arm-builds|Eugeny/tabby|g' "Tabby/install-64"
+sed -i 's/-linux-arm64/-linux-x64/g' "Tabby/install-64"
+################################################
+rm -f "Visual Studio Code/install-*"
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install com.visualstudio.code || exit 1
+" > "Visual Studio Code/install"
+chmod +x "Visual Studio Code/install"
+echo "#!/bin/bash
+
+flatpak_uninstall com.visualstudio.code || exit 1
+" > "Visual Studio Code/uninstall"
+chmod +x "Visual Studio Code/uninstall"
+
+rm -f "Stunt Rally/install-*"
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install org.tuxfamily.StuntRally || exit 1
+" > "Stunt Rally/install"
+chmod +x "Stunt Rally/install"
+echo "#!/bin/bash
+
+flatpak_uninstall org.tuxfamily.StuntRally || exit 1
+" > "Stunt Rally/uninstall"
+chmod +x "Stunt Rally/uninstall"
+
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install com.orama_interactive.Pixelorama || exit 1
+" > "Pixelorama/install"
+chmod +x "Pixelorama/install"
+echo "#!/bin/bash
+
+flatpak_uninstall com.orama_interactive.Pixelorama || exit 1
+" > "Pixelorama/uninstall"
+chmod +x "Pixelorama/uninstall"
+
+rm -f "Microsoft Teams/install-*"
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install com.github.IsmaelMartinez.teams_for_linux || exit 1
+" > "Microsoft Teams/install"
+chmod +x "Microsoft Teams/install"
+echo "#!/bin/bash
+
+flatpak_uninstall com.github.IsmaelMartinez.teams_for_linux || exit 1
+" > "Microsoft Teams/uninstall"
+chmod +x "Microsoft Teams/uninstall"
+
+rm -f "BlueJ Java IDE/packages"
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install org.bluej.BlueJ || exit 1
+" > "BlueJ Java IDE/install"
+chmod +x "BlueJ Java IDE/install"
+echo "#!/bin/bash
+
+flatpak_uninstall org.bluej.BlueJ || exit 1
+" > "BlueJ Java IDE/uninstall"
+chmod +x "BlueJ Java IDE/uninstall"
+
+rm -f Zoom/install-*
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install us.zoom.Zoom || exit 1
+" > Zoom/install
+chmod +x Zoom/install
+echo "#!/bin/bash
+
+flatpak_uninstall us.zoom.Zoom || exit 1
+" > "Zoom/uninstall"
+chmod +x "Zoom/uninstall"
+
+rm -f Pinta/packages
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install org.pinta.Pinta || exit 1
+" > Pinta/install
+chmod +x Pinta/install
+echo "#!/bin/bash
+
+flatpak_uninstall org.pinta.Pinta || exit 1
+" > "Pinta/uninstall"
+chmod +x "Pinta/uninstall"
+
+rm -f "Pycharm CE"/install-*
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install com.jetbrains.PyCharm-Communit || exit 1
+" > "Pycharm CE"/install
+chmod +x "Pycharm CE"/install
+echo "#!/bin/bash
+
+flatpak_uninstall com.jetbrains.PyCharm-Communit || exit 1
+" > "Pycharm CE/uninstall"
+chmod +x "Pycharm CE/uninstall"
+
+rm -f "BlockBench/install-*"
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install net.blockbench.Blockbench || exit 1
+" > "BlockBench/install"
+chmod +x "BlockBench/install"
+echo "#!/bin/bash
+
+flatpak_uninstall net.blockbench.Blockbench || exit 1
+" > "BlockBench/uninstall"
+chmod +x "BlockBench/uninstall"
+
+rm -f "Intellij IDEA/install-*"
+echo "#!/bin/bash
+
+install_packages flatpak || exit 1
+
+flatpak_install com.jetbrains.IntelliJ-IDEA-Community || exit 1
+" > "Intellij IDEA/install"
+chmod +x "Intellij IDEA/install"
+echo "#!/bin/bash
+
+flatpak_uninstall com.jetbrains.IntelliJ-IDEA-Community || exit 1
+" > "Intellij IDEA/uninstall"
+chmod +x "Intellij IDEA/uninstall"
+
+################################################
+echo '#!/bin/bash
+# Get dependencies
+install_packages libsfml-dev libsdl2-dev libxdo-dev || exit 1
+#Download
+rm -rf ~/bongocam
+wget -O ~/bongocat.zip https://github.com/kuroni/bongocat-osu/releases/download/v1.5.3/bongocat-osu_x64.zip
+
+#Install
+unzip ~/bongocat.zip
+rm ~/bongocat.zip
+mv ~/bongocat-armv7l-* ~/bongocam
+chmod +x ~/bongocam/bongo
+
+#Desktop shortcut
+echo "[Desktop Entry]
+Name=Bongo Cam
+Comment=Cute bongo cat app
+Icon=$(dirname "$0")/icon-64.png
+Exec=$HOME/bongocam/bongo
+Path=$HOME/bongocam/
+Type=Application
+Encoding=UTF-8
+Terminal=false
+Categories=AudioVideo;" > ~/.local/share/applications/bongocam.desktop
+' > "Bongo Cam/install-64"
+chmod +x "Bongo Cam/install-64"
+
+rm -f "AnyDesk/instal*"
+echo "wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | sudo apt-key add -
+echo 'deb http://deb.anydesk.com/ all main' > /etc/apt/sources.list.d/anydesk-stable.list
+sudo apt-get update
+install_packages anydesk
+" > AnyDesk/install
+chmod +x AnyDesk/install
+
+echo '#!/bin/bash
+
+sudo apt update
+sudo apt-get upgrade
+install_packages arduino
+sudo usermod -aG dialout $(whoami)
+' > Arduino/install
+chmod +x Arduino/install
+
+echo '#!/bin/bash
+version=2.0.4
+install_packages https://github.com/pavlobu/deskreen/releases/download/v${version}/deskreen_${version}_amd64.deb || exit 1
+' > Deskreen/install-64
+
+echo '#!/bin/bash
+version=2.0.4
+version2=0.0.8.rev1
+install_packages https://github.com/libredeb/lightpad/releases/download/v${version}/lightpad_${version2}_amd64.deb || exit 1
+' > Lightpad/install-64
+
+echo '#!/bin/bash
+version=1.87
+install_packages https://remarkableapp.github.io/files/remarkable_${version}_all.deb || exit 1
+' > Remarkable/install
+
+echo '#!/bin/bash
+version=1.0.0
+install_packages https://gitlab.com/bztsrc/usbimager/-/blob/binaries/usbimager_${version}-amd64.deb || exit 1
+' > USBImager/install-64
+
+echo '#!/bin/bash
+version=1.19.5
+install_packages https://github.com/balena-io/etcher/releases/download/v${version}/balena-etcher_${version}_amd64.deb || exit 1
+' > BalenaEtcher/install-64
+echo 'Cross-platform source code editor with a Python application programming interface.
+It natively supports many programming languages and markup languages. Additional features can be added with plugins.
+
+To run: Menu -> Programming -> Sublime Text
+To run in a terminal if you are using a 32-bit OS: box86 ~/"Sublime Text 2"/sublime_text
+To run in a terminal if you are using a 64-bit OS: subl
+' > "Sublime Text/description"

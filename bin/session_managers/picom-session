@@ -1,0 +1,57 @@
+#!/bin/bash
+#===================================================================================
+# FILE: picom-session
+# DESCRIPTION: manage picom processes for start, restart and stop all picom instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+
+picom_path="$HOME/.config/picom.conf"
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all picom process
+#===================================================================================
+function stop() {	
+	[ "$(pidof picom)" ] && killall picom
+	[ "$(pidof picom)" ] && killall -9 picom
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: run picom
+#===================================================================================
+function start() {
+  	[ ! "$(pidof picom)" ] && exec picom --daemon --config "$picom_path" &
+	[[ $(pidof tint2) ]] && tint2-session
+}
+
+function toggle() {
+	if [[ $(pidof tint2) ]];then
+		stop
+	else
+		start
+	fi
+}
+# EXEC ACTION ACCORDING $1
+case "${1,,}" in
+	""|start)
+		start		
+	;;
+	restart)
+		stop
+		start
+	;;
+	stop)	
+		stop	
+	;;
+	toggle)	
+		toggle	
+	;;
+	*)	
+		echo "Usage: conky-session [start|stop|restart]"
+	;;
+esac

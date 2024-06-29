@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=kali-i3
+Comment=Log in to a kali-i3
+Exec=/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/distrobox_center/Extra/kali_i3/kali-i3
+TryExec=/usr/share/DmDmDmdMdMdM/bin/xsession/kali_i3/kali-i3
+Icon=openbox
+Type=Application
+Path=
+Terminal=false
+StartupNotify=false

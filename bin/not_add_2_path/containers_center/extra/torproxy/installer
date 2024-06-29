@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -e
+
+script_full_path="$(dirname "$(realpath "$0")")"
+
+if command -v sudo &>/dev/null;then
+	__sudo="sudo"
+else
+	__sudo=""
+fi
+
+cd "${script_full_path}"
+
+if [[ -f '/usr/share/DmDmDmdMdMdM/Containers_ready' ]];then
+	CONTAINER_RT="$(cat '/usr/share/DmDmDmdMdMdM/Containers_ready')"
+else
+	exit 1
+fi
+
+sed -i "s/CONTAINER_RT_from_file/$CONTAINER_RT/g" tor-router
+
+if [[ "$CONTAINER_RT" = "podman" ]];then
+	__format='--format docker'
+	CONTAINER_RT="$CONTAINER_RT"
+elif [[ "$CONTAINER_RT" = "docker" ]];then
+	__format=''
+	CONTAINER_RT="$__sudo $CONTAINER_RT"
+fi
+
+$CONTAINER_RT build -t torproxy . ${__format}
+$CONTAINER_RT run -it --net=host --restart=always -p 8118:8118 -p 9050:9050 -d torproxy
+
+$__sudo cp -rf "tor-router" "/usr/share/DmDmDmdMdMdM/bin/bin/"

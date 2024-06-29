@@ -1,0 +1,2 @@
+#!/bin/bash
+$(dirname "$(readlink -f "$0")")/../not_add_2_path/YadAppsStore/gui

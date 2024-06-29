@@ -1,0 +1,3 @@
+#!/bin/bash
+tldr --clear-cache &>/dev/null
+sudo rm -f /usr/bin/tldr &>/dev/null

@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+. "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
+. "/usr/share/DmDmDmdMdMdM/lib/common/openbox"
+
+ls_bin="/usr/bin/ls"
+opt___="${1-}"
+shift 1
+reset_of_opt___="$@"
+_hub_script_dir="/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/hub_script"
+script_name_=""
+full_script_path=""
+#############################################################################
+#############################################################################
+# config_editer_hub
+#############################################################################
+#############################################################################
+
+config_editer_hub()
+{
+	# Description: Choose from a list of configuration files to edit.
+	# Dependencies: rofi, emacsclient
+	
+	# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+	# if certain things happen, which is a good thing.  Otherwise, we can
+	# get hidden bugs that are hard to discover.
+	# dm-confedit
+	declare -A confedit_list
+	if [[ "$SHELL" == *"/bash" ]];then
+		confedit_list[bash]="$BASHDOTDIR/bashrc.sh"
+		confedit_list[profile]="$BASHDOTDIR/profile"
+		confedit_list[bash_only_aliases]="$BASHDOTDIR/bash_only_aliases"
+	fi
+	if [[ "$SHELL" == *"/zsh" ]];then
+		confedit_list[zsh]="$zshdotfiles/zshrc.sh"
+		confedit_list[zprofile]="$zshdotfiles/.zprofile"
+		confedit_list[zsh_only_aliases]="$zshdotfiles/zsh_only_aliases"
+	fi
+	if [[ "$SHELL" == *"/fish" ]];then
+		confedit_list[fish]="$HOME/.config/fish/config.fish"
+	fi
+	confedit_list[confedit]="$HOME/.config/dmscripts/config"
+	confedit_list[alacritty]="$HOME/.config/alacritty/alacritty.yml"
+	confedit_list[awesome]="$HOME/.config/awesome/rc.lua"
+	confedit_list[openbox autorun]="${OBPATH}"
+	confedit_list[broot]="$HOME/.config/broot/conf.toml"
+	confedit_list[bspwm]="$HOME/.config/bspwm/bspwmrc"
+	confedit_list[doom emacs config.el]="$HOME/.config/doom/config.el"
+	confedit_list[doom emacs config.org]="$HOME/.config/doom/config.org"
+	confedit_list[doom emacs init.el]="$HOME/.config/doom/init.el"
+	confedit_list[doom emacs packages.el]="$HOME/.config/doom/packages.el"
+	confedit_list[dunst]="$HOME/.config/dunst/dunstrc"
+	confedit_list[dwm]="$HOME/dwm-distrotube/config.def.h"
+	confedit_list[dwmblocks]="$HOME/dwmblocks-distrotube/blocks.def.h"
+	confedit_list[herbstluftwm]="$HOME/.config/herbstluftwm/autostart"
+	confedit_list[i3]="$HOME/.config/i3/config"
+	confedit_list[ncmpcpp]="$HOME/.config/ncmpcpp/config"
+	confedit_list[neovim]="$HOME/.config/nvim/init.vim"
+	confedit_list[picom]="$HOME/.config/picom.conf"
+	confedit_list[qtile]="$HOME/.config/qtile/config.py"
+	confedit_list[qutebrowser bookmarks]="$HOME/.config/qutebrowser/bookmarks/urls"
+	confedit_list[qutebrowser quickmarks]="$HOME/.config/qutebrowser/quickmarks"
+	confedit_list[qutebrowser config.py]="$HOME/.config/qutebrowser/config.py"
+	confedit_list[spectrwm]="$HOME/.spectrwm.conf"
+	confedit_list[ssh]="$HOME/.ssh/config"
+	confedit_list[st]="$HOME/st-distrotube/config.def.h"
+	confedit_list[stumpwm]="$HOME/.config/stumpwm/config"
+	confedit_list[surf]="$HOME/surf-distrotube/config.def.h"
+	confedit_list[sxhkd]="$HOME/.config/sxhkd/sxhkdrc"
+	confedit_list[tabbed]="$HOME/tabbed-distrotube/config.def.h"
+	confedit_list[vifm]="$HOME/.config/vifm/vifmrc"
+	confedit_list[vim]="$HOME/.vimrc"
+	confedit_list[xmobar mon1]="$HOME/.config/xmobar/xmobarrc0"
+	confedit_list[xmobar mon2]="$HOME/.config/xmobar/xmobarrc1"
+	confedit_list[xmobar mon3]="$HOME/.config/xmobar/xmobarrc2"
+	confedit_list[xmonad]="$HOME/.xmonad/README.org"
+	confedit_list[xinitrc]="$HOME/.xinitrc"
+	confedit_list[xresources]="$HOME/.Xresources"
+	confedit_list[xsessionrc]="$HOME/.xsessionrc"
+	confedit_list[profile]="$HOME/.profile"
+	
+	run_editor_hub() {
+  		# Clean options array making sure that the files exist
+  		declare -A _clean_list
+  		# As this is loaded from other file it is technically not defined
+  		# shellcheck disable=SC2154
+  		for i in "${!confedit_list[@]}"; do
+    		[[ -f ${confedit_list["${i}"]} ]] && _clean_list["${i}"]=${confedit_list["${i}"]}
+  		done
+		
+  		# Piping the above array (cleaned) into rofi.
+  		# We use "printf '%s\n'" to format the array one item to a line.
+  		choice=$(printf '%s\n' "${!_clean_list[@]}" | sort | ${rofi_command} -p 'Edit config:')
+		
+  		# What to do when/if we choose a file to edit.
+  		if [ "$choice" ]; then
+    		cfg=$(printf '%s\n' "${_clean_list["${choice}"]}")
+    		# shellcheck disable=SC2154
+    		popup_terminal --editor "$cfg"
+  		# What to do if we just escape without choosing anything.
+  		else
+      		echo "Program terminated." && exit 0
+  		fi
+	}
+	
+	if [[ -n "$reset_of_opt___" ]];then
+		$CLI_EDITER "$reset_of_opt___"
+	else
+		run_editor_hub
+	fi
+}
+
+#############################################################################
+#############################################################################
+# list_scripts_hub
+#############################################################################
+#############################################################################
+
+list_scripts_hub()
+{
+	$ls_bin $_hub_script_dir
+}
+
+scripts_hub()
+{
+	# Description: a hub that you can execute all the other scripts from
+	# Dependencies: rofi, executable dmscripts, all the dependancies from dmscripts
+	list_scripts="$(list_scripts_hub)"
+	MENU="$(echo -e "$list_scripts" | ${rofi_command} -p '')"
+	if [ -n "$MENU" ]
+	then
+		script_name_="$MENU"
+		full_script_path="${_hub_script_dir}/${script_name_}"
+        execuite_scripts_ 
+	fi
+}
+
+execuite_scripts_()
+{
+	if [ -f "${full_script_path}" ];then
+		run_this_in_popup_=('ani-cli' 'sparky-usb-formatter' 'unmounter' 'displayselect') 
+		
+		if [[ "${run_this_in_popup_[*]}" = *"${script_name_}"* ]];then
+			run_it_in_popup_="" #run it in popup
+		else
+			run_it_in_popup_=$(grep -e "popup" -e "yad" -e "rofi" "${full_script_path}" || :) # check if it contain yad popup or rofi if yes then dont run in popup
+		fi
+		
+		if [ -z "$run_it_in_popup_" ]
+		then
+			popup_terminal "${full_script_path};read -p 'Press enter to continue'"
+		else
+			"${full_script_path}"
+		fi
+	else
+		echo "this script (${full_script_path}) does not exist"
+		help
+	fi
+}
+
+#############################################################################
+#############################################################################
+# main_rofi_menu
+#############################################################################
+#############################################################################
+
+main_rofi_menu()
+{
+	MENU="$(echo -e "1- hub for executing script \n2- list of configuration files to edit" | ${rofi_command} -p '')"
+	case $MENU in
+		1-*) scripts_hub ;;
+		2-*) config_editer_hub "$reset_of_opt___" ;;
+		*) main_rofi_menu ;;
+	esac
+}
+#############################################################################
+#############################################################################
+# main
+#############################################################################
+#############################################################################
+
+help()
+{
+	echo "listing script:"
+	echo "================="
+	list_scripts_hub
+	echo ""
+	echo "================="
+	echo -e "type s for script hub \ntype c for config editor hub" 
+}
+
+case $opt___ in
+	"") main_rofi_menu ;;
+	s) scripts_hub ;;
+	c) config_editer_hub "$reset_of_opt___";;
+	h) help ;;
+	*) script_name_="${opt___}" && full_script_path="${_hub_script_dir}/${script_name_}" && execuite_scripts_ ;;
+esac

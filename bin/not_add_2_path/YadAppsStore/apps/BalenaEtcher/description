@@ -1,0 +1,3 @@
+Flash SD cards with a disk image. Many file types supported.
+To run: Menu -> Accessories -> balenaEtcher
+To run in a terminal: balena-etcher

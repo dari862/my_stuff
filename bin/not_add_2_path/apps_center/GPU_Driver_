@@ -1,0 +1,113 @@
+#!/bin/bash
+
+app_name="GPU Drivers"
+
+if [ -f /etc/os-release ]; then
+    # freedesktop.org and systemd
+    . /etc/os-release
+    version_=$(echo "${VERSION_ID//./}")
+    distro_name_="$ID"
+    distro_name_and_ver_=$ID$version_
+elif [ -f /etc/lsb-release ]; then
+    # For some versions of Debian/Ubuntu without lsb_release command
+    . /etc/lsb-release
+    distro_name_="$DISTRIB_ID"
+    distro_name_and_ver_=$DISTRIB_ID$DISTRIB_RELEASE
+else
+    # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+    distro_name_="$(uname -s)"
+    distro_name_and_ver_=$(uname -s)$(uname -r)
+fi
+
+###################################################################
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem make your linux ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "Linux ${app_name}."
+	say '------------------------'
+	say "This script will make your linux ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	say 'Updating sources...' 1
+	Package_update_
+	
+	if [ "$distro_name_" = "ubuntu" ];then
+		Package_installer_ software-properties-common || continue
+		sudo add-apt-repository -y universe
+		sudo add-apt-repository -y multiverse
+	fi
+	
+	if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+		curl -fSsL "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/nvidia-drivers.gpg > /dev/null 2>&1
+		echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | sudo tee /etc/apt/sources.list.d/nvidia-drivers.list
+		
+		say 'Updating sources...' 1
+		Package_update_ 
+		
+		if [ $? -eq 1 ]; then
+			say "There was a problem make your linux ${app_name}." 
+			break
+		fi
+		
+		read -p "do you want to add Cuda Support? (Y/n)" a_Cuda;
+		[ "${a_Cuda,,}" = "y" ] && _cuda_="cuda"
+		
+		read -p "do you want to install opensource nvidia-kernel? (Y/n)" a_kernel_open_dkms_;
+		[ "${a_kernel_open_dkms_,,}" = "y" ] && _kernel_open_dkms_="nvidia-kernel-open-dkms"
+		
+		Package_installer_ nvidia-driver nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_ || continue
+		
+		say
+		say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
+		say
+		say "NVIDIA Drivers installed you need to reboot your pc."
+	fi
+	
+	if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+		Package_installer_ libgl1-mesa-dri xserver-xorg-video-ati xserver-xorg-video-amdgpu mesa-vulkan-drivers vkbasalt || continue
+	fi
+	
+	if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+		Package_installer_ xserver-xorg-video-intel intel-gpu-tools || continue
+		sudo mkdir -p /etc/X11/xorg.conf.d/
+sudo bash -c 'cat << EOF > /etc/X11/xorg.conf.d/20-intel.conf
+Section "Device"
+	Identifier  "Intel Graphics"
+	Driver      "Intel"
+	Option      "AccelMethod"  "sna"
+	Option      "TearFree"	"True"
+	Option      "Tiling"	"True"
+	Option      "SwapbuffersWait" "True"
+	#Option      "AccelMethod"  "uxa"
+EndSection
+EOF'
+	fi
+	
+	if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
+		say "This is VM"
+	fi
+	
+	say "Creating Check File (GPU_Drivers_ready)"
+	sudo touch /usr/share/DmDmDmdMdMdM/GPU_Drivers_ready
+	
+	say
+	say " your linux  is ${app_name}."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	
+	break
+done
+

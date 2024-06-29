@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Openbox Pipemenu to change openbox menu style
+
+# Variables and functions
+
+apps_as_root_cmd="apps_as_root"
+appearance_settings_cmd="$(which appearance_settings_)"
+popup_path="$(which popup_terminal)"
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/includes_functions"
+
+menuStart
+	menuItem 'Terminal (my-terminal-emulator)' "${apps_as_root_cmd} my-terminal-emulator"
+	menuItem 'File Manager (my-file-manager)' "${apps_as_root_cmd} my-file-manager"
+	menuItem 'Text Editor (my-text-editor)' "${apps_as_root_cmd} my-text-editor"
+	[[ $(command -v ranger) ]] && menuItem 'File Manager CLI (ranger)' "${apps_as_root_cmd} ${popup_path} ranger"
+	menuItem 'Text Editor CLI (my-cli-editor)' "${apps_as_root_cmd} ${popup_path} --editor $HOME"
+	menuItem 'Appearance Settings' "${apps_as_root_cmd} ${appearance_settings_cmd}"
+	[[ $(command -v qt5ct) ]] && menuItem 'QT5 Settings' "${apps_as_root_cmd} qt5ct"
+	[[ $(command -v kvantummanager) ]] && menuItem 'kvantum Manager' "${apps_as_root_cmd} kvantummanager"
+menuEnd

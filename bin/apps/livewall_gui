@@ -1,0 +1,70 @@
+#!/bin/bash
+command -v ffmpeg >/dev/null 2>&1 || _ffmpeg_="I need ffmpeg: sudo apt install --no-install-recommends ffmpeg \n"
+command -v feh >/dev/null 2>&1 || _feh_="I need feh: sudo apt install --no-install-recommends feh \n"
+if [[ -n ${_feh_} ]] || [[ -n ${_ffmpeg_}  ]];then
+	yad --image="dialog-question" \
+	--title "Alert" \
+	--text "\n \n \n \n ${_ffmpeg_} ${_feh_}" 
+	exit 1
+fi
+title_name="Live wallpaper"
+icon_name="livewall_gui"
+icon="/usr/share/DmDmDmdMdMdM/images/${icon_name}.png"
+_dir_vid="$(livewall --print-vid-path)"
+
+function live_it(){
+    [ -z "$1" ] && return
+	if [ "$2" == "TRUE" ];then
+		livewall --add-autorun-live "$video_path"
+	else
+		livewall "$video_path"
+    fi
+}
+
+function list_it(){
+    if ! ls -d ${_dir_vid}/* 2>/dev/null >/dev/null; then
+        exit 1
+    fi
+	menu=()
+    __numbers_=($(cd ${_dir_vid} && ls))
+    for i in "${__numbers_[@]}"; do
+    	#videonumber → videoname
+    	menu+=("${i}" "'$(cat ${_dir_vid}/${i}/video.info)'")
+    done
+    
+	yad_opts=(--list
+			--width=400
+    		--height=350
+  			--column=Number
+  			--column=Name
+  			"${menu[@]}")
+	ans=($(yad "${yad_opts[@]}"))
+	number_is="$(echo "$ans" | awk -F'|' '{print $1}')"
+    livewall -I "$number_is"
+}
+
+res=$(yad --form \
+    --title="${title_name}" \
+    --window-icon="$icon" \
+    --width=400 \
+    --height=100 \
+    --center \
+    --field 'Command:FL' '' \
+    --file-filter '*.mp4 *.m4v' \
+    --field 'Autorun Live Wallpaper':CHK TRUE \
+    --button="Set live wallpaper":10 \
+    --button="List live wallpaper":20 \
+    --button="stop live wallpaper":30 \
+    --button=Cancel:40)
+ex_code=$?
+if [[ $ex_code -eq 10 ]];then
+	video_path="$(echo $res | awk -F'|' '{print $1}')"
+	Autorun_live_wall="$(echo $res | awk -F'|' '{print $2}')"
+	live_it "$video_path" "$Autorun_live_wall"
+elif [[ $ex_code -eq 20 ]];then
+	list_it
+elif [[ $ex_code -eq 30 ]];then
+	livewall --quit
+elif [[ $ex_code -eq 40 ]];then
+	exit
+fi

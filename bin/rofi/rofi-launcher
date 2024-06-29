@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+
+# Import Current Theme
+. "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
+
+RASI="$rofi_style_dir/launcher.rasi"
+
+# Run
+rofi \
+    -show drun \
+	-kb-cancel Alt-F1 \
+	-theme ${RASI}

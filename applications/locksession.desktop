@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Lock Session
+Type=Application
+Comment=Locl Session
+Terminal=true
+Exec=my_session_manager lock
+Icon=lock
+Categories=Power;
+GenericName=Lock Session
+Keywords=exit;lock

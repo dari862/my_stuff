@@ -1,0 +1,73 @@
+#!/bin/bash
+#===================================================================================
+terminal_name="kitty"
+my_installer_script_name="my-installer"
+fullscreen_mode=""
+
+arg_="${1-}"
+shift 1
+file_name_="$@"
+if [[ -z "${file_name_}" ]];then
+	file_name_="${arg_}"
+	arg_="${terminal_name}"
+fi
+
+install_app(){
+	${terminal_name} -T "Installing App ${file_name_}." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
+}
+
+install_game(){
+	${terminal_name} -T "Installing ${file_name_}." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
+}
+
+deploy_distrobox_container(){
+	${terminal_name} -T "Deploying ${file_name_}." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
+}
+
+deploy_container(){
+	${terminal_name} -T "Deploying ${file_name_}." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
+}
+
+run_script(){
+	${terminal_name} -T "Running Script ${file_name_}." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
+}
+
+run_tweek(){
+	${terminal_name} -T "${file_name_}." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
+}
+
+run_man(){
+	${terminal_name} -T "${file_name_} man page." -e man ${file_name_}
+}
+
+run_editor(){	
+	${terminal_name} -T "${file_name_} - CLI Editor" -e $CLI_EDITER "${file_name_}"
+}
+
+run_editor_with_sudo(){	
+	local CLI_EDITER_PATH="$(which $CLI_EDITER)"
+	${terminal_name} -T "${file_name_} - CLI Editor" -e sudo $CLI_EDITER_PATH "${file_name_}"
+}
+
+
+run_popup_normal_mode(){
+	${terminal_name} ${fullscreen_mode} -T "${arg_}" -e bash -c "${file_name_}"
+}
+
+case $arg_ in
+		--install) install_app ;;
+		--game) install_game ;;
+		--deploy) deploy_distrobox_container ;;
+		--container) deploy_container ;;
+		--script) run_script ;;
+		--tweek) run_tweek ;;
+		--man) run_man ;;
+		--editor) run_editor ;;
+		--sudo-editor) run_editor_with_sudo ;;
+		--full)  
+			shift 1
+			fullscreen_mode="--start-as fullscreen --config /etc/xdg/kitty/kitty.conf"
+			run_popup_normal_mode
+		;;
+		*) run_popup_normal_mode;;
+esac

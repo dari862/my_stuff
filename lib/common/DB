@@ -1,0 +1,12 @@
+local_db_dir="$HOME/.config/WM_common_config"
+styles_db_path="${local_db_dir}/styles_db"
+bit_styles_db_path="${local_db_dir}/bit_styles_db"
+
+db_dir="/usr/share/DmDmDmdMdMdM/lib/DB_output"
+tweeks_db_path="${db_dir}/tweeks_db"
+apps_db_path="${db_dir}/apps_db"
+gaming_db_path="${db_dir}/gaming_db"
+distrobox_apps_db_path="${db_dir}/distrobox_apps_db"
+distrobox_deploy_db_path="${db_dir}/distrobox_deploy_db"
+distrobox_gaming_db_path="${db_dir}/distrobox_gaming_db"
+containers_deploy_db_path="${db_dir}/containers_deploy_db"

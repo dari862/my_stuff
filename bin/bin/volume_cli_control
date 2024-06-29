@@ -1,0 +1,210 @@
+#!/bin/bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Script To Manage Speaker Volume For Archcraft.
+if command -v pactl &> /dev/null
+then
+	SINK="`pactl info | grep -P '^Default Sink: ' | sed 's/[^:]\+:\s\+//'`"
+	if [[ "$SINK" =~ DragonFly ]]; then
+  		INCR='24'
+  		MIN_VOLUME=65050
+  		MAX_VOLUME=65146
+	else
+  		INCR='10%'
+  		MIN_VOLUME=0
+  		MAX_VOLUME=65536
+	fi
+	
+	function volume() {
+  		VOLUME="`pacmd dump | grep -P '^set-sink-volume.*\s+0x[1-9a-f][0-9a-f]*$'`"
+  		echo "$VOLUME" | grep -qF "$SINK"
+  		if [[ $? -eq 0 ]]; then
+    		VOLUME="`echo "$VOLUME" | grep -oP '0x[1-9a-f][0-9a-f]*$'`"
+    		printf "%d\n" "$VOLUME"
+  		else
+    		echo 0
+  		fi
+  		unset VOLUME
+	}
+	
+	VOLUME="`volume`"
+	# Get Volume
+	get_volume() {
+		SINK=$( pactl list short sinks | sed -e 's,^\([0-9][0-9]*\)[^0-9].*,\1,' | head -n 1 )
+		echo "`pactl list sinks | grep '^[[:space:]]Volume:' | head -n $(( $SINK + 1 )) | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,'`"
+	}
+	
+	# Get icons
+	get_icon() {
+		current="$(get_volume)"
+		if [[ ("$current" -ge "0") && ("$current" -le "50") ]]; then
+			icon=""
+		elif [[ ("$current" -ge "50") && ("$current" -le "100") ]]; then
+			icon=""
+		elif [[ ("$current" -ge "100") && ("$current" -le "150") ]]; then
+			icon=""
+		fi
+	}
+	
+	# Get status
+	get_status() {
+		get_icon
+		MUTED="`pacmd dump | grep -P '^set-sink-mute.*\s+yes$'`"
+    	echo "$MUTED" | grep -qF "$SINK"
+    	if [[ $? -eq 0 ]]; then
+			echo ' Mute'
+		else
+			echo "$icon $(get_volume)%"
+		fi
+	}
+	
+	# Increase Volume
+	inc_volume() {
+		pactl -- set-sink-volume "$SINK" "+$INCR"
+    	if [[ $VOLUME -gt $MAX_VOLUME ]]; then
+      	pactl -- set-sink-volume "$SINK" "$MAX_VOLUME"
+    	fi
+	}
+	
+	# Decrease Volume
+	dec_volume() {
+		pactl -- set-sink-volume "$SINK" "-$INCR"
+    	if [[ $VOLUME -lt $MIN_VOLUME ]]; then
+      	pactl -- set-sink-volume "$SINK" "$MIN_VOLUME"
+    	fi
+	}
+	
+	# Toggle Mute
+	toggle_mute() {
+		MUTED="`pacmd dump | grep -P '^set-sink-mute.*\s+yes$'`"
+    	echo "$MUTED" | grep -qF "$SINK"
+    	if [[ $? -eq 0 ]]; then
+      		pactl -- set-sink-mute "$SINK" 0
+    	else
+      		pactl -- set-sink-mute "$SINK" 1
+    	fi
+	}
+
+	# Toggle Mic
+	toggle_mic() {
+		MUTED="`pacmd dump | grep -P '^set-source-mute.*\s+yes$'`"
+    	echo "$MUTED" | grep -qF "$SINK"
+    	if [[ $? -eq 0 ]]; then
+      	pactl -- set-source-mute "$SINK" 0
+    	else
+      	pactl -- set-source-mute "$SINK" 1
+    	fi
+	}
+elif command -v pulsemixer &> /dev/null
+then
+	# Get Volume
+	get_volume() {
+		echo "`pulsemixer --get-volume | cut -d' ' -f1`"
+	}
+	
+	# Get icons
+	get_icon() {
+		current="$(get_volume)"
+		if [[ ("$current" -ge "0") && ("$current" -le "30") ]]; then
+			icon=""
+		elif [[ ("$current" -ge "30") && ("$current" -le "60") ]]; then
+			icon=""
+		elif [[ ("$current" -ge "60") && ("$current" -le "100") ]]; then
+			icon=""
+		fi
+	}
+	
+	# Get status
+	get_status() {
+		get_icon
+		if [[ `pulsemixer --get-mute` == 1 ]]; then
+			echo ' Mute'
+		else
+			echo "$icon $(get_volume)%"
+		fi
+	}
+	
+	# Increase Volume
+	inc_volume() {
+		[[ `pulsemixer --get-mute` == 1 ]] && pulsemixer --unmute
+		pulsemixer --max-volume 100 --change-volume +10
+	}
+	
+	# Decrease Volume
+	dec_volume() {
+		[[ `pulsemixer --get-mute` == 1 ]] && pulsemixer --unmute
+		pulsemixer --max-volume 100 --change-volume -10
+	}
+	
+	# Toggle Mute
+	toggle_mute() {
+		pulsemixer --toggle-mute
+	}
+	
+	# Toggle Mic
+	toggle_mic() {
+		ID="`pulsemixer --list-sources | grep 'Default' | cut -d',' -f1 | cut -d' ' -f3`"
+		pulsemixer --id ${ID} --toggle-mute
+	}
+elif command -v amixer &> /dev/null
+then
+	# Get Volume
+	get_volume() {
+		volume=`amixer get Master | tail -n1 | awk -F ' ' '{print $5}' | tr -d '[]'`
+		echo "$volume"
+	}
+	
+	# Get icons
+	get_icon() {
+		vol="$(get_volume)"
+		current="${vol%%%}"
+		if [[ "$current" -eq "0" ]]; then
+			icon='/usr/share/DmDmDmdMdMdM/icons/dunst/volume-mute.png'
+		elif [[ ("$current" -ge "0") && ("$current" -le "30") ]]; then
+			icon='/usr/share/DmDmDmdMdMdM/icons/dunst/volume-low.png'
+		elif [[ ("$current" -ge "30") && ("$current" -le "60") ]]; then
+			icon='/usr/share/DmDmDmdMdMdM/icons/dunst/volume-mid.png'
+		elif [[ ("$current" -ge "60") && ("$current" -le "100") ]]; then
+			icon='/usr/share/DmDmDmdMdMdM/icons/dunst/volume-high.png'
+		fi
+	}
+	
+	# Increase Volume
+	inc_volume() {
+		amixer -Mq set Master,0 5%+ unmute && get_icon && dunstify -u low --replace=69 -i "$icon" "Volume : $(get_volume)"
+	}
+	
+	# Decrease Volume
+	dec_volume() {
+		amixer -Mq set Master,0 5%- unmute && get_icon && dunstify -u low --replace=69 -i "$icon" "Volume : $(get_volume)"
+	}
+	
+	# Toggle Mute
+	toggle_mute() {
+		status=`amixer get Master | tail -n1 | grep -wo 'on'`
+	
+		if [[ "$status" == "on" ]]; then
+			amixer set Master toggle && dunstify -u low --replace=69 -i '/usr/share/DmDmDmdMdMdM/icons/dunst/volume-mute.png' "Mute"
+		else
+			amixer set Master toggle && get_icon && dunstify -u low --replace=69 -i "$icon" "Unmute"
+		fi
+	}
+else
+	echo -e "$0: pactl , pulsemixer and amixer not installed."
+fi
+# Execute accordingly
+if [[ "$1" == "--get" ]]; then
+	get_volume
+elif [[ "$1" == "--inc" ]]; then
+	inc_volume
+elif [[ "$1" == "--dec" ]]; then
+	dec_volume
+elif [[ "$1" == "--toggle" ]]; then
+	toggle_mute
+elif [[ "$1" == "--toggle-mic" ]]; then
+	toggle_mic
+else
+	get_volume
+fi

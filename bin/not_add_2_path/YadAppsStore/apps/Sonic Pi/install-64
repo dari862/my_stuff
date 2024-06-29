@@ -1,0 +1,13 @@
+#!/bin/bash
+
+version=4.5.0_1
+
+#only use bookworm deb if glibc is 2.36 or greater
+if package_is_new_enough libc6 2.36 ;then
+  install_packages https://sonic-pi.net/files/releases/v${version%_*}/sonic-pi_${version}_bookworm.arm64.deb || exit 1
+#only use bullseye deb if glibc is 2.30 or greater
+elif package_is_new_enough libc6 2.30 ;then
+  install_packages https://sonic-pi.net/files/releases/v4.4.0/sonic-pi_4.4.0_1_bullseye.arm64.deb libconfig9 || exit 1
+else
+  error "User error: Sonic Pi is not available for older Debian/Ubuntu distros. Upgrade to a newer Debian/Ubuntu distribution."
+fi

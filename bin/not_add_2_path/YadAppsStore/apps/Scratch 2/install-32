@@ -1,0 +1,9 @@
+#!/bin/bash
+
+sudo rm -f /usr/lib/chromium-browser/libpepflashplayer.so
+
+install_packages https://github.com/Botspot/scratch2/raw/main/scratch2_0.25_armhf.deb || exit 1
+
+echo "Holding scratch2 package version so it won't upgrade..."
+echo "scratch2 hold" | sudo dpkg --set-selections
+

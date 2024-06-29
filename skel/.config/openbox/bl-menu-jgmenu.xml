@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE menu [
+  <!ENTITY openboxconfig "~/.config/openbox">
+]>
+<openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/  file:///usr/share/openbox/menu.xsd">
+  <menu id="root-menu" title="Menu" label="Openbox 3">
+        <item label="Run Program">
+            <action name="Execute">
+                <command>
+                    rofi-runner
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="Terminal">
+            <action name="Execute">
+                <command>
+                    my-terminal-emulator
+                </command>
+            </action>
+        </item>
+        <item label="Web Browser">
+            <action name="Execute">
+                <command>
+                    my-www-browser
+                </command>
+            </action>
+        </item>
+        <item label="File Manager">
+            <action name="Execute">
+                <command>
+                    my-file-manager
+                </command>
+            </action>
+        </item>
+        <item label="Text Editor">
+            <action name="Execute">
+                <command>
+                    my-text-editor
+                </command>
+            </action>
+        </item>
+        <item label="Media Player">
+            <action name="Execute">
+                <command>
+                    my-media-player
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="Quick Screenshot+Upload">
+            <action name="Execute">
+                <command>
+                    files-uploader
+                </command>
+            </action>
+        </item>
+        <separator/>
+    <menu id="applications-utilities" label="Utilities">
+    <menu id="TakeScreenshot" execute="screenshot-pipemenu" label="Take Screenshot"/>
+        <item label="BLOB Themes Manager">
+            <action name="Execute">
+                <command>
+                    style-manager --yad
+                </command>
+            </action>
+        </item>
+        <menu id="SSH" execute="bl-sshconfig-pipemenu" label="SSH"/>
+        <menu id="RemoteDesktop" execute="bl-remote-desktop-pipemenu" label="Remote Desktop"/>
+        <item label="App Finder">
+            <action name="Execute">
+                <command>
+                    rofi-launcher
+                </command>
+            </action>
+        </item>
+    </menu>
+    <menu id="Places" execute="ac-places" label="Places"/>
+    <menu id="RecentFiles" execute="ac-recent-files -rl15" label="Recent Files"/>
+    <separator/>
+    <menu id="preferences-system" label="Preferences">
+    <menu id="preferences-openbox" label="Openbox">
+        <item label="Edit bl-rc-jgmenu.xml">
+            <action name="Execute">
+                <command>
+                    my-text-editor &openboxconfig;/bl-rc-jgmenu.xml
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="WM Preferences">
+            <action name="Execute">
+                <command>
+                    obconf --config-file &openboxconfig;/bl-rc-jgmenu.xml
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="Reconfigure">
+            <action name="Execute">
+                <command>
+                    openbox --reconfigure
+                </command>
+            </action>
+        </item>
+        <item label="Restart">
+            <action name="Execute">
+                <command>
+                    restart-openbox
+                </command>
+            </action>
+        </item>
+    </menu>
+    <menu id="preferences-jgmenu" label="jgmenu">
+        <item label="Edit Menu Content">
+            <action name="Execute">
+                <command>
+                    my-text-editor ~/.config/jgmenu/prepend.csv
+                </command>
+            </action>
+        </item>
+        <item label="Edit Menu Settings">
+            <action name="Execute">
+                <command>
+                    my-text-editor ~/.config/jgmenu/jgmenurc
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="Sync theme with OpenBox">
+            <action name="Execute">
+                <command>
+                    jgmenu_run init --apply-obtheme
+                </command>
+            </action>
+        </item>
+        <item label="Sync theme with GTK3">
+            <action name="Execute">
+                <command>
+                    jgmenu_run init --apply-gtktheme
+                </command>
+            </action>
+        </item>
+        <separator label="Help"/>
+        <item label="man page">
+            <action name="Execute">
+                <command>
+                    popup_terminal --man jgmenu
+                </command>
+            </action>
+        </item>
+        <item label="tutorial">
+            <action name="Execute">
+                <command>
+                    popup_terminal --man jgmenututorial
+                </command>
+            </action>
+        </item>
+    </menu>
+    <menu id="preferences-keybinds" label="Keybinds">
+        <item label="Edit .xbindkeysrc">
+            <action name="Execute">
+                <command>
+                    my-text-editor ~/.xbindkeysrc
+                </command>
+            </action>
+        </item>
+        <item label="Restart">
+            <action name="Execute">
+                <command>
+                    bash -c 'pkill -x xbindkeys; xbindkeys_autostart'
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <separator label="Help"/>
+        <item label="man page">
+            <action name="Execute">
+                <command>
+                    popup_terminal --man xbindkeys
+                </command>
+            </action>
+        </item>
+    </menu>
+    <menu id="Compositor" execute="ac-compositor" label="Compositor"/>
+    <menu id="Conky" execute="bl-conky-pipemenu" label="Conky"/>
+    <menu id="panel_settings" execute="ac-panel-settings" label="Taskbar"/>
+        <item label="Appearance">
+            <action name="Execute">
+                <command>
+                    appearance_settings_
+                </command>
+            </action>
+        </item>
+        <item label="Reload GTK">
+            <action name="Execute">
+                <command>
+                    reload-gtk23
+                </command>
+            </action>
+        </item>
+        <item label="Font configuration">
+            <action name="Execute">
+                <command>
+                    my-text-editor ~/.config/fontconfig/fonts.conf
+                </command>
+            </action>
+        </item>
+        <item label="Wallpaper">
+            <action name="Execute">
+                <command>
+                    pickbg
+                </command>
+            </action>
+        </item>
+        <item label="Notifications">
+            <action name="Execute">
+                <command>
+                    notifications_config
+                </command>
+            </action>
+        </item>
+        <item label="Power Management">
+            <action name="Execute">
+                <command>
+                    power_manager_settings
+                </command>
+            </action>
+        </item>
+    <menu id="preferences-rofi" label="rofi">
+        <item label="Edit Config File">
+            <action name="Execute">
+                <command>
+                    rofi_editer
+                </command>
+            </action>
+        </item>
+        <separator label="Help"/>
+        <item label="man page">
+            <action name="Execute">
+                <command>
+                    popup_terminal --man rofi
+                </command>
+            </action>
+        </item>
+    </menu>
+    <menu id="preferences-display" label="display">
+        <item label="ARandR Screen Layout Editor">
+            <action name="Execute">
+                <command>
+                    arandr
+                </command>
+            </action>
+        </item>
+        <separator label="Help"/>
+        <item label="man xrandr">
+            <action name="Execute">
+                <command>
+                    popup_terminal --man xrandr
+                </command>
+            </action>
+        </item>
+    </menu>
+    </menu>
+    <menu id="applications-system" label="System">
+        <item label="Quick System Info">
+            <action name="Execute">
+                <command>
+                    sysinfo_script_ --hardware2
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <menu id="Printers" execute="bl-printing-pipemenu" label="Printers"/>
+        <item label="Task Manager (htop)">
+            <action name="Execute">
+                <command>
+                    sysinfo_script_ --process
+                </command>
+            </action>
+        </item>
+        <menu id="DmDmDmdMdMdMGuiAppsPipemenu" execute="gui-apps-pipemenu --jgmenu" label="mDmDmDmDmDmDmD GUI Apps"/>
+        <menu id="InstallFavouritePackages" execute="my-install-pipemenu --jgmenu" label="Install Favourite Packages"/>
+        <menu id="DeployFavouriteContainers" execute="containers-deployer-pipemenu --jgmenu" label="Deploy Distrobox and Containers"/>
+        <menu id="RunDebianTweeks" execute="my-tweeks-pipemenu --jgmenu" label="Run Debian Tweeks"/>
+        <item label="Synaptic Package Manager">
+            <action name="Execute">
+                <command>
+                    bash -c 'pkexec synaptic'
+                </command>
+            </action>
+        </item>
+        <item label="Login Settings">
+            <action name="Execute">
+                <command>
+                    my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf
+                </command>
+            </action>
+        </item>
+        <item label="Login Interface">
+            <action name="Execute">
+                <command>
+                    lightdm-gtk-greeter-settings-pkexec
+                </command>
+            </action>
+        </item>
+        <item label="GParted Partition Manager">
+            <action name="Execute">
+                <command>
+                    bash -c 'pkexec gparted'
+                </command>
+            </action>
+        </item>
+        <item label="Set Default Browser">
+            <action name="Execute">
+                <command>
+                    popup_terminal "Select Default Browser" "my-alternatives set my-www-browser"
+                </command>
+            </action>
+        </item>
+        <item label="Edit Debian Alternatives">
+            <action name="Execute">
+                <command>
+                    galternatives
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="About mDmDmDmDmDmDmD Alternativess">
+            <action name="Execute">
+                <command>
+                    yad --button='OK':0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title='About mDmDmDmDmDmDmD Alternatives' --filename='/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-bl-alternatives.txt' --width=900 --height=700 --fontname=Monospace
+                </command>
+            </action>
+        </item>
+    </menu>
+        <separator/>
+        <menu id="HelpAndResources" execute="bl-help-menu-openbox" label="Help &amp; Resources"/>
+        <menu id="DisplayKeybinds" execute="DmDmDmdMdMdM-kb-pipemenu" label="Display Keybinds"/>
+        <separator/>
+        <menu id="applications-menu" label="Applications" execute="obamenu"/>
+        <separator/>
+        <item label="Lock Screen">
+            <action name="Execute">
+                <command>
+                    ac-powermenu --lock
+                </command>
+            </action>
+        </item>
+        <item label="Exit">
+            <action name="Execute">
+                <command>
+                    ac-powermenu --yad
+                </command>
+            </action>
+        </item>
+    </menu>
+</openbox_menu>

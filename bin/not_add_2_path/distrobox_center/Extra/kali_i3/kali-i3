@@ -1,0 +1,3 @@
+#!/bin/bash
+xhost +SI:localuser:$USER
+/usr/bin/distrobox-enter -T -n kali -- "i3"

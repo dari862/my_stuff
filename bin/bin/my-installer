@@ -1,0 +1,130 @@
+#!/bin/bash
+#    my-installer: a script to install Debian packages in a popup terminal window.
+# # distobox enter gaming -- "pacman -Qi package 1>/dev/null || echo yes"
+
+
+HELP='my-installer: a script to install Debian packages in a popup terminal window.
+
+Usage:  my-installer --install app_name
+
+    -h --help                   show this message and exit
+    --install      <string>    install Debian packages
+    --script    <string>    run installer script
+    --tweek   a script to run Debian Tweeks in a popup terminal window.
+'
+skip_test=""
+
+# if help option anywhere in args, output $HELP and exit immediately
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+    ;;
+    --skip-test)
+		skip_test="skip_test"
+    ;;
+    esac
+done
+
+_SCRIPTS_LIBDIR="/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/apps_center"
+
+_distrobox_center_path="/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/distrobox_center"
+_DISTROBOX_LIBDIR="${_distrobox_center_path}/deploy"
+
+_containers_center_path="/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/containers_center"
+_CONTAINERS_LIBDIR="${_containers_center_path}/deploy"
+_DEPLOYED_CONTAINERS_LIBDIR="${_containers_center_path}/deployed"
+
+arg_="${1-}"
+file_name_="${2-}"
+
+install_app(){
+	app_location="$(find ${_SCRIPTS_LIBDIR}/. -name ${file_name_})"
+	"${app_location}"
+}
+
+install_game(){
+	app_location="$(find ${_SCRIPTS_LIBDIR}/. -name ${file_name_})"
+	"${app_location}"
+}
+
+deploy_distrobox_container(){
+	app_location="$(find ${_DISTROBOX_LIBDIR}/. -name ${file_name_})"
+	"${app_location}"
+}
+
+deploy_container(){
+	app_location="$(find ${_CONTAINERS_LIBDIR}/. -name ${file_name_})"
+	"${app_location}"
+}
+
+check_distrobox_container(){ 
+	distrobox list | grep " ${file_name_} " && echo true
+}
+
+check_container(){
+	if [[ -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${file_name_}" ]];then
+		echo true
+	fi
+}
+
+run_script(){
+	app_location="$(find ${_SCRIPTS_LIBDIR}/. -name ${file_name_})"
+	"${app_location}"
+}
+
+run_tweek(){
+	_TWEEKS_DIR='/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/tweeks_center'
+	tweek_location="$(find ${_TWEEKS_DIR}/. -name ${file_name_})"
+	"${tweek_location}"
+}
+
+install_distrobox(){
+	if [[ "$(chech_distrobox)" != "ready" ]];then
+		"${_SCRIPTS_LIBDIR}"/distrobox "${skip_test}"
+	fi
+}
+
+install_container_software(){
+	if [[ "$(chech_container_software)" != "ready" ]];then
+		"${_SCRIPTS_LIBDIR}"/container_software "${skip_test}"
+	fi
+}
+
+chech_distrobox(){
+	if [[ -f '/usr/share/DmDmDmdMdMdM/Distrobox_ready' ]];then
+		echo "ready"
+	fi
+}
+
+chech_container_software(){
+	if [[ -f '/usr/share/DmDmDmdMdMdM/Containers_ready' ]];then
+		echo "ready"
+	fi
+}
+
+show_help(){
+    echo "$0: no such option $arg_" >&2
+    echo
+    echo "#################################################"
+    echo
+    echo "$HELP"
+}
+case $arg_ in
+		--install) install_app ;;
+		--game) install_game ;;
+		--deploy) deploy_distrobox_container ;;
+		--container) deploy_container ;;
+		--deploy-check) check_distrobox_container ;;
+		--container-check) check_container ;;
+		--script) run_script ;;
+		--tweek) run_tweek ;;
+		--distrobox) install_distrobox ;;
+		--container-software) install_container_software ;;
+		--chech-container-software) chech_container_software ;;
+		--chech-distrobox) chech_distrobox ;;
+		*) show_help ;;
+esac
+exit 0

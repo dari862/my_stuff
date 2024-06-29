@@ -1,0 +1,78 @@
+#!/bin/bash
+
+if [[ "$1" != "update" ]];then
+  # rpi ubuntu (22.04+) can use Pi OS packaged chromium for better hardware support
+  if [ -f /etc/apt/sources.list.d/pi-apps-coders-chromium.sources ]; then
+    warning "When installing Better Chromium, you switched to PiOS chromium build. If you want to revert to the snap version, here's commands to do that:\n\n"\
+'~/pi-apps/api rm_external_repo "pi-apps-coders-chromium" "force"\n'\
+'sudo rm -f /etc/apt/preferences.d/pi-apps-coders-chromium\n'\
+'sudo apt install --only-upgrade chromium-* -y\n'\
+'sudo apt purge libwidevinecdm0'
+  fi
+fi
+
+#determine where the Chromium customizations folder is.
+if [ -d /etc/chromium.d ];then
+  folder=/etc/chromium.d
+elif [ -d /etc/chromium-browser/customizations ];then
+  folder=/etc/chromium-browser/customizations
+else
+  error "User error: Cannot find the directory where Chromium keeps its flags! Usually this would be /etc/chromium.d or /etc/chromium-browser/customizations. On your system, neither of these directories exist. Please reach out to Botspot for this to be fixed."
+fi
+
+status "Reverting all changes..."
+echo "Removing these files:
+  - ${folder}/zzzz_combine_values
+  - ${folder}/dark_mode
+  - ${folder}/site_dark_mode
+  - ${folder}/ui_scale
+  - ${folder}/tab_previews
+  - ${folder}/chromerefresh2023
+  - ${folder}/apikeys
+  - ${folder}/enable_sync
+  - ${folder}/performance_improvements
+  - ${folder}/reduce_writes"
+
+sudo rm -f "${folder}/zzzz_combine_values" \
+  "${folder}/dark_mode" \
+  "${folder}/site_dark_mode" \
+  "${folder}/ui_scale" \
+  "${folder}/tab_previews" \
+  "${folder}/chromerefresh2023" \
+  "${folder}/apikeys" \
+  "${folder}/enable_sync" \
+  "${folder}/performance_improvements" \
+  "${folder}/reduce_writes"
+
+#Remove ~/.chromium-browser.init workaround for Snap/Flatpak Chromium
+if [ -f $HOME/.chromium-browser.init ] && [ "$(sha1sum $HOME/.chromium-browser.init | awk '{print $1}')" == 'cead3a7e98ddd3dbfeea285736c89409a7d426cd' ];then
+  echo "  - ~/.chromium-browser.init"
+  rm $HOME/.chromium-browser.init
+  #remove Chromium customizations folder, if empty.
+  sudo rmdir /etc/chromium.d &>/dev/null || true
+fi
+
+#clean up old symlinks from reduce_writes script - to avoid errors
+profiles="$(find "$HOME/.config/chromium/" -maxdepth 1 -type d '(' -name Default -o -name 'Profile *' ')' | sed 's+.*/++g')"
+IFS=$'\n'
+for profile in $profiles ;do
+  if [ -L "$HOME/.config/chromium/$profile/Service Worker" ];then
+    rm -rf "$HOME/.config/chromium/$profile/Service Worker"
+  fi
+done
+if [ -L "$HOME/.cache/chromium" ];then
+  rm -rf "$HOME/.cache/chromium"
+fi
+
+#turn off sync setting for every profile
+for profile in $profiles ;do
+  [ ! -f "$HOME/.config/chromium/$profile/Preferences" ] && continue
+  sed -i 's/"signin":{"allowed":true}/"signin":{"allowed":false,"allowed_on_next_startup":false}/g' "$HOME/.config/chromium/$profile/Preferences"
+  sed -i 's/"signin":{"allowed":true,"allowed_on_next_startup":true}/"signin":{"allowed":false,"allowed_on_next_startup":false}/g' "$HOME/.config/chromium/$profile/Preferences"
+  sed -i 's/"signin":{"AccountReconcilor":{"kDiceMigrationOnStartup2":true},"allowed":true,"allowed_on_next_startup":true}/"signin":{"AccountReconcilor":{"kDiceMigrationOnStartup2":true},"allowed":false,"allowed_on_next_startup":false}/g' "$HOME/.config/chromium/$profile/Preferences"
+done
+
+if pgrep chromium >/dev/null || pgrep chromium-browser >/dev/null ;then
+  status "Changes will take effect after you relaunch Chromium."
+fi
+true

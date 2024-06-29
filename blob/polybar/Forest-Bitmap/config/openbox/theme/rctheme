@@ -1,0 +1,9 @@
+bottom=10
+top=0
+right=10
+left=10
+font=Terminus
+size=9
+theme=Adapta-Bitmap
+titleLayout=CLM
+menu=menu-simple.xml

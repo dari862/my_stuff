@@ -1,0 +1,375 @@
+#!/bin/bash
+set -e
+APP_STORE_NAME="YadStore"
+APP_STORE_WIDTH=350
+APP_STORE_HEIGHT=600
+DIRECTORY="$(dirname "$(readlink -f "$0")")"
+yadstore_conf_dir="$DIRECTORY/etc"
+
+if ! command -v yad &>/dev/null; then
+    error "YAD needs to be installed to run YadAppsStore."
+fi
+
+declare -A categories
+declare -A category_apps
+
+create_yadstore_conf_file() {
+	
+	if [[ ! -f "${yadstore_conf_file}" ]];then
+    	mkdir -p ${yadstore_conf_dir}
+    	__cpu_op_mode_32=""
+		__cpu_op_mode_64=""
+		__cpu_op_modes=""
+		__os_id=""
+		__os_desc=""
+		__os_release=""
+		__os_codename=""
+	
+		if [ -z "$__os_id" ] || [ -z "$__os_desc" ] || [ -z "$__os_release" ] || [ -z "$__os_codename" ]; then
+  			if lsb_release -a -u &>/dev/null; then
+    			# This is a Ubuntu Derivative, checking the upstream-release version info
+    			mapfile -t os_u < <(lsb_release -s -i -d -r -c -u)
+    			echo "__os_id=\"${os_u[0]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_desc=\"${os_u[1]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_release=\"${os_u[2]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_codename=\"${os_u[3]}\"" >> "${yadstore_conf_file}"
+    			mapfile -t os < <(lsb_release -s -i -d -r -c)
+    			echo "__os_original_id=\"${os[0]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_desc=\"${os[1]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_release=\"${os[2]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_codename=\"${os[3]}\"" >> "${yadstore_conf_file}"
+  			elif [ -f /etc/upstream-release/lsb-release ]; then
+    			# ubuntu 22.04+ Linux Mint no longer includes the lsb_release -u option
+    			# add a parser for the /etc/upstream-release/lsb-release file
+    			source /etc/upstream-release/lsb-release
+    			echo "__os_id=\"$DISTRIB_ID\"" >> "${yadstore_conf_file}"
+    			echo "__os_desc=\"$DISTRIB_DESCRIPTION\"" >> "${yadstore_conf_file}"
+    			echo "__os_release=\"$DISTRIB_RELEASE\"" >> "${yadstore_conf_file}"
+    			echo "__os_codename=\"$DISTRIB_CODENAME\"" >> "${yadstore_conf_file}"
+    			mapfile -t os < <(lsb_release -s -i -d -r -c)
+    			echo "__os_original_id=\"${os[0]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_desc=\"${os[1]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_release=\"${os[2]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_codename=\"${os[3]}\"" >> "${yadstore_conf_file}"
+    			unset DISTRIB_ID DISTRIB_DESCRIPTION DISTRIB_RELEASE DISTRIB_CODENAME
+  			elif [ -f /etc/lsb-release.diverted ]; then
+    			# ubuntu 22.04+ Pop!_OS no longer includes the /etc/upstream-release/lsb-release or the lsb_release -u option
+    			# add a parser for the new /etc/lsb-release.diverted file
+    			source /etc/lsb-release.diverted
+    			echo "__os_id=\"$DISTRIB_ID\"" >> "${yadstore_conf_file}"
+    			echo "__os_desc=\"$DISTRIB_DESCRIPTION\"" >> "${yadstore_conf_file}"
+    			echo "__os_release=\"$DISTRIB_RELEASE\"" >> "${yadstore_conf_file}"
+    			echo "__os_codename=\"$DISTRIB_CODENAME\"" >> "${yadstore_conf_file}"
+    			mapfile -t os < <(lsb_release -s -i -d -r -c)
+    			echo "__os_original_id=\"${os[0]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_desc=\"${os[1]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_release=\"${os[2]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_original_codename=\"${os[3]}\"" >> "${yadstore_conf_file}"
+    			unset DISTRIB_ID DISTRIB_DESCRIPTION DISTRIB_RELEASE DISTRIB_CODENAME
+  			else
+    			mapfile -t os < <(lsb_release -s -i -d -r -c)
+    			echo "__os_id=\"${os[0]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_desc=\"${os[1]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_release=\"${os[2]}\"" >> "${yadstore_conf_file}"
+    			echo "__os_codename=\"${os[3]}\"" >> "${yadstore_conf_file}"
+  			fi
+		fi
+		
+		# add CPU op-modes for all scripts to use
+		if ([ -z "$__cpu_op_mode_32" ] && [ -z "$__cpu_op_mode_64" ]) || [ -z "$__cpu_op_modes" ]; then
+  			if lscpu | grep "CPU op-mode(s):" | grep -q "32-bit, 64-bit"; then
+    			echo "__cpu_op_modes=\"32/64\"" >> "${yadstore_conf_file}"
+    			echo "__cpu_op_mode_32=true" >> "${yadstore_conf_file}"
+    			echo "__cpu_op_mode_64=true" >> "${yadstore_conf_file}"
+  			elif lscpu | grep "CPU op-mode(s):" | grep -q "32-bit"; then
+    			echo "__cpu_op_modes=\"32\"" >> "${yadstore_conf_file}"
+    			echo "__cpu_op_mode_32=true" >> "${yadstore_conf_file}"
+  			elif lscpu | grep "CPU op-mode(s):" | grep -q "64-bit"; then
+    			echo "__cpu_op_modes=\"64\"" >> "${yadstore_conf_file}"
+    			echo "__cpu_op_mode_64=true" >> "${yadstore_conf_file}"
+  			fi
+		fi
+		
+		#determine if host system is 64 bit arm64 or 32 bit armhf
+		if [ "$(od -An -t x1 -j 4 -N 1 "$(readlink -f /sbin/init)")" = ' 02' ];then
+			echo "arch=64" >> "${yadstore_conf_file}"
+		elif [ "$(od -An -t x1 -j 4 -N 1 "$(readlink -f /sbin/init)")" = ' 01' ];then
+			echo "arch=32" >> "${yadstore_conf_file}"
+		else
+			error "Failed to detect OS CPU architecture! Something is very wrong."
+		fi
+		
+    	case "$(uname -m)" in
+    	x86_64|aarch64)
+        	echo "architecture=64" >> ${yadstore_conf_file}
+        	;;
+    	i686|armv7l)
+        	echo "architecture=32" >> ${yadstore_conf_file}
+        	;;
+    	*)
+        	echo "Unknown architecture" >> ${yadstore_conf_file}
+        	;;
+    	esac
+    			
+		echo "yadeditor=xdg-open" >> "${yadstore_conf_file}"
+		
+		echo "DIRECTORY=\"${DIRECTORY}\"" >> "${yadstore_conf_file}"
+		echo "categories_dir=\"${DIRECTORY}/Categories\"" >> "${yadstore_conf_file}"
+		
+	fi
+}
+
+source_ext_functions_and_var(){
+	set -a
+	source "${yadstore_conf_file}"
+	source "${DIRECTORY}/tools/manage"
+	source "${DIRECTORY}/tools/functions"
+	set +a
+}
+
+write_categories() {
+	mkdir -p "${categories_dir}"
+	cd "${DIRECTORY}"
+    for app_dir in apps/*; do
+        app_name=$(basename "$app_dir")
+        category_file="apps/$app_name/category"
+        install_script="$app_dir/install"
+		packages_file="$app_dir/packages"
+		category_dir="${categories_dir}/$(cat "$category_file")"
+		install_script_arch="install-$architecture"
+		mkdir -p "${category_dir}"
+        # Check if the install script or architecture-specific install scripts exist for this app
+        if [ -e "$install_script" ]; then
+        	mkdir -p "${category_dir}/$app_name"
+        	cp -r "$app_dir/install" "${category_dir}/$app_name"
+        elif [ -e "$packages_file" ]; then
+        	mkdir -p "${category_dir}/$app_name"
+        	packages_file_contant="$(cat "$packages_file")"
+        	echo '#!/bin/bash' > "${category_dir}/$app_name/install"
+        	echo "install_packages ${packages_file_contant}" >> "${category_dir}/$app_name/install"
+        	chmod +x "${category_dir}/$app_name/install"
+        elif [ -e "$app_dir/$install_script_arch" ]; then
+        	mkdir -p "${category_dir}/$app_name"
+        	cp -r "$app_dir/$install_script_arch" "${category_dir}/$app_name/install"
+        fi
+    done
+}
+
+read_categories() {
+    for category in ${categories_dir}/*; do
+    	cd "${category}"
+    	category=$(basename "$category")
+    	for app_name in *; do
+        	if [ -n "${categories[$category]}" ]; then
+            	categories["$category"]+=" $app_name"
+            	category_apps["$category"]+="|$app_name"
+            else
+            	categories["$category"]="$app_name"
+            	category_apps["$category"]="$app_name"
+            fi
+    	done
+    done
+}
+
+get_app_description() {
+    app_name="$1"
+    description_file="${DIRECTORY}/apps/$app_name/description"
+    if [ -e "$description_file" ]; then
+        cat "$description_file"
+    else
+        echo "No description available."
+    fi
+}
+
+get_app_creator() {
+    app_name="$1"
+    creator_file="${DIRECTORY}/apps/$app_name/creator"
+    if [ -e "$creator_file" ]; then
+        cat "$creator_file"
+    else
+        echo "No description available."
+    fi
+}
+
+get_app_website() {
+    app_name="$1"
+    website_file="${DIRECTORY}/apps/$app_name/website"
+    if [ -e "$website_file" ]; then
+        cat "$website_file"
+    else
+        echo "No description available."
+    fi
+}
+theme_get() {
+    theme_file="${DIRECTORY}/etc/theme"
+    if [ -e "$theme_file" ]; then
+        cat "$theme_file"
+    else
+        echo ""
+    fi
+}
+theme=$(theme_get)
+
+app_details_page() {
+    selected_app_name="${1//|/}"
+    app_directory="${DIRECTORY}/apps/$selected_app_name"
+    app_icon="$app_directory/icon-48.png"
+    description=$(get_app_description "$selected_app_name")
+    creator=$(get_app_creator "$selected_app_name")
+    website=$(get_app_website "$selected_app_name")
+
+    echo "$creator"
+    echo "$description" >/tmp/description.tmp
+    installed_file="${yadstore_conf_dir}/installed"
+
+    # Run yad command in the background without waiting for it to finish
+    (
+        GTK_THEME="${theme}" yad --class ${APP_STORE_NAME} --title="App Details" --width="450" --height="$APP_STORE_HEIGHT" --form \
+            --text "<big><b>${selected_app_name}</b></big>\n<b>${creator}</b>\n<b><a href='${website}'>${website}</a></b>\n" \
+            --field="<b>Description</b>:TXT" --no-edit --image="$app_icon" --window-icon="${DIRECTORY}/images/logo/logo-64.png" --image-on-top \
+            --button="Install":10 --button="Uninstall (unfunctional)" </tmp/description.tmp
+    	exval=$?
+	
+    	if [ "$exval" == "10" ]; then
+    		password=$(GTK_THEME="${theme}" yad --title="Enter Password" --width="300" --height="100" --entry --hide-text --text="Enter your password")
+			packages_category="$(cat "$app_directory/category")"
+    		cd $HOME
+    		bash -c "(echo \"$password\" | sudo -S true && \"${categories_dir}/${packages_category}/install\") && (echo \"$selected_app_name\" >> \"$installed_file\" && echo '$selected_app_name is installed')"
+    	fi
+    )
+
+    rm /tmp/description.tmp
+}
+
+show_categories() {
+    list_items=()
+    for category in "${!categories[@]}"; do
+        category_icon="${DIRECTORY}/images/$category.png"
+        list_items+=("$category_icon")
+        list_items+=("$category")
+    done
+
+    selected_category_raw=$(GTK_THEME="${theme}" yad --text "Welcome to ${APP_STORE_NAME}\nThe app store that's simple to use." --width="$APP_STORE_WIDTH" --height="$APP_STORE_HEIGHT" --columns="2" \
+        "${list_items[@]}" \
+        --list --image="${DIRECTORY}/images/logo-64.png" --window-icon="${DIRECTORY}/images/logo/logo-64.png" --image-on-top --title "$APP_STORE_NAME" --column "Icon:IMG" --column "Category" --button "Show Apps:3" --button "Settings:4" --item-padding="10")
+
+    selected_category="${selected_category_raw//|/}"
+    echo "$selected_category"
+}
+
+show_apps_in_category() {
+    while true; do
+        if [ "$1" == "All Apps" ]; then
+            # Show all apps in the "All Apps" category
+            all_apps_list=()
+            for app_dir in apps/*; do
+                app_name=$(basename "$app_dir")
+                app_icon="${DIRECTORY}/apps/$app_name/icon-24.png"
+                all_apps_list+=("$app_icon")
+                all_apps_list+=("$app_name")
+            done
+
+            selected_app_name=$(GTK_THEME="${theme}" yad --text "<big><b>$1</b></big>" --width="$APP_STORE_WIDTH" --height="$APP_STORE_HEIGHT" --columns="2" \
+                --list --image="${DIRECTORY}/images/logo/logo-64.png" --window-icon="${DIRECTORY}/images/logo/logo-64.png" --image-on-top --title "$APP_STORE_NAME" --column "Icon:IMG" --column "Apps" --button="!${DIRECTORY}/images/button/back.png"!"Back:4" --separator="\n" "${all_apps_list[@]}" --no-headers)
+        else
+            apps_in_category="${category_apps["$1"]}"
+            formatted_apps=()
+
+            IFS='|' read -r -a app_list <<<"$apps_in_category"
+            for app in "${app_list[@]}"; do
+                app_icon="${DIRECTORY}/apps/$app/icon-24.png"
+                formatted_apps+=("$app_icon")
+                formatted_apps+=("$app")
+            done
+
+            selected_app_name=$(GTK_THEME="${theme}" yad --text "<big><b>Apps in $1 Category</b></big>" --width="$APP_STORE_WIDTH" --height="$APP_STORE_HEIGHT" --columns="2" \
+                --list --image="${DIRECTORY}/images/logo/logo-64.png" --window-icon="${DIRECTORY}/images/logo/logo-64.png" --image-on-top --title "$APP_STORE_NAME" --column "Icon:IMG" --column "Apps" --button="!${DIRECTORY}/images/button/back.png"!"Back:4" --separator="\n" "${formatted_apps[@]}" --no-headers)
+        fi
+
+        button_clicked=$?
+        selected_app=$(echo -n "$selected_app_name" | tr '\n' ' ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        echo "$button_clicked"
+        if [ $button_clicked -eq 4 ]; then
+            show_app_store
+            break
+        fi
+
+        if [ -n "$selected_app" ]; then
+            app_details_page "$selected_app"
+        else
+            show_app_store
+            break
+        fi
+    done
+}
+
+show_app_store() {
+    read_categories
+
+    # Sort categories alphabetically and format with newlines
+    sorted_categories=$(printf '%s\n' "${!categories[@]}" | sort)
+
+    list_items=()
+    list_items=("${DIRECTORY}/images/categories/All Apps.png" "All Apps")
+    while IFS= read -r category; do
+        category_icon="${DIRECTORY}/images/categories/$category.png" # Path to category icons
+        list_items+=("$category_icon")
+        list_items+=("$category")
+    done <<<"$sorted_categories"
+
+    # Fetching a random line from the announcements file
+    random_announcement=$(shuf -n 1 ${DIRECTORY}/etc/announcements)
+
+    # Search function
+    search_apps() {
+        query=$(GTK_THEME="${theme}" yad --title="Search Apps" --text="Enter app name:" --entry)
+        if [ -n "$query" ]; then
+            app_list=$(ls -w 1 "${DIRECTORY}/apps" | awk 'BEGIN {ORS="\n"} {print}')
+            num_apps=$(echo "$app_list" | wc -l)
+            num_apps=$((num_apps))
+            echo "$num_apps"
+
+            apps_found=()
+            for app in "${DIRECTORY}"/apps/*; do
+                app_name=$(basename "$app")
+                if [[ "${app_name,,}" == *"${query,,}"* ]]; then
+                    app_icon="${DIRECTORY}/apps/$app_name/icon-24.png"
+                    app_category_file="${app}/category"
+                    app_category=$(head -n 1 "${app_category_file}")
+                    apps_found+=("${app_icon}" "$app_name" "$app_category")
+                fi
+            done
+
+            if [ ${#apps_found[@]} -gt 0 ]; then
+                selected_category2=$(GTK_THEME="${theme}" yad --title="Search Results for ${query}" --width=400 --height=300 --list --column="Icon:IMG" --column="App Name" --column="Category" "${apps_found[@]}" --borders=10)
+                if [ -n "$selected_category2" ]; then
+                    app_details_page "$selected_category2"
+                fi
+            else
+                GTK_THEME="${theme}" yad --title="Search Results for ${query}" --width=300 --height=100 --text="No apps found for '${query}'.\nPlease try another query." --borders=10 --button="OK:0" --center
+                show_app_store
+            fi
+        else
+            show_app_store
+        fi
+    }
+
+    selected_category_raw=$(GTK_THEME="${theme}" yad --text "$random_announcement" --width="$APP_STORE_WIDTH" --height="$APP_STORE_HEIGHT" --columns="3" \
+        "${list_items[@]}" \
+        --list --image="${DIRECTORY}/images/logo/logo-64.png" --window-icon="${DIRECTORY}/images/logo/logo-64.png" --image-on-top --title "$APP_STORE_NAME" --column "Icon:IMG" --column "Category" --button "!${DIRECTORY}/images/button/search.png"!"Search":44 --button "!${DIRECTORY}/images/button/settings.png"!"Settings":"bash -c '${DIRECTORY}/tools/settings'" --no-headers --item-height="$welcome_height" --timeout=0 --no-close)
+    exval=$?
+    selected_category="${selected_category_raw//|/}"
+
+    if [ "$exval" == "44" ]; then
+        search_apps
+    elif [ -n "$selected_category" ]; then
+        show_apps_in_category "$selected_category"
+    fi
+}
+
+create_yadstore_conf_file
+source_ext_functions_and_var
+if [[ ! -d "${categories_dir}" ]];then
+	write_categories
+fi
+show_app_store

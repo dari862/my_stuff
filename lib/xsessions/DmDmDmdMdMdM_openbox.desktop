@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=mDmDmDmDmDmDmD openbox
+Comment=Log in to a mDmDmDmDmDmDmD openbox session
+Exec=/usr/share/DmDmDmdMdMdM/bin/xsession/openbox
+TryExec=/usr/share/DmDmDmdMdMdM/bin/xsession/openbox
+Icon=openbox
+Type=Application

@@ -1,0 +1,2 @@
+alias rzsh="source $ZDOTDIR/zshrc"
+alias aptinstallnow="sudo apt install"

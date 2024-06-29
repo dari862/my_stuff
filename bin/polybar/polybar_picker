@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Files and Directories
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/polybar"
+. "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
+
+if [ "$@" ]
+then
+	echo "$@" > "${polybar_style_name_path}"
+	echo "$@" > "${rofi_style_name_path}"
+fi
+
+polybar-session

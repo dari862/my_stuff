@@ -1,0 +1,46 @@
+#!/bin/bash
+mirror="http://deb.debian.org/debian/"
+mirror_security="http://security.debian.org/debian-security"
+deb_lines_contrib=$(egrep "^(deb|deb-src) (${mirror}|${mirror_security})" /etc/apt/sources.list | grep -v contrib)
+if [ "$1" = "--check" ];then
+	if [ "$deb_lines_contrib" = "" ];then
+		echo enabled 
+	else
+		echo disabled
+	fi
+	exit 0
+fi
+tweek_name=$(basename $0)
+
+###################################################################
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+clear
+say
+say "run ${tweek_name}."
+say '------------------------'
+say "This script will ${tweek_name}."
+say
+prompt '  Run the script now?' || return
+
+clear
+
+say 'running tweek...' 1
+###################################################################
+
+for l in $deb_lines_contrib; do
+	sudo sed -i "s\\^$l$\\$l contrib\\" /etc/apt/sources.list
+done
+sudo apt-get update
+
+###################################################################
+clear
+remove_from_db
+
+say
+say "${tweek_name} has been runed successfully."
+say
+say 'Hit any key to exit...'
+read -srn1
+

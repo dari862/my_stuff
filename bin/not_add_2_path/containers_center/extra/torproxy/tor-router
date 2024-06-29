@@ -1,0 +1,108 @@
+#!/bin/bash
+set -euo pipefail                           # Treat unset variables as an error
+
+CONTAINER_RT="$(cat '/usr/share/DmDmDmdMdMdM/Containers_ready')"
+
+if command -v sudo &>/dev/null;then
+	__sudo="sudo"
+else
+	__sudo=""
+fi
+
+RULES="/var/tmp/tor-router.save"
+
+start_tor(){
+	# Most of this is from
+	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
+	
+	### set variables
+	# destinations you don't want routed through Tor
+	_non_tor="192.168.1.0/24 192.168.0.0/24"
+	
+	### get the container tor runs in
+	_tor_container="$($__sudo $CONTAINER_RT ps | awk '/torproxy/ {print $NF; quit}')"
+	if [[ "$_tor_container" == "" ]]; then
+    	echo 'ERROR: you must start a tor proxy container first, IE:'
+    	echo "    $__sudo $CONTAINER_RT run -it --net=host --restart=always -p 8118:8118 -p 9050:9050 -d torproxy"
+    	exit 1
+	fi
+	
+	### get the UID that tor runs as
+	_tor_uid="$($__sudo $CONTAINER_RT exec $_tor_container id -u tor)"
+	
+	### Tor's TransPort
+	_trans_port="9040"
+	_dns_port="5353"
+	__arg_="${1-}"
+
+	if test -f "$RULES"; then
+		echo "$RULES exists. Either delete it, or stop tor-router first."
+		exit 1
+	else
+		# Only save the rules when we are sure that everything is working
+		${__sudo} iptables-save >$RULES
+	
+		### flush iptables
+		${__sudo} iptables -F
+		${__sudo} iptables -t nat -F
+		
+		### set iptables *nat to ignore tor user
+		${__sudo} iptables -t nat -A OUTPUT -m owner --uid-owner $_tor_uid -j RETURN
+		
+		### redirect all DNS output to tor's DNSPort
+		${__sudo} iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $_dns_port
+		
+		### set iptables *filter
+		${__sudo} iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+		
+		### allow clearnet access for hosts in $_non_tor
+		for _clearnet in $_non_tor 127.0.0.0/8; do
+   			${__sudo} iptables -t nat -A OUTPUT -d $_clearnet -j RETURN
+   			${__sudo} iptables -A OUTPUT -d $_clearnet -j ACCEPT
+		done
+		
+		### redirect all other output to tor's TransPort
+		${__sudo} iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $_trans_port
+		
+		### allow only tor output
+		${__sudo} iptables -A OUTPUT -m owner --uid-owner $_tor_uid -j ACCEPT
+		${__sudo} iptables -A OUTPUT -j REJECT
+	fi
+}
+
+stop_tor(){
+	if test -f "$RULES"; then
+		echo "Restoring previous rules from $RULES"
+		${__sudo} iptables -F
+		${__sudo} iptables-restore <"$RULES"
+		rm "$RULES"
+	else
+		echo "$RULES does not exist. Not doing anything."
+		exit
+	fi
+}
+
+restart_tor(){
+	stop_tor
+	sleep 1
+	start_tor
+}
+
+__arg_="${1-}"
+
+case "$__arg_" in
+start)
+	start_tor
+	;;
+
+stop)
+	stop_tor
+	;;
+
+restart)
+	restart_tor
+	;;
+*)
+	echo "Usage: $0 {start|stop|restart}"
+	;;
+esac

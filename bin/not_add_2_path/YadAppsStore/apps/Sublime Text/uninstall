@@ -1,0 +1,10 @@
+#!/bin/bash
+
+rm -f ~/.local/share/applications/sublime-text.desktop
+rm -rf ~/"Sublime Text 2"
+purge_packages || exit 1
+
+#remove deprecated files
+sudo rm -f /etc/apt/trusted.gpg.d/sublimehq.asc /etc/apt/sources.list.d/sublime-text.list
+
+rm_external_repo "sublimehq"

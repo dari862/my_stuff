@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+set -e
+
+container_name=$(basename $0)
+prefix="$HOME/.local/distrobox"
+tmp_folder=""
+xsession_kali=""
+
+image_link="docker.io/kalilinux/kali-rolling:latest"
+__package_="kali-linux-large" # headless large
+extra_command="sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq ${__package_} ; exit 0"
+
+mode=""
+if [[ "$mode" == "root" ]]; then
+        root_command="--root"
+else
+        root_command=""
+fi
+
+failed_to_run(){
+	__massage_="${1-}"
+	echo "$__massage_"
+	exit 1
+}
+
+Pre_createing_container_image(){
+	tmp_folder=$(mktemp -d /tmp/${container_name}-container-XXXXXXXX)
+	mkdir -p "$HOME/.local/distrobox/$container_name"
+}
+
+wm_kali_linux(){
+	__WM_="kali-desktop-i3 i3blocks rofi acpid dunst feh playerctl alsa-utils xbacklight wireless-tools network-manager"
+	__wm_command="sudo apt-get install -yq ${__WM_} ; exit 0"
+	__arg_="${1-}"
+	if [[ "${__arg_}" = "ask" ]];then
+		read -p '  Do you want to add kali to xsession? (yes or no [default yes])' xsession_kali
+		[[ -z "$xsession_kali" ]] && xsession_kali="yes"
+		xsession_kali="${xsession_kali,,}"
+		[[ "$xsession_kali" = "^y " ]] && xsession_kali="yes"
+		if [[ "$xsession_kali" = "yes" ]];then
+			xsession_kali="enabled"
+		fi
+	else
+		if [[ $xsession_kali == "enabled" ]]; then
+			distrobox enter --name "$container_name" ${root_command} -- "${__wm_command}"
+			sudo ln -sf /usr/share/DmDmDmdMdMdM/bin/not_add_2_path/distrobox_center/Extra/kali_i3/kali-i3.desktop /usr/share/xsessions/
+			mkdir -p "$prefix/$container_name"/.config
+			cp -r /usr/share/DmDmDmdMdMdM/bin/not_add_2_path/distrobox_center/Extra/kali_i3/.config/* "$prefix/$container_name"/.config
+		fi
+	fi
+}
+###################################################################
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+clear
+say
+say "INSTALL ${container_name}."
+say '------------------------'
+say "This script will install ${container_name}."
+say
+prompt '  Run the installer now?' || exit
+
+#wm_kali_linux ask || failed_to_run "failed to install ${__WM_}."
+
+sudo true
+keep_Sudo_refresed &
+
+clear
+connectiontest 1 || failed_to_run "failed to install no internet."
+
+clear
+say 'Updating sources...' 1
+Package_update_ || failed_to_run "failed to install update repo."
+
+clear
+say 'install distrobox ...' 1
+
+my-installer --distrobox --skip-test || failed_to_run "failed to install distrobox."
+
+say 'Pre-createing container image ...' 1
+
+Pre_createing_container_image || failed_to_run "failed to install Pre-createing container image."
+
+say 'Createing container image ...' 1
+
+distrobox create --yes --image ${image_link} \
+         --name "$container_name" \
+         --home "$prefix/$container_name" ${root_command} || failed_to_run "failed to install createing container."
+
+say 'Deploy container image ...' 1
+distrobox enter --name "$container_name" ${root_command} -- "sudo apt-get install -y gtk3-nocsd ; exit 0" || distrobox enter --name "$container_name" ${root_command} -- "sudo apt-get install -y gtk3-nocsd ; exit 0" || failed_to_run "failed to install gtk3-nocsd."
+distrobox enter --name "$container_name" ${root_command} -- "${extra_command}" || failed_to_run "failed to install ${__package_}."
+
+say 'Createing container lanucher ...' 1
+echo '#!/bin/bash' > "${tmp_folder}/${container_name}"
+echo "distrobox enter --name \"$container_name\" ${root_command} " >> "${tmp_folder}/${container_name}"
+
+chmod +x "${tmp_folder}/${container_name}"
+mkdir -p "$HOME/.local/bin"
+mv "${tmp_folder}/${container_name}" "$HOME/.local/bin"
+
+#wm_kali_linux || failed_to_run "failed to install ${__WM_}."
+
+distrobox stop "$container_name" --yes ${root_command}
+
+remove_from_db
+
+say
+say "${app_name} has been installed successfully."
+say
+say 'Hit any key to exit...'
+read -srn1
+break
+done

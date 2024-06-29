@@ -1,0 +1,55 @@
+#!/bin/bash
+
+version=4.10.9
+
+### Make directory ~/Unciv if not available
+mkdir -p $HOME/Unciv || error "Failed to create folder $HOME/Unciv"
+
+### Add LICENSE from Github if doesn't exist
+if [[ ! -f ~/Unciv/LICENSE ]]; then
+  status "Adding license file"
+  wget -O ~/Unciv/LICENSE https://raw.githubusercontent.com/yairm210/Unciv/master/LICENSE || error 'Failed to download license!'
+fi
+
+### install temurin-8-jre
+# the 'default-jre' (OpenJDK-11-jre) package takes too much RAM and runs very sloppy in Raspberry Pi 3B+
+# so, we will use Temurin OpenJDK 8 installation cause thats the minimal Java version Unciv needs
+# Temurin very smoothly on Raspberry Pi 3B+ without any problems
+
+adoptium_installer || exit 1
+install_packages temurin-8-jre || exit 1
+
+status "Downloading Unciv.jar"
+echo '- writing into /tmp/Unciv.jar'
+wget -O /tmp/Unciv.jar https://github.com/yairm210/Unciv/releases/download/${version}/Unciv.jar \
+    || error 'Failed to download Unciv.jar!'
+echo '- moving /tmp/Unciv.jar to ~/Unciv/Unciv.jar'
+mv /tmp/Unciv.jar ~/Unciv/Unciv.jar || exit 1
+echo '- removing /tmp/Unciv.jar'
+rm -f /tmp/Unciv.jar
+
+status "Creating runner script ($HOME/Unciv/Unciv.sh)"
+# This is necessary because some special characters are supported in Desktop Entry Files.
+# Without running Unciv.jar from ~/Unciv, the Game Data will be saved in ~ by default (not ~/Unciv).
+# see https://github.com/yairm210/Unciv/blob/master/desktop/linuxFilesForJar/Unciv.sh
+echo "\
+cd $HOME/Unciv
+$(echo /usr/lib/jvm/temurin-8-jre-*/bin/java) -jar ./Unciv.jar" \
+> ~/Unciv/Unciv.sh || error "Failed to write $HOME/Unciv/Unciv.sh!"
+
+chmod +x $HOME/Unciv/Unciv.sh || error "Failed to make $HOME/Unciv/Unciv.sh executable!"
+
+status "Creating menu launcher"
+echo "\
+[Desktop Entry]
+Comment=Open-source Android/Desktop remake of Civ V
+Exec=$HOME/Unciv/Unciv.sh
+GenericName=4X Game
+Icon=$(dirname "$0")/icon-64.png
+Name=Unciv
+NoDisplay=false
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Game" \
+> ~/.local/share/applications/unciv.desktop || error 'Failed to make menu button for Unciv!'

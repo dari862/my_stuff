@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
+
+rofi -dmenu\
+    -password\
+    -i\
+    -no-fixed-num-lines\
+    -p "User Password: "\
+    -theme "$rofi_style_dir"/askpass.rasi

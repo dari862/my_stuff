@@ -1,0 +1,83 @@
+# mDmDmDmDmDmDmD "Help & Resources" menu
+
+^tag(bl-help-menu)
+Back,^back()
+^sep(Online Help)
+Getting Started,my-www-browser "https://forums.bunsenlabs.org/viewforum.php?id=21"
+Tutorials,my-www-browser "https://forums.bunsenlabs.org/viewforum.php?id=25"
+Basic Help &amp; Support,my-www-browser "https://forums.bunsenlabs.org/viewforum.php?id=2"
+"""Scripts, Tutorials &amp; Tips""",my-www-browser "https://forums.bunsenlabs.org/viewforum.php?id=9"
+Debian,^checkout(DebianWWW)
+Arch Wiki,my-www-browser "https://wiki.archlinux.org/index.php/Table_of_contents"
+^sep()
+Openbox,^checkout(OpenboxWWW)
+Tint2,^checkout(Tint2WWW)
+Conky,^checkout(ConkyWWW)
+^sep()
+Theme Resources,^checkout(ThemesWWW)
+^sep()
+^sep(man pages)
+Compositor,popup_terminal --man picom
+jgmenu,popup_terminal --man jgmenu
+rofi,popup_terminal --man rofi
+xrandr,popup_terminal --man xrandr
+DmDmDmdMdMdM-session,popup_terminal --man DmDmDmdMdMdM-session
+bl-xdg-autostart,popup_terminal --man bl-xdg-autostart
+^sep()
+mDmDmDmDmDmDmD Help Files,^checkout(BLhelp)
+
+^tag(DebianWWW)
+Back,^back()
+Debian Documentation,my-www-browser "https://www.debian.org/doc/"
+Debian Handbook,my-www-browser "https://debian-handbook.info/browse/stable/"
+Debian Reference,my-www-browser "https://www.debian.org/doc/manuals/debian-reference/"
+Wiki,my-www-browser "https://wiki.debian.org/"
+FAQsFromDebianUser,my-www-browser "https://wiki.debian.org/FAQsFromDebianUser"
+Forum,my-www-browser "http://forums.debian.net/"
+Package Search,my-www-browser "https://www.debian.org/distrib/packages"
+Package Tracker,my-www-browser "https://tracker.debian.org/"
+Security Tracker,my-www-browser "https://security-tracker.debian.org/tracker/"
+
+^tag(OpenboxWWW)
+Back,^back()
+Openbox Website,^checkout(ObWWW)
+ArchWiki Openbox Guide,my-www-browser "http://wiki.archlinux.org/index.php/Openbox"
+Debian Wiki Openbox Guide,my-www-browser "https://wiki.debian.org/Openbox"
+Urukramas Openbox Guide,my-www-browser "https://urukrama.wordpress.com/openbox-faq/"
+
+^tag(ObWWW)
+Back,^back()
+Openbox Homepage,my-www-browser "http://openbox.org/"
+Openbox Getting Started,my-www-browser "http://openbox.org/wiki/Help:Getting_started"
+Openbox Documentation,my-www-browser "http://openbox.org/wiki/Help:Contents"
+Openbox FAQs,my-www-browser "http://openbox.org/wiki/Help:FAQ"
+
+^tag(Tint2WWW)
+Back,^back()
+Tint2 Wiki: FAQ,my-www-browser "https://gitlab.com/o9000/tint2/wikis/FAQ"
+Tint2 Wiki: Configuration,my-www-browser "https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md"
+Tint2 Forum Thread,my-www-browser "https://forums.bunsenlabs.org/viewtopic.php?id=254"
+Tint2 man page,popup_terminal --man tint2
+Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
+
+^tag(ConkyWWW)
+Back,^back()
+Conky Wiki,my-www-browser "https://github.com/brndnmtthws/conky/wiki"
+Conky Archive,my-www-browser "https://web.archive.org/web/20160325091248/https://crunchbang.org/forums/viewtopic.php?pid=371424"
+Conky man pages,popup_terminal --man conky
+Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
+
+^tag(ThemesWWW)
+Back,^back()
+bunsenlabs on DeviantArt,my-www-browser "http://bunsenlabs.deviantart.com/"
+Box-Look.org,my-www-browser "http://www.box-look.org"
+gnome-look.org,my-www-browser "http://gnome-look.org/"
+
+^tag(BLhelp)
+Back,^back()
+How to Edit Menu,yad --button="OK":0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title="How to Edit the Menu" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-menu.txt" --width=900 --height=700 --fontname=Monospace
+About BLOB,yad --button="OK":0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title="About BLOB" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-blob.txt" --width=900 --height=700 --fontname=Monospace
+Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
+About mDmDmDmDmDmDmD Autostart,yad --button="OK":0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title="About mDmDmDmDmDmDmD Autostart" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-blautostart.txt" --width=900 --height=700 --fontname=Monospace
+About mDmDmDmDmDmDmD Alternatives,yad --button="OK":0 --center --window-icon=/usr/share/DmDmDmdMdMdM/images/linux.svg --text-info --title="About mDmDmDmDmDmDmD Alternatives" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-bl-alternatives.txt" --width=900 --height=700 --fontname=Monospace
+

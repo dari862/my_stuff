@@ -1,0 +1,129 @@
+# mDmDmDmDmDmDmD Main Menu
+
+## mDmDmDmDmDmDmD User config files
+## All default mDmDmDmDmDmDmD user config files are located in /usr/share/DmDmDmdMdMdM/skel.
+## The script skel_user_setup_ copies them to the user $HOME directory on first login.
+## See more info with command 'skel_user_setup_ --help'
+
+@text,,6,6,150,20,2,left,top,auto,#000000 0,<span size="large">🔍︎</span>
+@search,,24,3,150,20,2,left,top,auto,#000000 0,Type to Search
+
+^sep()
+Run Program,rofi-runner
+^sep()
+Terminal,my-terminal-emulator,utilities-terminal
+Web Browser,my-www-browser,web-browser
+File Manager,my-file-manager,system-file-manager
+Text Editor,my-text-editor,text-editor
+Media Player,my-media-player,multimedia-player
+^sep()
+Quick Screenshot+Upload,files-uploader
+^sep()
+Utilities,^checkout(bl-utilities),applications-utilities
+Places,^pipe(jgmenu_run ob --cmd="ac-places" --tag="ac-places"),folder
+Recent Files,^pipe(jgmenu_run ob --cmd="ac-recent-files -rl15" --tag="bl-recent-files-pipemenu")
+^sep()
+Preferences,^checkout(bl-preferences),preferences-system
+System,^checkout(bl-system),applications-system
+^sep()
+Help &amp; Resources,^checkout(bl-help-menu),help-contents
+Display Keybinds,^pipe(jgmenu_run ob --cmd="DmDmDmdMdMdM-kb-pipemenu" --tag="DmDmDmdMdMdM-kb-pipemenu")
+^sep()
+Applications,^checkout(apps)
+^sep()
+Lock Screen,bl-lock,system-lock-screen
+Exit,ac-powermenu --yad,system-shutdown
+
+. /usr/share/DmDmDmdMdMdM/lib/docs/menu-includes/help-menu
+
+^tag(bl-utilities)
+Back,^back()
+Take Screenshot,^pipe(screenshot-pipemenu)
+BLOB Themes Manager,(style-manager --yad)
+SSH,^pipe(jgmenu_run ob --cmd="bl-sshconfig-pipemenu" --tag="bl-sshconfig-pipemenu")
+Remote Desktop,^pipe(jgmenu_run ob --cmd="bl-remote-desktop-pipemenu" --tag="bl-remote-desktop-pipemenu")
+App Finder,rofi-launcher
+
+^tag(bl-preferences)
+Back,^back()
+mDmDmDmDmDmDmD,^checkout(bl-blConfig)
+Openbox,^checkout(bl-obConfig)
+jgmenu,^checkout(bl-jgmenuConfig)
+Keybinds,^checkout(bl-xbindkeysConfig)
+Compositor,^pipe(jgmenu_run ob --cmd="ac-compositor" --tag="ac-compositor")
+Conky,^pipe(jgmenu_run ob --cmd="bl-conky-pipemenu" --tag="bl-conky-pipemenu"),conky-manager
+Tint2,^pipe(jgmenu_run ob --cmd="bl-tint2-pipemenu" --tag="bl-tint2-pipemenu"),tint2
+Appearance,sh -c 'lxappearance; reload-gtk23',preferences-desktop-theme
+Reload GTK,reload-gtk23,preferences-desktop-theme
+Font configuration,my-text-editor ~/.config/fontconfig/fonts.conf,preferences-desktop-font
+Wallpaper,pickbg,preferences-desktop-wallpaper,wallpaper
+Notifications,notifications_config,notifyconf
+Power Management,power_manager_settings,power_manager_settings
+rofi,^checkout(roficonfig)
+Display,^checkout(bl-DisplaySettings)
+
+mDmDmDmDmDmDmD Session,^tag(bl-blConfig)
+Back,^back()
+Edit autostart,my-text-editor ~/.config/openbox/autostart
+Edit environment,my-text-editor ~/.config/openbox/environment
+
+Openbox,^tag(bl-obConfig),openbox
+Back,^back()
+Edit bl-rc-jgmenu.xml,my-text-editor ~/.config/openbox/bl-rc-jgmenu.xml
+^sep()
+WM Preferences,obconf --config-file ~/.config/openbox/bl-rc-jgmenu.xml
+^sep()
+Reconfigure,openbox --reconfigure
+Restart,restart-openbox
+
+jgmenu,^tag(bl-jgmenuConfig)
+Back,^back()
+Edit Menu Content,my-text-editor ~/.config/jgmenu/prepend.csv
+Edit Menu Settings,my-text-editor ~/.config/jgmenu/jgmenurc
+^sep()
+Sync theme with OpenBox,jgmenu_run init --apply-obtheme
+Sync theme with GTK3,jgmenu_run init --apply-gtktheme
+^sep(Help)
+man page,popup_terminal --man jgmenu
+tutorial,popup_terminal --man jgmenututorial
+
+Keybinds,^tag(bl-xbindkeysConfig)
+Back,^back()
+Edit .xbindkeysrc,my-text-editor ~/.xbindkeysrc
+Restart,sh -c 'pkill -x xbindkeys; xbindkeys_autostart'
+^sep()
+# Next entry requires tk
+#Show Keybinds,xbindkeys_show
+^sep(Help)
+man page,popup_terminal --man xbindkeys
+
+rofi,^tag(roficonfig)
+Back,^back()
+Edit Config File,rofi_editer
+^sep(Help)
+man page,popup_terminal --man rofi
+
+Display,^tag(bl-DisplaySettings)
+Back,^back()
+ARandR Screen Layout Editor,arandr
+^sep(Help)
+man xrandr,popup_terminal --man xrandr
+
+System,^tag(bl-system)
+Back,^back()
+Quick System Info,sysinfo_script_ --hardware2
+^sep()
+Printers,^pipe(jgmenu_run ob --cmd="bl-printing-pipemenu" --tag="bl-printing-pipemenu"),printer
+Task Manager (htop),sysinfo_script_ --process,htop
+Install Favourite Packages,^pipe(my-install-pipemenu --jgmenu)
+Synaptic Package Manager,sh -c 'pkexec synaptic',synaptic
+Login Settings,sh -c 'pkexec my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf',lightdm-settings
+Login Interface,lightdm-gtk-greeter-settings-pkexec,lightdm-settings
+GParted Partition Manager,sh -c 'pkexec gparted',gparted
+Set Default Browser,"""popup_terminal 'Select Default Browser' 'my-alternatives set my-www-browser'""",web-browser
+Edit Debian Alternatives,galternatives,galternatives
+^sep()
+About mDmDmDmDmDmDmD Alternatives,yad --button="OK":0 --center --text-info --title="About mDmDmDmDmDmDmD Alternatives" --filename="/usr/share/DmDmDmdMdMdM/lib/docs/helpfiles/helpfile-bl-alternatives.txt" --width=900 --height=700 --fontname=Monospace,About-DmDmDmdMdMdM-Alternatives
+
+^tag(apps)
+

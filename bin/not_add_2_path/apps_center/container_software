@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#app_name=(docker.io)
+app_name=(podman)
+extra_apps_=(iptables)
+
+
+if [[ "$app_name" = "docker.io" ]];then
+	__command_="docker"
+else
+	__command_="$app_name"
+fi
+
+if command -v sudo &>/dev/null;then
+	__sudo="sudo"
+else
+	__sudo=""
+fi
+
+skip_test="{1-}"
+
+if hash $__command_ 2>/dev/null && ! dpkg -s $__command_ &>/dev/null;then
+	echo "${__command_}" | $__sudo tee '/usr/share/DmDmDmdMdMdM/Containers_ready'
+	exit
+fi
+
+failed_to_run(){
+	__massage_="${1-}"
+	echo "$__massage_"
+	exit 1
+}
+###################################################################
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+say
+say "INSTALL ${app_name}."
+say '------------------------'
+say "This script will install ${app_name}."
+say
+
+if [[ -z "${skip_test}" ]];then
+	clear
+	connectiontest 1 || failed_to_run "failed to install no internet."
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_ || failed_to_run "failed to update repo."
+	
+	clear
+fi
+
+say 'Installing package...' 1
+Package_installer_ ${app_name} || failed_to_run "failed to install ${app_name}"
+
+if [[ -n "${extra_apps_[*]}" ]];then
+	say 'Installing extra packages...' 1
+	Package_installer_ "${extra_apps_[@]}" || failed_to_run "failed to install ${extra_apps_[@]}"
+	clear
+fi
+
+if [[ "$app_name" = "docker" ]];then
+	$__sudo systemctl start docker.service || :
+	$__sudo systemctl enable docker.service || :
+	
+	$__sudo systemctl start containerd.service || :
+	$__sudo systemctl enable containerd.service || :
+	
+	$__sudo groupadd docker || :
+	$__sudo usermod -aG docker ${USER} || :
+	$__sudo gpasswd -a ${USER} docker || :
+	$__sudo service docker restart
+fi
+
+echo "${__command_}" | $__sudo tee '/usr/share/DmDmDmdMdMdM/Containers_ready'
+
+say
+say "${app_name} has been installed successfully."
+say
+
+

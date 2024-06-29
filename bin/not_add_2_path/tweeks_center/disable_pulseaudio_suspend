@@ -1,0 +1,49 @@
+#!/bin/bash
+
+pulseconfig="/etc/pulse/default.pa"
+is_pulseaudio_suspend_disable=$(grep "#load-module module-suspend-on-idle" "${pulseconfig}")
+
+if [ "$1" = "--check" ];then
+	if [ ! -f ${pulseconfig} ]; then
+		echo enabled 
+	else
+		if test "${is_pulseaudio_suspend_disable}"; then
+			echo enabled 
+		fi
+		echo disabled
+	fi
+	exit 0
+fi
+tweek_name=$(basename $0)
+
+###################################################################
+
+
+. "/usr/share/DmDmDmdMdMdM/lib/common/Package-manager"
+
+clear
+say
+say "run ${tweek_name}."
+say '------------------------'
+say "This script will ${tweek_name}."
+say
+prompt '  Run the script now?' || return
+
+clear
+
+say 'running tweek...' 1
+###################################################################
+
+  say "Disabling suspend on PulseAudio when sinks/sources idle."
+  sudo sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}
+
+###################################################################
+clear
+remove_from_db
+
+say
+say "${tweek_name} has been runed successfully."
+say
+say 'Hit any key to exit...'
+read -srn1
+

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Geolocate IP:
+ipinfo=$(curl -s ipinfo.io)
+echo "$ipinfo" | jq -r '.loc'

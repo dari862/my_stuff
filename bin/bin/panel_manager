@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+opt="${1-}"
+opt2="${2-}"
+config_dir="$HOME/.config"
+tint2_dir="${config_dir}/tint2"
+default_panel="polybar"
+. "/usr/share/DmDmDmdMdMdM/lib/common/rofi"
+. "/usr/share/DmDmDmdMdMdM/lib/common/panel"
+. "/usr/share/DmDmDmdMdMdM/lib/common/openbox"
+
+copy_from_extra_skel(){
+	if command -v polybar &> /dev/null;then
+		cp -r "/usr/share/DmDmDmdMdMdM/extra_skel/.config/polybar" $HOME/.config
+	fi
+	
+	if command -v tint2 &> /dev/null;then
+		cp -r "/usr/share/DmDmDmdMdMdM/extra_skel/.config/tint2" $HOME/.config
+	fi
+	
+	if command -v xfce4-panel &> /dev/null;then
+		cp -r "/usr/share/DmDmDmdMdMdM/extra_skel/.config/xfce4" $HOME/.config
+	fi
+	if command -v jgmenu &> /dev/null;then
+		cp -r "/usr/share/DmDmDmdMdMdM/extra_skel/.config/jgmenu" $HOME/.config
+	fi
+}
+
+panel_picker() {
+	count=0
+	spliter1="|"
+	spliter2="|"
+	_jgmenu_=""
+	
+	mkdir -p "$which_panel_dir"
+	
+	copy_from_extra_skel
+	
+	if command -v polybar &> /dev/null
+	then
+		polybar_in_rofi="polybar"
+		((++count))
+		which_panel_MENU="polybar"
+	else
+		spliter1=""
+	fi
+	
+	if command -v xfce4-panel &> /dev/null
+	then
+		xfce4_in_rofi="xfce4-panel"
+		((++count))
+		which_panel_MENU="xfce4-panel"
+	else
+		spliter2=""
+	fi
+	
+	if command -v tint2 &> /dev/null
+	then
+		tint2_in_rofi="tint2"
+		((++count))
+		which_panel_MENU="tint2"
+	fi
+	
+	if (( count > 1 )); then
+		which_panel_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
+		-theme "$rofi_style_dir"/launcher.rasi \
+		<<< "${polybar_in_rofi}${spliter1}${xfce4_in_rofi}${spliter2}${tint2_in_rofi}")"
+	fi
+	
+	if [ "$which_panel_MENU" == "polybar" ]; then
+		cp -r "${OBPATH_CONF_LIB}/DmDmDmdMdMdM_rc.xml" "${OBPATH}"
+		echo "DmDmDmdMdMdM_rc.xml" > "${OBPATH}/rc_name"
+	elif [ "$which_panel_MENU" == "xfce4-panel" ]; then
+		cp -r "${OBPATH_CONF_LIB}/DmDmDmdMdMdM_rc.xml" "${OBPATH}"
+		echo "DmDmDmdMdMdM_rc.xml" > "${OBPATH}/rc_name"
+	elif [ "$which_panel_MENU" == "tint2" ]; then
+		if command -v jgmenu &> /dev/null
+		then
+			_jgmenu_="jgmenu|"
+		fi
+		which_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
+		-theme "$rofi_style_dir"/launcher.rasi \
+		<<< "${_jgmenu_}my_obmenu|bl_obmenu")"
+		if [ "$which_MENU" == "jgmenu" ]; then
+			cp -r "${OBPATH_CONF_LIB}/bl-rc-jgmenu.xml" "${OBPATH}"
+			echo "bl-rc-jgmenu.xml" > "${OBPATH}/rc_name"
+			setbg -s --set-color=#18191A /usr/share/DmDmDmdMdMdM/images/wallpapers/default/default
+		elif [ "$which_MENU" == "bl_obmenu" ]; then
+			cp -r "${OBPATH_CONF_LIB}/bl-rc-openbox.xml" "${OBPATH}"
+			echo "bl-rc-openbox.xml" > "${OBPATH}/rc_name"
+		elif [ "$which_MENU" == "my_obmenu" ]; then
+			cp -r "${OBPATH_CONF_LIB}/DmDmDmdMdMdM_rc.xml" "${OBPATH}"
+			echo "DmDmDmdMdMdM_rc.xml" > "${OBPATH}/rc_name"
+			echo "/.config/tint2/old.tint2rc" > $HOME/.config/tint2/tint2-sessionfile
+		fi
+	else
+		which_panel_MENU="$default_panel"
+		cp -r "${OBPATH_CONF_LIB}/DmDmDmdMdMdM_rc.xml" "${OBPATH}"
+		echo "DmDmDmdMdMdM_rc.xml" > "${OBPATH}/rc_name"
+	fi
+	
+	echo "$which_panel_MENU" > ${_panel_name_path_}
+}
+
+panel_launcher() {
+	_panel_name_=$(cat ${_panel_name_path_})
+	
+	## Notification Daemon
+	dunst-session &
+
+	# Start compositor
+	picom-session &
+
+	## Launch Plank
+	#plank-session
+		
+	if [ "$_panel_name_" = "polybar" ]; then 
+		# Start polybar
+    	polybar-session &
+
+		# Enable power management
+		power-manager-session &
+		
+		# Start volume control
+		audio-session stop &
+		
+		# Start network manager
+		nm-applet-session stop &	
+		
+		# Lauch xsettingsd daemon
+		xfsettingsd-session stop &
+		
+	elif [ "$_panel_name_" =  "xfce4-panel" ]; then
+		# Start xfce4-panel
+    	xfce4-panel-session &
+    	
+    	# Lauch xsettingsd daemon
+		xfsettingsd-session &
+
+		# Start volume control
+		audio-session &
+		
+		# Start network manager
+		nm-applet-session &		
+		
+		# Enable power management
+		power-manager-session xfce4 &
+		
+	elif [ "$_panel_name_" =  "tint2" ]; then
+		# panel - taskbar, system tray, battery, clock
+		tint2-session &
+		
+		# Start volume control
+		audio-session &
+
+		# Start network manager
+		nm-applet-session stop &
+
+		# Enable power management
+		power-manager-session &
+		
+    	# Lauch xsettingsd daemon
+		xfsettingsd-session stop &
+	fi 
+}
+
+panel_changer(){
+	panel_name="$opt2"
+	if [[ "$panel_name" == 'tint2' ]]; then
+		echo 'tint2' > ${_panel_name_path_}
+		panel_reload
+	elif [[ "$panel_name" == 'polybar' ]]; then
+		echo 'polybar' > ${_panel_name_path_}
+		panel_reload 
+	elif [[ "$panel_name" == 'xfce4-panel' ]]; then
+		echo 'xfce4-panel' > ${_panel_name_path_}
+		panel_reload
+	fi
+	/usr/share/DmDmDmdMdMdM/bin/not_add_2_path/create_DB.sh --styles
+}
+
+panel_reload(){
+	_panel_name_=$(cat ${_panel_name_path_})
+	polybar-session stop
+	xfce4-panel-session stop
+	tint2-session stop
+	panel_launcher
+}
+
+case $opt in
+		--picker) panel_picker ;;
+		--launch) panel_launcher ;;
+		--change) panel_changer ;;
+		--reload) panel_reload ;;
+esac

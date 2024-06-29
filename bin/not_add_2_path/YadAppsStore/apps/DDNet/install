@@ -1,0 +1,38 @@
+#!/bin/bash
+
+version=17.4
+
+if ! package_is_new_enough rustc 1.60.0 ;then
+  # Add repository source to apt sources.list
+  # remove deprecated repofilename
+  sudo rm -f /etc/apt/sources.list.d/rust-ubuntu.list
+  debian_ppa_installer "ubuntu-mozilla-security/rust-next" "bionic" "AF316E81A155146718A6FBD7A6DCF7707EBC211F" || exit 1
+fi
+
+#Dependencies
+install_packages build-essential cargo cmake git libcurl4-openssl-dev libssl-dev libfreetype6-dev libgles2-mesa-dev libglew-dev libnotify-dev libogg-dev libopus-dev libopusfile-dev libpnglite-dev libsdl2-dev libsqlite3-dev libwavpack-dev python3 google-mock libx264-dev libavfilter-dev libavdevice-dev libavformat-dev libavcodec-dev libavutil-dev rustc || exit 1
+
+package_available glslang-tools
+if [[ $? == "0" ]]; then
+  install_packages glslang-tools libvulkan-dev || error "Failed to install dependencies"
+  vulkan=1
+else
+  vulkan=0
+fi
+
+#Clone the Repository
+cd /tmp
+git_clone https://github.com/ddnet/ddnet --recursive -b $version --depth=1 || exit 1
+
+#Build
+cd ddnet || exit 1
+mkdir build
+cd build || exit 1
+if [[ $vulkan == 1 ]]; then
+  cmake .. || error 'Failed at cmake!'
+else
+  cmake .. -DVULKAN=OFF || error 'Failed at cmake!'
+fi
+make -j$(nproc) || error 'Failed at make!'
+sudo make install || error "Failed to install"
+sudo update-icon-caches /usr/local/share/icons/*
