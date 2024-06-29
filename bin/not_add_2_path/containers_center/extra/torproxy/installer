@@ -26,6 +26,8 @@ elif [[ "$CONTAINER_RT" = "docker" ]];then
 fi
 
 $CONTAINER_RT build -t torproxy . ${__format}
-$CONTAINER_RT run -it --net=host --restart=always -p 8118:8118 -p 9050:9050 -d torproxy
+$CONTAINER_RT run -it --net=host --restart=always --security-opt=now-new-privileges --tmpfs /etc/tor --tmpfs /var/lib/tor --tmpfs /var/log/tor --tmpfs /etc/tor/run -p 8118:8118 -p 9050:9050 -d torproxy
 
 $__sudo cp -rf "tor-router" "/usr/share/DmDmDmdMdMdM/bin/bin/"
+
+

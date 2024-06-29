@@ -65,10 +65,14 @@ RUN echo 'AutomapHostsOnResolve 1' >>/etc/tor/torrc && \
     chown -Rh tor. /var/lib/tor /etc/tor/run && \
     chmod 0750 /etc/tor/run && \
     rm -rf /tmp/*
-    
+
+RUN chsh -s /usr/sbin/nologin root
+
 COPY torproxy.sh /usr/bin/
 
 EXPOSE 8118 9050 9051
+
+USER tor
 
 HEALTHCHECK --interval=60s --timeout=15s --start-period=20s \
             CMD curl -sx localhost:8118 'https://check.torproject.org/' | \
