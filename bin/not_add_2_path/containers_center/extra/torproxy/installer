@@ -17,8 +17,6 @@ else
 	exit 1
 fi
 
-sed -i "s/CONTAINER_RT_from_file/$CONTAINER_RT/g" tor-router
-
 if [[ "$CONTAINER_RT" = "podman" ]];then
 	__format='--format docker'
 	CONTAINER_RT="$CONTAINER_RT"

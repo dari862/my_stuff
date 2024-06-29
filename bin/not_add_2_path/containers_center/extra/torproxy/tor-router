@@ -20,15 +20,15 @@ start_tor(){
 	_non_tor="192.168.1.0/24 192.168.0.0/24"
 	
 	### get the container tor runs in
-	_tor_container="$($__sudo $CONTAINER_RT ps | awk '/torproxy/ {print $NF; quit}')"
+	_tor_container="$($CONTAINER_RT ps | awk '/torproxy/ {print $NF; quit}')"
 	if [[ "$_tor_container" == "" ]]; then
     	echo 'ERROR: you must start a tor proxy container first, IE:'
-    	echo "    $__sudo $CONTAINER_RT run -it --net=host --restart=always -p 8118:8118 -p 9050:9050 -d torproxy"
+    	echo "    $CONTAINER_RT run -it --net=host --restart=always -p 8118:8118 -p 9050:9050 -d torproxy"
     	exit 1
 	fi
 	
 	### get the UID that tor runs as
-	_tor_uid="$($__sudo $CONTAINER_RT exec $_tor_container id -u tor)"
+	_tor_uid="$($CONTAINER_RT exec $_tor_container id -u tor)"
 	
 	### Tor's TransPort
 	_trans_port="9040"
