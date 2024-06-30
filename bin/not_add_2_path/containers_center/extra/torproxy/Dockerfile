@@ -2,7 +2,7 @@ FROM alpine
 
 # Install tor and privoxy
 RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash curl privoxy shadow tini tor tzdata
+    apk --no-cache --no-progress add curl privoxy shadow tini tor tzdata
 
 # configure privoxy
 RUN cp -arf '/etc/privoxy/config.new' '/etc/privoxy/config' || :
