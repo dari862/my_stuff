@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Exec=tray_gammastep
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=gammastep tray
+Name=gammastep tray
+Comment[en_US]=Run gammastep tray
+Comment=Run gammastep tray
+Icon=
+Path=
+Terminal=false
+StartupNotify=false

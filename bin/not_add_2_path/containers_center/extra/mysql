@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+CONTAINER_RT="$(cat '/usr/share/my_stuff/system_files/Containers_ready' 2>/dev/null || echo podman)"
+
+$CONTAINER_RT run -d --restart unless-stopped -p "127.0.0.1:3306:3306" --name=mysql8 -e MYSQL_ROOT_PASSWORD= -e MYSQL_ALLOW_EMPTY_PASSWORD=true mysql:8.4

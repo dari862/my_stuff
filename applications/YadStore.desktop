@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=YadStore
+Comment=The lightest and fastest Linux app store.
+Exec=yadstore
+Type=Application
+Version=1.0
+Terminal=false
+StartupWMClass=YadStore
+Icon=/usr/share/my_stuff/bin/not_add_2_path/YadAppsStore/images/logo/logo.png
+Categories=Utility;System;PackageManager;

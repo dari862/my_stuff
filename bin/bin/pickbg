@@ -1,0 +1,11 @@
+#!/bin/sh
+
+op__="$1"
+op2__="$2"
+color_="$3"
+
+case $op__ in
+	*)
+		nitrogen
+	;;
+esac

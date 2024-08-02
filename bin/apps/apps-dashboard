@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# The dashboard displays installed applications into yad based window. 
+apps_dashboard_tmp="/tmp/apps-dashboard"
+if [ -d "${apps_dashboard_tmp}" ]; then
+	rm -rf 
+fi
+
+mkdir "${apps_dashboard_tmp}"
+remove_from_array=($(grep -rwn 'NoDisplay=true' /usr/share/applications/*))
+apps_list=($(ls /usr/share/applications/*.desktop))
+
+for element in "${remove_from_array[@]}" ;do
+	apps_list=("${apps_list[@]/$element}")
+done
+
+for apps in "${apps_list[@]}" ;do
+	cp -a $apps "${apps_dashboard_tmp}"
+done
+
+yad --icons --read-dir="${apps_dashboard_tmp}" --monitor --item-width=600\
+ --sort-by-name --center --undecorated --skip-taskbar --borders=20\
+ --button="Cancel!gtk-cancel":1 --buttons-layout=center --maximized
+
+rm -rf "${apps_dashboard_tmp}"
+exit 0
+

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Activity
+Comment=System activity from btop
+Exec=alacritty --config-file /usr/share/my_stuff/lib/Dev-Env/alacritty/btop.toml -e btop
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/Activity.png
+Categories=GTK;
+StartupNotify=false

@@ -1,0 +1,5 @@
+WM_config_name="WM_common_config"
+which_panel_dir="$HOME/.config/$WM_config_name"
+_panel_name_path_="${which_panel_dir}/which_panel"
+_panel_name_="$(cat ${_panel_name_path_} 2>/dev/null || echo polybar)"
+_rerun_panel_picker_="$which_panel_dir/rerun_panel_picker"

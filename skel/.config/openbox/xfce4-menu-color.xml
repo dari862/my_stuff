@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE menu [
+  <!ENTITY icons "/usr/share/my_stuff/icons">
+  <!ENTITY icons2 "/usr/share/my_stuff/icons/dunst">
+  <!ENTITY openboxconfig "~/.config/openbox">
+]>
+<openbox_menu xmlns="http://openbox.org/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://openbox.org/
+                file:///usr/share/openbox/menu.xsd">
+
+
+    <menu id="root-menu" label="Openbox 3">
+		<item label="Run Program" icon="&icons2;/search.png">
+			<action name="Execute">
+				<command>rofi-launcher</command>
+			</action>
+		</item> 
+
+		<separator/>
+
+		<item label="Virtual Machine" icon="&icons2;/desktop.png">
+			<action name="Execute">
+				<command>popup_terminal "virtual_machine"</command>
+			</action>
+		</item> 
+	    
+		<item label="Terminal" icon="&icons;/terminal.png">
+            <action name="Execute">
+                <command>
+                    my-terminal-emulator
+                </command>
+            </action>
+        </item>
+        <item label="Web Browser" icon="&icons;/browser.png">
+            <action name="Execute">
+                <command>
+                    my-www-browser
+                </command>
+            </action>
+        </item>
+        <item label="File Manager" icon="&icons;/filemanager.png">
+            <action name="Execute">
+                <command>
+                    my-file-manager
+                </command>
+            </action>
+        </item>
+        <item label="Text Editor" icon="&icons;/editor.png">
+            <action name="Execute">
+                <command>
+                    my-text-editor
+                </command>
+            </action>
+        </item>
+
+        <menu id="desktop-app-menu" label="Applications" icon="&icons;/apps.png" execute="obamenu" />
+		
+        <separator/>
+
+
+        <menu id="preferences" label="Preferences" icon="&icons;/settings.png">
+        <menu id="my_stuffGuiAppsPipemenu" execute="gui-apps-pipemenu --openboxmenu" label="My Stuff GUI Apps"/>
+        <separator label="Install Packages and Debian Tweeks"/>
+			<menu id="InstallFavouritePackages" execute="my-install-pipemenu --openboxmenu" label="Install Favourite Packages"/>
+			<menu id="DeployFavouriteContainers" execute="containers-deployer-pipemenu --openboxmenu" label="Deploy Distrobox and Containers"/>
+			<menu id="RunDebianTweeks" execute="my-tweeks-pipemenu --openboxmenu" label="Run Debian Tweeks"/>
+        	<separator label="GRAPHICAL PREFERENCES"/>
+        <menu id="XrandrPipeMenu" execute="ac-randr" label="Display / Monitor"/>
+        <menu id="ScalePipeMenu" execute="ac-scale-randr" label="Display / Monitor Scaling"/>
+	    <menu id="StylePipeMenu" icon="&icons2;/themes.png" execute="ac-change-pipemenu --style" label="Change Style"/>
+	    <menu id="PanelPipeMenu" icon="&icons2;/palette.png" execute="ac-change-pipemenu --panel" label="Change Panel"/>
+            <menu id="obConfig" label="Desktop">
+            	<menu id="ac-ob-menu" execute="ac-ob-menu" label="Menu Style"/>
+	            <item label="Openbox Preferences">
+	                <action name="Execute">
+	                    <command>
+	                        obconf
+	                    </command>
+	                </action>
+	            </item>	
+                <item label="Edit Openbox config file rc.xml">
+                    <action name="Execute">
+                        <command>
+                            my-text-editor &openboxconfig;/rc.xml
+                        </command>
+                    </action>
+                </item>		
+                <item label="How to configure Openbox?">
+                    <action name="Execute">
+                        <command>
+                            my-www-browser "http://openbox.org/wiki/Help:Contents" "https://wiki.archlinux.org/index.php/openbox"
+                        </command>
+                    </action>
+                </item>	                
+                <separator/>
+                <item label="Reload Openbox configuration">
+                    <action name="Reconfigure"/>
+                </item>
+                <item label="Restart Openbox">
+                    <action name="Restart"/>
+                </item>
+            </menu>
+
+        	<menu id="obmenu" label="Menu">
+                <item label="Edit menu.xml">
+                    <action name="Execute">
+                        <command>
+                            my-text-editor &openboxconfig;/xfce4-menu-color.xml
+                        </command>
+                    </action>
+                </item>      		
+                <item label="Hide/show icons in menu">
+                    <action name="Execute">
+                        <command>
+							bash -c 'if grep -q icon_hide=\" &openboxconfig;/xfce4-menu-color.xml; then sed -i "s/icon_hide=\"/icon=\"/g" &openboxconfig;/xfce4-menu-color.xml; else sed -i "s/icon=\"/icon_hide=\"/g" &openboxconfig;/xfce4-menu-color.xml; fi'
+                        </command>
+                    </action>
+                    <action name="Reconfigure"/>
+                </item>        
+                <item label="How to configure menu.xml?">
+                    <action name="Execute">
+                        <command>
+                            my-www-browser "http://openbox.org/wiki/Help:Menus" "https://wiki.archlinux.org/index.php/openbox#Menus"
+                        </command>
+                    </action>
+                </item>	                 
+                <separator/>		        		
+                <item label="Reload Menu">
+                    <action name="Reconfigure"/>
+                </item>
+        	</menu>
+
+        	<menu id="CompositingPipeMenu" execute="ac-compositor" label="Compositor" icon="&icons;/cmd.png"/>			
+			<menu id="panel_settings" execute="ac-panel-settings" label="Taskbar" icon="&icons;/cmd.png"/>
+        	<menu id="Conky" execute="bl-conky-pipemenu" label="Conky"/>
+        	
+        	<menu id="autostart" label="Autostarted programs">		
+	            <item label="Edit Openbox Autostart">
+	                <action name="Execute">
+	                    <command>
+	                        my-text-editor &openboxconfig;/autostart
+	                    </command>
+	                </action>
+	            </item>
+				<item label="Show XDG autostarted programs">
+	                <action name="Execute">
+	                    <command>
+	                       sysinfo_script_ --autostart
+	                    </command>
+	                </action>
+	            </item>        		
+        	</menu>
+
+        	<menu id="shortcuts" label="Keyboard and mouse shortcuts">		   		
+	            <item label="Edit Openbox rc.xml">
+	                <action name="Execute">
+	                    <command>
+	                        my-text-editor &openboxconfig;/rc.xml
+	                    </command>
+	                </action>
+	            </item>
+                <item label="How to configure Openbox shortcuts?">
+                    <action name="Execute">
+                        <command>
+                            my-www-browser "http://openbox.org/wiki/Help:Bindings"
+                        </command>
+                    </action>
+                </item>	  	  
+                <separator/>		        		
+                <item label="Reload shortcuts">
+                    <action name="Reconfigure"/>
+                </item>                          
+        	</menu>
+	            
+            <item label="GTK Appearance">>
+                <action name="Execute">
+                    <command>
+                        appearance_settings_
+                    </command>
+                </action>
+            </item>
+            <item label="Font Configuration">
+                <action name="Execute">
+                    <command>
+                        my-text-editor ~/.config/fontconfig/fonts.conf
+                    </command>
+                </action>
+            </item>
+            <item label="Wallpaper">
+                <action name="Execute">
+                    <command>
+                        pickbg
+                    </command>
+                </action>
+            </item>
+            <item label="Notifications">
+                <action name="Execute">
+                    <command>notifications_config</command>
+                </action>
+            </item>
+			<item label="Display">
+				<action name="Execute">
+					<command>
+						arandr
+					</command>
+				</action>
+			</item>
+
+        	<separator label="SYSTEM PREFERENCES"/>
+
+            <item label="Synaptic Package Manager">
+                <action name="Execute">
+                    <command>
+                        synaptic-pkexec
+                    </command>
+                </action>
+            </item>
+			<item label="Check Pending Updates">
+				<action name="Execute">
+					<command>
+						update-notification -n
+					</command>
+				</action>
+			</item>	            
+            <item label="Alternatives">
+                <action name="Execute">
+                    <command>
+                        galternatives
+                    </command>
+                </action>
+            </item>
+            <item label="Power Management">
+                <action name="Execute">
+                    <command>
+                       power_manager_settings
+                    </command>
+                </action>
+            </item>
+			<item label="Network Configuration">
+				<action name="Execute">
+					<command>
+						nm-connection-editor
+					</command>
+				</action>
+			</item>
+			<item label="Removable Drives and Media">
+				<action name="Execute">
+					<command>
+						thunar-volman-settings
+					</command>
+				</action>
+			</item>
+			<item label="GParted Partition Manager">
+				<action name="Execute">
+					<command>
+						gparted
+					</command>
+				</action>
+			</item>
+            <item label="Printers">
+                <action name="Execute">
+                    <command>
+                        cups-session
+                    </command>
+                </action>
+            </item>
+        </menu>
+
+		<menu id="info" execute="ac-sysinfo --more" label="System info" icon="&icons;/stats.png"/>
+		
+        <menu id="help" label="Help" icon="&icons2;/brightness-20.png">
+        	<separator label="HELP AND TIPS" />
+	        <item label="Debian-Openbox Script GitHub">
+	            <action name="Execute">
+	                <command>
+	                    my-www-browser "https://github.com/leomarcov/debian-openbox#readme"
+	                </command>
+	            </action>
+	        </item>	
+	        <item label="Welcome tips">
+	            <action name="Execute">
+	                <command>
+	                    welcome
+	                </command>
+	            </action>
+	        </item>	
+
+		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
+			
+	        <separator label="DEBIAN HELP" />
+
+	        <item label="Debian Documentatcion">
+	            <action name="Execute">
+	                <command>
+	                    my-www-browser "https://www.debian.org/doc"
+	                </command>
+	            </action>
+	        </item>	
+	        <item label="Debian Handbook">
+	            <action name="Execute">
+	                <command>
+	                    my-www-browser "https://www.debian-handbook.info/browse/stable"
+	                </command>
+	            </action>
+	        </item>		
+	        <item label="Debian Reference">
+	            <action name="Execute">
+	                <command>
+	                    my-www-browser "https://www.debian.org/doc/manuals/debian-reference/"
+	                </command>
+	            </action>
+	        </item>				
+		</menu>
+		
+        <separator/>
+
+        <item label="Exit" icon="&icons;/sys-poweroff.png">
+            <action name="Execute">
+                <command>ac-powermenu --rofi</command>
+            </action>
+        </item>
+    </menu>
+</openbox_menu>

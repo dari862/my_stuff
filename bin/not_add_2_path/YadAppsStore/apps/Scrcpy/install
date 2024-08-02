@@ -1,0 +1,70 @@
+#!/bin/bash
+
+version=v2.3.1
+
+echo -e "==============\n"
+echo " · More info: run "\""scrcpy --help"\"" or visit https://github.com/Genymobile/scrcpy"
+echo " · The Android device requires at least API 21 (Android 5.0)."
+echo " · Make sure you enabled adb debugging on your device(s)."
+echo " · On some devices, you also need to enable an additional option to control it using keyboard and mouse."
+echo " · If you have issues, try to run the app a couple of times through Terminal."
+
+sudo rm -rf ~/scrcpy /usr/local/share/scrcpy ~/.local/share/applications/scrcpy.desktop
+
+install_packages adb android-sdk-platform-tools-common ffmpeg libsdl2-2.0-0 gcc git pkg-config meson ninja-build libsdl2-dev libavcodec-dev libavdevice-dev libavformat-dev libavutil-dev libusb-1.0-0 libusb-1.0-0-dev || exit 1
+
+hash -r
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+if [ $(version $(meson --version)) -lt $(version "0.48") ]; then
+  status "Apt meson version is too old to build Scrcpy. Installing up to date meson from pip"
+  install_packages python3 python3-pip || exit 1
+  hash -r
+  sudo python3 -m pip install meson || error "Could not install updated meson"
+  hash -r
+fi
+
+#Add user to plugdev group
+status -n "Addung user '$USER' to the 'plugdev' group..."
+sudo usermod -aG plugdev "$USER" || error "Failed to add user '$USER' to the 'plugdev' group!"
+status_green Done
+
+cd /tmp
+git_clone https://github.com/Genymobile/scrcpy -b ${version} || error "Failed to download repo!"
+cd scrcpy
+
+# fixme: upstream v2.3 release does not build. upstream has not made a new release but fixed in master
+wget https://github.com/Genymobile/scrcpy/commit/4135c411af419f4f86dc9ec9301c88012d616c49.patch
+git apply 4135c411af419f4f86dc9ec9301c88012d616c49.patch
+
+status "Downloading prebuilt scrcpy-server that gets pushed to the android device"
+wget https://github.com/Genymobile/scrcpy/releases/download/${version}/scrcpy-server-${version} -O scrcpy-server || error "Failed to download scrcpy-server prebuilt!"
+
+status "Compiling scrcpy-client"
+rm -rf build
+meson build --buildtype=release --strip -Db_lto=true -Dprebuilt_server=scrcpy-server || error "Could not generate build options"
+cd build || error "Could not move to build directory"
+ninja || error "Error while building scrcpy client"
+status "Installing scrcpy-client"
+sudo ninja install || error "Could not install scrcpy"
+
+#clean up
+status -n "Cleaning up..."
+cd
+rm -rf /tmp/scrcpy
+status_green "Done"
+
+#menu entry
+sudo mkdir -p /usr/local/share/applications
+status -n "Making menu entry..."
+cat << "EOF" | sudo tee /usr/local/share/applications/scrcpy.desktop >/dev/null
+[Desktop Entry]
+Name=Scrcpy
+Exec=bash -c "errors="\""$(scrcpy --turn-screen-off --stay-awake --power-off-on-close 2>&1)"\"" || yad --text-info --center --width=500 --height=300 --font-name=12 --button=Close --text="\""Scrcpy failed to launch. Errors below."\"" <<<"\""$errors"\"""
+Icon=/usr/local/share/icons/hicolor/256x256/apps/scrcpy.png
+Type=Application
+Comment=Display and control of Android devices connected on USB
+Categories=ConsoleOnly;Utility;System;
+EOF
+status_green Done
+
+sudo rm -f /usr/local/share/applications/scrcpy-console.desktop

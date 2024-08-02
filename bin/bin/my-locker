@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+on_tty(){
+   	if [[ -t 0 ]]
+   	then
+       	if [[ -t 1 && -t 2 ]]
+       	then
+           	return 0
+       	else
+           	echo "$0: STDIN is on terminal, but not STDOUT or STDERR" >&2
+           	exit 1
+       	fi
+   	else
+       	return 1
+   	fi
+}
+
+if on_tty ;then
+echo "$0: Error: Graphical environment needed for screen locking.
+	It can be done with the vlock package installed, using the
+	command 'vlock'. This script does not handle that case.
+	If you have a graphical environment running the probable cause
+	of seeing this message is that no display manager is installed." >&2
+	exit 1
+fi
+
+__arg_="${1-}"
+__image_full_path_="${2-}"
+
+check_if_image_is_png()
+{
+	File_type=$(file "$__image_full_path_" | awk '{print $2}')
+	if [ "$File_type" != "PNG" ] 
+	then
+  		cp -r "$__image_full_path_" "$i3lock_folder"
+  		cd "$i3lock_folder"
+  		__image_basename_="$(basename "$__image_full_path_")"
+  		__image_name_="${__image_basename_%.*}"
+		__image_ext_="${__image_basename_##*.}"
+  		__image_full_path_="$i3lock_folder/${__image_name_}.${__image_ext_}"
+  		mogrify -format png "$__image_full_path_"
+  		rm -f "$__image_full_path_"
+  		__image_ext_="png"
+  		__image_full_path_="$i3lock_folder/${__image_name_}.${__image_ext_}"
+	fi
+}
+
+set_custom_backgrounds_4_i3lock()
+{
+	echo "$__image_full_path_" > $i3lock_folder/backgrounds.ini
+	if [ "$(id -u)" -eq 0 ]
+	then
+  		chown -R $user_running_script:$user_running_script $i3lock_folder
+	fi
+}
+
+if [ "$(id -u)" -eq 0 ]
+then
+  user_running_script=$(logname 2>/dev/null)
+  homedir_user_running_script=$( getent passwd "$user_running_script" | cut -d: -f6 )
+  i3lock_folder="${homedir_user_running_script}/.config/i3lock"
+else
+  i3lock_folder="$HOME/.config/i3lock"
+fi
+
+if [ "$__arg_" == "-s" ]
+then
+  if [ -n "$__image_full_path_" ]
+  then
+  	[ ! -d $i3lock_folder ] && mkdir -p $i3lock_folder
+    check_if_image_is_png
+    set_custom_backgrounds_4_i3lock
+    exit 1
+  else
+    echo "$0: please pick any image."
+    exit 1
+  fi
+fi
+
+if [ -f "$i3lock_folder/backgrounds.ini" ]
+then
+  custom_backgrounds="$(cat ${i3lock_folder}/backgrounds.ini || :)"
+fi
+
+if [ -z "$custom_backgrounds" ]
+then
+  i3lock-fancy -- maim -z
+else
+  i3lock -i "$custom_backgrounds"
+fi

@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# It runs full system upgrade in a text console
+
+if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+	echo ""
+	echo "runs full system upgrade in a text console"
+	echo "It uses Nala (if installed) or APT to do the job"
+	echo "It can be also used as a short command: spu"
+	echo ""
+	exit 0
+fi
+
+Custom_distro_dir_name="my_stuff"
+Custom_distro_name="My Stuff"
+Custom_distro_path="/usr/share/${Custom_distro_dir_name}"
+
+x_session_picker_path="${Custom_distro_path}/bin/xsession/x-session-picker"
+usr_flag_setup_path="$(sed -n 's/usr_locl_share_dir=//p' "${x_session_picker_path}")/$(sed -n 's|$usr_locl_share_dir/||p' "${x_session_picker_path}" | awk -F= '{print $2}')"
+usr_flag_setup_path="$(echo "${usr_flag_setup_path}" | sed 's|"/"|/|g')"
+usr_flag_setup_path="$(echo "${usr_flag_setup_path}" | sed 's|$HOME||g')"
+usr_flag_setup_path="$(echo "${usr_flag_setup_path}" | sed 's|"||g')"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+PURPLE="\\033[1;35m"
+NOC0='\033[0m' # no colour
+
+print_RED() {
+  printf "${RED}${1}${NOC0}"
+}
+print_GREEN() {
+  printf "${GREEN}${1}${NOC0}"
+}
+echo_purple() {
+  echo -e "${PURPLE}${1}${NOC0}"
+}
+
+__upgrade_current_repo_(){
+	  echo_purple "\n==> status"
+	  __git_status="$(sudo git status 2>&1 | grep 'fatal: unknown index entry format')"
+	  if [ -n "$__git_status" ];then
+	  	sudo rm -f .git/index
+	  	sudo git status || :
+	  fi
+      echo_purple "\n==> Fetching"
+      sudo git fetch  || print_RED "git fetch failed... "
+      echo_purple "\n==> Pulling"
+      sudo git pull
+}
+
+# check out connection to debian server
+PINGTEST0=$(sudo ping -c 1 debian.org | grep [0-9])
+if [ "$PINGTEST0" = "" ]; then
+	print_RED " Debian server is not reachable, exiting... "
+	echo ""
+	exit 1
+else
+	print_GREEN " Debian server is on, proceed... "
+	echo ""
+	sleep 1
+fi
+
+CHECKNALA=$(which nala)
+if [ "$CHECKNALA" != "" ]; then
+	echo_purple "\n==> full system upgrade\n"
+	sudo nala upgrade --no-install-recommends --no-autoremove
+	sudo dpkg --configure -a
+else
+	echo_purple "\n==> sync package repositories\n"
+	sudo apt-get update 
+	echo_purple "\n==> full system upgrade\n"
+	sudo apt-get -y upgrade --no-install-recommends
+	# remove packages that can no longer be downloaded
+	echo_purple "\n==> clean package repository\n"
+	sudo apt-get autoclean
+	
+	# remove packages automatically installed as dependencies and not currently
+	# dependencies of any installed packages
+	echo_purple "\n==> remove orphan packages\n"
+	sudo apt autoremove
+	sudo dpkg --configure -a
+fi
+
+if [ -d "${Custom_distro_path}/system_files/updater" ];then
+	echo_purple "\n==> updating packages(s).\n"
+	cd "${Custom_distro_path}/system_files/updater"
+	updaters_list=($(ls))
+	if [ -f "${updaters_list[0]}" ];then
+		for updater in "${updaters_list[@]}";do
+			echo_purple "\n==> runing $updater updater.\n"
+			./$updater
+		done
+	fi
+fi
+
+echo_purple "\n==> checking Distro for update.\n"
+cd "${Custom_distro_path}"
+
+if $(git fetch &>/dev/null);then
+	echo_purple "\n==> Distro is up to date.\n" 
+else
+	echo_purple "\n==> Updating Distro.\n"
+	__upgrade_current_repo_
+	sudo find . -type f -not -path './Theme_Stuff/*' -not -path './opt/*' -not -path './icons/*' -not -path './images/*' -not -path './my_wallpapers/*' -not -path './.git/*' -exec sudo sed -i "s/my_stuff/${Custom_distro_dir_name}/g" {} +
+	sudo find . -type f -not -path './Theme_Stuff/*' -not -path './opt/*' -not -path './icons/*' -not -path './images/*' -not -path './my_wallpapers/*' -not -path './.git/*' -exec sudo sed -i "s/My Stuff/${Custom_distro_name}/g" {} +
+	for d in /home/*/ ; do
+    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes
+    	f="${d}${usr_flag_setup_path}"
+		sudo test -f "${f}" && sudo rm -f "${f}"
+	done
+fi
+
+if [ -d "${Custom_distro_path}/opt/git" ];then
+	echo_purple "\n==> updating git repository(s).\n"
+	cd "${Custom_distro_path}/opt/git/"
+	__git_dir_to_update_=($(ls))
+	if [ -d "${__git_dir_to_update_[0]}" ];then
+		for __repo_ in "${__git_dir_to_update_[@]}";do
+			echo_purple "\n==> ${__repo_} repository.\n"
+			cd "${__repo_}"
+			__upgrade_current_repo_
+			cd ..
+		done
+	fi
+fi
+
+echo_purple "\n==> generate list of installed packages\n"
+deb_pkglist
+exit 0

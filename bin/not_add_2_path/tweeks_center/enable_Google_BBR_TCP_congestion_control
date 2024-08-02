@@ -1,0 +1,43 @@
+#!/bin/bash
+is_bbr_enabled_=$(grep 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf)
+if [ "$1" = "--check" ];then
+	if [ -z "$is_bbr_enabled_" ];then
+		echo disabled
+	else
+		echo enabled 
+	fi
+	exit 0
+fi
+tweek_name=$(basename $0)
+
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+
+clear
+say
+say "run ${tweek_name}."
+say '------------------------'
+say "This script will ${tweek_name}."
+say
+prompt '  Run the script now?' || return
+
+clear
+
+say 'running tweek...' 1
+###################################################################
+
+echo "net.core.default_qdisc=fq" | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
+echo "net.ipv4.tcp_congestion_control=bbr" | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
+sudo sysctl -p
+
+###################################################################
+clear
+remove_from_db
+
+say
+say "${tweek_name} has been runed successfully."
+say
+say 'Hit any key to exit...'
+read -srn1
+

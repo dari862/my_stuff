@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Omakub
+Comment=Omakub Controls
+Exec=alacritty --config-file /usr/share/my_stuff/lib/Dev-Env/alacritty/pane.toml -e omakub
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/Omakub.png
+Categories=GTK;
+StartupNotify=false

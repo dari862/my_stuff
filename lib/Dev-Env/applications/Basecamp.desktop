@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Basecamp
+Comment=Basecamp Project Management
+Exec=google-chrome --app="https://launchpad.37signals.com" --name=Basecamp
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/Basecamp.png
+Categories=GTK;
+MimeType=text/html;text/xml;application/xhtml_xml;
+StartupNotify=true

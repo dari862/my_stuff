@@ -1,0 +1,75 @@
+#!/bin/bash
+# Install vim and add zellij distro
+
+needed_app="${1-}"
+app_name=(zellij)
+Title="zellij"
+distro_path="/usr/share/my_stuff/system_files"
+skel_path="${distro_path}/skel"
+zellij_skel_path="${skel_path}/.config/zellij"
+
+__choice=""
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+first_boot=false
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${Title}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${Title}."
+	say '------------------------'
+	say "This script will install ${Title}."
+	say
+	if [[ -z "${needed_app}" ]];then
+		prompt '  Run the installer now?' || break
+	fi
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+
+	say "Create ${Title} updater and installer..." 1
+	
+	tee /tmp/zellij_updater <<- 'EOF' > /dev/null
+	#!/bin/sh
+	
+	distro_path="/usr/share/my_stuff/system_files"
+	
+	zellij_tmp="$(mktemp -d /tmp/zellij-XXXXXX)"
+	cd ${zellij_tmp}
+	wget -O zellij.tar.gz "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+	tar -xf zellij.tar.gz zellij
+	sudo install zellij ${distro_path}/bin
+	rm zellij.tar.gz zellij
+	EOF
+	
+	chmod +x /tmp/zellij_updater
+	sudo chown root:root /tmp/zellij_updater
+	sudo mkdir -p ${distro_path}/updater
+	sudo mkdir -p ${distro_path}/downloaded
+	sudo mv /tmp/zellij_updater ${distro_path}/updater
+	
+	say "Installing ${Title} updater and installer..." 1
+	${distro_path}/updater/zellij_updater || failed_to_run "failed to run zellij_updater ."
+	
+	clear
+	
+	remove_from_db
+
+	say
+	say "${Title} has been installed successfully."
+	say
+	[[ -z "${needed_app}" ]] && say "Hit any key to start ${Title} first boot..."
+	[[ -z "${needed_app}" ]] && read -srn1
+	break
+done

@@ -1,0 +1,57 @@
+#!/bin/bash
+usr_setup_flag_file="$1"
+
+remove_this_Array=(
+.xsessionrc
+.xsession
+.subversion
+.wget-log
+.wget-hsts
+.zcompdump
+.zshrc
+.zshenv
+.zsh_history
+.zcompdump.zwc
+.zshrc.zwc
+.zshenv.zwc
+.zsh_history.zwc
+.bash_logout
+.bash_login
+.bashrc
+.fehbg
+.gnupg
+.gtkrc-2.0
+.dbus
+.ICEauthority
+.profile
+.zprofile
+.xprofile
+)
+for i in ${!remove_this_Array[*]}; do
+	[ -f "${HOME}/${remove_this_Array[$i]}" ] && mv "${HOME}/${remove_this_Array[$i]}" /tmp/clean_up_now_trash_folder  &> /dev/null;
+done
+
+mkdir -p /tmp/clean_up_now_trash_folder
+
+cp -rf /usr/share/my_stuff/system_files/skel/. $HOME || cp -rf /usr/share/my_stuff/system_files/skel/. $HOME
+
+wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" &>/dev/null && is_it_zero_byte="true"
+
+[ "${is_it_zero_byte}" = "true" ] && cp -rf /usr/share/my_stuff/system_files/skel/. $HOME
+
+[ "${is_it_zero_byte}" != "true" ] && touch "$usr_setup_flag_file"
+
+cd $HOME
+
+for hf in .bash_histor*;do
+	new_hf=${hf/./}
+	mv $hf .local/share/bash_history/$new_hf &>/dev/null || :
+done
+
+mv $HOME/.lesshst $HOME/.cache/lesshst &>/dev/null || :
+
+if command -v xfconf-query >/dev/null ; then
+	xfconf-query -c xfwm4 -np /general/theme -t 'string' -s Adwaita
+fi
+
+find "$HOME/.config/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +

@@ -1,0 +1,3 @@
+OBPATH="${XDG_CONFIG_HOME:-"$HOME/.config"}/openbox"
+OBPATH_SKEL='/usr/share/my_stuff/system_files/skel/.config/openbox'
+OBPATH_CONF_LIB="/usr/share/my_stuff/lib/openbox_rc"

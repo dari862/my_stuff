@@ -1,0 +1,211 @@
+#!/usr/bin/env bash
+
+USAGE="
+lazygit [OPTION]... <msg>
+
+    GIT but lazy
+
+    Options:
+    	-c, --gconfig   	create git config file
+    	-k, --sshkey        	generate sshkey
+        --fixup <commit>        runs 'git commit --fixup <commit> [...]'
+        --amend                 runs 'git commit --amend --no-edit [...]' modify the most recent commit
+        -f, --force             runs 'git push --force-with-lease [...]' --force-with-lease is a safer option than --force it will not overwrite any work on the remote branch if there is another comment.
+	-s,--send, -p, --push	runs 'git add and git commit -m <commit>  and git push'
+	-st,--status		runs 'git status'
+	-pl,--pull		runs 'git pull'
+        -l, --log		show full logs
+	-rl, --recentlog	show recent logs
+        -h, --help              show this help text
+"
+
+function _gconfig {
+	echo -e " Going to create git config."
+	echo -e " Enter user email (leave blank to abort)."
+	echo -n -e " [msg]: "
+	read msg
+	echo -e " Enter user name (leave blank to abort)."
+	echo -n -e " [msg]: "
+	read msg_2
+
+	if [ -z "$msg" ] || [ -z "$msg_2" ]
+		then
+			echo -e " Aborted."
+			echo
+			exit
+	fi
+	git config --global user.email "$msg"
+	git config --global user.name "$msg_2"
+}
+
+function _sshkey {
+	echo  "Generating new ssh keys without a password"
+	ssh-keygen -q -f $HOME/.ssh/git_key -t ecdsa -b 521 -N ""
+}
+
+function _glog {
+	setterm -linewrap off 2> /dev/null
+
+	git --no-pager log --all --color=always --graph --abbrev-commit --decorate --date-order \
+		--format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' "$@" \
+		| sed -E \
+			-e 's/\|(\x1b\[[0-9;]*m)+\\(\x1b\[[0-9;]*m)+ /├\1─╮\2/' \
+			-e 's/(\x1b\[[0-9;]+m)\|\x1b\[m\1\/\x1b\[m /\1├─╯\x1b\[m/' \
+			-e 's/\|(\x1b\[[0-9;]*m)+\\(\x1b\[[0-9;]*m)+/├\1╮\2/' \
+			-e 's/(\x1b\[[0-9;]+m)\|\x1b\[m\1\/\x1b\[m/\1├╯\x1b\[m/' \
+			-e 's/╮(\x1b\[[0-9;]*m)+\\/╮\1╰╮/' \
+			-e 's/╯(\x1b\[[0-9;]*m)+\//╯\1╭╯/' \
+			-e 's/(\||\\)\x1b\[m   (\x1b\[[0-9;]*m)/╰╮\2/' \
+			-e 's/(\x1b\[[0-9;]*m)\\/\1╮/g' \
+			-e 's/(\x1b\[[0-9;]*m)\//\1╯/g' \
+			-e 's/^\*|(\x1b\[m )\*/\1⎬/g' \
+			-e 's/(\x1b\[[0-9;]*m)\|/\1│/g' \
+		| command less -r $([ $# -eq 0 ] && echo "+/[^/]HEAD")
+
+	setterm -linewrap on 2> /dev/null
+}
+
+function _status {
+	echo
+
+	echo -e " git status"
+	echo
+	git status
+
+	echo
+}
+
+function _pull {
+	echo
+
+	echo -e " git pull"
+	echo
+	git pull
+
+	echo
+}
+
+function _log {
+	echo
+
+	echo -e " git log -1"
+	git log -1
+
+	echo
+}
+
+function _send {
+
+	_status
+	
+	if [ -z "`git status --porcelain`" ]
+		then
+			echo -e " Nothing to commit."
+			echo
+			exit
+	fi
+
+
+	echo -e " Going to ADD all, COMMIT and PUSH."
+	echo -e " Enter commit message (leave blank to abort)."
+	echo
+	echo -n -e " [msg]: "
+	read msg
+	echo
+
+	if [ -z "$msg" ]
+		then
+			echo -e " Aborted."
+			echo
+			exit
+	fi
+
+	echo -e " git add --all"
+	echo
+	git add --all
+	echo
+
+	echo -e " git commit -m \"$msg\""
+	echo
+	git commit -m "$msg"
+	echo
+
+	echo -e " git push"
+	echo
+	git push
+	echo
+}	
+	while [ $# -gt 0 ]
+	do
+		key="$1"
+
+		case $key in
+			-k|--sshkey)
+				_sshkey
+				EXIT=true
+				;;
+			-c|--gconfig)
+				_gconfig
+				EXIT=true
+				;;	
+			-st|--status)
+				_status
+				EXIT=true
+				;;
+			-pl|--pull)
+				_pull
+				EXIT=true
+			;;
+			-rl|--recentlog)
+				_log
+				EXIT=true
+			;;
+			-s|--send|-p|--push)
+				_send
+				EXIT=true
+			;;
+			--fixup)
+				COMMIT="$2"
+				shift # past argument
+				shift # past value
+				;;
+			--amend)
+				AMEND=true
+				shift # past argument
+				;;
+			-f|--force)
+				FORCE=true
+				shift # past argument
+				;;
+			-h|--help)
+				echo "$USAGE"
+				EXIT=true
+				;;
+			-l|--log)
+				_glog
+				EXIT=true
+				;;
+			*)
+				MESSAGE="$1"
+				shift # past argument
+				;;
+		esac
+	done
+	unset key
+	if [ -z "$EXIT" ]
+	then
+		git status .
+		git add .
+		if [ -n "$AMEND" ]
+		then
+			git commit --amend --no-edit
+		elif [ -n "$COMMIT" ]
+		then
+			git commit --fixup "$COMMIT"
+			GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash "$COMMIT"^
+		else
+			git commit -m "$MESSAGE"
+		fi
+		git push origin HEAD $([ -n "$FORCE" ] && echo '--force-with-lease')
+	fi
+	unset USAGE COMMIT MESSAGE AMEND FORCE

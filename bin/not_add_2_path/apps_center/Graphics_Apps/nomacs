@@ -1,0 +1,69 @@
+#!/bin/bash
+
+app_name=$(basename $0)
+extra_apps_=()
+
+###################################################################
+Disto_path="/usr/share/my_stuff"
+CONF_FILE_Path="${Disto_path}/lib/apps/nomacs"
+CONF_FILE_NAME="Image Lounge.conf"
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+	
+	say 'Installing package...' 1
+
+	Package_installer_ ${app_name} || continue
+	
+	if [[ -n "${extra_apps_[*]}" ]];then
+		say 'Installing extra packages...' 1
+		Package_installer_ "${extra_apps_[@]}" || continue
+		clear
+	fi
+	
+	# Copy users config
+	say "Setting configs to all users..."
+	for d in /home/*/; do
+		# Create config folders if no exists
+		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+		d="$d/.config/"; [ ! -d "$d" ] && sudo mkdir -v "$d" && sudo chown -R $user_and_group "$d"
+		d="$d/nomacs/"; [ ! -d "$d" ] && sudo mkdir -v "$d" && sudo chown -R $user_and_group "$d"
+		sudo cp -v "${CONF_FILE_Path}/${CONF_FILE}" "$d/" && sudo chown -R $user_and_group "$d/${CONF_FILE}"
+	done
+	sudo cp -r "${RC_FILE_Path}/${CONF_FILE_NAME}" "${Disto_path}/system_files/skel/.${CONF_FILE_NAME}"
+	
+	remove_from_db
+	
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

@@ -1,0 +1,719 @@
+#!/usr/bin/env bash
+
+opt="${1-}"
+arg_="${2-}"
+
+ls_bin="/usr/bin/ls"
+not_add_to_path="/usr/share/my_stuff/bin/not_add_2_path"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+. "/usr/share/my_stuff/lib/common/panel"
+
+. "/usr/share/my_stuff/lib/common/rofi"
+
+. "/usr/share/my_stuff/lib/common/polybar"
+
+Picked_Style=""
+GLOBALBLOBPATH="/usr/share/my_stuff/blob"
+BLOBPATH="$HOME/.config"
+CURSESSION="$which_panel_dir/tint2_style"
+rc_file_name="$(cat "${OBPATH}/rc_name")"
+if [ "$rc_file_name" == "my_stuff_rc.xml" ] || [ "$_panel_name_" == "polybar" ]; then
+	CONFIGPATH="${BLOBPATH}/blob/polybar"
+	default_style="Default"
+else
+	CONFIGPATH="${BLOBPATH}/blob/tint2"
+	default_style="Beryllium"
+fi
+
+if [ -z "${arg_}" ];then
+	Picked_Style="${default_style}"
+else
+	Picked_Style="${arg_}"
+fi
+
+if [ ! -d "${BLOBPATH}/blob" ];then
+	cp -r ${GLOBALBLOBPATH} ${BLOBPATH}
+	find "${BLOBPATH}/blob/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
+fi
+
+Set_Style_using_rofi(){
+	list_styles="$(cd $CONFIGPATH && $ls_bin -d * 2>/dev/null)"
+	Picked_Style="$(rofi -no-config -no-lazy-grab -dmenu -i -p '' \
+	-theme "$rofi_style_dir"/launcher.rasi \
+	<<< "$list_styles")"
+	
+	[ -z "$Picked_Style" ] && Picked_Style=${default_style}
+	
+	Set_Style_
+}
+
+Set_polybar_Style_(){
+	cat $HOME/.config/dunst/global > $HOME/.config/dunst/dunstrc
+	cat $HOME/.config/dunst/theme.dunstrc >> $HOME/.config/dunst/dunstrc
+	cat $HOME/.config/dunst/experimental >> $HOME/.config/dunst/dunstrc
+	cp -r /usr/share/my_stuff/lib/openbox_rc/${rc_file_name} ${OBPATH}
+	ln -sf "${OBPATH}/${rc_file_name}" ${OBPATH}/rc.xml
+	source ${OBPATH}/theme/rctheme
+	sed -i 's/theme_var "'.*'"/theme_var "'"$theme"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/titleLayout_var "'.*'"/titleLayout_var "'"$titleLayout"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/top_var "'.*'"/top_var "'"$top"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/bottom_var "'.*'"/bottom_var "'"$bottom"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/right_var "'.*'"/right_var "'"$right"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/left_var "'.*'"/left_var "'"$left"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/font_var "'.*'"/font_var "'"$font"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/size_var "'.*'"/size_var "'"$size"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/menu_var "'.*'"/menu_var "'"$menu"'"/g' ${OBPATH}/rc.xml
+}
+
+Set_tint2_Style_(){
+	cp -r /usr/share/my_stuff/lib/openbox_rc/${rc_file_name} ${OBPATH}
+	ln -sf "${OBPATH}/${rc_file_name}" ${OBPATH}/rc.xml
+	source ${OBPATH}/theme/rctheme
+	sed -i 's/theme_var "'.*'"/theme_var "'"$theme"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/titleLayout_var "'.*'"/titleLayout_var "'"$titleLayout"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/font_var "'.*'"/font_var "'"$font"'"/g' ${OBPATH}/rc.xml
+}
+
+Set_Style_(){
+	style="${Picked_Style}"
+	cp -r ${CONFIGPATH}/${style}/config/* $HOME/.config
+	[ -d ${CONFIGPATH}/${style}/cache ] && cp -r ${CONFIGPATH}/${style}/cache/* $HOME/.cache
+	[ -f ${CONFIGPATH}/${style}/Xresources ] && cp -r ${CONFIGPATH}/${style}/Xresources $HOME/.Xresources
+	dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
+	if [ "$rc_file_name" == "my_stuff_rc.xml" ]; then
+		Set_polybar_Style_
+	else
+		Set_tint2_Style_
+	fi
+	[ "$(pidof openbox)" ] && openbox --reconfigure
+	reload-gtk23
+	setbg -r
+}
+
+Set_Style_and_launch(){
+	Set_Style_
+	panel_manager --reload
+}
+
+saveStyle(){
+	Style_name="${arg_}"
+	if [ -z "$Style_name" ] ;then
+		CONFIG_DIR="${CONFIGDIR}"
+	else
+		Style_name=$(echo $Style_name | sed -e 's/ /_/g')    # replace any spaces in dir name
+		CONFIG_DIR="${CONFIGPATH}/${Style_name}"
+	fi
+	RCFILE="$OBPATH/rc.xml"
+	FEHFILE="$HOME/.fehbg"
+	NITRODIR="$HOME/.config/nitrogen"
+	NITROFILE="$NITRODIR/bg-saved.cfg"
+	CONKYPATH="$HOME/.config/conky"
+	CONKYSESSION="$CONKYPATH/conky-sessionfile"
+	TINTSESSION="$HOME/.config/tint2/tint2-sessionfile"
+	POLYBAR_AND_ROFI="$HOME/.config/$WM_config_name"
+	GTK2="$HOME/.config/gtk-2.0"
+	GTK3="$HOME/.config/gtk-3.0"
+	GTK3x="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-notifyd.xml"
+	PLANK_CACHE="$HOME/.cache/plank.conf"
+	PLANK="$HOME/.config/plank"
+	DUNSTDir="$HOME/.config/dunst"
+
+	# getplank
+    if [[ -f $PLANK_CACHE ]];then
+        mkdir -p "$CONFIG_DIR/cache"
+        cp "$PLANK_CACHE" "$CONFIG_DIR/cache"
+        mkdir -p "$PLANK"
+        [ -f "$PLANK/plank_" ] && cp "$PLANK/plank_" "$CONFIG_DIR/config/plank"
+    fi
+    
+    # getdunst
+	if [[ -f $DUNSTDir/theme.dunstrc ]];then
+        mkdir -p "$CONFIG_DIR/config/dunst"
+        cp "$DUNSTDir/theme.dunstrc" "$CONFIG_DIR/config/dunst"
+    fi
+
+    # getBg    # find if feh or nitrogen or xwallpaper was used. Save config file(s)
+    if [[ -e $NITROFILE ]];then    # use nitrogen for background
+        mkdir -p "$CONFIG_DIR/config/nitrogen"
+        cp "$NITROFILE" "$CONFIG_DIR/config/nitrogen"
+    fi
+    if [[ -e $FEHFILE ]];then  # use feh for background
+    	cp "$FEHFILE" "$CONFIG_DIR"
+    fi
+    if [[ -e $FEHFILE ]];then  # use feh for background
+    	cp "$FEHFILE" "$CONFIG_DIR"
+    fi
+    
+	# getConky
+    conky_sessionfile_file="$CONFIG_DIR/config/conky/conky-sessionfile"
+    mkdir -p "$CONFIG_DIR/config/conky"
+    pgrep -a conky | while read pid CMD;do
+    	echo "$CMD" >> "$conky_sessionfile_file"
+    done
+    sed -i "s|conky -c $HOME||g" "${conky_sessionfile_file}" 
+    sed -i '/^$/d' "${conky_sessionfile_file}" 
+    while IFS="" read -r theme
+	do
+		mkdir -p "$CONFIG_DIR/config/conky"
+		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/conky" &>/dev/null
+	done < ${conky_sessionfile_file}
+	
+	# getGTKtheme
+    GTKTHEMES=( "$GTK2" "$GTK3")
+    mkdir -p "$CONFIG_DIR/config"
+    for d in "${GTKTHEMES[@]}";do
+    	cp -r "$d" "$CONFIG_DIR/config"
+    done
+    GTK3x_conf_dir="$CONFIG_DIR/config/xfce4/xfconf/xfce-perchannel-xml"
+    mkdir -p "${GTK3x_conf_dir}"
+    cp "$GTK3x" "${GTK3x_conf_dir}"
+    
+	# getTint
+    tint2_sessionfile_file="$CONFIG_DIR/config/tint2/tint2-sessionfile"
+    mkdir -p "$CONFIG_DIR/config/tint2"
+    pgrep -a tint2 | while read pid cmd;do
+    	if [[ ${cmd%% *} = tint2 ]];then
+    		TPATH=$(echo "$cmd" | awk '{print $NF}')
+    		echo "$TPATH" >> "$tint2_sessionfile_file"
+    	fi
+    done
+    sed -i "s|$HOME||g" "${tint2_sessionfile_file}" 
+    sed -i '/^$/d' "${tint2_sessionfile_file}"
+    while IFS="" read -r theme
+	do
+		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/tint2" &>/dev/null
+	done < ${tint2_sessionfile_file}
+	
+	# getOBtheme
+	mkdir -p "$OBPATH/theme"
+	mkdir -p "$CONFIG_DIR/config/openbox/theme"
+	
+	[ -f "${OBPATH}/theme/rctheme" ] &&  source ${OBPATH}/theme/rctheme
+	
+	theme_font_name=($(grep '<name>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -2))
+	
+	if [ "$_panel_name_" == "polybar" ]; then
+		menu_tmp=$(grep '<file>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/')
+		[[ "${menu_tmp}" = "&menu_var;" ]] && menu_tmp="${menu}"
+		font_tmp=${theme_font_name[1]}
+		[[ "${font_tmp}" = "&font_var;" ]] && font_tmp="${font}"
+		bottom_tmp=$(grep '<bottom>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
+		[[ "${bottom_tmp}" = "&bottom_var;" ]] && bottom_tmp="${bottom}"
+		top_tmp=$(grep '<top>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
+		[[ "${top_tmp}" = "&top_var;" ]] && top_tmp="${top}"
+		right_tmp=$(grep '<right>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
+		[[ "${right_tmp}" = "&right_var;" ]] && right_tmp="${right}"
+		left_tmp=$(grep '<left>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
+		[[ "${left_tmp}" = "&left_var;" ]] && left_tmp="${left}"
+		size_tmp=$(grep '<size>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
+		[[ "${size_tmp}" = "&size_var;" ]] && size_tmp="${size}"
+	fi
+	titleLayout_tmp=$(grep '<titleLayout>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/')
+	[[ "${titleLayout_tmp}" = "&titleLayout_var;" ]] && titleLayout_tmp="${titleLayout}"
+	
+	if [[ "${theme_font_name[0]}" = "&theme_var;" ]];then
+		cp "$OBPATH/theme/rctheme" "$CONFIG_DIR/config/openbox/theme"
+	else
+		if [ "$_panel_name_" == "polybar" ]; then
+			echo "bottom=${bottom_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+			echo "top=${top_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+			echo "right=${right_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+			echo "left=${left_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+			echo "size=${size_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+			echo "menu=${menu_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+		fi
+		echo "font=${font_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+		echo "theme=${theme_font_name[0]}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+		echo "titleLayout=${titleLayout_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+	fi
+
+    # getpolybar
+	if [[ -d $POLYBAR_AND_ROFI ]];then
+        mkdir -p "$CONFIG_DIR/config/$WM_config_name"
+        cp "$POLYBAR_AND_ROFI/Polybar_style" "$CONFIG_DIR/config/$WM_config_name"
+        cp "$POLYBAR_AND_ROFI/Rofi_style" "$CONFIG_DIR/config/$WM_config_name"
+    fi
+	############ end of get
+}
+
+Show_help_(){
+	echo "CLI"
+}
+
+Launch_YAD_(){
+	CONFIGDIR=""
+	NUMDIRS=0
+	### CONFIGS VARIABLES
+	LDMDIR="/usr/share/lightdm/lightdm-gtk-greeter.conf.d"
+	LDM="lightdm-gtk-greeter.conf"
+	LDMnew="$(cd $LDMDIR && ls 50_*.conf | head -1)"
+	XFILE="$HOME/.Xresources"
+	BKP_SFX=".$(date +"%Y%m%d-%H%M%S").blob~"
+	### END CONFIGS VARIABLES
+	
+	### DIALOG VARIABLES
+	DIALOG="yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"
+	DIALOGDEC="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"
+	yadWarning="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --title Alert  --button='Ok:1' --button='Cancel:0' --text"
+	TITLE="BLOB Config Manager"
+	CANCEL="--button=Cancel:1"
+	EXIT="--button=Quit:1"
+	CLOSE="--button=Close:1"
+	TXTINTRO="<big><b>My Stuff\n\nOpenbox Configuration Manager</b></big>\n\n\n \
+	<b>Save or Restore settings for:</b>\n\n \
+	\tOpenbox theme\n \
+	\tGTK theme\n \
+	\tConkys\n \
+	\tTint2\n \
+	\tDesktop Background\n \
+	\t+ Screenshot\n\n"
+	MAIN_TEXT="Double-click selection, or <b>Enter</b>, or use the <b>Restore</b> button to restore settings\n"
+	RESTORE="Restore:0"
+	DELETE="Delete:2"
+	VIEW_IMG="View image:4"
+	ADD="Add New:3"
+	ABOUT="About:5"
+	SAVE_SETTINGS="Save Settings:0"
+	VIEW_SAVED="View Saved:2"
+	ACTIVE="Last set"
+	NAME="Config Name"
+	SCREEN_SHOT="Screenshot"
+	CHOOSE_BEFORE_DELETE="Make a selection before trying to delete"
+	DELETE_FOR_SURE="Delete saved configurations <b>$FPATH</b>\nand screenshot?"
+	SETTINGS_SAVED="Settings were saved as"
+	CHOOSE_IMAGE="Make a selection"
+	OVERWRITE_SESSION="Overwrite existing session?"
+	
+	IMG="--image=mbs_trans_64"
+	T="--text="
+	OK="--button=OK:0"
+	
+	### END DIALOG VARIABLES
+	
+	### USER SETTINGS
+	IMGCMD="my-image-viewer"    # application command to view screenshot
+	MENUMODIFIER="super+space"  # keybind for show root-menu
+	MOUSECMD="click 3"          # mouse r-click
+	KEYDOWN=4           # adjust this for where "Preferences" is in the menu
+	#### END VARIABLES #####################################################
+	
+	### FUNCTIONS ##########################################################
+	
+	Intro(){
+    	local INTRO RET
+    	getSet
+    	#  If blob/ is empty, then don't display "Save Settings" option in Intro dialog
+    	if (( $NUMDIRS > 0 ));then
+        	INTRO=$($DIALOGDEC $IMG "$T$TXTINTRO" \
+        	--title="$TITLE" \
+        	--button="$SAVE_SETTINGS" --button="$VIEW_SAVED" $CLOSE \
+        	--borders=30 \
+        	2>/dev/null )
+    	else
+        	INTRO=$($DIALOGDEC $IMG \
+        	--title="$TITLE" \
+        	"$T$TXTINTRO" \
+        	--button="$SAVE_SETTINGS" $CLOSE \
+        	--borders=30 \
+        	2>/dev/null )
+    	fi
+    	RET=$?
+    	case $RET in
+        	0)  setName
+            	saveStyle
+            	getScreenshot
+            	if [[ -d $CONFIGDIR-BKP ]];then
+                	rm -rf "$CONFIGDIR-BKP"
+                	echo -e "\n  Temporary $CONFIGDIR deleted\n"
+            	fi
+            	restoreSettings
+            	;;
+        	1)  echo "CANCELLED..."
+            	exit 0
+            	;;
+        	2)  getSet
+            	restoreSettings
+            	;;
+        	*)  echo "RETURN ERROR" 2>&1
+            	;;
+    	esac
+	}
+	
+	getSet(){      # get name of currently set BLOB config
+    	NUMDIRS=0
+    	NUMDIRS=$(ls -l "$CONFIGPATH" | grep -c ^d) # check if any dirs present
+    	if (( $NUMDIRS == 0 ));then
+        	if [[ -f $CURSESSION ]];then
+            	rm $CURSESSION
+        	fi
+    	elif (( $NUMDIRS > 0 )) && [[ -f $CURSESSION ]];then
+        	SET=$(cat $CURSESSION)
+    	fi
+	}
+	
+	countMonitors(){ #test for more than 2 monitors connected.
+    	MON=$(xrandr -q | grep -c " connected")
+    	PRIMARY=$(xrandr -q | awk '/ connected/ {if ($3=="primary") print $4; else print $3}')
+    	PSIZE=${PRIMARY%%x*}    # Primary monitor width
+    	case $MON in
+        	1|2|3)  # Set width and height for View dialog
+    				# param $MON = num screens; param $PSIZE = primary screen width
+    				desktopW=$(xrandr -q | awk '/Screen/ {print $8}')  # total desktop width
+    				desktopH=$(xrandr -q | awk '/Screen/ {print $10}') # desktop height
+    				desktopH=${desktopH%%,*}    # remove trailing comma
+    				if (( $MON == 1 ));then
+        				W=$(( $desktopW / 3 ))  # 1/3 width
+    				else
+        				W=$(( $PSIZE / 3 ))  # 1/3 width primary monitor
+    				fi
+    				H=$(( ($desktopH / 3)*2 ))  # 2/3 height
+                	;;
+        	* )     W=600
+                	H=600
+                	echo -e "\n  Script cannot deal with these monitors.\
+                	\n  Setting dialog width height = 600 x 600" 2>&1
+    	esac
+	}
+	
+	setName(){  # set name of collection, make dir and session settings file
+    	MSG="  Configurations will be saved to a new directory in  \
+    	\n  $CONFIGPATH\n\n  Enter name of new collection...  "
+    	MSG2="  No file specified for new saved session.\n\n  Try again?"
+    	LOOP=1
+    	DEL=0
+    	while [[ $LOOP ]];do  # loop dialog if nothing is selected
+        	ANS=$($DIALOG --entry \
+            	$CANCEL --button="OK:0" \
+            	"$T$MSG" \
+            	2>/dev/null )
+        	if (( $? == 1 )) ;then # Cancel was selected
+            	Intro
+        	elif [[ ! $ANS ]] ;then     # entry was empty
+            	$DIALOG --image="dialog-question" \
+            	"$CANCEL" "$OK" \
+            	"$T$MSG2" \
+            	2>/dev/null
+            	RET=$?
+            	echo -e "\n  Nie podano nazwy dla kolekcji!" 2>&1
+            	if (( $RET == 0 ));then
+                	continue
+            	else
+                	Intro
+            	fi
+        	else
+            	ANS=$(echo $ANS | sed -e 's/ /_/g')    # replace any spaces in dir name
+            	CONFIGDIR="$CONFIGPATH/$ANS"
+            	if [[ -d $CONFIGDIR ]];then
+                	echo -e "\n  $CONFIGDIR już istnieje"
+	
+                	$DIALOG --form --image="dialog-question" \
+                	--text="$OVERWRITE_SESSION" \
+                	"$CANCEL" "$OK" \
+                	--width=300 \
+                	2>/dev/null
+	
+                	if (( $? == 0 ));then
+                    	mv {"$CONFIGDIR","$CONFIGDIR-BKP"} && mkdir -p "$CONFIGDIR"
+                    	TXT="  (Existing session overwritten)"
+                    	break
+                	else
+                		TXT=""
+                    	continue
+                	fi
+            	fi
+            	mkdir -p "$CONFIGDIR"
+            	break
+        	fi
+    	done
+	}
+
+	getScreenshot(){
+    	pid=""
+    	TMPSCREENSHOT=$(mktemp --tmpdir blob.XXXX)
+    	SCREENSHOT="$CONFIGPATH/$ANS"
+    	CURRDTOP=$(xprop -root _NET_CURRENT_DESKTOP | tail -c -2) # desktop number
+    	MONS=$(xrandr -q | grep -c " connected")    # number of monitors
+    	# Set mouse position, for appearance of root-menu
+    	screenW=$(xrandr -q | awk '/Screen/ {print $8}')
+    	screenH=$(xrandr -q | awk '/Screen/ {print $10}')
+    	screenH=${screenH%,}
+	
+    	if (( $MONS == 1 ));then # single monitor
+        	appX=$(( (screenW/20)*8 ))
+        	menuX=$(( (screenW/20)*2 ))
+    	else
+        	appX=$(( (screenW/20)*4 ))
+        	menuX=$(( (screenW/20)*1 ))
+    	fi
+    	appY=$(( (screenH/20)*4 ))
+    	menuY=$(( (screenH/20)*2 ))
+	
+    	wmctrl -l -x > "$TMPSCREENSHOT"      # store window list in tempfile
+    	wmctrl -k on                    # hide windows, show desktop
+    	# show any conkys which have been hidden by wmctrl, (ie not own_window_type desktop);
+    	# unless Conkys weren't selected to be saved
+    	if [ "$(pidof conky)" ] ;then
+    		for CONK in $(xdotool search --classname "Conky");do
+        		xdotool windowactivate "$CONK" 2>/dev/null
+    		done
+    	fi
+    	
+    	# start lxappearance
+    	[ ! "$(pidof lxappearance)" ] && lxappearance &
+    	pid=$!
+    	sleep 0.5
+    	
+    	# get lx window, make sure it loses focus, then move mouse and start root-menu
+    	LX=$(xdotool getwindowfocus)
+    	xdotool windowmove --sync "$LX" "$appX" "$appY" && sleep 0.1 && \
+    	xdotool mousemove --sync --window "$LX" -- -50 0 && xdotool click 1
+    	xdotool mousemove --sync "$menuX" "$menuY" && xdotool key --clearmodifiers "$MENUMODIFIER"
+	
+    	i=1
+    	while (( $i <= $KEYDOWN ));do
+        	xdotool key --delay 100 Down
+        	i=$(( $i+1 ))
+    	done
+    	xdotool key --delay 20 Right && sleep 0.3
+	
+    	# take screenshot and make thumbnail @9% fullsize
+    	ac-shots --no-view --no-notify --no-copy --thumb 9 --path "$SCREENSHOT.jpg"
+    	THUMB=$(find $CONFIGPATH -maxdepth 1 -type f -name "*-thumb.jpg" 2>/dev/null)
+    	mv $THUMB $CONFIGDIR
+	
+    	# close root menu
+    	xdotool mousemove_relative --sync --polar 0 10 click 3
+    	
+    	# kill lxappearance
+    	if [[ $(pgrep lxappearance | grep $pid) ]];then
+        	kill -9 $pid &>/dev/null
+    	fi
+	
+    	# restore hidden windows
+    	while read line; do
+        	WINDOW=$(echo $line | awk '{print $1}') # Window_ID is first field
+        	DTOP=$(echo $line | awk '{print $2}' )  # Desktop number is second field
+        	if (( $DTOP == $CURRDTOP )) &>/dev/null;then
+            	xdotool windowactivate "$WINDOW"
+        	fi
+    	done < "$TMPSCREENSHOT"
+    	
+    	# restore any hidden Conkys
+    	for CONK in $(xdotool search --classname "Conky");do
+        	xdotool windowactivate "$CONK" 2>/dev/null
+    	done
+    	
+    	[ -f "$TMPSCREENSHOT" ] && rm -f "$TMPSCREENSHOT"
+	}
+	
+	restoreLightdmGreeter(){
+		local msg ret
+    	[[ -r "$1/$LDM" ]] || {
+        	return 1
+    	}
+ 		while true;do
+        	msg=""
+			apps_as_root_yad true && cat "$1/$LDM" | sudo tee "$LDMDIR/$LDMnew" > /dev/null 2>&1
+        	ret=( "${PIPESTATUS[@]}" )
+        	if [[ ${ret[1]} = 0 ]]
+        	then
+            	msg="Restored: lightdm-gtk-greeter.conf"
+            	echo "\n  $msg"
+            	return 0
+        	elif [[ ${ret[0]} = 1 ]]
+        	then
+            	msg="Authentication cancelled\n\nlightdm-gtk-greeter.conf was not restored"
+            	echo "$0: $msg" >&2
+            	return 1
+        	else
+            	msg="Password input failed\n\nlightdm-gtk-greeter.conf was not restored"
+            	echo "$0: $msg" >&2
+            	$yadWarning "$msg" && return 0
+        	fi
+    	done
+	}
+	
+	ViewRestoreDialog(){  #   Display saved theme collections
+    	getSet          # get name of latest set BLOB config
+    	if (( $NUMDIRS == 0 ));then   # no saved configs; go back to Intro dialog
+        	Intro
+    	fi
+    	DLGLIST=""
+    	setARR=()
+    	namesARR=()
+    	thumbsARR=()
+    	i=0
+    	for dir in "$CONFIGPATH"/* ;do
+        	if [[ -d $dir ]];then
+            	d=$(echo $dir | sed -e 's/ /_/g')    # replace any spaces in dir name
+            	namesARR[$i]="<big>$(basename $d)</big>" # add theme collection name to array
+            	d=${d##*/}  # get directory name
+            	# Get name of current session, set icon for TRUE/FALSE
+            	if [[ $SET = $d ]];then
+                	setARR[$i]="gtk-yes"
+            	else
+                	setARR[$i]="gtk-no"
+            	fi
+            	IMGTHUMB="Brak"     # Placeholder if no thumbnail found
+            	f="$dir"/*"-thumb.jpg"
+            	if [[ $f ]];then
+                	IMGTHUMB="$f"
+            	fi
+            	thumbsARR[$i]="$IMGTHUMB"
+            	i=$(($i+1))
+        	fi
+    	done
+    	for ((j=0; j<${#namesARR[*]}; j++));do
+        	DLGLIST="$DLGLIST ${setARR[j]} ${namesARR[j]} ${thumbsARR[j]}"
+    	done
+	}
+	
+	restoreSettings(){
+    	ViewRestoreDialog
+    	FPATH=""
+    	LOOP=1
+    	while [[ $LOOP ]] ;do
+        	CONFIG=$($DIALOGDEC --list --title="$TITLE" --image=preferences-desktop-theme\
+            	--text="$MAIN_TEXT" \
+            	--separator=" " \
+            	--button="$ABOUT" \
+            	--button="$VIEW_IMG" --button="$ADD" \
+            	--button="$DELETE" --button=$RESTORE $EXIT \
+            	--always-print-result \
+            	--width=$W --height=$H --center --image-preview \
+            	--expand-column=3 \
+            	--column="$ACTIVE":IMG \
+            	--column="$NAME":TEXT \
+            	--column="$SCREEN_SHOT":IMG \
+            	$DLGLIST \
+            	2>/dev/null )
+        	RET=$?
+        	if [[ $CONFIG ]];then
+            	Style=$(echo "$CONFIG" | awk -F'[>|<]' '{print $3}' )
+            	FPATH="$CONFIGPATH/$Style"
+        	fi
+        	case $RET in
+            	0)  # RESTORE
+                	echo $(basename $FPATH) > "$CURSESSION"
+                	break
+                	;;
+            	1)  # EXIT
+            		exit 0
+                	;;
+            	2)  # DELETE
+            		if [[ ! $CONFIG ]];then
+                    	$DIALOG --text="$CHOOSE_BEFORE_DELETE" "$EXIT" "$OK" 2>/dev/null
+                    	if (( $? == 0 ));then
+                        	continue
+                    	else
+                        	exit 0
+                    	fi
+                	fi
+                	TEXT="$DELETE_FOR_SURE"
+                	$DIALOG "$T$TEXT" "$CANCEL" "$OK" 2>/dev/null
+	
+                	if (( $? == 0 ));then
+                    	[ -f "$FPATH" ] && rm -rf "$FPATH"
+                    	[ -f "$FPATH.jpg" ] && rm "$FPATH.jpg"
+                    	echo -e "\n$Style DELETED"
+                    	currentsession=$(cat $CURSESSION)
+                    	fpath=$(basename $FPATH)
+                    	if [[ $currentsession = $fpath ]];then
+                        	echo "" > "$CURSESSION"
+                    	fi
+                    	restoreSettings
+                	else
+                    	continue
+                	fi
+                	;;
+            	3)  #ADD
+            		setName
+                	saveStyle
+                	getScreenshot
+                	$DIALOG --text="$SETTINGS_SAVED <b>$ANS</b>" --image="gtk-save" "$OK" 2>/dev/null
+                	if [[ -d $CONFIGDIR-BKP ]];then
+                    	rm -rf "$CONFIGDIR-BKP"
+                    	echo -e "\n  Temporary $CONFIGDIR deleted\n"
+                	fi
+                	restoreSettings
+                	;;
+            	4)  # show screenshot in image viewer
+                	SEL=$(echo "$CONFIG" | awk -F'[>|<]' '{print $3}' )
+                	if [[ $SEL ]];then
+                    	img="$CONFIGPATH/$SEL.jpg"
+                    	$IMGCMD "$img"
+                	else
+                    	$DIALOG --text="$CHOOSE_IMAGE" 2>/dev/null
+                	fi
+                	restoreSettings
+                	;;
+            	5)  # ABOUT
+            		Intro
+                	;;
+            	*)  if (( $RET == 252 ));then
+                    	echo -e "\n  Exited with \"ESC\" key"
+                	else
+                    	echo -e "\n  Error= $RET" 2>&1
+                	fi
+                	exit 1
+                	;;
+        	esac
+    	done
+    	Picked_Style="$(cat $CURSESSION)"
+		Set_Style_and_launch
+    	restoreLightdmGreeter "$FPATH"
+    	restoreSettings   
+	}
+	
+	### END FUNCTIONS ######################################################
+	# test for blobthemes config directory, create if it doesn't exist
+	mkdir -p "$CONFIGPATH"
+	# create file to hold most recent saved configuration name
+	if [[ ! -f $CURSESSION ]] &>/dev/null;then
+    	touch "$CURSESSION"
+	fi
+	countMonitors
+	getSet
+	if (( $NUMDIRS == 0 ));then
+    	Intro
+	else
+    	restoreSettings
+	fi
+	exit 0
+}
+
+tint2manager(){
+	${not_add_to_path}/tint2-manager
+}
+
+tint2edit(){
+	${not_add_to_path}/tint2-edit
+}
+
+conkyedit(){
+	${not_add_to_path}/conky-edit
+}
+
+conkymanager(){
+	${not_add_to_path}/conky-manager
+}
+
+conkymove(){
+	${not_add_to_path}/conkymove
+}
+
+case $opt in
+		--set) Set_Style_ ;;
+		--change) Set_Style_and_launch ;;
+		--yad|yad) Launch_YAD_ ;;
+		--help) Show_help_ ;;
+		--rofi) Set_Style_using_rofi ;;
+		--save) saveStyle ;;
+		--tint2manager) tint2manager ;;
+		--tint2edit) tint2edit ;;
+		--conkyedit) conkyedit ;;
+		--conkymanager) conkymanager ;;
+		--conkymove) conkymove ;;
+		*) Launch_YAD_ ;;
+esac

@@ -1,0 +1,1210 @@
+#!/bin/bash
+sysinfo_(){
+	cat << EOF
+
+-------------------
+System Information:
+-------------------
+
+# Display system information using various commands
+Hostname: $(hostname)
+Kernel Version: Linux $(uname -r)
+Distro: $(cat /etc/os-release | grep PRETTY_NAME | cut -d '"' -f 2)
+CPU: $(grep 'model name' /proc/cpuinfo | uniq | cut -d ':' -f 2 | sed -e 's/^[ \t]*//')
+Memory: $(free -m | awk '/Mem/ {printf "%dMB\n", $2}')
+
+-------------------
+
+EOF
+}
+
+install_packages(){
+	packages=($@)
+	List_of_apt_2_install_=() 
+	for package in "${packages[@]}";do
+		if [[ ! -d "${installed_dir}/$package" ]]; then
+			if ! dpkg -s "${package}" > /dev/null 2>&1; then
+				if [[ "$package" == http* ]]; then
+        			echo "Downloading and installing $package..."
+        			wget "$package" -O ./package.deb
+        			sudo dpkg -i ./package.deb || sudo apt install -f -y && sudo dpkg -i ./package.deb
+        			[ $? = 0 ] && status_green "Package $package installed complete." || error "Package $package failed."
+        			rm -r ./package.deb
+    			elif [[ "$package" == *.deb ]]; then
+	        		echo "Installing $package using dpkg..."
+    	    		sudo dpkg -i "$package" || sudo apt install -f -y && sudo dpkg -i "$package"
+	        		[ $? = 0 ] && status_green "Package $package installed complete." || error "Package $package failed."
+	        	elif [[ -d "${categories_dir}/$package" ]]; then
+	        		[[ -f "${categories_dir}/$package"/install ]] && "${categories_dir}/$package"/install
+	        		if [[ -f "${categories_dir}/$package"/package ]]; then
+	        			package=(cat "${categories_dir}/$package"/package) 
+	        			echo "add $package to install list..."
+    					List_of_apt_2_install_+=("$package")
+	        		fi
+    			else
+    				echo "add $package to install list..."
+    				List_of_apt_2_install_+=("$package") 
+    			fi
+    		
+    			if [[ -n "${List_of_apt_2_install_[@]}" ]]; then
+    				echo "Installing $package using apt..."
+        			sudo apt update
+        			sudo apt install "$package" -y
+        			[ $? = 0 ] && status_green "Package $package installed complete." || error "Package $package failed."
+    			fi
+    		fi
+    	fi
+  done
+  status_green "Package installation complete."
+}
+
+remove_package(){
+	echo "Removing package ${1}"
+	sudo apt update > /dev/null 2>&1
+	sudo apt remove $1 > /dev/null 2>&1
+}
+
+#output functions below
+error() { #red text and exit 1
+  echo -e "\e[91m$1\e[0m" 1>&2
+  exit 1
+}
+
+warning() { #yellow text
+  echo -e "\e[93m\e[5m◢◣\e[25m WARNING: $1\e[0m" 1>&2
+}
+
+status() { #cyan text to indicate what is happening
+  
+  #detect if a flag was passed, and if so, pass it on to the echo command
+  if [[ "$1" == '-'* ]] && [ ! -z "$2" ];then
+    echo -e $1 "\e[96m$2\e[0m" 1>&2
+  else
+    echo -e "\e[96m$1\e[0m" 1>&2
+  fi
+}
+
+status_green() { #announce the success of a major action
+  echo -e "\e[92m$1\e[0m" 1>&2
+}
+
+add_english() { #add en_US locale for more accurate error
+  if [ "$(cat /usr/share/i18n/SUPPORTED | grep -o 'en_US.UTF-8' )" == "en_US.UTF-8" ]; then 
+    locale=$(locale -a | grep -oF 'en_US.utf8')
+    if [ "$locale" != 'en_US.utf8' ]; then
+      status "Adding en_US locale for better logging... "
+      sudo sed -i '/en_US.UTF-8/s/^#[ ]//g' /etc/locale.gen
+      sudo locale-gen
+    fi
+  else
+    warning "en_US locale is not available on your system. This may cause bad logging experience."
+  fi
+  export LANG="en_US.UTF-8"
+  export LANGUAGE="en_US.UTF-8"
+  export LC_ALL="en_US.UTF-8"
+}
+
+package_installed() { #exit 0 if $1 package is installed, otherwise exit 1
+  local package="$1"
+  [ -z "$package" ] && error "package_installed(): no package specified!"
+  #find the package listed in /var/lib/dpkg/status
+  #package_info "$package"
+  
+  #directly search /var/lib/dpkg/status
+  grep "^Package: $package$" /var/lib/dpkg/status -A 1 | tail -n 1 | grep -q 'Status: install ok installed'
+}
+
+package_available() { #determine if the specified package-name exists in a local repository for the current dpkg architecture
+  local package="$1"
+  local arch="$(dpkg --print-architecture)"
+  [ -z "$package" ] && error "package_available(): no package name specified!"
+  local output="$(apt-cache policy -qq "$package":"$arch" | grep "Candidate:")"
+  if [ -z "$output" ]; then
+    return 1
+  elif echo "$output" | grep -q "Candidate: (none)"; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+package_is_new_enough() { #check if the $1 package has an available version greater than or equal to $2
+  local package="$1"
+  [ -z "$package" ] && error "package_is_new_enough(): no package specified!"
+  
+  local compare_version="$2"
+  [ -z "$package" ] && error "package_is_new_enough(): no comparison version number specified!"
+  
+  #determine the latest available version for the specified package
+  local package_version="$(package_latest_version "$package")"
+  
+  #if version value not found, return 1 now
+  if [ -z "$package_version" ];then
+    return 1
+  fi
+  
+  #given both the package_version and compare_version, see if the greater of the two is the available package's version
+  if [ "$(echo "$package_version"$'\n'"$compare_version" | sort -rV | head -n1)" == "$package_version" ];then
+    #if so, indicate success
+    return 0
+  else
+    return 1
+  fi
+}
+
+anything_installed_from_repo() { #Given an apt repository URL, determine if any packages from it are currently installed
+  [ -z "$1" ] && error "anything_installed_from_repo: A repository URL must be specified."
+  
+  #user input repo-url. Remove 'https://', and translate '/' to '_' to conform to apt file-naming standard, with trailing _ to ensure full matches
+  local url="$(echo "$1" | sed 's+.*://++g' | tr '/' '_')_"
+  
+  #find all package-lists pertaining to the url
+  local repofiles="$(ls /var/lib/apt/lists/*_Packages | grep -F "$url")"
+  
+  #for every repo-file, check if any of them have an installed file
+  local found=0
+  local IFS=$'\n'
+  local repofile
+  for repofile in $repofiles ;do
+    #search the repo-file for installed packages
+    
+    grep '^Package' "$repofile" | awk '{print $2}' | while read -r package ;do
+      if package_installed "$package" ;then
+        #this package is installed; check if the version available on this repo is the current version (prevents false positives from backports repos)
+        if [ "$(sed -n "/^Package: ${package}$/,/Version:/p" "$repofile" | grep '^Version: ' | awk '{print $2}')" == "$(package_installed_version "$package")" ];then
+          echo "Package installed: $package"
+          exit 1
+        fi
+      fi
+    done #if exit code is 1, search was successful. If exit code is 0, no packages from the repo were installed.
+    
+    found=$?
+    
+    if [ $found == 1 ];then
+      break
+    fi
+  done
+  
+  #return an exit code
+  if [ $found == 1 ];then
+    return 0
+  else
+    return 1
+  fi
+}
+
+remove_repofile_if_unused() { #Given a sources.list.d file, delete it if nothing from that repository is currently installed. Deletion skipped if $2 is 'test'
+  local file="$1"
+  local testmode="$2"
+  local key="$3"
+  [ -z "$file" ] && error "remove_repo_if_unused: no sources.list.d file specified!"
+  #return now if the list file does not exist
+  [ -f "$file" ] || return 0
+  
+  if [ "${file##*.}" == "list" ]; then
+    #determine what repo-urls are in the file: include dist information. Example value: deb.debian.org_debian_dists_bookworm
+    local urls="$(cat "$file" | grep -v '^#' | tr ' ' '\n' | grep '://' -A1  | tr '\n' ' ' | sed 's/ -- /\n/g ; s/ $/\n/g ; s/ /_dists_/g')"
+  elif [ "${file##*.}" == "sources" ]; then
+    #determine what repo-urls are in the file
+    local urls="$(cat "$file" | grep -v '^#' | grep '^URIs: ' | sed 's/URIs: //g')"
+  else
+    error "$file was not of apt list or sources type"
+  fi
+  
+  #there could be multiple urls in one file. Check each url and set the in_use variable to 1 if any packages are found
+  local IFS=$'\n'
+  local in_use=0
+  local url
+  for url in $urls ;do
+    if anything_installed_from_repo "$url" >/dev/null;then
+      in_use=1
+      break
+    fi
+  done
+  
+  if [ "$testmode" == test ] && [ "$in_use" == 0 ];then
+    echo "The given repository is not in use and can be deleted:"$'\n'"$file" 1>&2
+  elif [ "$testmode" == test ];then
+    #explain what package is installed from this repo
+    echo "At least this package is preventing the repo from being removed (there may be more)"
+    anything_installed_from_repo "$url" #use value of $url from earlier
+  elif [ "$in_use" == 0 ];then
+    status "Removing the $(basename "$file" | sed 's/.list$//g' | sed 's/.sources$//g') repo as it is not being used"
+    sudo rm -f "$file"
+    [ -f "$key" ] && sudo rm -f "$key" || true
+  fi
+  
+}
+
+#apt functions
+apt_lock_wait() { #Wait until other apt processes are finished before proceeding
+  #make sure english locale is added first
+  add_english
+
+  #check if sudo needs a password currently. this prevents sudo asking for a password in the below fuser command which would have "Waiting until APT locks are released... " written after it after 5 seconds
+  #the result would look like something in the terminal to a user "[sudo] password for USER: Waiting until APT locks are released... " which might be confusing
+  sudo true
+
+  #in a background subprocess, after 5 seconds, say "Waiting until APT locks are released... "
+  (sleep 5; echo -n "Waiting until APT locks are released... ") &
+  local pid=$!
+  
+  while [ ! -z "$(sudo fuser /var/lib/dpkg/lock /var/lib/apt/lists/lock /var/cache/apt/archives/lock /var/log/unattended-upgrades/unattended-upgrades.log /var/lib/dpkg/lock-frontend 2>/dev/null)" ];do
+    sleep 1
+  done
+  
+  #Try to install a non-existent package to see if apt fails due to a lock-file. Repeat until no errors mention 'Could not get lock'
+  while sudo apt install lkqecjhxwqekc 2>&1 | grep -q 'Could not get lock' ;do
+    sleep 1
+  done
+  
+  #If the background process finished, then that means the "waiting until" message was displayed. This means the kill command will return 1, so echo Done
+  kill $pid &>/dev/null || echo "Done"
+}
+
+less_apt() { #remove unwanted lines from apt output
+  grep --line-buffered -v "apt does not have a stable CLI interface.\|Reading package lists...\|Building dependency tree\|Reading state information...\|Need to get\|Selecting previously unselected package\|Preparing to unpack\|Setting up \|Processing triggers for \|^$"
+}
+
+apt_update() { #run an apt update with error-checking and minimal output
+  apt_lock_wait
+  
+  status "Running \e[7msudo apt update\e[27m..."
+  output="$(sudo apt update --allow-releaseinfo-change "$@" 2>&1 | less_apt | tee /dev/stderr)"
+  exitcode=$?
+  status "apt update complete."
+  
+  #inform user about autoremovable packages
+  if [ ! -z "$(echo "$output" | grep 'autoremove to remove them' )" ];then
+    echo -e "\e[33mSome packages are unnecessary.\e[39m Please consider running \e[4msudo a\e[0mp\e[4mt autoremove\e[0m."
+  fi
+  
+  #inform user packages are upgradeable
+  if [ ! -z "$(echo "$output" | grep 'packages can be upgraded' )" ];then
+    echo -e "\e[33mSome packages can be upgraded.\e[39m Please consider running \e[4msudo a\e[0mp\e[4mt full-u\e[0mpg\e[4mrade\e[0m."
+  elif [ ! -z "$(echo "$output" | grep 'package can be upgraded' )" ];then
+    echo -e "\e[33mOne package can be upgraded.\e[39m Please consider running \e[4msudo a\e[0mp\e[4mt full-u\e[0mpg\e[4mrade\e[0m."
+  fi
+  
+  #exit on apt error
+  errors="$(echo "$output" | grep '^[(E)|(Err]:')"
+  if [ $exitcode != 0 ] || [ ! -z "$errors" ];then
+    echo -e "\e[91mFailed to run \e[4msudo apt update\e[0m\e[39m!"
+    echo -e "APT reported these errors:\n\e[91m$errors\e[39m"
+    
+    #run some apt error diagnosis
+    echo "$output"
+    exit 1
+  fi
+  return 0
+}
+
+purge_packages() { #Allow dependencies of the $app app to be autoremoved.
+  #the $app variable must contain something
+  [ -z "$app" ] && error 'purge_packages function can only be used by apps to install packages. (the $app variable was not set)'
+  
+  status "Allowing packages required by the $app app to be uninstalled"
+  
+  #to avoid issues with symbols and spaces in app names, we shasum the app name for use in apt
+  local package_name="$(app_to_pkgname "$app")"
+  
+  #if dummy deb found/installed
+  if package_installed "$package_name" ;then
+    echo "These packages were: $(package_dependencies "$package_name")"
+    
+    status "Purging the $package_name package..."
+    
+    apt_lock_wait
+    local output="$(sudo apt purge -y "$package_name" --autoremove 2>&1 | less_apt | tee /dev/stderr)"
+    status "Apt finished."
+    
+    errors="$(echo "$output" | grep '^[(E)|(Err]:')"
+    if [ ! -z "$errors" ];then
+      echo -e "\e[91mFailed to uninstall the packages!\e[39m"
+      echo -e "APT reported these errors:\n\e[91m$errors\e[39m"
+      #run some apt error diagnosis
+      echo "$output"
+      exit 1
+    fi
+    
+  elif [ -f "${DIRECTORY}/data/installed-packages/${app}" ];then
+    #legacy pkg-install implementation
+    warning "Using the old implementation - an installed-packages file instead of a dummy deb"
+    
+    local packages="$(cat "${DIRECTORY}/data/installed-packages/${app}" | tr '\n' ' ' | sed 's/  / /g')"
+    
+    #normal mode
+    local output="$(sudo apt purge -y $packages 2>&1)"
+    exitcode=$?
+    
+    errors="$(echo "$output" | grep '^[(E)|(Err]:')"
+    if [ $exitcode != 0 ] || [ ! -z "$errors" ];then
+      echo -e "\e[91mFailed to uninstall the packages!\e[39m"
+      echo -e "APT reported these errors:\n\e[91m$errors\e[39m"
+      #run some apt error diagnosis
+      echo "$output"
+      exit 1
+    fi
+  else
+    status "The $package_name package is not installed so there's nothing to do."
+  fi
+  
+  status_green "All packages have been purged successfully."
+  rm -f "${DIRECTORY}/data/installed-packages/${app}"
+}
+
+ubuntu_ppa_installer() { #setup a PPA on an Ubuntu distro. Arguments: ppa_name
+  local ppa_name="$1"
+  [ -z "$1" ] && error "ubuntu_ppa_installer(): This function is used to add a ppa to a ubuntu based install but a required input argument was missing."
+  local ppa_grep="$ppa_name"
+  [[ "${ppa_name}" != */ ]] && local ppa_grep="${ppa_name}/"
+  local ppa_added=$(apt-get indextargets --no-release-info --format '$(SITE) $(RELEASE) $(TARGET_OF)' | sort -u | awk '{if ($3=="deb") print $1" "$2 }' | grep "$ppa_grep" | wc -l)
+  if [[ $ppa_added -eq "1" ]]; then
+    status "Skipping $ppa_name PPA, already added"
+  else
+    status "Adding $ppa_name PPA"
+    sudo add-apt-repository "ppa:$ppa_name" -y || exit 1
+    apt_update || exit 1
+  fi
+  # check if ppa .list filename does not exist under the current distro codename
+  # on a distro upgrade the .list filename is not updated and add-apt-repository can re-use the old filename
+  local ppa_dist="$__os_codename"
+  local standard_filename="/etc/apt/sources.list.d/${ppa_name%/*}-ubuntu-${ppa_name#*/}-${ppa_dist}.list" 
+  if [[ ! -f "$standard_filename" ]] && ls /etc/apt/sources.list.d/${ppa_name%/*}-ubuntu-${ppa_name#*/}-*.list 1> /dev/null; then
+    local original_filename="$(ls /etc/apt/sources.list.d/${ppa_name%/*}-ubuntu-${ppa_name#*/}-*.list | head -1)"
+    # change the filename to match the current distro codename
+    sudo mv "$original_filename" "$standard_filename"
+    sudo rm -f "$original_filename".distUpgrade
+    sudo rm -f "$original_filename".save
+  fi
+}
+
+debian_ppa_installer() { #setup a PPA on a Debian distro. Arguments: ppa_name distribution key
+  local ppa_name="$1"
+  local ppa_dist="$2"
+  local key="$3"
+  [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] && error "debian_ppa_installer(): This function is used to add a ppa to a debian based install but a required input argument was missing."
+  local ppa_grep="$ppa_name"
+  [[ "${ppa_name}" != */ ]] && local ppa_grep="${ppa_name}/ubuntu ${ppa_dist}"
+  local ppa_added=$(apt-get indextargets --no-release-info --format '$(SITE) $(RELEASE) $(TARGET_OF)' | sort -u | awk '{if ($3=="deb") print $1" "$2 }' | grep "$ppa_grep" | wc -l)
+  if [[ $ppa_added -eq "1" ]]; then
+    status "Skipping $ppa_name PPA, already added"
+  else
+    status "Adding $ppa_name PPA"
+    echo "deb https://ppa.launchpadcontent.net/${ppa_name}/ubuntu ${ppa_dist} main" | sudo tee /etc/apt/sources.list.d/${ppa_name%/*}-ubuntu-${ppa_name#*/}-${ppa_dist}.list || error "Failed to add repository to sources.list!"
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "$key"
+    if [ $? != 0 ];then
+      sudo rm -f /etc/apt/sources.list.d/${ppa_name%/*}-ubuntu-${ppa_name#*/}-${ppa_dist}.list
+      error "Failed to sign the $ppa_name PPA!"
+    fi
+    apt_update || exit 1
+  fi
+}
+
+add_external_repo() { # add an external apt repo and its gpg key.
+  # follows https://wiki.debian.org/DebianRepository/UseThirdParty specification with deb822 format https://repolib.readthedocs.io/en/latest/deb822-format.html
+  # required inputs
+  local reponame="$1"
+  local pubkeyurl="$2"
+  local uris="$3"
+  local suites="$4"
+  # potentially optional inputs
+  # components is not used when suite is an absolute path
+  local components="$5"
+  # additional options can be specified as the 6th, 7th, 8th, etc argument (eg: "Architectures: arm64")
+
+  # check if all needed vars are set  
+  [ -z "$reponame" ] && error "add_external_repo: reponame not set"
+  [ -z "$uris" ] && error "add_external_repo: uris not set"
+  [ -z "$suites" ] && error "add_external_repo: suites not set"
+  [ -z "$pubkeyurl" ] && error "add_external_repo: pubkeyurl not set"
+
+  # exit if reponame or uri or suite contains space
+  if [[ $reponame = *" "* ]] || [[ $uris = *" "* ]] || [[ $suites = *" "* ]]; then
+    error "add_external_repo: provided reponame contains a space."
+  fi
+
+  # check if links are valid
+  wget -q --spider "$pubkeyurl" || error "add_external_repo: pubkeyurl isn't a valid link"
+
+  # make apt keyring directory if it doesn't exist
+  if [ ! -d /usr/share/keyrings ]; then
+    sudo mkdir -p /usr/share/keyrings || error "add_external_repo: failed to create apt keyring directory."
+  fi
+
+  # check if .list file already exists
+  if [ -f /etc/apt/sources.list.d/${reponame}.list ]; then
+    sudo rm -f /etc/apt/sources.list.d/${reponame}.list || error "add_external_repo: failed to remove conflicting .list file."
+  fi
+
+  # check if .sources file already exists
+  if [ -f /etc/apt/sources.list.d/${reponame}.sources ]; then
+    sudo rm -f /etc/apt/sources.list.d/${reponame}.sources || error "add_external_repo: failed to remove conflicting .sources file."
+  fi
+
+  # download gpg key from specified url
+  if [ -f /usr/share/keyrings/${reponame}-archive-keyring.gpg ]; then
+    sudo rm -f /usr/share/keyrings/${reponame}-archive-keyring.gpg
+  fi 
+  wget -qO- "$pubkeyurl" | sudo gpg --dearmor -o /usr/share/keyrings/${reponame}-archive-keyring.gpg
+
+  if [ $? != 0 ];then
+    sudo rm -f /etc/apt/sources.list.d/${reponame}.sources
+    sudo rm -f /usr/share/keyrings/${reponame}-archive-keyring.gpg
+    error "add_external_repo: download from specified pubkeyurl failed."
+  fi
+
+  # create .sources file
+  echo "Types: deb
+URIs: $uris
+Suites: $suites" | sudo tee /etc/apt/sources.list.d/${reponame}.sources >/dev/null
+  if [ ! -z "$components" ]; then
+    echo "Components: $components" | sudo tee -a /etc/apt/sources.list.d/${reponame}.sources >/dev/null
+  fi
+  for input in "${@: 6}"; do
+    echo "$input" | sudo tee -a /etc/apt/sources.list.d/${reponame}.sources >/dev/null
+  done
+  echo "Signed-By: /usr/share/keyrings/${reponame}-archive-keyring.gpg" | sudo tee -a /etc/apt/sources.list.d/${reponame}.sources >/dev/null
+
+  if [ $? != 0 ];then
+    sudo rm -f /etc/apt/sources.list.d/${reponame}.sources
+    sudo rm -f /usr/share/keyrings/${reponame}-archive-keyring.gpg
+    error "add_external_repo: failed to create ${reponame}.list file"
+  fi
+}
+
+rm_external_repo() { # remove an external apt repo and its gpg key, if the repo is no longer in use. (force-remove the repo with force argument)
+
+  local reponame="$1"
+  local force="$2"
+
+  [ -z "$reponame" ] && error "rm_external_repo: reponame not provided"
+
+  # exit if reponame contains space, since apt doesn't accept .list files with spaces in filename or keyname.
+  if [[ $reponame = *" "* ]]; then
+    error "rm_external_repo: provided reponame contains a space."
+  fi
+
+  # always remove deprecated .list file if present
+  if [ -f /etc/apt/sources.list.d/${reponame}.list ]; then
+    sudo rm -f /etc/apt/sources.list.d/${reponame}.list
+  fi
+
+  # exit gracefully if .sources file does not exist
+  [ -f "/etc/apt/sources.list.d/$reponame.sources" ] || return 0
+  
+  if [ "$force" == force ]; then
+    sudo rm -f /usr/share/keyrings/${reponame}-archive-keyring.gpg || error "rm_external_repo: removal of ${reponame}-archive-keyring.gpg failed"
+    sudo rm -f /etc/apt/sources.list.d/${reponame}.sources || error "rm_external_repo: removal of ${reponame}.sources failed"
+    return 0
+  fi
+
+  remove_repofile_if_unused /etc/apt/sources.list.d/${reponame}.sources "" /usr/share/keyrings/${reponame}-archive-keyring.gpg
+}
+
+adoptium_installer() {
+  case "$__os_codename" in
+  bionic | focal | jammy | buster | bullseye | bookworm)
+    add_external_repo "adoptium" "https://adoptium.jfrog.io/artifactory/api/security/keypair/default-gpg-key/public" "https://adoptium.jfrog.io/artifactory/deb" "$__os_codename" "main" || exit 1
+    ;;
+  *)
+    # use bionic target name explicitly for any other OS as its the oldest LTS target adoptium continues to support
+    # all supported adoptium OSs use the same debs so the target specified does not actually matter
+    add_external_repo "adoptium" "https://adoptium.jfrog.io/artifactory/api/security/keypair/default-gpg-key/public" "https://adoptium.jfrog.io/artifactory/deb" "bionic" "main" || exit 1
+    ;;
+  esac
+  apt_update
+  if [ $? != 0 ]; then
+    rm_external_repo "adoptium"
+    error "Failed to perform apt update after adding Adoptium repository."
+  fi
+}
+
+pipx_install() {
+  # install pipx keeping in mind distro issues
+  # pipx < 0.16.0 is compatible with 3.6 <= python3 < 3.9
+  # 0.16.0 <= pipx < 1.1.0 is compatible with python3 >= 3.6
+  # 1.1.0 <= pipx < 1.3.0 is compatible with python3 >= 3.7
+  # pipx >= 1.3.0 is compatible with python3 >= 3.8
+  # some distros lack pipx entirely
+  # some distros (raspbian bullseye specifically) have incompatible combinations of pipx (0.12.3) and python3 (3.9) versions, necessitating pipx to be installed/upgraded from pip
+  # pipx 1.0.0 is the first stable release and has some features that we would like to assume are available, install it from pip if the distro package is too old
+  # pi-apps scripts and functions should assume that ONLY a minimum pipx version of 1.0.0 is available
+  if package_available pipx && package_is_new_enough pipx 1.0.0 ;then
+    install_packages pipx python3-venv || exit 1
+  elif package_is_new_enough python3 3.7 ; then
+    install_packages python3-venv || exit 1
+    sudo python3 -m pip install --upgrade pipx || exit 1
+  elif package_available python3.8 ;then
+    install_packages python3.8 python3.8-venv || exit 1
+    sudo python3.8 -m pip install --upgrade pipx || exit 1
+  else
+    error "pipx is not available on your distro and so cannot install $* to python venv"
+  fi
+  sudo PIPX_HOME=/usr/local/pipx PIPX_BIN_DIR=/usr/local/bin pipx install "$@" || error "Failed to install $* with pipx"
+}
+
+pipx_uninstall() {
+  sudo PIPX_HOME=/usr/local/pipx PIPX_BIN_DIR=/usr/local/bin pipx uninstall "$@" || error "Failed to uninstall $* with pipx"
+}
+
+#flatpak functions
+flatpak_install() { #install an app using flatpak
+  [ -z "$1" ] && error "flatpak_install(): This function is used to install a flatpak app, but nothing was specified."
+  
+  #make sure flatpak is installed
+  if ! command -v flatpak >/dev/null ;then
+    error "flatpak_install(): Could not install $1 because flatpak is not installed!"
+  fi
+  
+  if ! package_is_new_enough flatpak 1.14.4 ;then
+    case "$__os_codename" in
+    buster)
+      debian_ppa_installer "theofficialgman/flatpak-no-bwrap" "bionic" "0ACACB5D1E74E484"
+      apt_lock_wait
+      sudo apt --only-upgrade install flatpak -y | less_apt
+      ;;
+    bullseye)
+      debian_ppa_installer "theofficialgman/flatpak-no-bwrap" "focal" "0ACACB5D1E74E484"
+      apt_lock_wait
+      sudo apt --only-upgrade install flatpak -y | less_apt
+      ;;
+    bionic|focal|jammy)
+      ubuntu_ppa_installer "theofficialgman/flatpak-no-bwrap"
+      apt_lock_wait
+      sudo apt --only-upgrade install flatpak -y | less_apt
+      ;;
+    esac
+  fi
+  
+  status -n "Flatpak: Adding flathub remote... "
+  #Add the flathub remote, first as root, if that fails then try installing as user, while removing unwanted output
+  ( sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || error "Flatpak failed to add flathub remote!"  ) | grep --line-buffered -v "Note that the directories 
+'/var/lib/flatpak/exports/share'
+'$HOME/.local/share/flatpak/exports/share'
+are not in the search path set by the XDG_DATA_DIRS environment variable, so
+applications installed by Flatpak may not appear on your desktop until the
+session is restarted."
+  #exit 1 if above code failed
+  if [ ${PIPESTATUS[0]} != 0 ];then
+    exit 1
+  fi
+  status_green Done
+  
+  status -n "Flatpak: installing $1... "
+  #Install the specified app, first as root, if that fails then try installing as user, while removing unwanted output
+  ( sudo flatpak install flathub "$1" -y || flatpak install flathub "$1" -y || error "Flatpak failed to install $1!" ) | grep --line-buffered -v "Note that the directories 
+
+'/var/lib/flatpak/exports/share'
+'$HOME/.local/share/flatpak/exports/share'
+are not in the search path set by the XDG_DATA_DIRS environment variable, so
+applications installed by Flatpak may not appear on your desktop until the
+session is restarted."
+  #exit 1 if above code failed
+  if [ ${PIPESTATUS[0]} != 0 ];then
+    exit 1
+  fi
+  status_green Done
+  
+  #Pi-Apps tries to avoid unnecessary reboots at all cost. Flatpak places desktop launchers in /var/lib/flatpak/exports/share/applications, which is not searched by default.
+  #This path is added to $XDG_DATA_DIRS on the next reboot, but we don't want to wait for that!
+  #If there are files in /var/lib/flatpak/exports/share/applications, and XDG_DATA_DIRS is missing flatpak paths, then bind-mount to /usr/share/applications
+  if [[ "$XDG_DATA_DIRS" != */var/lib/flatpak/exports/share* ]] && [ ! -z "$(ls /var/lib/flatpak/exports/share/applications)" ] && [ -z "$(ls /usr/share/applications/flatpak-temporary)" ];then
+    sudo mkdir -p /usr/share/applications/flatpak-temporary
+    sudo mount --bind /var/lib/flatpak/exports/share/applications /usr/share/applications/flatpak-temporary
+  elif [[ "$XDG_DATA_DIRS" == */var/lib/flatpak/exports/share* ]] ;then
+    sudo rm -rf /usr/share/applications/flatpak-temporary
+  fi
+  #Additionally, PiOS Buster had a bug where XDG_DATA_DIRS was missing flatpak's entries due to PiOS mods. Pi-Apps fixes this with a runonce.
+  
+  true
+}
+
+flatpak_uninstall() { #uninstall an app using flatpak
+  [ -z "$1" ] && error "flatpak_uninstall(): This function is used to uninstall a flatpak app, but nothing was specified."
+  
+  #if flatpak is not installed, then skip everything with code 0.
+  if ! command -v flatpak >/dev/null ;then
+    return 0
+  fi
+  
+  #Only try to remove flatpak app if it's installed.
+  if flatpak list | grep -qF "$1" ;then
+    sudo flatpak uninstall "$1" -y || flatpak uninstall "$1" -y || error "Flatpak failed to uninstall $1!"
+  fi
+}
+#end of flatpak functions
+
+#app functions
+
+list_intersect() { #Outputs only the apps that appear in both stdin and in $1
+  # for example, the following two inputs will be a match
+  # Audacity
+  # Audacity
+  # while these two will NOT be a match
+  # Multimedia/Audacity
+  # .*/Audacity
+  comm -12 - <(echo "$1" | sort)
+}
+
+bitly_link() { #compatibility function pointing to shlink_link (incase old manage script is running with new api)
+  shlink_link "$@"
+}
+
+shlink_link() { #Runs whenever an app is installed/uninstalled to tally the number of users for each app
+  #This cannot possibly be used to identify you, or any information about you.
+  #It simply "clicks" a shlink link - a shortened URL - so that the total number of clicks can be tallied to determine how popular a certain app is.
+  app="$1"
+  trigger="$2"
+  
+  [ -z "$app" ] && error "shlink_link(): requires an app argument"
+  [ -z "$trigger" ] && error "shlink_link(): requires a trigger argument"
+  
+  #if the 'Enable Analytics' setting is enabled
+  if [ "$(cat "${DIRECTORY}/data/settings/Enable analytics")" == 'Yes' ];then
+    #determine the name of the link to "click"
+    shlinklink="https://pi-apps-analytics.linkpc.net/pi-apps-$trigger-$(echo "$app" | tr -d ' ' | sed 's/[^a-zA-Z0-9]//g')/track"
+    #click it
+    curl -s -X 'GET' "$shlinklink" -H 'accept: image/gif' -A "Pi-Apps Raspberry Pi app store" >/dev/null &
+  fi
+}
+
+userinput_func() { # userinput function to display yad/cli prompts to the user
+  [ -z "$1" ] && error "userinput_func(): requires a description"
+  [ -z "$2" ] && error "userinput_func(): requires at least one output selection option"
+  local text_lines=$(echo -e "$1" | wc -l)
+  # there is no good universal way to calculate the required height of the window
+  # the users theme, default text size, and window scaling all affect it
+  # the idea is the height should be a function of the number of lines of input text and the number of list options
+  local height_list=$(echo $(( text_lines * 17 + $(( ${#@} - 1 )) * 29 + 65 )))
+  local commonflags=(--fixed --no-escape --undecorated --center --borders=20)
+  if [ "${#@}" == "2" ];then
+    yad "${yadflags[@]}" "${commonflags[@]}" \
+      --image "dialog-information" \
+      --text="$1" \
+      --button="$2":0
+    output="$2"
+  elif [ "${#@}" == "3" ];then
+    yad "${yadflags[@]}" "${commonflags[@]}" \
+      --image "dialog-question" \
+      --text="$1" \
+      --button="$2":0 \
+      --button="$3":1
+    if [ $? -ne 0 ]; then
+      output="$3"
+    else
+      output="$2"
+    fi
+  else
+    unset uniq_selection
+    for string in "${@:2}"; do
+      local uniq_selection+=(FALSE "$string")
+    done
+    local uniq_selection[0]=TRUE
+    output=$(yad "${yadflags[@]}" "${commonflags[@]}" \
+      --height=$height_list\
+      --text "$1" \
+      --list \
+      --no-headers \
+      --radiolist \
+      --center \
+      --column "" \
+      --column "Selection" \
+      --print-column=2 \
+      --separator='' \
+      --button="OK":0 \
+      "${uniq_selection[@]}")
+  fi
+}
+
+#miscellaneous low-level functions below
+runonce() { #run command only if it's never been run before. Useful for one-time migration or setting changes.
+  #Runs a script in the form of stdin
+  
+  script="$(< /dev/stdin)"
+  
+  runonce_hash="$(sha1sum <<<"$script" | awk '{print $1}')"
+  
+  if [ -s "${DIRECTORY}/data/runonce_hashes" ] && while read line; do [[ $line == "$runonce_hash" ]] && break; done < "${DIRECTORY}/data/runonce_hashes"; then
+    #hash found
+    #echo "runonce: '$script' already run before. Skipping."
+    true
+  else
+    #run the script.
+    bash <(echo "$script")
+    #if it succeeds, add the hash to the list to never run it again
+    if [ $? == 0 ];then
+      echo "$runonce_hash" >> "${DIRECTORY}/data/runonce_hashes"
+      echo "runonce(): '$script' succeeded. Added to list."
+    else
+      echo "runonce(): '$script' failed. Not adding hash to list."
+    fi
+    
+  fi
+  
+}
+
+get_model() { # populates the model and jetson_model variables with information about the current hardware
+  # obtain model name
+  unset model
+  if [[ -d /system/app/ && -d /system/priv-app ]]; then
+    model="$(getprop ro.product.brand) $(getprop ro.product.model)"
+  fi
+  if [[ -z "$model" ]] && [[ -f /sys/devices/virtual/dmi/id/product_name ||
+          -f /sys/devices/virtual/dmi/id/product_version ]]; then
+    model="$(tr -d '\0' < /sys/devices/virtual/dmi/id/product_name)"
+    model+=" $(tr -d '\0' < /sys/devices/virtual/dmi/id/product_version)"
+  fi
+  if [[ -z "$model" ]] && [[ -f /sys/firmware/devicetree/base/model ]]; then
+    model="$(tr -d '\0' < /sys/firmware/devicetree/base/model)"
+  fi
+  if [[ -z "$model" ]] && [[ -f /tmp/sysinfo/model ]]; then
+      model="$(tr -d '\0' < /tmp/sysinfo/model)"
+  fi
+  unset jetson_model
+  unset SOC_ID
+  # obtain jetson model name (if available)
+  # nvidia, in their official L4T (Linux for Tegra) releases 32.X and 34.X, set a distinct tegra family in the device tree /proc/device-tree/compatible
+  if [[ -e "/proc/device-tree/compatible" ]]; then
+    CHIP="$(tr -d '\0' < /proc/device-tree/compatible)"
+    if [[ ${CHIP} =~ "tegra186" ]]; then
+      jetson_model="tegra-x2"
+    elif [[ ${CHIP} =~ "tegra210" ]]; then
+      jetson_model="tegra-x1"
+    elif [[ ${CHIP} =~ "tegra194" ]]; then
+      jetson_model="xavier"
+    elif [[ ${CHIP} =~ "tegra234" ]]; then
+      jetson_model="orin"
+    elif [[ ${CHIP} =~ "tegra239" ]]; then
+      jetson_model="switch-pro-chip"
+    elif [[ ${CHIP} =~ "tegra" ]]; then
+      jetson_model="jetson-unknown"
+    elif [[ ${CHIP} =~ "rk3399" ]]; then
+      SOC_ID="rk3399"
+    elif [[ ${CHIP} =~ "rk3308" ]]; then
+      SOC_ID="rk3308"
+    elif [[ ${CHIP} =~ "rk3326" ]]; then
+      SOC_ID="rk3326"
+    elif [[ ${CHIP} =~ "rk3328" ]]; then
+      SOC_ID="rk3328"
+    elif [[ ${CHIP} =~ "rk3368" ]]; then
+      SOC_ID="rk3368"
+    elif [[ ${CHIP} =~ "rk3566" ]]; then
+      SOC_ID="rk3566"
+    elif [[ ${CHIP} =~ "rk3568" ]]; then
+      SOC_ID="rk3568"
+    elif [[ ${CHIP} =~ "g12b" ]]; then
+      SOC_ID="g12b"
+    elif [[ ${CHIP} =~ "g12b" ]]; then
+      SOC_ID="g12b"
+    elif [[ ${CHIP} =~ "g12b" ]]; then
+      SOC_ID="g12b"
+    elif [[ ${CHIP} =~ "bcm2712" ]]; then
+      SOC_ID="bcm2712"
+    elif [[ ${CHIP} =~ "bcm2711" ]]; then
+      SOC_ID="bcm2711"
+    elif [[ ${CHIP} =~ "bcm2837" ]]; then
+      SOC_ID="bcm2837"
+    elif [[ ${CHIP} =~ "bcm2836" ]]; then
+      SOC_ID="bcm2836"
+    elif [[ ${CHIP} =~ "bcm2835" ]]; then
+      SOC_ID="bcm2835"
+    fi
+  # as part of the 2X.X L4T releases, the kernel is older and the tegra family is found in /sys/devices/soc0/family
+  elif [[ -e "/sys/devices/soc0/family" ]]; then
+    CHIP="$(tr -d '\0' < /sys/devices/soc0/family)"
+    if [[ ${CHIP} =~ "tegra20" ]]; then
+      jetson_model="tegra-2"
+    elif [[ ${CHIP} =~ "tegra30" ]]; then
+      jetson_model="tegra-3"
+    elif [[ ${CHIP} =~ "tegra114" ]]; then
+      jetson_model="tegra-4"
+    elif [[ ${CHIP} =~ "tegra124" ]]; then
+      jetson_model="tegra-k1-32"
+    elif [[ ${CHIP} =~ "tegra132" ]]; then
+      jetson_model="tegra-k1-64"
+    elif [[ ${CHIP} =~ "tegra210" ]]; then
+      jetson_model="tegra-x1"
+    fi
+  fi
+  if [ -n "$jetson_model" ]; then
+    SOC_ID="$jetson_model"
+  fi
+}
+
+get_codename() { #get debian/ubuntu codename
+  if ! command -v lsb_release >/dev/null; then
+    apt_update &>/dev/null && \
+    sudo apt-get install -y lsb-release &>/dev/null
+  fi
+  
+  # first check if lsb_release has an upstream option -u
+  # if not, check if there is an upstream-release file
+  # if not, check if there is a lsb-release.diverted file
+  # if not, assume that this is not a ubuntu derivative
+  if lsb_release -a -u &>/dev/null; then
+    # This is a Ubuntu Derivative, checking the upstream-release version info
+    lsb_release -s -c -u
+  elif [ -f /etc/upstream-release/lsb-release ]; then
+    # ubuntu 22.04+ linux mint no longer includes the lsb_release -u option
+    # add a parser for the /etc/upstream-release/lsb-release file
+    source /etc/upstream-release/lsb-release
+    echo "$DISTRIB_CODENAME"
+    unset DISTRIB_ID DISTRIB_DESCRIPTION DISTRIB_RELEASE DISTRIB_CODENAME
+  elif [ -f /etc/lsb-release.diverted ]; then
+    # ubuntu 22.04+ popOS no longer includes the /etc/upstream-release/lsb-release or the lsb_release -u option
+    # add a parser for the new /etc/lsb-release.diverted file
+    source /etc/lsb-release.diverted
+    echo "$DISTRIB_CODENAME"
+    unset DISTRIB_ID DISTRIB_DESCRIPTION DISTRIB_RELEASE DISTRIB_CODENAME
+  else
+    lsb_release -s -c
+  fi
+}
+
+#end of low-level functions
+
+#command interceptors - functions that enhance a command
+enable_module() { #Permanent equivalent to modprobe, this will load the module on every future startup
+  local module="$1"
+  [ -z "$module" ] && error "enable_module(): The name of a kernel module must be specified!"
+  
+  #This function is often to load the "fuse" module.
+  # Fuse is most often used for AppImages.
+  #   AppImages need libfuse2 to be installed.
+  #    Install libfuse2 to avoid AppImage launch failures.
+  if [ "$module" == 'fuse' ];then
+    if [ ! -z "$app" ];then
+      #this function is being used within an app-installation. Make libfuse2 a dependency, whether or not it is already installed.
+      if package_available fuse3 ;then
+        install_packages fuse3 libfuse2
+      elif package_available fuse ;then
+        install_packages fuse libfuse2
+      else
+        # this case should never be reached
+        install_packages libfuse2
+      fi
+    elif package_installed libfuse2 && (package_installed fuse || package_installed fuse3) ;then
+      #NOT being used within an app-installation and libfuse2 and fuse or fuse3 is already installed.
+      true #nothing to do
+    else
+      #NOT being used within an app-installation and libfuse2 is not installed.
+      apt_update
+      if package_available fuse3 ;then
+        sudo apt install -y fuse3 libfuse2 --no-install-recommends
+      elif package_available fuse ;then
+        sudo apt install -y fuse libfuse2 --no-install-recommends
+      else
+        # this case should never be reached
+        sudo apt install -y libfuse2 --no-install-recommends
+      fi
+    fi
+  fi
+
+  if ! package_installed kmod ;then
+    if [ ! -z "$app" ];then
+      #this function is being used within an app-installation. Make kmod a dependency since it is not installed.
+      install_packages kmod
+      hash -r
+    else
+      #NOT being used within an app-installation and kmod is not installed.
+      apt_update
+      sudo apt install -y kmod --no-install-recommends
+      hash -r
+    fi
+  fi
+  
+  # if module is builtin, skip remaining checks
+  # this check is not foolproof on all kernels so some may still have the module builtin and fail the below check
+  if [[ "$(modinfo --filename "$module")" == "(builtin)" ]]; then
+    return 0
+  fi
+
+  #load the module now if not already loaded
+  #all active kernel modules have a folder in /sys/module matching the module name
+  if [[ ! -d "/sys/module/$module" ]]; then
+    errors="$(sudo modprobe "$module" 2>&1)"
+    if [ $? != 0 ];then
+      #if modprobe fails, the module may be missing because user upgraded the kernel and has not rebooted yet.
+      if [ ! -d "/lib/modules/$(uname -r)" ];then
+        error "\nUser error: Failed to load the '$module' kernel module because you upgraded the kernel and have not rebooted yet.
+Please reboot to load the new kernel, then try again."
+      else
+        #other modprobe error: exit now and display modprobe output
+        error "$errors"
+      fi
+    fi
+  fi
+  
+  #make it load on boot if system supports loading modules
+  if [ -f /proc/modules ] && [ ! -f "/etc/modules-load.d/${module}.conf" ];then
+    echo "$module" | sudo tee "/etc/modules-load.d/${module}.conf" >/dev/null
+  fi
+}
+
+git_clone() { #silently clone a git repository but display the output if an error occurs
+  # $1 is repo
+  local IFS=' '
+  local arg
+  local prevarg
+  local repo_name=''
+  for arg in "$@"; do
+    if [[ "$arg" == *'://'* ]];then
+      local url="$arg"
+      repo_name=$(basename "$url" | sed s/.git//g)
+    elif [ ! -z "$repo_name" ] && [[ "$arg" != -* ]] && [[ "$prevarg" != -* ]];then #repo_name already set, so this arg is after the url to specify the download folder name
+      repo_name="$arg"
+    fi
+    prevarg="$arg"
+  done
+  unset prevarg
+  
+  [ -z "$url" ] && error "git_clone(): no repository URL specified."
+  
+  local folder="$(pwd)/$repo_name"
+  
+  status -n "Downloading $repo_name repository... "
+  
+  rm -rf "$repo_name" || sudo rm -rf "$repo_name"
+  local errors
+  errors="$(git clone "$@" 2>&1)"
+  local exitcode=$?
+  
+  if [ "$exitcode" != 0 ]; then
+    error "\nFailed to download $repo_name repository.\nErrors: $errors"
+  fi
+  
+  status_green 'Done'
+}
+
+wget() { #Intercept all wget commands. When possible, uses aria2c.
+  local file=''
+  local url=''
+  local passopts=()
+  #determine the download manager to use
+  local use=aria2c
+  #determine if being run silently (if the '-q' flag was passed)
+  local quiet=0
+  
+  #convert wget arguments to newline-separated list
+  local IFS=$'\n'
+  local opts="$(IFS=$'\n'; echo "$*")"
+  for opt in $opts ;do
+    
+    #check if this argument to wget begins with '--'
+    if [[ "$opt" == '--'* ]];then
+      if [ "$opt" == '--quiet' ];then
+        quiet=1
+      elif [[ "$opt" == '--header='* ]];then
+        passopts+=("$opt")
+      else #for any other arguments, fallback to wget
+        use=wget
+      fi
+      
+    elif [ "$opt" == '-' ];then
+      #writing to stdout, use wget and hide output
+      use=wget
+      quiet=1
+    elif [[ "$opt" == '-'* ]];then
+      #this opt is a flag beginning with one '-'
+      
+      #check the value of every letter in this argument
+      local i
+      for i in $(fold -w1 <<<"$opt" | tail -n +2) ;do
+        
+        if [ "$i" == q ];then
+          quiet=1
+        elif [ "$i" == O ];then
+          true
+        elif [ "$i" == '-' ];then
+          #writing to stdout, use wget and hide output
+          use=wget
+          quiet=1
+        else #any other wget arguments
+          use=wget
+        fi
+      done
+      
+    elif [[ "$opt" == *'://'* ]]; then
+      #this opt is web address
+      url="$opt"
+    elif [[ "$opt" == '/'* ]]; then
+      #this opt is file output
+      if [ -z "$file" ];then
+        file="$opt"
+        #if output file is /dev/stdout, /dev/null, etc, use wget
+        if [[ "$file" == /dev/* ]];then
+          use=wget
+          quiet=1
+        fi
+      else #file var already populated
+        use=wget
+      fi
+    else
+      #This argument does not begin with '-', contain '://', or begin with '/'.
+      #Assume output file specified shorthand if file-argument is not already set
+      if [ -z "$file" ];then
+        file="$(pwd)/${opt}"
+      else #file var already populated
+        use=wget
+      fi
+    fi
+  done
+  
+  if ! command -v aria2c >/dev/null ;then
+    #aria2c command not found
+    use=wget
+  fi
+  
+  local filename="$(echo "$url" | sed 's+/download$++g' | sed 's+.*/++g')"
+  if [ "$quiet" == 0 ];then
+    if [ -n "$file" ] && [ "$file" != "$(pwd)/$filename" ]; then
+      status -n "Downloading $filename to $file... " 1>&2
+    else
+      status -n "Downloading $filename... " 1>&2
+    fi
+    echo
+  fi
+  
+  #now, perform the download using the chosen method
+  if [ "$use" == wget ];then
+    #run the true wget binary with all this function's args
+    
+    command wget --progress=bar:force:noscroll "$@"
+    local exitcode=$?
+  elif [ "$use" == aria2c ];then
+    
+    #if $file empty, generate it based on url
+    if [ -z "$file" ];then
+      file="$(pwd)/$filename"
+    fi
+    
+    #use these flags for aria2c
+    aria2_flags=(-x 16 -s 16 --max-tries=10 --retry-wait=30 --max-file-not-found=5 --http-no-cache=true --check-certificate=false \
+      --allow-overwrite=true --auto-file-renaming=false --remove-control-file --auto-save-interval=0 \
+      --console-log-level=error --show-console-readout=false --summary-interval=1 "$url" -d "$(dirname "${file}")" -o "$(basename "${file}")" "${passopts[@]}")
+    
+    #suppress output if -q flag passed
+    if [ "$quiet" == 1 ];then
+      aria2c --quiet "${aria2_flags[@]}"
+      local exitcode=$?
+      
+    else #run aria2c without quietness and format download-progress output
+      local terminal_width="$(tput cols || echo 80)"
+      
+      #run aria2c and reduce its output.
+      aria2c "${aria2_flags[@]}" | while read -r line ;do
+        
+        #filter out unnecessary lines
+        line="$(grep --line-buffered -v '\-\-\-\-\-\-\-\-\|======\|^FILE:\|^$\|Summary\|Results:\|download completed\.\|^Status Legend:\||OK\||stat' <<<"$line" || :)"
+        
+        if [ ! -z "$line" ];then #if this line still contains something and was not erased by grep
+          
+          #check if this line is a progress-stat line, like: "[#a6567f 20MiB/1.1GiB(1%) CN:16 DL:14MiB ETA:1m19s]"
+          if [[ "$line" == '['*']' ]];then
+            
+            #hide cursor
+            printf "\e[?25l"
+            
+            #print the total data only, like: "0.9GiB/1.1GiB"
+            statsline="$(echo "$line" | awk '{print $2}' | sed 's/(.*//g' | tr -d '\n') "
+            #get the length of statsline
+            characters_subtract=${#statsline}
+            
+            #determine how many characters are available for the progress bar
+            available_width=$(($terminal_width - $characters_subtract))
+            #make sure available_width is a positove number (in case bash-variable COLUMNS is empty)
+            [ "$available_width" -le 0 ] && available_width=20
+            
+            #get progress percentage from aria2c output
+            percent="$(grep -o '(.*)' <<<"$line" | tr -d '()%')"
+            
+            #echo "percent: $percent"
+            #echo "available_width: $available_width"
+            
+            #determine how many characters in progress bar to light up
+            progress_characters=$(((percent*available_width)/100))
+            
+            statsline+="\e[92m\e[1m$(for ((i=0; i<$progress_characters; i++)); do printf "—"; done)\e[39m" # other possible characters to put here: █🭸
+            echo -ne "\e[0K${statsline}\r\e\e[0m" 1>&2 #clear and print over previous line
+            
+            #reduce the line and print over the previous line, like: "1.1GiB/1.1GiB(98%) DL:18MiB"
+            #echo "$line" | awk '{print $2 " " $4 " " substr($5, 1, length($5)-1)}' | tr -d '\n'
+            
+          else
+            #this line is not a progress-stat line; don't format output
+            echo "$line"
+          fi
+        fi
+        
+      done
+      local exitcode=${PIPESTATUS[0]}
+    fi
+  fi
+  
+  #display a "download complete" message
+  if [ $exitcode == 0 ] && [ "$quiet" == 0 ];then
+    
+    #show cursor
+    printf "\e[?25h"
+    
+    #display "done" message
+    if [ "$use" == aria2c ];then
+      local progress_characters=$(($terminal_width - 5))
+      echo -e "\e[0KDone \e[92m\e[1m$(for ((i=0; i<$progress_characters; i++)); do printf "—"; done)\e[39m\e[0m" 1>&2 #clear and print over previous line
+    else
+      echo
+      status_green "Done" 1>&2
+    fi
+  elif [ $exitcode != 0 ] && [ "$quiet" == 0 ];then
+    #show cursor
+    printf "\e[?25h"
+    
+    echo -e "\n\e[91mFailed to download: $url\nPlease review errors above.\e[0m" 1>&2
+  fi
+  
+  return $exitcode
+}
+
+chmod() { #say what is being made executable
+  status "Making executable: $2"
+  command chmod "$@"
+  return $?
+}
+
+unzip() { #say what is being extracted
+  #some scripts add a flag to the unzip command before specifying the file.
+  #This checks the first two arguments to display the file being extracted.
+  [ -f "$1" ] && status "Extracting: $1"
+  [ -f "$2" ] && status "Extracting: $2"
+  
+  #The -o flag means to overwrite without prompting
+  command unzip -o "$@"
+  return $?
+}
+
+nproc() { #Reduce the number of compile threads on low-RAM systems
+  #The Pi02 and Pi3A+ have 4 cores but 500MB of RAM. This function reduces the number of threads to use if RAM is low.
+  
+  #Estimation of how much memory is available for starting new applications, without swapping.
+  local available="$(free | grep 'Mem:' | awk '{print $7}')"
+  
+  if [ "$available" -gt $((1000*1024)) ] || [ "$GITHUB_ACTIONS" == "true" ];then
+    #available memory > 1000MB, use normal number of threads
+    command nproc
+  elif [ "$available" -gt $((500*1024)) ];then
+    #500MB < available memory <= 1000MB, use 2 threads
+    echo 2
+    warning "Your system has less than 1000MB of available RAM, so this will compile with only 2 threads."
+  else
+    #available memory <= 500MB, use 1 thread
+    echo 1
+    warning "Your system has less than 500MB of available RAM, so this will compile with only 1 thread."
+  fi
+}
+#end of command interceptors
+
+add_english
+
+#this array stores flags that are used in all yad windows - saves on the typing and makes it easy to change an attribute on all dialogs from one place.
+yadflags=(--class Pi-Apps --name "Pi-Apps" --center --window-icon="${DIRECTORY}/icons/logo.png" --title="Pi-Apps" --separator='\n')

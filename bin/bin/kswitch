@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+active_lang=$(setxkbmap -query | grep layout | sed 's/layout.* //g')
+[[ "$active_lang" = *","* ]] && active_lang=us
+langs=($(locale -a | grep "_" | sed 's/en_US/us_US/' | awk -F_ '{print $1}'))
+for lang in "${!langs[@]}";do
+	if [[ "${langs[$lang]}" = "$active_lang" ]];then
+		new_lang=$(($lang-1))
+		setxkbmap "${langs[$new_lang]}"
+		echo "${langs[$new_lang]}"
+	fi
+done

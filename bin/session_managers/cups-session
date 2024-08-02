@@ -1,0 +1,48 @@
+#!/bin/bash
+# Script for open CUPS webpage and install it if not installed
+# If cups is running open my-www-browser in https://localhost:631
+# If cups is not installed installl cups and open browser
+
+# NO CUPS INSTALLED
+if [ "$1" = "-I" ]; then
+    # INSTALL CUPS
+    if ! dpkg -l cups 2>/dev/null | grep -q "^ii"; then
+        # Install package
+		clear
+		
+		my-installer --install 'cups'
+		
+        # Adduser to lpadmin    
+		clear
+		echo	
+		echo "  SELECT USERS FOR ADMIN PRINTERS"
+		echo "  -------------------------------"
+        echo "  Users must allow to lpadmin group in order to admin printers"
+		echo
+        read -p "  Users (space separated): " ul
+        for u in $ul; do
+            sudo adduser $u lpadmin
+        done
+
+        # Open browser
+        echo
+        read -p "Press enter to open CUPS admin page"
+         my-www-browser "http://localhost:631"
+    # START CUPS
+    else
+        echo "CUPS is installed but not running"
+        read -p "Press enter to try to start CUPS"
+        service_manager start cups.service
+        sleep 1
+        service_manager is-active cups && my-www-browser "http://localhost:631"
+    fi
+
+# OPEN CUPS ADMIN
+elif service_manager is-active cups ; then
+    my-www-browser "http://localhost:631"
+    exit
+
+# CALL TO INSTALL CUPS
+else
+    popup_terminal "$(readlink -f "$0") -I"
+fi

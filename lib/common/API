@@ -1,0 +1,5 @@
+WM_common_config_path="$HOME/.config/WM_common_config"
+API_path="$WM_common_config_path/API"
+weather="openweathermap"
+imgbb="imgbb"
+imgur="imgur"

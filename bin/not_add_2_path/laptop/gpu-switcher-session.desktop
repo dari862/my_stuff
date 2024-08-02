@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=GPU Switcher
+Comment=GPU Switcher
+Icon=/usr/share/my_stuff/system_files/downloaded/envycontrol/logos/light.png
+Exec=gpu-switcher-session
+Terminal=false
+Type=Application
+Path=
+StartupNotify=false

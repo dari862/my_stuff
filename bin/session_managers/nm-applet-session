@@ -1,0 +1,41 @@
+#!/bin/bash
+#===================================================================================
+# FILE: nm-applet-session
+# DESCRIPTION: manage nm-applet processes for start, restart and stop all conky instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all nm-applet process
+#===================================================================================
+function stop() {
+	[ "$(pidof nm-applet)" ] && killall nm-applet
+	[ "$(pidof nm-applet)" ] && killall -9 nm-applet
+}
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: run nm-applet
+#===================================================================================
+function start() {
+  nm-applet &
+}
+
+
+# EXEC ACTION ACCORDING $1
+case "${1,,}" in
+	""|start|restart)
+		stop
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	*)	
+		echo "Usage: nm-applet-session [start|stop|restart]"
+	;;
+esac

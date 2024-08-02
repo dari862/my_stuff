@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sudo rm -f /opt/worldpainter/.install4j/pref_jre.cfg
+
+purge_packages || exit 1
+rm_external_repo "adoptium"

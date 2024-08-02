@@ -1,0 +1,14 @@
+#!/bin/sh
+if command -v pactl &> /dev/null; then
+	pak=pactl
+elif command -v pulsemixer &> /dev/null; then
+	pak=pulsemixer
+elif command -v amixer &> /dev/null; then
+	pak=amixer
+else
+	echo -e "$0: pactl or pulsemixer not installed."
+	exit 1
+fi
+
+cat head $pak tail | sudo tee /usr/share/my_stuff/system_files/bin/volume_cli_control
+sudo chmod +x /usr/share/my_stuff/system_files/bin/volume_cli_control

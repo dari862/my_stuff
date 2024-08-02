@@ -1,0 +1,52 @@
+#!/bin/bash
+mirror="http://deb.debian.org/debian/"
+mirror_security="http://security.debian.org/debian-security"
+dist=$(lsb_release -cs)
+if [ "n/a" = "$dist" ] ; then
+    dist=testing
+fi
+deb_lines_backports=$(egrep "^(deb|deb-src) (${mirror}|${mirror_security})" /etc/apt/sources.list | grep -v ${dist}-backports)
+if [ "$1" = "--check" ];then
+	if [ "$deb_lines_backports" = "" ];then
+		echo enabled 
+	else
+		echo disabled
+	fi
+	exit 0
+fi
+tweek_name=$(basename $0)
+
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+
+clear
+say
+say "run ${tweek_name}."
+say '------------------------'
+say "This script will ${tweek_name}."
+say
+prompt '  Run the script now?' || return
+
+clear
+
+say 'running tweek...' 1
+###################################################################
+
+for l in $deb_lines_backports; do
+	sudo sed -i "s\\^$l$\\$l ${dist}-backports\\" /etc/apt/sources.list
+done
+sudo apt-get update
+sudo ln -s /usr/share/my_stuff/bin/not_add_2_path/backports_install /usr/share/my_stuff/system_files/bin
+sudo ln -s /usr/share/my_stuff/lib/auto_completion/backports_install /usr/share/my_stuff/system_files/auto_completion/
+###################################################################
+clear
+remove_from_db
+
+say
+say "${tweek_name} has been runed successfully."
+say "To install backports packages please using backports_install <package name>"
+say
+say 'Hit any key to exit...'
+read -srn1
+

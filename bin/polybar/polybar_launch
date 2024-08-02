@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Files and Directories
+
+. "/usr/share/my_stuff/lib/common/polybar"
+. "/usr/share/my_stuff/lib/common/rofi"
+
+SFILE="$polybar_dir/system.ini"
+
+if [ ! -s ${rofi_style_name_path} ] || ( [ "$_panel_name_" == "polybar" ] && [ ! -s ${polybar_style_name_path} ] )
+then
+	style-manager --rofi
+fi
+
+[[ ! -f "$SFILE" ]] && polybar_fixer
+
+# Terminate already running bar instances
+[ "$(pidof polybar)" ] && killall -q polybar
+	
+# Wait until the processes have been shut down
+while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+	
+# Launch the bar
+if [[ "$polybar_STYLE" == "hack" || "$polybar_STYLE" == "cuts" || "$polybar_STYLE" == "hack_large" ]]; then
+	polybar -q top -c "${polybar_style_dir}/config.ini" &
+	polybar -q bottom -c "${polybar_style_dir}/config.ini" &
+elif [[ "$polybar_STYLE" == "panels/"* ]]; then
+	polybar -q main -c "${polybar_style_dir}.ini" &
+elif [[ "$polybar_STYLE" == "pwidgets" ]]; then
+	"${polybar_style_dir}"/launch.sh --main
+else
+	polybar -q main -c "${polybar_style_dir}/config.ini" &	
+fi

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Docker
+Comment=Manage Docker containers with LazyDocker
+Exec=alacritty --config-file /usr/share/my_stuff/lib/Dev-Env/alacritty/pane.toml -e lazydocker
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/Docker.png
+Categories=GTK;
+StartupNotify=false

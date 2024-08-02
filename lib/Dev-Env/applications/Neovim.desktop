@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Neovim
+Comment=Edit text files
+Exec=alacritty --config-file /usr/share/my_stuff/lib/Dev-Env/alacritty/pane.toml -e nvim %F
+Terminal=false
+Type=Application
+Icon=nvim
+Categories=Utilities;TextEditor;
+StartupNotify=false

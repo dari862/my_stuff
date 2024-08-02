@@ -1,0 +1,85 @@
+#!/bin/bash
+
+app_name="virt-manager"
+extra_apps_=()
+app_list_virt_manager_=(qemu-kvm qemu-system qemu-utils python3 python3-pip libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon virt-manager)
+app_list_quickemu_=(bash coreutils ovmf grep jq lsb-release procps python3 genisoimage usbutils util-linux sed spice-client-gtk swtpm wget xdg-user-dirs zsync unzip)
+
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+	
+	say 'Installing package...' 1
+
+	Package_installer_ "${app_list_virt_manager_[@]}" "${app_list_quickemu_[@]}" || continue
+	
+	service_manager enable libvirtd.service
+	sudo virsh net-start default 
+	sudo virsh net-autostart default 
+	sudo usermod -aG libvirt,libvirt-qemu,kvm,input,disk $USER
+	
+	# quickemu
+	sudo mkdir -p "/usr/share/my_stuff/system_files/git"
+	sudo git clone https://github.com/quickemu-project/quickemu.git /usr/share/my_stuff/system_files/git/quickemu
+	sudo ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickemu" "/usr/share/my_stuff/system_files/bin"
+	sudo ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickget" "/usr/share/my_stuff/system_files/bin"
+	sudo ln -sf "/usr/share/my_stuff/system_files/git/quickemu/windowskey" "/usr/share/my_stuff/system_files/bin"
+	sudo ln -sf "/usr/share/my_stuff/system_files/git/quickemu/macrecovery" "/usr/share/my_stuff/system_files/bin"
+	sudo ln -sf "/usr/share/my_stuff/bin/not_add_2_path/quickemu_gui" "/usr/share/my_stuff/system_files/bin"
+	sudo tee "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop" <<- EOF > /dev/null
+	[Desktop Entry]
+	Type=Application
+	Name=QuickEmu GUI
+	Description=Quickly download, create and run VM of any operating system.
+	Exec=sh -c quickemu_gui
+	Icon=/usr/share/my_stuff/icons/openbox-menu/virtualbox.png
+	Categories=System;Virtualization;
+	EOF
+	sudo ln -sf "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop" /usr/share/applications
+	wget -qO- 'https://api.github.com/repos/HikariKnight/quickpassthrough/releases/latest' \
+  		| grep '"browser_download_url"' \
+  		| grep '.tar.gz' \
+  		| cut -f2,3 -d':' \
+  		| tr -d '"' \
+  		| head -1 \
+  		| xargs wget -O /tmp/QuickPassthrough.tar.gz
+	mkdir -p /tmp/QuickPassthrough
+	tar -C /tmp/QuickPassthrough -xvzf /tmp/QuickPassthrough.tar.gz
+    sudo chown root:root /tmp/QuickPassthrough/quickpassthrough
+	sudo mv /tmp/QuickPassthrough/quickpassthrough /usr/share/my_stuff/system_files/bin/
+	say
+	say "${app_name} has been installed successfully."
+	say "quickemu_gui added for quick deploy any VM."
+	say "quickpassthrough add for enabling GPU passthrough at OS level not at ${app_name} level."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

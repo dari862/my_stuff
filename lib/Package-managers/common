@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+########################################################################
+# Check the connection by downloading a file from ftp.debian.org. No disk space used.
+# Usage: connectiontest [attempts]
+# If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
+connectiontest() {
+    local TEXT_CHECKING='Checking internet connection...'
+    local TEXT_FAILED='Internet connection test failed!'
+    local TEXT_ASK_RETRY=$'\n\nThis script requires a working internet connection. Please configure your internet connection, then hit "Enter" to continue, else hit "q" to quit.'
+    local TEXT_ABORT='Script aborted.'
+    local TEXT_OK='Internet connection test passed!'
+
+    local -i i attempts=${1-0}
+    for (( i=0; i < attempts || attempts == 0; i++ )); do
+        say "$TEXT_CHECKING"
+        if wget -O - 'http://ftp.debian.org/debian/README' &> /dev/null; then
+            say "$TEXT_OK" 1
+            return 0
+        fi
+        say "$TEXT_FAILED"
+        if (( i == attempts - 1 )); then # if last attempt
+            return 1
+        elif prompt "$TEXT_ASK_RETRY" Q; then # if user wants to quit
+            say "$TEXT_ABORT" 2
+            (( attempts == 0 )) && exit 1 || return 1
+        fi
+        tput clear
+    done
+}
+
+# Usage: say text [delayAfterText|pause]
+say() {
+    local width=$(tput cols 2>/dev/tty)
+    fold -s -w $((width - 3)) <<< "${1-}" | sed 's/^/  /' # wraps text nicely and adds two leading spaces
+    if [[ ${2-} = 'pause' ]]
+    then
+        echo $'\nPress any key to continue.'
+        read -srn1
+    else
+        sleep "${2:-0}"
+    fi
+}
+
+# Usage: prompt text [ Y | N | Q | <string> ]
+prompt() {
+    local answer prompt default
+    if [[ ${2-} && ${2^} = Q ]]; then
+        while true; do
+            read -srn1 -p "$1" answer
+            echo
+            [[ ${answer^} = Q ]] && return 0
+            [[ ! $answer ]] && return 1
+        done
+    fi
+
+    if [[ ! ${2-} || ${2^} = Y ]]; then
+        prompt='Y/n'
+        default='Y'
+    elif [[ ${2^} = N ]]; then
+        prompt='y/N'
+        default='N'
+    else
+        prompt=
+        default=
+    fi
+
+    while true; do
+        read -r -p "$1 ${prompt:+[$prompt] }" answer
+
+        if [[ ! $prompt && ! $default ]]; then
+            # allow for quotes round string (may be unbalanced)
+            if [[ $answer =~ [\'\"]?${2-}[\'\"]? ]]; then
+                echo
+                return 0
+            elif [[ ${answer^} = Q ]]; then
+                echo
+                return 1
+            else
+                continue
+            fi
+        fi
+
+        [[ ! $answer ]] &&
+            answer=$default
+
+        if [[ ${answer^} = Y || ${answer^^} = YES ]]; then
+            echo
+            return 0
+        elif [[ ${answer^} = N || ${answer^^} = NO ]]; then
+            echo
+            return 1
+        fi
+    done
+}
+
+keep_Sudo_refresed()
+{
+	while [ 1 ]
+		do
+			sudo true
+			sleep 10m
+		done
+}
+
+Distrobox_Package_update_(){
+	distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syy --noconfirm"  || exit 1
+}
+
+Distrobox_package_installer_(){
+	distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syu $@ --noconfirm"  || exit 1
+}
+
+failed_to_run(){
+	__massage_="${1-}"
+	echo "$__massage_"
+	read -srn1
+	exit 1
+}
+
+flatpak_install(){
+	__icons_="${1-}"
+	__flatpak_="${2-}"
+	flatpak install -y flathub ${__flatpak_}
+	sudo ln -sf "/usr/share/my_stuff/lib/Dev-Env/applications/${__icons_}.desktop" "/usr/share/applications"
+}
+
+remove_from_db(){
+	SCRIPT=$(realpath "$0")
+	Remove_this_=$(basename "$SCRIPT")
+	Sed_this_file=$(dirname "$SCRIPT")
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's|bin/not_add_2_path|system_files/DB|g')"
+	
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's/tweeks_center/tweeks_db/g')"
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's|distrobox_center/Gaming|distrobox_gaming_db|g')"
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's|distrobox_center/deploy|distrobox_deploy_db|g')"
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's/distrobox_center/distrobox_apps_db/g')"
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's|apps_center/Gaming|gaming_db|g')"
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's/apps_center/apps_db/g')"
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's/apps_center/apps_db/g')"
+	Sed_this_file="$(echo "${Sed_this_file}" | sed 's|containers_center/deploy|containers_deploy_db|g')"
+
+	sudo sed -i "/${Remove_this_}/d" "${Sed_this_file}"
+}
+
+copy_from_extra_skel(){
+	__copythis="${1-}"
+	__copythere="" 
+    __basename="$(basename $__copythis)"
+    __dirname="$(dirname $__copythis)"
+	 if [[ "${__dirname}" == "." ]];then
+	 	__copythere="" 
+	 else
+	 	__copythere="${__dirname}" 
+	 fi
+	
+	sudo cp -r "/usr/share/my_stuff/extra_skel/${__copythis}" "/usr/share/my_stuff/system_files/skel/${__copythere}"
+	
+	for d in /home/*/ ; do
+    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes
+		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+		# Create config folders if no exists
+		sudo cp -r "/usr/share/my_stuff/system_files/skel/${__copythis}" "$d/${__copythis}" 
+		sudo chown -R $user_and_group "$d"
+	done
+}

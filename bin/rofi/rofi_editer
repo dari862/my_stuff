@@ -1,0 +1,9 @@
+#!/bin/sh
+
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/rofi" 
+
+my-file-manager "$rofi_style_dir"
+

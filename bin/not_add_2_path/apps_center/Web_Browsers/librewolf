@@ -1,0 +1,69 @@
+#!/bin/bash
+
+app_name=$(basename $0)
+extra_apps_=(apt-transport-https ca-certificates)
+
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name}."
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+	
+	say 'Installing dependancy packages...' 1
+	Package_installer_ "${extra_apps_[@]}" || continue
+	
+	clear
+	
+	say 'add ${app_name} repo to sources...' 1
+	wget -O- https://deb.librewolf.net/keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/librewolf.gpg
+	source /etc/os-release 
+	sudo tee /etc/apt/sources.list.d/librewolf.sources << EOF > /dev/null
+Types: deb
+URIs: https://deb.librewolf.net
+Suites: $VERSION_CODENAME
+Components: main
+Architectures: amd64
+Signed-By: /usr/share/keyrings/librewolf.gpg
+EOF
+
+	say 'Updating sources...' 1
+	Package_update_
+	
+	say 'Installing package...' 1
+
+	Package_installer_ ${app_name} || continue
+	
+	remove_from_db
+	
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

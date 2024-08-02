@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [[ "$1" != "update" ]]; then
+  rm -f ~/.local/share/applications/unciv.desktop
+  rm -rf ~/Unciv
+
+  purge_packages || exit 1
+
+  rm_external_repo "adoptium"
+else
+  echo "Uninstall skipped because run from the updater"
+fi

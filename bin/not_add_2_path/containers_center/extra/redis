@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+
+CONTAINER_RT="$(cat '/usr/share/my_stuff/system_files/Containers_ready' 2>/dev/null || echo podman)"
+$CONTAINER_RT run -d --restart unless-stopped -p "127.0.0.1:6379:6379" --name=redis redis:7

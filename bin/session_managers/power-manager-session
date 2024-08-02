@@ -1,0 +1,34 @@
+#!/bin/bash
+#===================================================================================
+function xfce4(){
+	if command -v xfce4-power-manager >/dev/null;then
+		my_power_manager stop
+		xfce4-power-manager-session
+	else
+		start
+	fi
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: run xfce4-power-manager
+#===================================================================================
+function start() {
+	xfce4-power-manager-session stop
+	my_power_manager
+}
+
+
+# EXEC ACTION ACCORDING $1
+case "${1,,}" in
+	""|start)
+		start		
+	;;
+	xfce4)	
+		xfce4	
+	;;
+	*)	
+		echo "Usage: power-manager-session [start|xfce4]"
+	;;
+esac

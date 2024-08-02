@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=yadwget
+Comment=Gui for wget
+Exec=/usr/share/my_stuff/bin/not_add_2_path/wget %F
+Icon=/usr/share/my_stuff/images/yadwget.png
+Terminal=false
+Categories=Network;Utility;
+Path=
+StartupNotify=false

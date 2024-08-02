@@ -1,0 +1,61 @@
+#!/bin/bash
+app_name="Development Environment"
+extra_apps_=()
+
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${app_name}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${app_name}."
+	say '------------------------'
+	say "This script will install ${app_name} which are:"
+	say "${extra_apps_[@]}"
+	say
+	prompt '  Run the installer now?' || break
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+	
+	say 'Installing package...' 1
+	
+	my-installer --install-needed httpie
+	my-installer --install-needed docker
+	my-installer --install-needed github-cli
+	my-installer --install-needed lazydocker
+	my-installer --install-needed lazygit
+	my-installer --install-needed devel-pakages
+	my-installer --install-needed zellij
+	my-installer --install-needed mise
+	my-installer --install-needed google-chrome-stable
+		
+	remove_from_db
+	
+	sudo ln -sf "/usr/share/my_stuff/bin/not_add_2_path/Dev-menu/Dev-menu" "/usr/share/my_stuff/system_files/bin"
+	
+	say
+	say "${app_name} has been installed successfully."
+	say
+	say "use Dev-menu to pick programing Languages and install them and more ."
+	say
+	say 'Hit any key to exit...'
+	read -srn1
+	break
+done
+

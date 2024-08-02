@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+. "/usr/share/my_stuff/lib/common/rofi"
+
+rofi_command="rofi -theme $rofi_style_dir/runner.rasi"
+# Apps
+terminal=" Terminal"
+files=" File-Manager"
+editor=" Text-Editor"
+clifm=" Ranger"
+vim=" CLI Editor"
+# Variable passed to rofi
+options="$terminal\n$files\n$editor\n$clifm\n$vim"
+
+# Functions
+chosen="$(echo -e "$options" | $rofi_command -p "Run apps as root" -dmenu -selected-row 0)"
+case $chosen in
+    $terminal)
+        app_2_run_as_root="my-terminal-emulator"
+		Extra_Arg=""
+        ;;
+    $files)
+        app_2_run_as_root="my-file-manager"
+		Extra_Arg=""
+        ;;
+    $editor)
+        app_2_run_as_root="my-text-editor"
+		Extra_Arg=""
+        ;;
+    $clifm)
+        app_2_run_as_root="popup_terminal"
+		Extra_Arg="-e ranger"
+        ;;
+    $vim)
+        app_2_run_as_root="popup_terminal"
+        Extra_Arg="-e $(which $CLI_EDITER)"
+        ;;
+esac
+
+command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+
+apps_as_root_rofi "${command_2_run}"

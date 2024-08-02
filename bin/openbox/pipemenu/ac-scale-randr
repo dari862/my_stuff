@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [[ -z $1 ]];then
+	source "/usr/share/my_stuff/lib/common/includes_functions"
+	
+	menuStart "scalinglistmenu" "Pick scaling."
+	menuItem "0.5" "$0 0.5"
+	menuItem "0.75" "$0 0.75"
+	menuItem "1.0" "$0 1.0"
+	menuItem "1.25" "$0 1.25"
+	menuItem "1.75" "$0 1.75"
+	menuItem "2.0" "$0 2.0"
+	menuItem "2.25" "$0 2.25"
+	menuItem "2.75" "$0 2.50"
+	menuItem "2.75" "$0 2.75"
+	menuItem "3.0" "$0 3.0"
+	menuEnd
+else
+	echo "$1" > $HOME/.config/autorandr/scale
+	displayselect auto
+fi

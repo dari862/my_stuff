@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+. "/usr/share/my_stuff/lib/common/rofi"
+
+app_2_run_as_root="$1"
+shift 1
+Extra_Arg="$@"
+
+app_2_run_as_root="$(which $app_2_run_as_root)"
+command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+
+if command -v rofi &>/dev/null;then
+	_ASKPASS="$(rofi_askpass)"
+	echo "${_ASKPASS}" | sudo -S ${command_2_run}
+else
+	pkexec ${command_2_run}
+fi
+
+_ASKPASS=""

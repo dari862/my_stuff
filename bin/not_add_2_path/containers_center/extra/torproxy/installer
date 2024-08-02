@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -e
+
+script_full_path="$(dirname "$(realpath "$0")")"
+cd "${script_full_path}"
+
+source ENV
+
+sudo sed -i "s/__ControlPort=.*/__ControlPort=${__ControlPort}/g" Dockerfile
+sudo sed -i "s/__ControlPort=.*/__ControlPort=${__ControlPort}/g" ContainerTorRunner.sh
+
+sudo sed -i "s/__DNSPort=.*/__DNSPort=${__DNSPort}/g" Dockerfile
+sudo sed -i "s/__DNSPort=.*/__DNSPort=${__DNSPort}/g" torproxy
+
+sudo sed -i "s/__SocksPort=.*/__SocksPort=${__SocksPort}/g" Dockerfile
+sudo sed -i "s/__SocksPort=.*/__SocksPort=${__SocksPort}/g" ContainerTorChecker.sh
+
+sudo sed -i "s/__TransPort=.*/__TransPort=${__TransPort}/g" Dockerfile
+sudo sed -i "s/__TransPort=.*/__TransPort=${__TransPort}/g" torproxy
+
+sudo sed -i "s/__GUID=.*/__GUID=${__GUID}/g" Dockerfile
+
+sudo sed -i "s/__UUID=.*/__UUID=${__UUID}/g" Dockerfile
+
+sudo sed -i "s/__TUUID=.*/__TUUID=${__TUUID}/g" Dockerfile
+
+CONTAINER_RT="$(cat '/usr/share/my_stuff/system_files/Containers_ready' 2>/dev/null || echo podman)"
+__format=""
+
+if [[ "$CONTAINER_RT" = "podman" ]];then
+	__format='--format docker'
+fi
+
+$CONTAINER_RT build -t torproxy . ${__format} --no-cache
+$CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy
+
+sudo ln -sf "${script_full_path}/torproxy" "/usr/share/my_stuff/system_files/bin/"
+
+

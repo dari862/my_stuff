@@ -1,0 +1,18 @@
+#!/bin/bash
+
+version=2.3.2
+
+# remove deprecated files. Old installations used a multitude of install methods so the files could be in many places.
+if [ -f /usr/local/bin/ffmulticonverter ] || [ -f /usr/local/share/applications/ffmulticonverter.desktop ]; then
+	for i in $(find /usr -path "*ffmulticonverter*"); do
+		sudo rm -rf $i
+	done
+fi
+
+install_packages python3 python3-pyqt5 python3-distutils ffmpeg imagemagick unoconv tar binutils squashfs-tools pandoc || exit 1
+pipx_install --system-site-packages "ffconverter==$version" || exit 1
+
+# add .desktop symlinks since pipx does not create them https://github.com/pypa/pipx/issues/717
+sudo mkdir -p /usr/local/share/applications /usr/local/share/icons
+sudo ln -sf /usr/local/pipx/venvs/ffconverter/share/applications/ffconverter.desktop /usr/local/share/applications/ffconverter.desktop
+sudo ln -sf /usr/local/pipx/venvs/ffconverter/share/pixmaps/ffconverter.png /usr/local/share/icons/ffconverter.png

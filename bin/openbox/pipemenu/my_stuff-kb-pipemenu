@@ -1,0 +1,204 @@
+#!/bin/bash
+#    my_stuff-kb-pipemenu - an Openbox pipemenu for displaying keybinds
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# NB The keybinds in the menu are clickable, except for the Openbox
+# commands, which just exit the menu
+
+# bl-kb is used to parse [bl-]rc.xml and send the output to a textfile
+# bl-xbk does the same for .xbindkeysrc
+
+. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/openbox_kb"
+
+HELP='    my_stuff-kb-pipemenu an Openbox Pipe Menu for displaying keybinds
+    It should normally be called from an openbox or jgmenu menu.
+
+Options (usually passed from the menu):
+    -h --help   show this message
+    --keybinds  display keybindings in .xbindkeysrc and [bl-]rc.xml as a menu
+    (The keybinds in the menu are clickable, except for the Openbox
+     commands, which just exit the menu.)
+    --xbkedit   backup and edit .xbindkeysrc
+    --rcedit    backup and edit [bl-]rc.xml
+    --gui       show keybindings in a popup window
+
+If my_stuff-kb-pipemenu is called with no options (the usual method),
+it will output an xml openbox pipemenu for displaying keybindings.
+
+By default, this pipemenu uses rc.xml
+
+NOTE: Most of the functionality of this pipemenu depends on the scripts
+bl-kb and bl-xbk
+'
+# look for a help option somewhere
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+KBSCRIPT="ac-kb"
+XBKSCRIPT="bl-xbk"
+
+using_openbox=false
+if ob_cmd=$( pgrep -u "$USER" -ax openbox )
+then
+    using_openbox=true
+    rc_regex='--config-file (.*\.xml)($|[[:blank:]])'
+    if [[ $ob_cmd =~ $rc_regex ]];then
+    	RCPATH=${BASH_REMATCH[1]} # otherwise stay with default
+    fi
+    # test if bl-kb exists in path
+	if  ! type "$KBSCRIPT" &> /dev/null;then
+    	menuStart
+    	menuSeparator "$KBSCRIPT is not available."
+    	menuEnd
+    	exit 1
+	fi
+fi
+
+using_xbindkeys=false
+if xbk_cmd=$( pgrep -u "$USER" -ax xbindkeys )
+then
+    using_xbindkeys=true
+    xbk_regex='(-f|--file) (.*)$'
+    if [[ $xbk_cmd =~ $xbk_regex ]];then
+        XBKPATH=${BASH_REMATCH[2]}
+    fi 
+	# test if parse-xbk exists in path
+	if ! type "$XBKSCRIPT" &> /dev/null;then
+    	menuStart
+    	menuSeparator "$XBKSCRIPT is not available."
+    	menuEnd
+    	exit 1
+	elif [[ ! -f "${XBKPATH}" ]];then
+		using_xbindkeys=false
+	fi
+fi
+
+case $1 in
+'--xbkedit') # "Backup & Edit .xbindkeysrc" is chosen in menu
+    # backup .xbindkeysrc first
+    NOW=$(date +"%Y%m%d-%H%M")
+    XBKBKP="$XBKPATH.$NOW"
+    cp "$XBKPATH" "$XBKBKP"
+    my-text-editor "$XBKPATH"        # open .xbindkeysrc in default editor
+    ;;
+
+'--rcedit') # "Backup & Edit [bl-]rc.xml" is chosen in menu
+    # backup [bl-]rc.xml first
+    NOW=$(date +"%Y%m%d-%H%M")
+    RCBKP="$RCPATH.$NOW"
+    cp "$RCPATH" "$RCBKP"
+    my-text-editor "$RCPATH"        # open [bl-]rc.xml in default editor
+    ;;
+
+'--gui')
+    if [[ $RCPATH -nt $KBTEXT || $XBKPATH -nt $KBTEXT ]]; then
+    	if [[ $using_openbox = false ]];then
+        	GUI_TITLE='Xbindkeys keybinds'
+        	$XBKSCRIPT
+    	elif [[ $using_xbindkeys = false ]];then
+        	GUI_TITLE='Openbox keybinds'
+        	$KBSCRIPT > /dev/null
+    	else
+        	GUI_TITLE='Openbox & Xbindkeys keybinds'
+        	$KBSCRIPT > /dev/null
+        	$XBKSCRIPT
+    	fi
+    fi
+    yad --text-info --title="$GUI_TITLE" --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg\
+    --filename="$KBTEXT" --width=700 --height=700\
+    --fontname=Monospace --button=gtk-close
+    ;;
+
+'--keybinds')
+    # run script to write kbinds.txt, suppress terminal output
+    if [[ $RCPATH -nt $MENU_CACHE || $XBKPATH -nt $MENU_CACHE ]]; then
+        [[ $using_openbox = true ]] && $KBSCRIPT > /dev/null 2>&1
+        [[ $using_xbindkeys = true ]] && $XBKSCRIPT
+      
+        OB_Wmenu=''
+        OB_Rmenu=''
+        OB_XBKmenu=''
+        parsing_xbk=false
+        mapfile -t lines < "$KBTEXT"
+        for i in "${!lines[@]}"; do
+            if [[ ${lines[i]} = '#### xbindkeys keybinds ####' ]];then
+                parsing_xbk=true
+                continue
+            fi
+            line=( ${lines[i]} )
+            key=${line[1]}
+            cmd="${line[*]:2}"
+            curItem=$(printf "%-20s %s" "$key" "$cmd")
+            if [[ ${line[0]} = o ]];then
+                OB_Wmenu+=$(menuItem "$curItem" "echo >/dev/null 2>&1")$'\n'
+            elif  [[ ${line[0]} = x ]];then
+                if [[ $parsing_xbk = true ]];then
+                    [[ ${lines[i-1]} = \#* ]] && curItem=$(printf "%-20s %s" "$key" "${lines[i-1]#\# }")
+                    OB_XBKmenu+=$(menuItem "$curItem" "$cmd")$'\n'
+                else
+                    OB_Rmenu+=$(menuItem "$curItem" "$cmd")$'\n'
+                fi
+            fi
+        done
+
+        menuStart > "$MENU_CACHE"
+
+        [[ -n $OB_XBKmenu ]] && {
+            menuSeparator "Xbindkeys 'Run' commands"
+            echo "${OB_XBKmenu}"
+        } >> "$MENU_CACHE"
+        [[ -n $OB_Rmenu ]] && {
+            menuSeparator
+            menuSeparator "Openbox 'Run' commands"
+            echo "${OB_Rmenu}"
+        } >> "$MENU_CACHE"
+        [[ -n $OB_Wmenu ]] && {
+            menuSeparator
+            menuSeparator "Openbox window commands"
+            echo "${OB_Wmenu}"
+        } >> "$MENU_CACHE"
+
+        menuEnd >> "$MENU_CACHE"
+    fi
+
+    cat "$MENU_CACHE"
+
+    ;;
+
+'')
+    # pipemenu
+    menuStart
+    [[ $using_xbindkeys = true ]] && menuItem "Backup and Edit .xbindkeysrc" "my_stuff-kb-pipemenu --xbkedit"
+    [[ $using_openbox = true ]] && menuItem "Backup and Edit ${RCPATH##*/}" "my_stuff-kb-pipemenu --rcedit"
+    menuSeparator
+    menuItem "Display Keybinds in new window" "my_stuff-kb-pipemenu --gui"
+    echo '        <menu execute="my_stuff-kb-pipemenu --keybinds" id="Display keybinds" label="Display Keybinds in menu"/>'
+    menuEnd
+    ;;
+*)
+    echo "$0: $1: this option not supported" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

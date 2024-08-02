@@ -1,0 +1,42 @@
+#!/bin/bash
+#===================================================================================
+# FILE: conky-session
+# DESCRIPTION: manage xfce4-power-manager processes for start, restart and stop all xfce4-power-manager instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all xfce4-power-manager process
+#===================================================================================
+function stop() {
+	[ "$(pidof xfce4-power-manager)" ] && killall xfce4-power-manager 
+	[ "$(pidof xfce4-power-manager)" ] && killall -9 xfce4-power-manager
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: run xfce4-power-manager
+#===================================================================================
+function start() {
+  xfce4-power-manager &
+}
+
+
+# EXEC ACTION ACCORDING $1
+case "${1,,}" in
+	""|start|restart)
+		stop
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	*)	
+		echo "Usage: xfce4-power-manager-session [start|stop|restart]"
+	;;
+esac

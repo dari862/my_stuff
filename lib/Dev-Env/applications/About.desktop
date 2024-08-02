@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=About
+Comment=System information from Fastfetch
+Exec=alacritty --config-file /usr/share/my_stuff/lib/Dev-Env/alacritty/pane.toml -e bash -c 'fastfetch; read -n 1 -s'
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/Ubuntu.png
+Categories=GTK;
+StartupNotify=false

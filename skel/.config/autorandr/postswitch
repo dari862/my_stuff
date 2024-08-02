@@ -1,0 +1,19 @@
+#!/bin/bash
+
+( setbg -r) &
+if ! . "/usr/share/my_stuff/lib/common/panel" 2> /dev/null; then
+	echo "Error: Failed to locate panel in /usr/share/my_stuff/lib/common" >&2
+	exit 1
+fi
+if [ "$_panel_name_" = "polybar" ]; then
+   polybar-session 
+fi
+
+if [ "$_panel_name_" = "xfce4" ]; then
+	xfce4-panel-session
+fi 
+
+if [ "$_panel_name_" = "tint2" ]; then
+	tint2-session
+fi 
+

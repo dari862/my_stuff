@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#ensure appimage can run. (one error report received where libfuse2 was unavailable)
+if ! package_installed libfuse2 ;then
+  enable_module fuse
+fi
+
+#Use built-in uninstall procedure
+#this MUST come before a package purge otherwise fuse may be removed
+if [ -f /usr/local/bin/MuseScore.AppImage ];then
+  echo y | sudo /usr/local/bin/MuseScore.AppImage uninstall || error "MuseScore.AppImage failed to run its own uninstall procedure. Please review errors above."
+fi
+
+#Allow packages required by this app to be uninstalled
+purge_packages || exit 1
+
+sudo rm -f /usr/local/bin/mscore
+true

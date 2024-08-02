@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=My Terminal Emulator
+Comment=Invoke my-terminal-emulator
+GenericName=Terminal Emulator
+Exec=settings_manager_
+Icon=utilities-terminal
+Terminal=false
+Categories=Utility;TerminalEmulator;

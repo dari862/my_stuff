@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+group_checker(){
+	if [[ ! -f '/usr/share/my_stuff/system_files/Container_Group' ]];then
+		echo "File  '/usr/share/my_stuff/system_files/Container_Group' does not exist something went wrong."
+		read -srn1
+		exit
+	elif ! groups | grep "$(cat '/usr/share/my_stuff/system_files/Container_Group')" &>/dev/null;then
+		echo "You need to logout."
+		read -srn1
+		exit
+	fi
+}
+
+install_distrobox(){
+	my-installer --distrobox --skip-test || failed_to_run "failed to install distrobox."
+	my-installer --container-software --skip-test || failed_to_run "failed to install container-software."
+	group_checker
+}
+
+install_container_software(){
+	my-installer --container-software --skip-test || failed_to_run "failed to install container-software."	
+	group_checker
+}

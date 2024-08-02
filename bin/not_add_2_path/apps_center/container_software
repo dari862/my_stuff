@@ -1,0 +1,52 @@
+#!/bin/bash
+skip_test="${1-}"
+container_software="${2-}"
+
+if [[ "${skip_test}" = "docker" ]] || [[ "${container_software}" = "docker" ]];then
+	app_name=(docker)
+	__newGroup="docker"
+else
+	app_name=(podman)
+	__newGroup="podmanusers"
+fi
+
+if [[ -f '/usr/share/my_stuff/system_files/Containers_ready' ]];then	
+	exit
+fi
+
+if groups | grep "${__newGroup}" &>/dev/null;then
+	if command -v $app_name 2>/dev/null && dpkg -s ${app_name}* &>/dev/null;then
+		echo "${app_name}" | sudo tee '/usr/share/my_stuff/system_files/Containers_ready' > /dev/null 2>&1
+		exit
+	fi
+fi
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+
+say
+say "INSTALL ${app_name}."
+say '------------------------'
+say "This script will install ${app_name}."
+say
+
+if [ "${skip_test}" = "--skip-test" ];then
+	clear
+	connectiontest 1 || failed_to_run "failed to install no internet."
+	
+	clear
+	say 'Updating sources...' 1
+	Package_update_ || failed_to_run "failed to update repo."
+	
+	clear
+fi
+
+say 'Installing package...' 1
+my-installer --install ${app_name}
+	
+echo "${__command_}" | sudo tee '/usr/share/my_stuff/system_files/Containers_ready' > /dev/null 2>&1
+
+say
+say "${app_name} has been installed successfully."
+say
+

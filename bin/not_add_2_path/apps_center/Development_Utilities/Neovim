@@ -1,0 +1,175 @@
+#!/bin/bash
+# Install vim and add Neovim distro
+
+needed_app="${1-}"
+app_name=(nvim)
+Title="Neovim"
+extra_apps_=(cmake ripgrep fd-find python3-venv luarocks golang-go shellcheck)
+# Determine if Wayland or Xorg is being used
+if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
+	extra_apps_+=(wl-clipboard)
+else
+	extra_apps_+=(xclip)
+fi
+distro_path="/usr/share/my_stuff/system_files"
+skel_path="${distro_path}/skel"
+nvim_skel_path="${skel_path}/.config/nvim"
+
+__choice=""
+###################################################################
+
+. "/usr/share/my_stuff/system_files/Package-manager"
+first_boot=false
+
+while true; do # do it until the package is successfully installed or user wants to exit
+	if [[ $TRYAGAIN ]]; then # previous try failed
+		say
+		say "There was a problem installing ${Title}."
+		say
+		prompt '  Hit any key to try again, or "q" to quit...' Q && break
+	fi
+	TRYAGAIN=true
+	
+	clear
+	say
+	say "INSTALL ${Title}."
+	say '------------------------'
+	say "This script will install ${Title}."
+	say
+	if [[ -z "${needed_app}" ]];then
+		prompt '  Run the installer now?' || break
+	fi
+	
+	clear
+	connectiontest 1 || continue
+	
+	clear
+
+	say "Create ${Title} updater and installer..." 1
+	
+	sudo mkdir -p ${distro_path}/updater
+	sudo mkdir -p ${distro_path}/downloaded
+	sudo tee ${distro_path}/updater/nvim_updater <<- 'EOF' > /dev/null
+	#!/bin/sh
+	
+	distro_path="/usr/share/my_stuff/system_files"
+	
+	if command -v nvim;then
+		online_ver="$(wget -qO- 'https://api.github.com/repos/neovim/neovim/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
+		local_ver="$(nvim -v | grep 'NVIM v' | awk -F'NVIM ' '{print $2}')"
+		if [[ "${local_ver}" = "${online_ver}" ]];then
+			echo "neovim up to date local=${local_ver} online=${online_ver} ."
+			exit
+		fi
+	fi
+	
+	[[ -d "${distro_path}/downloaded/Neovim" ]] && sudo rm -rdf "${distro_path}/downloaded/Neovim"
+	
+	neovim_tmp="$(mktemp -d /tmp/neovim-XXXXXX)"
+	cd ${neovim_tmp}
+	curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+	chmod +x nvim.appimage
+	if ./nvim.appimage -v &>/dev/null;then
+		mkdir -p Neovim
+		mv nvim.appimage Neovim
+		sudo chown root:root -R Neovim
+		sudo mv Neovim ${distro_path}/downloaded
+		sudo ln -sf ${distro_path}/downloaded/Neovim/nvim.appimage ${distro_path}/bin/nvim
+	else
+		./nvim.appimage --appimage-extract
+		mv squashfs-root Neovim
+		sudo chown root:root -R Neovim
+		sudo mv Neovim ${distro_path}/downloaded
+		sudo ln -sf ${distro_path}/downloaded/Neovim/AppRun  ${distro_path}/bin/nvim
+	fi
+	EOF
+	sudo chmod +x ${distro_path}/updater/nvim_updater
+	
+	say "Installing ${Title} updater and installer..." 1
+	${distro_path}/updater/nvim_updater || failed_to_run "failed to run nvim_updater ."
+	
+	clear
+	
+	say
+	say
+	say '  1. Install for Lazyvim?'
+	say '  2. Install for kickstart?'
+	say '  3. Install for kickstart (ChrisTitusTech)?'
+	say
+	read -p "Insert appropriate number: " __choice
+	
+	if [[ "${__choice}" = "1" ]];then
+		vim_extra="Lazyvim"
+	elif [[ "${__choice}" = "2" ]];then
+		vim_extra="kickstart"
+	elif [[ "${__choice}" = "3" ]];then
+		vim_extra="kickstart_titus"
+	else
+		vim_extra=""
+	fi
+	
+	if [[ ! -z "${vim_extra}" ]];then
+		[[ -d "${nvim_skel_path}" ]] && sudo rm -rdf ${nvim_skel_path}
+		
+		if [[ "${vim_extra}" = "Lazyvim" ]];then
+			sudo git clone https://github.com/LazyVim/starter ${nvim_skel_path}
+			sudo rm -rf ${nvim_skel_path}/.git
+			
+			# Disable update notification popup in starter config
+			sudo sed -i 's/checker = { enabled = true }/checker = { enabled = true, notify = false }/g' "${nvim_skel_path}"/lua/config/lazy.lua
+		
+			# Make everything match the terminal transparency
+			sudo mkdir -p "${nvim_skel_path}"/plugin/after
+			sudo cp -r /usr/share/my_stuff/lib/Dev-Env/neovim/transparency.lua "${nvim_skel_path}"/plugin/after/
+		
+			# Enable default extras
+			sudo cp -r /usr/share/my_stuff/lib/Dev-Env/neovim/lazyvim.json "${nvim_skel_path}"/lazyvim.json
+		elif [[ "${vim_extra}" = "kickstart" ]];then
+			sudo mkdir -p ${nvim_skel_path}
+			sudo wget -P ${nvim_skel_path} https://raw.githubusercontent.com/nvim-lua/kickstart.nvim/master/init.lua
+		elif [[ "${vim_extra}" = "kickstart_titus" ]];then
+			sudo git clone https://github.com/ChrisTitusTech/neovim.git /tmp/ChrisTitusTech_neovim
+			sudo rm -rdf /tmp/ChrisTitusTech_neovim/titus-kickstart/nvim
+			[[ -d "${nvim_skel_path}" ]] && rm -rdf "${nvim_skel_path}"
+			sudo mv /tmp/ChrisTitusTech_neovim/titus-kickstart "${nvim_skel_path}"
+			sudo mkdir -p ${skel_path}/.vim/undodir
+			sudo mkdir -p ${skel_path}/.scripts
+		fi
+		
+		for d in /home/*/; do
+    		[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes 
+    		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+    		if [[ ! -d "$d/.config/nvim" ]];then
+    			if [[ "${vim_extra}" = "kickstart_titus" ]];then
+    				sudo cp -rv ${skel_path}/.scripts "$d/"
+    				sudo chown -R $user_and_group "$d/.scripts"
+    				sudo cp -rv ${skel_path}/.vim "$d/"
+    				sudo chown -R $user_and_group "$d/.vim"
+    			fi
+				sudo cp -rv ${nvim_skel_path} "$d/.config"
+				sudo chown -R $user_and_group "$d/.config/nvim"
+			fi
+		done
+	fi
+	
+	if [[ -n "${extra_apps_[*]}" ]];then
+		say 'Installing extra packages...' 1
+		Package_installer_ "${extra_apps_[@]}" || continue
+		clear
+	fi
+	
+	remove_from_db
+	
+	first_boot=true
+	
+	say
+	say "${Title} has been installed successfully."
+	say
+	[[ -z "${needed_app}" ]] && say "Hit any key to start ${Title} first boot..."
+	[[ -z "${needed_app}" ]] && read -srn1
+	break
+done
+
+if [ "${first_boot}" = "true" ];then
+	nvim
+fi

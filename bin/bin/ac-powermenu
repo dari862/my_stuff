@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Commands Executed By Openbox Powermenu
+
+## Rofi #############################################
+. "/usr/share/my_stuff/lib/common/rofi"
+
+MSG="Options  -  yes / y / no / n"
+opt_="${1-}"
+
+on_terminal(){
+   	if [[ -t 0 ]]
+   	then
+       	if [[ -t 1 && -t 2 ]]
+       	then
+           	return 0
+       	else
+           	echo "$0: STDIN is on terminal, but not STDOUT or STDERR" >&2
+           	exit 1
+       	fi
+   	else
+       	return 1
+   	fi
+}
+
+on_graphical_session(){
+   	[[ -n $DISPLAY || -n $WAYLAND_DISPLAY ]] && return 0
+   	return 1
+}
+
+tty_menu(){
+   	clear
+   	PS3="Please choose an option "
+   	select option in Logout Suspend Hibernate Hybrid-Sleep Reboot Power-Off Quit-Dialogue
+   	do
+       	case $option in
+           	Logout)        my_session_manager logout;;
+           	Suspend)       my_session_manager suspend;;
+           	Hibernate)     my_session_manager hibernate;;
+           	Hybrid-Sleep)  my_session_manager hybrid-sleep;;
+           	Reboot)        my_session_manager reboot;;
+           	Power-Off)     my_session_manager poweroff;;
+           	Quit-Dialogue) echo 'exit cancelled';;
+       	esac
+       	break
+   	done
+}
+
+cdialog () {
+rofi -dmenu\
+    -i\
+    -no-fixed-num-lines\
+    -p "Are You Sure? : "\
+    -theme "$rofi_style_dir"/confirm.rasi
+}
+
+run_command(){
+	ans=$(cdialog)
+	if [[ $ans == "yes" ]] || [[ $ans == "YES" ]] || [[ $ans == "y" ]]; then
+        "$@"
+	elif [[ $ans == "no" ]] || [[ $ans == "NO" ]] || [[ $ans == "n" ]]; then
+        exit
+    else
+        rofi -theme "$rofi_style_dir"/askpass.rasi -e "$MSG"
+    fi
+}
+if on_terminal; then
+	tty_menu
+	exit 0
+fi
+
+## Options #############################################
+if  [[ $opt_ = "--logout" ]]; then
+	run_command my_session_manager logout
+elif  [[ $opt_ = "--suspent" ]]; then
+	run_command my_session_manager suspend
+elif  [[ $opt_ = "--reboot" ]]; then
+	run_command my_session_manager reboot
+elif  [[ $opt_ = "--shutdown" ]]; then
+	run_command my_session_manager poweroff
+elif  [[ $opt_ = "--lock" ]]; then
+	run_command my_session_manager lock
+elif  [[ $opt_ = "--rofi" ]]; then	
+	rofi-powermenu
+elif  [[ $opt_ = "--yad" ]]; then		
+	yad --class=WmanExit --title "Exit" --close-on-unfocus --undecorated --center --on-top --borders=10 --window-icon=system-log-out \
+       		--button=" _Logout!system-log-out!Logout":'bash -c "my_session_manager logout"' \
+       		--button=" L_ock Screen!system-lock-screen!":'bash -c "my_session_manager lock"' \
+       		--button=" _Suspend!system-suspend!":'bash -c "my_session_manager suspend"' \
+       		--button=" Re_boot!system-reboot!":'bash -c "my_session_manager reboot"' \
+       		--button=" _Power Off!system-shutdown!":'bash -c "my_session_manager poweroff"'
+## Help Menu #############################################
+else
+echo "
+Powermenu For Openbox Menu
+	With no arguments default yad (GUI) or text menu at a TTY
+	Only one argument is read, they cannot be combined
+	
+    	-h --help		Show 			this help
+    	-k --lock		Lock 			screen	Does not work for a tty session
+    	-l --logout		Logout			Also works for tty.
+    	-s --suspend	Suspend			State determined by ACPI S0 S1 or S3
+    	-i --hibernate	Suspend to Disk	Requires enough swap to store RAM
+    	-y --hybrid		Hybrid Sleep	ACPI must support sleep state S3
+    	-b --reboot	Reboot
+    	
+    	-p --poweroff	Shut down
+"
+fi

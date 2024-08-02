@@ -1,0 +1,31 @@
+#!/bin/bash
+version=8.0-1
+
+install_packages mesa-utils https://github.com/Pi-Apps-Coders/files/releases/download/large-files/prismlauncher_${version}_arm64.deb || exit 1
+
+function version { echo "$@" | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3); }'; }
+# detect if script is running on a system with OpenGL lower than 3.3
+if [ $(version $(glxinfo -B | sed -n "s/^OpenGL version string://p" | awk '{ print $1 }')) -lt $(version "3.3.0") ]; then
+  warning "You are running a device that is not OpenGL 3.3 compliant or the OpenGL version could not be determined."
+  warning "Adding a MESA_GL_VERSION_OVERRIDE to 3.3"
+  warning "Vanilla up to 1.19.2 has been tested to work on Raspberry Pi but there is no guarantee that future Minecraft versions and mods like Sodium/Optifine will continute to work."
+  #add the MESA override to the .desktop file
+  sudo sed -i "s:^Exec=prismlauncher:Exec=env MESA_GL_VERSION_OVERRIDE=3.3 prismlauncher:g" /usr/share/applications/org.prismlauncher.PrismLauncher.desktop
+fi
+
+status "Installing Java 8 and 17"
+case "$__os_id" in
+# Raspbian is not reported as a derivative of Debian (no /etc/upstream-release/lsb-release file)
+Raspbian | Debian | Kali)
+  adoptium_installer || exit 1
+  install_packages temurin-8-jre temurin-17-jre || exit 1
+  ;;
+Ubuntu)
+  install_packages openjdk-8-jre openjdk-17-jre || exit 1
+  ;;
+*)
+  error "$__os_id appears to be an unsupported OS"
+  ;;
+esac
+
+status_green 'Installation is now done! You can open the launcher by going to Menu > Games > Prism Launcher'
