@@ -30,12 +30,12 @@ create_apps_db_and_gaming_db(){
 						if ! hash "${app}" 2>/dev/null && ! dpkg -s "${app}" &>/dev/null;then
 							app_name2=$(echo "$app" | awk -F_ '{print $1}')
 							if ! hash "${app_name2}" 2>/dev/null && ! dpkg -s "${app_name2}" &>/dev/null;then
-								if grep 'app_name=\$' "${app}" &>/dev/null;then
+								if grep -q 'app_name=\$' "${app}";then
 									app_name3="${app}"
 								else
-									if grep 'app_name="' "${app}" &>/dev/null;then
+									if grep -q 'app_name="' "${app}";then
 										app_name3="$(grep 'app_name="' "${app}" | awk -F'"' '{print $2}')"
-									elif grep 'app_name=(' "${app}" &>/dev/null;then
+									elif grep -q 'app_name=(' "${app}";then
 										tempapps=($(grep 'app_name=(' "${app}" | awk -F'(' '{print $2}' | sed 's/)//'))
 										for tempapp in "${tempapps[@]}";do
 											app_name3="${tempapp}"
@@ -69,12 +69,12 @@ create_apps_db_and_gaming_db(){
 						if ! hash "${Gapp}" 2>/dev/null && ! dpkg -s "${Gapp}" &>/dev/null;then
 							gapp_name2=$(echo "$Gapp" | awk -F_ '{print $1}')
 							if ! hash "${gapp_name2}" 2>/dev/null && ! dpkg -s "${gapp_name2}" &>/dev/null;then
-								if grep 'app_name=\$' "${Gapp}" &>/dev/null;then
+								if grep -q 'app_name=\$' "${Gapp}";then
 									gapp_name3="${Gapp}"
 								else
-									if grep 'app_name="' "${Gapp}" &>/dev/null;then
+									if grep -q 'app_name="' "${Gapp}";then
 										gapp_name3="$(grep 'app_name="' "${Gapp}" | awk -F'"' '{print $2}')"
-									elif grep 'app_name=(' "${app}" &>/dev/null;then
+									elif grep -q 'app_name=(' "${app}";then
 										tempapps=($(grep 'app_name=(' "${Gapp}" | awk -F'(' '{print $2}' | sed 's/)//'))
 										for tempapp in "${tempapps[@]}";do
 											gapp_name3="${tempapp}"

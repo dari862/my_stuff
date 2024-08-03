@@ -126,11 +126,6 @@ bspc rule -a stalonetray state=floating manage=off
 bspc rule -a Wrapper-2.0 state=floating border=off focus=on
 
 #### Autostart ###############################################################################
-# Restore wallpaper
-( setbg -r) &
-
-keyring-session
-
 # Lauch keybindings daemon
 sxhkd &
 
@@ -139,14 +134,7 @@ if command -v urxvtc &> /dev/null; then
 	(sleep 0.50; urxvtc) &
 fi
 
-## Notification Daemon
-dunst-session
-
-## Start Music Player Daemon
-mpd-session
-
-file-manager-session
-
+# Start panel	
 panel_manager --launch
 
 ## Enable power management

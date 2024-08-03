@@ -29,3 +29,20 @@ then
 else
 	displayselect auto
 fi
+
+# Start keyring	
+keyring-session &
+
+## Start Music Player Daemon
+mpd-session &
+
+# Set wallpaper
+setbg -r &
+
+
+## Notification Daemon
+dunst-session
+
+## file-manager Daemon
+file-manager-session
+

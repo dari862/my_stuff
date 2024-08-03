@@ -75,7 +75,7 @@ _quit_loop(){
 
 _video(){
 	_quit_loop
-	if grep -R "$1" "${_dir_vid}" &>/dev/null;then
+	if grep -qR "$1" "${_dir_vid}";then
 		vid_dir_name="$(grep -R "$1" "${_dir_vid}" | awk -F'/video.info' '{print $1}')"
 		a="$(basename "${vid_dir_name}")"
 	else	
@@ -112,7 +112,7 @@ __autorun(){
 	if [[ -z "${1-}" ]];then
 		[[ -f "${_autorun_livewall_file}" ]] && rm -f "${_autorun_livewall_file}"
 	else
-		if ! grep "$1" "${_autorun_livewall_file}" &>/dev/null;then
+		if ! grep -q "$1" "${_autorun_livewall_file}";then
 			echo "${1-}" > "${_autorun_livewall_file}"
 		fi
 	fi

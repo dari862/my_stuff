@@ -31,7 +31,7 @@ say 'running tweek...' 1
 ###################################################################
 
   say "Setting global dark theme for gtk applications."
-  if grep ^gtk-application-prefer-dark-theme= "${gtksettings}" > /dev/null 2>&1; then
+  if grep -q ^gtk-application-prefer-dark-theme= "${gtksettings}"; then
     sed -i "s/^gtk-application-prefer-dark-theme=${isgtkdark}$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
   else
     if [ -f "${gtksettings}" ]; then

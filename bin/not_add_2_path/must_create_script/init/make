@@ -2,7 +2,7 @@
 set -e
 
 # openrc
-if command -v rc-service &> /dev/null; then
+if command -v rc-service > /dev/null 2>&1; then
 	sudo ln -sf /usr/share/my_stuff/bin/not_add_2_path/init/openrc /usr/share/my_stuff/system_files/bin/service_manager
 # systemd	
 else

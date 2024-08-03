@@ -19,7 +19,7 @@ allunmountable="$(echo "$mounteddroids
 $mounteddrives" | sed "/^$/d;s/ *$//")"
 test -n "$allunmountable"
 
-chosen="$(echo "$allunmountable" | rofi -dmenu -theme ${RASI} -i -p "Unmount which drive?")"
+chosen="$(echo "$allunmountable" | $rofi_command -p "Unmount which drive?")"
 chosen="${chosen%% *}"
 test -n "$chosen"
 

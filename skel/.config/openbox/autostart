@@ -38,25 +38,14 @@ if [ -f /sys/module/battery/initstate ] || [ -d /proc/acpi/battery/BAT0 ]; then
 fi
 
 #### START APPLICATIONS ###############################################################################
-
-keyring-session &
-
-## Start Music Player Daemon
-mpd-session &
-
-# Set wallpaper
-setbg -r &
-			
 # Start Conky
 conky-session &
 		
 # Start clipboard-manager
 clipboard-manager-session &
-		
-panel_manager --launch &
 
-## file-manager Daemon
-file-manager-session &
+# Start panel		
+panel_manager --launch &
 
 # update notifcation
 update-notification -n &

@@ -436,7 +436,7 @@ function notify_msg(){      # for displaying notifications; add to or clear clip
     if (( KEEP_BB == 0 ));then  # uploaded file was deleted, clear clipboard
         echo '' | xsel -i       # 'xsel -c' not working when clipboard manager in use :(
         echo '' | xsel -ib
-        if ! grep -i "local" <<< "$MSG" &>/dev/null;then    # for 'delete_img' text
+        if ! grep -qi "local" <<< "$MSG";then    # for 'delete_img' text
             MSG="${MSG}\n\nClipboard cleared of BBCode\n"   # for 'delete_local' text
         fi
     else

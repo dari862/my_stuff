@@ -82,6 +82,7 @@ if [ ! -f "$usr_setup_flag_file" ];then
     
     mpd-session
     ( sleep 1 && cd ~/Music/ && mpc -q add * ) &
+    set_git_aliases
 fi
 
 # At least try to ensure user has an autostart file.

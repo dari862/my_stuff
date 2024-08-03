@@ -1,4 +1,5 @@
-rofi_style_name_path="$HOME/.config/WM_common_config/Rofi_style"
+WM_common_config_path="$HOME/.config/WM_common_config"
+rofi_style_name_path="$WM_common_config_path/Rofi_style"
 ROFI_STYLE="$(cat $rofi_style_name_path 2>/dev/null || echo old)"
 rofi_dir="$HOME/.config/rofi"
 rofi_style_dir="$rofi_dir/$ROFI_STYLE"

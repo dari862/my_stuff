@@ -16,7 +16,7 @@
 my_alternatives_path=/usr/share/my_stuff/system_files/bin
 ACTION="${1-}"
 alt_package="${2-}"
-MYALTS=(my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide)
+MYALTS=(my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide my-superuser)
 
 FILEMANAGERS=(thunar caja dolphin nautilus pcmanfm spacefm xfe)
 IMAGEVIEWERS=(viewnior sxiv eog eom geeqie gpicview gthumb mirage)
@@ -28,6 +28,7 @@ OFFICES=(libreoffice-writer)
 OFFICES+=(${TEXTEDITORS[@]})
 IDES=(nvim emacs code)
 IDES+=(${TEXTEDITORS[@]})
+SUPERUSERS=(doas sudo)
 
 usage()
 {

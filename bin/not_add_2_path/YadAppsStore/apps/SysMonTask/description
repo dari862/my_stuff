@@ -1,4 +1,0 @@
-Linux system monitor similar to the Windows task manager, written in Python.
-
-To run: Menu -> System Tools -> SysMonTask
-To run in a terminal: sysmontask
