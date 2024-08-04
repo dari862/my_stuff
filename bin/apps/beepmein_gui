@@ -147,10 +147,10 @@ _prepare_config_dir(){
 
 check_dependency_(){
 	# required
-	command -v at >/dev/null 2>&1 || _at_="I need at: sudo apt install --no-install-recommends at \n"
-	command -v rofi >/dev/null 2>&1 || _rofi_="I need rofi: sudo apt install rofi\n"
-	command -v yad >/dev/null 2>&1 || _yad_="I need yad: sudo apt install yad \n"
-	command -v speaker-test >/dev/null 2>&1 || _alsa_utils_="I need alsa-utils: sudo apt install alsa-utils\n"
+	command -v at >/dev/null 2>&1 || _at_="I need at: my-superuser apt install --no-install-recommends at \n"
+	command -v rofi >/dev/null 2>&1 || _rofi_="I need rofi: my-superuser apt install rofi\n"
+	command -v yad >/dev/null 2>&1 || _yad_="I need yad: my-superuser apt install yad \n"
+	command -v speaker-test >/dev/null 2>&1 || _alsa_utils_="I need alsa-utils: my-superuser apt install alsa-utils\n"
 	
 	if [[ -n ${_yad_}  ]] ;then
 		echo "${_yad_}"

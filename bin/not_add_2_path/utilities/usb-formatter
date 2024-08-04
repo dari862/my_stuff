@@ -16,7 +16,7 @@ fi
 
 if [[ $EUID -ne 0 ]];
 then
-    exec sudo "$0" "$@" 
+    exec my-superuser "$0" "$@" 
 fi
 
 formatmenu () {

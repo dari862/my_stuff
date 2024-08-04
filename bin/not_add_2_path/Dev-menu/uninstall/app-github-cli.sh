@@ -1,1 +1,1 @@
-sudo apt remove -y gh
+my-superuser apt remove -y gh

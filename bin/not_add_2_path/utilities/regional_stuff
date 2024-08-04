@@ -92,7 +92,7 @@ change_timezone() {
   if [ -n "${res}" ]; then
     TIMEZONE="${res}"
     echo "Using ${TIMEZONE@Q} as time zone."
-    sudo timedatectl set-timezone ${TIMEZONE@Q}
+    my-superuser timedatectl set-timezone ${TIMEZONE@Q}
   else
     echo "Using default time zone ${TIMEZONE@Q}."
   fi

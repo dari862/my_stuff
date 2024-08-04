@@ -1,6 +1,6 @@
 #!/bin/bash
-command -v ffmpeg >/dev/null 2>&1 || _ffmpeg_="I need ffmpeg: sudo apt install --no-install-recommends ffmpeg \n"
-command -v feh >/dev/null 2>&1 || _feh_="I need feh: sudo apt install --no-install-recommends feh \n"
+command -v ffmpeg >/dev/null 2>&1 || _ffmpeg_="I need ffmpeg: my-superuser apt install --no-install-recommends ffmpeg \n"
+command -v feh >/dev/null 2>&1 || _feh_="I need feh: my-superuser apt install --no-install-recommends feh \n"
 if [[ -n ${_feh_} ]] || [[ -n ${_ffmpeg_}  ]];then
 	yad --image="dialog-question" \
 	--title "Alert" \

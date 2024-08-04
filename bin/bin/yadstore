@@ -1,2 +1,2 @@
 #!/bin/sh
-my-installer --install yadstore
+popup_terminal --install yadstore

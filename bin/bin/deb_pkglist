@@ -23,4 +23,4 @@ else
 	echo " List genrated at = ${LIST}"
 fi
 # To re-install packages from a list:
-# sudo xargs -a $LIST apt install
+# my-superuser xargs -a $LIST apt install

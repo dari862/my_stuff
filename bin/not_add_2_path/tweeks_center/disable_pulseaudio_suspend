@@ -35,7 +35,7 @@ say 'running tweek...' 1
 ###################################################################
 
   say "Disabling suspend on PulseAudio when sinks/sources idle."
-  sudo sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}
+  my-superuser sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}
 
 ###################################################################
 clear

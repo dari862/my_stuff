@@ -12,7 +12,7 @@ command_2_run="${app_2_run_as_root} ${Extra_Arg}"
 
 if command -v yad &>/dev/null;then
 	_ASKPASS="$(yad --center --width=300 --image=keys.png --title 'Sudo-Password' --button='Ok:0' --button='Cancel:1'  --entry --hide-text --text 'Please enter your password')"
-	echo "${_ASKPASS}" | sudo -S ${command_2_run}
+	echo "${_ASKPASS}" | my-superuser -S ${command_2_run}
 else
 	pkexec ${command_2_run}
 fi

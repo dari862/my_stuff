@@ -514,7 +514,7 @@ Launch_YAD_(){
     	}
  		while true;do
         	msg=""
-			apps_as_root_yad true && cat "$1/$LDM" | sudo tee "$LDMDIR/$LDMnew" > /dev/null 2>&1
+			apps_as_root_yad true && cat "$1/$LDM" | my-superuser tee "$LDMDIR/$LDMnew" > /dev/null 2>&1
         	ret=( "${PIPESTATUS[@]}" )
         	if [[ ${ret[1]} = 0 ]]
         	then

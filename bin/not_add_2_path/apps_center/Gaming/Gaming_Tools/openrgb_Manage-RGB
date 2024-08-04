@@ -48,7 +48,7 @@ while true; do # do it until the package is successfully installed or user wants
 		[[ "$(lsb_release -r)" == *'20.04'* ]] && \
   		wget -qO openrgb.deb https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_buster_6128731.deb \
   		|| wget -qO openrgb.deb https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_bullseye_6128731.deb
-		sudo apt-get install -y ./openrgb.deb
+		my-superuser apt-get install -y ./openrgb.deb
 	fi
 	remove_from_db
 	

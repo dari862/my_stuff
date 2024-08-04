@@ -40,27 +40,27 @@ while true; do # do it until the package is successfully installed or user wants
 	Package_installer_ python3-gpg || Package_installer_ python3-gpgme
 	
 	if [[ ! -f "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py" ]];then
-		sudo ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.desktop /usr/share/applications/dropbox.desktop
-		sudo ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.1.gz /usr/share/man/man1/dropbox.1.gz2
+		my-superuser ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.desktop /usr/share/applications/dropbox.desktop
+		my-superuser ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.1.gz /usr/share/man/man1/dropbox.1.gz2
 		
-		sudo mkdir -p /usr/share/my_stuff/system_files/downloaded/dropbox
+		my-superuser mkdir -p /usr/share/my_stuff/system_files/downloaded/dropbox
 		cd /usr/share/my_stuff/system_files/downloaded/dropbox
-		sudo wget https://linux.dropboxstatic.com/packages/dropbox.py
-		sudo chmod +x dropbox.py
-		sudo ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py /usr/share/my_stuff/system_files/bin/dropbox
+		my-superuser wget https://linux.dropboxstatic.com/packages/dropbox.py
+		my-superuser chmod +x dropbox.py
+		my-superuser ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py /usr/share/my_stuff/system_files/bin/dropbox
 		echo '#!/bin/sh' > /tmp/dropbox_updater
 		echo 'nohup dropbox update &>/dev/null' >> /tmp/dropbox_updater
 		
-		sudo mv "/tmp/dropbox_updater" "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
-		sudo chown root:root "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
-		sudo chmod +x "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
-		sudo ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater /usr/share/my_stuff/system_files/updater/dropbox
+		my-superuser mv "/tmp/dropbox_updater" "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
+		my-superuser chown root:root "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
+		my-superuser chmod +x "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
+		my-superuser ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater /usr/share/my_stuff/system_files/updater/dropbox
 		/usr/share/my_stuff/system_files/updater/dropbox
 	else
-		sudo ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.desktop /usr/share/applications/dropbox.desktop
-		sudo ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.1.gz /usr/share/man/man1/dropbox.1.gz2
-		sudo ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py /usr/share/my_stuff/system_files/bin/dropbox
-		sudo ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater /usr/share/my_stuff/system_files/updater/dropbox
+		my-superuser ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.desktop /usr/share/applications/dropbox.desktop
+		my-superuser ls -nf /usr/share/my_stuff/bin/not_add_2_path/dropbox/dropbox.1.gz /usr/share/man/man1/dropbox.1.gz2
+		my-superuser ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py /usr/share/my_stuff/system_files/bin/dropbox
+		my-superuser ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater /usr/share/my_stuff/system_files/updater/dropbox
 	fi		
 	
 	remove_from_db

@@ -12,11 +12,11 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+my_superuser_path="/usr/bin/my-superuser"
 my_alternatives_path=/usr/share/my_stuff/system_files/bin
 ACTION="${1-}"
 alt_package="${2-}"
-MYALTS=(my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide my-superuser)
+MYALTS=(my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide)
 
 FILEMANAGERS=(thunar caja dolphin nautilus pcmanfm spacefm xfe)
 IMAGEVIEWERS=(viewnior sxiv eog eom geeqie gpicview gthumb mirage)
@@ -28,7 +28,7 @@ OFFICES=(libreoffice-writer)
 OFFICES+=(${TEXTEDITORS[@]})
 IDES=(nvim emacs code)
 IDES+=(${TEXTEDITORS[@]})
-SUPERUSERS=(doas sudo)
+SUPERUSERS="doas sudo"
 
 usage()
 {
@@ -46,7 +46,7 @@ EOF
 }
 
 install_alternatives(){
-	[[ ! -d "${my_alternatives_path}" ]] && sudo mkdir -p "${my_alternatives_path}"
+	[[ ! -d "${my_alternatives_path}" ]] && my-superuser mkdir -p "${my_alternatives_path}"
 	echo "installing all default alternatives"
 	for ALT in "${MYALTS[@]}" ; do
     	ALTSPACKAGES_array_name="$(echo $ALT | sed -e 's/^my-//' -e "s/-//" -e 's/$/s/' | tr '[:lower:]' '[:upper:]')"
@@ -54,18 +54,25 @@ install_alternatives(){
     	for package in "${ALTSPACKAGES[@]}" ; do
     		package_path="$(which "$package")"
     		if [ -n "${package_path}" ];then
-    			sudo ln -sf ${package_path} "${my_alternatives_path}"/$ALT
+    			my-superuser ln -sf ${package_path} "${my_alternatives_path}"/$ALT
     			break
     		fi
     	done
     	unset ALTSPACKAGES
     done
+    for package in "${SUPERUSERS[@]}" ; do
+	package_path="$(which "$package")"
+    	if [ -n "${package_path}" ];then
+    		my-superuser ln -sf ${package_path} ${my_superuser_path}
+    		break
+    	fi
+	done
 }
 
 remove_alternatives(){
 	if [[ -z "${alt_package}" ]];then
     	for ALT in "${MYALTS[@]}" ; do
-        	sudo rm -f "${my_alternatives_path}"/$ALT
+        	my-superuser rm -f "${my_alternatives_path}"/$ALT
     	done
     fi
 }
@@ -83,6 +90,12 @@ set_alternatives(){
 		read -p "Enter Alternative Package Name: " alt_package_number
 		alt_package_number=$((alt_package_number-1))
 		alt_package="${MYALTS[alt_package_number]}"
+	fi
+	
+	if [ "${SUPERUSERS#*"$alt_package"}" != "$SUPERUSERS" ];then
+		package_path="$(which "$alt_package")"
+    	my-superuser ln -sf ${package_path} ${my_superuser_path}
+    	exit
 	fi
 	
 	if [[ ! $(echo ${MYALTS[@]} | fgrep -w $alt_package) ]];then
@@ -112,7 +125,7 @@ set_alternatives(){
   		exit 1
 	fi
 	
-   	sudo ln -sf $(which $picked_package) "${my_alternatives_path}"/$alt_package
+   	my-superuser ln -sf $(which $picked_package) "${my_alternatives_path}"/$alt_package
    	
    	if [ -f "${my_alternatives_path}/$ALT" ];then
    		echo "$ALT alternative created successfully"
@@ -136,6 +149,7 @@ list_alternatives(){
         	printf "%-22.22s unused\n" $ALT
     	fi
     done
+    printf "%-22.22s uses %s\n" my-superuser $(readlink "${my_superuser_path}")
 }
 
 case $ACTION in

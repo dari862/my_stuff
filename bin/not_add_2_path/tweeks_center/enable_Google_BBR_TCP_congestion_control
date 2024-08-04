@@ -27,9 +27,9 @@ clear
 say 'running tweek...' 1
 ###################################################################
 
-echo "net.core.default_qdisc=fq" | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
-echo "net.ipv4.tcp_congestion_control=bbr" | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
-sudo sysctl -p
+echo "net.core.default_qdisc=fq" | my-superuser tee -a /etc/sysctl.conf > /dev/null 2>&1
+echo "net.ipv4.tcp_congestion_control=bbr" | my-superuser tee -a /etc/sysctl.conf > /dev/null 2>&1
+my-superuser sysctl -p
 
 ###################################################################
 clear

@@ -45,7 +45,7 @@ case $choice in
 	🕙sync-time )
 		ifinstalled ntp || exit 1
 		notify-send -u low "🕙 Synchronizing Time..." "Synching time with remote NTP servers..."
-		updatedata="$(sudo ntpdate pool.ntp.org)" &&
+		updatedata="$(my-superuser ntpdate pool.ntp.org)" &&
 		notify-send -u low "🕙 Synchronizing Time..." "Done. Time changed by ${updatedata#*offset }"
 		;;
 	*) pass otp -c ${choice}-otp ;;

@@ -113,16 +113,16 @@ function enable_killswitch() {
   iplist="$(get_vpn_ip "${vpndata}")"
   portlist="$(get_vpn_port "${vpndata}")"
 
-  sudo ufw --force reset
-  sudo ufw default deny incoming
-  sudo ufw default deny outgoing
-  sudo ufw allow out on tun0 to 0.0.0.0/0
+  my-superuser ufw --force reset
+  my-superuser ufw default deny incoming
+  my-superuser ufw default deny outgoing
+  my-superuser ufw allow out on tun0 to 0.0.0.0/0
   for ip in ${iplist}; do
-    sudo ufw allow in on "${device}" from "${ip}" port "${portlist}"
-    sudo ufw allow out on "${device}" to "${ip}" port "${portlist}"
+    my-superuser ufw allow in on "${device}" from "${ip}" port "${portlist}"
+    my-superuser ufw allow out on "${device}" to "${ip}" port "${portlist}"
   done
-  sudo ufw allow out on "${device}" to "${dns}" port 53
-  sudo ufw enable
+  my-superuser ufw allow out on "${device}" to "${dns}" port 53
+  my-superuser ufw enable
 }
 
 function print_usage() {
@@ -136,10 +136,10 @@ function print_usage() {
 #
 
 function disable_killswitch() {
-  sudo ufw --force reset
-  sudo ufw default deny incoming
-  sudo ufw default allow outgoing
-  sudo ufw enable
+  my-superuser ufw --force reset
+  my-superuser ufw default deny incoming
+  my-superuser ufw default allow outgoing
+  my-superuser ufw enable
 }
 
 OPTIONS=deh

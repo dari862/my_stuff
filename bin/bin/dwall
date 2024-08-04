@@ -71,7 +71,7 @@ check_if_installed() {
 			read -p "Do you want to proceed? (yes/no) " yn
 			yn=${yn^^}
 			case $yn in 
-				YES|Y) sudo apt install -y ${dependency};;
+				YES|Y) my-superuser apt install -y ${dependency};;
 				NO|N) echo exiting...;
 					exit;;
 				* ) >&2 printf '\033[31;1merror :\033[m %s\n' invalid response;
@@ -369,20 +369,20 @@ install_now_() {
 		echo -e ${ORANGE}"[*] Installing Dynamic Wallpaper..."${WHITE}
 		if [[ -d $DIR ]]; then
 			# delete old directory
-			sudo rm -rf $DIR
+			my-superuser rm -rf $DIR
 			# create new directory
-			sudo mkdir -p $DIR
+			my-superuser mkdir -p $DIR
 		else
 			# create new directory
-			sudo mkdir -p $DIR
+			my-superuser mkdir -p $DIR
 		fi
 	}
 
 	## Copy files
 	copy_files() {
-		sudo cp "$SCRIPT_ABSOLATE_PATH" ${dwall_script}
+		my-superuser cp "$SCRIPT_ABSOLATE_PATH" ${dwall_script}
 		# make script executable
-		sudo chmod +x ${dwall_script}
+		my-superuser chmod +x ${dwall_script}
 		echo -e ${GREEN}"[*] Installed Successfully. Execute 'dwall' to Run."${WHITE}
 	}
 
@@ -510,9 +510,9 @@ Download_wallpapers_now(){
 		exit_0
 	fi
 	
-	sudo mkdir -p $DIR
+	my-superuser mkdir -p $DIR
 	echo $DIR
-	sudo cp -r /tmp/dynamic_wallpapers/* $DIR
+	my-superuser cp -r /tmp/dynamic_wallpapers/* $DIR
 	echo $DIR
 	echo "Done"
 	exit_1
@@ -525,13 +525,13 @@ uninstall_now_() {
 		echo -e ${ORANGE}"[*] Uninstalling Dynamic Wallpaper..."${WHITE}
 		if [[ -d $DIR ]]; then
 			# delete dwall directory
-			sudo rm -rf $DIR
+			my-superuser rm -rf $DIR
 		fi
 	}
 
 	del_files() {
 		if [[ -f ${dwall_script} ]]; then
-			sudo rm ${dwall_script}
+			my-superuser rm ${dwall_script}
 		fi
 		echo -e ${GREEN}"[*] Uninstalled Successfully."${WHITE}
 	}

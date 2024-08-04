@@ -21,7 +21,7 @@ if [ "$1" = "-I" ]; then
 		echo
         read -p "  Users (space separated): " ul
         for u in $ul; do
-            sudo adduser $u lpadmin
+            my-superuser adduser $u lpadmin
         done
 
         # Open browser

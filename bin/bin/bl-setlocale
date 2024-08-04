@@ -96,7 +96,7 @@ parse_dmrc
 
 locale_prompt="Your current locale is <b>${current_lang:-not set}</b>
 These are the locales you have enabled;
-to add more: <i>sudo dpkg-reconfigure locales</i>
+to add more: <i>my-superuser dpkg-reconfigure locales</i>
 
 Please choose:"
 

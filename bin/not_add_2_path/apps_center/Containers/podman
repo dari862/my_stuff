@@ -26,23 +26,21 @@ while true; do # do it until the package is successfully installed or user wants
 	say
 	if [[ -z "${needed_app}" ]];then
 		prompt '  Run the installer now?' || break
+		
+		clear
+		connectiontest 1 || continue
+		
+		clear
+		say 'Updating sources...' 1
+		Package_update_
 	fi
 	
-	clear
-	connectiontest 1 || continue
-	
-	clear
-	say 'Updating sources...' 1
-	Package_update_
-	
-	say 'Installing package...' 1
-
+	say 'Installing pre-package...' 1
 	Package_installer_ ${pre_app_name} || continue
 	
 	clear
 	
 	say 'Installing package...' 1
-
 	Package_installer_ ${app_name} || continue
 	
 	if [[ -n "${extra_apps_[*]}" ]];then
@@ -50,23 +48,21 @@ while true; do # do it until the package is successfully installed or user wants
 		Package_installer_ "${extra_apps_[@]}" || continue
 		clear
 	fi
+	
 	if ! groups | grep "podmanusers" &>/dev/null;then
-		sudo groupadd podmanusers
-		sudo usermod -aG podmanusers ${USER}
+		my-superuser groupadd podmanusers &>/dev/null || :
+		my-superuser usermod -aG podmanusers ${USER} &>/dev/null || :
 	fi
 	
 	registries_conf="/etc/containers/registries.conf"
 	if ! grep -q 'docker.io' $registries_conf;then
-		echo 'unqualified-search-registries = ["docker.io"]' | sudo tee -a $registries_conf
+		echo 'unqualified-search-registries = ["docker.io"]' | my-superuser tee -a $registries_conf > /dev/null
 	fi
 	
-	_podman_command=$(which podman)
-	sudo chmod 750 $_podman_command
-	sudo chgrp podman $_podman_command
-	
-	# Limit log size to avoid running out of disk
-	echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' | sudo tee /etc/docker/daemon.json
-	
+	_podman_command=$(my-superuser which podman)
+	my-superuser chmod 750 $_podman_command || :
+	my-superuser chgrp podmanusers $_podman_command || :
+
 	remove_from_db
 	
 	say

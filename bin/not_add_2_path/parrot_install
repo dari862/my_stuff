@@ -46,4 +46,4 @@ if [ -z "${app_is_}" ];then
 	[ -z "$app_is_" ] && exit
 fi
 
-sudo apt-get install -t parrot $app_is_
+my-superuser apt-get install -t parrot $app_is_

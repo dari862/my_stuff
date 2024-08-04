@@ -34,11 +34,11 @@ say 'running tweek...' 1
 ###################################################################
 
 for l in $deb_lines_backports; do
-	sudo sed -i "s\\^$l$\\$l ${dist}-backports\\" /etc/apt/sources.list
+	my-superuser sed -i "s\\^$l$\\$l ${dist}-backports\\" /etc/apt/sources.list
 done
-sudo apt-get update
-sudo ln -s /usr/share/my_stuff/bin/not_add_2_path/backports_install /usr/share/my_stuff/system_files/bin
-sudo ln -s /usr/share/my_stuff/lib/auto_completion/backports_install /usr/share/my_stuff/system_files/auto_completion/
+my-superuser apt-get update
+my-superuser ln -s /usr/share/my_stuff/bin/not_add_2_path/backports_install /usr/share/my_stuff/system_files/bin
+my-superuser ln -s /usr/share/my_stuff/lib/auto_completion/backports_install /usr/share/my_stuff/system_files/auto_completion/
 ###################################################################
 clear
 remove_from_db

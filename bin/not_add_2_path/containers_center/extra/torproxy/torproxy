@@ -60,41 +60,41 @@ start_tor(){
 		exit 1
 	else
 		# Only save the rules when we are sure that everything is working
-		sudo iptables-save >$RULES
+		my-superuser iptables-save >$RULES
 	
 		### flush iptables
-		sudo iptables -F
-		sudo iptables -t nat -F
+		my-superuser iptables -F
+		my-superuser iptables -t nat -F
 		
 		### set iptables *nat to ignore tor user
-		sudo iptables -t nat -A OUTPUT -m owner --uid-owner $_tor_uid -j RETURN
+		my-superuser iptables -t nat -A OUTPUT -m owner --uid-owner $_tor_uid -j RETURN
 		
 		### redirect all DNS output to tor's DNSPort
-		sudo iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $__DNSPort
+		my-superuser iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $__DNSPort
 		
 		### set iptables *filter
-		sudo iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+		my-superuser iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 		
 		### allow clearnet access for hosts in $_non_tor
 		for _clearnet in $_non_tor 127.0.0.0/8; do
-   			sudo iptables -t nat -A OUTPUT -d $_clearnet -j RETURN
-   			sudo iptables -A OUTPUT -d $_clearnet -j ACCEPT
+   			my-superuser iptables -t nat -A OUTPUT -d $_clearnet -j RETURN
+   			my-superuser iptables -A OUTPUT -d $_clearnet -j ACCEPT
 		done
 		
 		### redirect all other output to tor's TransPort
-		sudo iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $__TransPort
+		my-superuser iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $__TransPort
 		
 		### allow only tor output
-		sudo iptables -A OUTPUT -m owner --uid-owner $_tor_uid -j ACCEPT
-		sudo iptables -A OUTPUT -j REJECT
+		my-superuser iptables -A OUTPUT -m owner --uid-owner $_tor_uid -j ACCEPT
+		my-superuser iptables -A OUTPUT -j REJECT
 	fi
 }
 
 stop_tor(){
 	if test -f "$RULES"; then
 		echo "Restoring previous rules from $RULES"
-		sudo iptables -F
-		sudo iptables-restore <"$RULES"
+		my-superuser iptables -F
+		my-superuser iptables-restore <"$RULES"
 		rm "$RULES"
 	else
 		echo "$RULES does not exist. Not doing anything."

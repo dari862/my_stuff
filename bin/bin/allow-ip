@@ -88,4 +88,4 @@ IFACE=$(ip route show |
         grep -e "${GATEWAY}" |
         sed -n "s/^default via [0-9\.]\+ dev \([a-z0-9]\+\) .*/\1/p")
 
-sudo ip route add "${IP}/${MASK}" via "${GATEWAY}" dev "${IFACE}"
+my-superuser ip route add "${IP}/${MASK}" via "${GATEWAY}" dev "${IFACE}"

@@ -1,1 +1,1 @@
-sudo snap remove rubymine
+my-superuser snap remove rubymine

@@ -7,4 +7,4 @@ if [ "n/a" = "$dist" ] ; then
     dist=testing
 fi
 
-sudo apt-get install -t ${debian_base}-backports $app_is_
+my-superuser apt-get install -t ${debian_base}-backports $app_is_

@@ -86,13 +86,13 @@ run_tweek(){
 
 install_distrobox(){
 	if [[ "$(chech_distrobox)" != "ready" ]];then
-		"${_SCRIPTS_LIBDIR}"/distrobox ${extra_arg}
+		"${_SCRIPTS_LIBDIR}"/distrobox skip_test
 	fi
 }
 
 install_container_software(){
 	if [[ "$(chech_container_software)" != "ready" ]];then
-		"${_SCRIPTS_LIBDIR}"/container_software ${extra_arg}
+		"${_SCRIPTS_LIBDIR}"/container_software skip_test
 	fi
 }
 

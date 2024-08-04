@@ -5,38 +5,38 @@ REPLY="${1-}"
 
 function install_kali(){
 	# include_kali
-	echo -e "deb [arch=amd64 signed-by=/usr/share/keyrings/kali-archive-keyring.asc] https://http.kali.org/kali kali-rolling main non-free contrib" | sudo tee /etc/apt/sources.list.d/kali.list > /dev/null 2>&1
-	echo 'Package: *' | sudo tee /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
-	echo 'Pin: release a=kali-rolling' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
-	echo 'Pin-Priority: 50' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
-	curl -s "https://archive.kali.org/archive-key.asc" | sudo tee /usr/share/keyrings/kali-archive-keyring.asc > /dev/null 2>&1
-	sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade -y
-	sudo apt-get install -t kali-rolling -y kali-archive-keyring
+	echo -e "deb [arch=amd64 signed-by=/usr/share/keyrings/kali-archive-keyring.asc] https://http.kali.org/kali kali-rolling main non-free contrib" | my-superuser tee /etc/apt/sources.list.d/kali.list > /dev/null 2>&1
+	echo 'Package: *' | my-superuser tee /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
+	echo 'Pin: release a=kali-rolling' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+	echo 'Pin-Priority: 50' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
+	curl -s "https://archive.kali.org/archive-key.asc" | my-superuser tee /usr/share/keyrings/kali-archive-keyring.asc > /dev/null 2>&1
+	my-superuser apt-get update && my-superuser apt-get upgrade && my-superuser apt-get dist-upgrade -y
+	my-superuser apt-get install -t kali-rolling -y kali-archive-keyring
 	
 	# install_kali
-	sudo apt-get -f install -y
-	sudo apt-get install -t kali-rolling -y -y linux-headers-4.14.0-kali3-amd64
+	my-superuser apt-get -f install -y
+	my-superuser apt-get install -t kali-rolling -y -y linux-headers-4.14.0-kali3-amd64
     clear
 }
 
 function install_parrot() {
 	# include_parrot
-    echo -e "deb https://deb.parrotsec.org/parrot parrot main contrib non-free" | sudo tee /etc/apt/sources.list.d/parrot.list > /dev/null 2>&1
-    echo 'Package: *' | sudo tee /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
-    echo 'Pin: release a=parrot' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
-    echo 'Pin-Priority: 50' | sudo tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
-    curl -fsSL "https://deb.parrotsec.org/parrot/misc/parrotsec.gpg" | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/parrotsec.gpg > /dev/null 2>&1
-    sudo apt-get update
+    echo -e "deb https://deb.parrotsec.org/parrot parrot main contrib non-free" | my-superuser tee /etc/apt/sources.list.d/parrot.list > /dev/null 2>&1
+    echo 'Package: *' | my-superuser tee /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+    echo 'Pin: release a=parrot' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+    echo 'Pin-Priority: 50' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+    curl -fsSL "https://deb.parrotsec.org/parrot/misc/parrotsec.gpg" | gpg --dearmor | my-superuser tee /etc/apt/trusted.gpg.d/parrotsec.gpg > /dev/null 2>&1
+    my-superuser apt-get update
 }
 
 function create_install_script() {
-	sudo ln -s /usr/share/my_stuff/bin/not_add_2_path/${platfrom_name}_install /usr/share/my_stuff/system_files/bin
-    sudo mkdir -p /usr/share/my_stuff/lib/auto_completion/
-    sudo ln -s /usr/share/my_stuff/lib/auto_completion/${platfrom_name}_install /usr/share/my_stuff/system_files/auto_completion/
+	my-superuser ln -s /usr/share/my_stuff/bin/not_add_2_path/${platfrom_name}_install /usr/share/my_stuff/system_files/bin
+    my-superuser mkdir -p /usr/share/my_stuff/lib/auto_completion/
+    my-superuser ln -s /usr/share/my_stuff/lib/auto_completion/${platfrom_name}_install /usr/share/my_stuff/system_files/auto_completion/
 }
 function create_cyber_ready_file() {
 	if [ ! -f "/usr/share/my_stuff/system_files/Cyber_ready" ];then
-		sudo touch "/usr/share/my_stuff/system_files/Cyber_ready"
+		my-superuser touch "/usr/share/my_stuff/system_files/Cyber_ready"
 	fi
 }
 ##############################################################################################

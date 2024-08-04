@@ -46,7 +46,7 @@ run_editor(){
 
 run_editor_with_super_user(){	
 	local CLI_EDITER_PATH="$(which $CLI_EDITER)"
-	${terminal_name} -T "${file_name_} - CLI Editor" -e sudo $CLI_EDITER_PATH "${file_name_}"
+	${terminal_name} -T "${file_name_} - CLI Editor" -e my-superuser $CLI_EDITER_PATH "${file_name_}"
 }
 
 

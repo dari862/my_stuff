@@ -1,27 +1,27 @@
 if command -v nala >/dev/null 2>&1; then
 	Package_installer_(){
-		sudo nala install -y "$@"
+		my-superuser nala install -y "$@"
 	}
 	Package_update_(){
-		sudo nala update
+		my-superuser nala update
 	}
 	full_upgrade_(){
-		sudo nala -y upgrade
+		my-superuser nala -y upgrade
 	}
 	Package_remove_(){
-		sudo nala purge -y "$@"
+		my-superuser nala purge -y "$@"
 	}
 else
 	Package_installer_(){
-		sudo apt-get install -y "$@"
+		my-superuser apt-get install -y "$@"
 	}
 	Package_update_(){
-		sudo apt-get update
+		my-superuser apt-get update
 	}
 	full_upgrade_(){
-		sudo apt-get -y full-upgrade
+		my-superuser apt-get -y full-upgrade
 	}
 	Package_remove_(){
-		sudo apt-get purge -y "$@"
+		my-superuser apt-get purge -y "$@"
 	}
 fi

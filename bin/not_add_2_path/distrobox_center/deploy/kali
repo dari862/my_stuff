@@ -37,7 +37,7 @@ wm_kali_linux(){
 	else
 		if [[ $xsession_kali == "enabled" ]]; then
 			distrobox enter --name "$container_name" ${root_command} -- "${__wm_command}"
-			sudo ln -sf /usr/share/my_stuff/bin/not_add_2_path/distrobox_center/Extra/kali_i3/kali-i3.desktop /usr/share/xsessions/
+			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/distrobox_center/Extra/kali_i3/kali-i3.desktop /usr/share/xsessions/
 			mkdir -p "$prefix/$container_name"/.config
 			cp -r /usr/share/my_stuff/bin/not_add_2_path/distrobox_center/Extra/kali_i3/.config/* "$prefix/$container_name"/.config
 		fi
@@ -57,7 +57,7 @@ prompt '  Run the installer now?' || exit
 
 #wm_kali_linux ask || failed_to_run "failed to install ${__WM_}."
 
-sudo true
+my-superuser true
 keep_Sudo_refresed &
 
 clear

@@ -1,12 +1,12 @@
 Package_installer_(){
-	sudo dnf install -y "$@"
+	my-superuser dnf install -y "$@"
 }
 Package_update_(){
-	sudo dnf update -y
+	my-superuser dnf update -y
 }
 full_upgrade_(){
-	sudo dnf -y upgrade
+	my-superuser dnf -y upgrade
 }
 Package_remove_(){
-	sudo dnf remove -y "$@"
+	my-superuser dnf remove -y "$@"
 }

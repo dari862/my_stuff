@@ -45,13 +45,13 @@ while true; do # do it until the package is successfully installed or user wants
 	
 	if [ "$distro_name_" = "ubuntu" ];then
 		Package_installer_ software-properties-common || continue
-		sudo add-apt-repository -y universe
-		sudo add-apt-repository -y multiverse
+		my-superuser add-apt-repository -y universe
+		my-superuser add-apt-repository -y multiverse
 	fi
 	
 	if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
-		curl -fSsL "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/nvidia-drivers.gpg > /dev/null 2>&1
-		echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | sudo tee /etc/apt/sources.list.d/nvidia-drivers.list > /dev/null 2>&1
+		curl -fSsL "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" | my-superuser gpg --dearmor | my-superuser tee /usr/share/keyrings/nvidia-drivers.gpg > /dev/null 2>&1
+		echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | my-superuser tee /etc/apt/sources.list.d/nvidia-drivers.list > /dev/null 2>&1
 		
 		say 'Updating sources...' 1
 		Package_update_ 
@@ -81,8 +81,8 @@ while true; do # do it until the package is successfully installed or user wants
 	
 	if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
 		Package_installer_ xserver-xorg-video-intel intel-gpu-tools || continue
-		sudo mkdir -p /etc/X11/xorg.conf.d/
-		sudo tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
+		my-superuser mkdir -p /etc/X11/xorg.conf.d/
+		my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
 		Section "Device"
 			Identifier  "Intel Graphics"
 			Driver      "Intel"
@@ -100,7 +100,7 @@ while true; do # do it until the package is successfully installed or user wants
 	fi
 	
 	say "Creating Check File (GPU_Drivers_ready)"
-	sudo touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
+	my-superuser touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
 	
 	say
 	say " your linux  is ${app_name}."

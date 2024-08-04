@@ -22,8 +22,8 @@
 
 #### Hardware Clock:
 # Hardware clock must be set to UTC. If not, the script must be edited (remove the -u flag from rtcwake):
-# replace "sudo rtcwake -m mem -u -t $(date +%s -d "$foo")" for:
-# sudo rtcwake -m mem -t $(date +%s -d "$foo")
+# replace "my-superuser rtcwake -m mem -u -t $(date +%s -d "$foo")" for:
+# my-superuser rtcwake -m mem -t $(date +%s -d "$foo")
 
 # Input parameters on GUI:
 #    - Day: ['today' / 'tomorrow']
@@ -37,4 +37,4 @@ frmtime=$(echo $frmdata | awk 'BEGIN {FS="|" } { print $2 }')
 
 foo="$frmday $frmtime"
 
-sudo rtcwake -m mem -u -t $(date +%s -d "$foo")
+my-superuser rtcwake -m mem -u -t $(date +%s -d "$foo")

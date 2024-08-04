@@ -1,12 +1,12 @@
 # Remove service
-sudo systemctl stop ollama
-sudo systemctl disable ollama
-sudo rm /etc/systemd/system/ollama.service
+my-superuser systemctl stop ollama
+my-superuser systemctl disable ollama
+my-superuser rm /etc/systemd/system/ollama.service
 
 # Remove command
-sudo rm $(which ollama)
+my-superuser rm $(which ollama)
 
 # Remove installed models
-sudo rm -r /usr/share/ollama
-sudo userdel ollama
-sudo groupdel ollama
+my-superuser rm -r /usr/share/ollama
+my-superuser userdel ollama
+my-superuser groupdel ollama

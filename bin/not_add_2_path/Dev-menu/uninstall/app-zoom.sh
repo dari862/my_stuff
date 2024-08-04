@@ -1,1 +1,1 @@
-sudo apt remove -y zoom
+my-superuser apt remove -y zoom

@@ -1,4 +1,4 @@
-sudo apt remove --purge -y emacs emacs-gtk
-sudo rm -rf ~/.config/emacs
-sudo rm -rf ~/.emacs.d
-sudo rm -rf ~/.config/doom
+my-superuser apt remove --purge -y emacs emacs-gtk
+my-superuser rm -rf ~/.config/emacs
+my-superuser rm -rf ~/.emacs.d
+my-superuser rm -rf ~/.config/doom

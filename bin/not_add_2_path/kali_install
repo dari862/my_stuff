@@ -52,4 +52,4 @@ if [ -z "${app_is_}" ];then
 	done
 	[ -z "$app_is_" ] && exit
 fi
-sudo apt-get -f install -t kali-rolling "$app_is_"
+my-superuser apt-get -f install -t kali-rolling "$app_is_"

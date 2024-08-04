@@ -38,13 +38,13 @@ while true; do # do it until the package is successfully installed or user wants
 	
 	say 'Installing package...' 1
 	
-	sudo apt-get -y install curl wget gnupg2 lsb-release || failed_
-	curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc| sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/vbox.gpg 
-	curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc| sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/oracle_vbox.gpg 
-	echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list > /dev/null 2>&1
+	my-superuser apt-get -y install curl wget gnupg2 lsb-release || failed_
+	curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc| my-superuser gpg --dearmor -o /etc/apt/trusted.gpg.d/vbox.gpg 
+	curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc| my-superuser gpg --dearmor -o /etc/apt/trusted.gpg.d/oracle_vbox.gpg 
+	echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | my-superuser tee /etc/apt/sources.list.d/virtualbox.list > /dev/null 2>&1
 	Package_update_   || failed_
 	Package_installer_ linux-headers-$(uname -r) dkms virtualbox-$(curl -s https://download.virtualbox.org/virtualbox/LATEST.TXT | cut -d '.' -f1).* virtualbox-ext-pack || failed_
-	sudo usermod -aG vboxusers $USER 
+	my-superuser usermod -aG vboxusers $USER 
 	# Install extension pack
 	echo -e "\e[1mDownloading and installing Extension pack..\e[0m"
 	t=$(mktemp -d)

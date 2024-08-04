@@ -19,7 +19,7 @@ if [ "$1" = "-I" ]; then
 		echo
         read -p "  Users (space separated): " ul
         for u in $ul; do
-            sudo adduser $u bluetooth
+            my-superuser adduser $u bluetooth
         done
 
         # Open bt manager

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-yadstore_name="YadAppsStore"
-yadstore_dir="/usr/share/my_stuff/system_files/downloaded/${yadstore_name}"
+app_name="YadAppsStore"
+yadstore_dir="/usr/share/my_stuff/system_files/downloaded/${app_name}"
 
 ###################################################################
 
@@ -29,18 +29,18 @@ while true; do # do it until the package is successfully installed or user wants
 	
 	clear
 
-	say 'Installing ${yadstore_name}...' 1
+	say "Installing ${app_name}..." 1
 
-	say "Git https://github.com/dari862/${yadstore_name}.git"
-	sudo git clone --depth=1 "https://github.com/dari862/${yadstore_name}.git" "${yadstore_dir}"
+	say "Git https://github.com/dari862/${app_name}.git"
+	my-superuser git clone --depth=1 "https://github.com/dari862/${app_name}.git" "${yadstore_dir}"
 	
 	say "Running script for YadAppsStore (edite_apps_folder)"
-	sudo "${yadstore_dir}"/tools/edite_apps_folder
+	my-superuser "${yadstore_dir}"/tools/edite_apps_folder
 	
 	say "Running script for YadAppsStore (pre_yadstore)"
-	sudo "${yadstore_dir}"/tools/pre_yadstore
+	my-superuser "${yadstore_dir}"/tools/pre_yadstore
 	
-	sudo ln -sf "${yadstore_dir}"/gui /usr/share/my_stuff/system_files/bin/yadstore
+	my-superuser ln -sf "${yadstore_dir}"/gui /usr/share/my_stuff/system_files/bin/yadstore
 	
 	remove_from_db
 	

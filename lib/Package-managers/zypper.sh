@@ -1,12 +1,12 @@
 Package_installer_(){
-	sudo zypper install -y "$@"
+	my-superuser zypper install -y "$@"
 }
 Package_update_(){
-	sudo zypper refresh
+	my-superuser zypper refresh
 }
 full_upgrade_(){
-	sudo zypper -y update
+	my-superuser zypper -y update
 }
 Package_remove_(){
-	sudo zypper remove -y "$@"
+	my-superuser zypper remove -y "$@"
 }

@@ -31,9 +31,9 @@ say 'running tweek...' 1
 ###################################################################
 
 say "Log in as ${USER@Q} via LightDM."
-sudo sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}
-sudo sed -i "s/^#autologin-user-timeout=/autologin-user-timeout=/g" ${lightdmconf}
-sudo sed -i "s/^autologin-user=.*$/autologin-user=${USER}/g" ${lightdmconf}
+my-superuser sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}
+my-superuser sed -i "s/^#autologin-user-timeout=/autologin-user-timeout=/g" ${lightdmconf}
+my-superuser sed -i "s/^autologin-user=.*$/autologin-user=${USER}/g" ${lightdmconf}
 
 ###################################################################
 clear

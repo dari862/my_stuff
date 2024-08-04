@@ -1,1 +1,1 @@
-sudo apt remove -y localsend
+my-superuser apt remove -y localsend

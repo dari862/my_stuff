@@ -1,1 +1,1 @@
-sudo apt remove -y google-chrome-stable
+my-superuser apt remove -y google-chrome-stable

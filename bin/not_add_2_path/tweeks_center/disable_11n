@@ -30,7 +30,7 @@ say 'running tweek...' 1
 ###################################################################
 
 say "Disabling 802.11n networking in iwlwifi."
-sudo sh -c "echo 'options iwlwifi 11n_disable=1' >> ${iwlwificonf}"
+my-superuser sh -c "echo 'options iwlwifi 11n_disable=1' >> ${iwlwificonf}"
 say "802.11n networking disabled in ${iwlwificonf@Q}."
 
 ###################################################################

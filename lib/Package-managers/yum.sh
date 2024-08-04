@@ -1,12 +1,12 @@
 Package_installer_(){
-	sudo yum install -y "$@"
+	my-superuser yum install -y "$@"
 }
 Package_update_(){
-	sudo yum update -y
+	my-superuser yum update -y
 }
 full_upgrade_(){
-	sudo yum -y upgrade
+	my-superuser yum -y upgrade
 }
 Package_remove_(){
-	sudo yum remove -y "$@"
+	my-superuser yum remove -y "$@"
 }

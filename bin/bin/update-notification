@@ -20,7 +20,7 @@ cron_when="daily"								# weekly | monthly | daily | hourly
 NOTIFY_ICON=/usr/share/icons/Papirus/32x32/apps/system-software-update.svg
 
 get_total_updates() { UPDATES=$(cat "$updates_file" | wc -l); }
-__sudo_() { sudo true; }
+__my-superuser_() { my-superuser true; }
 
 #=== FUNCTIONs ==================================================================
 # NAME: Massage system
@@ -72,7 +72,7 @@ error() {
 # DESCRIPTION: make apt update and and check new packages updates and save the list in $updates_file
 #===============================================================================
 function update () {
-	__sudo_
+	__my-superuser_
 	# If no update today exec update
 	if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ]; then
 		# CHECK INTERNET CONNECTION
@@ -81,14 +81,14 @@ function update () {
 
 		# REPOSITORY UPDATE-NOTIFICATION
 		plain "Updating package repositoriy..."
-		sudo apt-get update &> /dev/null
+		my-superuser apt-get update &> /dev/null
 	fi
 	
 	plain "Checking updates and saving in $updates_file..."
-	printf "" | sudo tee "$updates_file" > /dev/null 2>&1
+	printf "" | my-superuser tee "$updates_file" > /dev/null 2>&1
 	for i in $(apt list --upgradable -a  2>/dev/null | awk -F/ '{print $1}' | grep -v Listing... | uniq)
 	do 
-		dpkg -l | grep -e "$i" | sudo tee -a $updates_file > /dev/null 2>&1
+		dpkg -l | grep -e "$i" | my-superuser tee -a $updates_file > /dev/null 2>&1
 	done
 
 	# No updates
@@ -118,7 +118,7 @@ function interactive_upgrade() {
 	read -p "Press enter to continue upgrade..."
 	echo
 	
-	sudo apt-get -y upgrade || sudo apt-get -y upgrade
+	my-superuser apt-get -y upgrade || my-superuser apt-get -y upgrade
 	
 	if ! [ $? -eq 0 ]; then 
 		read; 
@@ -163,12 +163,12 @@ function send_notifcation_msg {
 # DESCRIPTION: install the script
 #===============================================================================
 function install {
-	__sudo_
-	sudo ln -sf "$script_full_path" "/etc/cron.$cron_when"	
+	__my-superuser_
+	my-superuser ln -sf "$script_full_path" "/etc/cron.$cron_when"	
 	if [ ! -f "$updates_file" ]
 	then 
-		sudo touch "$updates_file"
-		sudo chmod a+w "$updates_file"
+		my-superuser touch "$updates_file"
+		my-superuser chmod a+w "$updates_file"
 	fi
 	exit 
 }
@@ -178,14 +178,14 @@ function install {
 # DESCRIPTION: uninstall the script
 #===============================================================================
 function uninstall {
-	__sudo_
+	__my-superuser_
 	echo "Deleting symblink /etc/cron.$cron_when/${script_name}..."
-	[ -f "/etc/cron.monthly/${script_name}" ] && sudo rm "/etc/cron.monthly/${script_name}"
-	[ -f "/etc/cron.weekly/${script_name}" ] && sudo rm "/etc/cron.weekly/${script_name}"
-	[ -f "/etc/cron.daily/${script_name}" ] && sudo rm "/etc/cron.daily/${script_name}"
-	[ -f "/etc/cron.hourly/${script_name}" ] && sudo rm "/etc/cron.hourly/${script_name}"
+	[ -f "/etc/cron.monthly/${script_name}" ] && my-superuser rm "/etc/cron.monthly/${script_name}"
+	[ -f "/etc/cron.weekly/${script_name}" ] && my-superuser rm "/etc/cron.weekly/${script_name}"
+	[ -f "/etc/cron.daily/${script_name}" ] && my-superuser rm "/etc/cron.daily/${script_name}"
+	[ -f "/etc/cron.hourly/${script_name}" ] && my-superuser rm "/etc/cron.hourly/${script_name}"
 	echo "Deleting $updates_file..."
-	sudo rm "$updates_file"
+	my-superuser rm "$updates_file"
 	exit 
 }
 

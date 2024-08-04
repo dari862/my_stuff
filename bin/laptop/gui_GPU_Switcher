@@ -140,21 +140,21 @@ glxinfo_gl_es_version() {
     glxinfo | grep "OpenGL ES profile version string" | cut -d ":" -f 2 | sed 's/ //' 2> /dev/null
 }
 
-sudo_gpu_switcher(){
+superuser_gpu_switcher(){
 	__arg_="${@}"
 	apps_as_root_yad "$gpu_switcher $__arg_"
 }
 
 run_Integrated_mode_(){
-	sudo_gpu_switcher -s integrated
+	superuser_gpu_switcher -s integrated
 }
 
 run_Hybrid_mode_(){
-	sudo_gpu_switcher -s hybrid --rtd3
+	superuser_gpu_switcher -s hybrid --rtd3
 }
 
 run_Nvidia_mode_(){
-	sudo_gpu_switcher -s nvidia --force-comp --coolbits 24
+	superuser_gpu_switcher -s nvidia --force-comp --coolbits 24
 }
 
 run_yad_gui_(){

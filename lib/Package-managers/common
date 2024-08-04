@@ -97,7 +97,7 @@ keep_Sudo_refresed()
 {
 	while [ 1 ]
 		do
-			sudo true
+			my-superuser true
 			sleep 10m
 		done
 }
@@ -121,7 +121,7 @@ flatpak_install(){
 	__icons_="${1-}"
 	__flatpak_="${2-}"
 	flatpak install -y flathub ${__flatpak_}
-	sudo ln -sf "/usr/share/my_stuff/lib/Dev-Env/applications/${__icons_}.desktop" "/usr/share/applications"
+	my-superuser ln -sf "/usr/share/my_stuff/lib/Dev-Env/applications/${__icons_}.desktop" "/usr/share/applications"
 }
 
 remove_from_db(){
@@ -139,7 +139,7 @@ remove_from_db(){
 	Sed_this_file="$(echo "${Sed_this_file}" | sed 's/apps_center/apps_db/g')"
 	Sed_this_file="$(echo "${Sed_this_file}" | sed 's|containers_center/deploy|containers_deploy_db|g')"
 
-	sudo sed -i "/${Remove_this_}/d" "${Sed_this_file}"
+	my-superuser sed -i "/${Remove_this_}/d" "${Sed_this_file}"
 }
 
 copy_from_extra_skel(){
@@ -153,13 +153,13 @@ copy_from_extra_skel(){
 	 	__copythere="${__dirname}" 
 	 fi
 	
-	sudo cp -r "/usr/share/my_stuff/extra_skel/${__copythis}" "/usr/share/my_stuff/system_files/skel/${__copythere}"
+	my-superuser cp -r "/usr/share/my_stuff/extra_skel/${__copythis}" "/usr/share/my_stuff/system_files/skel/${__copythere}"
 	
 	for d in /home/*/ ; do
     	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes
 		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 		# Create config folders if no exists
-		sudo cp -r "/usr/share/my_stuff/system_files/skel/${__copythis}" "$d/${__copythis}" 
-		sudo chown -R $user_and_group "$d"
+		my-superuser cp -r "/usr/share/my_stuff/system_files/skel/${__copythis}" "$d/${__copythis}" 
+		my-superuser chown -R $user_and_group "$d"
 	done
 }

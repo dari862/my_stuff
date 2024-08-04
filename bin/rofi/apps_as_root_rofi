@@ -14,7 +14,7 @@ command_2_run="${app_2_run_as_root} ${Extra_Arg}"
 
 if command -v rofi &>/dev/null;then
 	_ASKPASS="$(rofi_askpass)"
-	echo "${_ASKPASS}" | sudo -S ${command_2_run}
+	echo "${_ASKPASS}" | my-superuser -S ${command_2_run}
 else
 	pkexec ${command_2_run}
 fi

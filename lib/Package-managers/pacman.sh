@@ -26,15 +26,15 @@ elif command -v paru >/dev/null 2>&1; then
 	}
 else
 	Package_installer_(){
-		sudo pacman --noconfirm -S "$@"
+		my-superuser pacman --noconfirm -S "$@"
 	}
 	Package_update_(){
-		sudo pacman -Syu --noconfirm
+		my-superuser pacman -Syu --noconfirm
 	}
 	full_upgrade_(){
-		sudo pacman -Syu --noconfirm
+		my-superuser pacman -Syu --noconfirm
 	}
 	Package_remove_(){
-		sudo pacman -Rs "$@"
+		my-superuser pacman -Rs "$@"
 	}
 fi

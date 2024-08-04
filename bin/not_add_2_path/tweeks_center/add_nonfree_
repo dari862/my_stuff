@@ -30,9 +30,9 @@ say 'running tweek...' 1
 ###################################################################
 
 for l in $deb_lines_nonfree; do
-	sudo sed -i "s\\^$l$\\$l non-free\\" /etc/apt/sources.list
+	my-superuser sed -i "s\\^$l$\\$l non-free\\" /etc/apt/sources.list
 done
-sudo apt-get update
+my-superuser apt-get update
 
 ###################################################################
 clear

@@ -71,7 +71,7 @@ getmount(){
 		mkdiryn=$(printf "No\\nYes" | $rofi_command -p "$mp does not exist. Create it?")
 		if [ "$mkdiryn" = "Yes" ]; then
 			if mkdir -p "$mp" 2>/dev/null; then
-  				sudo mkdir -p "$mp"
+  				my-superuser mkdir -p "$mp"
 			fi
 		fi
 	fi
@@ -79,7 +79,7 @@ getmount(){
 
 attemptmount(){
 	# Attempt to mount without a mountpoint, to see if drive is in fstab.
-	sudo mount "$chosen" || return 1
+	my-superuser mount "$chosen" || return 1
 	notify-send "💾Drive Mounted." "$chosen mounted."
 	exit
 }
@@ -91,7 +91,7 @@ case "$chosen" in
 		chosen="${chosen%% *}"
 		chosen="${chosen:1}"	# This is a bashism.
 		attemptmount || getmount
-		sudo mount "$chosen" "$mp" -o uid="$(id -u)",gid="$(id -g)"
+		my-superuser mount "$chosen" "$mp" -o uid="$(id -u)",gid="$(id -g)"
 		notify-send "💾Drive Mounted." "$chosen mounted to $mp."
 		;;
 
@@ -105,12 +105,12 @@ case "$chosen" in
 		done
 
 		# Decrypt in a terminal window
-		${TERMINAL:-st} -n floatterm -g 60x1 -e sudo cryptsetup open "$chosen" "usb$num"
+		${TERMINAL:-st} -n floatterm -g 60x1 -e my-superuser cryptsetup open "$chosen" "usb$num"
 		# Check if now decrypted.
 		test -b "/dev/mapper/usb$num"
 
 		attemptmount || getmount
-		sudo mount "/dev/mapper/usb$num" "$mp" -o uid="$(id -u)",gid="$(id -g)"
+		my-superuser mount "/dev/mapper/usb$num" "$mp" -o uid="$(id -u)",gid="$(id -g)"
 		notify-send "🔓Decrypted drive Mounted." "$chosen decrypted and mounted to $mp."
 		;;
 
@@ -119,7 +119,7 @@ case "$chosen" in
 		getmount
 		number="${chosen%%:*}"
 		number="${chosen:1}"	# This is a bashism.
-		sudo simple-mtpfs -o allow_other -o fsname="simple-mtpfs-$(escape "$chosen")" --device "$number" "$mp"
+		my-superuser simple-mtpfs -o allow_other -o fsname="simple-mtpfs-$(escape "$chosen")" --device "$number" "$mp"
 		notify-send "🤖 Android Mounted." "Android device mounted to $mp."
 		;;
 esac

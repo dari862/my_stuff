@@ -10,6 +10,6 @@ if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
 		exit 1
 	fi
 	
-	cat head $pak tail | sudo tee /usr/share/my_stuff/system_files/bin/brightness > /dev/null 2>&1
-	sudo chmod +x /usr/share/my_stuff/system_files/bin/brightness
+	cat head $pak tail | tee /usr/share/my_stuff/system_files/bin/brightness > /dev/null 2>&1
+	chmod +x /usr/share/my_stuff/system_files/bin/brightness
 fi

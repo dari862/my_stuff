@@ -48,17 +48,17 @@ while true; do # do it until the package is successfully installed or user wants
 	fi
 	
 	say "Adding plugins support to vim ..."
-	sudo mkdir -vp "/etc/vim/autoload"
-	sudo curl -fLo /etc/vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-	sudo mkdir -p "/etc/vim/plugged/"
+	my-superuser mkdir -vp "/etc/vim/autoload"
+	my-superuser curl -fLo /etc/vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	my-superuser mkdir -p "/etc/vim/plugged/"
 	
 	say "Adding plugins to /etc/vim/rc.local ..."
 	if [ -s "/etc/vim/${CONF_FILE_NAME}.local" ]; then
-		cat "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/${CONF_FILE_NAME}.local | sudo tee /etc/vim/${CONF_FILE_NAME}.local > /dev/null 2>&1
+		cat "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/${CONF_FILE_NAME}.local | my-superuser tee /etc/vim/${CONF_FILE_NAME}.local > /dev/null 2>&1
 	else
-		sudo cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/
+		my-superuser cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/
 	fi
-	sudo vim +'PlugInstall --sync' +qa 		# Download all plugins non-interactively
+	my-superuser vim +'PlugInstall --sync' +qa 		# Download all plugins non-interactively
 	
 	
 	# Copy users config
@@ -67,22 +67,22 @@ while true; do # do it until the package is successfully installed or user wants
     	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes 
     	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
     	if [[ -d "$d/.config/myshell" ]];then
-			sudo cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}" "$d/.${CONF_FILE_NAME}" && sudo chown -R $user_and_group "$d/.${CONF_FILE_NAME}"
-			sudo sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "$d/.config/myshell/zsh/zprofile"
-			sudo sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "$d/.config/myshell/zsh/zprofile"
-			sudo sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "$d/.config/myshell/bash/profile"
-			sudo sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "$d/.config/myshell/bash/profile"
-			sudo chown -R $user_and_group "$d/.config/myshell/zsh/zprofile"
-			sudo chown -R $user_and_group "$d/.config/myshell/bash/profile"
+			my-superuser cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}" "$d/.${CONF_FILE_NAME}" && my-superuser chown -R $user_and_group "$d/.${CONF_FILE_NAME}"
+			my-superuser sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "$d/.config/myshell/zsh/zprofile"
+			my-superuser sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "$d/.config/myshell/zsh/zprofile"
+			my-superuser sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "$d/.config/myshell/bash/profile"
+			my-superuser sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "$d/.config/myshell/bash/profile"
+			my-superuser chown -R $user_and_group "$d/.config/myshell/zsh/zprofile"
+			my-superuser chown -R $user_and_group "$d/.config/myshell/bash/profile"
 		fi
 	done
 	
-	sudo cp -r "${RC_FILE_Path}/${CONF_FILE_NAME}" "${Disto_path}/system_files/skel/.${CONF_FILE_NAME}"
+	my-superuser cp -r "${RC_FILE_Path}/${CONF_FILE_NAME}" "${Disto_path}/system_files/skel/.${CONF_FILE_NAME}"
 	
-	sudo sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "${Disto_path}/system_files/skel/.config/myshell/zsh/zprofile"
-	sudo sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "${Disto_path}/system_files/skel/.config/myshell/zsh/zprofile"
-	sudo sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "${Disto_path}/system_files/skel/.config/myshell/bash/profile"
-	sudo sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "${Disto_path}/system_files/skel/.config/myshell/bash/profile"
+	my-superuser sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "${Disto_path}/system_files/skel/.config/myshell/zsh/zprofile"
+	my-superuser sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "${Disto_path}/system_files/skel/.config/myshell/zsh/zprofile"
+	my-superuser sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "${Disto_path}/system_files/skel/.config/myshell/bash/profile"
+	my-superuser sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "${Disto_path}/system_files/skel/.config/myshell/bash/profile"
 	
 	remove_from_db
 	

@@ -15,9 +15,9 @@ banner() {
 
 main() {
 banner "Failed systemd services"
-sudo systemctl --failed
+my-superuser systemctl --failed
 banner "High priority errors in systemd journal"
-sudo journalctl -p 3 -xb
+my-superuser journalctl -p 3 -xb
 }
 
 # (O< -- Let's go!

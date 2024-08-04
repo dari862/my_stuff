@@ -38,19 +38,19 @@ echo_purple() {
 
 __upgrade_current_repo_(){
 	  echo_purple "\n==> status"
-	  __git_status="$(sudo git status 2>&1 | grep 'fatal: unknown index entry format')"
+	  __git_status="$(my-superuser git status 2>&1 | grep 'fatal: unknown index entry format')"
 	  if [ -n "$__git_status" ];then
-	  	sudo rm -f .git/index
-	  	sudo git status || :
+	  	my-superuser rm -f .git/index
+	  	my-superuser git status || :
 	  fi
       echo_purple "\n==> Fetching"
-      sudo git fetch  || print_RED "git fetch failed... "
+      my-superuser git fetch  || print_RED "git fetch failed... "
       echo_purple "\n==> Pulling"
-      sudo git pull
+      my-superuser git pull
 }
 
 # check out connection to debian server
-PINGTEST0=$(sudo ping -c 1 debian.org | grep [0-9])
+PINGTEST0=$(my-superuser ping -c 1 debian.org | grep [0-9])
 if [ "$PINGTEST0" = "" ]; then
 	print_RED " Debian server is not reachable, exiting... "
 	echo ""
@@ -64,22 +64,22 @@ fi
 CHECKNALA=$(which nala)
 if [ "$CHECKNALA" != "" ]; then
 	echo_purple "\n==> full system upgrade\n"
-	sudo nala upgrade --no-install-recommends --no-autoremove
-	sudo dpkg --configure -a
+	my-superuser nala upgrade --no-install-recommends --no-autoremove
+	my-superuser dpkg --configure -a
 else
 	echo_purple "\n==> sync package repositories\n"
-	sudo apt-get update 
+	my-superuser apt-get update 
 	echo_purple "\n==> full system upgrade\n"
-	sudo apt-get -y upgrade --no-install-recommends
+	my-superuser apt-get -y upgrade --no-install-recommends
 	# remove packages that can no longer be downloaded
 	echo_purple "\n==> clean package repository\n"
-	sudo apt-get autoclean
+	my-superuser apt-get autoclean
 	
 	# remove packages automatically installed as dependencies and not currently
 	# dependencies of any installed packages
 	echo_purple "\n==> remove orphan packages\n"
-	sudo apt autoremove
-	sudo dpkg --configure -a
+	my-superuser apt autoremove
+	my-superuser dpkg --configure -a
 fi
 
 if [ -d "${Custom_distro_path}/system_files/updater" ];then
@@ -102,12 +102,12 @@ if $(git fetch &>/dev/null);then
 else
 	echo_purple "\n==> Updating Distro.\n"
 	__upgrade_current_repo_
-	sudo find . -type f -not -path './Theme_Stuff/*' -not -path './opt/*' -not -path './icons/*' -not -path './images/*' -not -path './my_wallpapers/*' -not -path './.git/*' -exec sudo sed -i "s/my_stuff/${Custom_distro_dir_name}/g" {} +
-	sudo find . -type f -not -path './Theme_Stuff/*' -not -path './opt/*' -not -path './icons/*' -not -path './images/*' -not -path './my_wallpapers/*' -not -path './.git/*' -exec sudo sed -i "s/My Stuff/${Custom_distro_name}/g" {} +
+	my-superuser find . -type f -not -path './Theme_Stuff/*' -not -path './opt/*' -not -path './icons/*' -not -path './images/*' -not -path './my_wallpapers/*' -not -path './.git/*' -exec my-superuser sed -i "s/my_stuff/${Custom_distro_dir_name}/g" {} +
+	my-superuser find . -type f -not -path './Theme_Stuff/*' -not -path './opt/*' -not -path './icons/*' -not -path './images/*' -not -path './my_wallpapers/*' -not -path './.git/*' -exec my-superuser sed -i "s/My Stuff/${Custom_distro_name}/g" {} +
 	for d in /home/*/ ; do
     	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes
     	f="${d}${usr_flag_setup_path}"
-		sudo test -f "${f}" && sudo rm -f "${f}"
+		my-superuser test -f "${f}" && my-superuser rm -f "${f}"
 	done
 fi
 

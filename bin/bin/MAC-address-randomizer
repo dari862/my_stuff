@@ -4,9 +4,9 @@ _mode="${1-}"
 rand_mac_conf="/etc/NetworkManager/conf.d/wifi_rand_mac.conf"
 
 if [ "$_mode" = "disable" ];then
-	[[ -f "${rand_mac_conf}" ]] && sudo rm -rdf ${rand_mac_conf}
+	[[ -f "${rand_mac_conf}" ]] && my-superuser rm -rdf ${rand_mac_conf}
 elif [ "$_mode" = "enable" ];then
-	sudo tee ${rand_mac_conf} <<- EOF > /dev/null
+	my-superuser tee ${rand_mac_conf} <<- EOF > /dev/null
 	[device-mac-randomization]
 	# yes is the default for scanning
 	wifi.scan-rand-mac-address=yes

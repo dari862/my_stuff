@@ -1,1 +1,1 @@
-sudo apt remove -y flameshot
+my-superuser apt remove -y flameshot
