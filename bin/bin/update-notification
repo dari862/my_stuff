@@ -1,0 +1,218 @@
+#!/bin/bash
+#===================================================================================
+# UPDATE NOTIFICATION
+# FILE: update_notification
+#
+# DESCRIPTION: Checks apt updates and show it to user in tint2 taskbar
+#
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 15.10.2017 
+# LAST-UPDATE: 15.10.2017
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+# CONFIG
+__arg="${1-}"
+script_name="$(basename $0)"
+
+source "/usr/share/my_stuff/system_files/update-notification.conf"
+
+get_total_updates() { UPDATES=$(cat "$updates_file" | wc -l); }
+__my_superuser_() { my-superuser true; }
+
+#=== FUNCTIONs ==================================================================
+# NAME: Massage system
+# all Bold
+#===============================================================================
+
+plain() {
+	#no color
+	(( QUIET )) && return
+	local mesg=$1; shift
+	printf "\e[1;1m    ${mesg}\e[1;0m\n" "$@" >&1
+}
+
+msg() {
+	# green
+	(( QUIET )) && return
+	local mesg=$1; shift
+	printf "\e[1;1m\e[1;32m==>\e[1;0m\e[1;1m ${mesg}\e[1;0m\n" "$@" >&1
+}
+
+msg2() {
+	# blue
+	(( QUIET )) && return
+	local mesg=$1; shift
+	printf "\e[1;1m\e[1;34m  ->\e[1;0m\e[1;1m ${mesg}\e[1;0m\n" "$@" >&1
+}
+
+ask() {
+	# blue
+	local mesg=$1; shift
+	printf "\e[1;1m\e[1;34m::\e[1;0m\e[1;1m ${mesg}\e[1;0m" "$@" >&1
+}
+
+warning() {
+	# yellow
+	local mesg=$1; shift
+	printf "\e[1;1m\e[1;33m==> $(gettext "WARNING:")\e[1;0m\e[1;1m ${mesg}\e[1;0m\n" "$@" >&2
+}
+
+error() {
+	# red
+	local mesg=$1; shift
+	printf "\e[1;1m\e[1;31m==> $(gettext "ERROR:")\e[1;0m\e[1;1m ${mesg}\e[1;0m\n" "$@" >&2
+}
+
+
+#=== FUNCTION ==================================================================
+# NAME: update
+# DESCRIPTION: make apt update and and check new packages updates and save the list in $updates_file
+#===============================================================================
+function update () {
+	__my_superuser_
+	# If no update today exec update
+	if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ]; then
+		# CHECK INTERNET CONNECTION
+		plain "Checking Internet connection..."
+		ping -c 1 8.8.8.8 &>/dev/null || exit 1
+
+		# REPOSITORY UPDATE-NOTIFICATION
+		plain "Updating package repositoriy..."
+		my-superuser apt-get update &> /dev/null
+	fi
+	
+	plain "Checking updates and saving in $updates_file..."
+	printf "" | my-superuser tee "$updates_file" > /dev/null 2>&1
+	for i in $(apt list --upgradable -a  2>/dev/null | awk -F/ '{print $1}' | grep -v Listing... | uniq)
+	do 
+		dpkg -l | grep -e "$i" | my-superuser tee -a $updates_file > /dev/null 2>&1
+	done
+
+	# No updates
+	if [ ! -s "$updates_file" ]; then
+		msg "NO PENDING UPDATES"
+	# Pending updates
+	else
+		warning "PENDING UPDATES"
+		cat "$updates_file"
+	fi
+}
+
+
+#=== FUNCTION ==================================================================
+# NAME: update
+# DESCRIPTION: make apt upgrade interactive
+#===============================================================================
+function interactive_upgrade() {
+	update
+	echo
+	if [ ! -s "$updates_file" ];then
+		read -p "Press any key to exit..."
+		exit 0
+	fi
+
+	warning "You are about to upgrade your system."
+	read -p "Press enter to continue upgrade..."
+	echo
+	
+	my-superuser apt-get -y upgrade || my-superuser apt-get -y upgrade
+	
+	if ! [ $? -eq 0 ]; then 
+		read; 
+		exit 1; 
+	fi
+
+	echo -n "" > "$updates_file"
+	
+	echo
+	read -p "Update complete!"
+	exit
+}
+
+#=== FUNCTION ==================================================================
+# NAME: notifcation system
+# DESCRIPTION: shot text for display in systray
+#===============================================================================
+function send_notifcation_msg {
+	if [ -s "$updates_file" ]
+	then
+	    get_total_updates
+	    # notify user of updates
+	    if hash notify-send &>/dev/null; then
+			if (( UPDATES > 50 )); then
+		    	notify-send -u critical -i $NOTIFY_ICON \
+				"You really need to update!!" "$UPDATES New packages"
+			elif (( UPDATES > 25 )); then
+		    	notify-send -u normal -i $NOTIFY_ICON \
+				"You should update soon" "$UPDATES New packages"
+			elif (( UPDATES > 2 )); then
+		    	notify-send -u low -i $NOTIFY_ICON \
+				"$UPDATES New packages"
+			fi
+	    fi		
+	fi
+	exit 0
+}
+
+
+#=== FUNCTION ==================================================================
+# NAME: install
+# DESCRIPTION: install the script
+#===============================================================================
+function install {
+	__my_superuser_
+	my-superuser ln -sf "$script_full_path" "/etc/cron.$cron_when"	
+	if [ ! -f "$updates_file" ]
+	then 
+		my-superuser touch "$updates_file"
+		my-superuser chmod a+w "$updates_file"
+	fi
+	exit 
+}
+
+#=== FUNCTION ==================================================================
+# NAME: update
+# DESCRIPTION: uninstall the script
+#===============================================================================
+function uninstall {
+	__my_superuser_
+	echo "Deleting symblink /etc/cron.$cron_when/${script_name}..."
+	[ -f "/etc/cron.monthly/${script_name}" ] && my-superuser rm "/etc/cron.monthly/${script_name}"
+	[ -f "/etc/cron.weekly/${script_name}" ] && my-superuser rm "/etc/cron.weekly/${script_name}"
+	[ -f "/etc/cron.daily/${script_name}" ] && my-superuser rm "/etc/cron.daily/${script_name}"
+	[ -f "/etc/cron.hourly/${script_name}" ] && my-superuser rm "/etc/cron.hourly/${script_name}"
+	echo "Deleting $updates_file..."
+	my-superuser rm "$updates_file"
+	exit 
+}
+
+
+
+#=== FUNCTION ==================================================================
+# NAME: help
+# DESCRIPTION: Show command help
+#===============================================================================
+function help() {
+	echo -e 'Checks apt updates and show it to user in dunst taskbar
+Usage: ${script_name} -[huc]
+   \e[1m-h\e[0m\tShow command help
+   \e[1m-i\e[0m\tStart interactive upgrade
+   \e[1m-n\e[0m\tOutput message for dunst
+   \e[1m-u\e[0m\tMake apt update and check for new packages updates
+   \e[1m-I\e[0m\tInstall the script (copy and link to cron.$cron_when)
+   \e[1m-U\e[0m\tUninstall
+	'
+	exit 0
+}
+
+case $__arg in
+	"") update;;
+	-h) help ;;
+	-i) interactive_upgrade ;;
+	-n) send_notifcation_msg ;;
+	-I) install ;;
+	-U) uninstall ;;
+	-u) update;; # UPDATE DEFAULT
+	*) help;;
+esac

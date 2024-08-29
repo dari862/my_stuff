@@ -1,0 +1,17 @@
+bash #| $BASHDOTDIR/bashrc.sh
+profile #| $BASHDOTDIR/profile
+bash_only_aliases #| $BASHDOTDIR/bash_only_aliases
+zsh #| $zshdotfiles/zshrc.sh
+zprofile #| $zshdotfiles/.zprofile
+zsh_only_aliases #| $zshdotfiles/zsh_only_aliases
+alacritty #| $HOME/.config/alacritty/alacritty.yml
+openbox autorun #| ${OBPATH}
+bspwm #| $HOME/.config/bspwm/bspwmrc
+dunst #| $HOME/.config/dunst/dunstrc
+ncmpcpp #| $HOME/.config/ncmpcpp/config
+picom #| $HOME/.config/picom.conf
+ssh #| $HOME/.ssh/config
+sxhkd #| $HOME/.config/sxhkd/sxhkdrc
+xinitrc #| $HOME/.xinitrc
+xresources #| $HOME/.Xresources
+xsessionrc #| $HOME/.xsessionrc

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=LF
+Comment=terminal file manager written in Go with a heavy inspiration from ranger file manager. 
+Keywords=openbox;conky;tint2;gtk;wallpaper;preferences;settings;theme;style;appearance;
+Icon=preferences-desktop-theme
+Exec=popup_terminal lf
+StartupNotify=false
+Categories=GTK;Settings;DesktopSettings;
+Path=
+Terminal=false

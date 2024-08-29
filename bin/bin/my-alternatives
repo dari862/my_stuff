@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+#    bl-alternatives: a script to manage My Stuff alternatives.
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+my_superuser_path="/usr/bin/my-superuser"
+my_alternatives_path=/usr/share/my_stuff/system_files/bin
+ACTION="${1-}"
+alt_package="${2-}"
+MYALTS=(my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide)
+
+FILEMANAGERS=(thunar caja dolphin nautilus pcmanfm spacefm xfe lf ranger)
+IMAGEVIEWERS=(viewnior sxiv eog eom geeqie gpicview gthumb mirage)
+MEDIAPLAYERS=(my-mpv vlc banshee dragonplayer celluloid gxine kaffeine parole smplayer totem)
+TEXTEDITORS=(geany featherpad mousepad gedit jedit kate medit scite emacs)
+WWWBROWSERS=(mullvad-browser librewolf firefox-esr firefox brave-browser chromium dillo google-chrome-stable)
+TERMINALEMULATORS=(terminator alacritty kitty)
+OFFICES=(libreoffice-writer)
+OFFICES+=(${TEXTEDITORS[@]})
+IDES=(nvim emacs code)
+IDES+=(${TEXTEDITORS[@]})
+SUPERUSERS="doas sudo"
+
+usage()
+{
+    cat <<-EOF
+	Usage: my-alternatives <action>
+  	Perform the given action to manage My Stuff alternatives.  Superuser
+  	permission required to make changes.
+	Action:
+  	help      show help (also --help)
+  	install   install My Stuff alternatives with default packages
+  	list      list all assigned My Stuff alternatives
+  	remove    remove all assigned My Stuff alternatives
+  	set	    update My Stuff alternatives with typical installed packages
+	EOF
+	exit 0
+}
+
+install_alternatives(){
+	[[ ! -d "${my_alternatives_path}" ]] && my-superuser mkdir -p "${my_alternatives_path}"
+	echo "installing all default alternatives"
+	for ALT in "${MYALTS[@]}" ; do
+    	ALTSPACKAGES_array_name="$(echo "$ALT" | sed -e 's/^my-//' -e "s/-//" -e 's/$/s/' | tr '[:lower:]' '[:upper:]')"
+    	declare -n ALTSPACKAGES="$ALTSPACKAGES_array_name"
+    	for package in "${ALTSPACKAGES[@]}" ; do
+    		package_path="$(which "$package" || ls $my_alternatives_path/$package 2>/dev/null || : )"
+    		if [ -n "${package_path}" ];then
+    			my-superuser ln -sf ${package_path} "${my_alternatives_path}"/$ALT
+    			break
+    		fi
+    	done
+    	unset ALTSPACKAGES
+    done
+    for package in "${SUPERUSERS[@]}" ; do
+	package_path="$(which "$package")"
+    	if [ -n "${package_path}" ];then
+    		my-superuser ln -sf ${package_path} ${my_superuser_path}
+    		break
+    	fi
+	done
+}
+
+remove_alternatives(){
+	if [[ -z "${alt_package}" ]];then
+    	for ALT in "${MYALTS[@]}" ; do
+        	my-superuser rm -f "${my_alternatives_path}"/$ALT
+    	done
+    fi
+}
+
+set_alternatives(){
+	if [[ -z "${alt_package}" ]];then
+		echo "which My Stuff alternative do you want to change"
+		echo "================================="
+		count=1
+		for ALT in "${MYALTS[@]}" ; do
+			echo "$count - $ALT"
+			((++count))
+		done
+		
+		read -p "Enter Alternative Package Name: " alt_package_number
+		alt_package_number=$((alt_package_number-1))
+		alt_package="${MYALTS[alt_package_number]}"
+	fi
+	
+	if [ "${SUPERUSERS#*"$alt_package"}" != "$SUPERUSERS" ];then
+		package_path="$(which "$alt_package")"
+    	my-superuser ln -sf ${package_path} ${my_superuser_path}
+    	exit
+	fi
+	
+	if [[ ! $(echo "${MYALTS[@]}" | fgrep -w $alt_package) ]];then
+  		echo "$alt_package does not exist."
+  		exit 1
+	fi
+	
+	picked_package="${3-}"
+	if [[ -z "${picked_package}" ]];then
+		echo "which package do you want My Stuff alternative to set to."
+		echo "================================="
+		count=1
+		alt_packages_array_name="$(echo "$alt_package" | sed -e 's/^my-//' -e "s/-//" -e 's/$/s/' | tr '[:lower:]' '[:upper:]')"
+    	declare -n alt_packages="$alt_packages_array_name"
+		for package in "${alt_packages[@]}" ; do
+			echo "$count - $package"
+			((++count))
+		done
+		
+		read -p "Enter Package Name: " picked_package_number
+		picked_package_number=$((picked_package_number-1))
+		picked_package="${alt_packages[picked_package_number]}"
+	fi
+	
+	if [[ ! $(echo "${alt_packages[@]}" | fgrep -w $picked_package) ]];then
+  		echo "$picked_package does not exist."
+  		exit 1
+	fi
+	
+   	my-superuser ln -sf $(which $picked_package) "${my_alternatives_path}"/$alt_package
+   	
+   	if [ -f "${my_alternatives_path}/$ALT" ];then
+   		echo "$ALT alternative created successfully"
+   	else
+   	   	echo "failed to create $ALT alternative"
+   	fi
+}
+
+list_alternatives(){
+	for ALT in "${MYALTS[@]}" ; do
+    	LINK=$(readlink "${my_alternatives_path}"/$ALT)
+    	if [ "$LINK" ] ; then
+        	printf "%-22.22s uses %s\n" $ALT $LINK
+        	ALTSPACKAGES_array_name="$(echo "$ALT" | sed -e 's/^my-//' -e "s/-//" -e 's/$/s/' | tr '[:lower:]' '[:upper:]')"
+    		declare -n ALTSPACKAGES="$ALTSPACKAGES_array_name"
+        	for package in "${ALTSPACKAGES[@]}" ; do
+    			which ${package} | xargs printf "    %s\n"
+    		done
+    		unset ALTSPACKAGES
+    	else
+        	printf "%-22.22s unused\n" $ALT
+    	fi
+    done
+    printf "%-22.22s uses %s\n" my-superuser $(readlink "${my_superuser_path}")
+}
+
+case $ACTION in
+	--install|-i) install_alternatives ;;
+	--list|-l) list_alternatives ;;
+	--remove|-r) remove_alternatives;;
+	--set|-s) set_alternatives "$1" ;;
+	""|*help|-h) usage;;
+	*)  echo "Unknown action ($ACTION)" >&2
+    	usage
+    ;;
+esac

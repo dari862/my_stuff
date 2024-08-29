@@ -1,0 +1,2081 @@
+#!/bin/bash
+create_sourcemainbindkey_conf_file(){
+	grep "=" keybinds.conf | grep -v '^#' > newkeybinds.conf
+	sed -i 's/zi=Ctrl/zi=sed_it_to_backslasheskeepitCtrol/g' newkeybinds.conf
+	sed -i "s/\`/sed_it_to_backtick/g" newkeybinds.conf
+	sed -i "s/\!/sed_it_to_exclamation/g" newkeybinds.conf
+	sed -i 's|\\\\|sed_it_to_double_backslashes|g' newkeybinds.conf
+	sed -i 's|\\|sed_it_to_backslashes|g' newkeybinds.conf
+	
+	sed -i 's|/|sed_it_to_slash|g' newkeybinds.conf
+	sed -i 's|\\|sed_it_to_backslashes|g' newkeybinds.conf
+	sed -i 's|==|=sed_it_to_equal|g' newkeybinds.conf
+	sed -i 's|+ =|+ sed_it_to_equal|g' newkeybinds.conf
+	sed -i 's/"/sed_it_to_quote/g' newkeybinds.conf
+	sed -i 's|=+|=sed_it_to_plus|g' newkeybinds.conf
+	sed -i 's|+ +|+ sed_it_to_plus|g' newkeybinds.conf
+	sed -i "s| $||g" newkeybinds.conf
+	
+	while IFS= read -r line || [[ -n "$line" ]];do 
+		_key="$(cut -d '=' -f 1 <<<"$line")"
+		_value="$(cut -d '=' -f 2 <<<"$line")"
+		sed -i "s/!!!${_key}!!!/${_value}/g" keybinds_to_sourcemainbindkey.conf
+	done < newkeybinds.conf
+	
+	sed -i 's/Ctrl/ctrl/g' keybinds_to_sourcemainbindkey.conf
+	sed -i 's/Alt/alt/g' keybinds_to_sourcemainbindkey.conf
+	sed -i 's/Super/super/g' keybinds_to_sourcemainbindkey.conf
+	sed -i 's/Shift/shift/g' keybinds_to_sourcemainbindkey.conf
+	
+	csplit -z keybinds_to_sourcemainbindkey.conf /#csplit_file_here#/ '{*}' >/dev/null 2>&1
+	
+	sed -i 's/super/Mod4/g' xx00
+	
+	for file in xx02 xx04 xx05 xx06 xx07 xx09 xx11 xx13 xx14;do
+		sed -i 's/ //g' $file	
+	done
+	
+	for file in xx08 xx09 xx11 xx14;do
+		sed -i 's/+/-/g' $file
+		
+	done
+	
+	for file in xx00 xx03 xx07 xx14;do
+		sed -i 's/ctrl/Ctrl/g' $file
+		sed -i 's/alt/Alt/g' $file
+		sed -i 's/super/Super/g' $file
+		sed -i 's/shift/Shift/g' $file
+	done
+	
+	for file in xx02 xx04 xx06 xx13;do
+		sed -i 's/ctrl/<Ctrl>/g' $file
+		sed -i 's/alt/<Alt>/g' $file
+		sed -i 's/super/<Primary>/g' $file
+		sed -i 's/shift/<Shift>/g' $file
+		sed -i 's/+//g' $file
+	done
+	
+	for file in xx00 xx01 xx03 xx04 xx08 xx14;do
+		sed -i 's/ctrl/Control/g' $file
+		sed -i 's/Ctrl/Control/g' $file
+	done
+
+	sed -i 's/Backspace/BS/g' xx07
+	sed -i 's/Space/IDEOGRAPHIC_SPACE/g' xx07
+	sed -i 's/Page_Down/PGDWN/g' xx07
+	sed -i 's/Page_Up/PGUP/g' xx07
+	sed -i 's/Tab/TAB/g' xx07
+	
+	sed -i 's/keepitCtrol/C/g' xx08
+	sed -i 's/ - /-/g' xx08
+	
+	sed -i 's/ctrl/C/g' xx11
+	sed -i 's/alt/A/g' xx11
+	sed -i 's/super/W/g' xx11
+	sed -i 's/shift/S/g' xx11
+	
+	sed -i 's/sed_it_to_backtick/grave/g' xx12
+	
+	sed -i 's/<Alt>=/alt=/g' xx13
+	sed -i 's/<Alt>1=/alt1=/g' xx13
+	sed -i 's/<Alt>2=/alt2=/g' xx13
+	sed -i 's/<Alt>3=/alt3=/g' xx13
+	sed -i 's/<Alt>4=/alt4=/g' xx13
+	sed -i 's/<Alt>5=/alt5=/g' xx13
+	sed -i 's/<Alt>6=/alt6=/g' xx13
+	
+	mv xx01 xx01xx
+	
+	echo '#csplit_file_here#' > xx01
+	grep -v '^#' xx01xx | while read line; do
+    	key=$(cut -d '=' -f 1 <<<"$line")
+    	value=$(cut -d '=' -f 2 <<<"$line")
+  	
+  		# Split the value to get combination and mods
+  		if [[ "$value" == *"+ "* ]]; then
+    		key_combo="${value#* + }"
+    		mods="${value%% + *}"
+    		mods="mods: ${mods^},"
+  		else
+    		key_combo="$value"
+    		mods=""
+  		fi
+		
+  		# Format output
+  		printf '%s="%s,       %s       "\n' "$key" "$key_combo" "$mods"
+	done >> xx01
+	
+	cat xx00 xx01 xx02 xx03 xx04 xx05 xx06 xx07 xx08 xx09 xx10 xx11 xx12 xx13 xx14 xx15 > sourcemainbindkey.conf
+	
+	sed -i 's/$/"/g' sourcemainbindkey.conf
+	sed -i 's/=/="/g' sourcemainbindkey.conf
+	sed -i 's/"sed_it_to_quote"/sed_it_to_quote/g' sourcemainbindkey.conf
+	sed -i "s/sed_it_to_quote/'\"'/g" sourcemainbindkey.conf
+	
+	sed -i 's|sed_it_to_slash|/|g' sourcemainbindkey.conf
+	sed -i 's|sed_it_to_backslashes|\\|g' sourcemainbindkey.conf
+	sed -i 's|sed_it_to_equal|=|g' sourcemainbindkey.conf
+	sed -i 's|sed_it_to_plus|+|g' sourcemainbindkey.conf
+	sed -i 's/sed_it_to_quote/"/g' sourcemainbindkey.conf
+}
+
+create_xbindkeysrc_tmp_file(){
+echo "
+# Show main menu
+\"jgmenu_run\"
+    ${Show_main_menu}
+
+# Run Program
+\"rofi-runner\"
+    ${Run_Program}
+
+# Terminal
+\"my-terminal-emulator\"
+    ${xbindkeysrc_Terminal}
+
+# Web Browser
+\"my-www-browser\"
+    ${xbindkeysrc_Web_Browser}
+
+# File Manager
+\"my-file-manager\"
+    ${xbindkeysrc_File_Manager}
+
+# Editor
+\"my-text-editor\"
+    ${xbindkeysrc_Editor}
+
+# Media Player
+\"my-media-player\"
+    ${xbindkeysrc_Media_Player}
+
+# Volume
+\"pavucontrol\"
+    ${Volume}
+
+# htop task manager
+\"sysinfo_script_ --process\"
+    ${htop_task_manager}
+
+# Lock Screen
+\"my-locker\"
+    ${xbindkeysrc_Lock_Screen}
+
+# Logout
+\"my_session_manager --yad\"
+    ${xbindkeysrc_Logout}
+
+# Kill a Window
+\"xkill\"
+    ${Kill_a_Window}
+
+# Print Screen
+\"ac-shots\"
+    ${Print_Screen}
+
+# Print Screen area
+\"ac-shots --area\"
+    ${Print_Screen_area}
+
+# Print Screen with 10s delay
+\"ac-shots --delay 10\"
+    ${Print_Screen_with_10s_delay}
+" > "${temp_xbindkeysrc_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_xbindkeysrc_file_path}" "${xbindkeysrc_file_path}"
+
+}
+
+create_alacritty_tmp_file(){
+echo "
+mouse_bindings:
+  - { mouse: ${Copy1}action: Copy }
+key_bindings:
+  # (Windows, Linux, and BSD only)
+  - { key: ${Paste}action: Paste            }
+  - { key: ${Print}action: Paste            }
+  - { key: ${gc}chars: \"gc\"              }
+  - { key: ${Copy2}action: Copy             }
+  - { key: ${ResetFontSize}action: ResetFontSize    }
+  - { key: ${IncreaseFontSize1}action: IncreaseFontSize }
+  - { key: ${IncreaseFontSize2}action: IncreaseFontSize }
+  - { key: ${DecreaseFontSize}action: DecreaseFontSize }
+  # Vi Mode
+  - { key: ${ScrollToBottom1}mode: Vi, action: ScrollToBottom          }
+  - { key: ${ToggleViMode1}action: ToggleViMode            }
+  - { key: ${ScrollToBottom2}mode: Vi, action: ScrollToBottom          }
+  - { key: ${ToggleViMode2}mode: Vi, action: ToggleViMode            }
+  - { key: ${ScrollToBottom3}mode: Vi, action: ScrollToBottom          }
+  - { key: ${ToggleViMode3}mode: Vi, action: ToggleViMode            }
+  - { key: ${ClearSelection1}mode: Vi, action: ClearSelection          }
+  - { key: ${ScrollLineUp}mode: Vi, action: ScrollLineUp            }
+  - { key: ${ScrollLineDown}mode: Vi, action: ScrollLineDown          }
+  - { key: ${ScrollToTop}mode: Vi, action: ScrollToTop             }
+  - { key: ${ScrollToBottom4}mode: Vi, action: ScrollToBottom          }
+  - { key: ${ScrollPageUp}mode: Vi, action: ScrollPageUp            }
+  - { key: ${ScrollPageDown}mode: Vi, action: ScrollPageDown          }
+  - { key: ${ScrollHalfPageUp}mode: Vi, action: ScrollHalfPageUp        }
+  - { key: ${ScrollHalfPageDown}mode: Vi, action: ScrollHalfPageDown      }
+  - { key: ${Copy3}mode: Vi, action: Copy                    }
+  - { key: ${ClearSelection2}mode: Vi, action: ClearSelection          }
+  - { key: ${ToggleNormalSelection}mode: Vi, action: ToggleNormalSelection   }
+  - { key: ${ToggleLineSelection}mode: Vi, action: ToggleLineSelection     }
+  - { key: ${ToggleBlockSelection}mode: Vi, action: ToggleBlockSelection    }
+  - { key: ${ToggleSemanticSelection}mode: Vi, action: ToggleSemanticSelection }
+  - { key: ${Open}mode: Vi, action: Open                    }
+  - { key: ${Up1}mode: Vi, action: Up                      }
+  - { key: ${Down1}mode: Vi, action: Down                    }
+  - { key: ${Left1}mode: Vi, action: Left                    }
+  - { key: ${Right1}mode: Vi, action: Right                   }
+  - { key: ${Up2}mode: Vi, action: Up                      }
+  - { key: ${Down2}mode: Vi, action: Down                    }
+  - { key: ${Left2}mode: Vi, action: Left                    }
+  - { key: ${Right2}mode: Vi, action: Right                   }
+  - { key: ${First}mode: Vi, action: First                   }
+  - { key: ${Last}mode: Vi, action: Last                    }
+  - { key: ${FirstOccupied}mode: Vi, action: FirstOccupied           }
+  - { key: ${High}mode: Vi, action: High                    }
+  - { key: ${Middle}mode: Vi, action: Middle                  }
+  - { key: ${Low}mode: Vi, action: Low                     }
+  - { key: ${SemanticLeft}mode: Vi, action: SemanticLeft            }
+  - { key: ${SemanticRight}mode: Vi, action: SemanticRight           }
+  - { key: ${SemanticRightEnd}mode: Vi, action: SemanticRightEnd        }
+  - { key: ${WordLeft}mode: Vi, action: WordLeft                }
+  - { key: ${WordRight}mode: Vi, action: WordRight               }
+  - { key: ${WordRightEnd}mode: Vi, action: WordRightEnd            }
+  - { key: ${Bracket}mode: Vi, action: Bracket                 }
+  - { key: ${SearchForward}mode: Vi, action: SearchForward           }
+  - { key: ${SearchBackward}mode: Vi, action: SearchBackward          }
+  - { key: ${SearchNext}mode: Vi, action: SearchNext              }
+  - { key: ${SearchPrevious}mode: Vi, action: SearchPrevious          }
+" > "${temp_alacritty_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_alacritty_file_path}" "${alacritty_file_path}"
+}
+
+create_conky_tmp_file(){
+echo "${Launcher}\${alignr} Run Dialog
+${Network_Menu}\${alignr} Alt Menu
+${Main_Menu}\${alignr} Main Menu
+${Client_Menu}\${alignr} Client Menu
+${conky_Terminal}\${alignr} Terminal
+${conky_File_Manager}\${alignr} File Manager
+${conky_Editor}\${alignr} Editor
+${conky_Media_Player}\${alignr} Media Player
+${conky_Web_Browser}\${alignr} Web Browser
+${Task_Manager}\${alignr} Task Manager
+${conky_Lock_Screen}\${alignr} Lock Screen
+${Volume_Control}\${alignr} Volume Control
+${conky_Logout}\${alignr} Logout
+${Screenshot}\${alignr} Screenshot
+" > "${temp_conky_bl_file_path}"
+
+echo "${Launcher}\${alignr} Run Dialog
+${Network_Menu}\${alignr} Alt Menu
+${Main_Menu}\${alignr} Main Menu
+${Client_Menu}\${alignr} Client Menu
+${conky_Terminal}\${alignr} Terminal
+${conky_File_Manager}\${alignr} File Manager
+${conky_Editor}\${alignr} Editor
+${conky_Media_Player}\${alignr} Media Player
+${conky_Web_Browser}\${alignr} Web Browser
+${Task_Manager}\${alignr} Task Manager
+${conky_Lock_Screen}\${alignr} Lock Screen
+${Volume_Control}\${alignr} Volume Control
+${conky_Logout}\${alignr} Logout
+${Screenshot}\${alignr} Screenshot
+
+W I N D O W S
+\${hr}
+${Switch}\${alignr}Switch
+${conky_Close}\${alignr}Close
+${Minimize}\${alignr}Minimize
+${Toggle_Maximize}\${alignr}Toggle Maximize
+${Tile_half_screen}\${alignr}Tile half-screen
+${Tile_quarter_screen}     \${alignr}Tile quarter-screen" > "${temp_conky_bl_with_window_file_path}"
+
+echo "A P P S    S H O R T C U T S
+\${hr}
+${Launcher}\${alignr}Launcher
+${conky_Terminal}\${alignr}Terminal
+${conky_File_Manager}\${alignr}File Manager
+${conky_Web_Browser}\${alignr}Web Browser
+${conky_Editor}\${alignr}Editor
+
+D E S K T O P    S H O R T C U T S
+\${hr}
+${Snap_window1}\${alignr}Snap window
+${Snap_window2}\${alignr}Snap window
+${Resize_window}\${alignr}Resize window
+${Expand_window}\${alignr}Expand window
+${Kill_window}\${alignr}Kill window
+${conky_Lock_Screen}\${alignr}Lock Screen
+${conky_Logout}\${alignr}Logout
+${Kill_X}\${alignr}Kill X" > "${temp_conky_op_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_conky_bl_with_window_file_path}" "${conky_bl_with_window_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_conky_op_file_path}" "${conky_op_file_path}"
+
+for conkyblfile in ${conky_bl_file_path};do
+	sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_conky_bl_file_path}" "${conkyblfile}"
+done
+
+}
+
+create_kitty_tmp_file(){
+echo "
+kitty_mod ${kitty_mod}
+
+#: Clipboard {{{
+map ${copy_to_clipboard} copy_to_clipboard
+map ${paste_from_clipboard}  paste_from_clipboard
+map ${paste_from_selection1}  paste_from_selection
+map ${paste_from_selection2} paste_from_selection
+map ${pass_selection_to_program}  pass_selection_to_program
+#: Scrolling {{{
+map ${scroll_line_up1}        scroll_line_up
+map ${scroll_line_up2}         scroll_line_up
+map ${scroll_line_down1}      scroll_line_down
+map ${scroll_line_down2}         scroll_line_down
+map ${scroll_page_up}   scroll_page_up
+map ${scroll_page_down} scroll_page_down
+map ${scroll_home}      scroll_home
+map ${scroll_end}       scroll_end
+map ${show_scrollback}         show_scrollback
+
+#: Window management {{{
+map ${new_window} new_window
+map ${new_os_window} new_os_window
+map ${close_window} close_window
+map ${next_window} next_window
+map ${previous_window} previous_window
+map ${move_window_forward} move_window_forward
+map ${move_window_backward} move_window_backward
+map ${move_window_to_top} move_window_to_top
+map ${start_resizing_window} start_resizing_window
+map ${first_window} first_window
+map ${second_window} second_window
+map ${third_window} third_window
+map ${fourth_window} fourth_window
+map ${fifth_window} fifth_window
+map ${sixth_window} sixth_window
+map ${seventh_window} seventh_window
+map ${eighth_window} eighth_window
+map ${ninth_window} ninth_window
+map ${tenth_window} tenth_window
+
+#: Tab management {{{
+map ${next_tab} next_tab
+map ${previous_tab}  previous_tab
+map ${new_tab}     new_tab
+map ${close_tab}     close_tab
+map ${move_tab_forward}     move_tab_forward
+map ${move_tab_backward}     move_tab_backward
+map ${set_tab_title} set_tab_title
+
+#: Layout management {{{
+map ${next_layout} next_layout
+
+#: Font sizes {{{
+map ${change_font_size_eq2}     change_font_size all +2.0
+map ${change_font_size_2}     change_font_size all -2.0
+map ${change_font_size_all0} change_font_size all 0
+
+#: clipboard.
+map ${kitten_clipboard} kitten hints
+#: Open a currently visible URL using the keyboard. The program used
+#: to open the URL is specified in open_url_with.
+map ${open_url_with} kitten hints --type path --program -
+
+#: Select a path/filename and insert it into the terminal. Useful, for
+#: instance to run git commands on a filename output from a previous
+#: git command.
+map ${insert_path} kitten hints --type path
+
+#: Select a path/filename and open it with the default open program.
+map ${open_path_with} kitten hints --type line --program -
+
+#: Select a line of text and insert it into the terminal. Use for the
+#: output of things like: ls -1
+map ${insert_words} kitten hints --type word --program -
+
+#: Select words and insert into terminal.
+map ${insert_hash} kitten hints --type hash --program -
+
+#: Select something that looks like a hash and insert it into the
+#: terminal. Useful with git, which uses sha1 hashes to identify
+#: commits
+map ${select_line} kitten hints --type linenum
+
+#: Select something that looks like filename:linenum and open it in
+#: vim at the specified line number.
+map ${select_filename} kitten hints --type hyperlink
+
+#: Miscellaneous {{{
+map ${toggle_fullscreen}    toggle_fullscreen
+map ${toggle_maximized}    toggle_maximized
+map ${unicode_input}      kitten unicode_input
+map ${edit_config_file}     edit_config_file
+map ${kitty_shell_window} kitty_shell window
+map ${set_background_opacity_eq01}    set_background_opacity +0.1
+map ${set_background_opacity_01}    set_background_opacity -0.1
+map ${set_background_opacity_1}    set_background_opacity 1
+map ${set_background_opacity_default}    set_background_opacity default
+map ${clear_terminal_reset_active} clear_terminal reset active
+" > "${temp_kittyrc_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_kittyrc_file_path}" "${kittyrc_file_path}"
+
+}
+
+create_mpv_tmp_file(){
+echo "
+${chapter_1}                  add             chapter         -1
+${chapter_eq1}                  add             chapter         1
+${switch_audio}                  switch_audio
+${balance__01}                  add             balance         -0.1
+${balance_01}                  add             balance         0.1
+${ao_volume_1_1}                  add             ao-volume       1
+${audio_delay_0010}                  add             audio-delay     0.010
+${audio_delay__0010}                  add             audio-delay     -0.010
+${frame_step}                  frame_step
+${ao_volume__1_1}                  add             ao-volume       -1
+${ao_volume_1_2}                  add             ao-volume       1
+${contrast__1}                  add             contrast        -1
+${contrast_1}                  add             contrast        1
+${brightness__1}                  add             brightness      -1
+${brightness_1}                  add             brightness      1
+${hue__1}                  add             hue             -1
+${hue_1}                  add             hue             1
+${saturation__1}                  add             saturation      -1
+${saturation_1}                  add             saturation      1
+${ao_volume__1_2}                  add             ao-volume       -1
+${speed_10}                 set             speed           1.0
+${no_osd_cycle_deinterlace}                  no-osd          cycle           deinterlace
+${seek__60}               seek            -60
+${mpv_quit}                quit
+${show_text}                  show_text       \"\${filename}\"
+${mpv_pause1}  cycle           pause
+${seek__10_1}               seek            -10
+${seek__10_2}         seek            -10
+${seek_10_1}         seek            10
+${seek__600}              seek            -600
+${seek_600}               seek            600
+${seek_10_2}              seek            10
+${mpv_pause2}              cycle           pause
+${playlist_prev}          playlist_prev
+${ontop}                  cycle           ontop
+${playlist_next}                playlist_next
+${seek_60}                 seek            60
+${sub_delay_1}                  add             sub-delay       1
+${sub_delay__1}                  add             sub-delay       -1
+${speed_09091}                  multiply        speed           0.9091
+${speed_11}                  multiply        speed           1.1
+${framedrop}                  cycle           framedrop
+${panscan_02}                  add             panscan         0.2
+${fullscreen}                  cycle           fullscreen
+${mute}                  cycle           mute
+${show_progress}                  show_progress
+${sub_pos__1}                  add             sub-pos         -1
+${screenshot}                  screenshot
+${sub_pos_1}                  add             sub-pos         1
+${sub_scale_01}                  add             sub-scale       0.1
+${panscan__02}                  add             panscan         -0.2
+${sub_delay_01}                  add             sub-delay       0.1
+${sub_delay__01}                  add             sub-delay       -0.1
+${sub_scale__01}                  add             sub-scale       -0.1
+${speed_05}                  multiply        speed           0.5
+${speed_20}                  multiply        speed           2.0
+" > "${temp_mpv_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_mpv_file_path}" "${mpv_file_path}"
+}
+
+create_zshrc_tmp_file(){
+echo "
+
+" > "${temp_zshrc_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_zshrc_file_path}" "${zshrc_file_path}"
+
+}
+
+create_bashrc_tmp_file(){
+echo "
+# below line make bash when pressing ctrl+f runs commnad zi .
+bind '\"${commnad_zi}\":\"zi\n\"'
+" > "${temp_bashrc_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_bashrc_file_path}" "${bashrc_file_path}"
+
+}
+
+create_inputrc_tmp_file(){
+echo "\"${backward_kill_line}\": backward-kill-line
+\"${overwrite_mode}\": overwrite-mode
+\"${delete_char}\": delete-char
+\"${zshrc_beginning_of_line1}\": beginning-of-line
+\"${zshrc_beginning_of_line2}\": beginning-of-line
+\"${end_of_line1}\": end-of-line
+\"${end_of_line2}\": end-of-line
+\"${forward_word}\": forward-word
+\"${backward_word}\": backward-word
+\"${kill_word}\": kill-word
+\"${beginning_of_buffer_or_history}\": beginning-of-buffer-or-history
+\"${end_of_buffer_or_history}\": end-of-buffer-or-history
+\"${undo}\": undo
+\"${magic_space}\": magic-space
+\"${history_search_backward}\": history-search-backward
+\"${history_search_forward}\": history-search-forward
+\"${forward_char}\": forward-char
+\"${backward_char}\": backward-char
+" > "${temp_inputrc_bindkey_file_path}"
+echo "set vi-ins-mode-string ${vi_ins_mode_string}
+set vi-cmd-mode-string ${vi_cmd_mode_string}
+" > "${temp_inputrc_show_mode_file_path}"
+echo "${clear_screen1}: clear-screen
+${inputrc_beginning_of_line1}: beginning-of-line
+" > "${temp_inputrc_vi_command_file_path}"
+echo "${clear_screen2}: clear-screen
+${inputrc_beginning_of_line2}: beginning-of-line
+" > "${temp_inputrc_vi_insert_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script bindkey ------ ##/,/## ------ end of auto edited by shortcuts script bindkey ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script bindkey ------ ##/e cat ${temp_inputrc_bindkey_file_path}" "${inputrc_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script show-mode-in-prompt ------ ##/,/## ------ end of auto edited by shortcuts script show-mode-in-prompt ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script show-mode-in-prompt ------ ##/e cat ${temp_inputrc_show_mode_file_path}" "${inputrc_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script vi-command ------ ##/,/## ------ end of auto edited by shortcuts script vi-command ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script vi-command ------ ##/e cat ${temp_inputrc_vi_command_file_path}" "${inputrc_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script vi-insert ------ ##/,/## ------ end of auto edited by shortcuts script vi-insert ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script vi-insert ------ ##/e cat ${temp_inputrc_vi_insert_file_path}" "${inputrc_file_path}"
+
+}
+
+create_ncmpcpp_tmp_file(){
+echo "
+#def_key \"${mouse_event}\"
+#  mouse_event
+#
+#def_key \"${scroll_up}\"
+#  scroll_up
+#
+#def_key \"${scroll_up_select_item}\"
+#  select_item
+#  scroll_up
+#
+#def_key \"${scroll_down}\"
+#  scroll_down
+#
+#def_key \"${scroll_down_select_item}\"
+#  select_item
+#  scroll_down
+#
+#def_key \"${scroll_up_album}\"
+#  scroll_up_album
+#
+#def_key \"${scroll_down_album}\"
+#  scroll_down_album
+#
+#def_key \"${scroll_up_artist}\"
+#  scroll_up_artist
+#
+#def_key \"${scroll_down_artist}\"
+#  scroll_down_artist
+#
+#def_key \"${page_up}\"
+#  page_up
+#
+#def_key \"${page_down}\"
+#  page_down
+#
+#def_key \"${move_home}\"
+#  move_home
+#
+#def_key \"${move_end}\"
+#  move_end
+#
+#def_key \"${select_item}\"
+#  select_item
+#
+#def_key \"${enter_directory}\"
+#  enter_directory
+#
+#def_key \"${toggle_output}\"
+#  toggle_output
+#
+#def_key \"${run_action}\"
+#  run_action
+#
+#def_key \"${play_item}\"
+#  play_item
+#
+#def_key \"${add_item_to_playlist}\"
+#  add_item_to_playlist
+#
+#def_key \"${toggle_lyrics_update_on_song_change}\"
+#  toggle_lyrics_update_on_song_change
+#
+#def_key \"${toggle_lyrics_update_on_song_change}\"
+#  toggle_visualization_type
+#
+#def_key \"${delete_playlist_items}\"
+#  delete_playlist_items
+#
+#def_key \"${delete_browser_items}\"
+#  delete_browser_items
+#
+#def_key \"${delete_stored_playlist}\"
+#  delete_stored_playlist
+#
+#def_key \"${next_column}\"
+#  next_column
+#
+#def_key \"${slave_screen}\"
+#  slave_screen
+#
+#def_key \"${volume_up1}\"
+#  volume_up
+#
+#def_key \"${volume_up2}\"
+#  volume_up
+#
+#def_key \"${previous_column}\"
+#  previous_column
+#
+#def_key \"${master_screen}\"
+#  master_screen
+#
+#def_key \"${volume_down1}\"
+#  volume_down
+#
+#def_key \"${volume_down2}\"
+#  volume_down
+#
+#def_key \"${execute_command}\"
+#  execute_command
+#
+#def_key \"${next_screen}\"
+#  next_screen
+#
+#def_key \"${previous_screen}\"
+#  previous_screen
+#
+#def_key \"${show_help}\"
+#  show_help
+#
+#def_key \"${show_playlist}\"
+#  show_playlist
+#
+#def_key \"${show_browser}\"
+#  show_browser
+#
+#def_key \"${change_browse_mode}\"
+#  change_browse_mode
+#
+#def_key \"${show_search_engine}\"
+#  show_search_engine
+#
+#def_key \"${reset_search_engine}\"
+#  reset_search_engine
+#
+#def_key \"${show_media_library}\"
+#  show_media_library
+#
+#def_key \"${toggle_media_library_columns_mode}\"
+#  toggle_media_library_columns_mode
+#
+#def_key \"${show_playlist_editor}\"
+#  show_playlist_editor
+#
+#def_key \"${show_tag_editor}\"
+#  show_tag_editor
+#
+#def_key \"${show_outputs}\"
+#  show_outputs
+#
+#def_key \"${show_visualizer}\"
+#  show_visualizer
+#
+#def_key \"${show_clock}\"
+#  show_clock
+#
+#def_key \"${show_server_info}\"
+#  show_server_info
+#
+#def_key \"${stop}\"
+#  stop
+#
+#def_key \"${ncmpcpp_pause}\"
+#  pause
+#
+#def_key \"${next}\"
+#  next
+#
+#def_key \"${previous}\"
+#  previous
+#
+#def_key \"${jump_to_parent_directory1}\"
+#  jump_to_parent_directory
+#
+#def_key \"${replay_song1}\"
+#  replay_song
+#
+#def_key \"${jump_to_parent_directory2}\"
+#  jump_to_parent_directory
+#
+#def_key \"${replay_song2}\"
+#  replay_song
+#
+#def_key \"${play}\"
+#  play
+#
+#def_key \"${seek_forward}\"
+#  seek_forward
+#
+#def_key \"${seek_backward}\"
+#  seek_backward
+#
+#def_key \"${toggle_repeat}\"
+#  toggle_repeat
+#
+#def_key \"${toggle_random}\"
+#  toggle_random
+#
+#def_key \"${save_tag_changes}\"
+#  save_tag_changes
+#
+#def_key \"${start_searching}\"
+#  start_searching
+#
+#def_key \"${toggle_single}\"
+#  toggle_single
+#
+#def_key \"${toggle_consume}\"
+#  toggle_consume
+#
+#def_key \"${toggle_replay_gain_mode}\"
+#  toggle_replay_gain_mode
+#
+#def_key \"${toggle_add_mode}\"
+#  toggle_add_mode
+#
+#def_key \"${toggle_mouse}\"
+#  toggle_mouse
+#
+#def_key \"${toggle_bitrate_visibility}\"
+#  toggle_bitrate_visibility
+#
+#def_key \"${shuffle}\"
+#  shuffle
+#
+#def_key \"${toggle_crossfade}\"
+#  toggle_crossfade
+#
+#def_key \"${set_crossfade}\"
+#  set_crossfade
+#
+#def_key \"${update_database}\"
+#  update_database
+#
+#def_key \"${sort_playlist}\"
+#  sort_playlist
+#
+#def_key \"${toggle_browser_sort_mode}\"
+#  toggle_browser_sort_mode
+#
+#def_key \"${toggle_media_library_sort_mode}\"
+#  toggle_media_library_sort_mode
+#
+#def_key \"${reverse_playlist}\"
+#  reverse_playlist
+#
+#def_key \"${apply_filter}\"
+#  apply_filter
+#
+#def_key \"${select_found_items}\"
+#  select_found_items
+#
+#def_key \"${find1}\"
+#  find
+#
+#def_key \"${find_item_forward}\"
+#  find_item_forward
+#
+#def_key \"${find2}\"
+#  find
+#
+#def_key \"${find_item_backward}\"
+#  find_item_backward
+#
+#def_key \"${next_found_item}\"
+#  next_found_item
+#
+#def_key \"${previous_found_item}\"
+#  previous_found_item
+#
+#def_key \"${toggle_find_mode}\"
+#  toggle_find_mode
+#
+#def_key \"${edit_song}\"
+#  edit_song
+#
+#def_key \"${edit_library_tag}\"
+#  edit_library_tag
+#
+#def_key \"${edit_library_album}\"
+#  edit_library_album
+#
+#def_key \"${edit_directory_name}\"
+#  edit_directory_name
+#
+#def_key \"${edit_playlist_name}\"
+#  edit_playlist_name
+#
+#def_key \"${edit_lyrics}\"
+#  edit_lyrics
+#
+#def_key \"${show_song_info}\"
+#  show_song_info
+#
+#def_key \"${show_artist_info}\"
+#  show_artist_info
+#
+#def_key \"${jump_to_position_in_song}\"
+#  jump_to_position_in_song
+#
+#def_key \"${show_lyrics}\"
+#  show_lyrics
+#
+#def_key \"${select_range}\"
+#  select_range
+#
+#def_key \"${reverse_selection}\"
+#  reverse_selection
+#
+#def_key \"${remove_selection}\"
+#  remove_selection
+#
+#def_key \"${select_album}\"
+#  select_album
+#
+#def_key \"${add_selected_items}\"
+#  add_selected_items
+#
+#def_key \"${clear_playlist}\"
+#  clear_playlist
+#
+#def_key \"${clear_main_playlist}\"
+#  clear_main_playlist
+#
+#def_key \"${crop_playlist}\"
+#  crop_playlist
+#
+#def_key \"${crop_main_playlist}\"
+#  crop_main_playlist
+#
+#def_key \"${move_sort_order_up}\"
+#  move_sort_order_up
+#
+#def_key \"${move_selected_items_up}\"
+#  move_selected_items_up
+#
+#def_key \"${move_sort_order_down}\"
+#  move_sort_order_down
+#
+#def_key \"${move_selected_items_down}\"
+#  move_selected_items_down
+#
+#def_key \"${move_selected_items_to}\"
+#  move_selected_items_to
+#
+#def_key \"${add}\"
+#  add
+#
+#def_key \"${save_playlist}\"
+#  save_playlist
+#
+#def_key \"${jump_to_playing_song}\"
+#  jump_to_playing_song
+#
+#def_key \"${jump_to_browser}\"
+#  jump_to_browser
+#
+#def_key \"${jump_to_playlist_editor}\"
+#  jump_to_playlist_editor
+#
+#def_key \"${jump_to_media_library}\"
+#  jump_to_media_library
+#
+#def_key \"${jump_to_tag_editor}\"
+#  jump_to_tag_editor
+#
+#def_key \"${toggle_playing_song_centering}\"
+#  toggle_playing_song_centering
+#
+#def_key \"${toggle_display_mode}\"
+#  toggle_display_mode
+#
+#def_key \"${toggle_interface}\"
+#  toggle_interface
+#
+#def_key \"${toggle_separators_between_albums}\"
+#  toggle_separators_between_albums
+#
+#def_key \"${toggle_lyrics_fetcher}\"
+#  toggle_lyrics_fetcher
+#
+#def_key \"${fetch_lyrics_in_background}\"
+#  fetch_lyrics_in_background
+#
+#def_key \"${toggle_fetching_lyrics_in_background}\"
+#  toggle_fetching_lyrics_in_background
+#
+#def_key \"${toggle_screen_lock}\"
+#  toggle_screen_lock
+#
+#def_key \"${toggle_library_tag_type}\"
+#  toggle_library_tag_type
+#
+#def_key \"${refetch_lyrics}\"
+#  refetch_lyrics
+#
+#def_key \"${add_random_items}\"
+#  add_random_items
+#
+#def_key \"${set_selected_items_priority}\"
+#  set_selected_items_priority
+#
+#def_key \"${ncmpcpp_quit}\"
+#  quit
+#
+" > "${temp_ncmpcpp_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_ncmpcpp_file_path}" "${ncmpcpp_file_path}"
+
+}
+
+create_openboxrc_tmp_file(){
+echo "
+    <chainQuitKey>${chainQuitKey}</chainQuitKey>   
+	<!-- Title: Switch Keyboard Languge -->
+  	<keybind key=\"${Switch_Keyboard_Languge}\">
+    	<action name=\"Execute\">
+      	<command>kswitch</command>
+    	</action>
+  	</keybind>
+    <!-- Title: Change Workspace/Desktop -->
+    <keybind key=\"${GoToDesktop_GoToDesktop_left}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>left</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${GoToDesktop_GoToDesktop_right}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>right</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${GoToDesktop_GoToDesktop_up}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>up</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${GoToDesktop_GoToDesktop_down}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>down</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${SendToDesktop_SendToDesktop_left}\">
+	  <!-- Description:[run] SendToDesktop -->
+      <action name=\"SendToDesktop\"><to>left</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${SendToDesktop_SendToDesktop_right}\">
+	  <!-- Description:[run] SendToDesktop -->
+      <action name=\"SendToDesktop\"><to>right</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${SendToDesktop_SendToDesktop_up}\">
+	  <!-- Description:[run] SendToDesktop -->
+      <action name=\"SendToDesktop\"><to>up</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${SendToDesktop_SendToDesktop_down}\">
+	  <!-- Description:[run] SendToDesktop -->
+      <action name=\"SendToDesktop\"><to>down</to><wrap>no</wrap></action>
+    </keybind>
+    <keybind key=\"${GoToDesktop_GoToDesktop_1}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>1</to></action>
+    </keybind>
+    <keybind key=\"${GoToDesktop_GoToDesktop_2}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>2</to></action>
+    </keybind>
+    <keybind key=\"${GoToDesktop_GoToDesktop_3}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>3</to></action>
+    </keybind>
+    <keybind key=\"${GoToDesktop_GoToDesktop_4}\">
+	  <!-- Description:[run] GoToDesktop -->
+      <action name=\"GoToDesktop\"><to>4</to></action>
+    </keybind>
+
+    <!-- Title: Launch Openbox Menu -->
+    <keybind key=\"${root_menu_ShowMenu}\">
+      <!-- Description:[run] root-menu -->
+      <action name=\"ShowMenu\">
+        <menu>root-menu</menu>
+      </action>
+    </keybind>
+    <keybind key=\"${app_menu_ShowMenu}\">
+      <!-- Description:[run] app-menu -->
+      <action name=\"ShowMenu\">
+        <menu>app-menu</menu>
+      </action>
+    </keybind>
+    <keybind key=\"${client_menu_ShowMenu}\">
+      <!-- Description:[run] client-menu -->
+      <action name=\"ShowMenu\">
+        <menu>client-menu</menu>
+      </action>
+    </keybind>
+    <keybind key=\"${LowerToBottom}\">
+      <action name=\"Lower\"/>
+      <action name=\"FocusToBottom\"/>
+      <action name=\"Unfocus\"/>
+    </keybind>
+
+    <!-- Title: Switch b/w Applications -->
+    <keybind key=\"${NextWindow_NextWindowRaise}\">
+      <!-- Description:[run] NextWindow -->
+      <action name=\"NextWindow\">
+        <allDesktops>no</allDesktops>
+        <raise>yes</raise>
+        <!-- Hide black border around windows -->
+        <bar>no</bar>
+        <finalactions>
+          <action name=\"Focus\"/>
+          <action name=\"UnshadeRaise\"/>
+        </finalactions>
+      </action>
+    </keybind>
+    <keybind key=\"${NextWindow_NextWindow1}\">
+      <!-- Description:[run] NextWindow -->
+      <action name=\"NextWindow\">
+        <allDesktops>yes</allDesktops>
+        <!-- Hide black border around windows -->
+        <bar>no</bar>
+        <finalactions>
+          <action name=\"focus\"/>
+          <action name=\"raise\"/>
+        </finalactions>
+      </action>
+    </keybind>
+    <keybind key=\"${NextWindow_NextWindow2}\">
+	<!-- Description:[run] NextWindow -->
+      <action name=\"NextWindow\">
+        <finalactions>
+          <action name=\"Focus\"/>
+          <action name=\"Raise\"/>
+          <action name=\"Unshade\"/>
+        </finalactions>
+      </action>
+    </keybind>
+    <keybind key=\"${NextWindow_PreviousWindow}\">
+	<!-- Description:[run] NextWindow -->
+      <action name=\"PreviousWindow\">
+        <finalactions>
+          <action name=\"Focus\"/>
+          <action name=\"Raise\"/>
+          <action name=\"Unshade\"/>
+        </finalactions>
+      </action>
+    </keybind>
+    <keybind key=\"${NextWindow_NextWindow3}\">
+	<!-- Description:[run] NextWindow -->
+      <action name=\"NextWindow\">
+        <panels>yes</panels>
+        <desktop>yes</desktop>
+        <finalactions>
+          <action name=\"Focus\"/>
+          <action name=\"Raise\"/>
+          <action name=\"Unshade\"/>
+        </finalactions>
+      </action>
+    </keybind>
+	
+	<!-- Title: Send Application to next/prev desktop -->
+    <keybind key=\"${Send_Application_to_prev_Desktop_SendToDesktopLeft}\">
+      <!-- Description:[run] Send Application to prev desktop -->
+      <action name=\"SendToDesktopLeft\"/>
+    </keybind>
+    <keybind key=\"${Send_Application_to_next_Desktop_SendToDesktopRight}\">
+      <!-- Description:[run] Send Application to next desktop -->
+      <action name=\"SendToDesktopRight\"/>
+    </keybind>
+	
+    <!-- Title: Keybindings for window switching with the arrow keys -->
+    <keybind key=\"${Send_Application_to_window_switching_DirectionalCycleWindows_Right}\">
+	  <!-- Description:[run] Send Application to window switching -->
+      <action name=\"DirectionalCycleWindows\">
+        <direction>right</direction>
+      </action>
+    </keybind>
+    <keybind key=\"${Send_Application_to_window_switching_DirectionalCycleWindows_Left}\">
+	  <!-- Description:[run] Send Application to window switching -->
+      <action name=\"DirectionalCycleWindows\">
+        <direction>left</direction>
+      </action>
+    </keybind>
+    <keybind key=\"${Send_Application_to_window_switching_DirectionalCycleWindows_Up}\">
+	  <!-- Description:[run] Send Application to window switching -->
+      <action name=\"DirectionalCycleWindows\">
+        <direction>up</direction>
+      </action>
+    </keybind>
+    <keybind key=\"${Send_Application_to_window_switching_DirectionalCycleWindows_Down}\">
+	  <!-- Description:[run] Send Application to window switching -->
+      <action name=\"DirectionalCycleWindows\">
+        <direction>down</direction>
+      </action>
+    </keybind>
+    
+    <!-- Title: Media Controls-->
+    <keybind key=\"${Execute_volume_cli_control_inc}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>volume_cli_control --inc</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_volume_cli_control_dec}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>volume_cli_control --dec</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_volume_cli_control_toggle}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>volume_cli_control --toggle</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_mpc_stop}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>mpc stop</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_mpc_toggle}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>mpc toggle</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_mpc_prev}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>mpc prev</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_mpc_next}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>mpc next</command>
+      </action>
+    </keybind>
+    <!-- Title: Brightness Control -->
+    <keybind key=\"${Execute_openbox_scripts_brightness_inc}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>openbox_scripts --brightness-inc</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_openbox_scripts_brightness_dec}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>openbox_scripts --brightness-dec</command>
+      </action>
+    </keybind>
+
+  <!-- Title: Launch Applications -->
+  <!-- Title: Apps -->
+  <keybind key=\"${Execute_show_menu_}\">
+	<!-- Description:[execute] -->
+    <action name=\"Execute\"><command>show_menu_</command></action>
+  </keybind>
+  <keybind key=\"${Execute_music}\">
+	<!-- Description:[execute] -->
+    <action name=\"Execute\"><command>music</command></action>
+  </keybind>
+  <keybind key=\"${Execute_colorpick_sh}\">
+	<!-- Description:[execute] -->
+    <action name=\"Execute\"><command>colorpick.sh</command></action>
+  </keybind>
+  <!-- Title: Rofi -->
+  <keybind key=\"${Execute_rofi_launcher}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>rofi-launcher</command></action>
+  </keybind>
+  <keybind key=\"${Execute_rofi_runner}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>rofi-runner</command></action>
+  </keybind>
+  <keybind key=\"${Execute_rofi_network_manager}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>rofi-network-manager</command></action>
+  </keybind>
+  <keybind key=\"${Execute_rofi_powermenu}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>rofi-powermenu</command></action>
+  </keybind>
+  <keybind key=\"${Execute_rofi_screenshot}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>rofi-screenshot</command></action>
+  </keybind>
+  <keybind key=\"${Execute_my_terminal_emulator}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>my-terminal-emulator</command></action>
+  </keybind>
+  <keybind key=\"${Execute_my_www_browser}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>my-www-browser</command></action>
+  </keybind>
+  <keybind key=\"${Execute_my_file_manager}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>my-file-manager</command></action>
+  </keybind>
+
+  <keybind key=\"${Execute_my_text_editor}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>my-text-editor</command></action>
+  </keybind>
+
+  <keybind key=\"${Execute_my_media_player}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>my-media-player</command></action>
+  </keybind>
+
+  <keybind key=\"${Execute_pavucontrol}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>pavucontrol</command></action>
+  </keybind>
+  <!-- Title: CLI Apps -->
+  <keybind key=\"${Execute_popup_terminal_editor_temp}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>popup_terminal --editor \"/tmp/temp.txt\"</command></action>
+  </keybind>
+  <keybind key=\"${Execute_popup_terminal_ranger}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>popup_terminal lf</command></action>
+  </keybind>
+  <keybind key=\"${Execute_sysinfo_script_process}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>sysinfo_script_ --process</command></action>
+  </keybind>
+  
+  <!-- Title: Openbox -->
+  <!-- Lockscreen -->
+  <keybind key=\"${Execute_my_session_manager_lock}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>my_session_manager lock</command></action>
+  </keybind>
+  <keybind key=\"${Iconify}\">
+      <!-- Description:[run] Iconify -->
+      <action name=\"Iconify\"/>
+    </keybind>
+    <keybind key=\"${ToggleMaximize}\">
+      <!-- Description:[run] ToggleMaximize -->
+      <action name=\"ToggleMaximize\"/>
+    </keybind>
+    <keybind key=\"${ToggleDecorations}\">
+      <!-- Description:[run] ToggleDecorations -->
+      <action name=\"ToggleDecorations\"/>
+    </keybind>
+    <keybind key=\"${ToggleShowDesktopp}\">
+      <!-- Description:[run] ToggleShowDesktop -->
+      <action name=\"ToggleShowDesktop\"/>
+    </keybind>
+  <keybind key=\"${Exit}\">
+    <!-- Description:[run] Exit -->
+    <action name=\"Exit\"/>
+  </keybind>
+  <keybind key=\"${Restart}\">
+    <!-- Description:[run] Restart -->
+    <action name=\"Restart\"/>
+  </keybind>
+  <keybind key=\"${Reconfigure}\">
+    <!-- Description:[run] Reconfigure -->
+    <action name=\"Reconfigure\"/>
+  </keybind>
+  <keybind key=\"${Openbox_Close}\">
+    <!-- Description:[run] Close -->
+    <action name=\"Close\"/>
+  </keybind>
+  <keybind key=\"S-x\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>my_session_manager --yad</command></action>
+  </keybind>
+
+  <keybind key=\"${Execute_xkill}\">
+    <!-- Description:[execute] -->
+    <action name=\"Execute\"><command>xkill</command></action>
+  </keybind>
+
+  <!-- Title: Screenshot Keys -->
+    <keybind key=\"Print\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>ac-shots</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_ac_shots_delay_5}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>ac-shots --delay 5</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_ac_shots_delay_10}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>ac-shots --delay 10</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_ac_shots_win}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>ac-shots --win</command>
+      </action>
+    </keybind>
+    <keybind key=\"${Execute_ac_shots_area}\">
+      <!-- Description:[execute] -->
+      <action name=\"Execute\">
+        <command>ac-shots --area</command>
+      </action>
+    </keybind>
+    <!-- Keybindings for menus -->
+<!-- jgmenu is now launched by Mod4 + space in ~/.xbindkeysrc -->
+<!--
+    <keybind key=\"${Execute_jgmenu_run}\">
+      <action name=\"Execute\">
+        <startupnotify>
+          <enabled>false</enabled>
+          <name>jgmenu</name>
+        </startupnotify>
+        <command>jgmenu_run</command>
+      </action>
+    </keybind>
+-->
+<!--
+    <keybind key=\"${ShowMenu1}\">
+      <action name=\"ShowMenu\">
+        <menu>root-menu</menu>
+      </action>
+    </keybind>
+-->
+<!-- This keybind remains to launch the native OpenBox menu if needed -->
+    <keybind key=\"${ShowMenu2}\">
+      <action name=\"ShowMenu\">
+        <menu>root-menu</menu>
+      </action>
+    </keybind>
+
+    <keybind key=\"${ShowMenu3}\">
+      <action name=\"ShowMenu\">
+        <menu>client-list-combined-menu</menu>
+      </action>
+    </keybind>
+
+     <!-- Title: Window Tiling: Snap feature -->
+    <keybind key=\"${MoveToEdgeWest_MoveToEdgeWest}\">
+      <!-- Description:[run] MoveToEdgeWest -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MaximizeVert\"/>
+      <action name=\"MoveResizeTo\">
+        <width>50%</width>
+      </action>
+      <action name=\"MoveToEdgeWest\"/>
+    </keybind>
+    <keybind key=\"${MoveToEdgeEast_MoveToEdgeEast}\">
+      <!-- Description:[run] MoveToEdgeEast -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MaximizeVert\"/>
+      <action name=\"MoveResizeTo\">
+        <width>49%</width>
+      </action>
+      <action name=\"MoveToEdgeEast\"/>
+    </keybind>
+    <keybind key=\"${GoToDesktop_MaximizeFull}\">
+      <!-- Description:[run] GoToDesktop -->
+      <action name=\"MaximizeFull\"/>
+    </keybind>
+    <keybind key=\"${MoveToCenter_MoveToCenter}\">
+      <!-- Description:[run] MoveToCenter -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <width>60%</width>
+        <height>80%</height>
+      </action>
+      <action name=\"MoveToCenter\"/>
+    </keybind>
+    <!-- Top right-->
+    <keybind key=\"${Top_right_Unmaximize}\">
+      <!-- Description:[run] Top right -->
+      <action name=\"Unmaximize\"/>
+      <action name=\"MoveResizeTo\">
+        <x>-5</x>
+        <y>5</y>
+      </action>
+    </keybind>
+    <!-- Top left-->
+    <keybind key=\"${Top_left_Unmaximize}\">
+      <!-- Description:[run] Top left -->
+      <action name=\"Unmaximize\"/>
+      <action name=\"MoveResizeTo\">
+        <x>5</x>
+        <y>5</y>
+      </action>
+    </keybind>
+    <!-- Bottom left-->
+    <keybind key=\"${Bottom_left_Unmaximize}\">
+      <!-- Description:[run] Bottom left -->
+      <action name=\"Unmaximize\"/>
+      <action name=\"MoveResizeTo\">
+        <x>5</x>
+        <y>-5</y>
+      </action>
+    </keybind>
+    <!-- Bottom right-->
+    <keybind key=\"${Bottom_right_Unmaximize}\">
+      <!-- Description:[run] Bottom right -->
+      <action name=\"Unmaximize\"/>
+      <action name=\"MoveResizeTo\">
+        <x>-5</x>
+        <y>-5</y>
+      </action>
+    </keybind>
+    <keybind key=\"${Full_Left_Unmaximize}\">
+      <!-- Description:[run] Full Left -->
+      <action name=\"Unmaximize\"/>
+      <action name=\"MoveResizeTo\">
+        <x>15</x>
+        <y>15</y>
+        <height>97%</height>
+        <width>32%</width>
+      </action>
+    </keybind>
+    <keybind key=\"${Full_Bottom_Unmaximize}\">
+      <!-- Description:[run] Full Bottom -->
+      <action name=\"Unmaximize\"/>
+      <action name=\"MoveResizeTo\">
+        <x>34%</x>
+        <y>15</y>
+        <height>97%</height>
+        <width>32%</width>
+      </action>
+    </keybind>
+    <keybind key=\"${Full_Right_Unmaximize}\">
+      <!-- Description:[run] Full Right -->
+      <action name=\"Unmaximize\"/>
+      <action name=\"MoveResizeTo\">
+        <x>-17</x>
+        <y>15</y>
+        <height>97%</height>
+        <width>32%</width>
+      </action>
+    </keybind>
+    <!-- Windows Tiling -->
+    <keybind key=\"${Windows_Tiling1}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>0</x>
+        <y>-0</y>
+        <width>50%</width>
+        <height>50%</height>
+      </action>
+    </keybind>
+    <keybind key=\"${Windows_Tiling2}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>0</x>
+        <y>-0</y>
+        <width>100%</width>
+        <height>50%</height>
+      </action>
+    </keybind>
+    <keybind key=\"${Windows_Tiling3}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>-0</x>
+        <y>-0</y>
+        <width>50%</width>
+        <height>50%</height>
+      </action>
+    </keybind>
+    <keybind key=\"${Windows_Tiling4}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>0</x>
+        <y>0</y>
+        <width>50%</width>
+        <height>100%</height>
+      </action>
+    </keybind>
+    <keybind key=\"${Windows_Tiling_MaximizeFull}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"MaximizeFull\"/>
+    </keybind>
+    <keybind key=\"${Windows_Tiling6}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>-0</x>
+        <y>0</y>
+        <width>50%</width>
+        <height>100%</height>
+      </action>
+    </keybind>
+    <keybind key=\"${Windows_Tiling7}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>0</x>
+        <y>0</y>
+        <width>50%</width>
+        <height>50%</height>
+      </action>
+    </keybind>
+    <keybind key=\"${Windows_Tiling8}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>0</x>
+        <y>0</y>
+        <width>100%</width>
+        <height>50%</height>
+      </action>
+    </keybind>
+    <keybind key=\"${Windows_Tiling9}\">
+      <!-- Description:[run] Windows Tiling -->
+      <action name=\"UnmaximizeFull\"/>
+      <action name=\"MoveResizeTo\">
+        <x>-0</x>
+        <y>0</y>
+        <width>50%</width>
+        <height>50%</height>
+      </action>
+    </keybind>
+    <!-- Move -->
+    <keybind key=\"${Move_up_MoveRelative}\">
+      <!-- Description:[run] Move up -->
+      <action name=\"MoveRelative\">
+        <x>0</x>
+        <y>-20</y>
+      </action>
+    </keybind>
+    <keybind key=\"${Move_down_MoveRelative}\">
+      <!-- Description:[run] Move down -->
+      <action name=\"MoveRelative\">
+        <x>0</x>
+        <y>20</y>
+      </action>
+    </keybind>
+    <keybind key=\"${Move_left_MoveRelative}\">
+      <!-- Description:[run] Move left -->
+      <action name=\"MoveRelative\">
+        <x>-20</x>
+        <y>0</y>
+      </action>
+    </keybind>
+    <keybind key=\"${Move_right_MoveRelative}\">
+      <!-- Description:[run] Move right -->
+      <action name=\"MoveRelative\">
+        <x>20</x>
+        <y>0</y>
+      </action>
+    </keybind>
+    <!-- Resize -->
+    <keybind key=\"${Resize_right_ResizeRelative}\">
+      <!-- Description:[run] Resize right -->
+      <action name=\"ResizeRelative\">
+        <right>20</right>
+      </action>
+    </keybind>
+    <keybind key=\"${Resize_left_ResizeRelative}\">
+      <!-- Description:[run] Resize left -->
+      <action name=\"ResizeRelative\">
+        <right>-20</right>
+      </action>
+    </keybind>
+    <keybind key=\"${Resize_down_ResizeRelative}\">
+      <!-- Description:[run] Resize down -->
+      <action name=\"ResizeRelative\">
+        <bottom>20</bottom>
+      </action>
+    </keybind>
+    <keybind key=\"${Resize_up_ResizeRelative}\">
+      <!-- Description:[run] Resize up -->
+      <action name=\"ResizeRelative\">
+        <bottom>-20</bottom>
+      </action>
+    </keybind>
+" > "${temp_openboxrc_file_path}"
+
+sed -i -e "/##  auto edited by shortcuts script  ##/,/##  end of auto edited by shortcuts script  ##/!b;//!d;/##  end of auto edited by shortcuts script  ##/e cat ${temp_openboxrc_file_path}" "${openboxrc_file_path}"
+
+}
+
+create_sxhkd_tmp_file(){
+echo "
+##---------- Keybindings for bspterm ----------##
+
+# Terminal (my-terminal-emulator)
+${Terminal_my_terminal_emulator}
+	bspterm
+
+# Terminal (floating)
+${Terminal_floating}
+	bspterm -f
+
+# Terminal (fullscreen)
+${Terminal_fullscreen}
+	bspterm -s	
+
+##---------- Rofi Launcher & Menus ----------##
+
+# Rofi App Launcher
+${Rofi_App_Launcher}
+	sh rofi-launcher
+
+# Rofi Network Menu
+${Rofi_Network_Menu}
+	rofi-network-manager
+
+# Rofi Themes Menu
+${Rofi_Themes_Menu}
+	sh style-manager --rofi
+
+# Rofi Menus/Applets
+${Rofi_rofi_windows_rofi_music_rofi_powermenu_rofi_root_rofi_screenshot}
+	sh {rofi-windows,rofi-music,rofi-powermenu,rofi-root,rofi-screenshot}
+
+##---------- Applications ----------##
+
+# Launch Apps
+${Launch_Apps_my_file_manager_my_www_browser_geany}
+	{my-file-manager,my-www-browser,geany}
+
+# Terminal Apps
+${Terminal_Apps_CLI_EDITER_ranger_htop}
+	bspterm -e {\$CLI_EDITER,lf,htop}
+
+# Color Picker
+${Color_Picker}
+	colorpick.sh
+
+# Lockscreen
+${Lockscreen}
+    my_session_manager lock
+
+##---------- System Keys ----------##
+
+# show shortcut
+${show_shortcut}
+	yad --button=Exit:1 --text-info --title='Bspwm Keybinds' --filename=\$HOME/.config/sxhkd/sxhkdrc --width=750 --height=600
+	
+# switch keyboard languge
+${switch_keyboard_languge}
+	kswitch
+	
+# Take a screenshot
+${Take_a_screenshot}
+	ac-shots
+	
+# Take screenshot in 5 second
+${Take_screenshot_in_5_second}
+	ac-shots --delay 5
+
+# Take screenshot in 10 second
+${Take_screenshot_in_10_second}
+	ac-shots --delay 10
+
+# Take screenshot of active window
+${Take_screenshot_of_active_window}
+	ac-shots --win
+
+# Take screenshot of area
+${Take_screenshot_of_area}
+	ac-shots --area
+
+# Brighness control
+${Brighness_control}
+	brightness{ --inc, --dec}
+	
+# Volume control
+${Volume_control}
+	volume_cli_control{ --inc, --dec}
+
+${Volume_mute}
+	volume_cli_control --toggle
+	
+# Music control
+${Music_control}
+	mpc {next,prev,toggle,stop}
+
+##---------- Bspwm ----------##
+
+# Close App
+${Close_App}
+	bspc node -{c,k}
+
+# Reload Keybindings
+${Reload_Keybindings}
+	pkill -USR1 -x sxhkd
+
+# kill window
+${kill_window}
+    xkill
+
+# Quit/Restart bspwm
+${Quit_Restart_bspwm}
+	bspc {quit,wm -r}
+	
+# Split horizontal, vertical or cancel
+${Split_horizontal_vertical_or_cancel}
+	bspc node -p {east,south,cancel}
+
+# Preselect the ratio
+${Preselect_the_ratio}
+	bspc node -o 0.{1-9}
+
+# alternate between the tiled and monocle layout
+${alternate_between_the_tiled_and_monocle_layout}
+	bspc desktop -l next
+
+# Fullscreen or Monocle
+${Fullscreen_or_Monocle}
+    bspc node -t \"~\"fullscreen
+
+# Toggle beetwen floating & tiled
+${Toggle_beetwen_floating_and_tiled}
+    bspc node -t \"~\"{floating,tiled}
+
+# Pseudo Tiled & tiled mode
+${Pseudo_Tiled_and_tiled_mode}
+#super + {p,t}
+    bspc node -t \"~\"{pseudo_tiled,tiled}
+
+# send the newest marked node to the newest preselected node
+${send_the_newest_marked_node_to_the_newest_preselected_node}
+	bspc node newest.marked.local -n newest.!automatic.local
+
+# swap the current node and the biggest window
+${swap_the_current_node_and_the_biggest_window}
+	bspc node -s biggest.window
+
+# Set the node flags
+${Set_the_node_flags_marked_locked_sticky_private}
+	bspc node -g {marked,locked,sticky,private}
+
+# Send the window to another edge of the screen
+${Send_the_window_to_another_edge_of_the_screen_west_south_north_east}
+	bspc node -{f,s} {west,south,north,east}
+
+# Change focus to next window, including floating window
+${Change_focus_to_next_window_including_floating_window_next_local_prev_local}
+	bspc node -f {next.local,prev.local}
+
+# Switch workspace
+${Switch_workspace_prev_local_next_local}
+	bspc desktop -f {prev.local,next.local}
+
+# Switch to last opened workspace
+${Switch_to_last_opened_workspace}
+	bspc {node,desktop} -f last
+
+# Send focused window to another workspace
+${Send_focused_window_to_another_workspace}
+	bspc {desktop -f,node -d} '^{1-8}'
+
+# Expanding windows
+${Expanding_windows}
+	bspc node -z {left -20 0,right 20 0,top 0 -20,bottom 0 20}
+	
+## Shrinking windows
+${Shrinking_windows}
+	bspc node -z {left 20 0,right -20 0,top 0 20,bottom 0 -20}
+	
+## Move floating windows
+${Move_floating_windows}
+	bspc node -v {-20 0,0 20,0 -20,20 0}
+
+# Hide/Unhide Window
+${Hide_Unhide_Window}
+	winmask		
+
+
+#
+# focus/swap
+#
+
+# focus the node in the given direction
+${focus_the_node_in_the_given_direction}
+	bspc node -{f,s} {west,south,north,east}
+
+# focus the node for the given path jump
+${focus_the_node_for_the_given_path_jump_parent_brother_first_second}
+	bspc node -f @{parent,brother,first,second}
+
+# focus the next/previous window in the current desktop
+${focus_the_next_previous_window_in_the_current_desktop}
+	bspc node -f {next,prev}.local.!hidden.window
+
+# focus the next/previous desktop in the current monitor
+${focus_the_next_previous_desktop_in_the_current_monitor}
+	bspc desktop -f {prev,next}.local
+
+# focus the last node/desktop
+${focus_the_last_node_desktop}
+	bspc {node,desktop} -f last
+
+# focus the older or newer node in the focus history
+${focus_the_older_or_newer_node_in_the_focus_history}
+	bspc wm -h off; sed_it_to_backslashes
+	bspc node {older,newer} -f; sed_it_to_backslashes
+	bspc wm -h on
+
+# focus or send to the given desktop
+${focus_or_send_to_the_given_desktop}
+	bspc {desktop -f,node -d} '^{1-9,10}'
+
+#
+# preselect
+#
+
+# preselect the direction
+${preselect_the_direction}
+	bspc node -p {west,south,north,east}
+
+# preselect the ratio
+${preselect_the_ratio}
+	bspc node -o 0.{1-9}
+
+# cancel the preselection for the focused node
+${cancel_the_preselection_for_the_focused_node}
+	bspc node -p cancel
+
+# cancel the preselection for the focused desktop
+${cancel_the_preselection_for_the_focused_desktop}
+	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+
+#
+# move/resize
+#
+
+# expand a window by moving one of its side outward
+${expand_a_window_by_moving_one_of_its_side_outward}
+	bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
+
+# contract a window by moving one of its side inward
+${contract_a_window_by_moving_one_of_its_side_inward}
+	bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
+
+# move a floating window
+${move_a_floating_window}
+	bspc node -v {-20 0,0 20,0 -20,20 0}
+
+" > "${temp_sxhkd_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_sxhkd_file_path}" "${sxhkd_file_path}"
+
+}
+
+create_Thunar_tmp_file(){
+echo "
+; (gtk_accel_path \"<Actions>/ThunarLauncher/delete-3\" \"${ThunarLauncher_delete_3}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/invert-selection\" \"${ThunarStandardView_invert_selection}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/move-to-trash\" \"${ThunarLauncher_move_to_trash}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/delete\" \"${ThunarLauncher_delete}\")
+; (gtk_accel_path \"<Actions>/ThunarBookmarks/e1164bc1934268c891b819b6ed89d6cf\" \"${ThunarBookmarks_e1164bc1934268c891b819b6ed89d6cf}\")
+; (gtk_accel_path \"<Actions>/ThunarBookmarks/4510899520a0eb08faf56379a62847e1\" \"${ThunarBookmarks_4510899520a0eb08faf56379a62847e1}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/open-in-new-tab\" \"${ThunarLauncher_open_in_new_tab}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/delete-2\" \"${ThunarLauncher_delete_2}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/zoom-in\" \"${ThunarWindow_zoom_in}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/empty-trash\" \"${ThunarWindow_empty_trash}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/open\" \"${ThunarLauncher_open}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/reload\" \"${ThunarWindow_reload}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-side-pane-menu\" \"${ThunarWindow_view_side_pane_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/sort-ascending\" \"${ThunarStandardView_sort_ascending}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-network\" \"${ThunarWindow_open_network}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/contents/help-menu\" \"${ThunarWindow_contents_help_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-file-system\" \"${ThunarWindow_open_file_system}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/back-alt\" \"${ThunarStandardView_back_alt}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/paste\" \"${ThunarLauncher_paste}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/switch-next-tab\" \"${ThunarWindow_switch_next_tab}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-file-menu\" \"${ThunarWindow_open_file_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-as-compact-list\" \"${ThunarWindow_view_as_compact_list}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/about\" \"${ThunarWindow_about}\")
+; (gtk_accel_path \"<Actions>/ThunarBookmarks/d196df11221a099d730c1c7d021975dd\" \"${ThunarBookmarks_d196df11221a099d730c1c7d021975dd}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/clear-directory-specific-settings\" \"${ThunarWindow_clear_directory_specific_settings}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-computer\" \"${ThunarWindow_open_computer}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-parent\" \"${ThunarWindow_open_parent}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-menu\" \"${ThunarWindow_view_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/properties\" \"${ThunarStandardView_properties}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/open-in-new-window\" \"${ThunarLauncher_open_in_new_window}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/back\" \"${ThunarStandardView_back}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/trash-delete\" \"${ThunarLauncher_trash_delete}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/sendto-menu\" \"${ThunarWindow_sendto_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/reload-alt\" \"${ThunarWindow_reload_alt}\")
+; (gtk_accel_path \"<Actions>/ThunarBookmarks/ed78150ca6be8e7a92c24c7865783c80\" \"${ThunarBookmarks_ed78150ca6be8e7a92c24c7865783c80}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/zoom-out-alt\" \"${ThunarWindow_zoom_out_alt}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/select-by-pattern\" \"${ThunarStandardView_select_by_pattern}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/rename\" \"${ThunarStandardView_rename}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/create-document\" \"${ThunarStandardView_create_document}\")
+; (gtk_accel_path \"<Actions>/ThunarShortcutsPane/sendto-shortcuts\" \"${ThunarShortcutsPane_sendto_shortcuts}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/close-tab\" \"${ThunarWindow_close_tab}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-side-pane-tree\" \"${ThunarWindow_view_side_pane_tree}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/execute\" \"${ThunarLauncher_execute}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/toggle-side-pane\" \"${ThunarWindow_toggle_side_pane}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-home\" \"${ThunarWindow_open_home}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-templates\" \"${ThunarWindow_open_templates}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-location-alt\" \"${ThunarWindow_open_location_alt}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/close-window\" \"${ThunarWindow_close_window}\")
+; (gtk_accel_path \"<Actions>/ThunarBookmarks/e28239fd776480c431ad27368635e686\" \"${ThunarBookmarks_e28239fd776480c431ad27368635e686}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/cut\" \"${ThunarLauncher_cut}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/sendto-desktop\" \"${ThunarLauncher_sendto_desktop}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/zoom-in-alt2\" \"${ThunarWindow_zoom_in_alt2}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-location-selector-toolbar\" \"${ThunarWindow_view_location_selector_toolbar}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/select-all-files\" \"${ThunarStandardView_select_all_files}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/open-with-other\" \"${ThunarLauncher_open_with_other}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/zoom-out\" \"${ThunarWindow_zoom_out}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/duplicate\" \"${ThunarStandardView_duplicate}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-side-pane-shortcuts\" \"${ThunarWindow_view_side_pane_shortcuts}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/edit-menu\" \"${ThunarWindow_edit_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/contents\" \"${ThunarWindow_contents}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/preferences\" \"${ThunarWindow_preferences}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/zoom-in-alt1\" \"${ThunarWindow_zoom_in_alt1}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/switch-previous-tab\" \"${ThunarWindow_switch_previous_tab}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/sort-by-type\" \"${ThunarStandardView_sort_by_type}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/arrange-items-menu\" \"${ThunarStandardView_arrange_items_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/create-folder\" \"${ThunarStandardView_create_folder}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-location-selector-menu\" \"${ThunarWindow_view_location_selector_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-statusbar\" \"${ThunarWindow_view_statusbar}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/close-all-windows\" \"${ThunarWindow_close_all_windows}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-trash\" \"${ThunarWindow_open_trash}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/restore\" \"${ThunarLauncher_restore}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-desktop\" \"${ThunarWindow_open_desktop}\")
+(gtk_accel_path \"<Actions>/ThunarActions/uca-action-1581593230771688-1\" \"${ThunarActions_uca_action_1581593230771688_1}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/zoom-reset-alt\" \"${ThunarWindow_zoom_reset_alt}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/open-location\" \"${ThunarWindow_open_location}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-menubar\" \"${ThunarWindow_view_menubar}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-as-icons\" \"${ThunarWindow_view_as_icons}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-as-detailed-list\" \"${ThunarWindow_view_as_detailed_list}\")
+(gtk_accel_path \"<Actions>/ThunarActions/uca-action-1622790717174452-1\" \"${ThunarActions_uca_action_1622790717174452_1}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/new-window\" \"${ThunarWindow_new_window}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/forward\" \"${ThunarStandardView_forward}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/copy\" \"${ThunarLauncher_copy}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/file-menu\" \"${ThunarWindow_file_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/make-link\" \"${ThunarStandardView_make_link}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/sort-descending\" \"${ThunarStandardView_sort_descending}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/new-tab\" \"${ThunarWindow_new_tab}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/go-menu\" \"${ThunarWindow_go_menu}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/sort-by-size\" \"${ThunarStandardView_sort_by_size}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/sort-by-mtime\" \"${ThunarStandardView_sort_by_mtime}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/view-location-selector-pathbar\" \"${ThunarWindow_view_location_selector_pathbar}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/show-hidden\" \"${ThunarWindow_show_hidden}\")
+; (gtk_accel_path \"<Actions>/ThunarStandardView/sort-by-name\" \"${ThunarStandardView_sort_by_name}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/zoom-reset\" \"${ThunarWindow_zoom_reset}\")
+; (gtk_accel_path \"<Actions>/ThunarLauncher/trash-delete-2\" \"${ThunarLauncher_trash_delete_2}\")
+; (gtk_accel_path \"<Actions>/ThunarWindow/detach-tab\" \"${ThunarWindow_detach_tab}\")
+" > "${temp_Thunar_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_Thunar_file_path}" "${Thunar_file_path}"
+
+}
+
+create_x11_tmp_file(){
+echo "
+! scroll one line
+URxvt.keysym.${scrolls_up_one_line}:		command:\033]720;1\007
+URxvt.keysym.${scrolls_down_one_line}:	command:\033]721;1\007
+
+! control arrow
+URxvt.keysym.${moves_the_cursor_up_five_lines}:	\033[1;5A
+URxvt.keysym.${moves_the_cursor_down_five_lines}:	\033[1;5B
+URxvt.keysym.${moves_the_cursor_Right_five_lines}:	\033[1;5C
+URxvt.keysym.${moves_the_cursor_Left_five_lines}:	\033[1;5D
+
+" > "${temp_x11_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_x11_file_path}" "${x11_file_path}"
+
+}
+
+create_zathura_tmp_file(){
+echo "
+map ${scroll_half_up} scroll half-up
+map ${scroll_half_down} scroll half-down
+map ${toggle_page_mode} toggle_page_mode
+map ${reload} reload
+map ${rotate} rotate
+map ${zoom_in} zoom in
+map ${zoom_out} zoom out
+map ${recolor} recolor
+map ${print} print
+map ${goto_top} goto top" > "${temp_zathura_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_zathura_file_path}" "${zathura_file_path}"
+
+}
+
+sed_nsxiv(){
+	sed -i "s/\".*\")#setbg/\"${setbg}\")#setbg/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#copy image/\"${copy_image}\")#copy image/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#move image/\"${move_image}\")#move image/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#rotate 90/\"${rotate_90}\")#rotate 90/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#rotate -90/\"${rotate__90}\")#rotate -90/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#flop/\"${flop}\")#flop/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#copied to clipboard/\"${copied_to_clipboard}\")#copied to clipboard/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#copied path to clipboard/\"${copied_path_to_clipboard}\")#copied path to clipboard/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#delete image/\"${delete_image}\")#delete image/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#install gimp/\"${install_gimp}\")#install gimp/g" "${nsxiv_file_path}"
+	sed -i "s/\".*\")#notify-send notify image information/\"${notify_send_notify_image_information}\")#notify-send notify image information/g" "${nsxiv_file_path}"
+}
+
+sed_clipit(){
+	sed -i "s/history_key=.*/history_key=${history_key}/g" "${clipit_file_path}"
+	sed -i "s/actions_key=.*/actions_key=${actions_key}/g" "${clipit_file_path}"
+	sed -i "s/menu_key=.*/menu_key=${menu_key}/g" "${clipit_file_path}"
+	sed -i "s/search_key=.*/search_key=${search_key}/g" "${clipit_file_path}"
+}
+
+sed_geanyrc(){
+	sed -i "s/popup_gototagdefinition=.*/popup_gototagdefinition=${popup_gototagdefinition}/g" "${geanyrc_file_path}"
+	sed -i "s/edit_transposeline=.*/edit_transposeline=${edit_transposeline}/g" "${geanyrc_file_path}"
+	sed -i "s/edit_movelineup=.*/edit_movelineup=${edit_movelineup}/g" "${geanyrc_file_path}"
+	sed -i "s/edit_movelinedown=.*/edit_movelinedown=${edit_movelinedown}/g" "${geanyrc_file_path}"
+	sed -i "s/move_tableft=.*/move_tableft=${move_tableft}/g" "${geanyrc_file_path}"
+	sed -i "s/move_tabright=.*/move_tabright=${move_tabright}/g" "${geanyrc_file_path}"
+}
+
+sed_lxterminal(){
+	sed -i "s/new_window_accel=.*/new_window_accel=${new_window_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/new_tab_accel=.*/new_tab_accel=${new_tab_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/close_tab_accel=.*/close_tab_accel=${close_tab_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/close_window_accel=.*/close_window_accel=${close_window_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/copy_accel=.*/copy_accel=${copy_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/paste_accel=.*/paste_accel=${paste_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/name_tab_accel=.*/name_tab_accel=${name_tab_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/previous_tab_accel=.*/previous_tab_accel=${previous_tab_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/next_tab_accel=.*/next_tab_accel=${next_tab_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/move_tab_left_accel=.*/move_tab_left_accel=${move_tab_left_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/move_tab_right_accel=.*/move_tab_right_accel=${move_tab_right_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/zoom_in_accel=.*/zoom_in_accel=${zoom_in_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/zoom_out_accel=.*/zoom_out_accel=${zoom_out_accel}/g" "${lxterminal_file_path}"
+	sed -i "s/zoom_reset_accel=.*/zoom_reset_accel=${zoom_reset_accel}/g" "${lxterminal_file_path}"
+}
+
+sed_all_backtick_exclamation_backslashes_string_in_home_path(){
+	for file in ${xbindkeysrc_file_path} ${alacritty_file_path} ${conky_bl_file_path} ${conky_bl_with_window_file_path} ${conky_op_file_path} ${kittyrc_file_path} ${mpv_file_path} ${zshrc_file_path} ${bashrc_file_path} ${inputrc_file_path} ${ncmpcpp_file_path} ${openboxrc_file_path} ${sxhkd_file_path} ${Thunar_file_path} ${x11_file_path} ${zathura_file_path} ${nsxiv_file_path} ${clipit_file_path} ${geanyrc_file_path} ${lxterminal_file_path};do
+		sed -i "s/sed_it_to_backtick/\`/g" $file
+		sed -i "s/sed_it_to_exclamation/\!/g" $file
+		sed -i 's|sed_it_to_backslashes|\\|g' $file
+		sed -i 's|sed_it_to_double_backslashes|\\\\|g' $file
+	done
+}

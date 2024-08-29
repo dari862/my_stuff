@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/API"
+
+if [[ ! -f "${WM_config_dir}/latlong" ]];then
+	mkdir -p ${WM_config_dir}
+	# Geolocate IP:
+	ipinfo=$(curl -s ipinfo.io)
+	echo "$ipinfo" | jq -r '.loc' >> "${WM_config_dir}/latlong"
+fi
+cat "${WM_config_dir}/latlong"

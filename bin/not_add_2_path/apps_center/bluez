@@ -1,0 +1,6 @@
+#!/bin/sh
+
+app_name="bluez blueman"
+
+Package_installer_ ${app_name} || continue
+

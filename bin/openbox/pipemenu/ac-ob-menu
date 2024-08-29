@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Openbox Pipemenu to change openbox menu style
+
+# Variables and functions
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+namespace="http://openbox.org/3.4/rc"
+
+# Change menu file & reload OB
+ob_menu() {
+	sed -i 's/menu_var "'.*'"/menu_var "'"$1"'"/g' ${OBPATH}/rc.xml
+	openbox --reconfigure
+}
+
+if [[ "$1" ]]; then
+	ob_menu "$1"
+else
+	menuStart
+	menuItem 'Simple' "$0 menu-simple.xml"
+	menuItem 'Iconic' "$0 menu-icons.xml"
+	menuItem 'Glyphs' "$0 menu-glyphs.xml"
+	menuItem 'Minimal' "$0 menu-minimal.xml"
+	menuItem 'old' "$0 old-menu.xml"
+	menuItem 'xfce4-menu' "$0 xfce4-menu.xml"
+	menuItem 'xfce4-menu-color' "$0 xfce4-menu-color.xml"
+	menuItem 'BunsenLab' "$0 bl-menu-openbox.xml"
+	menuEnd
+fi

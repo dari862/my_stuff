@@ -1,0 +1,15 @@
+#!/bin/sh
+path_to_files="/usr/share/my_stuff/bin/not_add_2_path/must_create_script/brightness"
+if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
+	if command -v xbacklight > /dev/null 2>&1; then
+		pak=xbacklight
+	elif command -v light > /dev/null 2>&1; then
+		pak=light
+	else
+		echo -e "$0: light or xbacklight not installed."
+		exit 1
+	fi
+	
+	cat ${path_to_files}/head ${path_to_files}/$pak ${path_to_files}/tail | tee /usr/share/my_stuff/system_files/bin/brightness > /dev/null 2>&1
+	chmod +x /usr/share/my_stuff/system_files/bin/brightness
+fi

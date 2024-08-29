@@ -1,0 +1,33 @@
+#!/bin/sh
+# Install vim and add lazydocker distro
+no_neovim="${1}"
+distro_path="/usr/share/my_stuff/system_files"
+skel_path="${distro_path}/skel"
+lazydocker_skel_path="${skel_path}/.config/lazydocker"
+Title="lazydocker"
+
+__choice=""
+if [ "${no_neovim}" = "no_neovim" ];then
+	say "Installing Neovim..." 1
+	install_as_dependency Neovim
+fi
+say "Create  ${Title} updater and installer..." 1
+my-superuser mkdir -p ${distro_path}/updater
+my-superuser mkdir -p ${distro_path}/downloaded
+my-superuser tee ${distro_path}/updater/lazydocker_updater <<- 'EOF' > /dev/null
+#!/bin/sh
+
+distro_path="/usr/share/my_stuff/system_files"
+
+lazydocker_tmp="$(mktemp -d /tmp/lazydocker-XXXXXX)"
+cd ${lazydocker_tmp}
+lazydocker_version=$(curl -s "https://api.github.com/repos/jesseduffield/lazydocker/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+curl -sLo lazydocker.tar.gz "https://github.com/jesseduffield/lazydocker/releases/latest/download/lazydocker_${lazydocker_version}_Linux_x86_64.tar.gz"
+tar -xf lazydocker.tar.gz lazydocker
+my-superuser install lazydocker ${distro_path}/bin
+rm lazydocker.tar.gz lazydocker
+EOF
+my-superuser chmod +x ${distro_path}/updater/lazydocker_updater
+
+say "Installing ${Title} updater and installer..." 1
+${distro_path}/updater/lazydocker_updater || failed_to_run "failed to run lazydocker_updater ."

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#### Fix missing files        ########################################################################
+
+source "/usr/share/my_stuff/lib/common/WM"
+
+if [ ! -d "${WM_config_dir}" ];then
+	panel_manager --picker
+	style-manager --set
+fi
+
+#### START SETTINGS  #################################################################################
+
+# Exec first script screenlayout found
+if [ "$(ls -A ~/.screenlayout &> /dev/null)" ] 
+then
+	"$(ls ~/.screenlayout/*.sh | head -1)"
+else
+	displayselect auto
+fi
+
+# Start keyring	
+keyring-session &
+
+## Start Music Player Daemon
+mpd-session &
+
+# Set wallpaper
+setbg -r &
+
+
+## Notification Daemon
+dunst-session  &
+
+## file-manager Daemon
+file-manager-session &
+

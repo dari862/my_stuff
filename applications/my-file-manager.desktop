@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=My File Manager
+Comment=The default file-manager
+GenericName=File Manager
+Exec=my-file-manager %F
+Icon=system-file-manager
+Terminal=false
+Categories=System;Utility;Core;FileTools;FileManager;
+MimeType=inode/directory;

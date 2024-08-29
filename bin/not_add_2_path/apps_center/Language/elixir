@@ -1,0 +1,8 @@
+#!/bin/sh
+
+say 'Installing package...' 1
+
+install_as_dependency mise
+mise use --global erlang@latest
+mise use --global elixir@latest
+mise x elixir -- mix local.hex --force

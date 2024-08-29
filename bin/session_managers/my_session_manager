@@ -1,0 +1,233 @@
+#!/bin/sh
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Commands Executed By Openbox Powermenu
+
+## Rofi #############################################
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/rofi"
+
+opt_="${1-}"
+
+
+_logout(){
+	DESKTOP_SESSION_all_small_latter=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
+	if [ "$DESKTOP_SESSION_all_small_latter" = "*openbox" ] || [ "$DESKTOP_SESSION_all_small_latter" = "openbox" ]; then
+		openbox --exit
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "*bspwm" ] || [ "$DESKTOP_SESSION_all_small_latter" = "bspwm" ]; then
+		bspc quit
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "i3" ]; then
+		i3-msg exit
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "qtile" ]; then	
+		qtile cmd-obj -o cmd -f shutdown
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "awesome" ]; then	
+		awesome --replace
+	else
+		([ "$(command -v systemctl)" ] && systemctl --user exit) || loginctl terminate-session "$XDG_SESSION_ID"
+	fi
+} 
+
+_reload(){
+	DESKTOP_SESSION_all_small_latter=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
+	if [ "$DESKTOP_SESSION_all_small_latter" = "*openbox" ]; then
+		openbox --reconfigure
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "*bspwm" ]; then
+		bspc --restart
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "i3" ]; then
+		i3-msg restart
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "qtile" ]; then	
+		qtile cmd-obj -o cmd -f restart
+	elif [ "$DESKTOP_SESSION_all_small_latter" = "awesome" ]; then	
+		awesome --replace
+	fi
+} 
+
+_suspend(){
+	# The systemd or elogind compatibility magic.   #
+	mpc -q pause 
+	amixer set Master mute 
+	extra_stuff suspend
+}
+
+extra_stuff(){
+	# hibernate | hybrid-sleep | suspend-then-hibernate | reboot | poweroff
+	# The systemd or elogind compatibility magic.   #
+	([ "$(command -v systemctl)" ] && systemctl "$1") || loginctl "$1"
+	exit $?
+}
+
+_lock(){
+    my-locker || loginctl lock "$XDG_SESSION_ID"
+    exit $?
+}
+
+_moniter_off(){
+	xset dpms force off || ( xset s blank && xset s activate )
+}
+
+on_terminal(){
+   	if [ -t 0 ]
+   	then
+       	if [ -t 1 ] && [ -t 2 ]
+       	then
+           	return 0
+       	else
+           	echo "$0: STDIN is on terminal, but not STDOUT or STDERR" >&2
+           	exit 1
+       	fi
+   	else
+       	return 1
+   	fi
+}
+
+on_graphical_session(){
+   	[ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ] && return 0
+   	return 1
+}
+
+tty_menu(){
+	opt_=""
+   	clear
+   	echo "1) Logout	  3) Hibernate	    5) Reboot	      7) Quit
+2) Suspend	  4) Hybrid-Sleep   6) Power-Off"
+	read -r "Please choose an option " option
+	option="$(echo "${option}" | tr '[:upper:]' '[:lower:]' )"
+    case $option in
+    	"logout"|1)		opt_="logout";;
+    	"suspend"|2)	opt_="suspent";;
+    	"hibernate"|3)	opt_="hibernate";;
+    	"hybrid"*|4)	opt_="hybrid-sleep";;
+    	"reboot"|5)		opt_="reboot";;
+    	"power"*|6)		opt_="shutdown";;
+    	"quit"|7)		echo 'exit cancelled' && exit;;
+    	*) 				exit 1 ;;
+    esac
+}
+
+rofi_menu(){
+	opt_=""
+	rofi_command="rofi -theme ${rofi_style_dir}/powermenu.rasi"
+	
+	uptime=$(uptime -p | sed -e 's/up //g')
+	
+	## Buttons
+	layout=$(grep BUTTON "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')
+	if [ "$layout" = "TRUE" ]; then
+		shutdown=""
+		reboot=""
+		lock=""
+		suspend=""
+		logout=""
+	else
+		shutdown=" Shutdown"
+		reboot=" Restart"
+		lock=" Lock"
+		suspend=" Sleep"
+		logout=" Logout"
+	fi
+	
+	# Variable passed to rofi
+	options="$lock\n$suspend\n$logout\n$reboot\n$shutdown"
+	
+	chosen="$(printf '%s' "$options" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
+	case "$chosen" in
+    	"$shutdown")
+			opt_="shutdown"
+        	;;
+    	"$reboot")
+			opt_="reboot"
+        	;;
+    	"$lock")
+        	opt_="lock"
+        	;;
+    	"$suspend")
+			opt_="suspent"
+        	;;
+    	"$logout")
+			opt_="logout"
+        	;;
+        *) exit 0;;
+	esac
+	
+	# confirmation_dialog
+	ans=$(
+		rofi -dmenu\
+    		-i\
+    		-no-fixed-num-lines\
+    		-p "Are You Sure? : "\
+    		-theme "$rofi_style_dir"/confirm.rasi | tr '[:upper:]' '[:lower:]'
+    	)
+	if [ "$ans" = "YES" ];then
+		ans="Y"
+	elif [ "$ans" = "NO" ];then
+		ans="N"
+	fi
+	
+	if [ "$ans" = "Y" ]; then
+        return 1
+	elif [ "$ans" = "N" ]; then
+        exit
+    else
+        rofi -theme "$rofi_style_dir"/askpass.rasi -e "Options  -  yes / y / no / n"
+        exit 1
+    fi
+}
+
+yad_menu(){
+	opt_=""
+	yad --class=WmanExit --title "Exit" --close-on-unfocus --undecorated --center --on-top --borders=10 --window-icon=system-log-out \
+       		--button=" _Logout!system-log-out!Logout":10 \
+       		--button=" L_ock Screen!system-lock-screen!":20 \
+       		--button=" _Suspend!system-suspend!":30 \
+       		--button=" Re_boot!system-reboot!":40 \
+       		--button=" _Power Off!system-shutdown!":50
+     case $? in
+    	10) opt_="logout";;
+     	20) opt_="lock";;
+      	30) opt_="suspent";;
+      	40) opt_="reboot";;
+      	50) opt_="shutdown";;
+      	*) exit 0;;
+    esac
+}
+
+help_menu(){
+	echo "
+Powermenu
+	
+    	-h --help		Show 			this help
+    	-k --lock		Lock 			screen	Does not work for a tty session
+    	-l --logout		Logout			Also works for tty.
+    	-s --suspend	Suspend			State determined by ACPI S0 S1 or S3
+    	-i --hibernate	Suspend to Disk	Requires enough swap to store RAM
+    	-y --hybrid		Hybrid Sleep	ACPI must support sleep state S3
+    	-b --reboot	Reboot    	
+    	-p --poweroff	Shut down
+    	
+    	text menu at a TTY
+"
+}
+## Options #############################################
+[ -z "$opt_" ] && on_terminal && tty_menu
+
+if on_graphical_session;then
+	if  [ "$opt_" = "--rofi" ]; then	
+		rofi_menu
+	elif  [ "$opt_" = "--yad" ]; then		
+		yad_menu
+	fi
+fi
+
+case "$opt_" in
+	"logout") _logout;;
+	suspent) _suspend;;
+	"reboot") extra_stuff reboot;;
+	shutdown) extra_stuff poweroff;;
+	lock) _lock;;
+	"hibernate") extra_stuff hibernate;;
+	"hybrid-Sleep") extra_stuff hybrid-sleep;;
+	moniter_off) _moniter_off ;;
+	*) help_menu;;
+esac

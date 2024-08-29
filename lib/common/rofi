@@ -1,0 +1,7 @@
+rofi_style_name_path="$WM_config_dir/Rofi_style"
+ROFI_STYLE="$(cat $rofi_style_name_path 2>/dev/null || echo old)"
+rofi_dir="$HOME/.config/rofi"
+rofi_style_dir="$rofi_dir/$ROFI_STYLE"
+rofi_command="rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$rofi_style_dir"/runner.rasi"
+rofi_command_simple="rofi -no-config -no-lazy-grab -dmenu -i -theme "$rofi_style_dir"/runner.rasi"
+rofi_command_simpler="rofi -no-config -no-lazy-grab -theme "$rofi_style_dir"/runner.rasi"

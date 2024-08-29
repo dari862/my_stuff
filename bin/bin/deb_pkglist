@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Purpose: Generate a list of installed packgages on a Debian system
+# Author : Daniel Wayne Armstrong <hello@dwarmstrong.org>
+
+set -euo pipefail
+PURPLE="\\033[1;35m"
+NC="\\033[0m" # no colour
+opt_="${1-}"
+echo_purple() {
+  purple_msg_="${1-}"
+  echo -e "${PURPLE}${purple_msg_}${NC}"
+}
+
+LIST="${HOME}/.deb_pkglist_${HOSTNAME}"
+
+# Generate list
+if [ "$opt_" = "-l" ];then
+	echo_purple "\n==> Show list of installed packages\n"
+	dpkg-query -l 
+else
+	echo_purple "\n==> Generate list of installed packages\n"
+	dpkg-query -f '${binary:Package}\n' -W > "$LIST"
+	echo " List genrated at = ${LIST}"
+fi
+# To re-install packages from a list:
+# my-superuser xargs -a $LIST apt install

@@ -1,0 +1,13 @@
+#!/bin/sh
+browserName="Google Chrome Stable"
+browser_deb="google-chrome-stable_current_amd64.deb"
+browserUrl="https://dl.google.com/linux/direct/${browser_deb}"
+
+say 'Installing package...' 1
+
+cd /tmp 
+wget ${browserUrl} || continue
+my-superuser dpkg -i ${browser_deb} || my-superuser apt install -y ${browser_deb}
+my-superuser apt-get install -y -f || continue
+
+my-superuser ln -sf /usr/share/my_stuff/appearance_applications/WhatsApp.desktop /usr/share/applications

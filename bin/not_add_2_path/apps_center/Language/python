@@ -1,0 +1,5 @@
+#!/bin/sh
+say 'Installing package...' 1
+
+install_as_dependency mise
+mise use --global python@latest

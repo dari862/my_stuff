@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+yad --notification \
+	--image="gtk-zoom-fit" \
+	--icon-size=22 \
+	--command="/home/dari/Desktop/my_stuff_installer/workon/Gammastep_gui/gammastep_gui" \
+	--text="Gammastep"

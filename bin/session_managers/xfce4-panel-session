@@ -1,0 +1,43 @@
+#!/bin/bash
+#===================================================================================
+# FILE: xfce4-panel-session
+# DESCRIPTION: manage xfce4-panel processes for start, restart and stop all xfce4-panel instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all xfce4-panel process
+#===================================================================================
+function stop() {
+	[ "$(pidof xfce4-panel)" ] && xfce4-panel --quit
+	[ "$(pidof xfce4-panel)" ] && killall xfce4-panel
+	[ "$(pidof xfce4-panel)" ] && killall -9 xfce4-panel
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: start xfsettingsd
+#===================================================================================
+function start() {
+	xfce4-panel &
+}
+
+
+# EXEC ACTION ACCORDING $1
+case "${1,,}" in
+	""|start|restart)
+		stop
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	*)	
+		echo "Usage: xfce4-panel-session [start|stop|restart]"
+	;;
+esac

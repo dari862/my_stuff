@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Default
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/rofi"
+
+rofi_command="rofi -theme ${rofi_style_dir}/powermenu.rasi"
+
+uptime=$(uptime -p | sed -e 's/up //g')
+
+## Buttons
+layout=$(cat ${rofi_style_dir}/powermenu.rasi | grep BUTTON | cut -d'=' -f2 | tr -d '[:blank:],*/')
+if [[ "$layout" == "TRUE" ]]; then
+	shutdown=""
+	reboot=""
+	lock=""
+	suspend=""
+	logout=""
+else
+	shutdown=" Shutdown"
+	reboot=" Restart"
+	lock=" Lock"
+	suspend=" Sleep"
+	logout=" Logout"
+fi
+
+# Ask for confirmation
+rdialog () {
+rofi -dmenu\
+    -i\
+    -no-fixed-num-lines\
+    -p "Are You Sure? : "\
+    -theme "${rofi_style_dir}/confirm.rasi"
+}
+
+# Display Help
+show_msg() {
+	rofi -theme "${rofi_style_dir}/askpass.rasi" -e "Options : yes / no / y / n"
+}
+
+# Variable passed to rofi
+options="$lock\n$suspend\n$logout\n$reboot\n$shutdown"
+
+chosen="$(echo -e "$options" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
+case $chosen in
+    $shutdown)
+		run_command extra_stuff _poweroff
+        ;;
+    $reboot)
+		run_command extra_stuff _reboot
+        ;;
+    $lock)
+        run_command _lock
+        ;;
+    $suspend)
+		run_command _suspend
+        ;;
+    $logout)
+		run_command _logout
+        ;;
+esac
+

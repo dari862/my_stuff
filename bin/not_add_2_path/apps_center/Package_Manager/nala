@@ -1,0 +1,14 @@
+#!/bin/sh
+
+app_name="nala"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+my-superuser cp /etc/apt/sources.list /etc/apt/sources.list.bak
+    
+my-superuser nala update
+
+my-superuser nala upgrade -y
+

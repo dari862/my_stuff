@@ -1,0 +1,38 @@
+#!/bin/bash
+source "/usr/share/my_stuff/lib/keybinds/file_path_to_edit.conf"
+source "/usr/share/my_stuff/lib/keybinds/lib"
+if [ ! -f "$HOME/.config/keybinds/keybinds.conf" ];then
+	mkdir -p "$HOME/.config/keybinds"
+	cp -r "/usr/share/my_stuff/lib/keybinds/keybinds.conf" "$HOME/.config/keybinds/keybinds.conf"
+fi
+
+cp -r "$HOME/.config/keybinds/keybinds.conf" "${temp_shortcuts_path}"
+mkdir -p "${temp_shortcuts_path}"
+cp -r "/usr/share/my_stuff/lib/keybinds/keybinds_to_sourcemainbindkey.conf" "${temp_shortcuts_path}"
+
+cd "${temp_shortcuts_path}"
+
+create_sourcemainbindkey_conf_file
+source "${temp_shortcuts_path}/sourcemainbindkey.conf"
+create_xbindkeysrc_tmp_file
+create_alacritty_tmp_file
+create_conky_tmp_file
+create_kitty_tmp_file
+create_mpv_tmp_file
+create_zshrc_tmp_file
+create_bashrc_tmp_file
+create_inputrc_tmp_file
+create_ncmpcpp_tmp_file
+create_openboxrc_tmp_file
+create_sxhkd_tmp_file
+create_Thunar_tmp_file
+create_x11_tmp_file
+create_zathura_tmp_file
+sed_inputrc_tmp_file_to_org
+sed_nsxiv
+sed_clipit
+sed_geanyrc
+sed_lxterminal
+sed_all_backtick_exclamation_backslashes_string_in_home_path
+
+cd

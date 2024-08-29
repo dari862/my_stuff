@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=WhatsApp
+Comment=WhatsApp Messenger
+Exec=google-chrome --app="https://web.whatsapp.com" --name=WhatsApp
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/WhatsApp.png
+Categories=GTK;
+MimeType=text/html;text/xml;application/xhtml_xml;
+StartupNotify=true

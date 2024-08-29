@@ -1,0 +1,29 @@
+#!/bin/sh
+app_name=(podman)
+extra_apps_=(iptables)
+
+say 'Installing pre-package...' 1
+Package_installer_ ${pre_app_name} || continue
+
+clear
+
+say 'Installing ${app_name}...' 1
+Package_installer_ ${app_name} || continue
+
+say 'Installing extra_apps_ ...' 1
+Package_installer_ "${extra_apps_[@]}" || continue
+clear
+
+if ! groups | grep "podmanusers" &>/dev/null;then
+	my-superuser groupadd podmanusers &>/dev/null || :
+	my-superuser usermod -aG podmanusers ${USER} &>/dev/null || :
+fi
+
+registries_conf="/etc/containers/registries.conf"
+if ! grep -q 'docker.io' $registries_conf;then
+	echo 'unqualified-search-registries = ["docker.io"]' | my-superuser tee -a $registries_conf > /dev/null
+fi
+
+_podman_command=$(my-superuser which podman)
+my-superuser chmod 750 $_podman_command || :
+my-superuser chgrp podmanusers $_podman_command || :

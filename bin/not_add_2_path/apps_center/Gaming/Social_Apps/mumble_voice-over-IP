@@ -1,0 +1,22 @@
+#!/bin/sh
+
+app_name="mumble"
+if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+	say 'Updating sources...' 1
+	Distrobox_Package_update_
+	
+	clear
+	say 'Installing package...' 1
+	Distrobox_package_installer_ ${app_name} || continue
+	
+else
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+	
+	say 'Installing package...' 1
+	
+	Package_installer_ ${app_name} || continue
+	
+fi

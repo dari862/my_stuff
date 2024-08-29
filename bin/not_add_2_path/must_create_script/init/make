@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+for_path="/usr/share/my_stuff/bin/not_add_2_path/must_create_script/init"
+target_path="/usr/share/my_stuff/system_files/bin/service_manager"
+# openrc
+if command -v rc-service > /dev/null 2>&1; then
+	ln -sf "${for_path}/openrc" "${target_path}"
+# systemd	
+else
+	ln -sf "${for_path}/systemd" "${target_path}"
+fi

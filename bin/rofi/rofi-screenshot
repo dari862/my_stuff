@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/rofi"
+
+RASI="$rofi_style_dir/screenshot.rasi"
+
+# Theme Elements
+prompt='Screenshot'
+mesg="Directory :: `xdg-user-dir PICTURES`/Screenshots"
+
+# Options
+layout=`cat ${RASI} | grep 'USE_ICON' | cut -d'=' -f2`
+if [[ "$layout" == 'NO' ]]; then
+	shot_now=" Capture Desktop"
+	shot_area=" Capture Area"
+	shot_win=" Capture Window"
+	shot_after_5sec=" Capture in 5s"
+	shot_after_10sec=" Capture in 10s"
+else
+	shot_now=""
+	shot_area=""
+	shot_win=""
+	shot_after_5sec=""
+	shot_after_10sec=""
+fi
+
+# Rofi CMD
+rofi_cmd() {
+	rofi -dmenu \
+		-p "$prompt" \
+		-mesg "$mesg" \
+		-markup-rows \
+		-theme ${RASI}
+}
+
+# Pass variables to rofi dmenu
+run_rofi() {
+	echo -e "$shot_now\n$shot_area\n$shot_win\n$shot_after_5sec\n$shot_after_10sec" | rofi_cmd
+}
+
+# Actions
+chosen="$(run_rofi)"
+case ${chosen} in
+    $shot_now)
+		ac-shots
+        ;;
+    $shot_area)
+		ac-shots --area
+        ;;
+    $shot_win)
+		ac-shots --win
+        ;;
+    $shot_after_5sec)
+		ac-shots --delay 5
+        ;;
+    $shot_after_10sec)
+		ac-shots --delay 10
+        ;;
+esac

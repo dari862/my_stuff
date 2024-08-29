@@ -1,0 +1,25 @@
+#!/bin/sh
+
+app_name="openrgb"
+if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+	say 'Updating sources...' 1
+	Distrobox_Package_update_
+	
+	clear
+	say 'Installing package...' 1
+	Distrobox_package_installer_ ${app_name} || continue
+	
+else
+	say 'Updating sources...' 1
+	Package_update_
+	
+	clear
+	
+	say 'Installing package...' 1
+	
+	cd /tmp
+	[[ "$(lsb_release -r)" == *'20.04'* ]] && \
+  	wget -qO openrgb.deb https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_buster_6128731.deb \
+  	|| wget -qO openrgb.deb https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_bullseye_6128731.deb
+	my-superuser apt-get install -y ./openrgb.deb
+fi

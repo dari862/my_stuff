@@ -1,0 +1,128 @@
+#!/bin/bash
+set -euo pipefail                           # Treat unset variables as an error
+
+### Tor's TransPort
+__TransPort="9040"
+__DNSPort="5353"
+
+REAL_CONTAINER_RT="$(readlink -f $(which CONTAINER_RT))"
+
+RULES="/var/tmp/tor-router.save"
+
+start_tor(){
+	# Most of this is from
+	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
+	
+	### set variables
+	# destinations you don't want routed through Tor
+	_tor_container=""
+	_tor_container_exit=""
+	__tor_mode=""
+	_non_tor="192.168.1.0/24 192.168.0.0/24"
+	_tor_container_all="$($REAL_CONTAINER_RT ps -a | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
+	_tor_container_exit="$($REAL_CONTAINER_RT ps -a --filter "status=exited" | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
+		
+	if [[ -z "$_tor_container_all" ]]; then
+	 __tor_mode="create"
+	fi
+	
+	if [[ ! -z "$_tor_container_exit" ]]; then
+	 __tor_mode="start"
+	fi
+	
+	### get the container tor runs in
+	if [[ "$__tor_mode" == "create" ]]; then
+    	echo 'ERROR: tor proxy container not running.'
+    	echo 'running container.'
+    	echo "$REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy"
+    	if ! $REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy;then
+    		echo 'ERROR: failed to create container.'
+    		exit 1
+    	fi
+    	
+    	sleep 1
+	fi
+    
+    _tor_container="$($REAL_CONTAINER_RT ps | awk '/torproxy/ {print $NF; quit}' | head -1)"
+    
+    if [[ "$__tor_mode" == "start" ]]; then
+    	if ! $REAL_CONTAINER_RT start $_tor_container &>/dev/null;then
+    		echo 'ERROR: failed to run container.'
+    		exit 1
+    	fi
+	fi
+		
+	### get the UID that tor runs as
+	_tor_uid="$($REAL_CONTAINER_RT exec $_tor_container id -u tor)"
+	
+	if test -f "$RULES"; then
+		echo "$RULES exists. Either delete it, or stop tor-router first."
+		exit 1
+	else
+		# Only save the rules when we are sure that everything is working
+		my-superuser iptables-save >$RULES
+	
+		### flush iptables
+		my-superuser iptables -F
+		my-superuser iptables -t nat -F
+		
+		### set iptables *nat to ignore tor user
+		my-superuser iptables -t nat -A OUTPUT -m owner --uid-owner $_tor_uid -j RETURN
+		
+		### redirect all DNS output to tor's DNSPort
+		my-superuser iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $__DNSPort
+		
+		### set iptables *filter
+		my-superuser iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+		
+		### allow clearnet access for hosts in $_non_tor
+		for _clearnet in $_non_tor 127.0.0.0/8; do
+   			my-superuser iptables -t nat -A OUTPUT -d $_clearnet -j RETURN
+   			my-superuser iptables -A OUTPUT -d $_clearnet -j ACCEPT
+		done
+		
+		### redirect all other output to tor's TransPort
+		my-superuser iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $__TransPort
+		
+		### allow only tor output
+		my-superuser iptables -A OUTPUT -m owner --uid-owner $_tor_uid -j ACCEPT
+		my-superuser iptables -A OUTPUT -j REJECT
+	fi
+}
+
+stop_tor(){
+	if test -f "$RULES"; then
+		echo "Restoring previous rules from $RULES"
+		my-superuser iptables -F
+		my-superuser iptables-restore <"$RULES"
+		rm "$RULES"
+	else
+		echo "$RULES does not exist. Not doing anything."
+		exit
+	fi
+}
+
+restart_tor(){
+	stop_tor
+	sleep 1
+	start_tor
+}
+
+__arg_="${1-}"
+
+case "$__arg_" in
+start)
+	start_tor
+	;;
+
+stop)
+	stop_tor
+	;;
+
+restart)
+	restart_tor
+	;;
+*)
+	echo "Usage: $0 {start|stop|restart}"
+	;;
+esac

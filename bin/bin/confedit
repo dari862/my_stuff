@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/rofi"
+
+picked_cfg="${1-}"
+database="${script_config_path}/confedit-list"
+
+[ ! -f $database ] && touch $database
+
+if [ -z "$picked_cfg" ];then
+	cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' $database | column -s '##' -t | $rofi_command -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
+else
+	cfg=$(grep "$picked_cfg" $database | grep -oP "\|.*" | sed 's/| //')
+fi
+
+if [ -n "$cfg" ];then
+	if [ -z "$picked_cfg" ];then
+		popup_terminal --editor "$cfg"
+	else
+		$CLI_EDITER "$cfg"
+	fi
+fi

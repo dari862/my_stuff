@@ -1,0 +1,34 @@
+#!/bin/sh
+
+gui_app_are="${1:-}"
+if [ -z "$gui_app_are" ];then
+	echo "$0: no arg provided"
+	exit 1
+elif [ "$gui_app_are" = "yad" ];then
+	_askpass(){
+		yad --center --width=300 --image=keys.png --title 'Sudo-Password' --button='Ok:0' --button='Cancel:1'  --entry --hide-text --text 'Please enter your password'
+	}
+	shift 1
+else
+	_askpass(){
+		. "/usr/share/my_stuff/lib/common/WM"
+		. "/usr/share/my_stuff/lib/common/rofi"
+		rofi -dmenu\
+    		-password\
+    		-i\
+    		-no-fixed-num-lines\
+    		-p "User Password: "\
+    		-theme "$rofi_style_dir"/askpass.rasi
+	}
+fi
+app_2_run_as_root="$1"
+shift 1
+Extra_Arg="$@"
+
+app_2_run_as_root="$(which $app_2_run_as_root)"
+command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+
+__PASS="$(_askpass)"
+echo "${__PASS}" | my-superuser -S ${command_2_run}
+
+__PASS=""

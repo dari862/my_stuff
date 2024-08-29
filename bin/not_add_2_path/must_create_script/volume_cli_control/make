@@ -1,0 +1,15 @@
+#!/bin/sh
+path_to_files="/usr/share/my_stuff/bin/not_add_2_path/must_create_script/volume_cli_control"
+if command -v pactl > /dev/null 2>&1; then
+	pak=pactl
+elif command -v pulsemixer > /dev/null 2>&1; then
+	pak=pulsemixer
+elif command -v amixer > /dev/null 2>&1; then
+	pak=amixer
+else
+	echo "$0: pactl or pulsemixer not installed."
+	exit 1
+fi
+
+cat ${path_to_files}/head ${path_to_files}/$pak ${path_to_files}/tail | tee /usr/share/my_stuff/system_files/bin/volume_cli_control > /dev/null 2>&1
+chmod +x /usr/share/my_stuff/system_files/bin/volume_cli_control

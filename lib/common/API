@@ -1,0 +1,5 @@
+API_path="$HOME/.config/API"
+weather="openweathermap"
+imgbb="imgbb"
+imgur="imgur"
+OPENAI="OPENAI"

@@ -1,0 +1,123 @@
+#!/bin/bash
+
+installation_script_name="my-installer"
+_distrobox_center_path='/usr/share/my_stuff/bin/not_add_2_path/distrobox_center'
+
+HELP='    my-install-pipemenu a obmenu Pipe Menu for installing applications
+    It should normally be called from a obmenu menu.
+
+Options (usually passed from the menu):
+    -h --help   show this message
+    --openboxmenu   generate xml obmenu pipemenu for installing applications.
+    --jgmenu   generate jgmenu pipemenu for installing applications.
+    (the package must be in one of the app lists in this file)
+
+'
+
+source "/usr/share/my_stuff/lib/common/DB"
+
+LIST_OF_APPS_SCRIPTS_=($(cd "${apps_db_path}" && ls 2>/dev/null))
+
+picked_gaming_db_path="${gaming_db_path}"
+LIST_OF_GAMES_SCRIPTS_=($(cd "${picked_gaming_db_path}" && ls 2>/dev/null))
+
+########################################################################
+
+# look for a help option somewhere
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+source "/usr/share/my_stuff/lib/common/includes_functions"
+
+if [[ ${1-} = --openboxmenu ]]; then # pipemenu
+	menuStart "my_stuffGuiAppsPipemenu" "My Stuff GUI Apps"
+	menuItem "Apps Dashboard" "apps-dashboard"
+	menuItem "live wallpaper" "livewall_gui"
+	menuItem "Alarm" "beepmein_gui"
+	menuItem "Control Center" "control_center"
+	menuItem "GUI MPV" "my-mpv"
+	menuItem "Style Manager" "style-manager"
+	menuItem "ScreenShot" "yadshot.sh"
+	menuItem "wget" "yadwget"
+	menuItem "Autostart Manager" "yautostart"
+	menuItem "USB formatter" "hub usb-formatter"
+	menuItem "Package Manager" "yadstore"
+	menuItem "Script Hub" "hub"
+	menuItem "pmxkcd" "hub pmxkcd"
+	if [ $(command -v btmgmt >/dev/null) ] && [ "$(btmgmt info | awk 'BEGIN{split("1.0b 1.1 1.2 2.0 2.1 3.0 4.0 4.1 4.2 5.0 5.1 5.2 5.3",i," ")}')" != "" ] # check bluetooth
+	then
+		menuItem "Bluetooth" "bt-session"
+	fi
+	if command -v qt5ct >/dev/null
+	then
+		menuItem "QT5 Settings" "qt5ct"
+		menuItem "Kvantum Manager" "kvantummanager"
+	fi
+	if command -v quickemu_gui &> /dev/null; then
+		menuItem "QuickEMU GUI" "quickemu_gui"
+	fi
+	if command -v distrogui &> /dev/null; then
+		menuItem "DistroBOX GUI" "distrogui"
+	fi
+	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
+		menuItem "GPU Switcher" "gui_GPU_Switcher"
+		menuItem "GUI TLP" "yadtlp.sh"
+	fi
+	if command -v fingerprint_gui &> /dev/null; then
+		menuItem "Fingerprint GUI" "fingerprint_gui"
+	fi
+    menuEnd
+ #    menuEnd   
+elif [[ ${1-} = --jgmenu ]]; then # pipemenu
+	jgmenuItem "Apps Dashboard" "apps-dashboard"
+	jgmenuItem "Alarm" "beepmein_gui"
+	jgmenuItem "Control Center" "control_center"
+	jgmenuItem "GUI MPV" "my-mpv"
+	jgmenuItem "Style Manager" "style-manager"
+	jgmenuItem "ScreenShot" "yadshot.sh"
+	jgmenuItem "wget" "yadwget"
+	jgmenuItem "Autostart Manager" "yautostart"
+	jgmenuItem "USB formatter" "hub usb-formatter"
+	jgmenuItem "Package Manager" "yadstore"
+	jgmenuItem "Script Hub" "hub"
+	jgmenuItem "pmxkcd" "hub pmxkcd"
+	if [ $(command -v btmgmt >/dev/null) ] && [ "$(btmgmt info | awk 'BEGIN{split("1.0b 1.1 1.2 2.0 2.1 3.0 4.0 4.1 4.2 5.0 5.1 5.2 5.3",i," ")}')" != "" ] # check bluetooth
+	then
+		jgmenuItem "Bluetooth" "bt-session"
+	fi
+	if command -v qt5ct >/dev/null
+	then
+		jgmenuItem "QT5 Settings" "qt5ct"
+		jgmenuItem "Kvantum Manager" "kvantummanager"
+	fi
+	if command -v quickemu_gui &> /dev/null; then
+		jgmenuItem "QuickEMU GUI" "quickemu_gui"
+	fi
+	if command -v distrogui &> /dev/null; then
+		jgmenuItem "DistroBOX GUI" "distrogui"
+	fi
+	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
+		jgmenuItem "GPU Switcher" "gui_GPU_Switcher"
+		jgmenuItem "GUI TLP" "yadtlp.sh"
+	fi
+	if command -v fingerprint_gui &> /dev/null; then
+		jgmenuItem "Fingerprint GUI" "fingerprint_gui"
+	fi
+    jgmenuEnd
+#    menuEnd
+elif [[ ${1-} ]]; then
+    echo "$0: no such option $*" >&2
+    echo
+    echo "#################################################"
+    echo
+    echo "$HELP"
+    exit 1
+fi
+exit 0

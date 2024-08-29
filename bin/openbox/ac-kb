@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+. "/usr/share/my_stuff/lib/common/openbox_kb"
+
+echo "$(date) $RCPATH keybinds " > $KBTEXT
+echo "NEW_LINE_Plz---------------------------------------------------------------------------" >> $KBTEXT
+sed -n '/<keyboard>/,/<\/keyboard>/p' $RCPATH | \
+grep -e '<keybind key=' -e '<!-- Title: ' -e '<!-- Description:' -e '<command>' -e '<action name=' | \
+sed -e 's/^ *//g' -e '/^<!-- Title: / s/$/NEW_LINE_Plz#########################################NEW_LINE_Plz/' | \
+sed -e 's/<!-- Title: /NEW_LINEs_Plz/g' -e 's/<!-- Description:\[execute\]//g' -e 's/">//g' -e 's/ -->//g' -e 's/-->//g' -e 's/<\/command>//g' -e 's/<!-- Description:\[run\] /Tab_here_plz/g' >> $KBTEXT
+sed -i -e 's/\(\b[^<command>]*\)\(\b<command>\)/\1\n\2/g' $KBTEXT
+
+sed -i -e 's/<\/action>//g' -e 's/<wrap>no<\/wrap>//g' -e 's/<wrap>yes<\/wrap>//g' -e 's/<\/to>//g' -e 's/<to>/ /g' -e 's/"\/>//g' $KBTEXT
+sed -i -e 's/<\/menu>//g' -e 's/<menu>/ /g' $KBTEXT
+
+sed -i -e 's/<action name="Focus//g' -e 's/<action name="Raise//g' -e 's/<action name="Unshade//g' -e 's/<action name="UnmaximizeFull//g'  $KBTEXT
+sed -i -e 's/<action name="MaximizeVert//g' -e 's/<action name="MoveResizeTo//g' -e 's/<action name="focus//g' -e 's/<action name="raise//g' -e 's/<action name="UnshadeRaise//g' $KBTEXT
+sed -i -e 's/<action name="Unfocus//g' -e 's/<action name="/\t/g' $KBTEXT
+
+grep $KBTEXT -e '^<command>' -B 3 | grep -e '^<keybind key="' | while read -r line ; do
+	sed -i "s/$line/x$line/g" $KBTEXT
+done
+
+sed -i -e ':a;N;$!ba;s/\n//g' -e 's/x<keybind key="/\nx\t/g' -e 's/<keybind key="/\no\t/g' -e 's/<command>/\t/g' -e 's/Tab_here_plz/\t/g' -e 's/NEW_LINEs_Plz/\n\n/g' -e 's/NEW_LINE_Plz/\n/g' $KBTEXT
+
+grep '<!ENTITY' $RCPATH | while read -r a b c line ; do
+	sed -i "s|$b|$c|g" $KBTEXT
+done
+
+sed -i -e 's/&"//g' -e 's/">;//g' -e 's/W-/Win+/g' -e 's/C-/Ctl+/g' -e 's/A-/Alt+/g' -e 's/S-/Shift+/g' $KBTEXT

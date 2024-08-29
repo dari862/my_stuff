@@ -1,0 +1,27 @@
+#!/bin/sh
+app_name="librewolf"
+extra_apps_=(apt-transport-https ca-certificates)
+
+say 'Installing dependancy packages...' 1
+Package_installer_ "${extra_apps_[@]}" || continue
+
+clear
+
+say 'add ${app_name} repo to sources...' 1
+wget -O- https://deb.librewolf.net/keyring.gpg | my-superuser gpg --dearmor -o /usr/share/keyrings/librewolf.gpg
+source /etc/os-release 
+my-superuser tee /etc/apt/sources.list.d/librewolf.sources << EOF > /dev/null
+Types: deb
+URIs: https://deb.librewolf.net
+Suites: $VERSION_CODENAME
+Components: main
+Architectures: amd64
+Signed-By: /usr/share/keyrings/librewolf.gpg
+EOF
+
+say 'Updating sources...' 1
+Package_update_
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+say 'Installing flatpak...' 1
+install_as_dependency flatpak
+
+say 'Installing package via flatpak...' 1
+flatpak_install ${app_name} com.github.PintaProject.Pinta
+
+my-superuser ln -sf/usr/share/my_stuff/appearance_applications/pinta.desktop /usr/share/applications

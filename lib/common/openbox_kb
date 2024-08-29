@@ -1,0 +1,5 @@
+OBPATH="${XDG_CONFIG_HOME:-"$HOME/.config"}/openbox"
+KBTEXT="${OBPATH}/kbinds.txt"
+MENU_CACHE="${OBPATH}/kbinds_menu.xml"
+RCPATH="${OBPATH}/rc.xml"
+XBKPATH="$HOME/.xbindkeysrc"

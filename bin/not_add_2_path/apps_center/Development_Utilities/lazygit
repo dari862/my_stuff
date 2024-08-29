@@ -1,0 +1,33 @@
+#!/bin/sh
+# Install vim and add lazygit distro
+no_neovim="${1}"
+distro_path="/usr/share/my_stuff/system_files"
+skel_path="${distro_path}/skel"
+lazygit_skel_path="${skel_path}/.config/lazygit"
+Title="lazygit"
+
+__choice=""
+if [ "${no_neovim}" = "no_neovim" ];then
+	say "Installing Neovim..." 1
+	install_as_dependency Neovim
+fi
+say "Create ${Title} updater and installer..." 1
+my-superuser mkdir -p ${distro_path}/updater
+my-superuser mkdir -p ${distro_path}/downloaded
+my-superuser tee ${distro_path}/updater/lazygit_updater <<- 'EOF' > /dev/null
+#!/bin/sh
+
+distro_path="/usr/share/my_stuff/system_files"
+
+lazygit_tmp="$(mktemp -d /tmp/lazygit-XXXXXX)"
+cd ${lazygit_tmp}
+lazygit_version=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+curl -sLo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${lazygit_version}_Linux_x86_64.tar.gz"
+tar -xf lazygit.tar.gz lazygit
+my-superuser install lazygit ${distro_path}/bin
+rm lazygit.tar.gz lazygit
+EOF
+my-superuser chmod +x ${distro_path}/updater/lazygit_updater
+
+say "Installing ${Title} updater and installer..." 1
+${distro_path}/updater/lazygit_updater || failed_to_run "failed to run lazygit_updater ."

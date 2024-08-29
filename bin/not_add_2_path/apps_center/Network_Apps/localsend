@@ -1,0 +1,33 @@
+#!/bin/sh
+# Install vim and add localsend distro
+
+app_name="localsend"
+distro_path="/usr/share/my_stuff/system_files"
+skel_path="${distro_path}/skel"
+localsend_skel_path="${skel_path}/.config/localsend"
+
+__choice=""
+
+say "Create ${app_name} updater and installer..." 1
+
+tee /tmp/localsend_updater <<- 'EOF' > /dev/null
+#!/bin/sh
+
+distro_path="/usr/share/my_stuff/system_files"
+
+localsend_tmp="$(mktemp -d /tmp/localsend-XXXXXX)"
+cd ${localsend_tmp}
+localsend_version=$(curl -s "https://api.github.com/repos/jesseduffield/localsend/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+wget -O localsend.deb "https://github.com/localsend/localsend/releases/latest/download/LocalSend-${LOCALSEND_VERSION}-linux-x86-64.deb"
+my-superuser apt install -y ./localsend.deb
+rm localsend.tar.gz localsend
+EOF
+
+chmod +x /tmp/localsend_updater
+my-superuser chown root:root /tmp/localsend_updater
+my-superuser mkdir -p ${distro_path}/updater
+my-superuser mkdir -p ${distro_path}/downloaded
+my-superuser mv /tmp/localsend_updater ${distro_path}/updater
+
+say "Installing ${app_name} updater and installer..." 1
+${distro_path}/updater/localsend_updater || failed_to_run "failed to run localsend_updater ."

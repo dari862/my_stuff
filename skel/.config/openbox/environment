@@ -1,0 +1,26 @@
+# My Stuff User config files
+# All default My Stuff user config files are located in /usr/share/my_stuff/skel.
+# The script skel_user_setup_ copies them to the user $HOME directory on first login.
+# See more info with command 'skel_user_setup_ --help'
+
+#
+# User-specific variables for a My Stuff session
+# can be placed here in ~/.config/openbox/environment.
+# If set in ~/.xsessionrc instead, they will apply for all X sessions.
+
+# To set your language for displaying messages and time/date formats, use the following:
+#LANG=en_CA.UTF8
+# This is unnecessary if you are using the LightDM GTK greeter which has a locale chooser widget.
+
+# To set your keyboard layout, you need to modify your X config:
+# http://www.google.com/search?q=how+to+set+keyboard+layout+xorg
+
+## GNOME Keyring
+# export $(gnome-keyring-daemon --start --components=pkcs11,secrets)
+
+## Modify xdg-open behaviour, and others.
+# "My Stuff" will be interpreted as X-generic
+# export XDG_CURRENT_DESKTOP=My Stuff
+
+# Disable overlay scrollbars
+# export GTK_OVERLAY_SCROLLING=0

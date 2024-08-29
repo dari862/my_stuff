@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+shopt -s extglob
+
+_livewallpaper_dir="${HOME}/.local/livewallpaper"
+_dir_vid="${_livewallpaper_dir}/video"
+_autorun_livewall_file="${_livewallpaper_dir}/autorun"
+
+if [ "${1-}" = "-c" ] || [ "${1-}" = "--check-run-live" ];then
+	if [[ -f "${_autorun_livewall_file}" ]];then
+		echo "true"
+	else
+		echo "false"
+	fi
+	exit
+fi
+
+command -v ffmpeg >/dev/null 2>&1 || _ffmpeg_="I need ffmpeg: my-superuser apt install --no-install-recommends ffmpeg \n"
+command -v feh >/dev/null 2>&1 || _feh_="I need feh: my-superuser apt install --no-install-recommends feh \n"
+
+if [[ -n ${_feh_} ]] || [[ -n ${_ffmpeg_}  ]];then
+	echo "${_ffmpeg_}" 
+	echo "${_feh_}" 
+	exit 1
+fi
+
+Use_numbers="Use numbers indicated by"
+Preparing_video="Preparing the video..."
+Use_numbers_from="Use numbers numbers from 1 to"
+Invalid_format="Invalid format."
+mp4_only="MP4 format only"
+Report_Video="Report Video"
+no_videos="No videos."
+
+[[ ! -d "${_dir_vid}" ]] && mkdir -p "${_dir_vid}"
+
+__help(){
+  cat <<EOF
+usage: ${0##*/} [options]
+  
+  Options:      
+    -q,--quit             Ends the loop
+    -L,--list-videos      Lists the videos that have already been used
+    -I,--set-video [N]    Use the video by the number listed in --list-videos
+    -h,--help             Display this help
+	no arg			      Add a video as Wallpaper
+  Examples:  
+    Add the video → '${0##*/} video.mp4'
+    Use the video already used and listed → '${0##*/} -I 3'
+
+* [N] Means that you need to use a number
+** Only videos in .mp4 format
+*** Only the first 10 seconds of the video will be displayed
+**** Use 3-digit images, example: 011
+EOF
+	exit
+}
+
+check_if_vid_exist_in_dir(){
+    if ! ls -d ${_dir_vid}/* 2>/dev/null >/dev/null; then
+        echo ${no_videos}
+        exit 1
+    fi
+}
+
+ctrl_c(){
+    exit 127
+}
+
+_quit_loop(){
+    script_pid=$(pgrep -r "$0")
+    if [[ ! -z "$script_pid" ]];then
+    	kill $script_pid 2>/dev/null >/dev/null
+    fi
+}
+
+_video(){
+	_quit_loop
+	if grep -qR "$1" "${_dir_vid}";then
+		vid_dir_name="$(grep -R "$1" "${_dir_vid}" | awk -F'/video.info' '{print $1}')"
+		a="$(basename "${vid_dir_name}")"
+	else	
+		[[ -z "$1" ]] && { echo "${Report_Video}"; exit 1; }
+		[[ $(file -b --mime-type ${1} | cut -d"/" -f1) != 'video' ]] && { echo "${Invalid_format}"; exit 1; }
+		[[ $(file -b --mime-type ${1} | cut -d"/" -f2) != @(mp4|x-m4v) ]] && { echo "${mp4_only}"; exit 1; }
+    	a=1     
+    	for i in $(ls -d $_dir_vid/*/ 2>/dev/null); do
+       	if [[ -d "$_dir_vid/$a" ]]; then
+           	let a=a+1
+       	fi
+    	done
+	
+    	mkdir -p "$_dir_vid/$a"
+	
+    	echo -e "${Preparing_video}...\r"
+    	ffmpeg -y -ss 00:00 -i ${1} -t 10 "${_dir_vid}/${a}/filename%05d.jpg" > ${_dir_vid}/${a}/video.info 2>&1
+    	t=$(ls ${_dir_vid}/${a}/* | wc -l)
+    	let t=t-1
+    	echo ${1} > ${_dir_vid}/${a}/video.info
+	fi
+
+    i=1
+    # ctrl_c
+    while : ; do
+        feh --bg-scale $(ls -1 ${_dir_vid}/${a}/* | sed -n "${i}p")
+        sleep 0.01
+        let i=i+1
+        [[ "${i}" -gt "${t}" ]] && i=1              
+    done &
+}
+
+__autorun(){
+	if [[ -z "${1-}" ]];then
+		[[ -f "${_autorun_livewall_file}" ]] && rm -f "${_autorun_livewall_file}"
+	else
+		if ! grep -q "$1" "${_autorun_livewall_file}";then
+			echo "${1-}" > "${_autorun_livewall_file}"
+		fi
+	fi
+}
+
+__runit(){
+	if [[ -f "${_autorun_livewall_file}" ]];then
+		video_name="$(cat "${_autorun_livewall_file}")"
+		_video "${video_name}"
+	fi
+}
+
+_list_vid(){
+    check_if_vid_exist_in_dir
+    __numbers_=($(cd ${_dir_vid} && ls))
+    for i in "${__numbers_[@]}"; do
+    	#videonumber → videoname
+    	echo "${i} → $(cat ${_dir_vid}/${i}/video.info)"
+    done
+}
+
+_set_video(){
+    check_if_vid_exist_in_dir
+    if [[ $(echo "$1" | sed -n -r '/^[0-9]+$/p') == "" ]]; then
+        echo "${Use_numbers} '${0##*/} --list-videos'."
+    else
+        if [[ "$1" -gt "$(ls -d1 ${_dir_vid}/* | wc -l)" ]]; then
+            echo "${Use_numbers_from} $(ls -d1 ${_dir_vid}/* | wc -l)"
+            exit 1
+        else
+            t=$(ls ${_dir_vid}/${1}/* | wc -l)
+            let t=t-1
+            i=1
+            # ctrl_c
+            while : ; do
+                feh --bg-scale $(ls -1 ${_dir_vid}/${1}/* | sed -n "${i}p")
+                sleep 0.01
+                let i=i+1
+                [[ "${i}" -gt "${t}" ]] && i=1              
+            done &
+        fi
+    fi
+}
+__print_vid_path(){
+	echo "${_dir_vid}"
+}
+case "${1}" in
+	-h|--help) __help ;;
+	-p|--print-vid-path )__print_vid_path ;;
+	-q|--quit) _quit_loop ;;
+	-L|--list-videos) _list_vid ;;
+	-I|--set-video) _set_video "${2}" ;;
+	-a|--add-autorun-live) __autorun "${2}" && _video "${2}" ;;
+	-r|--run-live) __runit ;;
+	*) __autorun && _video "${1}" ;;
+esac

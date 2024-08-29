@@ -1,0 +1,17 @@
+#!/bin/sh
+
+app_name="YadAppsStore"
+yadstore_dir="/usr/share/my_stuff/system_files/downloaded/${app_name}"
+
+say "Installing ${app_name}..." 1
+
+say "Git https://github.com/dari862/${app_name}.git"
+my-superuser git clone --depth=1 "https://github.com/dari862/${app_name}.git" "${yadstore_dir}"
+
+say "Running script for YadAppsStore (edite_apps_folder)"
+my-superuser "${yadstore_dir}"/tools/edite_apps_folder
+
+say "Running script for YadAppsStore (pre_yadstore)"
+my-superuser "${yadstore_dir}"/tools/pre_yadstore
+
+my-superuser ln -sf "${yadstore_dir}"/gui /usr/share/my_stuff/system_files/bin/yadstore

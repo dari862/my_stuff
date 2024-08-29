@@ -1,0 +1,26 @@
+#!/bin/bash
+my-superuser tee /usr/share/my_stuff/system_files/updater/QuickPassthrough <<- 'EOF' > /dev/null
+#!/bin/bash
+set -e
+[ -e "/tmp/QuickPassthrough.tar.gz" ] && my-superuser rm -rdf "/tmp/QuickPassthrough.tar.gz"
+[ -e "/tmp/QuickPassthrough" ] && my-superuser rm -rdf "/tmp/QuickPassthrough"
+
+wget -qO- 'https://api.github.com/repos/HikariKnight/quickpassthrough/releases/latest' \
+  	| grep '"browser_download_url"' \
+  	| grep '.tar.gz' \
+  	| cut -f2,3 -d':' \
+  	| tr -d '"' \
+  	| head -1 \
+  	| xargs wget -O /tmp/QuickPassthrough.tar.gz
+  	
+mkdir -p /tmp/QuickPassthrough
+tar -C /tmp/QuickPassthrough -xvzf /tmp/QuickPassthrough.tar.gz
+[ -f "/usr/share/my_stuff/system_files/bin/quickpassthrough" ] && rm -rdf /usr/share/my_stuff/system_files/bin/quickpassthrough
+mv /tmp/QuickPassthrough/quickpassthrough /usr/share/my_stuff/system_files/bin/
+EOF
+my-superuser chmod +x /usr/share/my_stuff/system_files/updater/QuickPassthrough
+my-superuser /usr/share/my_stuff/system_files/updater/QuickPassthrough
+echo ""
+say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
+say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
+say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
