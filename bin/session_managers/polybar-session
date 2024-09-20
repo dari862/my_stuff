@@ -13,8 +13,11 @@
 # DESCRIPTION: stop all polybar process
 #===================================================================================
 function stop() {
+	# Terminate already running bar instances
 	[ "$(pidof polybar)" ] && killall polybar 2>/dev/null
-	[ "$(pidof polybar)" ] && killall -9 polybar 2>/dev/null
+	[ "$(pidof polybar)" ] && killall -9 polybar 2>/dev/null	
+	# Wait until the processes have been shut down
+	while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
 }
 
 

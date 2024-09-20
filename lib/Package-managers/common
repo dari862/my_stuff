@@ -152,3 +152,19 @@ copy_from_extra_skel(){
 		my-superuser chown -R $user_and_group "$d"
 	done
 }
+
+if command -v git >/dev/null 2>&1;then
+	clone_repo(){
+		getthis="${1-}"
+		getto="${2-}"
+		echo "git clone ${getthis}"
+		git clone --depth=1 "${getthis}" "${getto}"
+	}
+elif command -v svn >/dev/null 2>&1;then
+	clone_repo(){
+		getthis="${1-}"
+		getto="${2-}"
+		echo "svn clone ${getthis}"
+		svn clone --depth=1 "${getthis}" "${getto}"
+	}
+fi

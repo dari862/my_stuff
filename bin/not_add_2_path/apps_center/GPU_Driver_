@@ -1,6 +1,13 @@
 #!/bin/sh
 
 app_name="GPU Drivers"
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+	read -p "do you want to add Cuda Support? (Y/n)" a_Cuda;
+	[ "${a_Cuda,,}" = "y" ] && _cuda_="cuda"
+	
+	read -p "do you want to install opensource nvidia-kernel? (Y/n)" a_kernel_open_dkms_;
+	[ "${a_kernel_open_dkms_,,}" = "y" ] && _kernel_open_dkms_="nvidia-kernel-open-dkms"
+fi
 
 if [ -f /etc/os-release ]; then
     # freedesktop.org and systemd
@@ -36,13 +43,7 @@ if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
 		say "There was a problem make your linux ${app_name}." 
 		break
 	fi
-	
-	read -p "do you want to add Cuda Support? (Y/n)" a_Cuda;
-	[ "${a_Cuda,,}" = "y" ] && _cuda_="cuda"
-	
-	read -p "do you want to install opensource nvidia-kernel? (Y/n)" a_kernel_open_dkms_;
-	[ "${a_kernel_open_dkms_,,}" = "y" ] && _kernel_open_dkms_="nvidia-kernel-open-dkms"
-	
+
 	Package_installer_ nvidia-driver nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_ || continue
 	
 	say

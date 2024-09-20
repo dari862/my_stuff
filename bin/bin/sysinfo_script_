@@ -11,7 +11,7 @@ case $opt in
 		;;
 		--autostart) popup_terminal 'if [ -f "/usr/lib/x86_64-linux-gnu/openbox-xdg-autostart" ]; then /usr/lib/x86_64-linux-gnu/openbox-xdg-autostart --list; else /usr/lib/i386-linux-gnu/openbox-xdg-autostart --list; fi; read'
 		;;
-		--memory) apps_as_root popup_terminal 'tput civis; read -p "Text to resalt: " t; while true; do clear; out=$(/usr/share/my_stuff/bin/not_add_2_path/ps_mem.py -S); outl=$(echo "$out" | wc -l); sl=$(tput lines); if [ "$sl" -lt "$outl" ]; then echo "$out" | sed -e "3,$((outl-sl+4))d"; else echo "$out"; fi; read -t 2; done | egrep --color=auto -i "^|$t"' 
+		--memory) apps_as_root popup_terminal '/usr/share/my_stuff/bin/bin/ps_mem' 
 		;;
 		--process) popup_terminal htop 
 		;;

@@ -7,95 +7,82 @@
 # CREATED: 2021.09.21
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
-if [ ! -f "$HOME/.config/keybinds/keybinds.conf" ];then
-	mkdir -p "$HOME/.config/keybinds"
-	cp -r "/usr/share/my_stuff/lib/keybinds/keybinds.conf" "$HOME/.config/keybinds/keybinds.conf"
+source "/usr/share/my_stuff/lib/common/WM"
+if [ ! -f "${WM_config_dir}/welcome_keybinds" ];then
+	source "/usr/share/my_stuff/system_files/welcome_keybinds" 
+else
+	source "${WM_config_dir}/welcome_keybinds"
 fi
-
-source "$HOME/.config/keybinds/keybinds.conf"
 
 # $DESKTOP_SESSION all small latter
 DSASL=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
 field="Show this message on startup"
 
 # Openbox welcome text
-text_openbox='<big><b>Welcome TO My Stuff !</b></big>
- A lightweight and minimal desktop on Debian!. There are some <b>tips</b>:
+text_openbox="<big><b>Welcome TO My Stuff \!</b></big>\n
+ A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
+ <b> How to open main menu?</b>\n
+   • Right click on desktop and taskbar\n
+   • Right click on left screen border (even if there are maximized windows)\n
+<b> How to exit/power off?</b>\n
+   • <tt>Main menu > Exit</tt>\n
+   • <tt>${Logout}</tt>\n
+<b> How to snap Windows?</b>\n
+   • Middle click on title bar\n
+   • <tt>${Tile_half_screen}</tt>\n
+   • <tt>${Snap_window}</tt>\n
+<b> Search commands</b>		<tt>${Launcher}</tt>\n
+<b> Window always on top</b>		<tt>${always_on_top}</tt>\n
+<b> Kill X server</b>				<tt>${Kill_X}</tt>\n
+<b> Open terminal</b>			<tt>${conky_Terminal}</tt>\n
+<b> Open file manager</b>		<tt>${conky_File_Manager}</tt>\n
+<b> Open web browser</b>		<tt>${conky_Web_Browser}</tt>\n
+<b> Open editor</b>				<tt>${conky_Editor}</tt>\n
+"
 
- <b> How to open main menu?</b>
-   • Right click on desktop and taskbar
-   • Right click on left screen border (even if there are maximized windows)
-<b> How to exit/power off?</b>
-   • <tt>Main menu > Exit</tt>
-   • <tt>WIN+x</tt>
-<b> How to snap Windows?</b>
-   • Middle clic on title bar
-   • <tt>WIN+arrows</tt>
-   • <tt>WIN+[0-9]</tt>
-   
-<b> Search commands</b>		<tt>WIN</tt>
-<b> Move windows</b>			<tt>ALT+left click</tt> (and drag)
-<b> Resize windows</b>			<tt>ALT+right click</tt> (and drag)
-<b> Window always on top</b>		<tt>WIN+0</tt>
-<b> Kill X server</b>				<tt>CTRL+ALT+BACKSPACE</tt>
-
-<b> Open terminal</b>			<tt>WIN+t</tt>
-<b> Open file manager</b>		<tt>WIN+f</tt>
-<b> Open web browser</b>		<tt>WIN+w</tt>
-<b> Open editor</b>				<tt>WIN+e</tt>
-'
 # Bspwm welcome text
-text_bspwm='<big><b>Welcome TO My Stuff !</b></big>
- A lightweight and minimal desktop on Debian!. There are some <b>tips</b>:
+text_bspwm="<big><b>Welcome TO My Stuff \!</b></big>\n
+ A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
+ <b> How to open main menu?</b>\n
+   • Right click on desktop and taskbar\n
+   • Right click on left screen border (even if there are maximized windows)\n
+<b> How to exit/power off?</b>\n
+   • <tt>Main menu > Exit</tt>\n
+   • <tt>${Logout}</tt>\n
+<b> How to snap Windows?</b>\n
+   • Middle click on title bar\n
+   • <tt>${Tile_half_screen}</tt>\n
+   • <tt>${Snap_window}</tt>\n
+<b> Search commands</b>		<tt>${Launcher}</tt>\n
+<b> Window always on top</b>		<tt>${always_on_top}</tt>\n
+<b> Kill X server</b>				<tt>${Kill_X}</tt>\n
+<b> Open terminal</b>			<tt>${conky_Terminal}</tt>\n
+<b> Open file manager</b>		<tt>${conky_File_Manager}</tt>\n
+<b> Open web browser</b>		<tt>${conky_Web_Browser}</tt>\n
+<b> Open editor</b>				<tt>${conky_Editor}</tt>\n
+"
 
- <b> How to open main menu?</b>
-   • Right click on desktop and taskbar
-   • Right click on left screen border (even if there are maximized windows)
-<b> How to exit/power off?</b>
-   • <tt>Main menu > Exit</tt>
-   • <tt>WIN+x</tt>
-<b> How to snap Windows?</b>
-   • Middle clic on title bar
-   • <tt>WIN+arrows</tt>
-   • <tt>WIN+[0-9]</tt>
-   
-<b> Search commands</b>		<tt>WIN</tt>
-<b> Move windows</b>			<tt>ALT+left click</tt> (and drag)
-<b> Resize windows</b>			<tt>ALT+right click</tt> (and drag)
-<b> Window always on top</b>		<tt>WIN+0</tt>
-<b> Kill X server</b>				<tt>CTRL+ALT+BACKSPACE</tt>
-
-<b> Open terminal</b>			<tt>WIN+t</tt>
-<b> Open file manager</b>		<tt>WIN+f</tt>
-<b> Open web browser</b>		<tt>WIN+w</tt>
-<b> Open editor</b>				<tt>WIN+e</tt>
-'
 # awesome welcome text
-text_awesome='<big><b>Welcome TO My Stuff !</b></big>
- A lightweight and minimal desktop on Debian!. There are some <b>tips</b>:
-
- <b> How to open main menu?</b>
-   • Right click on desktop and taskbar
-   • Right click on left screen border (even if there are maximized windows)
-<b> How to exit/power off?</b>
-   • <tt>Main menu > Exit</tt>
-   • <tt>WIN+x</tt>
-<b> How to snap Windows?</b>
-   • Middle clic on title bar
-   • <tt>WIN+arrows</tt>
-   • <tt>WIN+[0-9]</tt>
-   
-<b> Search commands</b>		<tt>WIN</tt>
-<b> Move windows</b>			<tt>ALT+left click</tt> (and drag)
-<b> Resize windows</b>			<tt>ALT+right click</tt> (and drag)
-<b> Window always on top</b>		<tt>WIN+0</tt>
-<b> Kill X server</b>				<tt>CTRL+ALT+BACKSPACE</tt>
-
-<b> Open terminal</b>			<tt>WIN+t</tt>
-<b> Open file manager</b>		<tt>WIN+f</tt>
-<b> Open web browser</b>		<tt>WIN+w</tt>
-<b> Open editor</b>				<tt>WIN+e</tt>
-'
+text_awesome="<big><b>Welcome TO My Stuff \!</b></big>\n
+ A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
+ <b> How to open main menu?</b>\n
+   • Right click on desktop and taskbar\n
+   • Right click on left screen border (even if there are maximized windows)\n
+<b> How to exit/power off?</b>\n
+   • <tt>Main menu > Exit</tt>\n
+   • <tt>${Logout}</tt>\n
+<b> How to snap Windows?</b>\n
+   • Middle click on title bar\n
+   • <tt>${Tile_half_screen}</tt>\n
+   • <tt>${Snap_window}</tt>\n
+<b> Search commands</b>		<tt>${Launcher}</tt>\n
+<b> Window always on top</b>		<tt>${always_on_top}</tt>\n
+<b> Kill X server</b>				<tt>${Kill_X}</tt>\n
+<b> Open terminal</b>			<tt>${conky_Terminal}</tt>\n
+<b> Open file manager</b>		<tt>${conky_File_Manager}</tt>\n
+<b> Open web browser</b>		<tt>${conky_Web_Browser}</tt>\n
+<b> Open editor</b>				<tt>${conky_Editor}</tt>\n
+"
 
 case $DSASL in
 	*openbox)

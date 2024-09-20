@@ -65,6 +65,7 @@ Set_polybar_Style_(){
 	cat $HOME/.config/dunst/experimental >> $HOME/.config/dunst/dunstrc
 	cp -r ${BACKUP_OB_RC_FILE} ${OBPATH}
 	OB_themeing
+	polybar_launch_creater
 }
 
 Set_tint2_Style_(){
@@ -85,7 +86,12 @@ Seter_Style_(){
 	fi
 	[ "$(pidof openbox)" ] && openbox --reconfigure
 	reload-gtk23
-	setbg -r
+	if [ -f ${CONFIGPATH}/${style}/random_wallpaper ];then
+		# Set random wallpaper for actual rice
+		setbg -d "/usr/share/my_stuff/my_wallpapers/${style}_*"
+	else
+		setbg -r
+	fi
 }
 
 Set_Style_and_launch(){

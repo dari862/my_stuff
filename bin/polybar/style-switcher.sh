@@ -125,16 +125,12 @@ then
 		setbg -s /usr/share/my_stuff/my_wallpapers/"$bg"
 		
 		# Restarting polybar
-		polybar_launch
+		polybar_launch_creater
+		polybar-session &
 	}
 fi
 
-
-
-
-
-
-
+###########################################################################################
 
 if [ "$polybar_STYLE" == "blocks" ]
 then
@@ -340,77 +336,17 @@ then
 	fi
 elif [[ "$polybar_STYLE" == "panels/"* ]]
 then
-	if  [[ "$1" = "--budgie" ]]; then
-		style_name="panels/budgie"
-		bg="budgie.jpg"
+	new_style="${1-}"
+	style_name="panels/${new_style}"
+	bg="panels_${new_style}.jpg"
+	if  [[ -f "/usr/share/my_stuff/my_wallpapers/${bg}" ]]; then
 		change_panel
-
-	elif  [[ "$1" = "--deepin" ]]; then
-		style_name="panels/deepin"
-		bg="deepin.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--elight" ]]; then
-		style_name="panels/elementary"
-		bg="elementary.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--edark" ]]; then
-		style_name="panels/elementary_dark"
-		bg="elementary_2.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--gnome" ]]; then
-		style_name="panels/gnome"
-		bg="gnome.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--klight" ]]; then
-		style_name="panels/kde"
-		bg="kde.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--kdark" ]]; then
-		style_name="panels/kde_dark"
-		bg="kde_2.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--liri" ]]; then
-		style_name="panels/liri"
-		bg="liri.png"
-		change_panel
-
-	elif  [[ "$1" = "--mint" ]]; then
-		style_name="panels/mint"
-		bg="mint.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--ugnome" ]]; then
-		style_name="panels/ubuntu_gnome"
-		bg="ubuntu.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--unity" ]]; then
-		style_name="panels/ubuntu_unity"
-		bg="ubuntu.jpg"
-		change_panel
-
-	elif  [[ "$1" = "--xubuntu" ]]; then
-		style_name="panels/xubuntu"
-		bg="xubuntu.png"
-		change_panel
-
-	elif  [[ "$1" = "--zorin" ]]; then
-		style_name="panels/zorin"
-		bg="zorin.png"
-		change_panel
-
 	else
 		cat <<- _EOF_
 		No option specified, Available options:
-		--budgie   --deepin   --elight   --edark   --gnome   --klight
-		--kdark   --liri   --mint   --ugnome   --unity   --xubuntu
-		--zorin
+			budgie   deepin   elementary   elementary_dark   gnome   kde
+			kde_dark   liri   mint   ubuntu_ugnome   ubuntu_unity
+			xubuntu		zorin
 		_EOF_
 	fi
 else

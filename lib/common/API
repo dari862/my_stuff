@@ -1,4 +1,5 @@
-API_path="$HOME/.config/API"
+API_path="${script_config_path}/API"
+latlong_stored_file="${script_config_path}/latlong"
 weather="openweathermap"
 imgbb="imgbb"
 imgur="imgur"

@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Files and Directories
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/polybar"
+. "/usr/share/my_stuff/lib/common/rofi"
+
+SFILE="$polybar_dir/system.ini"
+
+if [ ! -s ${rofi_style_name_path} ] || ( [ "$_panel_name_" == "polybar" ] && [ ! -s ${polybar_style_name_path} ] )
+then
+	style-manager --rofi
+fi
+
+[[ ! -f "$SFILE" ]] && polybar_fixer
+
+echo '#!/usr/bin/env bash' > "${polybar_launcher_path}"
+echo '' >> "${polybar_launcher_path}"
+echo '. "/usr/share/my_stuff/lib/common/WM"' >> "${polybar_launcher_path}"
+echo '. "/usr/share/my_stuff/lib/common/polybar"' >> "${polybar_launcher_path}"
+echo '' >> "${polybar_launcher_path}"
+echo 'MONITORS="$(polybar --list-monitors | cut -d":" -f1)" ' >> "${polybar_launcher_path}"
+if [[ "$polybar_STYLE" == "hack" || "$polybar_STYLE" == "cuts" || "$polybar_STYLE" == "hack_large" ]]; then
+	echo 'for mon in ${MONITORS}; do' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q top -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bottom -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo 'done' >> "${polybar_launcher_path}"
+elif [[ "$polybar_STYLE" == "panels/"* ]]; then
+	echo 'for mon in ${MONITORS}; do' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q main -c "${polybar_style_dir}.ini" &' >> "${polybar_launcher_path}"
+	echo 'done' >> "${polybar_launcher_path}"
+elif [[ "$polybar_STYLE" == "pwidgets" ]]; then
+	echo 'for mon in ${MONITORS}; do' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon "${polybar_style_dir}"/launch.sh --main' >> "${polybar_launcher_path}"
+	echo 'done' >> "${polybar_launcher_path}"
+elif [[ "$polybar_STYLE" == "cynthia" || "$polybar_STYLE" == "melissa" ]]; then
+	echo 'for mon in ${MONITORS}; do' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo 'done' >> "${polybar_launcher_path}"
+elif [[ "$polybar_STYLE" == "karla" ]]; then
+	echo 'for mon in ${MONITORS}; do' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo 'done' >> "${polybar_launcher_path}"
+elif [[ "$polybar_STYLE" == "pamela" ]] || [[ "$polybar_STYLE" == "andrea" ]]; then
+	echo 'for mon in ${MONITORS}; do' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar4 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar5 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q bar6 -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+	echo 'done' >> "${polybar_launcher_path}"
+else
+	echo 'for mon in ${MONITORS}; do' >> "${polybar_launcher_path}"
+	echo '	MONITOR=$mon polybar -q main -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"	
+	echo 'done' >> "${polybar_launcher_path}"
+fi
+chmod +x "${polybar_launcher_path}"

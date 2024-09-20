@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 	MUSIC_DIR=/media/addy/Media/musik/
 	COVER=/tmp/cover2.png
     

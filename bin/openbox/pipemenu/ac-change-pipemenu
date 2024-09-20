@@ -15,7 +15,6 @@ ac-change-style(){
 	# Generate menu
 	gen_menu () {
     	local count=1
-    	local bcount=1
 		source "/usr/share/my_stuff/lib/common/DB"	
 		[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles
 		# Styles
@@ -27,14 +26,6 @@ ac-change-style(){
 			menuItem "${count}. ${style}" "style-manager --change ${style}"
 			count=$(($count+1))
 		done
-		if [ ! -f /etc/fonts/conf.d/70-no-bitmaps.conf ] ; then
-			bitmap=($(cat "${bit_styles_db_path}"))
-			menuSeparator "| Bitmap |"
-			for bmap in "${bitmap[@]}"; do
-				menuItem "${bcount}. ${bmap}" "style-manager --change ${bmap}"
-				bcount=$(($bcount+1))
-			done
-		fi
 		menuEnd
 	}
 	

@@ -63,26 +63,26 @@ panel_picker() {
 	
 	if (( count > 1 )); then
 		which_panel_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
-		-theme "$rofi_style_dir"/launcher.rasi \
+		-theme "$rofi_style_dir"/runner.rasi \
 		<<< "${polybar_in_rofi}${spliter1}${xfce4_in_rofi}${spliter2}${tint2_in_rofi}")"
 	fi
 	
+	cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
+	
 	if [ "$which_panel_MENU" == "polybar" ]; then
-		cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 		which_menu_to_use obmenu
 		which_OB_style_to_use normal
 	elif [ "$which_panel_MENU" == "xfce4-panel" ]; then
-		cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 		which_menu_to_use obmenu
 		which_OB_style_to_use normal
 	elif [ "$which_panel_MENU" == "tint2" ]; then
 		which_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
-		-theme "$rofi_style_dir"/launcher.rasi \
+		-theme "$rofi_style_dir"/runner.rasi \
 		<<< "obmenu|bunsenlabs")"
 		if [ "$which_MENU" == "bunsenlabs" ]; then
 			if command -v jgmenu &> /dev/null;then
 				which_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
-				-theme "$rofi_style_dir"/launcher.rasi \
+				-theme "$rofi_style_dir"/runner.rasi \
 				<<< "jgmenu|obmenu")"
 				if [ "$which_MENU" == "obmenu" ]; then
 					which_MENU="bunsenlabs"
@@ -90,23 +90,19 @@ panel_picker() {
 			fi
 		fi
 		if [ "$which_MENU" == "jgmenu" ]; then
-			cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 			which_menu_to_use jgmenu
 			which_OB_style_to_use bl
 			setbg -s --set-color=#18191A /usr/share/my_stuff/images/wallpapers/default/default
 		elif [ "$which_MENU" == "bunsenlabs" ]; then
-			cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 			which_menu_to_use obmenu
 			which_OB_style_to_use bl
 		elif [ "$which_MENU" == "obmenu" ]; then
-			cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 			which_menu_to_use obmenu
 			which_OB_style_to_use normal
 			echo "/.config/tint2/old.tint2rc" > $HOME/.config/tint2/tint2-sessionfile
 		fi
 	else
 		which_panel_MENU="$default_panel"
-		cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 		which_menu_to_use obmenu
 		which_OB_style_to_use normal
 	fi

@@ -11,6 +11,7 @@ configuration {
 
 @import "font.rasi"
 @import "colors.rasi"
+@import "theme.rasi"
 
 window {
     transparency:                   "real";

@@ -1,0 +1,35 @@
+lfcd() {
+	local _lfcd_dir _lfcd_lastdirpath _lfcd_pid _lfcd_archivemount_dir _line _lfcd_lastdir
+
+	_lfcd_dir="${XDG_RUNTIME_DIR:-"/run/user/${EUID:-"$(id -u)"}"}/lfcd"
+	mkdir -p -- "$_lfcd_dir" || _lfcd_dir="${TMPDIR:-"/tmp"}"
+
+	_lfcd_lastdirpath="$(mktemp -q "${_lfcd_dir}/lfcd_lastdir.$$.XXXX")" \
+	_lfcd_pid="$(mktemp -q "${_lfcd_dir}/lfcd_pid.$$.XXXX")"
+
+	lf -command '$printf $id > '"$_lfcd_pid" \
+		-last-dir-path="$_lfcd_lastdirpath" "$@"
+
+	# if you opened archives with 'archivemount' while in lf,
+	# their paths will be written to _archivemount_dir, unmount
+	# and delete them when exiting lf
+	# TODO: if last dir inside mounted archive, do not umount-remove
+	_lfcd_archivemount_dir="/tmp/__lf_archivemount_$(cat "$_lfcd_pid")"
+	if [ -f "$_lfcd_archivemount_dir" ]; then
+		while IFS= read -r _line; do
+			umount -- "$_line"
+			rmdir -- "$_line"
+		done < "$_lfcd_archivemount_dir"
+		rm -f -- "$_lfcd_archivemount_dir"
+	fi
+
+	# cd to last directory in lf
+	if [ -f "$_lfcd_lastdirpath" ]; then
+		_lfcd_lastdir="$(cat "$_lfcd_lastdirpath")"
+		if [ -d "$_lfcd_lastdir" ] && [ "$_lfcd_lastdir" != "$PWD" ]; then
+			cd -- "$_lfcd_lastdir"
+		fi
+	fi
+	rm -f -- "$_lfcd_lastdirpath" "$_lfcd_pid" >/dev/null 2>&1
+}
+# vim: ft=sh

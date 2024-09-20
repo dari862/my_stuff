@@ -1,4 +1,8 @@
 #!/bin/sh
+if [ ! -d /sys/class/bluetooth ]; then
+	echo # No Bluetooth interface
+	exit 0
+fi
 
 bluetooth_print() {
     bluetoothctl | while read -r; do

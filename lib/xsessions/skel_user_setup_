@@ -55,5 +55,3 @@ if command -v xfconf-query >/dev/null ; then
 fi
 
 find "$HOME/.config/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
-
-/usr/share/Desktop/my_stuff/bin/bin/keybinds &

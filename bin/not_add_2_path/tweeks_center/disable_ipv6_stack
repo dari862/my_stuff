@@ -1,0 +1,29 @@
+#!/bin/bash
+
+gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
+is_ipv6_disabled=$(grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep 'ipv6.disable=1')
+
+if [ "$1" = "--check" ];then
+	if test "${is_ipv6_disabled}"; then
+		echo enabled 
+	else
+		echo disabled
+	fi
+	exit 0
+fi
+echo "disabling IPv6 stack (kernal level)."
+if ! grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then
+	if grep -q 'GRUB_CMDLINE_LINUX=""' /etc/default/grub;then
+		my-superuser sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub
+	else
+		my-superuser sed -i 's/GRUB_CMDLINE_LINUX=\"\(.*\)\"/GRUB_CMDLINE_LINUX=\"\1 ipv6.disable=1\"/' /etc/default/grub
+	fi
+fi
+if ! grep 'GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub | grep -q 'ipv6.disable=1';then
+	if grep -q 'GRUB_CMDLINE_LINUX_DEFAULT=""' /etc/default/grub;then
+		my-superuser sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=""/GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"/' /etc/default/grub
+	else
+		my-superuser sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\1 ipv6.disable=1\"/' /etc/default/grub
+	fi
+fi
+my-superuser update-grub

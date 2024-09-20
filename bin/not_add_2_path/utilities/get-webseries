@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # youtube-dl wrapper to download web series / playlists / etc.
 set -eu
 

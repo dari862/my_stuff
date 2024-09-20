@@ -52,19 +52,19 @@ then
 	<<< " Budgie| Deepin| Elementary| Elementary_Dark| Gnome| KDE|\
 	 KDE_Dark| Liri| Mint| Ubuntu_gnome| Ubuntu_unity| Xubuntu| Zorin|")"
 				case "$MENU" in
-					*Budgie) style-switcher.sh --budgie ;;
-					*Deepin) style-switcher.sh --deepin ;;
-					*Elementary) style-switcher.sh --elight ;;
-					*Elementary_Dark) style-switcher.sh --edark ;;
-					*Gnome) style-switcher.sh --gnome ;;
-					*KDE) style-switcher.sh --klight ;;
-					*KDE_Dark) style-switcher.sh --kdark ;;
-					*Liri) style-switcher.sh --liri ;;
-					*Mint) style-switcher.sh --mint ;;
-					*Ubuntu_gnome) style-switcher.sh --ugnome ;;
-					*Ubuntu_unity) style-switcher.sh --unity ;;
-					*Xubuntu) style-switcher.sh --xubuntu ;;
-					*Zorin) style-switcher.sh --zorin ;;
+					*Budgie) style-switcher.sh budgie ;;
+					*Deepin) style-switcher.sh deepin ;;
+					*Elementary) style-switcher.sh elementary ;;
+					*Elementary_Dark) style-switcher.sh elementary_dark ;;
+					*Gnome) style-switcher.sh gnome ;;
+					*KDE) style-switcher.sh kde ;;
+					*KDE_Dark) style-switcher.sh kde_dark ;;
+					*Liri) style-switcher.sh liri ;;
+					*Mint) style-switcher.sh mint ;;
+					*Ubuntu_gnome) style-switcher.sh ubuntu_ugnome ;;
+					*Ubuntu_unity) style-switcher.sh ubuntu_unity ;;
+					*Xubuntu) style-switcher.sh xubuntu ;;
+					*Zorin) style-switcher.sh zorin ;;
 				esac
 elif [ "$ROFI_STYLE" == "pwidgets" ]
 then

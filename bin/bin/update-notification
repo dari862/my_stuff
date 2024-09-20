@@ -18,6 +18,8 @@ script_name="$(basename $0)"
 source "/usr/share/my_stuff/system_files/update-notification.conf"
 
 get_total_updates() { UPDATES=$(cat "$updates_file" | wc -l); }
+print_total_updates() { cat "$updates_file" | wc -l; }
+
 __my_superuser_() { my-superuser true; }
 
 #=== FUNCTIONs ==================================================================
@@ -187,7 +189,9 @@ function uninstall {
 	exit 
 }
 
-
+list_update(){
+	cat "$updates_file"
+}
 
 #=== FUNCTION ==================================================================
 # NAME: help
@@ -214,5 +218,7 @@ case $__arg in
 	-I) install ;;
 	-U) uninstall ;;
 	-u) update;; # UPDATE DEFAULT
+	-l) list_update;;
+	-c) print_total_updates;;
 	*) help;;
 esac

@@ -4,7 +4,7 @@ say 'Installing displaylink-installer ...' 1
 
 cd /tmp
 my-superuser true
-git clone https://github.com/AdnanHodzic/displaylink-debian.git
+clone_repo https://github.com/AdnanHodzic/displaylink-debian.git
 cd displaylink-debian
 
 sed -i 's|read -p "\[I\]nstall|echoechoechoecho|g' ./displaylink-debian.sh

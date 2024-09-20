@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # extract audio track from video
 set -euo pipefail
 

@@ -48,10 +48,13 @@ adapter = ACAD
 battery = BAT1
 graphics_card = amdgpu_bl0
 network_interface = ens32
+vpn_interface = ""
 AC_only_prefix = "  "
 AC_only_content = " AC only "
 temperature = temperature_path
-
+distro_icon = 
+distro_name = "Arch Linux"
+NO_BT_content = " "
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 EOF
 }
@@ -69,7 +72,9 @@ get_values() {
 		ADAPTER=$(upower -i `upower -e | grep 'AC'` | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
 	fi
 	
-	INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | head -n 2 | grep -v lo )"
+	INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | head -n 1  )"
+	
+	VPN_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "tun" | head -n 1  )"
 	
 	#varibale TemperaturePath are set at the end
 	TemperaturePath="$( (for i in /sys/class/hwmon/hwmon*/temp*_input; do echo "$(<$(dirname $i)/name): $(cat ${i%_*}_label 2>/dev/null || echo $(basename ${i%_*})) $(readlink -f $i)"; done) | grep "coretemp" | grep "temp1" | awk '{print $5}')"
@@ -89,6 +94,10 @@ set_values() {
 	fi
 	if [[ "$INTERFACE" ]]; then
 		sed -i "s/network_interface = .*/network_interface = $INTERFACE/g" 	${SFILE}
+	fi
+	
+	if [[ "$VPN_INTERFACE" ]]; then
+		sed -i "s/VPN_INTERFACE = .*/VPN_INTERFACE = $VPN_INTERFACE/g" 	${SFILE}
 	fi
 	
 	if [[ "$TemperaturePath" ]]; then
@@ -123,7 +132,42 @@ fix_modules() {
 	fi
 }
 
+remove_modules() {
+	polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g')
+	string_size_of_polybar_ver="${#polybar_ver}"
+	if [ $string_size_of_polybar_ver != 3 ];then
+		if [ $string_size_of_polybar_ver = 1 ];then
+			polybar_ver="${polybar_ver}00"
+		elif [ $string_size_of_polybar_ver = 2 ];then
+			polybar_ver="${polybar_ver}0"
+		else
+			polybar_ver="$(echo $polybar_ver | cut -c1-3)"
+		fi
+	fi
+
+	if [ "$polybar_ver" -gt "363" ];then
+		find $polybar_dir -type f -exec sed -i 's/ notray_m/ tray_m/g' {} +
+		find $polybar_dir -type f -exec sed -i 's/active_focused/focused/g' {} +
+	else
+		find $polybar_dir -type f -exec sed -i 's/active_focused/active/g' {} +
+ 	fi
+ 	
+ 	# Change xprop_NET_DESKTOP_NAMES to desktop name
+ 	xprop_NET_DESKTOP_NAMES="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2)"
+ 	find $polybar_dir -type f -exec sed -i "s/xprop_NET_DESKTOP_NAMES/${xprop_NET_DESKTOP_NAMES}/g" {} +
+ 	
+ 	find $polybar_dir -type f -exec sed -i 's/ bluetooth/ no_bluetooth/g' {} +
+ 	find $polybar_dir -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
+ 	
+ 	if [[ -z "$VPN_INTERFACE" ]]; then
+ 		find $polybar_dir -type f -name config.ini -exec sed -i 's/ vpn_m/ no_vpn_m/g' {} +
+ 	else
+ 		find $polybar_dir -type f -name config.ini -exec sed -i 's/ no_vpn_m/ vpn_m/g' {} +
+ 	fi
+}
+
 create_system_file_ini
 get_values
 set_values
 fix_modules
+remove_modules

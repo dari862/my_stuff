@@ -11,7 +11,6 @@
 
 opt_="${1-}"
 
-
 _logout(){
 	DESKTOP_SESSION_all_small_latter=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
 	if [ "$DESKTOP_SESSION_all_small_latter" = "*openbox" ] || [ "$DESKTOP_SESSION_all_small_latter" = "openbox" ]; then
@@ -106,6 +105,16 @@ tty_menu(){
     esac
 }
 
+confirmation_dialog(){
+	ans="$(echo "$yes\n$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$rofi_style_dir"/confirm.rasi)"
+	
+	if [ "$ans" = "$yes" ];then
+		return
+	else
+		exit
+	fi
+}
+
 rofi_menu(){
 	opt_=""
 	rofi_command="rofi -theme ${rofi_style_dir}/powermenu.rasi"
@@ -120,18 +129,22 @@ rofi_menu(){
 		lock=""
 		suspend=""
 		logout=""
+		yes=''
+		no=''
 	else
 		shutdown=" Shutdown"
 		reboot=" Restart"
 		lock=" Lock"
 		suspend=" Sleep"
 		logout=" Logout"
+		yes=' Yes'
+		no=' No'
 	fi
 	
 	# Variable passed to rofi
 	options="$lock\n$suspend\n$logout\n$reboot\n$shutdown"
 	
-	chosen="$(printf '%s' "$options" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
+	chosen="$(echo "$options" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
 	case "$chosen" in
     	"$shutdown")
 			opt_="shutdown"
@@ -151,28 +164,7 @@ rofi_menu(){
         *) exit 0;;
 	esac
 	
-	# confirmation_dialog
-	ans=$(
-		rofi -dmenu\
-    		-i\
-    		-no-fixed-num-lines\
-    		-p "Are You Sure? : "\
-    		-theme "$rofi_style_dir"/confirm.rasi | tr '[:upper:]' '[:lower:]'
-    	)
-	if [ "$ans" = "YES" ];then
-		ans="Y"
-	elif [ "$ans" = "NO" ];then
-		ans="N"
-	fi
-	
-	if [ "$ans" = "Y" ]; then
-        return 1
-	elif [ "$ans" = "N" ]; then
-        exit
-    else
-        rofi -theme "$rofi_style_dir"/askpass.rasi -e "Options  -  yes / y / no / n"
-        exit 1
-    fi
+	confirmation_dialog
 }
 
 yad_menu(){

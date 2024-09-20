@@ -54,86 +54,20 @@ do
     esac
 done
 
-KBSCRIPT="ac-kb"
-XBKSCRIPT="bl-xbk"
-
-using_openbox=false
-if ob_cmd=$( pgrep -u "$USER" -ax openbox )
-then
-    using_openbox=true
-    rc_regex='--config-file (.*\.xml)($|[[:blank:]])'
-    if [[ $ob_cmd =~ $rc_regex ]];then
-    	RCPATH=${BASH_REMATCH[1]} # otherwise stay with default
-    fi
-    # test if bl-kb exists in path
-	if  ! type "$KBSCRIPT" &> /dev/null;then
-    	menuStart
-    	menuSeparator "$KBSCRIPT is not available."
-    	menuEnd
-    	exit 1
-	fi
-fi
-
-using_xbindkeys=false
-if xbk_cmd=$( pgrep -u "$USER" -ax xbindkeys )
-then
-    using_xbindkeys=true
-    xbk_regex='(-f|--file) (.*)$'
-    if [[ $xbk_cmd =~ $xbk_regex ]];then
-        XBKPATH=${BASH_REMATCH[2]}
-    fi 
-	# test if parse-xbk exists in path
-	if ! type "$XBKSCRIPT" &> /dev/null;then
-    	menuStart
-    	menuSeparator "$XBKSCRIPT is not available."
-    	menuEnd
-    	exit 1
-	elif [[ ! -f "${XBKPATH}" ]];then
-		using_xbindkeys=false
-	fi
-fi
-
 case $1 in
-'--xbkedit') # "Backup & Edit .xbindkeysrc" is chosen in menu
-    # backup .xbindkeysrc first
-    NOW=$(date +"%Y%m%d-%H%M")
-    XBKBKP="$XBKPATH.$NOW"
-    cp "$XBKPATH" "$XBKBKP"
-    my-text-editor "$XBKPATH"        # open .xbindkeysrc in default editor
-    ;;
-
-'--rcedit') # "Backup & Edit [bl-]rc.xml" is chosen in menu
-    # backup [bl-]rc.xml first
-    NOW=$(date +"%Y%m%d-%H%M")
-    RCBKP="$RCPATH.$NOW"
-    cp "$RCPATH" "$RCBKP"
-    my-text-editor "$RCPATH"        # open [bl-]rc.xml in default editor
+'--edit') # "Backup & Edit .xbindkeysrc" is chosen in menu
+    my-text-editor "$HOME/.config/keybinds/keybinds.conf" && keybinds    # open .xbindkeysrc in default editor
     ;;
 
 '--gui')
-    if [[ $RCPATH -nt $KBTEXT || $XBKPATH -nt $KBTEXT ]]; then
-    	if [[ $using_openbox = false ]];then
-        	GUI_TITLE='Xbindkeys keybinds'
-        	$XBKSCRIPT
-    	elif [[ $using_xbindkeys = false ]];then
-        	GUI_TITLE='Openbox keybinds'
-        	$KBSCRIPT > /dev/null
-    	else
-        	GUI_TITLE='Openbox & Xbindkeys keybinds'
-        	$KBSCRIPT > /dev/null
-        	$XBKSCRIPT
-    	fi
-    fi
-    yad --text-info --title="$GUI_TITLE" --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg\
-    --filename="$KBTEXT" --width=700 --height=700\
+    yad --text-info --title="Keybinds" --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg\
+    --filename="${WM_config_dir}/openbox_keybinds" --width=700 --height=700\
     --fontname=Monospace --button=gtk-close
     ;;
 
 '--keybinds')
     # run script to write kbinds.txt, suppress terminal output
     if [[ $RCPATH -nt $MENU_CACHE || $XBKPATH -nt $MENU_CACHE ]]; then
-        [[ $using_openbox = true ]] && $KBSCRIPT > /dev/null 2>&1
-        [[ $using_xbindkeys = true ]] && $XBKSCRIPT
       
         OB_Wmenu=''
         OB_Rmenu=''
@@ -188,8 +122,7 @@ case $1 in
 '')
     # pipemenu
     menuStart
-    [[ $using_xbindkeys = true ]] && menuItem "Backup and Edit .xbindkeysrc" "my_stuff-kb-pipemenu --xbkedit"
-    [[ $using_openbox = true ]] && menuItem "Backup and Edit ${RCPATH##*/}" "my_stuff-kb-pipemenu --rcedit"
+    menuItem "Backup and Edit Keybinds" "my_stuff-kb-pipemenu --edit"
     menuSeparator
     menuItem "Display Keybinds in new window" "my_stuff-kb-pipemenu --gui"
     echo '        <menu execute="my_stuff-kb-pipemenu --keybinds" id="Display keybinds" label="Display Keybinds in menu"/>'

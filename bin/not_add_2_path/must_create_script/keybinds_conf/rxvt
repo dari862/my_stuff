@@ -1,0 +1,12 @@
+##############################
+#;#############################
+#; rxvt
+#;#############################
+##############################
+scrolls up one line=Shift + Up
+scrolls down one line=Shift + Down
+moves the cursor up five lines=Control + Up
+moves the cursor down five lines=Control + Down
+moves the cursor Right five lines=Control + Right
+moves the cursor Left five lines=Control + Left
+#;

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 BAT_00=" <span color='#bf616a'>󱃍 </span>"
 BAT_10=" <span color='#bf616a'>󰁺</span>"

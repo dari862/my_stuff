@@ -28,6 +28,8 @@
 			</action>
 		</item>
 		<separator/>
+		<item label="Virtual Machine"><action name="Execute"><command>popup_terminal "virtual_machine"</command></action></item> 
+	    <separator/>
 		<menu id="app-menu" execute="obamenu" label="Applications"/>
 		<menu id="preferences" label="Preferences">
 			<menu id="my_stuffGuiAppsPipemenu" execute="gui-apps-pipemenu --openboxmenu" label="My Stuff GUI Apps"/>
@@ -90,7 +92,7 @@
 			</item>
 			<item label="Audio Settings">
 				<action name="Execute">
-					<command>pavucontrol</command>
+					<command>openbox_scripts --pavucontrol</command>
 				</action>
 			</item>
 			<item label="Settings Manager">

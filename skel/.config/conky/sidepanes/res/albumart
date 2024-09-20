@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 	
 	# replace with your mpd music path
 	MUSIC_DIR=/media/addy/Media/musik/

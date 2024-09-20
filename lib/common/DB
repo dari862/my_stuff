@@ -1,5 +1,4 @@
 styles_db_path="${WM_config_dir}/styles_db"
-bit_styles_db_path="${WM_config_dir}/bit_styles_db"
 
 db_dir="/usr/share/my_stuff/system_files/DB"
 tweeks_db_path="${db_dir}/tweeks_db"

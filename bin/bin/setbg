@@ -45,40 +45,47 @@ old_bg_()
 	xwallpaper --zoom "$bgloc"
 }
 
+restore(){
+	sleep 0.5
+	if [ "$(livewall --check-run-live)" = "true" ]; then
+		livewall --run-live
+	elif command -v xwallpaper >/dev/null ; then
+		xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" &
+	else
+		sleep 0.5
+		nitrogen --restore &
+	fi
+}
+
+set_wall(){
+	if command -v xwallpaper >/dev/null ; then
+		if [ -f "$HOME/.config/nitrogen/bg-saved.cfg" ];then
+			tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
+			[xin_-1]
+			file=$op2__
+			mode=5
+			bgcolor=#000000
+			EOF
+		fi
+	else
+		nitrogen --save --set-zoom-fill $color_ $op2__
+	fi
+}
+
+random_wall(){
+	op2__="$(find $op2__ | shuf -n 1)"
+	set_wall
+	restore
+}
+
 main()
 {
 	case $op__ in
-		-r)
-			sleep 0.5
-			if [ "$(livewall --check-run-live)" = "true" ]; then
-				livewall --run-live
-			elif command -v xwallpaper >/dev/null ; then
-				xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" &
-			else
-				sleep 4
-				nitrogen --restore &
-			fi
-		;;
-		-o)
-			old_bg_ $op2__
-		;;
-		-s)
-			if command -v xwallpaper >/dev/null ; then
-				if [ -f "$HOME/.config/nitrogen/bg-saved.cfg" ];then
-					tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
-					[xin_-1]
-					file=$op2__
-					mode=5
-					bgcolor=#000000
-					EOF
-				fi
-			else
-				nitrogen --save --set-zoom-fill $color_ $op2__
-			fi
-		;;
-		*)
-			pickbg
-		;;
+		-r) restore ;;
+		-o) old_bg_ $op2__ ;;
+		-s) set_wall ;;
+		-d) random_wall ;;
+		*) pickbg ;;
 	esac
 }
 

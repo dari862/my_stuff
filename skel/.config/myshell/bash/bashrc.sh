@@ -15,11 +15,6 @@ if [ -f "/usr/share/my_stuff/bin/bin/pfetch" ]; then
 	pfetch
 fi
 
-if [[ -z "$BASHDOTDIR" ]];then
-	export My_shell_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myshell"
-	export BASHDOTDIR="${My_shell_DIR}/bash"
-fi
-
 # ------------------------------- variables -----------------------------------
 BASH_THEME="debian"
 

@@ -32,7 +32,7 @@
 			</action>
 		</item>
 		<separator/>
-		<separator/>
+		<item label="Virtual Machine" icon="&icons;/virtualbox.png"><action name="Execute"><command>popup_terminal "virtual_machine"</command></action></item> 
 		<separator/>
 		<menu icon="&icons;/apps.png" id="applications-menu" label="Applications" execute="obamenu"/>
 		<separator/>
@@ -111,7 +111,7 @@
 			</item>
 			<item label="Audio Settings">
 				<action name="Execute">
-					<command>pavucontrol</command>
+					<command>openbox_scripts --pavucontrol</command>
 				</action>
 			</item>
 			<item label="Settings Manager">

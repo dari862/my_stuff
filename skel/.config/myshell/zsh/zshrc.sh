@@ -42,10 +42,11 @@ auto-notify
 zsh-history-substring-search
 fzf
 mise
+change-term-title
 )
 
 # --------------------------------- SETTINGS ----------------------------------
-setopt AUTO_CD
+setopt AUTO_CD 					# change directory just by typing its name
 setopt BEEP
 #setopt CORRECT
 setopt HIST_BEEP
@@ -62,13 +63,20 @@ setopt MAGIC_EQUAL_SUBST
 setopt NO_NO_MATCH
 setopt NOTIFY
 setopt NUMERIC_GLOB_SORT
-setopt PROMPT_SUBST
+setopt PROMPT_SUBST				# enable command substitution in prompt
+setopt MENU_COMPLETE     		# Automatically highlight first element of completion menu
 setopt SHARE_HISTORY
+setopt appendhistory
+setopt hist_ignore_space
+setopt LIST_PACKED		  		# The completion menu takes less space.
+setopt AUTO_LIST           		# Automatically list choices on ambiguous completion.
+setopt COMPLETE_IN_WORD    		# Complete from both ends of a word.
 
 HISTFILE=$ZDOTDIR/zsh_history
 HIST_STAMPS=mm/dd/yyyy
 HISTSIZE=5000
 SAVEHIST=5000
+HISTDUP=erase
 ZLE_RPROMPT_INDENT=0
 WORDCHARS=${WORDCHARS//\/}
 PROMPT_EOL_MARK=
@@ -76,9 +84,27 @@ TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S\ncpu\t%P'
 
 # ZSH completion system
 autoload -Uz compinit
-compinit -d ~/.cache/zcompdump
+
+for dump in ~/.cache/zcompdump(N.mh+24); do
+  compinit -d ~/.cache/zcompdump
+done
+
+compinit -C -d ~/.cache/zcompdump
+
+autoload -Uz add-zsh-hook
+autoload -Uz vcs_info
+precmd () { vcs_info }
+_comp_options+=(globdots)
+
 zstyle ':completion:*:*:*:*:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS} 'ma=48;5;197;1'
+zstyle ':completion:*' matcher-list \
+		'm:{a-zA-Z}={A-Za-z}' \
+		'+r:|[._-]=* r:|=*' \
+		'+l:|=*'
+zstyle ':completion:*:warnings' format "%B%F{red}No matches for:%f %F{magenta}%d%b"
+zstyle ':completion:*:descriptions' format '%F{yellow}[-- %d --]%f'
+zstyle ':vcs_info:*' formats ' %B%s-[%F{magenta}%f %F{yellow}%b%f]-'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete

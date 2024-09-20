@@ -1,25 +1,148 @@
-/* Confirm Dialog */
+/**
+ * Copyright (C) 2020-2024 Aditya Shakya <adi1090x@gmail.com>
+ **/
 
-@import "colors.rasi"
-
-* {
-    background-color:       @bga;
-    text-color:             @fg;
-	font:				 	"Iosevka Nerd Font 10";
+/*****----- Configuration -----*****/
+configuration {
+    show-icons:                 false;
 }
 
+/*****----- Global Properties -----*****/
+@import                          "colors.rasi"
+@import "theme.rasi"
+@import                          "font.rasi"
+
+/*
+USE_ICON=NO
+*/
+
+/*****----- Main Window -----*****/
 window {
-    width:      			225px;
-    padding:    			25px;
-    border:					0px;
-    border-radius:          0px;
-    border-color:           @ac;
-    location:               center;
-    y-offset:               -2em;
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       250px;
+    x-offset:                    0px;
+    y-offset:                    0px;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               12px;
+    border-color:                @SEL;
+    cursor:                      "default";
+    background-color:            @BG;
 }
 
-entry {
-    expand: 				true;
-    text-color:				@ac;
+/*****----- Main Box -----*****/
+mainbox {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     20px;
+    background-color:            transparent;
+    children:                    [ "message", "listview" ];
 }
 
+/*****----- Inputbar -----*****/
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     0px;
+    border:                      0px;
+    border-radius:               0px;
+    border-color:                @SEL;
+    background-color:            transparent;
+    text-color:                  @FG;
+    children:                    [ "textbox-prompt-colon", "prompt"];
+}
+
+textbox-prompt-colon {
+    enabled:                     true;
+    expand:                      false;
+    str:                         "";
+    padding:                     10px 14px;
+    border-radius:               100%;
+    background-color:            @UGT;
+    text-color:                  @BG;
+}
+prompt {
+    enabled:                     true;
+    padding:                     10px;
+    border-radius:               20px;
+    background-color:            @SEL1;
+    text-color:                  @BG;
+}
+
+/*****----- Message -----*****/
+message {
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     10px;
+    border:                      0px solid;
+    border-radius:               20px;
+    border-color:                @SEL;
+    background-color:            @UGT;
+    text-color:                  @BG;
+}
+textbox {
+    background-color:            inherit;
+    text-color:                  inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}
+
+/*****----- Listview -----*****/
+listview {
+    enabled:                     true;
+    columns:                     2;
+    lines:                       1;
+    cycle:                       true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    
+    spacing:                     10px;
+    background-color:            transparent;
+    cursor:                      "default";
+}
+
+/*****----- Elements -----*****/
+element {
+    enabled:                     true;
+    padding:                     10px 10px;
+    border:                      0px solid;
+    border-radius:               20px;
+    border-color:                @SEL;
+    background-color:            transparent;
+    text-color:                  @FG;
+    cursor:                      pointer;
+}
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color:            var(BGA);
+    text-color:                  var(FG);
+}
+element normal.urgent,
+element alternate.urgent,
+element selected.active {
+    background-color:            var(UGT);
+    text-color:                  var(BG);
+}
+element normal.active,
+element alternate.active,
+element selected.urgent {
+    background-color:            var(SEL1);
+    text-color:                  var(BG);
+}
+element selected.normal {
+    background-color:            var(SEL);
+    text-color:                  var(BG);
+}

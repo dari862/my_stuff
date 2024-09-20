@@ -1,0 +1,15 @@
+##############################
+#;#############################
+#; zathura
+#;#############################
+##############################
+scroll half-up=u
+scroll half-down=d
+toggle_page_mode=D
+reload=r
+rotate=R
+zoom in=K
+zoom out=J
+recolor=i
+print=p
+goto top=g

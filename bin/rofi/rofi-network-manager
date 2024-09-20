@@ -1,7 +1,9 @@
 #!/bin/bash
 # Default Values
 
-rofi_network_manager_config="${XDG_CONFIG_HOME:-$HOME/.config}/rofi-network-manager"
+. "/usr/share/my_stuff/lib/common/WM"
+
+rofi_network_manager_config="${script_config_path}/rofi-network-manager"
 languages_lib_dir="/usr/share/my_stuff/lib/languages/rofi-network-manager"
 SELECTION_PREFIX="~"
 WIRELESS_INTERFACES=($(nmcli device | awk '$2=="wifi" {print $1}'))

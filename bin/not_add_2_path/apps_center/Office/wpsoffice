@@ -8,7 +8,7 @@ my-superuser wget -P "$t" "$url"
 if [ $? -eq 0 ]; then
 	yes | my-superuser dpkg -i "$t/"*
 	say "Installing packages..."
-	my-superuser apt-get install -f -y 
+	my-superuser Package_installer_ -f
 fi 
 my-superuser rm -rf "$t"
 

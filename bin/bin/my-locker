@@ -1,28 +1,4 @@
 #!/usr/bin/env bash
-on_tty(){
-   	if [[ -t 0 ]]
-   	then
-       	if [[ -t 1 && -t 2 ]]
-       	then
-           	return 0
-       	else
-           	echo "$0: STDIN is on terminal, but not STDOUT or STDERR" >&2
-           	exit 1
-       	fi
-   	else
-       	return 1
-   	fi
-}
-
-if on_tty ;then
-echo "$0: Error: Graphical environment needed for screen locking.
-	It can be done with the vlock package installed, using the
-	command 'vlock'. This script does not handle that case.
-	If you have a graphical environment running the probable cause
-	of seeing this message is that no display manager is installed." >&2
-	exit 1
-fi
-
 __arg_="${1-}"
 __image_full_path_="${2-}"
 

@@ -1,3 +1,3 @@
 #!/bin/bash
 #===================================================================================
-my-superuser /usr/share/my_stuff/bin/not_add_2_path/ps_mem.py
+tput civis; read -p "Text to resalt: " t; while true; do clear; out=$(/usr/share/my_stuff/bin/not_add_2_path/ps_mem.py -S); outl=$(echo "$out" | wc -l); sl=$(tput lines); if [ "$sl" -lt "$outl" ]; then echo "$out" | sed -e "3,$((outl-sl+4))d"; else echo "$out"; fi; read -t 2; done | egrep --color=auto -i "^|$t"

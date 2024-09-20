@@ -1,8 +1,0 @@
-configuration {
-  show-icons:         true;
-  icon-theme:         "Papirus-Apps";
-  terminal:           "my-terminal-emulator";
-  cycle:              false;
-  hide-scrollbar:     true;
-  disable-history:    false;
-}

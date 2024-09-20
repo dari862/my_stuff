@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 dependencies_not_installed=""
 not_installed_apps_are=""
 

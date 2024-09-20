@@ -1,8 +1,0 @@
-configuration {
-  show-icons:         true;
-  icon-theme:         "Qogir";
-  terminal:           "my-terminal-emulator";
-  cycle:              false;
-  hide-scrollbar:     true;
-  disable-history:    false;
-}

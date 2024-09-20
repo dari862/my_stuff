@@ -13,23 +13,16 @@ if [ "$_panel_name_" = "polybar" ]; then
 	menuItem 'Restart' "polybar-session"
 	menuItem 'Stop' "polybar-session stop"
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
+		source "/usr/share/my_stuff/lib/common/DB"	
+		[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles
 		# Styles
-		styles=(`find $polybar_dir/* -maxdepth 1 -type d -not -name "*-Bitmap" -not -name panels`)
-		bitmap=(`cd $polybar_dir && ls *-Bitmap 2>/dev/null`)
+		styles=($(cat "${styles_db_path}"))
 		menuSeparator "| Simple |"
 		for style in "${styles[@]}"; do
 			count=$(($count+1))
 			tmp_style=${style##*/}
 			menuItem "${count}. ${tmp_style}" "polybar_picker $tmp_style"
 		done
-		if [ ! -f /etc/fonts/conf.d/70-no-bitmaps.conf ] ; then
-			menuSeparator "| Bitmap |"
-			for bmap in "${bitmap[@]}"; do
-				bcount=$(($bcount+1))
-				tmp_bmap=${bmap##*/}
-				menuItem "${bcount}. ${tmp_bmap}" "polybar_picker $tmp_bmap"
-			done
-		fi
 	menuSubmenuEnd
 elif [ "$_panel_name_" = "xfce4-panel" ]; then
 	menuStart "Xfce4PanelMenu" "xfce4-panel"

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # extract range of pages from a PDF
 set -euo pipefail
 pass=""

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # download audio from URL and set ID3v2 metadata
 set -eu
 

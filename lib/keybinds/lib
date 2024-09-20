@@ -1,9 +1,17 @@
 #!/bin/bash
+sed_all_back(){
+	file="${1-}"
+	sed -i "s/sed_it_to_backtick/\`/g" $file
+	sed -i "s/sed_it_to_exclamation/\!/g" $file
+	sed -i 's|sed_it_to_backslashes|\\|g' $file
+	sed -i 's|sed_it_to_double_backslashes|\\\\|g' $file
+}
+
 create_sourcemainbindkey_conf_file(){
 	grep "=" keybinds.conf | grep -v '^#' > newkeybinds.conf
 	sed -i 's/zi=Ctrl/zi=sed_it_to_backslasheskeepitCtrol/g' newkeybinds.conf
 	sed -i "s/\`/sed_it_to_backtick/g" newkeybinds.conf
-	sed -i "s/\!/sed_it_to_exclamation/g" newkeybinds.conf
+	sed -i 's/!/sed_it_to_exclamation/g' newkeybinds.conf
 	sed -i 's|\\\\|sed_it_to_double_backslashes|g' newkeybinds.conf
 	sed -i 's|\\|sed_it_to_backslashes|g' newkeybinds.conf
 	
@@ -19,8 +27,10 @@ create_sourcemainbindkey_conf_file(){
 	while IFS= read -r line || [[ -n "$line" ]];do 
 		_key="$(cut -d '=' -f 1 <<<"$line")"
 		_value="$(cut -d '=' -f 2 <<<"$line")"
-		sed -i "s/!!!${_key}!!!/${_value}/g" keybinds_to_sourcemainbindkey.conf
+		sed -i "s/\!\!\!${_key}\!\!\!/${_value}/g" keybinds_to_sourcemainbindkey.conf
 	done < newkeybinds.conf
+	
+	sed -i 's/=!!!.*!!!/=/g' keybinds_to_sourcemainbindkey.conf
 	
 	sed -i 's/Ctrl/ctrl/g' keybinds_to_sourcemainbindkey.conf
 	sed -i 's/Alt/alt/g' keybinds_to_sourcemainbindkey.conf
@@ -102,7 +112,7 @@ create_sourcemainbindkey_conf_file(){
   		fi
 		
   		# Format output
-  		printf '%s="%s,       %s       "\n' "$key" "$key_combo" "$mods"
+  		printf '%s=%s,       %s       \n' "$key" "$key_combo" "$mods"
 	done >> xx01
 	
 	cat xx00 xx01 xx02 xx03 xx04 xx05 xx06 xx07 xx08 xx09 xx10 xx11 xx12 xx13 xx14 xx15 > sourcemainbindkey.conf
@@ -158,7 +168,7 @@ echo "
     ${htop_task_manager}
 
 # Lock Screen
-\"my-locker\"
+\"my_session_manager lock\"
     ${xbindkeysrc_Lock_Screen}
 
 # Logout
@@ -183,6 +193,8 @@ echo "
 " > "${temp_xbindkeysrc_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_xbindkeysrc_file_path}" "${xbindkeysrc_file_path}"
+
+sed_all_back "${xbindkeysrc_file_path}"
 
 }
 
@@ -251,6 +263,8 @@ key_bindings:
 " > "${temp_alacritty_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_alacritty_file_path}" "${alacritty_file_path}"
+
+sed_all_back "${alacritty_file_path}"
 }
 
 create_conky_tmp_file(){
@@ -313,13 +327,17 @@ ${conky_Lock_Screen}\${alignr}Lock Screen
 ${conky_Logout}\${alignr}Logout
 ${Kill_X}\${alignr}Kill X" > "${temp_conky_op_file_path}"
 
-sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_conky_bl_with_window_file_path}" "${conky_bl_with_window_file_path}"
+sed -i -e '/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat '${temp_conky_bl_with_window_file_path}'' "${conky_bl_with_window_file_path}"
 
-sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_conky_op_file_path}" "${conky_op_file_path}"
+sed -i -e '/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat '${temp_conky_op_file_path}'' "${conky_op_file_path}"
 
 for conkyblfile in ${conky_bl_file_path};do
-	sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_conky_bl_file_path}" "${conkyblfile}"
+	sed -i -e '/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat '${temp_conky_bl_file_path}'' "${conkyblfile}"
 done
+
+sed_all_back "${conky_bl_file_path}"
+sed_all_back "${conky_bl_with_window_file_path}"
+sed_all_back "${conky_op_file_path}"
 
 }
 
@@ -427,6 +445,8 @@ map ${clear_terminal_reset_active} clear_terminal reset active
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_kittyrc_file_path}" "${kittyrc_file_path}"
 
+sed_all_back "${kittyrc_file_path}"
+
 }
 
 create_mpv_tmp_file(){
@@ -490,6 +510,8 @@ ${speed_20}                  multiply        speed           2.0
 " > "${temp_mpv_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_mpv_file_path}" "${mpv_file_path}"
+
+sed_all_back "${mpv_file_path}"
 }
 
 create_zshrc_tmp_file(){
@@ -498,7 +520,7 @@ echo "
 " > "${temp_zshrc_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_zshrc_file_path}" "${zshrc_file_path}"
-
+sed_all_back "${zshrc_file_path}"
 }
 
 create_bashrc_tmp_file(){
@@ -508,7 +530,7 @@ bind '\"${commnad_zi}\":\"zi\n\"'
 " > "${temp_bashrc_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_bashrc_file_path}" "${bashrc_file_path}"
-
+sed_all_back "${bashrc_file_path}"
 }
 
 create_inputrc_tmp_file(){
@@ -548,7 +570,7 @@ sed -i -e "/## ------ auto edited by shortcuts script show-mode-in-prompt ------
 sed -i -e "/## ------ auto edited by shortcuts script vi-command ------ ##/,/## ------ end of auto edited by shortcuts script vi-command ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script vi-command ------ ##/e cat ${temp_inputrc_vi_command_file_path}" "${inputrc_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script vi-insert ------ ##/,/## ------ end of auto edited by shortcuts script vi-insert ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script vi-insert ------ ##/e cat ${temp_inputrc_vi_insert_file_path}" "${inputrc_file_path}"
-
+sed_all_back "${inputrc_file_path}"
 }
 
 create_ncmpcpp_tmp_file(){
@@ -951,7 +973,7 @@ echo "
 " > "${temp_ncmpcpp_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_ncmpcpp_file_path}" "${ncmpcpp_file_path}"
-
+sed_all_back "${ncmpcpp_file_path}"
 }
 
 create_openboxrc_tmp_file(){
@@ -1219,7 +1241,7 @@ echo "
   </keybind>
   <keybind key=\"${Execute_rofi_powermenu}\">
     <!-- Description:[execute] -->
-    <action name=\"Execute\"><command>rofi-powermenu</command></action>
+    <action name=\"Execute\"><command>my_session_manager --rofi</command></action>
   </keybind>
   <keybind key=\"${Execute_rofi_screenshot}\">
     <!-- Description:[execute] -->
@@ -1304,11 +1326,6 @@ echo "
     <!-- Description:[run] Close -->
     <action name=\"Close\"/>
   </keybind>
-  <keybind key=\"S-x\">
-    <!-- Description:[execute] -->
-    <action name=\"Execute\"><command>my_session_manager --yad</command></action>
-  </keybind>
-
   <keybind key=\"${Execute_xkill}\">
     <!-- Description:[execute] -->
     <action name=\"Execute\"><command>xkill</command></action>
@@ -1618,7 +1635,7 @@ echo "
 " > "${temp_openboxrc_file_path}"
 
 sed -i -e "/##  auto edited by shortcuts script  ##/,/##  end of auto edited by shortcuts script  ##/!b;//!d;/##  end of auto edited by shortcuts script  ##/e cat ${temp_openboxrc_file_path}" "${openboxrc_file_path}"
-
+sed_all_back "${openboxrc_file_path}"
 }
 
 create_sxhkd_tmp_file(){
@@ -1643,6 +1660,10 @@ ${Terminal_fullscreen}
 ${Rofi_App_Launcher}
 	sh rofi-launcher
 
+# Rofi App Runner
+${Rofi_App_Runner}
+	sh rofi-runner
+	
 # Rofi Network Menu
 ${Rofi_Network_Menu}
 	rofi-network-manager
@@ -1652,18 +1673,46 @@ ${Rofi_Themes_Menu}
 	sh style-manager --rofi
 
 # Rofi Menus/Applets
-${Rofi_rofi_windows_rofi_music_rofi_powermenu_rofi_root_rofi_screenshot}
-	sh {rofi-windows,rofi-music,rofi-powermenu,rofi-root,rofi-screenshot}
+${Rofi_rofi_screenshot}
+	sh rofi-screenshot
+
+${Rofi_rofi_music}
+	sh rofi-music
+
+${Rofi_rofi_windows}
+	sh rofi-windows
+	
+${Rofi_rofi_root}
+	sh rofi-root
+	
+${Rofi_rofi_powermenu}
+	sh my_session_manager --rofi
 
 ##---------- Applications ----------##
 
-# Launch Apps
-${Launch_Apps_my_file_manager_my_www_browser_geany}
-	{my-file-manager,my-www-browser,geany}
+# my_file_manager
+${Launch_Apps_my_file_manager}
+	my-file-manager
+
+# my_www_browser
+${Launch_Apps_my_www_browser}
+	my-www-browser
+
+# my-text-editor
+${Launch_Apps_my_text_editor}
+	my-text-editor
+
+# my-media-player
+${Launch_Apps_my_Media_Player}
+	my-media-player
 
 # Terminal Apps
-${Terminal_Apps_CLI_EDITER_ranger_htop}
-	bspterm -e {\$CLI_EDITER,lf,htop}
+${Terminal_Apps_htop}
+	bspterm -e \"sysinfo_script_ --process\"
+	
+# Terminal Apps
+${Terminal_Apps_CLI_EDITER_ranger}
+	bspterm -e {\$CLI_EDITER,lf}
 
 # Color Picker
 ${Color_Picker}
@@ -1677,7 +1726,7 @@ ${Lockscreen}
 
 # show shortcut
 ${show_shortcut}
-	yad --button=Exit:1 --text-info --title='Bspwm Keybinds' --filename=\$HOME/.config/sxhkd/sxhkdrc --width=750 --height=600
+	yad --button=Exit:1 --text-info --title='Bspwm Keybinds' --filename=\$WM_config_dir --width=750 --height=600
 	
 # switch keyboard languge
 ${switch_keyboard_languge}
@@ -1732,10 +1781,14 @@ ${Reload_Keybindings}
 ${kill_window}
     xkill
 
-# Quit/Restart bspwm
-${Quit_Restart_bspwm}
-	bspc {quit,wm -r}
-	
+# Restart bspwm
+${Restart_bspwm}
+	bspc wm -r
+
+# Quit bspwm
+${Quit_bspwm}
+	bspc quit
+		
 # Split horizontal, vertical or cancel
 ${Split_horizontal_vertical_or_cancel}
 	bspc node -p {east,south,cancel}
@@ -1883,6 +1936,7 @@ ${move_a_floating_window}
 " > "${temp_sxhkd_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_sxhkd_file_path}" "${sxhkd_file_path}"
+sed_all_back "${sxhkd_file_path}"
 
 }
 
@@ -1986,7 +2040,7 @@ echo "
 " > "${temp_Thunar_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_Thunar_file_path}" "${Thunar_file_path}"
-
+sed_all_back "${Thunar_file_path}"
 }
 
 create_x11_tmp_file(){
@@ -2004,7 +2058,7 @@ URxvt.keysym.${moves_the_cursor_Left_five_lines}:	\033[1;5D
 " > "${temp_x11_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_x11_file_path}" "${x11_file_path}"
-
+sed_all_back "${x11_file_path}"
 }
 
 create_zathura_tmp_file(){
@@ -2021,7 +2075,7 @@ map ${print} print
 map ${goto_top} goto top" > "${temp_zathura_file_path}"
 
 sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_zathura_file_path}" "${zathura_file_path}"
-
+sed_all_back "${zathura_file_path}"
 }
 
 sed_nsxiv(){
@@ -2036,6 +2090,7 @@ sed_nsxiv(){
 	sed -i "s/\".*\")#delete image/\"${delete_image}\")#delete image/g" "${nsxiv_file_path}"
 	sed -i "s/\".*\")#install gimp/\"${install_gimp}\")#install gimp/g" "${nsxiv_file_path}"
 	sed -i "s/\".*\")#notify-send notify image information/\"${notify_send_notify_image_information}\")#notify-send notify image information/g" "${nsxiv_file_path}"
+	sed_all_back "${nsxiv_file_path}"
 }
 
 sed_clipit(){
@@ -2043,6 +2098,7 @@ sed_clipit(){
 	sed -i "s/actions_key=.*/actions_key=${actions_key}/g" "${clipit_file_path}"
 	sed -i "s/menu_key=.*/menu_key=${menu_key}/g" "${clipit_file_path}"
 	sed -i "s/search_key=.*/search_key=${search_key}/g" "${clipit_file_path}"
+	sed_all_back "${clipit_file_path}"
 }
 
 sed_geanyrc(){
@@ -2052,6 +2108,7 @@ sed_geanyrc(){
 	sed -i "s/edit_movelinedown=.*/edit_movelinedown=${edit_movelinedown}/g" "${geanyrc_file_path}"
 	sed -i "s/move_tableft=.*/move_tableft=${move_tableft}/g" "${geanyrc_file_path}"
 	sed -i "s/move_tabright=.*/move_tabright=${move_tabright}/g" "${geanyrc_file_path}"
+	sed_all_back "${geanyrc_file_path}"
 }
 
 sed_lxterminal(){
@@ -2069,13 +2126,38 @@ sed_lxterminal(){
 	sed -i "s/zoom_in_accel=.*/zoom_in_accel=${zoom_in_accel}/g" "${lxterminal_file_path}"
 	sed -i "s/zoom_out_accel=.*/zoom_out_accel=${zoom_out_accel}/g" "${lxterminal_file_path}"
 	sed -i "s/zoom_reset_accel=.*/zoom_reset_accel=${zoom_reset_accel}/g" "${lxterminal_file_path}"
+	sed_all_back "${lxterminal_file_path}"
 }
 
-sed_all_backtick_exclamation_backslashes_string_in_home_path(){
-	for file in ${xbindkeysrc_file_path} ${alacritty_file_path} ${conky_bl_file_path} ${conky_bl_with_window_file_path} ${conky_op_file_path} ${kittyrc_file_path} ${mpv_file_path} ${zshrc_file_path} ${bashrc_file_path} ${inputrc_file_path} ${ncmpcpp_file_path} ${openboxrc_file_path} ${sxhkd_file_path} ${Thunar_file_path} ${x11_file_path} ${zathura_file_path} ${nsxiv_file_path} ${clipit_file_path} ${geanyrc_file_path} ${lxterminal_file_path};do
-		sed -i "s/sed_it_to_backtick/\`/g" $file
-		sed -i "s/sed_it_to_exclamation/\!/g" $file
-		sed -i 's|sed_it_to_backslashes|\\|g' $file
-		sed -i 's|sed_it_to_double_backslashes|\\\\|g' $file
-	done
+create_shortcut_read_file(){
+	cp -r keybinds.conf temp_keybinds
+	sed -i 's/#;/;/g ; /^#/d ; /^$/d ; s/^/_/g ; s/^_;/#/g ; s/=/##tab##/g ; s/\t/ /g ; s/  / /g ; s/##tab##/\t/g ; s/^_/# /g ; s/ /_/g' temp_keybinds
+	column -tc2 temp_keybinds > temp_keybinds2
+	mv temp_keybinds2 openbox_keybinds
+	sed -i 's/_/ /g' openbox_keybinds
+	cp -r openbox_keybinds sxhkd_keybinds
+	sed -i '/# sxhkd/,/# end of sxhkd/d' openbox_keybinds
+	sed -i '/# openbox/,/# end of openbox/d' sxhkd_keybinds
+	sed -i '/# end of sxhkd/d' openbox_keybinds
+	sed -i '/# end of openbox/d' openbox_keybinds
+	sed -i '/# end of sxhkd/d' sxhkd_keybinds
+	sed -i '/# end of openbox/d' sxhkd_keybinds
+	mkdir -p "$HOME/.config/keybinds"
+	cp -r sxhkd_keybinds "${WM_config_dir}"
+	cp -r openbox_keybinds "${WM_config_dir}"
+}
+
+create_welcome_shortcut_file(){
+	tee "${welcome_shortcut_file_path}" <<- EOF > /dev/null
+	Logout="${conky_Logout}"
+	Tile_half_screen="${Tile_half_screen}"
+	Snap_window="${Snap_window1}"
+	Launcher="${Launcher}"
+	always_on_top="WIN+0"
+	Kill_X="${Kill_X}"
+	conky_Terminal="${conky_Terminal}"
+	conky_File_Manager="${conky_File_Manager}"
+	conky_Web_Browser="${conky_Web_Browser}"
+	conky_Editor="${conky_Editor}"
+	EOF
 }
