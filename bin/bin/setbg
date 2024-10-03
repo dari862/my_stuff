@@ -52,7 +52,7 @@ restore(){
 	elif command -v xwallpaper >/dev/null ; then
 		xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" &
 	else
-		sleep 0.5
+		sleep 1
 		nitrogen --restore &
 	fi
 }

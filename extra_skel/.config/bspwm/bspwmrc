@@ -3,7 +3,7 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
 #### Pre Launch      #################################################################################
-pre_launch_wm
+/usr/share/my_stuff/bin/not_add_2_path/pre_launch_wm
 
 #### START SETTINGS  #################################################################################
 ## Environtment
@@ -134,14 +134,7 @@ if command -v urxvtc &> /dev/null; then
 	(sleep 0.50; urxvtc) &
 fi
 
-# Start panel	
-panel_manager --launch
-
-## Enable power management
-my_power_manager &
-
 # Start bspwm scripts
 bspfloat &
 
-# update notifcation
-update-notification -n &
+/usr/share/my_stuff/bin/not_add_2_path/post_launch_wm

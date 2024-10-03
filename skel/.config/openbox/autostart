@@ -13,7 +13,7 @@
 ## More information about this can be found at: http://openbox.org/wiki/Help:Autostart
 
 #### Pre Launch      #################################################################################
-pre_launch_wm
+/usr/share/my_stuff/bin/not_add_2_path/pre_launch_wm
 
 #### START SETTINGS  #################################################################################
 # Set keyboard settings to 250ms delay and 25cps (characters per second)
@@ -38,14 +38,4 @@ if [ -f /sys/module/battery/initstate ] || [ -d /proc/acpi/battery/BAT0 ]; then
 fi
 
 #### START APPLICATIONS ###############################################################################
-# Start Conky
-conky-session &
-		
-# Start clipboard-manager
-clipboard-manager-session &
-
-# Start panel		
-panel_manager --launch &
-
-# update notifcation
-update-notification -n &
+/usr/share/my_stuff/bin/not_add_2_path/post_launch_wm

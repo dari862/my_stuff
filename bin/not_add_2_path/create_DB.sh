@@ -140,7 +140,7 @@ create_styles_db(){
 		dir="/usr/share/my_stuff/blob/tint2"
 	fi
 
-	cd $dir && ls -d */ 2>/dev/null | cut -f1 -d'/' | grep -v "Default" > "${styles_db_path}"
+	cd $dir && ls -d */ 2>/dev/null | cut -f1 -d'/' | grep -v "default" > "${styles_db_path}"
 }
 
 create_all_db_execpt_style_db(){

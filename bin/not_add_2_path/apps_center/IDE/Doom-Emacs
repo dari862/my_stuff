@@ -31,7 +31,7 @@ my-superuser cp -r /usr/share/my_stuff/bin/not_add_2_path/Doom-Emacs/emacsclient
 my-superuser ln -sf /usr/share/my_stuff/system_files/applications/emacsclient.desktop /usr/share/applications
 
 for d in /home/*/; do
-	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue# Skip dirs that no are homes
+	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g) 
 	[[ -d "$d/.emacs.d" ]] && my-superuser rm -rdf "$d/.emacs.d"
 	my-superuser cp -rv /usr/share/my_stuff/system_files/skel/.emacs.d "$d/"

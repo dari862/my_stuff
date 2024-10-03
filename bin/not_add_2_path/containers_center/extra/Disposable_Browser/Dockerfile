@@ -1,55 +1,48 @@
-FROM alpine
+FROM debian:latest
 
-ARG __ControlPort=9051
-ARG __DNSPort=5353
-ARG __SocksPort=9050
-ARG __TransPort=9040
-ARG __GUID=4444
-ARG __UUID=4444
+# Setup demo environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    DISPLAY=:0.0 \
+    DISPLAY_WIDTH=1024 \
+    DISPLAY_HEIGHT=768 
 
-RUN mkdir -p /var/lib/tor /etc/tor/run /var/log/tor
-RUN addgroup -g $__GUID tor
-RUN adduser -u $__UUID -G tor -s /bin/false -h /var/lib/tor -D tor
+ARG app
+ENV app ${app}
 
-RUN chmod 750 /etc/tor
-RUN chmod 700 /etc/tor/run
+# Install dwm, supervisor, VNC, & X11 packages
+RUN set -ex
+RUN apt-get update
+RUN apt-get install -y dwm novnc supervisor x11vnc xvfb
 
-# Install tor
-RUN apk --no-cache --no-progress upgrade
-RUN apk --no-cache --no-progress add curl tini tor
+COPY app/. /app
 
-RUN chown -Rh tor:tor /var/lib/tor /etc/tor /var/log/tor
+RUN mv /app/index.html /usr/share/novnc/
+RUN mv /app/create_conf /tmp
 
-# configure tor
-RUN echo "AutomapHostsOnResolve 1" >>/etc/tor/torrc && \
-    echo "ControlPort $__ControlPort" >>/etc/tor/torrc && \
-    echo "ControlSocket /etc/tor/run/control" >>/etc/tor/torrc && \
-    echo "ControlSocketsGroupWritable 1" >>/etc/tor/torrc && \
-    echo "CookieAuthentication 1" >>/etc/tor/torrc && \
-    echo "CookieAuthFile /etc/tor/run/control.authcookie" >>/etc/tor/torrc && \
-    echo "CookieAuthFileGroupReadable 1" >>/etc/tor/torrc && \
-    echo "DNSPort $__DNSPort" >>/etc/tor/torrc && \
-    echo "DataDirectory /var/lib/tor" >>/etc/tor/torrc && \
-    echo "ExitPolicy reject *:*" >>/etc/tor/torrc && \
-    echo "Log notice stderr" >>/etc/tor/torrc && \
-    echo "RunAsDaemon 0" >>/etc/tor/torrc && \
-    echo "SocksPort $__SocksPort IsolateDestAddr" >>/etc/tor/torrc && \
-    echo "TransPort $__TransPort" >>/etc/tor/torrc && \
-    echo "VirtualAddrNetworkIPv4 10.192.0.0/10" >>/etc/tor/torrc
-#RUN echo 'User tor' >>/etc/tor/torrc
+RUN [ "$app" = "firefox" ] && apt-get install -y firefox-esr || :
 
-RUN rm -rf /tmp/*
+RUN [ "$app" = "mullvad" ] && apt-get install -y curl lsb-release && \	
+	curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc https://repository.mullvad.net/deb/mullvad-keyring.asc && \
+	echo "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=$( dpkg --print-architecture )] https://repository.mullvad.net/deb/stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/mullvad.list >/dev/null 2>&1  && \
+	apt-get update && \
+	apt-get install -y mullvad-browser
 
-COPY ContainerTorRunner.sh /usr/bin/
-COPY ContainerTorChecker.sh /usr/bin/
-RUN chmod 0755 /usr/bin/ContainerTorRunner.sh 
-RUN chmod 0755 /usr/bin/ContainerTorChecker.sh
+RUN /tmp/create_conf "$app"
+	
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/*
 
-VOLUME ["/etc/tor", "/var/lib/tor"]
 
-USER tor
+RUN useradd -ms /bin/sh appuser
 
-HEALTHCHECK --interval=60s --timeout=15s --start-period=20s \
-            CMD /usr/bin/ContainerTorChecker.sh
+USER appuser
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/ContainerTorRunner.sh"]
+CMD ["/app/entrypoint.sh"]
+
+# Set the workdir
+WORKDIR /home/appuser
+
+EXPOSE 8080

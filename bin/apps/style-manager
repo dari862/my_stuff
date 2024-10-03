@@ -18,7 +18,7 @@ CURSESSION="$WM_config_dir/tint2_style"
 
 if [ -f "$OB_STYLE_NORMAL" ]; then
 	CONFIGPATH="${BLOBPATH}/blob/polybar"
-	default_style="Default"
+	default_style="default"
 else
 	CONFIGPATH="${BLOBPATH}/blob/tint2"
 	default_style="Beryllium"
@@ -92,6 +92,8 @@ Seter_Style_(){
 	else
 		setbg -r
 	fi
+	
+	theme_geany
 }
 
 Set_Style_and_launch(){

@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 path_to_files="/usr/share/my_stuff/bin/not_add_2_path/must_create_script/xsessions"
-mkdir -p /usr/share/my_stuff/system_files/bin/xsessions
+my-superuser mkdir -p /usr/share/my_stuff/system_files/bin/xsessions
 
-cat "${path_to_files}/main" "/usr/share/my_stuff/lib/common/openbox" "${path_to_files}/openbox.sh" | tee /usr/share/my_stuff/system_files/bin/xsessions/openbox > /dev/null 2>&1
-cat "${path_to_files}/main" "${path_to_files}/bspwm.sh" | tee /usr/share/my_stuff/system_files/bin/xsessions/bspwm > /dev/null 2>&1
+cat "${path_to_files}/main" "/usr/share/my_stuff/lib/common/openbox" "${path_to_files}/openbox.sh" | my-superuser tee /usr/share/my_stuff/system_files/bin/xsessions/openbox > /dev/null 2>&1
+cat "${path_to_files}/main" "${path_to_files}/bspwm.sh" | my-superuser tee /usr/share/my_stuff/system_files/bin/xsessions/bspwm > /dev/null 2>&1
 
-chmod +x /usr/share/my_stuff/system_files/bin/xsessions/*
+my-superuser chmod +x /usr/share/my_stuff/system_files/bin/xsessions/*

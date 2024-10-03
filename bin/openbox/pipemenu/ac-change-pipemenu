@@ -20,10 +20,12 @@ ac-change-style(){
 		# Styles
 		styles=($(cat "${styles_db_path}"))
 		menuStart
-		menuItem "Default" "style-manager --change Default"
+		menuItem "Default" "style-manager --change default"
 		menuSeparator "| Simple |"
 		for style in "${styles[@]}"; do
-			menuItem "${count}. ${style}" "style-manager --change ${style}"
+			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
+			better_style_name="${style^}"
+			menuItem "${count}. ${better_style_name}" "style-manager --change ${style}"
 			count=$(($count+1))
 		done
 		menuEnd

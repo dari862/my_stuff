@@ -10,6 +10,6 @@ if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
 		exit 1
 	fi
 	
-	cat ${path_to_files}/head ${path_to_files}/$pak ${path_to_files}/tail | tee /usr/share/my_stuff/system_files/bin/brightness > /dev/null 2>&1
-	chmod +x /usr/share/my_stuff/system_files/bin/brightness
+	cat ${path_to_files}/head ${path_to_files}/$pak ${path_to_files}/tail | my-superuser tee /usr/share/my_stuff/system_files/bin/brightness > /dev/null 2>&1
+	my-superuser chmod +x /usr/share/my_stuff/system_files/bin/brightness
 fi

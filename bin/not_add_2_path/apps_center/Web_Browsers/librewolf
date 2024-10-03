@@ -7,7 +7,7 @@ Package_installer_ "${extra_apps_[@]}" || continue
 
 clear
 
-say 'add ${app_name} repo to sources...' 1
+say "add ${app_name} repo to sources..." 1
 wget -O- https://deb.librewolf.net/keyring.gpg | my-superuser gpg --dearmor -o /usr/share/keyrings/librewolf.gpg
 source /etc/os-release 
 my-superuser tee /etc/apt/sources.list.d/librewolf.sources << EOF > /dev/null
@@ -22,6 +22,6 @@ EOF
 say 'Updating sources...' 1
 Package_update_
 
-say 'Installing package...' 1
+say "Installing ${app_name} ..." 1
 
 Package_installer_ ${app_name} || continue

@@ -113,6 +113,9 @@ panel_picker() {
 panel_launcher() {
 	_panel_name_=$(cat ${_panel_name_path_})
 	
+	# Start Conky
+	conky-session &
+		
 	## Notification Daemon
 	dunst-session &
 

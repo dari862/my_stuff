@@ -15,9 +15,9 @@ if [ "${option}" = "start" ];then
 elif [ "${option}" = "restart" ];then
 	$_superuser systemctl restart ${service}
 elif [ "${option}" = "is-enable" ];then
-	$_superuser systemctl is-enabled --quiet ${service}
+	systemctl is-enabled --quiet ${service}
 elif [ "${option}" = "is-active" ];then
-	$_superuser systemctl is-active --quiet ${service}
+	systemctl is-active --quiet ${service}
 elif [ "${option}" = "stop" ];then
 	$_superuser systemctl stop ${service}.
 elif [ "${option}" = "enable" ];then

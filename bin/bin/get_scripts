@@ -5,4 +5,5 @@ opt="${1-}"
 case $opt in
 		--public) ${get_script_path}/public_ip ;;
 		--latlong) ${get_script_path}/latlong_ ;;
+		--location) ${get_script_path}/location_ ;;
 esac

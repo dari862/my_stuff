@@ -1,3 +1,3 @@
 #!/bin/sh
-set -e
-source "/usr/share/my_stuff/bin/not_add_2_path/containers_center/extra/torproxy/installer"
+cd "/usr/share/my_stuff/bin/not_add_2_path/containers_center/extra/torproxy"
+source "./installer"

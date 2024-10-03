@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Start clipboard-manager
+clipboard-manager-session &
+
+# Start panel		
+panel_manager --launch &
+
+# update notifcation
+update-notification -n &
+
+for script in $HOME/.config/autostartscripts/*;do
+	$script
+done

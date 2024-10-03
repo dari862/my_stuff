@@ -119,6 +119,7 @@
 					<command>settings_manager_</command>
 				</action>
 			</item>
+			<menu id="Printers" execute="printing-pipemenu" label="Printers"/>
 		</menu>
 		<separator/>
 		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>

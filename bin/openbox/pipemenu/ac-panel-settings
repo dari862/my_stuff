@@ -13,15 +13,17 @@ if [ "$_panel_name_" = "polybar" ]; then
 	menuItem 'Restart' "polybar-session"
 	menuItem 'Stop' "polybar-session stop"
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
-		source "/usr/share/my_stuff/lib/common/DB"	
+		source "/usr/share/my_stuff/lib/common/DB"
+		count=1
 		[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles
 		# Styles
 		styles=($(cat "${styles_db_path}"))
 		menuSeparator "| Simple |"
 		for style in "${styles[@]}"; do
+			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
+			better_style_name="${style^}"
+			menuItem "${count}. ${better_style_name}" "polybar_picker $style"
 			count=$(($count+1))
-			tmp_style=${style##*/}
-			menuItem "${count}. ${tmp_style}" "polybar_picker $tmp_style"
 		done
 	menuSubmenuEnd
 elif [ "$_panel_name_" = "xfce4-panel" ]; then

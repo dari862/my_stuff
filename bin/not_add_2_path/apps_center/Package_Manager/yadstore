@@ -15,3 +15,4 @@ say "Running script for YadAppsStore (pre_yadstore)"
 my-superuser "${yadstore_dir}"/tools/pre_yadstore
 
 my-superuser ln -sf "${yadstore_dir}"/gui /usr/share/my_stuff/system_files/bin/yadstore
+my-superuser ln -sf "${yadstore_dir}"/YadStore.desktop /usr/share/applications

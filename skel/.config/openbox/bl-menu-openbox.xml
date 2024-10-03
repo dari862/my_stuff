@@ -225,7 +225,7 @@
             </action>
         </item>
         <separator/>
-        <menu id="Printers" execute="bl-printing-pipemenu" label="Printers"/>
+        <menu id="Printers" execute="printing-pipemenu" label="Printers"/>
         <item label="Task Manager (htop)">
             <action name="Execute">
                 <command>

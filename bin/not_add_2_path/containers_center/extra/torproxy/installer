@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 set -e
-
-script_full_path="$(dirname "$(realpath "$0")")"
-cd "${script_full_path}"
-
 source ENV
 
 my-superuser sed -i "s/__ControlPort=.*/__ControlPort=${__ControlPort}/g" Dockerfile
@@ -26,7 +22,7 @@ my-superuser sed -i "s/__TUUID=.*/__TUUID=${__TUUID}/g" Dockerfile
 
 __format=""
 
-if [[ "$CONTAINER_RT" = "podman" ]];then
+if [ "$(basename $(realpath $(which $CONTAINER_RT)))" = "podman" ];then
 	__format='--format docker'
 fi
 

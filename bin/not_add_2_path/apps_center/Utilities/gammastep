@@ -29,7 +29,7 @@ my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adj
 my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/gammastep.service /lib/systemd/user
 
 for d in /home/*/ ; do
-	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue# Skip dirs that no are homes
+	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 	# Create config folders if no exists
 	d="$d/.config/autostart"; [ ! -d "$d" ] && my-superuser mkdir -v -p "$d" && my-superuser cp -r /usr/share/my_stuff/system_files/skel/.config/autostart/tray_gammastep.desktop "$d" && my-superuser chown -R $user_and_group "$d"

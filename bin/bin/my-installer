@@ -51,32 +51,15 @@ install_as_dependency(){
 	fi
 }
 
-group_checker(){
-	if [[ ! -f '/usr/share/my_stuff/system_files/Container_Group' ]];then
-		echo "File  '/usr/share/my_stuff/system_files/Container_Group' does not exist something went wrong."
-		read -srn1
-		exit
-	elif ! groups | grep "$(cat '/usr/share/my_stuff/system_files/Container_Group')" &>/dev/null;then
-		echo "You need to logout."
-		read -srn1
-		exit
-	fi
-	
-	if groups | grep "$(cat '/usr/share/my_stuff/system_files/Container_Group')" &>/dev/null;then
-		my-superuser rm -f '/usr/share/my_stuff/system_files/Container_Group'
-	fi
-}
-
 install_distrobox(){
-	box_app_name="distrobox"
-	box_app_location="$(find ${_APPS_LIBDIR}/ -name ${box_app_name})"
 	if [[ ! -f '/usr/share/my_stuff/system_files/Distrobox_ready' ]];then
-		if [[ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ]];then	
-			return
-		fi
-		
+		say 'install distrobox ...' 1
+		box_app_name="distrobox"
+		box_app_location="$(find ${_APPS_LIBDIR}/ -name ${box_app_name})"
 		if command -v $box_app_name 2>/dev/null && dpkg -s $box_app_name &>/dev/null;then
 			my-superuser touch '/usr/share/my_stuff/system_files/Distrobox_ready'
+			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui.desktop /usr/share/applications
+			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui /usr/share/my_stuff/system_files/bin
 			return
 		fi
 			
@@ -100,40 +83,43 @@ install_distrobox(){
 		say
 		say "${box_app_name} has been installed successfully."
 		say
-		
-		install_container_software
 	fi
 	
 }
 
 install_container_software(){
-	if [[ ! -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ]];then
-		
+	if [ ! -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ];then
 		container_software="podman"
-		
-		container_software_location="$(find ${_APPS_LIBDIR}/ -name ${container_software})"
-		
-		if [[ "${container_software}" = "docker" ]];then
+		if [ "${container_software}" = "docker" ];then
 			__newGroup="docker"
 		else
 			__newGroup="podmanusers"
 		fi
-
-		if groups | grep "${__newGroup}" &>/dev/null;then
+		
+		if [ ! -f '/usr/share/my_stuff/system_files/Container_Group' ];then
 			if command -v $container_software 2>/dev/null && dpkg -s ${container_software}* &>/dev/null;then
-				my-superuser ln -sf "$(which $container_software)" '/usr/share/my_stuff/system_files/bin/CONTAINER_RT'
-				return
+				if groups | grep "${__newGroup}" &>/dev/null;then
+					my-superuser ln -sf "$(my-superuser which $container_software)" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
+					return
+				fi
+			fi
+			###################################################################
+			say 'install container software ...' 1
+			install_as_dependency "$container_software"
+			echo "${__newGroup}" | my-superuser tee '/usr/share/my_stuff/system_files/Container_Group' > /dev/null 2>&1
+			echo "You need to logout."
+			read -srn1
+			exit
+		else	
+			if ! groups | grep "$(cat '/usr/share/my_stuff/system_files/Container_Group')" &>/dev/null;then
+				echo "You need to logout."
+				read -srn1
+				exit
+			else
+				my-superuser ln -sf "$(my-superuser which $container_software)" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
+				my-superuser rm -f '/usr/share/my_stuff/system_files/Container_Group'
 			fi
 		fi
-		###################################################################
-		
-		echo "${__newGroup}" | my-superuser tee '/usr/share/my_stuff/system_files/Container_Group' > /dev/null 2>&1
-
-		my-superuser ln -sf "$(which $container_software)" '/usr/share/my_stuff/system_files/bin/CONTAINER_RT'
-		
-		group_checker
-		
-		remove_from_db "${container_software}" "apps"
 	fi
 }
 
@@ -179,15 +165,16 @@ __run_(){
 		
 		clear
 		
-		if [[ "${package_install}" = "true" ]];then
-			:
-		elif [[ "${distrobox_install}" = "true" ]];then
-			say 'install distrobox ...' 1
+		if [[ "${distrobox_install}" = "true" ]];then	
 			install_distrobox
+			install_container_software
+		elif [[ "${container_install}" = "true" ]];then
+			install_container_software
+		fi
+		
+		if [[ "${distrobox_install}" = "true" ]];then
 			say 'Deploy distrobox ...' 1
 		elif [[ "${container_install}" = "true" ]];then
-			say 'install container software ...' 1
-			install_container_software
 			say 'Createing container image ...' 1
 		elif [[ "${running_tweek}" = "true" ]];then
 			say 'running tweek...' 1

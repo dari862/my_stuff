@@ -258,13 +258,7 @@
 					</command>
 				</action>
 			</item>
-            <item label="Printers">
-                <action name="Execute">
-                    <command>
-                        cups-session
-                    </command>
-                </action>
-            </item>
+            <menu id="Printers" execute="printing-pipemenu" label="Printers"/>
         </menu>
 
 		<menu id="info" execute="ac-sysinfo --more" label="System info" icon="&icons;/stats.png"/>

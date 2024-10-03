@@ -112,7 +112,7 @@ output=$(yad --form --button=gtk-ok --center --undecorated --fixed --borders=30 
 
 # Delete simbolic link if not show next time is checked
 if [ "$output" = "FALSE" ]; then
-	rm ~/.config/autostart/welcome.desktop &>/dev/null
+	rm ~/.config/autostartscripts/welcome.sh &>/dev/null
 fi
 
 

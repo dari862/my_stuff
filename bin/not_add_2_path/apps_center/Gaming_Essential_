@@ -52,7 +52,7 @@ if [[ "$distro_name_" = "debian" ]];then
 	my-superuser mkdir -p "/usr/share/my_stuff/system_files/skel/Desktop"
 	my-superuser ln -s /usr/share/my_stuff/bin/not_add_2_path/apps_center/Steam_fix /usr/share/my_stuff/system_files/skel/Desktop
 	for d in /home/*/ ; do
-    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue# Skip dirs that no are homes
+    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes
 		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 		# Create config folders if no exists
 		d="$d/Desktop/";  [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"

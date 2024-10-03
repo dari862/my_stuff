@@ -3,7 +3,11 @@
 # Load current theme
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
-ROFI_STYLE_NAME="${ROFI_STYLE#*/}"
+if [[ "$ROFI_STYLE" == "panels/"* ]];then
+	ROFI_STYLE_NAME="panels"
+else
+	ROFI_STYLE_NAME="${ROFI_STYLE#*/}"
+fi
 wall_dir="/usr/share/my_stuff/my_wallpapers"
 cacheDir="$HOME/.cache/walls/$ROFI_STYLE_NAME"
 # Create cache dir if not exists

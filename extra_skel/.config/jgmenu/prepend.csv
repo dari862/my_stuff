@@ -113,7 +113,7 @@ System,^tag(bl-system)
 Back,^back()
 Quick System Info,sysinfo_script_ --hardware2
 ^sep()
-Printers,^pipe(jgmenu_run ob --cmd="bl-printing-pipemenu" --tag="bl-printing-pipemenu"),printer
+Printers,^pipe(jgmenu_run ob --cmd="printing-pipemenu" --tag="bl-printing-pipemenu"),printer
 Task Manager (htop),sysinfo_script_ --process,htop
 Install Favourite Packages,^pipe(my-install-pipemenu --jgmenu)
 Synaptic Package Manager,sh -c 'pkexec synaptic',synaptic

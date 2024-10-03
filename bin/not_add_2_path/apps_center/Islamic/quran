@@ -1,0 +1,33 @@
+#!/bin/sh
+
+app_name="quran"
+Title="Quran"
+###################################################################
+
+Disto_path="/usr/share/my_stuff"
+
+say 'Downloading ${Title}...' 1
+say "Create ${Title} updater and installer..." 1
+
+my-superuser mkdir -p ${distro_path}/updater
+my-superuser mkdir -p ${distro_path}/downloaded
+my-superuser tee ${distro_path}/updater/quran_file_updater <<- 'EOF' > /dev/null
+#!/bin/sh
+
+distro_path="/usr/share/my_stuff/system_files"
+app_name="quran"
+online_ver="$(wget -qO- 'https://api.github.com/repos/0xzer0x/quran-companion/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
+online_ver_in_app="echo $online_ver | sed 's/v//g'"
+wget https://github.com/0xzer0x/quran-companion/releases/download/$online_ver/Quran_Companion-${online_ver_in_app}-x86_64.AppImage
+mkdir -p Quran
+mv Quran_Companion-${online_ver_in_app}-x86_64.AppImage Quran/Quran_Companion.AppImage
+chmod +x Quran/Quran_Companion.AppImage
+my-superuser chown root:root -R Quran
+my-superuser mv Quran ${distro_path}/downloaded
+my-superuser ln -sf ${distro_path}/downloaded/Quran/Quran_Companion.AppImage ${distro_path}/bin/Quran
+
+EOF
+my-superuser chmod +x ${distro_path}/updater/quran_file_updater
+
+say "Installing ${Title} updater and installer..." 1
+${distro_path}/updater/quran_file_updater || failed_to_run "failed to run quran_file_updater."

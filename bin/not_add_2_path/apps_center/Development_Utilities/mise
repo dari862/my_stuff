@@ -3,7 +3,7 @@
 pre_app_name=(gpg wget curl)
 app_name=(mise)
 
-say 'Installing ${pre_app_name}...' 1
+say "Installing ${pre_app_name}..." 1
 
 Package_installer_ ${pre_app_name} || continue
 
