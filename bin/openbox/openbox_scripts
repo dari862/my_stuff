@@ -13,7 +13,7 @@ case $opt in
 		--network) ${tint2_script_path}/tint2-network ;;
 		--blueman) [ $(command -v blueman-manager &> /dev/null) ] && blueman-manager ;;
 		--rofi-bluetooth) [ $(command -v blueman-manager &> /dev/null) ] && rofi-bluetooth ;;
-		--bluetooth) ${tint2_script_path}/tint2-bluetooth ;;
+		--bluetooth) ${tint2_script_path}/bluetooth-status ;;
 		--brightness) brightness ;;
 		--brightness-dec) brightness --dec ;;
 		--brightness-inc) brightness --inc ;;

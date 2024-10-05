@@ -16,6 +16,9 @@ elif command -v greenclip &> /dev/null; then
 elif command -v xfce4-clipman &> /dev/null; then
 	clipboard_manager_name="xfce4-clipman"
 	clipboard_manager_command="xfce4-clipman"
+elif command -v clipmanager &> /dev/null; then
+	clipboard_manager_name="clipmanager"
+	clipboard_manager_command="clipmanager"
 fi
 
 
@@ -24,7 +27,7 @@ fi
 # DESCRIPTION: stop all clipboard-manager process
 #===================================================================================
 function stop() {
-	for prosses2kill in diodon greenclip xfce4-clipman
+	for prosses2kill in diodon greenclip xfce4-clipman clipmanager
 	do
 		[ "$(pidof $prosses2kill)" ] && killall $prosses2kill
 		[ "$(pidof $prosses2kill)" ] && killall -9 $prosses2kill

@@ -5,9 +5,7 @@ if [ "$app" = "firefox" ];then
 	echo '[program:firefox]' > /app/conf.d/firefox.conf
 	echo 'command=firefox' >> /app/conf.d/firefox.conf
 	echo 'autorestart=true' >> /app/conf.d/firefox.conf
-fi
-
-if [ "$app" = "mullvad" ];then
+elif [ "$app" = "mullvad" ];then
 	echo '[program:mullvad-browser]' > /app/conf.d/mullvad-browser.conf
 	echo 'command=mullvad-browser' >> /app/conf.d/mullvad-browser.conf
 	echo 'autorestart=true' >> /app/conf.d/mullvad-browser.conf

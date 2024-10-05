@@ -11,7 +11,7 @@ crunch_urgency=$(echo "$5" | sed  '/^$/d')
 timestamp=$(date +"%I:%M %p")
 
 # Rules for notifs that send their icons over the wire (w/o an actual path)
-if [[ "$crunch_appname" == "Spotify" ]]; then
+if [ "$crunch_appname" = "Spotify" ]; then
     random_name=$(mktemp --suffix ".png")
     artlink=$(playerctl metadata mpris:artUrl | sed -e 's/open.spotify.com/i.scdn.co/g')
     curl -s "$artlink" -o "$random_name"

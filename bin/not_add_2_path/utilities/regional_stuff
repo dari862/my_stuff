@@ -103,14 +103,8 @@ change_timezone() {
 	
 	if [ -n "${res}" ]; then
 		TIMEZONE="${res}"
-		echo "Using ${TIMEZONE@Q} as time zone."
 		
-		if command -v timedatectl >/dev/null 2>&1;then
-			my-superuser timedatectl set-timezone ${TIMEZONE@Q}
-		else
-			my-superuser ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
-			my-superuser hwclock --systohc
-		fi
+		my-fix --time-zone "${TIMEZONE}"
 	fi
 }
 

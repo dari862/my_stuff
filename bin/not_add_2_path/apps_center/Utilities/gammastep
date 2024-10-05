@@ -19,20 +19,20 @@ my-superuser mkdir -p /usr/share/my_stuff/system_files/color_temperature_adjuste
 my-superuser cp -r /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/color_temperature_adjuster.conf /usr/share/my_stuff/system_files/color_temperature_adjuster_gui
 my-superuser sed -i "s/lat=*/lat=${_lat}/g" /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf
 my-superuser sed -i "s/lon=*/lon=${_lon}/g" /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf
+
 my-superuser mkdir -p /usr/share/my_stuff/system_files/skel/.config/gammastep
+
 my-superuser cp -r /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf /usr/share/my_stuff/system_files/skel/.config/gammastep/config.ini
-my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/tray_gammastep.desktop /usr/share/my_stuff/system_files/skel/.config/autostart/
+my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/gammastep.sh /usr/share/my_stuff/system_files/skel/.config/autostartscripts/
 
 my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/color_temperature_adjuster_gui /usr/share/my_stuff/system_files/bin
 my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/tray_color_temperature_adjuster /usr/share/my_stuff/system_files/bin
-
-my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/gammastep.service /lib/systemd/user
 
 for d in /home/*/ ; do
 	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 	# Create config folders if no exists
-	d="$d/.config/autostart"; [ ! -d "$d" ] && my-superuser mkdir -v -p "$d" && my-superuser cp -r /usr/share/my_stuff/system_files/skel/.config/autostart/tray_gammastep.desktop "$d" && my-superuser chown -R $user_and_group "$d"
+	d="$d/.config/autostart"; [ ! -d "$d" ] && my-superuser mkdir -v -p "$d" && my-superuser cp -r /usr/share/my_stuff/system_files/skel/.config/autostartscripts/gammastep.sh "$d" && my-superuser chown -R $user_and_group "$d"
 	d="$d/.config/gammastep"; [ ! -d "$d" ] && my-superuser mkdir -v -p "$d" && my-superuser cp -r /usr/share/my_stuff/system_files/skel/.config/gammastep/config.ini "$d" && my-superuser chown -R $user_and_group "$d"
 done
 

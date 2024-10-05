@@ -7,60 +7,27 @@ fi
 bluetooth_print() {
     bluetoothctl | while read -r; do
         if service_manager is-active bluetooth.service; then
-            #printf '#1'
             echo "%{F#3b4252} %{F-}"
-
-            devices_paired=$(bluetoothctl paired-devices | grep Device | cut -d ' ' -f 2)
-            #counter=0
-
+            devices_paired=$(bluetoothctl $paired_devices_cmd | grep Device | cut -d ' ' -f 2)
             echo "$devices_paired" | while read -r line; do
                 device_info=$(bluetoothctl info "$line")
 
                 if echo "$device_info" | grep -q "Connected: yes"; then
-                    #device_alias=$(echo "$device_info" | grep "Alias" | cut -d ' ' -f 2-)
-
-                    #if [ $counter -gt 0 ]; then
-                        #printf ", %s" "$device_alias"
-                    #else
-                        #printf " %s" "$device_alias"
-                    #fi
-
-                    #counter=$((counter + 1))
                     echo "%{F#81a1c1} %{F-}"
                 fi
             done
-
-            #printf '\n'
         else
             echo  "%{F#3b4252} %{F-}"
         fi
     done
 }
 
-bluetooth_toggle() {
-    if bluetoothctl show | grep -q "Powered: no"; then
-        bluetoothctl power on >> /dev/null
-        sleep 1
-
-        devices_paired=$(bluetoothctl paired-devices | grep Device | cut -d ' ' -f 2)
-        echo "$devices_paired" | while read -r line; do
-            bluetoothctl connect "$line" >> /dev/null
-        done
-    else
-        devices_paired=$(bluetoothctl paired-devices | grep Device | cut -d ' ' -f 2)
-        echo "$devices_paired" | while read -r line; do
-            bluetoothctl disconnect "$line" >> /dev/null
-        done
-
-        bluetoothctl power off >> /dev/null
-    fi
-}
-
-case "$1" in
-    --toggle)
-        bluetooth_toggle
-        ;;
-    *)
-        bluetooth_print
-        ;;
-esac
+if command -v bluetoothctl >/dev/null ;then
+	paired_devices_cmd="devices Paired"
+	# Check if an outdated version of bluetoothctl is used to preserve backwards compatibility
+	if (( $(echo "$(bluetoothctl version | cut -d ' ' -f 2) < 5.65" | bc -l) )); then
+		paired_devices_cmd="paired-devices"
+	fi
+	# Print Status
+	print_status
+fi

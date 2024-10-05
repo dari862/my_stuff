@@ -165,34 +165,33 @@ __run_(){
 		
 		clear
 		
-		if [[ "${distrobox_install}" = "true" ]];then	
+		if [ "${distrobox_install}" = "true" ];then	
 			install_distrobox
-			install_container_software
-		elif [[ "${container_install}" = "true" ]];then
+		elif [ "${container_install}" = "true" ] || [ "${distrobox_install}" = "true" ];then
 			install_container_software
 		fi
 		
-		if [[ "${distrobox_install}" = "true" ]];then
+		if [ "${distrobox_install}" = "true" ];then
 			say 'Deploy distrobox ...' 1
-		elif [[ "${container_install}" = "true" ]];then
+		elif [ "${container_install}" = "true" ];then
 			say 'Createing container image ...' 1
-		elif [[ "${running_tweek}" = "true" ]];then
+		elif [ "${running_tweek}" = "true" ];then
 			say 'running tweek...' 1
 		fi
 		
 		source "${__file_location}"
 		
-		if [[ "${container_install}" = "true" ]];then
+		if [ "${container_install}" = "true" ];then
 			my-superuser touch "${deployed_folder}"
 		fi
 		
-		if [[ "${package_install}" = "true" ]];then
+		if [ "${package_install}" = "true" ];then
 			remove_from_db "${file_name_}" "apps"
-		elif [[ "${distrobox_install}" = "true" ]];then
+		elif [ "${distrobox_install}" = "true" ];then
 			remove_from_db "${file_name_}" "distroboxs"
-		elif [[ "${container_install}" = "true" ]];then
+		elif [ "${container_install}" = "true" ];then
 			remove_from_db "${file_name_}" "containers"
-		elif [[ "${running_tweek}" = "true" ]];then
+		elif [ "${running_tweek}" = "true" ];then
 			remove_from_db "${file_name_}" "tweeks"
 		fi
 
@@ -201,8 +200,8 @@ __run_(){
 		say
 		say "${file_name_} has been installed successfully."
 		say
-		[[ -z "${needed_app}" ]] && say 'Hit any key to exit...'
-		[[ -z "${needed_app}" ]] && read -srn1
+		[ -z "${needed_app}" ] && say 'Hit any key to exit...'
+		[ -z "${needed_app}" ] && read -srn1
 		break
 	done
 }
