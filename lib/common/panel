@@ -1,3 +1,2 @@
 _panel_name_path_="${WM_config_dir}/which_panel"
 _panel_name_="$(cat ${_panel_name_path_} 2>/dev/null || echo polybar)"
-_rerun_panel_picker_="$WM_config_dir/rerun_panel_picker"

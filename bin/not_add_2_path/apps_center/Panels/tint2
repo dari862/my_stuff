@@ -15,6 +15,5 @@ if [[ -n "${extra_apps_[*]}" ]];then
 	Package_installer_ "${extra_apps_[@]}" || continue
 	clear
 fi
-[ -f "${_panel_name_path_}" ] && touch "${_rerun_panel_picker_}"
 copy_from_extra_skel ".config/tint2"
 say "log out then log in for changes to be applyed."

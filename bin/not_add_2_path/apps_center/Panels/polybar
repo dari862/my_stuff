@@ -16,30 +16,11 @@ if [[ -n "${extra_apps_[*]}" ]];then
 	Package_installer_ "${extra_apps_[@]}" || continue
 	clear
 fi
-[ -f "${_panel_name_path_}" ] && touch "${_rerun_panel_picker_}"
+
 copy_from_extra_skel ".config/polybar"
 
 # distro 
-if [ -f /etc/os-release ]; then
-	. /etc/os-release
-	version_=$(echo "${VERSION_ID//./}")
-	distro_name_="$ID"
-elif [ -f /etc/lsb-release ]; then
-	# For some versions of Debian/Ubuntu without lsb_release command
-	. /etc/lsb-release
-	distro_name_="$DISTRIB_ID"
-else
-	# Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
-	distro_name_="$(uname -s)"
-fi
-
-if [ "$distro_name_" = "debian" ];then
-	sed -i 's///g' "/usr/share/my_stuff/system_files/skel/.config/polybar/default/modules.ini"
-elif [ "$distro_name_" = "ubuntu" ];then
-	sed -i 's//󰕈/g' "/usr/share/my_stuff/system_files/skel/.config/polybar/default/modules.ini"
-fi
-
 if [ -d "/usr/share/my_stuff/bin/polybar" ] ; then
-	ln -sf "/usr/share/my_stuff/bin/polybar/*" "/usr/share/my_stuff/system_files/bin"
+	my-superuser ln -sf "/usr/share/my_stuff/bin/polybar/"* "/usr/share/my_stuff/system_files/bin"
 fi
 say "log out then log in for changes to be applyed."

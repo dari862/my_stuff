@@ -238,15 +238,15 @@ ac-change-panel(){
 		fi
 		
 		if [[ "$polybar_installed" = false ]] ; then
-			menuItem 'Install Polybar' "my-installer --install polybar"
+			menuItem 'Install Polybar' "popup_terminal --install polybar"
 		fi
 		
 		if [[ "$tint2_installed" = false ]] ; then
-			menuItem 'Install Tint2' "my-installer --install tint2"
+			menuItem 'Install Tint2' "popup_terminal --install tint2"
 		fi
 		
 		if [[ "$xfce4_installed" = false ]] ; then
-			menuItem 'Install xfce4-panel' "my-installer --install xfce4-panel"
+			menuItem 'Install xfce4-panel' "popup_terminal --install xfce4-panel"
 		fi	
 		menuEnd
 	}

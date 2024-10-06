@@ -4,6 +4,7 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/polybar"
+. "/usr/share/my_stuff/system_files/disto_icons"
 
 Laptop_Name="$(cat /sys/class/dmi/id/product_version)"
 
@@ -52,8 +53,8 @@ vpn_interface = ""
 AC_only_prefix = "  "
 AC_only_content = " AC only "
 temperature = temperature_path
-distro_icon = 
-distro_name = "Arch Linux"
+distro_icon = ${distro_icon}
+distro_name = "${distro_name}"
 NO_BT_content = " "
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 EOF
