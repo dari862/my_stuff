@@ -59,7 +59,7 @@ fi
 
 if [ -z "$custom_backgrounds" ]
 then
-  i3lock-fancy -- maim -z
+  i3lock-fancy -- ac-shots
 else
   i3lock -i "$custom_backgrounds"
 fi

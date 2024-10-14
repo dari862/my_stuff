@@ -27,4 +27,4 @@ Extra_Arg="$@"
 app_2_run_as_root="$(which $app_2_run_as_root)"
 command_2_run="${app_2_run_as_root} ${Extra_Arg}"
 
-echo "$(_askpass)" | my-superuser -S true && my-superuser ${command_2_run}
+echo "$(_askpass)" | my-superuser -S true >/dev/null 2>&1 && my-superuser ${command_2_run}

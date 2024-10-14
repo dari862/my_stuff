@@ -16,4 +16,6 @@ if [[ -n "${extra_apps_[*]}" ]];then
 	clear
 fi
 copy_from_extra_skel ".config/tint2"
+my-superuser cp -r "/usr/share/my_suff/blob/tint2" "/usr/share/my_suff/system_files/blob" 
+
 say "log out then log in for changes to be applyed."

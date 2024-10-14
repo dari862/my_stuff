@@ -68,10 +68,10 @@
 				</item>
 			</menu>
 			<separator/>
-			<menu id="StylePipeMenu" execute="ac-change-pipemenu --style" label="Change Style"/>
-			<menu id="PanelPipeMenu" execute="ac-change-pipemenu --panel" label="Change Panel"/>
-			<menu id="FontPipeMenu" execute="ac-change-pipemenu --fonts" label="Change Font"/>
-			<menu id="SchemePipeMenu" execute="ac-change-pipemenu --scheme" label="Terminal Colors"/>
+			<menu id="StylePipeMenu" execute="change-style-pipemenu" label="Change Style"/>
+			<menu id="PanelPipeMenu" execute="change-panel-pipemenu" label="Change Panel"/>
+			<menu id="FontPipeMenu" execute="change-fonts-pipemenu" label="Change Font"/>
+			<menu id="SchemePipeMenu" execute="change-scheme-pipemenu" label="Terminal Colors"/>
 			<menu id="panel_settings" execute="ac-panel-settings" label="Taskbar"/>
 			<separator/>
 			<item label="Change Wallpaper">
@@ -92,7 +92,7 @@
 			</item>
 			<item label="Audio Settings">
 				<action name="Execute">
-					<command>openbox_scripts --pavucontrol</command>
+					<command>openbox_scripts --volume-controller</command>
 				</action>
 			</item>
 			<item label="Settings Manager">

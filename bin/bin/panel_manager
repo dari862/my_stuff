@@ -187,7 +187,7 @@ panel_changer(){
 		echo 'xfce4-panel' > ${_panel_name_path_}
 		panel_reload
 	fi
-	/usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles
+	/usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles &
 }
 
 panel_reload(){

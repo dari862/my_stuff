@@ -19,6 +19,8 @@ fi
 
 copy_from_extra_skel ".config/polybar"
 
+my-superuser cp -r "/usr/share/my_suff/blob/polybar" "/usr/share/my_suff/system_files/blob" 
+
 # distro 
 if [ -d "/usr/share/my_stuff/bin/polybar" ] ; then
 	my-superuser ln -sf "/usr/share/my_stuff/bin/polybar/"* "/usr/share/my_stuff/system_files/bin"

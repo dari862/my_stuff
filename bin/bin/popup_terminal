@@ -29,7 +29,7 @@ deploy_container(){
 }
 
 run_commands(){
-	${terminal_name} -T "Running Script ${file_name_}." -e bash -c "${file_name_}"
+	${terminal_name} -T "Running ${file_name_}." -e bash -c "${file_name_}"
 }
 
 run_tweek(){

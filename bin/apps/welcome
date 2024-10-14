@@ -8,10 +8,10 @@
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
 source "/usr/share/my_stuff/lib/common/WM"
-if [ ! -f "${WM_config_dir}/welcome_keybinds" ];then
+if [ ! -f "${script_config_path}/welcome_keybinds" ];then
 	source "/usr/share/my_stuff/system_files/welcome_keybinds" 
 else
-	source "${WM_config_dir}/welcome_keybinds"
+	source "${script_config_path}/welcome_keybinds"
 fi
 
 # $DESKTOP_SESSION all small latter

@@ -68,8 +68,8 @@
         	<separator label="GRAPHICAL PREFERENCES"/>
         <menu id="XrandrPipeMenu" execute="ac-randr" label="Display / Monitor"/>
         <menu id="ScalePipeMenu" execute="ac-scale-randr" label="Display / Monitor Scaling"/>
-	    <menu id="StylePipeMenu" icon="&icons2;/themes.png" execute="ac-change-pipemenu --style" label="Change Style"/>
-	    <menu id="PanelPipeMenu" icon="&icons2;/palette.png" execute="ac-change-pipemenu --panel" label="Change Panel"/>
+	    <menu id="StylePipeMenu" icon="&icons2;/themes.png" execute="change-style-pipemenu" label="Change Style"/>
+	    <menu id="PanelPipeMenu" icon="&icons2;/palette.png" execute="change-panel-pipemenu" label="Change Panel"/>
             <menu id="obConfig" label="Desktop">
             	<menu id="ac-ob-menu" execute="ac-ob-menu" label="Menu Style"/>
 	            <item label="Openbox Preferences">

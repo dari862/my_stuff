@@ -55,7 +55,7 @@ if dpkg-query -W cups > /dev/null 2>&1; then
 		menuItem 'enable cups admin page' "$0 --enable"
 	fi
 else
-	menuItem 'Configure Printers' 'popup_terminal --install cups'
+	menuItem 'install Printers Drivers' 'popup_terminal --install cups'
 fi
 menuEnd
 exit 0

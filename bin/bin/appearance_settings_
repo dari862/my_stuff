@@ -1,9 +1,7 @@
 #!/bin/bash
 #===================================================================================
-
-if command -v xfce4-appearance-settings >/dev/null
-then
-	xfce4-appearance-settings
-else
+if command -v lxappearance >/dev/null ;then
 	lxappearance && reload-gtk23
+elif command -v xfce4-appearance-settings >/dev/null ;then
+	xfce4-appearance-settings
 fi	

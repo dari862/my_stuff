@@ -19,7 +19,7 @@ choice="$({ echo "🆕add" ; echo "🕙sync-time" ; ls "$dir"/*-otp.gpg ;} | sed
 
 case $choice in
 	🆕add )
-		check_4_dependencies_if_installed maim zbar-tools || exit 1
+		check_4_dependencies_if_installed zbar-tools || exit 1
 
 		temp=$(mktemp -p "$XDG_RUNTIME_DIR" --suffix=.png)
 		otp="otp-test-script"
@@ -27,7 +27,7 @@ case $choice in
 
 		notify-send "Scan the image." "Scan the OTP QR code."
 
-		maim -s "$temp" || exit 1
+		ac-shot --area "$temp" || exit 1
 		info="$(zbarimg -q "$temp")"
 		info="${info#QR-Code:}"
 

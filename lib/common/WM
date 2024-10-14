@@ -1,3 +1,4 @@
 WM_config_name="WM_common_config"
 WM_config_dir="$HOME/.config/$WM_config_name"
-script_config_path="$HOME/.config/scriptconfig"
+scriptconfig_name="scriptconfig"
+script_config_path="$HOME/.config/$scriptconfig_name"

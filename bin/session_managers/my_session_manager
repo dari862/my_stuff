@@ -1,8 +1,4 @@
 #!/bin/sh
-
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
-
 ## Commands Executed By Openbox Powermenu
 
 ## Rofi #############################################
@@ -10,8 +6,12 @@
 . "/usr/share/my_stuff/lib/common/rofi"
 
 opt_="${1-}"
+opt2_="${2-}"
+
+confirm_it=false
 
 _logout(){
+	[ "$confirm_it" = true ] && confirmation_dialog
 	DESKTOP_SESSION_all_small_latter=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
 	if [ "$DESKTOP_SESSION_all_small_latter" = "*openbox" ] || [ "$DESKTOP_SESSION_all_small_latter" = "openbox" ]; then
 		openbox --exit
@@ -44,6 +44,7 @@ _reload(){
 } 
 
 _suspend(){
+	[ "$confirm_it" = true ] && confirmation_dialog
 	# The systemd or elogind compatibility magic.   #
 	mpc -q pause 
 	amixer set Master mute 
@@ -51,6 +52,7 @@ _suspend(){
 }
 
 extra_stuff(){
+	[ "$confirm_it" = true ] && confirmation_dialog
 	# hibernate | hybrid-sleep | suspend-then-hibernate | reboot | poweroff
 	# The systemd or elogind compatibility magic.   #
 	([ "$(command -v systemctl)" ] && systemctl "$1") || loginctl "$1"
@@ -58,6 +60,7 @@ extra_stuff(){
 }
 
 _lock(){
+	[ "$confirm_it" = true ] && confirmation_dialog
     my-locker || loginctl lock "$XDG_SESSION_ID"
     exit $?
 }
@@ -106,6 +109,14 @@ tty_menu(){
 }
 
 confirmation_dialog(){
+	if [ "$layout" = "TRUE" ]; then
+		yes=''
+		no=''
+	else
+		yes=' Yes'
+		no=' No'
+	fi
+	
 	ans="$(echo "$yes\n$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$rofi_style_dir"/confirm.rasi)"
 	
 	if [ "$ans" = "$yes" ];then
@@ -122,23 +133,18 @@ rofi_menu(){
 	uptime=$(uptime -p | sed -e 's/up //g')
 	
 	## Buttons
-	layout=$(grep BUTTON "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')
 	if [ "$layout" = "TRUE" ]; then
 		shutdown=""
 		reboot=""
 		lock=""
 		suspend=""
 		logout=""
-		yes=''
-		no=''
 	else
 		shutdown=" Shutdown"
 		reboot=" Restart"
 		lock=" Lock"
 		suspend=" Sleep"
 		logout=" Logout"
-		yes=' Yes'
-		no=' No'
 	fi
 	
 	# Variable passed to rofi
@@ -163,8 +169,6 @@ rofi_menu(){
         	;;
         *) exit 0;;
 	esac
-	
-	confirmation_dialog
 }
 
 yad_menu(){
@@ -202,13 +206,24 @@ Powermenu
 "
 }
 ## Options #############################################
-[ -z "$opt_" ] && on_terminal && tty_menu
+if [ -z "$opt_" ];then
+	on_terminal && tty_menu
+elif on_terminal;then
+	:
+elif [ "$opt_" = "--no-confirm" ];then
+	opt_="${opt2_}"
+else
+	layout="$(grep BUTTON "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+	confirm_it=true
+fi
 
 if on_graphical_session;then
 	if  [ "$opt_" = "--rofi" ]; then	
 		rofi_menu
 	elif  [ "$opt_" = "--yad" ]; then		
 		yad_menu
+	elif  [ "$confirm_it" = "true" ] && [ -z "$opt_" ]; then
+		rofi_menu
 	fi
 fi
 

@@ -135,9 +135,9 @@ create_styles_db(){
 
 	# Dir
 	if [ -f "$OB_STYLE_NORMAL" ]; then
-		dir="/usr/share/my_stuff/blob/polybar"
+		dir="/usr/share/my_stuff/system_files/blob/polybar"
 	else
-		dir="/usr/share/my_stuff/blob/tint2"
+		dir="/usr/share/my_stuff/system_files/blob/tint2"
 	fi
 
 	cd $dir && ls -d */ 2>/dev/null | cut -f1 -d'/' | grep -v "default" > "${styles_db_path}"

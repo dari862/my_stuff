@@ -59,7 +59,7 @@
 #: For example::
 
 #:     map ctrl+f>2 set_font_size 20
-kitty_mod=ctrl + shift
+kitty_mod=ctrl + Shift
 #: The value of kitty_mod is used as the modifier for all default
 #: shortcuts, you can change it in your kitty.conf to change the
 copy_to_clipboard=kitty_mod + c
@@ -71,7 +71,7 @@ copy_to_clipboard=kitty_mod + c
 #: no selection.
 paste_from_clipboard=kitty_mod + v  
 paste_from_selection (1)=kitty_mod + s  
-paste_from_selection (2)=shift + insert 
+paste_from_selection (2)=Shift + insert 
 pass_selection_to_program=kitty_mod + o  
 #: You can also pass the contents of the current selection to any
 #: program using pass_selection_to_program. By default, the system's
@@ -197,7 +197,7 @@ change_font_size all  0=kitty_mod + backspace
 #: clipboard.
 kitten_clipboard=kitty_mod + e
 open_url_with=kitty_mod + p > f
-insert_path=kitty_mod + p > shift + f
+insert_path=kitty_mod + p > Shift + f
 open_path_with=kitty_mod + p > l
 insert_words=kitty_mod + p > w
 insert_hash=kitty_mod + p > h

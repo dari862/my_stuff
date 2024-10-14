@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+## Openbox Pipemenu to change openbox styles
+
+# Variables and functions
+source "/usr/share/my_stuff/lib/common/includes_functions"
+source "/usr/share/my_stuff/lib/common/WM"
+source "/usr/share/my_stuff/lib/common/DB"
+# Generate menu
+gen_menu () {
+   	local count=1	
+	[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles
+	# Styles
+	styles=($(cat "${styles_db_path}"))
+	menuStart
+	menuItem "Default" "style-manager --change default"
+	menuSeparator "| Simple |"
+	for style in "${styles[@]}"; do
+		better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
+		better_style_name="${style^}"
+		menuItem "${count}. ${better_style_name}" "style-manager --change ${style}"
+		count=$(($count+1))
+	done
+	menuEnd
+}
+	
+{ gen_menu; exit 0; }

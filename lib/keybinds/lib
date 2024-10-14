@@ -160,7 +160,7 @@ echo "
     ${xbindkeysrc_Media_Player}
 
 # Volume
-\"pavucontrol\"
+\"volume_controller\"
     ${Volume}
 
 # htop task manager
@@ -1270,9 +1270,9 @@ echo "
     <action name=\"Execute\"><command>my-media-player</command></action>
   </keybind>
 
-  <keybind key=\"${Execute_pavucontrol}\">
+  <keybind key=\"${Execute_volume_controller}\">
     <!-- Description:[execute] -->
-    <action name=\"Execute\"><command>pavucontrol</command></action>
+    <action name=\"Execute\"><command>volume_controller</command></action>
   </keybind>
   <!-- Title: CLI Apps -->
   <keybind key=\"${Execute_popup_terminal_editor_temp}\">
@@ -1726,7 +1726,7 @@ ${Lockscreen}
 
 # show shortcut
 ${show_shortcut}
-	yad --button=Exit:1 --text-info --title='Bspwm Keybinds' --filename=\$WM_config_dir --width=750 --height=600
+	yad --button=Exit:1 --text-info --title='Bspwm Keybinds' --filename=\$script_config_path\sxhkd_keybinds --width=750 --height=600
 	
 # switch keyboard languge
 ${switch_keyboard_languge}
@@ -2129,6 +2129,11 @@ sed_lxterminal(){
 	sed_all_back "${lxterminal_file_path}"
 }
 
+create_pipemenu_file(){
+	echo "${script_config_path}/openbox_pipemenu"
+	echo "${script_config_path}"
+}
+
 create_shortcut_read_file(){
 	cp -r keybinds.conf temp_keybinds
 	sed -i 's/#;/;/g ; /^#/d ; /^$/d ; s/^/_/g ; s/^_;/#/g ; s/=/##tab##/g ; s/\t/ /g ; s/  / /g ; s/##tab##/\t/g ; s/^_/# /g ; s/ /_/g' temp_keybinds
@@ -2142,9 +2147,8 @@ create_shortcut_read_file(){
 	sed -i '/# end of openbox/d' openbox_keybinds
 	sed -i '/# end of sxhkd/d' sxhkd_keybinds
 	sed -i '/# end of openbox/d' sxhkd_keybinds
-	mkdir -p "$HOME/.config/keybinds"
-	cp -r sxhkd_keybinds "${WM_config_dir}"
-	cp -r openbox_keybinds "${WM_config_dir}"
+	cp -r sxhkd_keybinds "${script_config_path}"
+	cp -r openbox_keybinds "${script_config_path}"
 }
 
 create_welcome_shortcut_file(){

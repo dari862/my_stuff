@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+##
+## Openbox Pipemenu to Record Screen with slop and ffmpeg
+
+. "/usr/share/my_stuff/lib/common/includes_functions"
+
+menuStart
+	if [[ `pidof ffmpeg` ]]; then
+		menuItem 'Stop Screen Recorder' "pkill ffmpeg"
+		menuSeparator
+	fi
+	menuItem 'Record Desktop (With Audio)' "ac-record --screen"
+	menuItem 'Record Desktop (No Audio)' "ac-record --screen-na"
+	if command -v slop >/dev/null 2>&1;then
+		menuItem 'Record Area (With Audio)' "ac-record --area"
+		menuItem 'Record Area (No Audio)' "ac-record --area-na"
+	else
+		menuItem 'install slop for Record specific area Area ' 'popup_terminal --install slop'
+	fi
+menuEnd

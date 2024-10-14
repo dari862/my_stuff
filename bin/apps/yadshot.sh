@@ -51,13 +51,6 @@ else
 	DECORATIONS="FALSE"
 fi
 SS_DELAY=0
-if type ffmpeg >/dev/null 2>&1; then
-    export YSHOT_IMAGE_PLUGIN="ffmpeg"
-elif type import >/dev/null 2>&1 || [ -f "./ImageMagick" ]; then
-    export YSHOT_IMAGE_PLUGIN="ImageMagick"
-else
-    export YSHOT_IMAGE_PLUGIN="Unknown"
-fi
 # source yadshot config file
 if [ -f "$HOME/.config/yadshot/yadshot.conf" ];then
 	. ~/.config/yadshot/yadshot.conf
@@ -66,7 +59,6 @@ else
     echo "SELECTION="\"$SELECTION\""" > ~/.config/yadshot/yadshot.conf
     echo "DECORATIONS="\"$DECORATIONS\""" >> ~/.config/yadshot/yadshot.conf
     echo "SS_DELAY="\"$SS_DELAY\""" >> ~/.config/yadshot/yadshot.conf
-    echo "YSHOT_IMAGE_PLUGIN="\"$YSHOT_IMAGE_PLUGIN\""" >> ~/.config/yadshot/yadshot.conf
 	. ~/.config/yadshot/yadshot.conf
 fi
 # create ~/Pictures if it does not exist
@@ -97,7 +89,7 @@ function yadshotcapture() {
 		COPYONCAP_arg="--no-copy"
 	fi
 	
-	ac-shots "$YSHOT_IMAGE_PLUGIN" "$DECORATIONS_arg" "$SELECTION_arg" --delay "$SS_DELAY" --path "/tmp/${SS_NAME}" --no-view "$COPYONCAP_arg"
+	ac-shots "$DECORATIONS_arg" "$SELECTION_arg" --delay "$SS_DELAY" --path "/tmp/${SS_NAME}" --no-view "$COPYONCAP_arg"
 	displayss "${SS_NAME}"
 }
 export -f yadshotcapture
@@ -288,24 +280,12 @@ function yadshotsavesettings() {
     echo "DECORATIONS="\"$DECORATIONS\""" >> ~/.config/yadshot/yadshot.conf
     echo "COPYONCAP="\"$COPYONCAP\""" >> ~/.config/yadshot/yadshot.conf
     echo "SS_DELAY="\"$SS_DELAY\""" >> ~/.config/yadshot/yadshot.conf
-    echo "YSHOT_IMAGE_PLUGIN="\"$YSHOT_IMAGE_PLUGIN\""" >> ~/.config/yadshot/yadshot.conf
 }
 export -f yadshotsavesettings
 
 # change yadshot's settings
 function yadshotsettings() {
     . ~/.config/yadshot/yadshot.conf
-    if type maim >/dev/null 2>&1 || [ -f "./ImageMagick" ]; then
-        YSHOT_PLUGIN_LIST="maim,$YSHOT_PLUGIN_LIST"
-    fi
-    if type ffmpeg >/dev/null 2>&1; then
-        YSHOT_PLUGIN_LIST="ffmpeg,$YSHOT_PLUGIN_LIST"
-    fi
-    if type import >/dev/null 2>&1 || [ -f "./ImageMagick" ]; then
-        YSHOT_PLUGIN_LIST="ImageMagick,$YSHOT_PLUGIN_LIST"
-    fi
-    YSHOT_PLUGIN_LIST="$(echo $YSHOT_PLUGIN_LIST | tr ',' '\n' | grep -vw "$YSHOT_IMAGE_PLUGIN" | sed '/^$/d' | tr '\n' ',')"
-    YSHOT_PLUGIN_LIST="$(echo $YSHOT_IMAGE_PLUGIN,$YSHOT_PLUGIN_LIST | rev | cut -f2- -d',' | rev)"
     yad_opts=()
 	yad_opts+=(--window-icon="$ICON_PATH" --center --title="yadshot" --height=200 --columns=1 --form --no-escape --item-separator="," --separator="," --borders="10" --field="Capture selection":CHK "$SELECTION" ) 
 	if [ "$Slop_installed" = "TRUE" ]; then
@@ -316,7 +296,7 @@ function yadshotsettings() {
     	yad_opts+=(--field="Copy screenshot to clipboard on capture":CHK "$COPYONCAP")
 	fi
 	
-	yad_opts+=(--field="Delay before capture":NUM "$SS_DELAY!0..120" --field="Image capture plugin":CB "$YSHOT_PLUGIN_LIST" --button="gtk-ok":0)
+	yad_opts+=(--field="Delay before capture":NUM "$SS_DELAY!0..120" --button="gtk-ok":0)
 	
     OUTPUT="$(yad "${yad_opts[@]}")"
     if [[ $? = 0 ]];then
@@ -324,7 +304,6 @@ function yadshotsettings() {
     	DECORATIONS="$(echo $OUTPUT | cut -f2 -d",")"
     	COPYONCAP="$(echo $OUTPUT | cut -f3 -d",")"
     	SS_DELAY="$(echo $OUTPUT | cut -f4 -d",")"
-    	YSHOT_IMAGE_PLUGIN="$(echo $OUTPUT | cut -f5 -d",")"
     	yadshotsavesettings
     fi
 }

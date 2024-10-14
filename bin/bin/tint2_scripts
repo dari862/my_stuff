@@ -24,7 +24,7 @@ case $opt in
 		--volumect-toggle) volume_cli_control --toggle ;;
 		--volumect-toggle-mic) volume_cli_control --toggle-mic ;;
 		--calendar) cal-popup --popup ;;
-		--pavucontrol) [ $(command -v pavucontrol &> /dev/null) ] && pavucontrol ;;
+		--volume-controller) volume_controller ;;
 		--beepmein) beepmein_gui --standalone ;;
 		--notify-uname) notify-send "$(uname -srn)" ;;
 esac

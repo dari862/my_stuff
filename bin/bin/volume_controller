@@ -1,0 +1,2 @@
+#!/bin/sh
+[ $(command -v pavucontrol 2>/dev/null) ] && pavucontrol

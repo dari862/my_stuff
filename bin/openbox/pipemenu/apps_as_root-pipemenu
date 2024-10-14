@@ -10,6 +10,7 @@
 apps_as_root_cmd="apps_as_root"
 appearance_settings_cmd="$(which appearance_settings_)"
 popup_path="$(which popup_terminal)"
+CLI_EDITER_PATH="$(which $CLI_EDITER)"
 
 . "/usr/share/my_stuff/lib/common/includes_functions"
 
@@ -18,7 +19,7 @@ menuStart
 	menuItem 'File Manager (my-file-manager)' "${apps_as_root_cmd} my-file-manager"
 	menuItem 'Text Editor (my-text-editor)' "${apps_as_root_cmd} my-text-editor"
 	menuItem 'File Manager CLI (lf)' "${apps_as_root_cmd} ${popup_path} lf"
-	menuItem 'Text Editor CLI (my-cli-editor)' "${apps_as_root_cmd} ${popup_path} --editor $HOME"
+	menuItem 'Text Editor CLI (my-cli-editor)' "${apps_as_root_cmd} ${popup_path} --commands $CLI_EDITER_PATH $HOME"
 	menuItem 'Appearance Settings' "${apps_as_root_cmd} ${appearance_settings_cmd}"
 	[[ $(command -v qt5ct) ]] && menuItem 'QT5 Settings' "${apps_as_root_cmd} qt5ct"
 	[[ $(command -v kvantummanager) ]] && menuItem 'kvantum Manager' "${apps_as_root_cmd} kvantummanager"

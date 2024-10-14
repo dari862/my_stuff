@@ -12,7 +12,7 @@ not_add_to_path="/usr/share/my_stuff/bin/not_add_2_path"
 . "/usr/share/my_stuff/lib/common/rofi"
 
 Picked_Style=""
-GLOBALBLOBPATH="/usr/share/my_stuff/blob"
+GLOBALBLOBPATH="/usr/share/my_stuff/system_files/blob"
 BLOBPATH="$HOME/.config"
 CURSESSION="$WM_config_dir/tint2_style"
 
@@ -76,8 +76,7 @@ Set_tint2_Style_(){
 Seter_Style_(){
 	style="${Picked_Style}"
 	cp -r ${CONFIGPATH}/${style}/config/* $HOME/.config
-	[ -d ${CONFIGPATH}/${style}/cache ] && cp -r ${CONFIGPATH}/${style}/cache/* $HOME/.cache
-	[ -f ${CONFIGPATH}/${style}/Xresources ] && cp -r ${CONFIGPATH}/${style}/Xresources $HOME/.Xresources
+	[ -d "${CONFIGPATH}/${style}/cache" ] && cp -r ${CONFIGPATH}/${style}/cache $HOME/.cache
 	dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
 	if [ -f "$OB_STYLE_NORMAL" ]; then
 		Set_polybar_Style_

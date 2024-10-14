@@ -53,8 +53,8 @@ vpn_interface = ""
 AC_only_prefix = "  "
 AC_only_content = " AC only "
 temperature = temperature_path
-distro_icon = ${distro_icon}
-distro_name = "${distro_name}"
+distro_icon = {distro_icon}
+distro_name = "{distro_name}"
 NO_BT_content = " "
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 EOF
@@ -104,6 +104,9 @@ set_values() {
 	if [[ "$TemperaturePath" ]]; then
 		sed -i "s|temperature = .*|temperature = $TemperaturePath|g" 	${SFILE}
 	fi
+	
+	sed -i "s/{distro_icon}/${distro_icon}/g" 	${SFILE}
+	sed -i "s/{distro_name}/${distro_name}/g" 	${SFILE}
 }
 
 # Fix backlight and network modules

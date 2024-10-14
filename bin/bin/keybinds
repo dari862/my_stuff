@@ -1,9 +1,19 @@
 #!/bin/bash
 __opt="${1-}"
 
-MainDir="$HOME"
+source "/usr/share/my_stuff/lib/common/WM"
 
-if [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
+MainDir="$HOME"
+if [ "$__opt" = "--edit" ] || [ "$__opt" = "-e" ];then
+	# open .config/keybinds/keybinds.conf in default editor
+	my-text-editor "$HOME/.config/keybinds/keybinds.conf"
+elif [ "$__opt" = "--gui" ] || [ "$__opt" = "-g" ];then
+	source "/usr/share/my_stuff/lib/common/openbox"
+	yad --text-info --title="Keybinds" --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg\
+    --filename="${script_config_path}/openbox_keybinds" --width=700 --height=700\
+    --fontname=Monospace --button=gtk-close
+    exit
+elif [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
 	my-superuser /usr/share/my_stuff/bin/not_add_2_path/must_create_script/keybinds_conf/make
 	exit
 elif [ "$__opt" = "--initial-step" ];then
@@ -14,23 +24,23 @@ elif [ "$__opt" = "--initial-step" ];then
 	MainDir="/usr/share/my_stuff/system_files/skel"
 fi
 
-source "/usr/share/my_stuff/lib/common/WM"
 source "/usr/share/my_stuff/lib/keybinds/file_path_to_edit.conf"
 source "/usr/share/my_stuff/lib/keybinds/lib"
+
+mkdir -p "$MainDir/.config/keybinds"
 
 if [ "$__opt" = "--initial-step" ];then
 	welcome_shortcut_file_path="/usr/share/my_stuff/system_files/welcome_keybinds"
 	openboxrc_file_path="/usr/share/my_stuff/system_files/rc.xml"
-fi
-
-if [ ! -f "$HOME/.config/keybinds/keybinds.conf" ];then
-	mkdir -p "$HOME/.config/keybinds"
+	script_config_path="${MainDir}/.config/$scriptconfig_name"
+elif [ ! -f "$HOME/.config/keybinds/keybinds.conf" ];then
 	cp -r "/usr/share/my_stuff/system_files/skel/.config/keybinds/keybinds.conf" "$HOME/.config/keybinds/keybinds.conf"
 fi
 
+mkdir -p "${script_config_path}"
 mkdir -p "${temp_shortcuts_path}"
 
-cp -r "$HOME/.config/keybinds/keybinds.conf" "${temp_shortcuts_path}"
+cp -r "$MainDir/.config/keybinds/keybinds.conf" "${temp_shortcuts_path}"
 cp -r "/usr/share/my_stuff/lib/keybinds/keybinds_to_sourcemainbindkey.conf" "${temp_shortcuts_path}"
 
 cd "${temp_shortcuts_path}"
@@ -110,7 +120,10 @@ if [ -f "${lxterminal_file_path}" ];then
 	sed_lxterminal
 fi
 
+if echo $PATH | grep -q openbox;then
+	create_pipemenu_file
+fi
+
 create_shortcut_read_file
 
 create_welcome_shortcut_file
-cd

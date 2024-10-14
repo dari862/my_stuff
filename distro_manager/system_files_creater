@@ -33,21 +33,33 @@ my-superuser updatedb
 ############
 # terminator
 ############
-show_im "fix terminator"
-
-if [ -d "/etc/xdg" ];then
-	[ ! -d "/etc/xdg/terminator" ] && my-superuser mkdir -p "/etc/xdg/terminator"
-	[ ! -f "/etc/xdg/terminator/config" ] && my-superuser cp -r "${__distro_path}"/extra_skel/.config/terminator /etc/xdg/terminator
+if command -v terminator >/dev/null;then
+	show_im "fix terminator"
+	[ ! -d "/root/.config/terminator" ] && my-superuser mkdir -p "/root/.config/terminator"
+	[ ! -f "/root/.config/terminator/config" ] && my-superuser cp -r "${__distro_path}"/extra_skel/.config/terminator/config "/root/.config/terminator"
+	if my-superuser grep -q 'always_on_top =' "/root/.config/terminator/config";then
+		my-superuser sed -i "s/always_on_top =.*/always_on_top = True/g" "/root/.config/terminator/config"
+	else
+		my-superuser sed -i '0,/[global_config]/a dddddddddddddddddddd' "/root/.config/terminator/config"
+		my-superuser sed -i 's/dddddddddddddddddddd/  always_on_top = True/g' "/root/.config/terminator/config"
+	fi
+	
+	if my-superuser grep -q 'hide_window =' "/root/.config/terminator/config";then
+		my-superuser sed -i "s/hide_window =.*/hide_window = F10/g" "/root/.config/terminator/config"
+	else
+		my-superuser sed -i '0,/[keybindings]/a xxxxxxxxxxxxxxxxxxxxx' "/root/.config/terminator/config"
+		my-superuser sed -i 's/xxxxxxxxxxxxxxxxxxxxx/  hide_window = F10/g' "/root/.config/terminator/config"
+	fi
 fi
 
 ############
 # Remove "Set as wallpaper" from Thunar Context Menu and replace it with  "Set as wallpaper" from thunar config uac file
 ############
-show_im "fix thunar"
-
-__thunar_wall_plug="$(locate thunar | grep wall || :)"
-[ -n "${__thunar_wall_plug}" ] && my-superuser mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
-
+if command -v thunar >/dev/null;then
+	show_im "fix thunar"
+	__thunar_wall_plug="$(locate thunar | grep wall || :)"
+	[ -n "${__thunar_wall_plug}" ] && my-superuser mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
+fi
 ##################################################################################
 
 show_im "prepares for hub script"
@@ -129,7 +141,7 @@ if command -v thunar >/dev/null ; then
 fi
 
 if command -v gigolo >/dev/null ; then
-	show_im "cp gigolo skell file to system_files/skel ."
+	show_im "copy gigolo skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/gigolo" "${__distro_path}/system_files/skel/.config" 
 fi
 

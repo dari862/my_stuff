@@ -185,28 +185,28 @@ my_power_manager_daemon(){
   	
   	
   	if [[ "$turnoff_moniter_time" -gt 0 ]] && [[ "$turnoff_moniter_time" -ge "$idleTime" ]]; then
-			my_session_manager moniter_off
+			my_session_manager --no-confirm moniter_off
   	fi
   	
   	if [[ "$logout_time" -gt 0 ]] && [[ "$logout_time" -le "$idleTime" ]] ; then
-			my_session_manager logout
+			my_session_manager --no-confirm logout
   	fi 
   	
   	if [[ "$suspend_time" -gt 0 ]] && [[ "$suspend_time" -le "$idleTime" ]] ; then
-			my_session_manager suspend
+			my_session_manager --no-confirm suspend
   	fi
   	
   	if [[ "$hibernate_time" -gt 0 ]] && [[ "$hibernate_time" -le "$idleTime" ]] ; then
-			my_session_manager hibernate
+			my_session_manager --no-confirm hibernate
   	fi
   	
   	if [[ "$poweroff_time" -gt 0 ]] && [[ "$poweroff_time" -le "$idleTime" ]] ; then
-			my_session_manager poweroff
+			my_session_manager --no-confirm poweroff
   	fi
 	
   	if [[ "$idleAfter" -gt 0 ]] && [[ $idle = false ]] && [[ $idleTimeMillis -gt $idleAfterMillis ]] ; then
     	[[ "$brightness_level" -ne 0 ]] && set_brightness_on_idle
-		[[ "$lock_screen_on_idle" == "true" ]] && my_session_manager lock
+		[[ "$lock_screen_on_idle" == "true" ]] && my_session_manager --no-confirm lock
     	idle=true
   	fi
   	

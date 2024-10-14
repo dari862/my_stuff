@@ -61,7 +61,11 @@ obmenu_options(){
 		menuItem 'Screenshot Now' "ac-shots"
 		menuItem 'Screenshot In 5s' "ac-shots --delay 5"
 		menuItem 'Screenshot In 10s' "ac-shots --delay 10"
-		menuItem 'Screenshot Area' "ac-shots --area"
+		if command -v slop >/dev/null 2>&1;then
+			menuItem 'Screenshot Area' "ac-shots --area"
+		else
+			menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
 		menuItem 'Screenshot Window' "ac-shots --win"
     menuSubmenuEnd
 
@@ -72,8 +76,12 @@ obmenu_options(){
        	menuSubmenu 'imgur_acct' 'Upload to Account'
            	menuItem "screenshot Now" "files-uploader --imgur -l"
            	menuItem "screenshot In 5 secs..." "files-uploader --imgur -l -d 5"
-           	menuItem "screenshot In 10 secs..." "files-uploader --imgur -l -d 10"
-           	menuItem "screenshot Select Area" "files-uploader --imgur -l -s"
+           	menuItem "screenshot In 10 secs..." "files-uploader --imgur -l -d 10"	
+           	if command -v slop >/dev/null 2>&1;then
+				menuItem "screenshot Select Area" "files-uploader --imgur -l -s"
+			else
+				menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
+			fi
            	menuItem "screenshot Current Window" "files-uploader --imgur -l -w"
 	   	else
        	menuItem "Setup Imgur Account" "files-uploader --imgur --register"
@@ -85,7 +93,11 @@ obmenu_options(){
        	menuItem "screenshot Now" "files-uploader --imgur"
        	menuItem "screenshot In 5 secs..." "files-uploader --imgur -d 5"
        	menuItem "screenshot In 10 secs..." "files-uploader --imgur -d 10"
-       	menuItem "screenshot Select Area" "files-uploader --imgur -s"
+       	if command -v slop >/dev/null 2>&1;then
+			menuItem "screenshot Select Area" "files-uploader --imgur -s"
+		else
+			menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
        	menuItem "screenshot Current Window" "files-uploader --imgur -w"
     menuSubmenuEnd
     
@@ -99,7 +111,11 @@ jgmenu_options(){
     jgmenuItem 'takescreenshot' "Screenshoot Now" "ac-shots"
     jgmenuItem 'takescreenshot' "Screenshoot In 5 secs..." "ac-shots --delay 5"
     jgmenuItem 'takescreenshot' "Screenshoot In 10 secs..." "ac-shots --delay 10"
-    jgmenuItem 'takescreenshot' "Screenshoot Select Area" "ac-shots --area"
+    if command -v slop >/dev/null 2>&1;then
+		jgmenuItem 'takescreenshot' "Screenshoot Select Area" "ac-shots --area"
+	else
+		jgmenuItem 'takescreenshot' 'install slop for Screenshot Area' 'popup_terminal --install slop'
+	fi
     jgmenuItem 'takescreenshot' "Screenshoot Current Focus" "ac-shots --win"
         	
     jgmenuSubmenu 'root' 'imgur' 'Imgur - Upload Screenshot'
@@ -111,7 +127,11 @@ jgmenu_options(){
         jgmenuItem 'imgur_acct' "screenshot Now" "files-uploader --imgur -l"
         jgmenuItem 'imgur_acct' "screenshot In 5 secs..." "files-uploader --imgur -l -d 5"
         jgmenuItem 'imgur_acct' "screenshot In 10 secs..." "files-uploader --imgur -l -d 10"
-        jgmenuItem 'imgur_acct' "screenshot Select Area" "files-uploader --imgur -l -s"
+        if command -v slop >/dev/null 2>&1;then
+			jgmenuItem 'imgur_acct' "screenshot Select Area" "files-uploader --imgur -l -s"
+		else
+			jgmenuItem 'imgur_acct' 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
         jgmenuItem 'imgur_acct' "screenshot Current Window" "files-uploader --imgur -l -w"
     else
         jgmenuItem 'imgur' "Setup Imgur Account" "files-uploader --imgur --register"
@@ -122,7 +142,11 @@ jgmenu_options(){
         jgmenuItem 'imgur_anon' "screenshot Now" "files-uploader --imgur"
         jgmenuItem 'imgur_anon' "screenshot In 5 secs..." "files-uploader --imgur -d 5"
         jgmenuItem 'imgur_anon' "screenshot In 10 secs..." "files-uploader --imgur -d 10"
-        jgmenuItem 'imgur_anon' "screenshot Select Area" "files-uploader --imgur -s"
+        if command -v slop >/dev/null 2>&1;then
+			jgmenuItem 'imgur_anon' "screenshot Select Area" "files-uploader --imgur -s"
+		else
+			jgmenuItem 'imgur_anon' 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
         jgmenuItem 'imgur_anon' "screenshot Current Window" "files-uploader --imgur -w"
 	jgmenuEnd
 }	
