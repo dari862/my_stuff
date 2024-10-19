@@ -13,8 +13,8 @@ use_appname=true
 ###########################
 
 ### Raw data
-[ ! -f "/tmp/dunstlog" ] && /usr/share/my_stuff/bin/not_add_2_path/dunst_logger.sh
-raw=$(tac /tmp/dunstlog)
+[ ! -f "/tmp/$USER/dunstlog" ] && /usr/share/my_stuff/bin/not_add_2_path/dunst_logger.sh
+raw=$(tac /tmp/$USER/dunstlog)
 appname=$(echo -n "$raw" | sed -n '1~6p')
 to_rofi=$(echo -n "$raw" | sed -n '2~6p;3~6p' | sed 's/\&/&amp;/g')
 icon=$(echo -n "$raw" | sed -n '4~6p' | while read -r line; do echo "$line"; done)
@@ -117,5 +117,5 @@ if [ -n "$selection" ]; then
     remove_whitespace=$(echo -ne "$remove_markup" | sed '1~3 s/\s.*$//')
     add_timestamp="$remove_whitespace\n.*\n.*\n$extract_date\n"
     reverse_search=$(tac <(echo -ne "$add_timestamp") | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')
-    sed -i "N;N;N;N;N; /^$reverse_search$/d" /tmp/dunstlog
+    sed -i "N;N;N;N;N; /^$reverse_search$/d" /tmp/$USER/dunstlog
 fi

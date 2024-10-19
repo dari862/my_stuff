@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The dashboard displays installed applications into yad based window. 
-apps_dashboard_tmp="/tmp/apps-dashboard"
+apps_dashboard_tmp="/tmp/$USER/apps-dashboard"
 if [ -d "${apps_dashboard_tmp}" ]; then
 	rm -rf 
 fi

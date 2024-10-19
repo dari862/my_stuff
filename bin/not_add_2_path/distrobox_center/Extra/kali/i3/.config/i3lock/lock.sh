@@ -41,5 +41,5 @@ i3lock --nofork					\
     --wrongtext="you shall not pass!"	\
     --noinputtext="-_-"					\
 	\
-    --image=/home/chaos/Pictures/nord-calvin-and-hobbes.png
+    --image=nord-calvin-and-hobbes.png
 

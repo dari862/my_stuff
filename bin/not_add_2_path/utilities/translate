@@ -56,7 +56,7 @@ main() {
     declare translate_service="lingva"
   fi
 
-  lang_map="/tmp/$translate_service"
+  lang_map="/tmp/$USER/$translate_service"
 
   if [ -f "$lang_map" ]; then
   	if [ "$(stat -c %y "$lang_map" 2>/dev/null | cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ]; then

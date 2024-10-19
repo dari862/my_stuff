@@ -49,13 +49,13 @@ find_cover_image() {
     ext="$(mpc --format %file% current | sed 's/^.*\.//')"
     if [ "$ext" = "flac" ]; then
         # since FFMPEG cannot export embedded FLAC art we use metaflac
-        metaflac --export-picture-to=/tmp/mpd_cover.jpg \
+        metaflac --export-picture-to=/tmp/$USER/mpd_cover.jpg \
             "$(mpc --format "$music_library"/%file% current)" &&
-            cover_path="/tmp/mpd_cover.jpg" && return
+            cover_path="/tmp/$USER/mpd_cover.jpg" && return
     else
         ffmpeg -y -i "$(mpc --format "$music_library"/%file% | head -n 1)" \
-            /tmp/mpd_cover.jpg &&
-            cover_path="/tmp/mpd_cover.jpg" && return
+            /tmp/$USER/mpd_cover.jpg &&
+            cover_path="/tmp/$USER/mpd_cover.jpg" && return
     fi
 
     # If no embedded art was found we look inside the music file's directory
@@ -207,16 +207,16 @@ def get_geometry():
     return "{} {}".format(xpixels, ypixels)
 
 output = get_geometry()
-f = open("/tmp/ncmpcpp_geometry.txt", "w")
+f = open("/tmp/$USER/ncmpcpp_geometry.txt", "w")
 f.write(output)
 f.close()
 END
 
     # ioctl doesn't work inside $() for some reason so we
     # must use a temporary file
-    term_width=$(awk '{print $1}' /tmp/ncmpcpp_geometry.txt)
-    term_height=$(awk '{print $2}' /tmp/ncmpcpp_geometry.txt)
-    rm "/tmp/ncmpcpp_geometry.txt"
+    term_width=$(awk '{print $1}' /tmp/$USER/ncmpcpp_geometry.txt)
+    term_height=$(awk '{print $2}' /tmp/$USER/ncmpcpp_geometry.txt)
+    rm "/tmp/$USER/ncmpcpp_geometry.txt"
 
     if ! is_font_size_successfully_computed; then
         echo "Failed to guess font size, try setting it in `basename $0` settings"

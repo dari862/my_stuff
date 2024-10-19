@@ -37,7 +37,7 @@ swallow() {
 	if [ "$addedtodesktop" = "$lasttermdesktop" ] && check_swallowing_process "$swallowerid" "$swallowingid"; then
 		grep -q "^$(get_class "$swallowerid")$" ~/.config/bspwm/{noswallow, terminals} && return
 		grep -i "^$(get_class "$swallowingid")$" ~/.config/bspwm/terminals || return
-		echo "$swallowerid $swallowingid" >> /tmp/swallowids
+		echo "$swallowerid $swallowingid" >> /tmp/$USER/swallowids
 		bspc node "$swallowingid" --flag hidden=on
 	fi
 }
@@ -45,8 +45,8 @@ swallow() {
 spit() {
 	spitterid=$1
 	spitterdesktop=$2
-	grep "^$spitterid" /tmp/swallowids || return
-	spittingid=$(grep "^$spitterid" /tmp/swallowids | head -n1 | awk '{print $2}')
+	grep "^$spitterid" /tmp/$USER/swallowids || return
+	spittingid=$(grep "^$spitterid" /tmp/$USER/swallowids | head -n1 | awk '{print $2}')
 
 	bspc node "$spittingid" --flag hidden=off
 
@@ -54,7 +54,7 @@ spit() {
 	[ "$termdesktop" = "$spitterdesktop" ] || bspc node "$spittingid" -d "$spitterdesktop"
 
 	bspc node "$spittingid" -f
-	sed -i "/^$spitterid/d" /tmp/swallowids
+	sed -i "/^$spitterid/d" /tmp/$USER/swallowids
 }
 
 bspc subscribe node_add node_remove | while read -r event

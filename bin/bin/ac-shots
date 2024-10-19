@@ -5,7 +5,7 @@
 #########################################
 
 icons_dir="/usr/share/my_stuff/icons/dunst"
-error_log="/tmp/ac-shots-${USER}"
+error_log="/tmp/$USER/ac-shots"
 __no_notify=false
 __no_copy=false
 __no_notify=false

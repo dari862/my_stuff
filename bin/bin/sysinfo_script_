@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 opt="${1-}"
 case $opt in
-		--system) popup_terminal btop
+		--system) 
+		if hash btop 2>/dev/null; then
+        		popup_terminal btop
+		elif hash bpytop 2>/dev/null; then
+        		popup_terminal bpytop
+		elif hash htop 2>/dev/null; then
+        		popup_terminal htop
+		fi
 		;;
 		--hardware) popup_terminal '{ echo -e \"\e[1mHARDWARE INFO: hwinfo\e[0m\"; hwinfo --short; echo -e \"\n\n\e[1mHARDWARE INFO: inxi\e[0m\"; inxi -F; echo; read; }'
 		;;

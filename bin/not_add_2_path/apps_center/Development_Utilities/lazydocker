@@ -30,4 +30,4 @@ EOF
 my-superuser chmod +x ${distro_path}/updater/lazydocker_updater
 
 say "Installing ${Title} updater and installer..." 1
-${distro_path}/updater/lazydocker_updater || failed_to_run "failed to run lazydocker_updater ."
+my-superuser ${distro_path}/updater/lazydocker_updater || failed_to_run "failed to run lazydocker_updater ."

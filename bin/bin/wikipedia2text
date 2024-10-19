@@ -220,7 +220,7 @@ function openurl(){ #{{{1
   "${BROWSER}" "${URL}"
 }
 function summary() { #{{{1
-  TMPFILE="/tmp/wiki-sum_$$.html"
+  TMPFILE="/tmp/$USER/wiki-sum_$$.html"
   if [ "${COLOR}" = "true" ]; then
     summaryCommand="curl -s -L ${URL} | grep \/table -A400 | grep -v \/table  | grep \<div -m1 -B400 |
       sed -e \"\$ d\" > $TMPFILE && w3m -dump $TMPFILE | stripOutput | colorize && rm $TMPFILE"
@@ -231,13 +231,13 @@ function summary() { #{{{1
   eval ${summaryCommand}
 }
 function print_sections() { #{{{1
-  TMPFILE="/tmp/wiki-sections_$$.html"
+  TMPFILE="/tmp/$USER/wiki-sections_$$.html"
   Command="curl -s -L ${URL} | grep '\(</\?html\)\|\(</\?body\)\|\(<h[12]\)' |
     sed -e 's/^.*<h2/<h2/' > $TMPFILE && w3m -dump $TMPFILE | stripOutput && rm $TMPFILE"
   eval ${Command}
 }
 function print_section_detail() { #{{{1
-  TMPFILE="/tmp/wiki-section_$$.html"
+  TMPFILE="/tmp/$USER/wiki-section_$$.html"
   Command="curl -s -L ${URL} |
     sed -n -e '/\(<\/\?html\)\|\(<\/\?body\)\|\(<h1\)/p' -e \"/^.*<h2.*$*/,/^.*<\/h2.*>/p\" |
     sed -e 's/^.*<h2/<h2/' > $TMPFILE && w3m -dump $TMPFILE | stripOutput"

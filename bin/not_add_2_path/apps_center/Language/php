@@ -37,7 +37,8 @@ my-superuser a2enconf php8.3-fpm
 my-superuser a2disconf php8.2-fpm
 
 say 'get composer ...' 1
-cd /tmp
+cd /tmp/$USER
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 php composer-setup.php --quiet && my-superuser mv composer.phar /usr/local/bin/composer
+my-superuser chown root:root -R /usr/local/bin/composer
 rm composer-setup.php

@@ -395,7 +395,7 @@ install_now_() {
 
 Download_wallpapers_now(){
 	check_if_installed git
-	mkdir -p /tmp/dynamic_wallpapers
+	mkdir -p /tmp/$USER/dynamic_wallpapers
 	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"
 	echo "size wallpaper is 150 MB"
 	read -p "Do you want to proceed? (yes/no) " yn
@@ -403,8 +403,8 @@ Download_wallpapers_now(){
 	case $yn in 
 		YES|Y) 
 			echo "Downloading 1-3 urls for wallpapers"
-			clone_repo https://github.com/adi1090x/dynamic-wallpaper			/tmp/dynamic-wallpaper
-			mv /tmp/dynamic-wallpaper/images/* /tmp/dynamic_wallpapers 2>/dev/null
+			clone_repo https://github.com/adi1090x/dynamic-wallpaper			/tmp/$USER/dynamic-wallpaper
+			mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
 		;;
 		NO|N) echo "skipping Download...";
 		;;
@@ -419,15 +419,15 @@ Download_wallpapers_now(){
 	case $yn in 
 		YES|Y) 
 			echo "Downloading 2-3 urls for wallpapers"
-			mkdir -p /tmp/dynamic-wallpaper/images/
-			mkdir -p /tmp/dynamic-wallpaper/tempfornow
-			wget -P /tmp/dynamic-wallpaper/tempfornow https://raw.githubusercontent.com/adi1090x/files/master/dynamic-wallpaper/wallpapers/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz
-			mkdir -p /tmp/dynamic-wallpaper/images/london
-			tar -xvf "/tmp/dynamic-wallpaper/tempfornow/london.tar.gz" -C /tmp/dynamic-wallpaper/images/london && mv "/tmp/dynamic-wallpaper/tempfornow/london.tar.gz" /tmp/dynamic-wallpaper
-			mkdir -p /tmp/dynamic-wallpaper/images/mountfuji
-			tar -xvf "/tmp/dynamic-wallpaper/tempfornow/mountfuji" -C /tmp/dynamic-wallpaper/images/mountfuji && mv "/tmp/dynamic-wallpaper/tempfornow/mountfuji.tar.gz" /tmp/dynamic-wallpaper
-			for f in /tmp/dynamic-wallpaper/tempfornow/*.tar.gz -C ; do tar -xvf "$f" -C "/tmp/dynamic-wallpaper/images/"; done
-			mv /tmp/dynamic-wallpaper/images/* /tmp/dynamic_wallpapers 2>/dev/null
+			mkdir -p /tmp/$USER/dynamic-wallpaper/images/
+			mkdir -p /tmp/$USER/dynamic-wallpaper/tempfornow
+			wget -P /tmp/$USER/dynamic-wallpaper/tempfornow https://raw.githubusercontent.com/adi1090x/files/master/dynamic-wallpaper/wallpapers/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz
+			mkdir -p /tmp/$USER/dynamic-wallpaper/images/london
+			tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" -C /tmp/$USER/dynamic-wallpaper/images/london && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" /tmp/$USER/dynamic-wallpaper
+			mkdir -p /tmp/$USER/dynamic-wallpaper/images/mountfuji
+			tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji" -C /tmp/$USER/dynamic-wallpaper/images/mountfuji && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji.tar.gz" /tmp/$USER/dynamic-wallpaper
+			for f in /tmp/$USER/dynamic-wallpaper/tempfornow/*.tar.gz -C ; do tar -xvf "$f" -C "/tmp/$USER/dynamic-wallpaper/images/"; done
+			mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
 		;;
 		NO|N) echo "skipping Download...";
 		;;
@@ -442,13 +442,13 @@ Download_wallpapers_now(){
 	case $yn in 
 		YES|Y) 
 			echo "Downloading 3-3 urls for wallpapers"
-			clone_repo https://github.com/saint-13/Linux_Dynamic_Wallpapers	/tmp/Linux_Dynamic_Wallpapers
-			cd /tmp/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
+			clone_repo https://github.com/saint-13/Linux_Dynamic_Wallpapers	/tmp/$USER/Linux_Dynamic_Wallpapers
+			cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
 			/bin/rm -f * 2>/dev/null
 			
-			rm -rdf /tmp/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/Mojave
+			rm -rdf /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/Mojave
 			
-			cd /tmp/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01
+			cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01
 			extension="jpg"
 			mv *-10.${extension} cyberpunk-00-0-0.0.${extension}
 			mv *-11.${extension} cyberpunk-00-0-0.1.${extension}
@@ -478,15 +478,15 @@ Download_wallpapers_now(){
 			mv 1.${extension} 3.${extension}
 			Create_links_for_folders_now
 			
-			mv /tmp/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01 /tmp/dynamic_wallpapers
+			mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01 /tmp/$USER/dynamic_wallpapers
 			
 			extension=""
 			folder_2_convert_2_Dywall=""
 			d=""
-			cd /tmp/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
+			cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
 			for d in *
 			do
-				cd /tmp/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/"${d}"
+				cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/"${d}"
 				newName=0
 				fullname="$(\ls | tail -1)"
 				extension="${fullname##*.}"
@@ -497,7 +497,7 @@ Download_wallpapers_now(){
 				Convert_current_folder_2_Dywall_now
 			done
 			
-			mv /tmp/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/* /tmp/dynamic_wallpapers 2>/dev/null
+			mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
 			echo "Downloading complete"
 		;;
 		NO|N) echo "skipping Download...";
@@ -506,13 +506,13 @@ Download_wallpapers_now(){
 			Do_want_to_install_not_installed_apps_are;;
 	esac
 	
-	if [ ! -d /tmp/Linux_Dynamic_Wallpapers ] && [ ! -d /tmp/dynamic-wallpaper ]; then
+	if [ ! -d /tmp/$USER/Linux_Dynamic_Wallpapers ] && [ ! -d /tmp/$USER/dynamic-wallpaper ]; then
 		exit_0
 	fi
 	
 	my-superuser mkdir -p $DIR
 	echo $DIR
-	my-superuser cp -r /tmp/dynamic_wallpapers/* $DIR
+	my-superuser cp -r /tmp/$USER/dynamic_wallpapers/* $DIR
 	echo $DIR
 	echo "Done"
 	exit_1

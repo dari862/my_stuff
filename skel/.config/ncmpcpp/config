@@ -49,7 +49,7 @@ mpd_crossfade_time = 5
 ## audio_output {
 ##        type            "fifo"
 ##        name            "Visualizer feed"
-##        path            "/tmp/mpd.fifo"
+##        path            "/tmp/MmdmdmdmdmdmdmdmdmM/mpd.fifo"
 ##        format          "44100:16:2"
 ## }
 ##
@@ -69,7 +69,7 @@ mpd_crossfade_time = 5
 ## visualizer.
 ##
 #
-#visualizer_data_source = /tmp/mpd.fifo
+#visualizer_data_source = /tmp/MmdmdmdmdmdmdmdmdmM/mpd.fifo
 #
 ##
 ## Note: Below parameter is needed for ncmpcpp to determine which output

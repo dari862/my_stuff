@@ -92,7 +92,7 @@ panel_picker() {
 		if [ "$which_MENU" == "jgmenu" ]; then
 			which_menu_to_use jgmenu
 			which_OB_style_to_use bl
-			setbg -s --set-color=#18191A /usr/share/my_stuff/images/wallpapers/default/default
+			setbg -s --set-color=#18191A /usr/share/my_stuff/my_wallpapers/default/Beryllium-1440x900.jpg
 		elif [ "$which_MENU" == "bunsenlabs" ]; then
 			which_menu_to_use obmenu
 			which_OB_style_to_use bl

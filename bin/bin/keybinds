@@ -120,10 +120,10 @@ if [ -f "${lxterminal_file_path}" ];then
 	sed_lxterminal
 fi
 
-if echo $PATH | grep -q openbox;then
-	create_pipemenu_file
-fi
-
 create_shortcut_read_file
 
 create_welcome_shortcut_file
+
+if [ -f "${openboxrc_file_path}" ];then
+	create_pipemenu_file
+fi

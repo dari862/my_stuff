@@ -107,6 +107,11 @@ set_values() {
 	
 	sed -i "s/{distro_icon}/${distro_icon}/g" 	${SFILE}
 	sed -i "s/{distro_name}/${distro_name}/g" 	${SFILE}
+	 	
+ 	# Change xprop_NET_DESKTOP_NAMES to desktop name
+ 	xprop_NET_DESKTOP_NAMES="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2)"
+ 	find $HOME/.config/polybar/. -type f -exec sed -i "s/_System_Net_Desktop_Names/${xprop_NET_DESKTOP_NAMES}/g" {} +
+ 	
 }
 
 # Fix backlight and network modules
@@ -137,7 +142,7 @@ fix_modules() {
 }
 
 remove_modules() {
-	polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g')
+	polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g' | cut -c 1-3)
 	string_size_of_polybar_ver="${#polybar_ver}"
 	if [ $string_size_of_polybar_ver != 3 ];then
 		if [ $string_size_of_polybar_ver = 1 ];then
@@ -149,17 +154,11 @@ remove_modules() {
 		fi
 	fi
 
-	if [ "$polybar_ver" -gt "363" ];then
+	if [ "$polybar_ver" -ge "370" ];then
 		find $polybar_dir -type f -exec sed -i 's/ notray_m/ tray_m/g' {} +
-		find $polybar_dir -type f -exec sed -i 's/active_focused/focused/g' {} +
-	else
-		find $polybar_dir -type f -exec sed -i 's/active_focused/active/g' {} +
+		#find $polybar_dir -type f -exec sed -i 's/label-active/label-focused/g' {} +
  	fi
- 	
- 	# Change xprop_NET_DESKTOP_NAMES to desktop name
- 	xprop_NET_DESKTOP_NAMES="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2)"
- 	find $polybar_dir -type f -exec sed -i "s/xprop_NET_DESKTOP_NAMES/${xprop_NET_DESKTOP_NAMES}/g" {} +
- 	
+
  	find $polybar_dir -type f -exec sed -i 's/ bluetooth/ no_bluetooth/g' {} +
  	find $polybar_dir -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	

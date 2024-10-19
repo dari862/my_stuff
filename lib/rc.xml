@@ -8,7 +8,6 @@
   <!ENTITY left_var "themerc_left">
   <!ENTITY font_var "themerc_font">
   <!ENTITY size_var "themerc_size">
-  <!ENTITY menu_var "themerc_menu">
 ]>
 <openbox_config xmlns="http://openbox.org/3.4/rc"
         xmlns:xi="http://www.w3.org/2001/XInclude">
@@ -577,7 +576,7 @@
     /var/lib/openbox/debian-menu.xml
     or
     debian-menu.xml -->
-    <file>&menu_var;</file>
+    <file>menu.xml</file>
     <hideDelay>200</hideDelay>
   <!-- if a press-release lasts longer than this setting (in milliseconds), the
        menu is hidden again -->

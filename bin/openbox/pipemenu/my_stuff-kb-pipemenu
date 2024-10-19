@@ -6,7 +6,7 @@ menuStart
 	menuSeparator
 	menuItem "Display Keybinds in new window" "keybinds --gui"
 	menuSubmenu 'Display_keybinds' 'Display Keybinds in menu'
-		#cat "${script_config_path}/openbox_pipemenu"
+		cat "${script_config_path}/openbox_pipemenu"
 	menuSubmenuEnd
 menuEnd
 

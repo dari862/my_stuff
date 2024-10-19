@@ -2,7 +2,7 @@
 
 say 'Installing displaylink-installer ...' 1
 
-cd /tmp
+cd /tmp/$USER
 my-superuser true
 clone_repo https://github.com/AdnanHodzic/displaylink-debian.git
 cd displaylink-debian

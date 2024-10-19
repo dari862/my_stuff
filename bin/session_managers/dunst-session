@@ -25,7 +25,7 @@ function stop() {
 # DESCRIPTION: load dunst with config file
 #===================================================================================
 function start() {
-  exec dunst -config ${dunstrc_path} 2>/tmp/dunst_error &
+  exec dunst -config ${dunstrc_path} 2>/tmp/$USER/dunst_error &
 }
 
 

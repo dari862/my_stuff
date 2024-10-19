@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
 yad --notification \
 	--image="gtk-zoom-fit" \
 	--icon-size=22 \
-	--command="/home/dari/Desktop/my_stuff_installer/workon/Gammastep_gui/gammastep_gui" \
+	--command="color_temperature_adjuster_gui" \
 	--text="Gammastep"

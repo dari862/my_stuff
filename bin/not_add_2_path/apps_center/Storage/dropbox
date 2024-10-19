@@ -13,11 +13,11 @@ if [[ ! -f "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py" ]];t
 	my-superuser wget https://linux.dropboxstatic.com/packages/dropbox.py
 	my-superuser chmod +x dropbox.py
 	my-superuser ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py /usr/share/my_stuff/system_files/bin/dropbox
-	echo '#!/bin/sh' > /tmp/dropbox_updater
-	echo 'nohup dropbox update &>/dev/null' >> /tmp/dropbox_updater
-	
+	my-superuser tee /tmp/dropbox_updater <<- 'EOF' > /dev/null
+	#!/bin/sh
+	nohup dropbox update &>/dev/null
+	EOF
 	my-superuser mv "/tmp/dropbox_updater" "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
-	my-superuser chown root:root "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
 	my-superuser chmod +x "/usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater"
 	my-superuser ls -nf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox_updater /usr/share/my_stuff/system_files/updater/dropbox
 	/usr/share/my_stuff/system_files/updater/dropbox

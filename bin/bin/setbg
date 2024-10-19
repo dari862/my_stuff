@@ -57,7 +57,7 @@ restore(){
 	fi
 }
 
-set_wall(){
+save_wall(){
 	if command -v xwallpaper >/dev/null ; then
 		if [ -f "$HOME/.config/nitrogen/bg-saved.cfg" ];then
 			tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
@@ -75,6 +75,10 @@ set_wall(){
 random_wall(){
 	op2__="$(find $op2__ | shuf -n 1)"
 	set_wall
+}
+
+set_wall(){
+	set_wall
 	restore
 }
 
@@ -84,6 +88,7 @@ main()
 		-r) restore ;;
 		-o) old_bg_ $op2__ ;;
 		-s) set_wall ;;
+		-S) Save_wall ;;
 		-d) random_wall ;;
 		*) pickbg ;;
 	esac

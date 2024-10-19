@@ -13,7 +13,7 @@ code/file-list
 "
 _utf8="UTF8_STRING"
 
-clip_path="$HOME/.local/share"
+clip_path="$HOME/.local/share/xclip-manager"
 _out="${clip_path}/xclip.out"
 _history="${clip_path}/xclip.history"
 _script="$(basename "${0}")"
@@ -28,6 +28,8 @@ _usage() {
 }
 
 [ "${#}" -gt 0 ] && _usage
+
+mkdir -p "${clip_path}"
 
 _iteration() {
 

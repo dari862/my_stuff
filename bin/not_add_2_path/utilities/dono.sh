@@ -166,8 +166,8 @@ Todo_Creater() {
     	'Delete note')
       	note_del=$(${rofi_command} -p 'Delete:' "$@" < "${todo_file}")
       	# grep should always returns 0 regardless what happens.
-      	grep -v "^$(echo "${note_del}" | sed -e 's/\[/\\[/g;s/\]/\\]/g')\$" "${todo_file}" > "/tmp/dmnote" || true
-      	[ -n "${note_del}" ] && cp -f "/tmp/dmnote" "${todo_file}"
+      	grep -v "^$(echo "${note_del}" | sed -e 's/\[/\\[/g;s/\]/\\]/g')\$" "${todo_file}" > "/tmp/$USER/dmnote" || true
+      	[ -n "${note_del}" ] && cp -f "/tmp/$USER/dmnote" "${todo_file}"
       	;;
     	'Quit')
       	break

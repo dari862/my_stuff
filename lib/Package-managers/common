@@ -168,3 +168,8 @@ elif command -v svn >/dev/null 2>&1;then
 		svn clone --depth=1 "${getthis}" "${getto}"
 	}
 fi
+
+
+__dpkg_configure(){
+	my-superuser dpkg --configure -a
+}

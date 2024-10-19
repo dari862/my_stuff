@@ -213,7 +213,7 @@ else
 fi
 KEY=$RANDOM
 
-export temp_dir=$(mktemp -d /tmp/yadtlp-XXXXXXXX)
+export temp_dir=$(mktemp -d /tmp/$USER/yadtlp-XXXXXXXX)
 
 General="${temp_dir}/General"
 Audio="${temp_dir}/Audio"
@@ -1383,7 +1383,7 @@ _save_settings(){
 			fi
 	done
 	if [ -f "${__check_file}" ];then
-		pkexec cp -r "${__temp_config_path}" "${__config_path}"
+		apps_as_root true && my-superuser cp -r "${__temp_config_path}" "${__config_path}"
 	fi
 	
 	unset __Yad_Output_array_

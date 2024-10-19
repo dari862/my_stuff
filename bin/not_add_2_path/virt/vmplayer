@@ -7,7 +7,7 @@ extra_apps_=(build-essential linux-headers-$(uname -r))
 	Package_installer_ "${extra_apps_[@]}" || continue
 	clear
 	say 'wget VMware-Player-Full.bundle...' 1
-	wget -O /tmp/VMware-Player-Full.bundle --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0" https://www.vmware.com/go/getplayer-linux
-	chmod +x /tmp/VMware-Player-Full.bundle
+	my-superuser wget -O /tmp/VMware-Player-Full.bundle --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0" https://www.vmware.com/go/getplayer-linux
+	my-superuser chmod +x /tmp/VMware-Player-Full.bundle
 	say 'Installing VMware-Player-Full.bundle...' 1
 	my-superuser /tmp/VMware-Player-Full.bundle

@@ -28,15 +28,15 @@ set_audio_arg() {
 getdim() { xrandr | grep -oP '(?<=current ).*(?=,)' | tr -d ' ' ;}
 
 updateicon() { \
-	echo "$1" > /tmp/recordingicon
+	echo "$1" > /tmp/$USER/recordingicon
 	pkill -RTMIN+9 "${STATUSBAR:-dwmblocks}"
 	}
 
 killrecording() {
-	recpid="$(cat /tmp/recordingpid)"
+	recpid="$(cat /tmp/$USER/recordingpid)"
 	# kill with SIGTERM, allowing finishing touches.
 	kill -15 "$recpid"
-	rm -f /tmp/recordingpid
+	rm -f /tmp/$USER/recordingpid
 	updateicon ""
 	pkill -RTMIN+9 "${STATUSBAR:-dwmblocks}"
 	# even after SIGTERM, ffmpeg may still run, so SIGKILL it.
@@ -57,7 +57,7 @@ screencast() { \
  	-c:v h264 \
 	-crf 0 -preset ultrafast -c:a aac \
 	"$HOME/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
-	echo $! > /tmp/recordingpid
+	echo $! > /tmp/$USER/recordingpid
 	updateicon "⏺️🎙️"
        	}
 
@@ -69,7 +69,7 @@ video() {
 	-i "$DISPLAY" \
  	-c:v libx264 -qp 0 -r 30 \
 	"$HOME/video-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
+	echo $! > /tmp/$USER/recordingpid
 	updateicon "⏺️"
 	}
 
@@ -79,7 +79,7 @@ webcamhidef() {
 	-i /dev/video0 \
 	-video_size 1920x1080 \
 	"$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
+	echo $! > /tmp/$USER/recordingpid
 	updateicon "🎥"
 	}
 
@@ -89,7 +89,7 @@ webcam() {
 	-i /dev/video0 \
 	-video_size 640x480 \
 	"$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
+	echo $! > /tmp/$USER/recordingpid
 	updateicon "🎥"
 	}
 
@@ -99,7 +99,7 @@ audio() { \
 	-f $_audio -i default \
 	-c:a flac \
 	"$HOME/audio-$(date '+%y%m%d-%H%M-%S').flac" &
-	echo $! > /tmp/recordingpid
+	echo $! > /tmp/$USER/recordingpid
 	updateicon "🎙️"
 	}
 
@@ -122,9 +122,9 @@ asktoend() { \
 
 videoselected()
 {
-	slop -f "%x %y %w %h" > /tmp/slop
-	read -r X Y W H < /tmp/slop
-	rm /tmp/slop
+	slop -f "%x %y %w %h" > /tmp/$USER/slop
+	read -r X Y W H < /tmp/$USER/slop
+	rm /tmp/$USER/slop
 
 	ffmpeg \
 	-f x11grab \
@@ -133,7 +133,7 @@ videoselected()
 	-i :0.0+"$X,$Y" \
 	-c:v libx264 -qp 0 -r 30 \
 	"$HOME/box-$(date '+%y%m%d-%H%M-%S').mkv" &
-	echo $! > /tmp/recordingpid
+	echo $! > /tmp/$USER/recordingpid
 	updateicon "⏺️"
 }
 
@@ -145,5 +145,5 @@ case "$1" in
 	video) video;;
 	*selected) videoselected;;
 	kill) killrecording;;
-	*) ([ -f /tmp/recordingpid ] && asktoend && exit) || askrecording;;
+	*) ([ -f /tmp/$USER/recordingpid ] && asktoend && exit) || askrecording;;
 esac

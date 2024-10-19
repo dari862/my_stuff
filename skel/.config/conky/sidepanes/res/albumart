@@ -1,8 +1,8 @@
 #!/bin/bash
 	
 	# replace with your mpd music path
-	MUSIC_DIR=/media/addy/Media/musik/
-	COVER=/tmp/cover2.png
+	MUSIC_DIR=/home/$USER/Music/
+	COVER=/tmp/$USER/cover2.png
     
 {	album="$(mpc --format %album% current)"
     file="$(mpc --format %file% current)"

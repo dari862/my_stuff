@@ -89,7 +89,7 @@ function yadshotcapture() {
 		COPYONCAP_arg="--no-copy"
 	fi
 	
-	ac-shots "$DECORATIONS_arg" "$SELECTION_arg" --delay "$SS_DELAY" --path "/tmp/${SS_NAME}" --no-view "$COPYONCAP_arg"
+	ac-shots "$DECORATIONS_arg" "$SELECTION_arg" --delay "$SS_DELAY" --path "/tmp/$USER/${SS_NAME}" --no-view "$COPYONCAP_arg"
 	displayss "${SS_NAME}"
 }
 export -f yadshotcapture
@@ -98,17 +98,17 @@ export -f yadshotcapture
 function displayss() {
 	SS_NAME="${1-}"
     . ~/.config/yadshot/yadshot.conf
-    if [ ! -f "/tmp/$SS_NAME" ]; then
+    if [ ! -f "/tmp/$USER/$SS_NAME" ]; then
         echo "Failed to capture screenshot!" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=10 --text-info --wrap --title="yadshot" --button=gtk-ok
         exit 1
     fi
     if [ "$COPYONCAP" = "TRUE" ]; then
-        xclip -selection clipboard -t image/png -i < /tmp/"$SS_NAME"
+        xclip -selection clipboard -t image/png -i < /tmp/$USER/"$SS_NAME"
     fi
     WSCREEN_RES=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f2 -d" " | awk '{print $1 * .75}' | cut -f1 -d'.')
     HSCREEN_RES=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f4 -d" " | awk '{print $1 * .75}' | cut -f1 -d'.')
-    WSIZE=$(file /tmp/$SS_NAME | cut -f2 -d"," | cut -f2 -d" " | cut -f1 -d'.')
-    HSIZE=$(file /tmp/$SS_NAME | cut -f2 -d"," | cut -f4 -d" " | cut -f1 -d'.')
+    WSIZE=$(file /tmp/$USER/$SS_NAME | cut -f2 -d"," | cut -f2 -d" " | cut -f1 -d'.')
+    HSIZE=$(file /tmp/$USER/$SS_NAME | cut -f2 -d"," | cut -f4 -d" " | cut -f1 -d'.')
     WSIZEYAD=$(($WSIZE+75))
     HSIZEYAD=$(($HSIZE+75))
     yad_opts=()
@@ -118,7 +118,7 @@ function displayss() {
     else
     	yad_opts+=(--size=orig --width=$WSIZEYAD --height=$HSIZEYAD)
     fi
-    yad_opts+=(--no-escape --filename="/tmp/$SS_NAME" --image-on-top --buttons-layout="edge" --title="yadshot" --separator="," --borders="10"
+    yad_opts+=(--no-escape --filename="/tmp/$USER/$SS_NAME" --image-on-top --buttons-layout="edge" --title="yadshot" --separator="," --borders="10"
                --button="Close"\!gtk-cancel:1 --button="Main Menu"\!gtk-home:2)
 	if [ "$Xclip_installed" = "TRUE" ]; then
     	yad_opts+=(--button="Copy to Clipboard"\!gtk-paste:3)
@@ -128,19 +128,19 @@ function displayss() {
     BUTTON_PRESSED="$?"
     case $BUTTON_PRESSED in
         1)
-            rm -f /tmp/"$SS_NAME"
+            rm -f /tmp/$USER/"$SS_NAME"
             exit 0
             ;;
         2)
             $0
             ;;
         3)
-            xclip -selection clipboard -t image/png -i < /tmp/"$SS_NAME"
+            xclip -selection clipboard -t image/png -i < /tmp/$USER/"$SS_NAME"
             displayss "$SS_NAME"
             ;;
         4)
             FILE="$HOME/Pictures/$SS_NAME"
-            cp /tmp/"$SS_NAME" "$FILE"
+            cp /tmp/$USER/"$SS_NAME" "$FILE"
             # upload screenshots and files to Filebin.net; set FAILED=1 if upload fails
     		echo -n "" | xclip -i -selection clipboard
     		files-uploader --filebiner up -f "$FILE"
@@ -157,11 +157,11 @@ function displayss() {
             ;;
         5)
             SAVE_DIR=$(yad --window-icon="$ICON_PATH" --center --file --save --confirm-overwrite --title="yadshot" --width=800 --height=600 --text="Save $SS_NAME as...")
-            cp /tmp/"$SS_NAME" "$SAVE_DIR"
+            cp /tmp/$USER/"$SS_NAME" "$SAVE_DIR"
             displayss "$SS_NAME"
             ;;
         0)
-            rm -f /tmp/"$SS_NAME"
+            rm -f /tmp/$USER/"$SS_NAME"
             yadshotcapture
             ;;
     esac
@@ -170,21 +170,21 @@ function displayss() {
 export -f displayss
 # upload clipboard to Filebin.net
 function yadshotpaste() {
-    echo -e "$(xclip -o -selection clipboard)" > /tmp/yadshotpaste.txt
-    PASTE_CONTENT="$(yad --window-icon="$ICON_PATH" --center --title="yadshot" --height=600 --width=800 --text-info --wrap --filename="/tmp/yadshotpaste.txt" --editable --borders="10" --button="Cancel"\!gtk-cancel:1 --button="Ok"\!gtk-ok:0)"
+    echo -e "$(xclip -o -selection clipboard)" > /tmp/$USER/yadshotpaste.txt
+    PASTE_CONTENT="$(yad --window-icon="$ICON_PATH" --center --title="yadshot" --height=600 --width=800 --text-info --wrap --filename="/tmp/$USER/yadshotpaste.txt" --editable --borders="10" --button="Cancel"\!gtk-cancel:1 --button="Ok"\!gtk-ok:0)"
     case $? in
         0)
-            echo -e "$PASTE_CONTENT" > /tmp/yadshotpaste.txt
+            echo -e "$PASTE_CONTENT" > /tmp/$USER/yadshotpaste.txt
             ;;
         *)
-            rm -f /tmp/yadshotpaste.txt
+            rm -f /tmp/$USER/yadshotpaste.txt
             exit 0
             ;;
     esac
     echo -n "" | xclip -i -selection clipboard
-    files-uploader --filebiner up -f /tmp/yadshotpaste.txt
+    files-uploader --filebiner up -f /tmp/$USER/yadshotpaste.txt
     PASTE_URL="$(xclip -o -selection clipboard)"
-    rm -f /tmp/yadshotpaste.txt
+    rm -f /tmp/$USER/yadshotpaste.txt
     if [[ -z "$PASTE_URL" ]]; then
         echo "Failed to upload paste!"| yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --title="yadshot" --button=gtk-ok
         exit 1

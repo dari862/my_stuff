@@ -68,14 +68,13 @@ my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/pmxkcd/pmxkcd "${_hub_
 my-superuser ln -sf ${__distro_path}/bin/not_add_2_path/utilities/* "${_hub_script_dir}"
 my-superuser ln -sf ${__distro_path}/bin/rofi/* "${_hub_script_dir}" 
 my-superuser ln -sf ${__distro_path}/bin/bin/displayselect "${_hub_script_dir}"
-my-superuser ln -sf ${__distro_path}/bin/bin/full-upgrade "${_hub_script_dir}"
 my-superuser ln -sf ${__distro_path}/bin/apps/* "${_hub_script_dir}"
 my-superuser ln -sf ${__distro_path}/bin/not_add_2_path/pmxkcd/pmxkcd "${_hub_script_dir}"
 command -v systemctl >/dev/null 2>&1 && my-superuser rm -f "${_hub_script_dir}"/yautostart
 
 show_im "remove not need script for hub script"
 command -v systemctl >/dev/null 2>&1 && my-superuser ln -sf ${__distro_path}/bin/not_add_2_path/utilities/errcheck "${_hub_script_dir}"
-remove_this_script_="hub rofi-launcher rofi-runner unmounter"
+remove_this_script_="hub rofi-launcher rofi-runner"
 for script in ${remove_this_script_};do
 	my-superuser rm "${_hub_script_dir}"/"$script"
 done

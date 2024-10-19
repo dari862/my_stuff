@@ -2,7 +2,7 @@ lfcd() {
 	local _lfcd_dir _lfcd_lastdirpath _lfcd_pid _lfcd_archivemount_dir _line _lfcd_lastdir
 
 	_lfcd_dir="${XDG_RUNTIME_DIR:-"/run/user/${EUID:-"$(id -u)"}"}/lfcd"
-	mkdir -p -- "$_lfcd_dir" || _lfcd_dir="${TMPDIR:-"/tmp"}"
+	mkdir -p -- "$_lfcd_dir" || _lfcd_dir="${TMPDIR:-"/tmp/$USER"}"
 
 	_lfcd_lastdirpath="$(mktemp -q "${_lfcd_dir}/lfcd_lastdir.$$.XXXX")" \
 	_lfcd_pid="$(mktemp -q "${_lfcd_dir}/lfcd_pid.$$.XXXX")"
@@ -14,7 +14,7 @@ lfcd() {
 	# their paths will be written to _archivemount_dir, unmount
 	# and delete them when exiting lf
 	# TODO: if last dir inside mounted archive, do not umount-remove
-	_lfcd_archivemount_dir="/tmp/__lf_archivemount_$(cat "$_lfcd_pid")"
+	_lfcd_archivemount_dir="/tmp/$USER/__lf_archivemount_$(cat "$_lfcd_pid")"
 	if [ -f "$_lfcd_archivemount_dir" ]; then
 		while IFS= read -r _line; do
 			umount -- "$_line"

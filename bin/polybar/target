@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-FILE=/tmp/target
+FILE=/tmp/$USER/target
 
 if [ $# -eq 0 ]; then
 	if [ -e "$FILE" ]; then
@@ -9,7 +9,7 @@ if [ $# -eq 0 ]; then
 		printf "No Target"
 	fi
 elif [ $1 == "reset" ]; then
-	rm /tmp/target
+	rm /tmp/$USER/target
 else
 	echo $1 > $FILE
 fi

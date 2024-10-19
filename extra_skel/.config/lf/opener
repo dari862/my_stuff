@@ -97,7 +97,7 @@ cmd open ${{
 			if ! [ -d "$mntdir" ]; then
 				mkdir -- "$mntdir"
 				archivemount "$f" "$mntdir"
-				printf -- "%s\n" "$mntdir" >> "/tmp/__lf_archivemount_$id"
+				printf -- "%s\n" "$mntdir" >> "/tmp/$USER/__lf_archivemount_$id"
 			fi
 			lf -remote "send $id cd '$mntdir'"
 			lf -remote "send $id reload"

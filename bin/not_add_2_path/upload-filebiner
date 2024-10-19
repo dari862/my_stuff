@@ -31,10 +31,10 @@ uploadfile() {
         # use readlink -f to find full path of UPLOAD_FILE
         UPLOAD_FILE="$(readlink -f "$UPLOAD_FILE")"
     else
-        rm -f /tmp/.filebinerpipe8845
-        UPLOAD_FILE="/tmp/.filebinerpipe8845"
+        rm -f /tmp/$USER/.filebinerpipe8845
+        UPLOAD_FILE="/tmp/$USER/.filebinerpipe8845"
         # get rid of ascii escapes when reading fron stdin
-        cat | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" > /tmp/.filebinerpipe8845
+        cat | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" > /tmp/$USER/.filebinerpipe8845
     fi
     # exit if file doesn't exist
     if [[ ! -f "$UPLOAD_FILE" ]]; then
@@ -51,7 +51,7 @@ uploadfile() {
     fi
     if [[ $(echo "$BIN_NAME" | wc -m) -lt 9 ]]; then
         echo "Error using '$BIN_NAME' as bin name; bin name must be at least 8 characters in length."
-        rm -f /tmp/.filebinerpipe8845
+        rm -f /tmp/$USER/.filebinerpipe8845
         exit 1
     fi
     # if text being uploaded via pipe and FILE_NAME is empty, set random file name
@@ -62,8 +62,8 @@ uploadfile() {
             FILE_NAME="$(echo "$UPLOAD_FILE" | rev | cut -f1 -d'/' | rev)"
     fi
     # upload UPLOAD_FILE to filebin.net
-    curl -s --data-binary "@$UPLOAD_FILE" -H "bin: $BIN_NAME" -H "filename: $FILE_NAME" https://filebin.net 2>&1 > /dev/null || { echo "Failed to upload $UPLOAD_FILE"; rm -f /tmp/.filebinerpipe8845; exit 1; }
-    rm -f /tmp/.filebinerpipe8845
+    curl -s --data-binary "@$UPLOAD_FILE" -H "bin: $BIN_NAME" -H "filename: $FILE_NAME" https://filebin.net 2>&1 > /dev/null || { echo "Failed to upload $UPLOAD_FILE"; rm -f /tmp/$USER/.filebinerpipe8845; exit 1; }
+    rm -f /tmp/$USER/.filebinerpipe8845
     # find url of uploaded file using filebin.net's list of uploads to BIN_NAME
     UP_URL="$(curl -s -H "Accept: application/json" https://filebin.net/"$BIN_NAME" | grep ""$BIN_NAME"/"$FILE_NAME"" | cut -f4 -d'"' | head -n 1)"
     if [[ -z "$UP_URL" ]]; then

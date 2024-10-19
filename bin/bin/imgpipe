@@ -2,7 +2,7 @@
 
 # A script that pipes an image to nsxiv
 
-tmpfile="${TMPDIR:-/tmp}/imgpipe_$$"
+tmpfile="${TMPDIR:-/tmp/$USER}/imgpipe_$$"
 trap 'rm -f -- $tmpfile' EXIT
 
 if [ "$#" -eq 0 ]; then

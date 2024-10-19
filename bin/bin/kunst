@@ -7,7 +7,7 @@
 # Dependencies: sxiv, imagemagick, bash, ffmpeg, mpc, jq, mpd
 
 VERSION=1.2.9
-COVER=/tmp/kunst.jpg
+COVER=/tmp/$USER/kunst.jpg
 MUSIC_DIR=~/Music/
 SIZE=250x250
 POSITION="+0+0"
@@ -162,7 +162,7 @@ pre_exit() {
     # because if the user quits sxiv before they
     # exit kunst, an error will be shown
     # from kill and we dont want that
-	kill -9 "$(cat /tmp/kunst.pid)" &>/dev/null
+	kill -9 "$(cat /tmp/$USER/kunst.pid)" &>/dev/null
  
 }
 
@@ -193,7 +193,7 @@ main() {
 			COVER=/usr/share/my_stuff/icons/dunst/music.png
 
 			# Decode the base64 encoded image and save it
-			# to /tmp/kunst.png
+			# to /tmp/$USER/kunst.png
 			#echo "$MUSIC_NOTE" | base64 --decode > "$COVER"
 		fi
         
@@ -211,7 +211,7 @@ main() {
 			
 			# Save the process ID so that we can kill
 			# sxiv when the user exits the script
-			echo $! >/tmp/kunst.pid
+			echo $! >/tmp/$USER/kunst.pid
 		fi
 
 		# Waiting for an event from mpd; play/pause/next/previous

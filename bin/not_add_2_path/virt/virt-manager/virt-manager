@@ -61,14 +61,14 @@ app_list_quickemu_=(bash coreutils ovmf grep jq lsb-release procps python3 genis
 		my-superuser nmcli connection up bridge0
 		my-superuser nmcli connection modify bridge0 connection.autoconnect-slaves 1
 		my-superuser nmcli connection up bridge0
-		my-superuser tee /tmp/nwbridge.xml <<- 'EOF' > /dev/null
+		my-superuser tee /tmp/$USER/nwbridge.xml <<- 'EOF' > /dev/null
 		<network>
   		<name>nwbridge</name>
   		<forward mode='bridge'/>
   		<bridge name='bridge0'/>
 		</network>
 		EOF
-		cd /tmp
+		cd /tmp/$USER
 		my-superuser virsh net-define nwbridge.xml
 		my-superuser virsh net-start nwbridge
 		my-superuser virsh net-autostart nwbridge

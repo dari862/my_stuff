@@ -10,7 +10,7 @@ With simple systems like My Stuff it's usual to have a user "autostart" file to 
 things like desktop panels and utilities.
 
 The BL session manager 'my_stuff-session' runs a window manager (openbox by default),
-sets openbox to use ~/.config/openbox/bl-rc-jgmenu.xml as its config file,
+sets openbox to use ~/.config/openbox/rc.xml as its config file,
 and runs the user autostart file ~/.config/openbox/autostart.
 
 SEE ALSO: 'man my_stuff-session', 'man openbox-session', 'man openbox', 'man xsession'

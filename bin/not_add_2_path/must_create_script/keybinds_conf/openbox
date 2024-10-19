@@ -76,7 +76,7 @@ ShowMenu (2)=Alt + Ctrl + q
 
 #;Window Tiling: Snap feature
 #;#########
-MoveToEdge prekey=Shift + 
+MoveToEdge prekey=Shift + Ctrl + 
 MoveToEdgeWest MoveToEdgeWest=Left
 MoveToEdgeEast MoveToEdgeEast=Right
 GoToDesktop MaximizeFull=Up

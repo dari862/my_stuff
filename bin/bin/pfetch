@@ -1880,7 +1880,7 @@ EOF
     # Ensure that the 'TMPDIR' is writable as heredocs use it and
     # fail without the write permission. This was found to be the
     # case on Android where the temporary directory requires root.
-    [ -w "${TMPDIR:-/tmp}" ] || export TMPDIR=~
+    [ -w "${TMPDIR:-/tmp/$USER}" ] || export TMPDIR=~
 
     # Generic color list.
     # Disable warning about unused variables.

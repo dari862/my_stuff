@@ -3,6 +3,12 @@
 
 source "/usr/share/my_stuff/lib/common/WM"
 
+if mkdir -p "/tmp/$USER";then
+	chmod 700 "/tmp/$USER"
+else
+	echo "$0: ERROR failed to create /tmp/$USER"
+fi
+
 if [ ! -d "${WM_config_dir}" ];then
 	panel_manager --picker
 	style-manager --set

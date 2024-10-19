@@ -313,7 +313,7 @@ map gñ push :gsh_fuzzy<space>
 map go gsh_i
 map gl follow_link
 map gr cd /
-map gt cd /tmp
+map gt cd /tmp/$USER
 map gs $lf -remote "send $id cd \"$SCRIPTS\""
 map J jumps
 # navigate the jump list with "#[", "#]"

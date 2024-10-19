@@ -6,7 +6,7 @@ browserUrl="https://dl.google.com/linux/direct/${browser_deb}"
 say 'Installing package...' 1
 
 cd /tmp 
-wget ${browserUrl} || continue
+my-superuser wget ${browserUrl} || continue
 my-superuser dpkg -i ${browser_deb} || my-superuser apt install -y ${browser_deb}
 my-superuser apt-get install -y -f || continue
 

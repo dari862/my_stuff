@@ -151,7 +151,7 @@ jgmenu_options(){
 	jgmenuEnd
 }	
 
-if [[ -n "$(grep "jgmenu.xml" ${OBPATH}/rc.xml)" ]];then
+if grep -q "<startupnotify><enabled>false</enabled><name>jgmenu</name></startupnotify>" ${OBPATH}/rc.xml;then
 	jgmenu_options
 else
 	obmenu_options

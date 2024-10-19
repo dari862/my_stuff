@@ -44,12 +44,12 @@ else
 	failed_to_run "Unsupported audio system ($AUDIO_SYSTEM): you may have issues with audio!"
 fi
 
-echo "GPU=$GPU" | tee /tmp/ENV
-echo "MULTI_GPU=$MULTI_GPU" | tee -a /tmp/ENV
-echo "AUDIO_SYSTEM=$AUDIO_SYSTEM" | tee -a /tmp/ENV
+echo "GPU=$GPU" | tee /tmp/$USER/ENV
+echo "MULTI_GPU=$MULTI_GPU" | tee -a /tmp/$USER/ENV
+echo "AUDIO_SYSTEM=$AUDIO_SYSTEM" | tee -a /tmp/$USER/ENV
 
 Pre_createing_container_image(){
-	tmp_folder=$(mktemp -d /tmp/${distro_name}-container-XXXXXXXX)
+	tmp_folder=$(mktemp -d /tmp/$USER/${distro_name}-container-XXXXXXXX)
 	mkdir -p "$HOME/.local/distrobox/$distro_name"
 }
 

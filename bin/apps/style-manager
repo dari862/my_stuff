@@ -56,7 +56,6 @@ OB_themeing(){
 	sed -i 's/left_var "'.*'"/left_var "'"$left"'"/g' ${OBPATH}/rc.xml
 	sed -i 's/font_var "'.*'"/font_var "'"$font"'"/g' ${OBPATH}/rc.xml
 	sed -i 's/size_var "'.*'"/size_var "'"$size"'"/g' ${OBPATH}/rc.xml
-	sed -i 's/menu_var "'.*'"/menu_var "'"$menu"'"/g' ${OBPATH}/rc.xml
 }
 
 Set_polybar_Style_(){
@@ -197,8 +196,6 @@ saveStyle(){
 	
 	theme_font_name=($(grep '<name>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -2))
 	
-	menu_tmp=$(grep '<file>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/')
-	[[ "${menu_tmp}" = "&menu_var;" ]] && menu_tmp="${menu}"
 	font_tmp=${theme_font_name[1]}
 	[[ "${font_tmp}" = "&font_var;" ]] && font_tmp="${font}"
 	bottom_tmp=$(grep '<bottom>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
@@ -222,7 +219,6 @@ saveStyle(){
 		echo "right=${right_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
 		echo "left=${left_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
 		echo "size=${size_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "menu=${menu_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
 		echo "font=${font_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
 		echo "theme=${theme_font_name[0]}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
 		echo "titleLayout=${titleLayout_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"

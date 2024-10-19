@@ -1,13 +1,13 @@
 #!/bin/bash
 source "/usr/share/my_stuff/lib/common/WM"
 
-tmp_dir="$(mktemp -d /tmp/frontpage_XXXXX)"
+tmp_dir="$(mktemp -d /tmp/$USER/frontpage_XXXXX)"
 input="${script_config_path}/frontpage-bookmarks"  # File containing your text
 output="${WM_config_dir}/bookmarks.html"  # File to save the modified text
 
 head="${tmp_dir}/head"  # File to save the modified text
 bottom="${tmp_dir}/bottom"  # File to save the modified text
-tmp_output="${tmp_dir}/tmp"  # File to save the modified text
+tmp_output="${tmp_dir}/temp"  # File to save the modified text
 combined="${tmp_dir}/combined"
 
 : > "$tmp_output"
