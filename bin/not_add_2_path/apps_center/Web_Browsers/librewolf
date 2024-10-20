@@ -9,7 +9,7 @@ clear
 
 say "add ${app_name} repo to sources..." 1
 wget -O- https://deb.librewolf.net/keyring.gpg | my-superuser gpg --dearmor -o /usr/share/keyrings/librewolf.gpg
-source /etc/os-release 
+. /etc/os-release 
 my-superuser tee /etc/apt/sources.list.d/librewolf.sources << EOF > /dev/null
 Types: deb
 URIs: https://deb.librewolf.net
