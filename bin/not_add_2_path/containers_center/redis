@@ -1,4 +1,2 @@
-#!/usr/bin/env bash
-set -e
-
-CONTAINER_RT run -d --restart unless-stopped -p "127.0.0.1:6379:6379" --name=redis redis:7
+#!/bin/sh
+create_containers redis

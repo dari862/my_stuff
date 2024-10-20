@@ -117,6 +117,7 @@ install_container_software(){
 				exit
 			else
 				my-superuser ln -sf "$(my-superuser which $container_software)" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
+				my-superuser ln -sf "/usr/share/my_stuff/bin/not_add_2_path/create_containers" "/usr/share/my_stuff/system_files/bin"
 				my-superuser rm -f '/usr/share/my_stuff/system_files/Container_Group'
 			fi
 		fi
@@ -151,7 +152,7 @@ __run_(){
 		clear
 		connectiontest 1 || continue
 		
-		my-superuser true
+		my-superuser true || continue
 		
 		echo " "
 		
@@ -160,15 +161,15 @@ __run_(){
 		if [[ "${package_update}" = "true" ]];then
 			clear
 			say 'Updating sources...' 1
-			Package_update_
+			Package_update_ || continue
 		fi
 		
 		clear
 		
 		if [ "${distrobox_install}" = "true" ];then	
-			install_distrobox
+			install_distrobox || continue
 		elif [ "${container_install}" = "true" ] || [ "${distrobox_install}" = "true" ];then
-			install_container_software
+			install_container_software || continue
 		fi
 		
 		if [ "${distrobox_install}" = "true" ];then
@@ -179,20 +180,20 @@ __run_(){
 			say 'running tweek...' 1
 		fi
 		
-		source "${__file_location}"
+		source "${__file_location}" || continue
 		
 		if [ "${container_install}" = "true" ];then
-			my-superuser touch "${deployed_folder}"
+			my-superuser touch "${deployed_folder}" || continue
 		fi
 		
 		if [ "${package_install}" = "true" ];then
-			remove_from_db "${file_name_}" "apps"
+			remove_from_db "${file_name_}" "apps" || continue
 		elif [ "${distrobox_install}" = "true" ];then
-			remove_from_db "${file_name_}" "distroboxs"
+			remove_from_db "${file_name_}" "distroboxs" || continue
 		elif [ "${container_install}" = "true" ];then
-			remove_from_db "${file_name_}" "containers"
+			remove_from_db "${file_name_}" "containers" || continue
 		elif [ "${running_tweek}" = "true" ];then
-			remove_from_db "${file_name_}" "tweeks"
+			remove_from_db "${file_name_}" "tweeks" || continue
 		fi
 
 		end_superuser

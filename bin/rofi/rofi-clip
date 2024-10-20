@@ -4,4 +4,9 @@
 . "/usr/share/my_stuff/lib/common/rofi"
 . "${script_config_path}/clipmanager/config.ini" 
 
-cat "${_history}" | ${rofi_command}
+if pgrep clipmanager >/dev/null 2>&1;then
+	cat "${_history}" | ${rofi_command}
+else
+	echo "$0: ERROR clipmanager is not running."
+	exit 1
+fi

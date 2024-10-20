@@ -1,3 +1,2 @@
 #!/bin/sh
-cd "/usr/share/my_stuff/bin/not_add_2_path/containers_center/extra/torproxy"
-. "./installer"
+create_containers torproxy

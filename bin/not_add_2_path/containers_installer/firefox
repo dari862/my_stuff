@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+cd "/usr/share/my_stuff/bin/not_add_2_path/containers_installer/Extra/Disposable_Browser/"
 
 disposable_browser_name="firefox"
 __format=""
@@ -11,5 +12,5 @@ fi
 CONTAINER_RT build -t ${disposable_browser_name} --build-arg app=${disposable_browser_name} . ${__format} --no-cache
 CONTAINER_RT run --rm -it -p 8080:8080 -d ${disposable_browser_name}
 
-say "${container_name} contain all nessery packages for ${disposable_browser_name}."
+say "container contain all nessery packages for ${disposable_browser_name}."
 say
