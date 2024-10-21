@@ -11,7 +11,7 @@ fi
 
 Custom_distro_path="/usr/share/my_stuff"
 source "${Custom_distro_path}/system_files/Package-manager"
-x_session_picker_path="${Custom_distro_path}/system_files/bin/xsession/x-session-picker"
+x_session_picker_path="${Custom_distro_path}/system_files/bin/xsessions/openbox"
 
 usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g')"
 usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g')"
@@ -20,6 +20,7 @@ usr_flag_setup_path="${usr_flag_setup_dir}/${usr_flag_setup_name}"
 print_RED() {
 	_msg_="${1-}"
 	printf "\033[0;31m${_msg_}\033[0m"
+	exit 1
 }
 print_GREEN() {
 	_msg_="${1-}"
@@ -49,13 +50,16 @@ connectiontest
 
 print_purple "\n==> sync package repositories\n"
 Package_update_
+print_GREEN "\n==> sync completed\n"
 
 print_purple "\n==> full system upgrade\n"
 full_upgrade_
+print_GREEN "\n==> full system upgraded\n"
 
 print_purple "\n==> clean package repository and remove orphan packages\n"
 Package_remove_ || :
 __dpkg_configure
+print_GREEN "\n==> orphan packages removed \n"
 
 if [ -d "${Custom_distro_path}/system_files/updater" ];then
 	print_purple "\n==> updating packages(s).\n"
@@ -67,22 +71,26 @@ if [ -d "${Custom_distro_path}/system_files/updater" ];then
 			./$updater
 		done
 	fi
+	print_GREEN "\n==> updating packages(s) completed. \n"
 fi
 
 print_purple "\n==> checking Distro for update.\n"
 cd "${Custom_distro_path}"
 
 if $(git fetch &>/dev/null);then
-	print_purple "\n==> Distro is up to date.\n" 
+	print_GREEN "\n==> Distro is up to date.\n" 
 else
 	print_purple "\n==> Updating Distro.\n"
 	if __upgrade_current_repo_;then
 		for d in /home/*/ ; do
     		[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes
     		f="${d}${usr_flag_setup_path}"
-			my-superuser test -f "${f}" && my-superuser rm -f "${f}"
+			# my-superuser test -f "${f}" && my-superuser rm -f "${f}"
 		done
+	else
+		print_RED "Updating Distro Failed... "
 	fi
+	print_GREEN "\n==> Distro is up to date.\n" 
 fi
 
 if [ -d "${Custom_distro_path}/opt/git" ];then
@@ -95,10 +103,11 @@ if [ -d "${Custom_distro_path}/opt/git" ];then
 			cd "${__repo_}"
 			__upgrade_current_repo_
 			cd ..
+			print_GREEN "\n==> ${__repo_} repository updated.\n"
 		done
 	fi
+	print_GREEN "\n==> fully git repository(s) updated.\n"
 fi
 
-print_purple "\n==> generate list of installed packages\n"
-deb_pkglist
+print_GREEN "\n==> Done\n"
 exit 0
