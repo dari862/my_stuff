@@ -31,7 +31,7 @@ keyring-session &
 mpd-session &
 
 # Set wallpaper
-setbg -r &
+setbg -r
 
 
 ## Notification Daemon

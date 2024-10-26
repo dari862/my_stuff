@@ -27,6 +27,7 @@ done
 
 _APPS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/apps_center"
 _TWEEKS_LIBDIR='/usr/share/my_stuff/bin/not_add_2_path/tweeks_center'
+_CHROOTS_LIBDIR='/usr/share/my_stuff/bin/not_add_2_path/chroots_center'
 
 _distrobox_center_path="/usr/share/my_stuff/bin/not_add_2_path/distrobox_center"
 _DISTROBOX_LIBDIR="${_distrobox_center_path}/deploy"
@@ -257,6 +258,10 @@ case $option in
 		--tweek) 
 			running_tweek=true 
 			_files_path="${_TWEEKS_LIBDIR}"
+		;;
+		--chroot) 
+			running_chroot=true 
+			_files_path="${_CHROOTS_LIBDIR}"
 		;;
 		*) show_help;;
 esac

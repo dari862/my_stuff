@@ -127,3 +127,7 @@ create_welcome_shortcut_file
 if [ -f "${openboxrc_file_path}" ];then
 	create_pipemenu_file
 fi
+
+if [ -f "${viewnior_file_path}" ];then
+	create_viewnior_tmp_file
+fi

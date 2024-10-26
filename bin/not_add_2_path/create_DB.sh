@@ -8,6 +8,7 @@ source "/usr/share/my_stuff/lib/common/openbox"
 _SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/apps_center"
 _DISTROBOX_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/distrobox_center"
 _CONTAINERS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/containers_center"
+_CHROOTS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/chroots_center"
 
 create_tweeks_db(){
 	_TWEEKS_DIR="/usr/share/my_stuff/bin/not_add_2_path/tweeks_center"
@@ -129,6 +130,20 @@ create_containers_deploy_db(){
 	fi
 }
 
+create_chroots_deploy_db(){
+	cd "${_CHROOTS_SCRIPTS_LIBDIR}"
+	CHROOTS_LIST_OF_DEPLOYS_SCRIPTS_=($(ls -p | grep -v / || :))
+	if [ -d '/etc/schroot/chroot.d' ];then
+		for chroot in "${CHROOTS_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
+			[ ! -f "${_CHROOTS_SCRIPTS_LIBDIR}/${chroot}" ] && echo "${chroot}" >> "${chroots_deploy_db_path}"
+		done
+	else
+		for chroot in "${CHROOTS_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
+			echo "${chroot}" >> "${chroots_deploy_db_path}"	
+		done
+	fi
+}
+
 create_styles_db(){
 	source "/usr/share/my_stuff/lib/common/panel"
 	source "/usr/share/my_stuff/lib/common/openbox"
@@ -161,6 +176,10 @@ create_all_db_execpt_style_db(){
 	if [ ! -f "${containers_deploy_db_path}" ] ; then
 		create_containers_deploy_db
 	fi
+	
+	if [ ! -f "${chroots_deploy_db_path}" ] ; then
+		create_chroots_deploy_db
+	fi
 }
 
 case $opt in
@@ -168,6 +187,7 @@ case $opt in
 		--apps) create_apps_db_and_gaming_db ;;
 		--deploy) create_distrobox_deploy_db ;;
 		--containers) create_containers_deploy_db ;;
+		--chroots) create_chroots_deploy_db ;;
 		--styles) create_styles_db ;;
 		--all) create_all_db_execpt_style_db ;;
 		*) : ;;

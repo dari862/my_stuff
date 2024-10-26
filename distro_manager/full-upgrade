@@ -8,14 +8,32 @@ if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
 	exit 0
 fi
 
-
 Custom_distro_path="/usr/share/my_stuff"
+current_full_upgrade_ver="$(cat ${Custom_distro_path}/distro_manager/full_upgrade_ver)"
+online_full_upgrade_ver=""
+
 source "${Custom_distro_path}/system_files/Package-manager"
 x_session_picker_path="${Custom_distro_path}/system_files/bin/xsessions/openbox"
 
 usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g')"
 usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g')"
 usr_flag_setup_path="${usr_flag_setup_dir}/${usr_flag_setup_name}"
+
+update_full_upgrade(){
+	print_purple "\n==> check full upgrade version. \n"
+	my-superuser mkdir -p /tmp/disto_updater
+	cd /tmp/disto_updater
+	my-superuser wget https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full_upgrade_ver
+	online_full_upgrade_ver="$(cat full_upgrade_ver)"
+	
+	if [ "${current_full_upgrade_ver}" -lt "${online_full_upgrade_ver}" ];then
+		my-superuser wget https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade
+		my-superuser chmod +x full-upgrade
+		my-superuser ./full-upgrade && exit || ( print_RED "failed to full upgrade" && exit 1 )
+	else
+		print_GREEN "\n==> full upgrade up to date.\n"
+	fi
+}
 
 print_RED() {
 	_msg_="${1-}"
@@ -47,6 +65,8 @@ __upgrade_current_repo_(){
 
 # check out connection
 connectiontest
+
+update_full_upgrade
 
 print_purple "\n==> sync package repositories\n"
 Package_update_

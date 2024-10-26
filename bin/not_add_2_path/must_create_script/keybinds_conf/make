@@ -48,6 +48,9 @@ fi
 if command -v rxvt > /dev/null 2>&1; then
 	file_to_cat="${file_to_cat} rxvt"
 fi
+if command -v viewnior > /dev/null 2>&1; then
+	file_to_cat="${file_to_cat} viewnior"
+fi
 
 file_to_cat="${file_to_cat} myshell"
 

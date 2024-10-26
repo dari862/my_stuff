@@ -1,5 +1,6 @@
 #!/bin/bash
 #===================================================================================
+xsettingsd_error_log="/tmp/$USER/reload-gtk23.error.log"
 xsettingsd_conf_file="$HOME/.config/xsettingsd/xsettingsd.conf"
 
 if [[ -f "$HOME/.config/gtk-3.0/settings.ini" ]];then
@@ -242,4 +243,4 @@ done < <(grep -E '^gtk-|^Net/|^Xft/' ${gtkrcfile})  # Assuming your config is in
 
 [[ -f "$HOME/.xsettingsd" ]] && rm -f $HOME/.xsettingsd
 [ "$(pidof xsettingsd)" ] && killall -HUP xsettingsd
-xsettingsd &
+xsettingsd >${xsettingsd_error_log} 2>&1 &

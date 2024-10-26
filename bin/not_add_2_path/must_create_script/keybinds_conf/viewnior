@@ -1,0 +1,46 @@
+##############################
+#;#############################
+#; Thunar
+#;#############################
+##############################
+MenuActionsCollection ViewSlideshow=F5
+MenuActionsImage Delete=Delete
+MenuActionsCollection GoLast=Alt + End
+MenuActionsImage ViewResizeWindow=
+MenuActionsWindow View=
+MenuActionsStaticImage ImageRotateCCW=Super + Shift + r
+MenuActionsCollection GoFirst=Alt + Home
+MenuActionsImage ControlKpSub=Super + KP_Subtract
+MenuActionsImage ViewFullscreen=F11
+MenuActionSave FileSave=Super + s
+MenuActionsImage ViewZoomFit=
+MenuActionsWindow Edit=
+MenuActionsImage ViewZoomIn=Super + plus
+MenuActionsStaticImage ImageCrop=
+MenuActionsWindow FileClose=Super + w
+MenuActionsWindow Help=
+MenuActionsWindow HelpAbout=
+MenuActionsImage ViewZoomOut=Super + minus
+MenuActionsWindow Go=
+MenuActionsImage FileOpenWith=
+MenuActionsImage ViewZoomNormal=Super + 0
+ActionWallpaper SetAsWallpaper=Super + F8
+MenuActionsStaticImage ImageRotateCW=Super + r
+MenuActionsWindow EditPreferences=
+MenuActionsBars ViewToolbar=
+MenuActionsStaticImage ImageFlipVertical=
+MenuActionsWindow Image=
+MenuActionsImage FileDelete=
+MenuActionsWindow File=
+MenuActionsImage ControlKpAdd=Super + KP_Add
+MenuActionsImage FileReload=
+MenuActionsCollection GoPrevious=Alt + Left
+MenuActionsImage ControlEqual=Super + equal
+MenuActionsCollection GoNext=Alt + Right
+MenuActionsBars ViewMenuBar=
+MenuActionsWindow FileOpen=Super + o
+MenuActionsImage FileProperties=Alt + Return
+MenuActionsStaticImage ImageFlipHorizontal=
+MenuActionsWindow FileOpenDir=Super + f
+
+#;

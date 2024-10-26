@@ -17,6 +17,7 @@ source "/usr/share/my_stuff/lib/common/DB"
 
 DEPLOYS=($(cat "${distrobox_deploy_db_path}"))
 CONTAINERS=($(cat "${containers_deploy_db_path}"))
+CHROOTS=($(cat "${chroots_deploy_db_path}"))
 
 ########################################################################
 
@@ -42,12 +43,22 @@ if [[ ${1-} = --openboxmenu ]]; then
 			menuItem "Gaming Box" "${installation_script_name} --deploy gaming"
 		fi
 	fi
+	
+	menuSeparator "Distrobox to Deploy."
 	for deploy in "${DEPLOYS[@]}"; do
    		menuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
 	done
+	
+	menuSeparator "Containers to Deploy."
 	for container in "${CONTAINERS[@]}"; do
    		menuItem "${container} container" "${installation_script_name} --container ${container}"
 	done
+	
+	menuSeparator "Chroots to Deploy."
+	for chroot in "${chroots[@]}"; do
+   		menuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
+	done
+	
     menuEnd
  #    menuEnd   
 elif [[ ${1-} = --jgmenu ]]; then
@@ -58,12 +69,22 @@ elif [[ ${1-} = --jgmenu ]]; then
 			jgmenuItem "Gaming Box" "${installation_script_name} --deploy gaming"
 		fi
 	fi
+	
+	jgmenuSeparator "DistroboxtoDeploy" "Distrobox to Deploy."
     for deploy in "${DEPLOYS[@]}"; do
    		jgmenuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
 	done
+	
+	jgmenuSeparator "ContainerstoDeploy" "Containers to Deploy."
 	for container in "${CONTAINERS[@]}"; do
    		jgmenuItem "${container} container" "${installation_script_name} --container ${container}"
 	done
+	
+	jgmenuSeparator "ChrootstoDeploy" "Chroots to Deploy."
+	for chroot in "${CHROOTS[@]}"; do
+   		jgmenuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
+	done
+	
     jgmenuEnd
 #    menuEnd
 elif [[ ${1-} ]]; then

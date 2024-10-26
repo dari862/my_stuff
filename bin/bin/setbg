@@ -46,14 +46,12 @@ old_bg_()
 }
 
 restore(){
-	sleep 0.5
 	if [ "$(livewall --check-run-live)" = "true" ]; then
-		livewall --run-live
+		( sleep 0.5 && livewall --run-live ) &
 	elif command -v xwallpaper >/dev/null ; then
-		xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" &
+		( sleep 4.5 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" ) &
 	else
-		sleep 1
-		nitrogen --restore &
+		( sleep 1.5 && nitrogen --restore ) &
 	fi
 }
 
@@ -69,6 +67,7 @@ save_wall(){
 		fi
 	else
 		nitrogen --save --set-zoom-fill $color_ $op2__
+		sleep 1
 	fi
 }
 
@@ -78,7 +77,7 @@ random_wall(){
 }
 
 set_wall(){
-	set_wall
+	save_wall
 	restore
 }
 

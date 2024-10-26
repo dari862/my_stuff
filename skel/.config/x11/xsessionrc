@@ -7,7 +7,6 @@ case $SHELL in
 	. ${HOME}/.config/myshell/bash/bprofile.sh
     ;;
 */zsh)
-    [ -z "$ZSH_NAME" ] && exec $SHELL $0 "$@"
     . ${HOME}/.config/myshell/profile.sh
     . ${HOME}/.config/myshell/zsh/zprofile.sh
     ;;

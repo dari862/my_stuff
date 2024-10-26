@@ -41,7 +41,7 @@ create_sourcemainbindkey_conf_file(){
 	
 	sed -i 's/super/Mod4/g' xx00
 	
-	for file in xx02 xx04 xx05 xx06 xx07 xx09 xx11 xx13 xx14;do
+	for file in xx02 xx04 xx05 xx06 xx07 xx09 xx11 xx13 xx14 xx16;do
 		sed -i 's/ //g' $file	
 	done
 	
@@ -57,7 +57,7 @@ create_sourcemainbindkey_conf_file(){
 		sed -i 's/shift/Shift/g' $file
 	done
 	
-	for file in xx02 xx04 xx06 xx13;do
+	for file in xx02 xx04 xx06 xx13 xx16;do
 		sed -i 's/ctrl/<Ctrl>/g' $file
 		sed -i 's/alt/<Alt>/g' $file
 		sed -i 's/super/<Primary>/g' $file
@@ -115,7 +115,7 @@ create_sourcemainbindkey_conf_file(){
   		printf '%s=%s,       %s       \n' "$key" "$key_combo" "$mods"
 	done >> xx01
 	
-	cat xx00 xx01 xx02 xx03 xx04 xx05 xx06 xx07 xx08 xx09 xx10 xx11 xx12 xx13 xx14 xx15 > sourcemainbindkey.conf
+	cat xx00 xx01 xx02 xx03 xx04 xx05 xx06 xx07 xx08 xx09 xx10 xx11 xx12 xx13 xx14 xx15 xx16 > sourcemainbindkey.conf
 	
 	sed -i 's/$/"/g' sourcemainbindkey.conf
 	sed -i 's/=/="/g' sourcemainbindkey.conf
@@ -2408,4 +2408,51 @@ create_welcome_shortcut_file(){
 	conky_Web_Browser="${conky_Web_Browser}"
 	conky_Editor="${conky_Editor}"
 	EOF
+}
+
+viewnior_file_path(){
+echo "
+; (gtk_accel_path \"<Actions>/MenuActionsCollection/ViewSlideshow\" \"${MenuActionsCollection_ViewSlideshow}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/Delete\" \"${MenuActionsImage_Delete}\")
+; (gtk_accel_path \"<Actions>/MenuActionsCollection/GoLast\" \"${MenuActionsCollection_GoLast}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ViewResizeWindow\" \"${MenuActionsImage_ViewResizeWindow}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/View\" \"${MenuActionsWindow_View}\")
+; (gtk_accel_path \"<Actions>/MenuActionsStaticImage/ImageRotateCCW\" \"${MenuActionsStaticImage_ImageRotateCCW}\")
+; (gtk_accel_path \"<Actions>/MenuActionsCollection/GoFirst\" \"${MenuActionsCollection_GoFirst}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ControlKpSub\" \"${MenuActionsImage_ControlKpSub}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ViewFullscreen\" \"${MenuActionsImage_ViewFullscreen}\")
+; (gtk_accel_path \"<Actions>/MenuActionSave/FileSave\" \"${MenuActionSave_FileSave}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ViewZoomFit\" \"${MenuActionsImage_ViewZoomFit}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/Edit\" \"${MenuActionsWindow_Edit}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ViewZoomIn\" \"${MenuActionsImage_ViewZoomIn}\")
+; (gtk_accel_path \"<Actions>/MenuActionsStaticImage/ImageCrop\" \"${MenuActionsStaticImage_ImageCrop}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/FileClose\" \"${MenuActionsWindow_FileClose}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/Help\" \"${MenuActionsWindow_Help}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/HelpAbout\" \"${MenuActionsWindow_HelpAbout}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ViewZoomOut\" \"${MenuActionsImage_ViewZoomOut}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/Go\" \"${MenuActionsWindow_Go}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/FileOpenWith\" \"${MenuActionsImage_FileOpenWith}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ViewZoomNormal\" \"${MenuActionsImage_ViewZoomNormal}\")
+; (gtk_accel_path \"<Actions>/ActionWallpaper/SetAsWallpaper\" \"${ActionWallpaper_SetAsWallpaper}\")
+; (gtk_accel_path \"<Actions>/MenuActionsStaticImage/ImageRotateCW\" \"${MenuActionsStaticImage_ImageRotateCW}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/EditPreferences\" \"${MenuActionsWindow_EditPreferences}\")
+; (gtk_accel_path \"<Actions>/MenuActionsBars/ViewToolbar\" \"${MenuActionsBars_ViewToolbar}\")
+; (gtk_accel_path \"<Actions>/MenuActionsStaticImage/ImageFlipVertical\" \"${MenuActionsStaticImage_ImageFlipVertical}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/Image\" \"${MenuActionsWindow_Image}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/FileDelete\" \"${MenuActionsImage_FileDelete}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/File\" \"${MenuActionsWindow_File}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ControlKpAdd\" \"${MenuActionsImage_ControlKpAdd}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/FileReload\" \"${MenuActionsImage_FileReload}\")
+; (gtk_accel_path \"<Actions>/MenuActionsCollection/GoPrevious\" \"${MenuActionsCollection_GoPrevious}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/ControlEqual\" \"${MenuActionsImage_ControlEqual}\")
+; (gtk_accel_path \"<Actions>/MenuActionsCollection/GoNext\" \"${MenuActionsCollection_GoNext}\")
+; (gtk_accel_path \"<Actions>/MenuActionsBars/ViewMenuBar\" \"${MenuActionsBars_ViewMenuBar}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/FileOpen\" \"${MenuActionsWindow_FileOpen}\")
+; (gtk_accel_path \"<Actions>/MenuActionsImage/FileProperties\" \"${MenuActionsImage_FileProperties}\")
+; (gtk_accel_path \"<Actions>/MenuActionsStaticImage/ImageFlipHorizontal\" \"${MenuActionsStaticImage_ImageFlipHorizontal}\")
+; (gtk_accel_path \"<Actions>/MenuActionsWindow/FileOpenDir\" \"${MenuActionsWindow_FileOpenDir}\")
+" > "${temp_viewnior_file_path}"
+
+sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_viewnior_file_path}" "${viewnior_file_path}"
+sed_all_back "${viewnior_file_path}"
 }

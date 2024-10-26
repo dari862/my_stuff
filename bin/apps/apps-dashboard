@@ -18,7 +18,7 @@ for apps in "${apps_list[@]}" ;do
 	cp -a $apps "${apps_dashboard_tmp}"
 done
 
-yad --icons --read-dir="${apps_dashboard_tmp}" --monitor --item-width=600\
+yad --icons --read-dir="${apps_dashboard_tmp}" --monitor \
  --sort-by-name --center --undecorated --skip-taskbar --borders=20\
  --button="Cancel!gtk-cancel":1 --buttons-layout=center --maximized
 
