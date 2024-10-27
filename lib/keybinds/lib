@@ -2410,7 +2410,7 @@ create_welcome_shortcut_file(){
 	EOF
 }
 
-viewnior_file_path(){
+create_viewnior_tmp_file(){
 echo "
 ; (gtk_accel_path \"<Actions>/MenuActionsCollection/ViewSlideshow\" \"${MenuActionsCollection_ViewSlideshow}\")
 ; (gtk_accel_path \"<Actions>/MenuActionsImage/Delete\" \"${MenuActionsImage_Delete}\")
