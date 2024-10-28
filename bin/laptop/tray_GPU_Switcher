@@ -4,6 +4,11 @@ AMD_VENDOR="AMD"
 SOFTWARE_VENDOR="Mesa/X.org"
 VMWARE_VENDOR="VMware, Inc."
 
+# Get the GPU manufacturer from glxinfo
+glxinfo_vendor() {
+    glxinfo | grep "OpenGL vendor string" | cut -d ":" -f 2 | sed 's/ //' 2> /dev/null
+}
+
 case $(glxinfo_vendor) in
 	"${NVIDIA_VENDOR}")
 		gpu_vendor_icon="NVIDIA_ICON"

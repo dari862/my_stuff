@@ -69,11 +69,20 @@ get_values() {
 	
 	if command -v upower >/dev/null
 	then
-		BATTERY=$(upower -i `upower -e | grep 'BAT'` | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
-		ADAPTER=$(upower -i `upower -e | grep 'AC'` | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
+		BATTERY=$(upower -i $(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
+		ADAPTER=$(upower -i $(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
 	fi
 	
-	INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | head -n 1  )"
+	E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
+	W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
+	
+	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
+		INTERFACE="${W_INTERFACE}"
+	elif [ -n "${E_INTERFACE}" ];then
+		INTERFACE="${E_INTERFACE}"
+	else
+		INTERFACE="${W_INTERFACE}"
+	fi
 	
 	VPN_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "tun" | head -n 1  )"
 	

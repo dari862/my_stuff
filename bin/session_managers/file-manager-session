@@ -9,7 +9,7 @@
 #===================================================================================
 
 file_manager_name="my-file-manager"
-file_manager_real="$(basename $(realpath my-file-manager))"
+file_manager_real="$(basename $(realpath $(which my-file-manager)))"
 if [ "${file_manager_real}" = "pcmanfm" ];then
 	file_manager_command="exec my-file-manager -d"
 else
