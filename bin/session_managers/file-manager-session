@@ -8,9 +8,14 @@
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
 
-	file_manager_name="my-file-manager"
+file_manager_name="my-file-manager"
+file_manager_real="$(basename $(realpath my-file-manager))"
+if [ "${file_manager_real}" = "pcmanfm" ];then
+	file_manager_command="exec my-file-manager -d"
+else
 	file_manager_command="exec my-file-manager --daemon"
-	
+fi
+
 #=== FUNCTION ======================================================================
 # NAME: stop
 # DESCRIPTION: stop all keyring process
