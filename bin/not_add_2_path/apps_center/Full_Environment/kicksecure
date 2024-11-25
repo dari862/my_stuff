@@ -1,8 +1,8 @@
 #!/bin/sh
 app_name="kicksecure"
-extra_apps_=(gtk3-nocsd console-common extrepo)
+extra_apps_="gtk3-nocsd console-common extrepo"
 
-source /etc/os-release
+. /etc/os-release
 if [ "$VERSION_CODENAME" != "bookworm" ];then
 	echo "You need bookworm to install kicksecure."
 	exit 1
@@ -15,13 +15,13 @@ __reboot="$(my-superuser which reboot)"
 
 # test if in virtual machine
 if [ "$(cat /sys/devices/virtual/dmi/id/chassis_type)" = "1" ];then # 1 eq vm
-	if dpkg -l xfce4 | grep -w "xfce4 " &>/dev/null ;then
+	if dpkg -l xfce4 | grep -w "xfce4 " >/dev/null 2>&1 ;then
 		kicksecure_package=kicksecure-xfce-vm
 	else
 		kicksecure_package=kicksecure-cli-vm
 	fi
 else
-	if dpkg -l xfce4 | grep -w "xfce4 " &>/dev/null ;then
+	if dpkg -l xfce4 | grep -w "xfce4 " >/dev/null 2>&1 ;then
 		kicksecure_package=kicksecure-xfce-host
 	else
 		kicksecure_package=kicksecure-cli-host
@@ -32,7 +32,7 @@ say 'Full upgrade your system...' 1
 full_upgrade_ || continue
 
 say 'Installing package...' 1
-Package_installer_ "${extra_apps_[@]}" || continue
+Package_installer_ "${extra_apps_}" || continue
 
 my-superuser $__addgroup --system console
 my-superuser $__adduser $USER console
@@ -71,7 +71,9 @@ rm $HOME/.config/autostart/kicksecure.desktop
 echo ''
 echo 'installion complated...'
 echo 'Hit any key to reboot...'
-read -srn1
+stty -icanon -echo time 0 min 1
+head -c1 >/dev/null
+stty icanon echo
 my-superuser $__reboot
 EOF
 chmod +x $HOME/.config/autostart/kicksecure

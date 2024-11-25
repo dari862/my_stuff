@@ -1,14 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 
 disable_ipv6_conf="/etc/sysctl.d/90-disable_ipv6.conf"
 
-if [ "$1" = "--check" ];then
+if [ "$1" = "--is-enable" ];then
 	if [ -f "${disable_ipv6_conf}" ]; then
-		echo enabled 
+		exit 0
 	else
-		echo disabled
+		exit 1
 	fi
-	exit 0
 fi
 
 say "Disabling IPv6."

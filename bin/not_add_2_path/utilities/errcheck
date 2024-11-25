@@ -1,23 +1,22 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Purpose: Quick check of logged service failures and sys errors
-# Author : Daniel Wayne Armstrong <hello@dwarmstrong.org>
 
-set -euo pipefail
+set -e
 
 YELLOW="\\033[1;33m"
 NC="\\033[0m" # no colour
 
 banner() {
-  echo ""
-  echo -e "\n${YELLOW}#### ${1} ####${NC}\n"
-  echo ""
+  printf "\n"
+  printf "${YELLOW}#### ${1} ####${NC}"
+  printf "\n"
 }
 
 main() {
-banner "Failed systemd services"
-my-superuser systemctl --failed
-banner "High priority errors in systemd journal"
-my-superuser journalctl -p 3 -xb
+	banner "Failed systemd services"
+	my-superuser systemctl --failed
+	banner "High priority errors in systemd journal"
+	my-superuser journalctl -p 3 -xb
 }
 
 # (O< -- Let's go!

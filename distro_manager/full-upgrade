@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # It runs full system upgrade in a text console
 
 if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
@@ -12,7 +12,7 @@ Custom_distro_path="/usr/share/my_stuff"
 current_full_upgrade_ver="$(cat ${Custom_distro_path}/distro_manager/full_upgrade_ver)"
 online_full_upgrade_ver=""
 
-source "${Custom_distro_path}/system_files/Package-manager"
+. "${Custom_distro_path}/system_files/Package-manager"
 x_session_picker_path="${Custom_distro_path}/system_files/bin/xsessions/openbox"
 
 usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g')"
@@ -21,14 +21,14 @@ usr_flag_setup_path="${usr_flag_setup_dir}/${usr_flag_setup_name}"
 
 update_full_upgrade(){
 	print_purple "\n==> check full upgrade version. \n"
-	my-superuser mkdir -p /tmp/disto_updater
+	my-superuser mkdir -p /tmp/root/disto_updater
 	cd /tmp/disto_updater
-	my-superuser wget https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full_upgrade_ver
+	getURL '2term' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full_upgrade_ver | my-superuser tee full_upgrade_ver >/dev/null 2>&1
 	online_full_upgrade_ver="$(cat full_upgrade_ver)"
 	
 	if [ "${current_full_upgrade_ver}" -lt "${online_full_upgrade_ver}" ];then
-		my-superuser wget https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade
-		my-superuser chmod +x full-upgrade
+		getURL '2term' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade | my-superuser tee full-upgrade >/dev/null 2>&1
+		chmod +x full-upgrade
 		my-superuser ./full-upgrade && exit || ( print_RED "failed to full upgrade" && exit 1 )
 	else
 		print_GREEN "\n==> full upgrade up to date.\n"
@@ -84,9 +84,10 @@ print_GREEN "\n==> orphan packages removed \n"
 if [ -d "${Custom_distro_path}/system_files/updater" ];then
 	print_purple "\n==> updating packages(s).\n"
 	cd "${Custom_distro_path}/system_files/updater"
-	updaters_list=($(ls))
-	if [ -f "${updaters_list[0]}" ];then
-		for updater in "${updaters_list[@]}";do
+	updaters_list="$(ls)"
+	first_updater_file="$(echo "$updaters_list" | head -n 1)"
+	if [ -f "${updaters_list}" ];then
+		for updater in "${updaters_list}";do
 			print_purple "\n==> runing $updater updater.\n"
 			./$updater
 		done
@@ -97,13 +98,13 @@ fi
 print_purple "\n==> checking Distro for update.\n"
 cd "${Custom_distro_path}"
 
-if $(git fetch &>/dev/null);then
+if $(git fetch >/dev/null 2>&1);then
 	print_GREEN "\n==> Distro is up to date.\n" 
 else
 	print_purple "\n==> Updating Distro.\n"
 	if __upgrade_current_repo_;then
 		for d in /home/*/ ; do
-    		[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue	# Skip dirs that no are homes
+    		[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
     		f="${d}${usr_flag_setup_path}"
 			# my-superuser test -f "${f}" && my-superuser rm -f "${f}"
 		done
@@ -116,9 +117,10 @@ fi
 if [ -d "${Custom_distro_path}/opt/git" ];then
 	print_purple "\n==> updating git repository(s).\n"
 	cd "${Custom_distro_path}/opt/git/"
-	__git_dir_to_update_=($(ls))
-	if [ -d "${__git_dir_to_update_[0]}" ];then
-		for __repo_ in "${__git_dir_to_update_[@]}";do
+	__git_dir_to_update_="$(ls)"
+	first__git_dir_to_update_file="$(echo "$__git_dir_to_update_" | head -n 1)"
+	if [ -d "${first__git_dir_to_update_file}" ];then
+		for __repo_ in "${__git_dir_to_update_}";do
 			print_purple "\n==> ${__repo_} repository.\n"
 			cd "${__repo_}"
 			__upgrade_current_repo_

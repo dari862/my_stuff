@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 set -e
 
 distro_name="gaming"
@@ -8,7 +8,7 @@ cd "${script_full_path}"
 
 __format=""
 
-if [[ "$CONTAINER_RT" = "podman" ]];then
+if [ "$CONTAINER_RT" = "podman" ];then
 	__format='--format docker'
 fi
 
@@ -16,29 +16,33 @@ prefix="$HOME/.local/distrobox"
 tmp_folder=""
 
 # Required on xorg setups
-if [[ -z "$WAYLAND_DISPLAY" ]]; then
+if [ -z "$WAYLAND_DISPLAY" ]; then
 	xhost "+si:localuser:$USER" || failed_to_run "Couldn't use xhost, please install it and re-run installation"
 fi
 
 gpu_detect_command=$(lspci | grep -i vga | tr '[:upper:]' '[:lower:]')
-if [[ $gpu_detect_command == *"amd"* ]]; then
-	GPU="amd"
-elif [[ $gpu_detect_command == *"nvidia"* ]]; then
-	CUDA_LIBS="$(find /usr/lib* -iname "libcuda*.so*")"
-	[ -z "$CUDA_LIBS" ] || failed_to_run "Couldn't find CUDA on host, please install it, reboot and try again, as it's required for NVENC encoder support."
-	GPU="nvidia"
-elif [[ $gpu_detect_command == *"intel"* ]]; then
-	GPU="intel"
-else
-	failed_to_run "Unsupported gpu found."
-fi
+case "$gpu_detect_command" in
+	*amd*)
+		GPU="amd"
+		;;
+	*nvidia*)
+		CUDA_LIBS="$(find /usr/lib* -iname "libcuda*.so*")"
+		[ -z "$CUDA_LIBS" ] || failed_to_run "Couldn't find CUDA on host, please install it, reboot and try again, as it's required for NVENC encoder support."
+		GPU="nvidia"
+		;;
+	*intel*)
+		GPU="intel"
+		;;
+	*)	failed_to_run "Unsupported gpu found."
+		;;
+esac
 
 MULTI_GPU="$(lspci | grep -ic vga)"
 
-if [[ -n "$(pgrep pipewire)" ]]; then
+if [ -n "$(pgrep pipewire)" ]; then
 	AUDIO_SYSTEM="pipewire"
 	echo "Do note that pulseaudio won't work with automatic microphone routing as it requires pipewire."
-elif [[ -n "$(pgrep pulseaudio)" ]]; then
+elif [ -n "$(pgrep pulseaudio)" ]; then
 	AUDIO_SYSTEM="pulseaudio"
 else
 	failed_to_run "Unsupported audio system ($AUDIO_SYSTEM): you may have issues with audio!"
@@ -69,7 +73,7 @@ distrobox create --pull --image "local/$distro_name" \
 distrobox enter --name "$distro_name" --additional-flags "--env XDG_CURRENT_DESKTOP=X-Generic --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8" -- "${Phase_number_file}"
 
 say 'Createing container lanucher ...' 1
-echo '#!/bin/bash' > "${tmp_folder}/${distro_name}"
+echo '#!/bin/sh' > "${tmp_folder}/${distro_name}"
 echo "distrobox enter --name \"$distro_name\" " >> "${tmp_folder}/${distro_name}"
 
 chmod +x "${tmp_folder}/${distro_name}"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: conky-session
 # DESCRIPTION: manage conky processes for start, restart and stop all conky instances
@@ -12,7 +12,7 @@
 # NAME: stop
 # DESCRIPTION: stop all conky process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof xfsettingsd)" ] && killall xfsettingsd
 	[ "$(pidof xfsettingsd)" ] && killall -9 xfsettingsd
 }
@@ -22,13 +22,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: start xfsettingsd
 #===================================================================================
-function start() {
+start() {
   xfsettingsd &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

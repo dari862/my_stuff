@@ -1,21 +1,25 @@
-#!/bin/bash
+#!/bin/sh
 
 app_name="virt-manager"
-app_list_virt_manager_=(qemu-kvm qemu-system qemu-utils python3 python3-pip libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon virt-manager)
-app_list_quickemu_=(bash coreutils ovmf grep jq lsb-release procps python3 genisoimage usbutils util-linux sed spice-client-gtk swtpm wget xdg-user-dirs zsync unzip uuid-runtime)
+app_list_virt_manager_="qemu-kvm qemu-system qemu-utils python3 python3-pip libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon virt-manager"
+app_list_quickemu_="bash coreutils ovmf grep jq lsb-release procps python3 genisoimage usbutils util-linux sed spice-client-gtk swtpm xdg-user-dirs zsync unzip uuid-runtime"
 
 		say 'Installing package...' 1
 	
-		Package_installer_ "${app_list_virt_manager_[@]}" "${app_list_quickemu_[@]}" || continue
+		Package_installer_ "${app_list_virt_manager_} ${app_list_quickemu_}" || continue
 		
 		say 'Downloading virtio-win (windows virtual drivers)...' 1
 		my-superuser mkdir -p /usr/share/virtio-win
-		my-superuser wget -P /usr/share/virtio-win https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
+		getURL 'download2' "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso" "/tmp/$USER/virtio-win.iso"
+		sudo chown root:root /tmp/$USER/virtio-win.iso
+		sudo mv /tmp/$USER/virtio-win/virtio-win.iso /usr/share/virtio-win
 		
-		if -f /etc/libvirt/virtqemud;then
-			for drv in qemu interface network nodedev nwfilter secret storage; do \
-				service_manager enable virt${drv}d.service; \
-				service_manager enable virt${drv}d{,-ro,-admin}.socket; \
+		if [ -f /etc/libvirt/virtqemud ];then
+			for drv in qemu interface network nodedev nwfilter secret storage; do
+				service_manager enable virt${drv}d.service
+				for suffix in "" -ro -admin; do
+					service_manager enable "virt${drv}d${suffix}.socket"
+				done
 			done
 		else
 			service_manager enable virtlogd
@@ -68,7 +72,7 @@ app_list_quickemu_=(bash coreutils ovmf grep jq lsb-release procps python3 genis
   		<bridge name='bridge0'/>
 		</network>
 		EOF
-		cd /tmp/$USER
+		cd /tmp/$USER || continue
 		my-superuser virsh net-define nwbridge.xml
 		my-superuser virsh net-start nwbridge
 		my-superuser virsh net-autostart nwbridge
@@ -82,9 +86,9 @@ app_list_quickemu_=(bash coreutils ovmf grep jq lsb-release procps python3 genis
 		my-superuser ln -sf "/usr/share/my_stuff/bin/not_add_2_path/virt/virt-manager/QuickPassthrough_installer" /usr/share/my_stuff/system_files/bin
 		my-superuser ln -sf "/usr/share/my_stuff/bin/not_add_2_path/virt/virt-manager/windows_vm_installer" /usr/share/my_stuff/system_files/bin
 		
-		[ "$install_quickemu" = "true" ] && source /usr/share/my_stuff/system_files/bin/quickemu_installer
-		[ "$install_QuickPassthrough" = "true" ] && source /usr/share/my_stuff/system_files/bin/QuickPassthrough_installer
-		[ "$auto_windows_vm" = "true" ] && source /usr/share/my_stuff/system_files/bin/windows_vm_installer
+		[ "$install_quickemu" = "true" ] && . /usr/share/my_stuff/system_files/bin/quickemu_installer
+		[ "$install_QuickPassthrough" = "true" ] && . /usr/share/my_stuff/system_files/bin/QuickPassthrough_installer
+		[ "$auto_windows_vm" = "true" ] && . /usr/share/my_stuff/system_files/bin/windows_vm_installer
 
 		# end
 		
@@ -107,5 +111,3 @@ app_list_quickemu_=(bash coreutils ovmf grep jq lsb-release procps python3 genis
 		say "Type: windows_vm_installer to windows_vm_installer to auto deploy windows vm."
 	fi
 	say
-	say 'Hit any key to exit...'
-	read -srn1

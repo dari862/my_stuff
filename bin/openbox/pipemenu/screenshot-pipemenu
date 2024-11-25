@@ -40,10 +40,10 @@ do
     esac
 done
 
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 # Get $USER images directory
-if type xdg-user-dir &>/dev/null; then
+if type xdg-user-dir >/dev/null 2>&1; then
     IMGDIR=$(xdg-user-dir PICTURES)
 else
     IMGDIR="$HOME/Pictures"
@@ -71,7 +71,7 @@ obmenu_options(){
 
     menuSubmenu 'imgur' 'Imgur - Upload Screenshot'
 	# Upload Screenshot
-    if files-uploader --imgur --test-account &>/dev/null ;then
+    if files-uploader --imgur --test-account >/dev/null 2>&1 ;then
        	# take screenshot and upload to account (BBCode is returned)
        	menuSubmenu 'imgur_acct' 'Upload to Account'
            	menuItem "screenshot Now" "files-uploader --imgur -l"

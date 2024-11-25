@@ -2,7 +2,10 @@
 
 installation_script_name="popup_terminal"
 
-HELP='    my-install-pipemenu a obmenu Pipe Menu for installing applications
+HELP='
+#################################################
+
+    my-install-pipemenu a obmenu Pipe Menu for installing applications
     It should normally be called from a obmenu menu.
 
 Options (usually passed from the menu):
@@ -11,9 +14,11 @@ Options (usually passed from the menu):
     --jgmenu   generate jgmenu pipemenu for installing applications.
     (the package must be in one of the app lists in this file)
 
+#################################################
+
 '
 
-source "/usr/share/my_stuff/lib/common/DB"
+. "/usr/share/my_stuff/lib/common/DB"
 
 DEPLOYS=($(cat "${distrobox_deploy_db_path}"))
 CONTAINERS=($(cat "${containers_deploy_db_path}"))
@@ -32,9 +37,11 @@ do
     esac
 done
 
-source "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
-if [[ ${1-} = --openboxmenu ]]; then
+which_menu="${1-}"
+
+if [ "${which_menu}" = "--openboxmenu" ]; then
 	menuStart "DeployFavouriteContainers" "Deploy containers using Distrobox and Containers softwares"
 	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
@@ -44,24 +51,30 @@ if [[ ${1-} = --openboxmenu ]]; then
 		fi
 	fi
 	
-	menuSeparator "Distrobox to Deploy."
-	for deploy in "${DEPLOYS[@]}"; do
-   		menuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
-	done
+	if [ -n "${DEPLOYS}" ];then
+		menuSeparator "Distrobox to Deploy."
+		for deploy in "${DEPLOYS[@]}"; do
+   			menuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
+		done
+	fi
 	
-	menuSeparator "Containers to Deploy."
-	for container in "${CONTAINERS[@]}"; do
-   		menuItem "${container} container" "${installation_script_name} --container ${container}"
-	done
+	if [ -n "${CONTAINERS}" ];then
+		menuSeparator "Containers to Deploy."
+		for container in "${CONTAINERS[@]}"; do
+   			menuItem "${container} container" "${installation_script_name} --container ${container}"
+		done
+	fi
 	
-	menuSeparator "Chroots to Deploy."
-	for chroot in "${chroots[@]}"; do
-   		menuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
-	done
+	if [ -n "${CHROOTS}" ];then
+		menuSeparator "Chroots to Deploy."
+		for chroot in "${CHROOTS[@]}"; do
+   			menuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
+		done
+	fi
 	
     menuEnd
  #    menuEnd   
-elif [[ ${1-} = --jgmenu ]]; then
+elif [ "${which_menu}" = "--jgmenu" ]; then
     if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
 			jgmenuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU_Driver_"
@@ -70,28 +83,31 @@ elif [[ ${1-} = --jgmenu ]]; then
 		fi
 	fi
 	
-	jgmenuSeparator "DistroboxtoDeploy" "Distrobox to Deploy."
-    for deploy in "${DEPLOYS[@]}"; do
-   		jgmenuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
-	done
+	if [ -n "${DEPLOYS}" ];then
+		jgmenuSeparator "DistroboxtoDeploy" "Distrobox to Deploy."
+    	for deploy in "${DEPLOYS[@]}"; do
+   			jgmenuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
+		done
+	fi
 	
-	jgmenuSeparator "ContainerstoDeploy" "Containers to Deploy."
-	for container in "${CONTAINERS[@]}"; do
-   		jgmenuItem "${container} container" "${installation_script_name} --container ${container}"
-	done
+	if [ -n "${CONTAINERS}" ];then	
+		jgmenuSeparator "ContainerstoDeploy" "Containers to Deploy."
+		for container in "${CONTAINERS[@]}"; do
+   			jgmenuItem "${container} container" "${installation_script_name} --container ${container}"
+		done
+	fi
 	
-	jgmenuSeparator "ChrootstoDeploy" "Chroots to Deploy."
-	for chroot in "${CHROOTS[@]}"; do
-   		jgmenuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
-	done
+	if [ -n "${CHROOTS}" ];then	
+		jgmenuSeparator "ChrootstoDeploy" "Chroots to Deploy."
+		for chroot in "${CHROOTS[@]}"; do
+   			jgmenuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
+		done
+	fi
 	
     jgmenuEnd
 #    menuEnd
-elif [[ ${1-} ]]; then
-    echo "$0: no such option $*" >&2
-    echo
-    echo "#################################################"
-    echo
+elif [ "${which_menu}" ]; then
+    echo "$0: no such option $1" >&2
     echo "$HELP"
     exit 1
 fi

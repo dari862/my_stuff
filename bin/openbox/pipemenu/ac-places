@@ -8,12 +8,12 @@
 readonly default_open_cmd=exo-open
 
 open_file() {
-    if hash "$default_open_cmd" &>/dev/null; then
+    if hash "$default_open_cmd" >/dev/null 2>&1; then
         exec "$default_open_cmd" "$1"
-    elif hash my-text-editor &>/dev/null; then
+    elif hash my-text-editor >/dev/null 2>&1; then
         exec "my-text-editor" "$1"
-    elif hash popup_terminal &>/dev/null; then
-        (popup_terminal --editor "$1") &>/dev/null &
+    elif hash popup_terminal >/dev/null 2>&1; then
+        (popup_terminal --editor "$1") >/dev/null 2>&1 &
     else
         echo "$0 : failed to open $2" ; exit 1
     fi

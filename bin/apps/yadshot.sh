@@ -3,7 +3,7 @@
 # Author: simoniz0r
 # Description: Uses yad to provide a simple GUI for using slop to capture screenshots using Imagemagick's import
 # License: GPL v2 Only
-# Dependencies: coreutils, yad, curl
+# Dependencies: coreutils, yad
 # need atleast one: slop, imagemagick, miam
 # optional: xclip, grabc (for use with color picker)
 
@@ -16,10 +16,6 @@ else
     export ICON_PATH="gtk-fullscreen"
 fi
 # check for dependencies
-if ! type curl >/dev/null 2>&1; then
-    MISSING_DEPS="TRUE"
-    echo "$(tput setaf 1)curl is not installed!$(tput sgr0)"
-fi
 if ! type import >/dev/null 2>&1 && [ ! -f "./ImageMagick" ] && ! type ffmpeg >/dev/null 2>&1 && ! type maim >/dev/null 2>&1; then
     MISSING_DEPS="TRUE"
     echo "$(tput setaf 1)imagemagick or ffmpeg or maim not installed!$(tput sgr0)"

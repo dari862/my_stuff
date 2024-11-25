@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # Purpose: Display battery state, time|percent remaining until empty|full
 # Author : Daniel Wayne Armstrong <hello@dwarmstrong.org>
 
@@ -34,7 +34,7 @@ run_options() {
 
 run_options "$@"
 
-if [[ $INFO -eq 1 ]]; then
+if [ $INFO -eq 1 ]; then
     upower -i "$BAT"
 else
     upower -i "$BAT" | \

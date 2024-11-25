@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 __opt="${1-}"
 
-source "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/WM"
 
 MainDir="$HOME"
 if [ "$__opt" = "--edit" ] || [ "$__opt" = "-e" ];then
 	# open .config/keybinds/keybinds.conf in default editor
 	my-text-editor "$HOME/.config/keybinds/keybinds.conf"
 elif [ "$__opt" = "--gui" ] || [ "$__opt" = "-g" ];then
-	source "/usr/share/my_stuff/lib/common/openbox"
+	. "/usr/share/my_stuff/lib/common/openbox"
 	yad --text-info --title="Keybinds" --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg\
     --filename="${script_config_path}/openbox_keybinds" --width=700 --height=700\
     --fontname=Monospace --button=gtk-close
@@ -24,8 +24,8 @@ elif [ "$__opt" = "--initial-step" ];then
 	MainDir="/usr/share/my_stuff/system_files/skel"
 fi
 
-source "/usr/share/my_stuff/lib/keybinds/file_path_to_edit.conf"
-source "/usr/share/my_stuff/lib/keybinds/lib"
+. "/usr/share/my_stuff/lib/keybinds/file_path_to_edit.conf"
+. "/usr/share/my_stuff/lib/keybinds/lib"
 
 mkdir -p "$MainDir/.config/keybinds"
 
@@ -46,7 +46,7 @@ cp -r "/usr/share/my_stuff/lib/keybinds/keybinds_to_sourcemainbindkey.conf" "${t
 cd "${temp_shortcuts_path}"
 
 create_sourcemainbindkey_conf_file
-source "${temp_shortcuts_path}/sourcemainbindkey.conf"
+. "${temp_shortcuts_path}/sourcemainbindkey.conf"
 
 if [ -f "${xbindkeysrc_file_path}" ];then
 	create_xbindkeysrc_tmp_file

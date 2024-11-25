@@ -1,8 +1,4 @@
 #!/bin/bash
-# Name: filebiner
-# Description: Uploads and manages files on https://filebin.net
-# License: MIT
-# Dependencies: curl
 
 # check if $1 exists; exit if it doesn't
 argcheck() {
@@ -11,6 +7,31 @@ argcheck() {
         exit 1
     fi
 }
+if command -v curl >/dev/null 2>&1;then
+	get_url_with_header(){
+		url="${1-}"
+		curl -s -H "Accept: application/json" "${url}"
+	}
+	upload_2_url(){
+		curl -s --data-binary "@$UPLOAD_FILE" -H "bin: $BIN_NAME" -H "filename: $FILE_NAME" https://filebin.net 2>&1 > /dev/null
+	}
+	delete_from_url(){
+		curl -s -X DELETE "https://filebin.net/$BIN_NAME/$FILE_NAME"
+	}
+elif command -v wget >/dev/null 2>&1;then
+	get_url_with_header(){
+    	url="${1-}"
+    	wget --quiet --header="Accept: application/json" "${url}"
+	}
+	
+	upload_2_url(){
+    	wget --quiet --method=PUT --body-file="$UPLOAD_FILE" --header="bin: $BIN_NAME" --header="filename: $FILE_NAME" "https://filebin.net" -O /dev/null
+	}
+	
+	delete_from_url(){
+    	wget --quiet --method=DELETE "https://filebin.net/$BIN_NAME/$FILE_NAME" -O /dev/null
+	}
+fi
 # upload file to filebin.net
 uploadfile() {
     # make sure arguments passed
@@ -62,10 +83,10 @@ uploadfile() {
             FILE_NAME="$(echo "$UPLOAD_FILE" | rev | cut -f1 -d'/' | rev)"
     fi
     # upload UPLOAD_FILE to filebin.net
-    curl -s --data-binary "@$UPLOAD_FILE" -H "bin: $BIN_NAME" -H "filename: $FILE_NAME" https://filebin.net 2>&1 > /dev/null || { echo "Failed to upload $UPLOAD_FILE"; rm -f /tmp/$USER/.filebinerpipe8845; exit 1; }
+    upload_2_url || { echo "Failed to upload $UPLOAD_FILE"; rm -f /tmp/$USER/.filebinerpipe8845; exit 1; }
     rm -f /tmp/$USER/.filebinerpipe8845
     # find url of uploaded file using filebin.net's list of uploads to BIN_NAME
-    UP_URL="$(curl -s -H "Accept: application/json" https://filebin.net/"$BIN_NAME" | grep ""$BIN_NAME"/"$FILE_NAME"" | cut -f4 -d'"' | head -n 1)"
+    UP_URL="$(get_url_with_header "https://filebin.net/$BIN_NAME" | grep ""$BIN_NAME"/"$FILE_NAME"" | cut -f4 -d'"' | head -n 1)"
     if [[ -z "$UP_URL" ]]; then
         echo "Failed to upload $UPLOAD_FILE"
         exit 1
@@ -96,12 +117,12 @@ listfiles() {
         echo "Error using '$BIN_NAME' as bin name; bin name must be at least 8 characters in length."
         exit 1
     fi
-    # use curl to get list, grep to find file urls, and cut to get rid of extra junk
+    # use get_url_with_header to get list, grep to find file urls, and cut to get rid of extra junk
     echo "Files in '$BIN_NAME' bin:"
     if [[ "$SHOW_NAMES" == "TRUE" ]]; then
-        curl -s -H "Accept: application/json" https://filebin.net/"$BIN_NAME" | grep '?t=' | cut -f4 -d'"' | rev | cut -f1 -d'/' | cut -f2- -d'?' | rev
+        get_url_with_header "https://filebin.net/$BIN_NAME" | grep '?t=' | cut -f4 -d'"' | rev | cut -f1 -d'/' | cut -f2- -d'?' | rev
     else
-        curl -s -H "Accept: application/json" https://filebin.net/"$BIN_NAME" | grep '?t=' | cut -f4 -d'"'
+        get_url_with_header "https://filebin.net/$BIN_NAME" | grep '?t=' | cut -f4 -d'"'
     fi
     exit 0
 }
@@ -140,8 +161,8 @@ downloadfile() {
         else
             SAVE_NAME="$(readlink -f "$SAVE_NAME")"
         fi
-        FILE_URL="$(curl -s -H "Accept: application/json" https://filebin.net/"$BIN_NAME" | grep ""$BIN_NAME"/"$FILE_NAME"" | cut -f4 -d'"' | head -n 1)"
-        curl -o "$SAVE_NAME" "$FILE_URL" || { echo "Failed to download '$FILE_NAME' from '$BIN_NAME' bin!'"; exit 1; }
+        FILE_URL="$(get_url_with_header "https://filebin.net/$BIN_NAME" | grep ""$BIN_NAME"/"$FILE_NAME"" | cut -f4 -d'"' | head -n 1)"
+        getURL 'download2' "$FILE_URL" "$SAVE_NAME" || { echo "Failed to download '$FILE_NAME' from '$BIN_NAME' bin!'"; exit 1; }
         echo "'$FILE_NAME' downloaded to '$SAVE_NAME'"
     fi
     exit 0
@@ -185,13 +206,13 @@ downloadall() {
         FILE_NAME=""$FILE_NAME".tar"
     fi
     # get temp key for downloading archive
-    TEMP_KEY="$(curl -s https://filebin.net/archive/"$BIN_NAME"/tar | grep '?t' | cut -f2 -d'"')"
+    TEMP_KEY="$(getURL '2term' "https://filebin.net/archive/$BIN_NAME/tar" | grep '?t' | cut -f2 -d'"')"
     if [[ -z "$TEMP_KEY" ]]; then
         echo "Failed to download 'https://filebin.net/$BIN_NAME'"
         exit 1
     fi
-    # download using temp key with curl
-    curl -o "$FILE_NAME" https://filebin.net/archive/"$BIN_NAME"/tar"$TEMP_KEY" || { echo "Failed to download 'https://filebin.net/$BIN_NAME'"; exit 1; }
+    # download using temp key with getURL
+    getURL 'download2' "https://filebin.net/archive/$BIN_NAME/tar$TEMP_KEY" "$FILE_NAME" || { echo "Failed to download 'https://filebin.net/$BIN_NAME'"; exit 1; }
     echo "$BIN_NAME saved to $FILE_NAME"
     exit 0
 }
@@ -230,7 +251,7 @@ deletefile() {
             N*|n*) echo "'$FILE_NAME' was not deleted from '$BIN_NAME' bin."; exit 0;;
         esac
     fi
-    curl -s -X DELETE https://filebin.net/"$BIN_NAME"/"$FILE_NAME" || { echo "Failed to delete '$FILE_NAME' from '$BIN_NAME' bin!"; exit 1; }
+    delete_from_url || { echo "Failed to delete '$FILE_NAME' from '$BIN_NAME' bin!"; exit 1; }
     exit 0
 }
 # show filebiner help

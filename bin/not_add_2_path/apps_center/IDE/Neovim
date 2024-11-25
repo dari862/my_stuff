@@ -1,22 +1,19 @@
 #!/bin/sh
-say
-say
-say '  1. Install for Lazyvim?'
-say '  2. Install for kickstart?'
-say '  3. Install for kickstart (ChrisTitusTech)?'
-say
-read -p "Insert appropriate number: " __choice
+printf '\n\n  1. Install for Lazyvim? \n  2. Install for kickstart?\n  3. Install for kickstart (ChrisTitusTech)?\n\nInsert appropriate number: '
+stty -icanon -echo time 0 min 1
+__choice="$(head -c1)"
+stty icanon echo
 
 Title="Neovim"
 
-app_name=(nvim)
+app_name="nvim"
 
-extra_apps_=(cmake ripgrep fd-find python3-venv luarocks golang-go shellcheck)
+extra_apps_="cmake ripgrep fd-find python3-venv luarocks golang-go shellcheck"
 # Determine if Wayland or Xorg is being used
-if [[ $XDG_SESSION_TYPE == "wayland" ]]; then
-	extra_apps_+=(wl-clipboard)
+if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+	extra_apps_="$extra_apps_ wl-clipboard"
 else
-	extra_apps_+=(xclip)
+	extra_apps_="$extra_apps_ xclip"
 fi
 distro_path="/usr/share/my_stuff/system_files"
 skel_path="${distro_path}/skel"
@@ -30,36 +27,35 @@ my-superuser mkdir -p ${distro_path}/updater
 my-superuser mkdir -p ${distro_path}/downloaded
 my-superuser tee ${distro_path}/updater/nvim_updater <<- 'EOF' > /dev/null
 #!/bin/sh
-
 distro_path="/usr/share/my_stuff/system_files"
-
+PATH="${distro_path}/bin:$PATH"
 if command -v nvim;then
-online_ver="$(wget -qO- 'https://api.github.com/repos/neovim/neovim/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
-local_ver="$(nvim -v | grep 'NVIM v' | awk -F'NVIM ' '{print $2}')"
-if [[ "${local_ver}" = "${online_ver}" ]];then
-echo "neovim up to date local=${local_ver} online=${online_ver} ."
-exit
-fi
+	online_ver="$(getURL '2term' 'https://api.github.com/repos/neovim/neovim/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
+	local_ver="$(nvim -v | grep 'NVIM v' | awk -F'NVIM ' '{print $2}')"
+	if [ "${local_ver}" = "${online_ver}" ];then
+		echo "neovim up to date local=${local_ver} online=${online_ver} ."
+		exit
+	fi
 fi
 
-[[ -d "${distro_path}/downloaded/Neovim" ]] && my-superuser rm -rdf "${distro_path}/downloaded/Neovim"
+[ -d "${distro_path}/downloaded/Neovim" ] && my-superuser rm -rdf "${distro_path}/downloaded/Neovim"
 
 neovim_tmp="$(mktemp -d /tmp/neovim-XXXXXX)"
 cd ${neovim_tmp}
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+getURL 'download' https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
 chmod +x nvim.appimage
 if ./nvim.appimage -v >/dev/null 2>$1;then
-mkdir -p Neovim
-mv nvim.appimage Neovim
-my-superuser chown root:root -R Neovim
-my-superuser mv Neovim ${distro_path}/downloaded
-my-superuser ln -sf ${distro_path}/downloaded/Neovim/nvim.appimage ${distro_path}/bin/nvim
+	mkdir -p Neovim
+	mv nvim.appimage Neovim
+	my-superuser chown root:root -R Neovim
+	my-superuser mv Neovim ${distro_path}/downloaded
+	my-superuser ln -sf ${distro_path}/downloaded/Neovim/nvim.appimage ${distro_path}/bin/nvim
 else
-./nvim.appimage --appimage-extract
-mv squashfs-root Neovim
-my-superuser chown root:root -R Neovim
-my-superuser mv Neovim ${distro_path}/downloaded
-my-superuser ln -sf ${distro_path}/downloaded/Neovim/AppRun  ${distro_path}/bin/nvim
+	./nvim.appimage --appimage-extract
+	mv squashfs-root Neovim
+	my-superuser chown root:root -R Neovim
+	my-superuser mv Neovim ${distro_path}/downloaded
+	my-superuser ln -sf ${distro_path}/downloaded/Neovim/AppRun  ${distro_path}/bin/nvim
 fi
 EOF
 my-superuser chmod +x ${distro_path}/updater/nvim_updater
@@ -67,20 +63,20 @@ my-superuser chmod +x ${distro_path}/updater/nvim_updater
 say "Installing ${Title} updater and installer..." 1
 ${distro_path}/updater/nvim_updater || failed_to_run "failed to run nvim_updater ."
 
-if [[ "${__choice}" = "1" ]];then
+if [ "${__choice}" = "1" ];then
 	vim_extra="Lazyvim"
-elif [[ "${__choice}" = "2" ]];then
+elif [ "${__choice}" = "2" ];then
 	vim_extra="kickstart"
-elif [[ "${__choice}" = "3" ]];then
+elif [ "${__choice}" = "3" ];then
 	vim_extra="kickstart_titus"
 else
 	vim_extra=""
 fi
 
-if [[ ! -z "${vim_extra}" ]];then
-	[[ -d "${nvim_skel_path}" ]] && my-superuser rm -rdf ${nvim_skel_path}
+if [ ! -z "${vim_extra}" ];then
+	[ -d "${nvim_skel_path}" ] && my-superuser rm -rdf ${nvim_skel_path}
 	
-	if [[ "${vim_extra}" = "Lazyvim" ]];then
+	if [ "${vim_extra}" = "Lazyvim" ];then
 		my-superuser clone_repo https://github.com/LazyVim/starter ${nvim_skel_path}
 		my-superuser rm -rf ${nvim_skel_path}/.git
 		
@@ -93,23 +89,23 @@ if [[ ! -z "${vim_extra}" ]];then
 		
 		# Enable default extras
 		my-superuser cp -r /usr/share/my_stuff/lib/Dev-Env/neovim/lazyvim.json "${nvim_skel_path}"/lazyvim.json
-	elif [[ "${vim_extra}" = "kickstart" ]];then
+	elif [ "${vim_extra}" = "kickstart" ];then
 		my-superuser mkdir -p ${nvim_skel_path}
-		my-superuser wget -P ${nvim_skel_path} https://raw.githubusercontent.com/nvim-lua/kickstart.nvim/master/init.lua
-	elif [[ "${vim_extra}" = "kickstart_titus" ]];then
+		getURL '2term' https://raw.githubusercontent.com/nvim-lua/kickstart.nvim/master/init.lua | my-superuser tee ${nvim_skel_path}/init.lua >/dev/null 2>&1
+	elif [ "${vim_extra}" = "kickstart_titus" ];then
 		my-superuser clone_repo https://github.com/ChrisTitusTech/neovim.git /tmp/ChrisTitusTech_neovim
 		my-superuser rm -rdf /tmp/ChrisTitusTech_neovim/titus-kickstart/nvim
-		[[ -d "${nvim_skel_path}" ]] && rm -rdf "${nvim_skel_path}"
+		[ -d "${nvim_skel_path}" ] && rm -rdf "${nvim_skel_path}"
 		my-superuser mv /tmp/ChrisTitusTech_neovim/titus-kickstart "${nvim_skel_path}"
 		my-superuser mkdir -p ${skel_path}/.vim/undodir
 		my-superuser mkdir -p ${skel_path}/.scripts
 	fi
 	
 	for d in /home/*/; do
-    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes 
+    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes 
     	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-    	if [[ ! -d "$d/.config/nvim" ]];then
-    		if [[ "${vim_extra}" = "kickstart_titus" ]];then
+    	if [ ! -d "$d/.config/nvim" ];then
+    		if [ "${vim_extra}" = "kickstart_titus" ];then
     			my-superuser cp -rv ${skel_path}/.scripts "$d/"
     			my-superuser chown -R $user_and_group "$d/.scripts"
     			my-superuser cp -rv ${skel_path}/.vim "$d/"
@@ -122,7 +118,7 @@ if [[ ! -z "${vim_extra}" ]];then
 fi
 
 say 'Installing extra packages...' 1
-Package_installer_ "${extra_apps_[@]}" || continue
+Package_installer_ "${extra_apps_}" || continue
 
 my-superuser ln -sf ${distro_path}/appearance_applications/Neovim.desktop /usr/share/applications
 

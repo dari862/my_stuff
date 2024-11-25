@@ -1,15 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
 isgtkdark=$([ -f "${gtksettings}" ] && grep ^gtk-application-prefer-dark-theme= "${gtksettings}" | cut -d"=" -f2)
 
-if [ "$1" = "--check" ];then
+if [ "$1" = "--is-enable" ];then
 	if test "${isgtkdark}"; then
-		echo enabled 
+		exit 0
 	else
-		echo disabled
+		exit 1
 	fi
-	exit 0
 fi
 
   say "Setting global dark theme for gtk applications."

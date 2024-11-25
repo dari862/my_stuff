@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: clipboard-manager-session
 # DESCRIPTION: manage clipboard-manager processes for start, restart and stop all clipboard-manager instances
@@ -7,16 +7,16 @@
 # CREATED: 2020.04.09
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
-if command -v diodon &> /dev/null; then
+if command -v diodon >/dev/null 2>&1; then
 	clipboard_manager_name="diodon"
 	clipboard_manager_command="exec diodon"
-elif command -v greenclip &> /dev/null; then
+elif command -v greenclip >/dev/null 2>&1; then
 	clipboard_manager_name="greenclip"
 	clipboard_manager_command="greenclip daemon"
-elif command -v xfce4-clipman &> /dev/null; then
+elif command -v xfce4-clipman >/dev/null 2>&1; then
 	clipboard_manager_name="xfce4-clipman"
 	clipboard_manager_command="xfce4-clipman"
-elif command -v clipmanager &> /dev/null; then
+elif command -v clipmanager >/dev/null 2>&1; then
 	clipboard_manager_name="clipmanager"
 	clipboard_manager_command="clipmanager"
 fi
@@ -26,7 +26,7 @@ fi
 # NAME: stop
 # DESCRIPTION: stop all clipboard-manager process
 #===================================================================================
-function stop() {
+stop() {
 	for prosses2kill in diodon greenclip xfce4-clipman clipmanager
 	do
 		[ "$(pidof $prosses2kill)" ] && killall $prosses2kill
@@ -39,13 +39,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: start clipboard-manager
 #===================================================================================
-function start() {
+start() {
   ${clipboard_manager_command} &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

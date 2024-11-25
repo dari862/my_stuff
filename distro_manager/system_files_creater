@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+. "/usr/share/my_stuff/lib/common/WM"
 __distro_path="/usr/share/my_stuff"
 _hub_script_dir="${__distro_path}/system_files/hub_script"
 
@@ -63,6 +64,8 @@ fi
 my-superuser mkdir -p "/root/Templates"
 
 ##################################################################################
+show_im "copy doas.conf to correct location."
+my-superuser cp -r "/usr/share/my_stuff/lib/apps/doas/doas.conf" "/usr/share/my_stuff/system_files/doas.conf"
 
 show_im "prepares for hub script"
 my-superuser mkdir -p "${_hub_script_dir}"
@@ -100,7 +103,8 @@ my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/pmxkcd/pmxkcd "${__dis
 command -v systemctl >/dev/null 2>&1 && my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/utilities/errcheck "${__distro_path}"/system_files/bin/
 
 show_im "copy skell file to system_files/skel ."
-my-superuser cp -r "${__distro_path}/skel" "${__distro_path}/system_files" 
+my-superuser cp -r "${__distro_path}/skel" "${__distro_path}/system_files"
+my-superuser mkdir -p "${__distro_path}/system_files/skel/${WM_config_dir_name}"
 my-superuser cp -r "${__distro_path}/lib/rc.xml" "${__distro_path}/system_files/rc.xml"
 my-superuser mkdir -p "${__distro_path}/system_files/skel/.local/bin"
 

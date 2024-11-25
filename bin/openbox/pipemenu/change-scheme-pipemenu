@@ -6,7 +6,7 @@
 ## Openbox Pipemenu to change openbox styles
 
 # Variables and functions
-source "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 # Dir
 menuStart

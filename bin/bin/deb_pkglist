@@ -2,13 +2,14 @@
 set -e
 
 opt_="${1-}"
+_hostname="$(hostname)"
 
 print_purple() {
 	_msg_="${1-}"
 	printf "\033[1;35m${_msg_}\033[0m"
 }
 
-LIST="${HOME}/.deb_pkglist_${HOSTNAME}"
+LIST="${HOME}/.deb_pkglist_${_hostname}"
 
 # Generate list
 if [ "$opt_" = "-l" ];then

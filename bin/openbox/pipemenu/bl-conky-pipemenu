@@ -42,18 +42,18 @@ CONKYPATH="$HOME/.config/conky"
 CONKYDEFAULT="$CONKYPATH/conky.conf"
 HELPFILE="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt"
 
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 check_4_dependencies_if_installed yad
 
 loadChooser(){
-    if type style-manager &>/dev/null;then
+    if type style-manager >/dev/null 2>&1;then
         menuItem "Conky Manager" "style-manager --conkymanager"
     fi
 }
 
 loadReload(){
-    if type conky-session &>/dev/null;then
+    if type conky-session >/dev/null 2>&1;then
         menuItem "Reload Startup Session" "conky-session"
     fi
 }
@@ -61,7 +61,7 @@ loadReload(){
 loadEditSubmenu(){
     local pid command CPATH CONKY
     menuSubmenu "EditConky" "Edit Conkys"
-        if type style-manager &>/dev/null;then  # style-manager --conkyedit script found
+        if type style-manager >/dev/null 2>&1;then  # style-manager --conkyedit script found
             menuItem "Conky Editor" "style-manager --conkyedit"
         fi
         if pgrep -x -u "$USER" conky >/dev/null;then
@@ -80,7 +80,7 @@ loadEditSubmenu(){
 }
 
 loadMove(){
-    if type style-manager &>/dev/null;then
+    if type style-manager >/dev/null 2>&1;then
         menuItem "Move a Conky" "style-manager --conkymove"
     fi
 }

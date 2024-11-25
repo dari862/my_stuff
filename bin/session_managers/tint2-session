@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: tint2-session
 # DESCRIPTION: manage tint2 processes for start, restart and stop all tint2 instances
@@ -15,7 +15,7 @@ tint2_config="${config_dir}/tint2"
 tint2_sessionfile_="${tint2_config}/tint2-sessionfile"
 DEFAULTTINT2="/.config/tint2/default.tint2rc"
 
-if [[ ! -f $tint2_sessionfile_ ]]; then
+if [ ! -f $tint2_sessionfile_ ]; then
 	echo "$0: There is no session file: ${tint2_sessionfile_}, generating now..." >&2
 	echo "${DEFAULTTINT2}" > "$tint2_sessionfile_"
 fi
@@ -24,8 +24,8 @@ fi
 # NAME: stop
 # DESCRIPTION: stop all tint2 process
 #===================================================================================
-function stop() {
-	if [[ -n "$pid" ]]; then
+stop() {
+	if [ -n "$pid" ]; then
 		[ "$(pidof tint2)" ] && killall tint2
 		[ "$(pidof tint2)" ] && killall -9 tint2
 	fi
@@ -36,11 +36,11 @@ function stop() {
 # NAME: start
 # DESCRIPTION: start tint2
 #===================================================================================
-function start() {
-	if [[ -z "$pid" ]]; then
+start() {
+	if [ -z "$pid" ]; then
 		while IFS="" read -r theme || [ -n "$theme" ]
 		do
-			(tint2 -c "$HOME$theme" &>/dev/null) &
+			(tint2 -c "$HOME$theme" >/dev/null 2>&1) &
   			sleep 0.5
 		done < ${tint2_sessionfile_}
 	fi
@@ -48,7 +48,7 @@ function start() {
 }
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

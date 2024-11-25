@@ -143,7 +143,7 @@ function whatsmyip ()
 
 	# External IP Lookup
 	echo -n "External IP: "
-	curl -s ifconfig.me
+	getURL '2term' ifconfig.me
 }
 
 # View Apache logs

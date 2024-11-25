@@ -122,7 +122,7 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 ## ------ end of auto edited by shortcuts script ------ ##
 
 # ------------------------------- ZSH PLUGINS Applyer --------------------------
-if command -v zoxide &>/dev/null;then
+if command -v zoxide >/dev/null 2>&1;then
 	zplugin+=(zoxide)
 else
 	zplugin+=(z)

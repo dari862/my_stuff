@@ -5,9 +5,10 @@ browserUrl="https://dl.google.com/linux/direct/${browser_deb}"
 
 say 'Installing package...' 1
 
-cd /tmp 
-my-superuser wget ${browserUrl} || continue
-my-superuser dpkg -i ${browser_deb} || my-superuser apt install -y ${browser_deb}
+cd /tmp/$USER
+getURL 'download2' "${browserUrl}" "/tmp/$USER/${browser_deb}" || continue
+my-superuser dpkg -i ${browser_deb} || my-superuser apt install -y ${browser_deb} || continue
 my-superuser apt-get install -y -f || continue
+rm -f /tmp/$USER/${browser_deb} || continue
 
 my-superuser ln -sf /usr/share/my_stuff/appearance_applications/WhatsApp.desktop /usr/share/applications

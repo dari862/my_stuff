@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: nm-applet-session
 # DESCRIPTION: manage nm-applet processes for start, restart and stop all conky instances
@@ -12,7 +12,7 @@
 # NAME: stop
 # DESCRIPTION: stop all nm-applet process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof nm-applet)" ] && killall nm-applet
 	[ "$(pidof nm-applet)" ] && killall -9 nm-applet
 }
@@ -21,13 +21,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: run nm-applet
 #===================================================================================
-function start() {
+start() {
   nm-applet &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

@@ -1,8 +1,6 @@
-#!/usr/bin/env bash
-
-if command -v xfce4-power-manager-settings >/dev/null
-	then
-		xfce4-power-manager-settings
-	else
-		my_power_manager --gui
+#!/usr/bin/env sh
+if command -v xfce4-power-manager-settings >/dev/null;then
+	xfce4-power-manager-settings
+else
+	my_power_manager --gui
 fi	

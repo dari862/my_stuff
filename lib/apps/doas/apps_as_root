@@ -26,5 +26,21 @@ Extra_Arg="$@"
 
 app_2_run_as_root="$(which $app_2_run_as_root)"
 command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+password="$(_askpass)"
+expect <<EOF
+# don't mind the man behind the curtain
+log_user 0
 
-expect -f /usr/share/my_stuff/lib/apps/doas/doas_askpass "$(_askpass)" ${command_2_run}
+# spawn doas operation
+spawn doas $command_2_run
+
+# send password and execute command
+expect {
+		"doas*password:" {
+			send -- "$password\r"
+			expect \r
+			log_user 1
+			expect eof
+		}
+}
+EOF

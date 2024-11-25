@@ -6,7 +6,7 @@
 ## Openbox Pipemenu to display system stats/info
 sysinfo_script_="sysinfo_script_ --system"
 # Variables and functions
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 if  [[ $1 = "--more" ]]; then
 	menuStart
@@ -17,7 +17,7 @@ if  [[ $1 = "--more" ]]; then
 	menuItem "Process Monitor" "sysinfo_script_ --process"
 	menuItem "Disks Usage" "sysinfo_script_ --disk"
 	menuItem "CPU Usage" "sysinfo_script_ --cpu"
-	if command -v iw &> /dev/null; then
+	if command -v iw >/dev/null 2>&1; then
 		menuItem "WIFI Scan Networks" "sysinfo_script_ --wifi"
 	fi
 	menuEnd
@@ -52,7 +52,7 @@ else
 	##-- INIT ------------------------
 	init=`cat /proc/1/comm`
 	
-	if command -v acpi &> /dev/null; then
+	if command -v acpi >/dev/null 2>&1; then
 	##-- BATTERY ------------------------
 		b_stat=`acpi -b | grep Battery | cut -d' ' -f3 | tr -d ,`
 		b_perc=`acpi -b | grep Battery | cut -d' ' -f4 | tr -d ,`
@@ -87,7 +87,7 @@ else
 	menuItem "  MEMORY     :  $m_used ∙ $m_free ∙ $m_total" "$sysinfo_script_"
 	menuItem "  SWAP       :  $s_used ∙ $s_free ∙ $s_total ∙ $swappiness" "$sysinfo_script_"
 	menuItem "  INIT       :  $init" "$sysinfo_script_"
-	if command -v acpi &> /dev/null; then
+	if command -v acpi >/dev/null 2>&1; then
 		menuItem "  BATTERY    :  $b_perc ∙ $b_stat ∙ Capacity, $b_cap" "$sysinfo_script_"
 	fi
 	

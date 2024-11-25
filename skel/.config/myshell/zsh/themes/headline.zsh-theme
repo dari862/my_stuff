@@ -259,7 +259,7 @@ headline_git_status() {
   done
 
   # Check for stashes
-  if $(headline_git rev-parse --verify refs/stash &> /dev/null); then
+  if $(headline_git rev-parse --verify refs/stash >/dev/null 2>&1); then
     totals[STASHED]=$(headline_git rev-list --walk-reflogs --count refs/stash 2> /dev/null)
   fi
 

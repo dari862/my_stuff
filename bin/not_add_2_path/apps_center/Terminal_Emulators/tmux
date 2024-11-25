@@ -13,10 +13,10 @@ Package_installer_ ${app_name} || continue
 say "Setting configs to all users..."
 
 for d in /home/*/ ; do
-	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes
+	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 	my-superuser cp -v "${CONF_FILE_Path}/${CONF_FILE_NAME}" "$d/.${CONF_FILE_NAME}" && my-superuser chown -R $user_and_group "$d/.${CONF_FILE_NAME}"
-	[[ -f "$d/.config/myshell/aliases.sh" ]] && echo "alias tmux='TERM=screen-256color tmux'" | my-superuser tee -a "$d/.config/myshell/aliases.sh" > /dev/null 2>&1
+	[ -f "$d/.config/myshell/aliases.sh" ] && echo "alias tmux='TERM=screen-256color tmux'" | my-superuser tee -a "$d/.config/myshell/aliases.sh" > /dev/null 2>&1
 done
 
 echo "alias tmux='TERM=screen-256color tmux'" | my-superuser tee -a "${Disto_path}/system_files/skel/.config/myshell/aliases.sh" > /dev/null 2>&1

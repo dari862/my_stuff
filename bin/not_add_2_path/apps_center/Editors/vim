@@ -1,7 +1,7 @@
 #!/bin/sh
 
 app_name="vim"
-extra_apps_=(nodejs)
+extra_apps_="nodejs"
 
 ###################################################################
 Disto_path="/usr/share/my_stuff"
@@ -13,15 +13,15 @@ say 'Installing vim ...' 1
 Package_installer_ ${app_name} || continue
 say "Installing vim plugins for all users in /etc/vim/ ..."
 
-if [[ -n "${extra_apps_[*]}" ]];then
+if [ -n "${extra_apps_}" ];then
 	say 'Installing extra packages...' 1
-	Package_installer_ "${extra_apps_[@]}" || continue
+	Package_installer_ "${extra_apps_}" || continue
 	clear
 fi
 
 say "Adding plugins support to vim ..."
 my-superuser mkdir -vp "/etc/vim/autoload"
-my-superuser curl -fLo /etc/vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+getURL '2term' https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim | my-superuser tee /etc/vim/autoload/plug.vim >/dev/null 2>&1
 my-superuser mkdir -p "/etc/vim/plugged/"
 
 say "Adding plugins to /etc/vim/rc.local ..."
@@ -36,9 +36,9 @@ my-superuser vim +'PlugInstall --sync' +qa # Download all plugins non-interactiv
 # Copy users config
 say "Setting configs to all users..."
 for d in /home/*/ /root/; do
-    [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes 
+    [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes 
     user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-    if [[ -d "$d/.config/myshell" ]];then
+    if [ -d "$d/.config/myshell" ];then
 		my-superuser cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}" "$d/.${CONF_FILE_NAME}" && my-superuser chown -R $user_and_group "$d/.${CONF_FILE_NAME}"
 		my-superuser sed -i 's/export VISUAL=.*/export VISUAL=vim/g' "$d/.config/myshell/zsh/zprofile"
 		my-superuser sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=vim/g' "$d/.config/myshell/zsh/zprofile"

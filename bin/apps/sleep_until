@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Sleep_Until.sh - YAD GUI for RTCWake: Make your computer sleep and wake up at a given time
 # Copyright (C) 2016 Jorge A. Duarte - babetoduarte@gmail.com

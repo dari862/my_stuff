@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 sed_all_back(){
 	file="${1-}"
 	sed -i "s/sed_it_to_backtick/\`/g" $file
@@ -24,9 +24,9 @@ create_sourcemainbindkey_conf_file(){
 	sed -i 's|+ +|+ sed_it_to_plus|g' newkeybinds.conf
 	sed -i "s| $||g" newkeybinds.conf
 	
-	while IFS= read -r line || [[ -n "$line" ]];do 
-		_key="$(cut -d '=' -f 1 <<<"$line")"
-		_value="$(cut -d '=' -f 2 <<<"$line")"
+	while IFS= read -r line || [ -n "$line" ];do 
+		_key="$(echo "$line" | cut -d '=' -f 1)"
+		_value="$(echo "$line" | cut -d '=' -f 2)"
 		sed -i "s/\!\!\!${_key}\!\!\!/${_value}/g" keybinds_to_sourcemainbindkey.conf
 	done < newkeybinds.conf
 	
@@ -97,19 +97,21 @@ create_sourcemainbindkey_conf_file(){
 	mv xx01 xx01xx
 	
 	echo '#csplit_file_here#' > xx01
-	grep -v '^#' xx01xx | while read line; do
-    	key=$(cut -d '=' -f 1 <<<"$line")
-    	value=$(cut -d '=' -f 2 <<<"$line")
+	grep -v '^#' xx01xx | while IFS= read -r line; do
+    	key=$(echo "$line" | cut -d '=' -f 1)
+    	value=$(echo "$line" | cut -d '=' -f 2)
   	
   		# Split the value to get combination and mods
-  		if [[ "$value" == *"+ "* ]]; then
-    		key_combo="${value#* + }"
-    		mods="${value%% + *}"
-    		mods="mods: ${mods^},"
-  		else
+  		case "$value" in
+  			*"+ "*)
+    		key_combo=$(echo "$value" | sed 's/^.*+ //')
+            mods="mods: $(echo "$value" | sed 's/ +.*$//' | awk '{print toupper(substr($0, 1, 1)) tolower(substr($0, 2))}'),"
+    		;;
+  		*)
     		key_combo="$value"
     		mods=""
-  		fi
+    		;;
+  		esac
 		
   		# Format output
   		printf '%s=%s,       %s       \n' "$key" "$key_combo" "$mods"
@@ -1199,16 +1201,16 @@ echo "
       </action>
     </keybind>
     <!-- Title: Brightness Control -->
-    <keybind key=\"${Execute_openbox_scripts_brightness_inc}\">
+    <keybind key=\"${Execute_distro_scripts_brightness_inc}\">
       <!-- Description:[execute] -->
       <action name=\"Execute\">
-        <command>openbox_scripts --brightness-inc</command>
+        <command>distro_scripts --brightness-inc</command>
       </action>
     </keybind>
-    <keybind key=\"${Execute_openbox_scripts_brightness_dec}\">
+    <keybind key=\"${Execute_distro_scripts_brightness_dec}\">
       <!-- Description:[execute] -->
       <action name=\"Execute\">
-        <command>openbox_scripts --brightness-dec</command>
+        <command>distro_scripts --brightness-dec</command>
       </action>
     </keybind>
 
@@ -2130,7 +2132,7 @@ sed_lxterminal(){
 }
 
 create_pipemenu_file(){
-	source "/usr/share/my_stuff/lib/common/includes_functions"
+	. "/usr/share/my_stuff/lib/common/pipemenu"
 	
 	tee "${temp_openbox_pipemenu_file_path}" <<- EOF >/dev/null
 	Switch_Keyboard_Languge="${Switch_Keyboard_Languge}"
@@ -2168,8 +2170,8 @@ create_pipemenu_file(){
 	Execute_mpc_toggle="${Execute_mpc_toggle}"
 	Execute_mpc_prev="${Execute_mpc_prev}"
 	Execute_mpc_next="${Execute_mpc_next}"
-	Execute_openbox_scripts_brightness_inc="${Execute_openbox_scripts_brightness_inc}"
-	Execute_openbox_scripts_brightness_dec="${Execute_openbox_scripts_brightness_dec}"
+	Execute_distro_scripts_brightness_inc="${Execute_distro_scripts_brightness_inc}"
+	Execute_distro_scripts_brightness_dec="${Execute_distro_scripts_brightness_dec}"
 	Execute_show_menu_="${Execute_show_menu_}"
 	Execute_music="${Execute_music}"
 	Execute_colorpick_sh="${Execute_colorpick_sh}"
@@ -2241,7 +2243,7 @@ create_pipemenu_file(){
 	sed -i 's/W-/Super+/g' "${temp_openbox_pipemenu_file_path}"
 	sed -i 's/S-/Shift+/g' "${temp_openbox_pipemenu_file_path}"
 
-	source "${temp_openbox_pipemenu_file_path}"	
+	. "${temp_openbox_pipemenu_file_path}"	
 	{
 		menuSeparator "Switch Keyboard Languge"
 		menuItem "${Switch_Keyboard_Languge}	-	Switch Keyboard Languge" "kswitch"
@@ -2293,8 +2295,8 @@ create_pipemenu_file(){
 		menuItem "${Execute_mpc_next}	-	mpc next" "mpc next"
         		
 		menuSeparator "Brightness Control"
-		menuItem "${Execute_openbox_scripts_brightness_inc}	-	brightness inc" "openbox_scripts --brightness-inc"
-		menuItem "${Execute_openbox_scripts_brightness_dec}	-	brightness dec" "openbox_scripts --brightness-dec"
+		menuItem "${Execute_distro_scripts_brightness_inc}	-	brightness inc" "distro_scripts --brightness-inc"
+		menuItem "${Execute_distro_scripts_brightness_dec}	-	brightness dec" "distro_scripts --brightness-dec"
 		
 		menuSeparator "Launch Applications"
 		menuSeparator "Apps"

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
@@ -31,11 +31,11 @@ getcolors
 ## Configurations --------------------------------------------#
 workspaces() {
 	name=1
-	for monitor in `bspc query -M`; do
+	for monitor in $(bspc query -M); do
 		#bspc monitor ${monitor} -n "$name" -d 'I' 'II' 'III' 'IV' 'V'
 		#bspc monitor ${monitor} -n "$name" -d '' '' '' '' ''
 		bspc monitor ${monitor} -n "$name" -d '1' '2' '3' '4' '5'
-		let name++
+		name=$((name + 1))
 	done
 }
 workspaces
@@ -83,40 +83,41 @@ bspc rule -r *:*
 bspc config external_rules_command "$HOME/.config/bspwm/external_rules.sh"
 
 # 1 > terminal
-declare -a terminal=(my-terminal-emulator kitty Alacritty Xfce4-terminal Pcmanfm Thunar)
-for i in ${terminal[@]}; do
+terminal="my-terminal-emulator kitty Alacritty Xfce4-terminal Pcmanfm Thunar"
+for i in ${terminal}; do
    bspc rule -a $i desktop='^1' follow=on focus=on; done
 
 # 2 > web
-declare -a web=(firefox chromium Thunderbird TelegramDesktop Hexchat Discord)
-for i in ${web[@]}; do
+web="firefox chromium Thunderbird TelegramDesktop Hexchat Discord"
+for i in ${web}; do
    bspc rule -a $i desktop='^2' follow=on focus=on; done
 
 # 3 > code
-declare -a code=(Geany code-oss Gucharmap Atril Evince \
-libreoffice-writer libreoffice-calc libreoffice-impress \
-libreoffice-startcenter libreoffice Soffice *:libreofficedev *:soffice)
-for i in ${code[@]}; do
+code="Geany code-oss Gucharmap Atril Evince 
+libreoffice-writer libreoffice-calc libreoffice-impress 
+libreoffice-startcenter libreoffice Soffice *:libreofficedev *:soffice"
+for i in ${code}; do
    bspc rule -a $i desktop='^3' follow=on focus=on; done
 
 # 4 > media
-declare -a media=(Audacity Music MPlayer Lxmusic Inkscape Gimp obs Mplayer2 qBittorrent)
-for i in ${media[@]}; do
+media="Audacity Music MPlayer Lxmusic Inkscape Gimp obs Mplayer2 qBittorrent"
+for i in ${media}; do
    bspc rule -a $i desktop='^4' state=floating follow=on focus=on; done
 
 # 5 > settings
 bspc rule -a 'VirtualBox Manager' desktop='^5' follow=on focus=on
 bspc rule -a GParted desktop='^5' follow=on focus=on
-declare -a settings=(Lxappearance Lxtask Lxrandr Arandr \
-System-config-printer.py Pavucontrol Exo-helper-1 \
-Xfce4-power-manager-settings)
-for i in ${settings[@]}; do
+
+settings="Lxappearance Lxtask Lxrandr Arandr
+System-config-printer.py Pavucontrol Exo-helper-1
+Xfce4-power-manager-settings"
+for i in ${settings}; do
    bspc rule -a $i desktop='^5' state=floating follow=on focus=on; done
 
 # special rules
-declare -a floating=(alacritty-float Pcmanfm Thunar Onboard Yad 'Firefox:Places' \
-Viewnior feh Nm-connection-editor)
-for i in ${floating[@]}; do
+floating="alacritty-float Pcmanfm Thunar Onboard Yad 'Firefox:Places'
+Viewnior feh Nm-connection-editor"
+for i in ${floating}; do
    bspc rule -a $i state=floating follow=on focus=on; done
 
 bspc rule -a wine desktop='^5' state=floating follow=on
@@ -129,7 +130,7 @@ bspc rule -a Wrapper-2.0 state=floating border=off focus=on
 # Lauch keybindings daemon
 sxhkd &
 
-if command -v urxvtc &> /dev/null; then
+if command -v urxvtc >/dev/null 2>&1; then
 	#urxvtc
 	(sleep 0.50; urxvtc) &
 fi

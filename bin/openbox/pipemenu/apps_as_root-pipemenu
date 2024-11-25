@@ -12,7 +12,7 @@ appearance_settings_cmd="$(which appearance_settings_)"
 popup_path="$(which popup_terminal)"
 CLI_EDITER_PATH="$(which $CLI_EDITER)"
 
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 menuStart
 	menuItem 'Terminal (my-terminal-emulator)' "${apps_as_root_cmd} my-terminal-emulator"

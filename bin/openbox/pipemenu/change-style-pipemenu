@@ -2,9 +2,9 @@
 ## Openbox Pipemenu to change openbox styles
 
 # Variables and functions
-source "/usr/share/my_stuff/lib/common/includes_functions"
-source "/usr/share/my_stuff/lib/common/WM"
-source "/usr/share/my_stuff/lib/common/DB"
+. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/DB"
 # Generate menu
 gen_menu () {
    	local count=1	

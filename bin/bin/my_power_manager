@@ -104,10 +104,10 @@ my_power_managers_gui(){
 }
 
 my_power_manager_daemon(){
-	xset s 0 0 &> /dev/null
-	xset -dpms &> /dev/null
-	xset s off -dmps &> /dev/null
-	xset dpms 0 0 0 &> /dev/null
+	xset s 0 0 >/dev/null 2>&1
+	xset -dpms >/dev/null 2>&1
+	xset s off -dmps >/dev/null 2>&1
+	xset dpms 0 0 0 >/dev/null 2>&1
 	
 	set_brightness_on_idle()
 	{

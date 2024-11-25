@@ -1,7 +1,61 @@
 #!/bin/sh
-
-version_number="4.7.2"
-
+if command -v curl >/dev/null 2>&1;then
+	perform_url_() {
+    	action="$1"
+    	case "$action" in
+        	"get_ani_cli")
+            	curl -s -A "$agent" "https://raw.githubusercontent.com/pystardust/ani-cli/master/ani-cli"
+            	;;
+        	"get_embed_link")
+            	curl -e "$allanime_base" -s "https://embed.ssbcontent.site$*" -A "$agent"
+            	;;
+        	"get_extract_link")
+            	curl -e "$allanime_base" -s "$extract_link" -A "$agent"
+            	;;
+        	"get_episode_embed")
+            	curl -e "$allanime_base" -s -G "${allanime_api}/api" --data-urlencode "variables={\"showId\":\"$id\",\"translationType\":\"$mode\",\"episodeString\":\"$ep_no\"}" --data-urlencode "query=$episode_embed_gql" -A "$agent"
+            	;;
+        	"search_show")
+            	curl -e "$allanime_base" -s -G "${allanime_api}/api" --data-urlencode "variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$1\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" --data-urlencode "query=$search_gql" -A "$agent"
+            	;;
+        	"get_episode_list")
+            	curl -e "$allanime_base" -s -G "${allanime_api}/api" --data-urlencode "variables={\"showId\":\"$*\"}" --data-urlencode "query=$episodes_list_gql" -A "$agent"
+            	;;
+        	*)
+            	echo "Invalid action specified."
+            	return 1
+            	;;
+    	esac
+	}
+elif command -v wget >/dev/null 2>&1;then
+	perform_url_() {
+    	action="$1"
+    	case "$action" in
+        	"get_ani_cli")
+            	wget -q --user-agent="$agent" "https://raw.githubusercontent.com/pystardust/ani-cli/master/ani-cli"
+            	;;
+        	"get_embed_link")
+            	wget -q --referer="$allanime_base" --user-agent="$agent" "https://embed.ssbcontent.site$*" 
+            	;;
+        	"get_extract_link")
+            	wget -q --referer="$allanime_base" --user-agent="$agent" "$extract_link"
+            	;;
+        	"get_episode_embed")
+            	wget -q --referer="$allanime_base" --user-agent="$agent" --method=GET --body-data="variables={\"showId\":\"$id\",\"translationType\":\"$mode\",\"episodeString\":\"$ep_no\"}" --body-data="query=$episode_embed_gql" "${allanime_api}/api"
+            	;;
+        	"search_show")
+            	wget -q --referer="$allanime_base" --user-agent="$agent" --method=GET --body-data="variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$1\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" --body-data="query=$search_gql" "${allanime_api}/api"
+            	;;
+        	"get_episode_list")
+            	wget -q --referer="$allanime_base" --user-agent="$agent" --method=GET --body-data="variables={\"showId\":\"$*\"}" --body-data="query=$episodes_list_gql" "${allanime_api}/api"
+            	;;
+        	*)
+            	echo "Invalid action specified."
+            	return 1
+            	;;
+    	esac
+	}	
+fi
 # UI
 
 external_menu() {
@@ -83,7 +137,7 @@ version_info() {
 }
 
 update_script() {
-    update="$(curl -s -A "$agent" "https://raw.githubusercontent.com/pystardust/ani-cli/master/ani-cli")" || die "Connection error"
+    update="$(perform_url_ get_ani_cli)" || die "Connection error"
     update="$(printf '%s\n' "$update" | diff -u "$0" -)"
     if [ -z "$update" ]; then
         printf "Script is up to date :)\n"
@@ -101,7 +155,7 @@ update_script() {
 
 # extract the video links from reponse of embed urls, extract mp4 links form m3u8 lists
 get_links() {
-    episode_link="$(curl -e "$allanime_base" -s "https://embed.ssbcontent.site$*" -A "$agent" | sed 's|},{|\n|g' | sed -nE 's|.*link":"([^"]*)".*"resolutionStr":"([^"]*)".*|\2 >\1|p;s|.*hls","url":"([^"]*)".*"hardsub_lang":"en-US".*|\1|p')"
+    episode_link="$(perform_url_ get_embed_link | sed 's|},{|\n|g' | sed -nE 's|.*link":"([^"]*)".*"resolutionStr":"([^"]*)".*|\2 >\1|p;s|.*hls","url":"([^"]*)".*"hardsub_lang":"en-US".*|\1|p')"
     case "$episode_link" in
         *repackager.wixmp.com*)
             extract_link=$(printf "%s" "$episode_link" | cut -d'>' -f2 | sed 's|repackager.wixmp.com/||g;s|\.urlset.*||g')
@@ -115,7 +169,7 @@ get_links() {
             else
                 extract_link=$(printf "%s" "$episode_link" | head -1 | cut -d'>' -f2)
                 relative_link=$(printf "%s" "$extract_link" | sed 's|[^/]*$||')
-                curl -e "$allanime_base" -s "$extract_link" -A "$agent" | sed 's|^#.*x||g; s|,.*|p|g; /^#/d; $!N; s|\n| >|' | sed "s|>|>${relative_link}|g" | sort -nr
+                perform_url_ get_extract_link | sed 's|^#.*x||g; s|,.*|p|g; /^#/d; $!N; s|\n| >|' | sed "s|>|>${relative_link}|g" | sort -nr
             fi
             ;;
         *) [ -n "$episode_link" ] && printf "%s\n" "$episode_link" ;;
@@ -169,7 +223,7 @@ get_episode_url() {
     # get the embed urls of the selected episode
     episode_embed_gql="query (\$showId: String!, \$translationType: VaildTranslationTypeEnumType!, \$episodeString: String!) {    episode(        showId: \$showId        translationType: \$translationType        episodeString: \$episodeString    ) {        episodeString sourceUrls    }}"
 
-    resp=$(curl -e "$allanime_base" -s -G "${allanime_api}/api" --data-urlencode "variables={\"showId\":\"$id\",\"translationType\":\"$mode\",\"episodeString\":\"$ep_no\"}" --data-urlencode "query=$episode_embed_gql" -A "$agent" | tr '{}' '\n' | sed 's|\\u002F|\/|g;s|\\||g' | sed -nE 's|.*sourceUrl":"--([^"]*)".*sourceName":"([^"]*)".*|\2 :\1|p')
+    resp=$(perform_url_ get_episode_embed | tr '{}' '\n' | sed 's|\\u002F|\/|g;s|\\||g' | sed -nE 's|.*sourceUrl":"--([^"]*)".*sourceName":"([^"]*)".*|\2 :\1|p')
     # generate links into sequential files
     cache_dir="$(mktemp -d)"
     providers="1 2 3 4 5"
@@ -188,14 +242,14 @@ get_episode_url() {
 search_anime() {
     search_gql="query(        \$search: SearchInput        \$limit: Int        \$page: Int        \$translationType: VaildTranslationTypeEnumType        \$countryOrigin: VaildCountryOriginEnumType    ) {    shows(        search: \$search        limit: \$limit        page: \$page        translationType: \$translationType        countryOrigin: \$countryOrigin    ) {        edges {            _id name availableEpisodes __typename       }    }}"
 
-    curl -e "$allanime_base" -s -G "${allanime_api}/api" --data-urlencode "variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$1\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" --data-urlencode "query=$search_gql" -A "$agent" | sed 's|Show|\n|g' | sed -nE "s|.*_id\":\"([^\"]*)\",\"name\":\"([^\"]*)\".*${mode}\":([1-9][^,]*).*|\1\t\2 (\3 episodes)|p"
+    perform_url_ search_show | sed 's|Show|\n|g' | sed -nE "s|.*_id\":\"([^\"]*)\",\"name\":\"([^\"]*)\".*${mode}\":([1-9][^,]*).*|\1\t\2 (\3 episodes)|p"
 }
 
 # get the episodes list of the selected anime
 episodes_list() {
     episodes_list_gql="query (\$showId: String!) {    show(        _id: \$showId    ) {        _id availableEpisodesDetail    }}"
 
-    curl -e "$allanime_base" -s -G "${allanime_api}/api" --data-urlencode "variables={\"showId\":\"$*\"}" --data-urlencode "query=$episodes_list_gql" -A "$agent" | sed -nE "s|.*$mode\":\[([0-9.\",]*)\].*|\1|p" | sed 's|,|\n|g; s|"||g' | sort -n -k 1
+    perform_url_ get_episode_list | sed -nE "s|.*$mode\":\[([0-9.\",]*)\].*|\1|p" | sed 's|,|\n|g; s|"||g' | sort -n -k 1
 }
 
 # PLAYING
@@ -368,7 +422,7 @@ done
 [ "$use_external_menu" = "0" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-m"}"
 [ "$use_external_menu" = "1" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-multi-select"}"
 printf "\33[2K\r\033[1;34mChecking dependencies...\033\n[0m"
-check_4_dependencies_if_installed "curl" "sed" "grep"
+check_4_dependencies_if_installed sed grep
 [ "$skip_intro" = 1 ] && (check_4_dependencies_if_installed "ani-skip")
 if [ -z "$ANI_CLI_NON_INTERACTIVE" ]; then check_4_dependencies_if_installed fzf ; fi
 case "$player_function" in

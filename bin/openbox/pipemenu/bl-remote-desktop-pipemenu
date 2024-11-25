@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 HELP='    bl-remote-desktop-pipemenu an Openbox Pipe Menu
     to install remote desktop software
@@ -63,7 +63,7 @@ else
     menuStart
 
     # Viewer
-    if type 'xtightvncviewer' &> /dev/null; then
+    if type 'xtightvncviewer' >/dev/null 2>&1; then
         menuItem 'Viewer' 'vncviewer'
     else
         menuItem 'Install Viewer' "$0 --install viewer"

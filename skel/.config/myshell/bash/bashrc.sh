@@ -119,7 +119,7 @@ fi
 # ------------------------------- BASH PLUGINS Applyer --------------------------
 # Add all defined plugins to fpath. This must be done
 # before running compinit.
-if command -v zoxide &>/dev/null;then
+if command -v zoxide >/dev/null 2>&1;then
 	bashplugin+=(zoxide)
 else
 	bashplugin+=(z)

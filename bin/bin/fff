@@ -89,7 +89,7 @@ setup_options() {
     fi
 
     # Find supported 'file' arguments.
-    file -I &>/dev/null || : "${file_flags:=biL}"
+    file -I >/dev/null 2>&1 || : "${file_flags:=biL}"
 }
 
 get_term_size() {
@@ -140,7 +140,7 @@ get_ls_colors() {
     # 'declare' can't be used here as variables are scoped
     # locally. 'declare -g' is not available in 'bash 3'.
     # 'export' is a viable alternative.
-    export "${ls_cols[@]}" &>/dev/null
+    export "${ls_cols[@]}" >/dev/null 2>&1
 }
 
 get_w3m_path() {
@@ -377,13 +377,13 @@ draw_img() {
         return
 
     # w3m-img isn't installed, do nothing.
-    type -p "$w3m" &>/dev/null || {
+    type -p "$w3m" >/dev/null 2>&1 || {
         cmd_line "error: Couldn't find 'w3m-img', is it installed?"
         return
     }
 
     # $win_info_cmd isn't installed, do nothing.
-    type -p "${win_info_cmd:=xdotool}" &>/dev/null || {
+    type -p "${win_info_cmd:=xdotool}" >/dev/null 2>&1 || {
         cmd_line "error: Couldn't find '$win_info_cmd', is it installed?"
         return
     }
@@ -393,7 +393,7 @@ draw_img() {
         IFS=$'\n' read -d "" -ra win_info \
             < <(xdotool getactivewindow getwindowgeometry --shell)
 
-        declare "${win_info[@]}" &>/dev/null || {
+        declare "${win_info[@]}" >/dev/null 2>&1 || {
             cmd_line "error: Failed to retrieve window size."
             return
         }
@@ -431,7 +431,7 @@ draw_img() {
         "${FFF_W3M_YOFFSET:-0}" \
         "$img_width" \
         "$img_height" \
-        "${list[scroll]}" | "$w3m" &>/dev/null
+        "${list[scroll]}" | "$w3m" >/dev/null 2>&1
 
     # Wait for user input.
     read -ern 1
@@ -441,7 +441,7 @@ draw_img() {
         "${FFF_W3M_XOFFSET:-0}" \
         "${FFF_W3M_YOFFSET:-0}" \
         "$WIDTH" \
-        "$HEIGHT" | "$w3m" &>/dev/null
+        "$HEIGHT" | "$w3m" >/dev/null 2>&1
 
     redraw
 }
@@ -528,7 +528,7 @@ trash() {
     else
         cd "$FFF_TRASH" || cmd_line "error: Can't cd to trash directory."
 
-        if cp -alf "$@" &>/dev/null; then
+        if cp -alf "$@" >/dev/null 2>&1; then
             rm -r "${@:1:$#-1}"
         else
             mv -f "$@"
@@ -618,7 +618,7 @@ open() {
                 # 'nohup':  Make the process immune to hangups.
                 # '&':      Send it to the background.
                 # 'disown': Detach it from the shell.
-                nohup "${FFF_OPENER:-${opener:-xdg-open}}" "$1" &>/dev/null &
+                nohup "${FFF_OPENER:-${opener:-xdg-open}}" "$1" >/dev/null 2>&1 &
                 disown
             ;;
         esac
@@ -1017,10 +1017,10 @@ key() {
             cmd_line "go to dir: " "dirs"
 
             # Let 'cd' know about the current directory.
-            cd "$PWD" &>/dev/null ||:
+            cd "$PWD" >/dev/null 2>&1 ||:
 
             [[ $cmd_reply ]] &&
-                cd "${cmd_reply/\~/$HOME}" &>/dev/null &&
+                cd "${cmd_reply/\~/$HOME}" >/dev/null 2>&1 &&
                     open "$PWD"
         ;;
 
@@ -1078,7 +1078,7 @@ main() {
     # It handles relative paths as well as '../../../'.
     #
     # '||:': Do nothing if 'cd' fails. We don't care.
-    cd "${2:-$1}" &>/dev/null ||:
+    cd "${2:-$1}" >/dev/null 2>&1 ||:
 
     [[ $1 == -v ]] && {
         printf '%s\n' "fff 2.2"

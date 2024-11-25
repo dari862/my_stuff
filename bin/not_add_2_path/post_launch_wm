@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Start clipboard-manager
 clipboard-manager-session &
 

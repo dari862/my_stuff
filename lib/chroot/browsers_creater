@@ -1,0 +1,97 @@
+#!/bin/sh
+create_default_chroot_browser(){
+	my-superuser tee "$launch_default_chroot_browser" > /dev/null <<- EOF
+	#!/bin/sh
+	my-superuser $launch_chroot_browser
+	EOF
+	my-superuser chmod 755 "$launch_default_chroot_browser" || failed_to_run "Failed to set execute permission on launch script"
+	
+	my-superuser tee "/usr/share/my_stuff/system_files/applications/${chroot_default_browser_name}.desktop" > /dev/null <<- EOF
+	[Desktop Entry]
+	Name=Chroot Browser ($APP_NAME)
+	Comment=Browse the World Wide Web
+	GenericName=Web Browser
+	X-GNOME-FullName=$APP_NAME Web Browser
+	Exec=${launch_default_chroot_browser}
+	Terminal=false
+	X-MultipleArgs=false
+	Type=Application
+	Icon=org.xfce.webbrowser
+	Categories=Network;WebBrowser;
+	MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/vnd.mozilla.xul+xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;
+	StartupNotify=true
+	EOF
+	my-superuser cp -r "/usr/share/my_stuff/system_files/applications/${chroot_default_browser_name}.desktop" "/usr/share/applications"
+	printf "Do you want to set ${APP_NAME} as default browser? 'my-www-browser' (yes or no)"
+    stty -icanon -echo time 0 min 1
+	answer2="$(head -c1)"
+	stty icanon echo
+    echo
+    if [ "$answer2" = "y" ] || [ "$answer2" = "Y" ]; then
+     	my-superuser ln -sf "$launch_default_chroot_browser" "$my_www_browser_path"
+    fi
+}
+
+end_of_chroot_creater(){	
+	say "Creating launch script to run $APP_NAME from the host..."
+	my-superuser tee "$script_chroot_browser_path" > /dev/null <<- EOF
+	#!/bin/sh
+	if ! mountpoint -q "$BROWSERS_CHROOT_DIR/proc"; then
+		mount --bind "/proc" "$BROWSERS_CHROOT_DIR/proc"
+	fi
+	chroot "$BROWSERS_CHROOT_DIR" su - $CHROOT_USER -c "export DISPLAY=:0.0 && $(which $APP_NAME)"
+	EOF
+	my-superuser chmod 755 "$script_chroot_browser_path" || failed_to_run "Failed to set execute permission on launch script"
+	
+	my-superuser tee "$launch_chroot_browser" > /dev/null <<- EOF
+	#!/bin/sh
+	my-superuser \"$script_chroot_browser_path\"
+	EOF
+	my-superuser chmod 755 "$launch_chroot_browser" || failed_to_run "Failed to set execute permission on launch script"
+	
+	if [ -f "/etc/doas.conf" ];then
+		my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
+		permit persist :users as root cmd $launch_chroot_browser
+		EOF
+	else
+		my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+		permit persist :users as root cmd $launch_chroot_browser
+		EOF
+	fi
+	
+	if [ -d "/etc/sudoers.d" ];then
+		my-superuser tee "/etc/sudoers.d/chroot_${APP_NAME}" > /dev/null <<- EOF
+		%users ALL=(ALL) NOPASSWD: $launch_chroot_browser
+		EOF
+		my-superuser chmod 400 "/etc/sudoers.d/chroot_${APP_NAME}"
+	fi
+	
+	if [ ! -f "$launch_default_chroot_browser" ];then
+		create_default_chroot_browser
+	else
+		printf "Do you want to set ${APP_NAME} as default chroot browser?(yes or no)"
+        stty -icanon -echo time 0 min 1
+		answer1="$(head -c1)"
+		stty icanon echo
+        echo
+        if [ "$answer1" = "y" ] || [ "$answer1" = "Y" ]; then
+        	create_default_chroot_browser
+        fi
+	fi
+	say 
+	say 
+	say "You can now launch $APP_NAME from the chroot using the command: $SCRIPT_NAME"	
+}
+
+. "/usr/share/my_stuff/lib/chroot/var"
+
+SCRIPT_NAME="chroot-${APP_NAME}"
+CHROOT_DIR="${BROWSERS_CHROOT_DIR}"
+	
+. "/usr/share/my_stuff/lib/chroot/functions"
+trap cleanup EXIT # from chroot_functions
+chroot_creater
+
+script_chroot_browser_path="${CHROOT_SCRIPT_PATH}/${SCRIPT_NAME}"
+launch_chroot_browser="${LAUNCH_SCRIPT_PATH}/${SCRIPT_NAME}"
+say "Installing $APP_NAME in the chroot..."

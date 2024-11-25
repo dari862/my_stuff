@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 __arg="${1-}"
 
 interactive_upgrade(){
@@ -16,7 +16,7 @@ print_total_updates(){
     else
     	BAR_ICON=""
 	fi
-	source "/usr/share/my_stuff/system_files/update-notification.conf"
+	. "/usr/share/my_stuff/system_files/update-notification.conf"
 	
 	UPDATES=$(cat "$updates_file" | wc -l)
 	

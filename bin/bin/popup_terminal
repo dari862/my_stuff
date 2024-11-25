@@ -32,6 +32,10 @@ run_commands(){
 	${terminal_name} -T "Running ${file_name_}." -e bash -c "${file_name_}"
 }
 
+run_chroot(){
+	${terminal_name} -T "Create ${file_name_} Chroot." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
+}
+
 run_tweek(){
 	${terminal_name} -T "${file_name_}." -e bash -c "${my_installer_script_name} ${arg_}  ${file_name_}"
 }
@@ -59,6 +63,7 @@ case $arg_ in
 		--deploy) deploy_distrobox_container ;;
 		--container) deploy_container ;;
 		--commands) run_commands ;;
+		--chroot) run_chroot ;;
 		--tweek) run_tweek ;;
 		--man) run_man ;;
 		--editor) run_editor ;;

@@ -1,11 +1,10 @@
-#!/bin/bash
-if [ "$1" = "--check" ];then
-	if [ -e "/sys/kernel/iommu_groups/*" ] || [ -e "/sys/class/iommu/*" ] || $(cat /proc/cmdline | grep -q "iommu=on") || egrep -c '(vmx|svm)' /proc/cpuinfo;then
-		echo enabled
+#!/bin/sh
+if [ "$1" = "--is-enable" ];then
+	if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || $(cat /proc/cmdline | grep -q "iommu=on") || egrep -cq '(vmx|svm)' /proc/cpuinfo;then
+		exit 0
 	else
-		echo disabled
+		exit 1
 	fi
-	exit 0
 fi
 
 cpu_are=""
@@ -13,17 +12,18 @@ HVE=""
 virtualization_ready_file="/usr/share/my_stuff/system_files/virtualization_ready"
 
 yes_or_no(){
-	local MSG="${1-}"
-	read -r -p "${MSG} (yes/no) (default: yes)" yn
-	yn="${yn^^}"
+	MSG="${1-}"
+	printf "%s (yes/no) (default: yes):" "${MSG}"
+	read -r yn
+	yn="$(printf "%s" "$yn" | tr '[:lower:]' '[:upper:]' )"
+	[ -z "$yn" ] && yn="Y"
 	[ "$yn" = "YES" ] && yn="Y"
-	[ "$yn" = "" ] && yn="Y"
 	[ "$yn" != "Y" ] && exit
 }
 
 check_IOMMU_support(){
 	echo "checking if IOMMU enabled"
-	if [ -e "/sys/kernel/iommu_groups/*" ] || [ -e "/sys/class/iommu/*" ] || $(cat /proc/cmdline | grep -q "iommu=on") || egrep -c '(vmx|svm)' /proc/cpuinfo;then
+	if ls "/sys/kernel/iommu_groups/"* || ls "/sys/class/iommu/"* || $(cat /proc/cmdline | grep -q "iommu=on") || egrep -c '(vmx|svm)' /proc/cpuinfo;then
 		echo "IOMMU enabled"
 	else
 		echo "IOMMU Disabled"
@@ -82,22 +82,23 @@ check_if_host_ready_for_virt(){
 }
 
 Reload_KVM_Kernel_Modules(){
-	echo "FUNCTION: Reload KVM Kernel Modules"
-	if [[ $cpu_are == "amd" ]]; then
+	printf "FUNCTION: Reload KVM Kernel Modules"
+	if [ $cpu_are = "amd" ]; then
     	my-superuser modprobe -r kvm_amd kvm
     	my-superuser modprobe kvm 
     	my-superuser modprobe kvm_amd nested=1 
-	elif [[ $cpu_are == "intel" ]]; then
+	elif [ $cpu_are = "intel" ]; then
   		my-superuser modprobe -r kvm_intel kvm
     	my-superuser modprobe kvm
     	my-superuser modprobe kvm_intel nested=1
 	fi
-	echo -e "Modprobe finished"
+	printf "Modprobe finished \n"
 }
 
 failed_(){
 	echo ' --- Installtion Failed --- ' 
-	read -p '  Press any key to exit'
+	echo '  Press any key to exit'
+	read -r
 	exit
 }  
 

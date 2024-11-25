@@ -17,13 +17,13 @@ else
 	clear
 	
 	say 'Installing package...' 1
-	
-	cd "$(mktemp -d)" && wget -qO- 'https://api.github.com/repos/Heroic-Games-Launcher/HeroicGamesLauncher/releases/latest' \
+  	cd "$(mktemp -d)"
+	download_url="$(getURL '2term' 'https://api.github.com/repos/Heroic-Games-Launcher/HeroicGamesLauncher/releases/latest' \
   	| grep '"browser_download_url"' \
   	| grep '.deb' \
   	| cut -f2,3 -d':' \
   	| tr -d '"' \
-  	| head -1 \
-  	| xargs wget -i -
+  	| head -1)" 
+	getURL 'download' "${download_url}"
 	my-superuser apt-get install -y ./heroic_*.deb
 fi

@@ -8,12 +8,12 @@ case $(uname -m) in
 esac
 
 # Check if the system is macOS
-if [[ $(uname -s) == "Darwin" ]]; then
+if [ $(uname -s) = "Darwin" ]; then
 	OS="mac"
 else
 	OS="linux"
 fi
 
 say 'Installing tgpt ...' 1
-my-superuser curl -SL --progress-bar "https://github.com/aandrew-me/tgpt/releases/latest/download/tgpt-${OS}-${ARCH}" -o /usr/local/bin/tgpt  || continue
-my-superuser chmod +x /usr/local/bin/tgpt
+getURL '2term' "https://github.com/aandrew-me/tgpt/releases/latest/download/tgpt-${OS}-${ARCH}" | my-superuser tee /usr/share/my_stuff/system_files/bin/tgpt >/dev/null 2>&1 || continue
+my-superuser chmod +x /usr/share/my_stuff/system_files/bin/tgpt

@@ -1,3 +1,3 @@
 #!/bin/sh
 say 'Installing zed...' 1
-curl https://zed.dev/install.sh | sh
+getURL '2term' https://zed.dev/install.sh | sh

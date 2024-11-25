@@ -6,9 +6,9 @@
 ## Openbox Pipemenu to change openbox styles
 
 # Variables and functions
-source "/usr/share/my_stuff/lib/common/WM"
-source "/usr/share/my_stuff/lib/common/panel"
-source "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/panel"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 	# Dir and Files
 	if ! . "/usr/share/my_stuff/lib/common/panel" 2> /dev/null; then
@@ -30,19 +30,19 @@ source "/usr/share/my_stuff/lib/common/includes_functions"
 		BAR='xfce4-panel'
 	fi
 	
-	if command -v polybar &> /dev/null; then
+	if command -v polybar >/dev/null 2>&1; then
 		polybar_installed=true
 	else
 		polybar_installed=false
 	fi
 	
-	if command -v tint2 &> /dev/null; then
+	if command -v tint2 >/dev/null 2>&1; then
 		tint2_installed=true
 	else
 		tint2_installed=false
 	fi
 	
-	if command -v xfce4-panel &> /dev/null; then
+	if command -v xfce4-panel >/dev/null 2>&1; then
 		xfce4_installed=true
 	else
 		xfce4_installed=false

@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-if command -v mise &> /dev/null; then
+if command -v mise >/dev/null 2>&1; then
 	# shellcheck disable=SC1090
 	# Exit if the 'mise' command can not be found
 	if ! (( $+commands[mise] )); then

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-app_name=(avahi-autoipd avahi-daemon avahi-discover gvfs libnss-mdns samba)
+app_name="avahi-autoipd avahi-daemon avahi-discover gvfs libnss-mdns samba"
 
 say 'Installing package...' 1
 

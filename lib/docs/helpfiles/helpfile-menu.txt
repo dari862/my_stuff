@@ -45,7 +45,7 @@ jgmenu can use xml pipemenus written for Openbox, or csv pipemenus.
     for Openbox will also run fine in jgmenu).
     
     CSV pipemenus use the menu generation functions provided in
-    /usr/share/my_stuff/lib/common/includes_functions and have entries like:
+    /usr/share/my_stuff/lib/common/pipemenu and have entries like:
     
     	jgmenuItem 'takescreenshot' "Screenshot Now" "ac-shots"
 

@@ -208,7 +208,12 @@ getboxes() {
 	if [ -n "${force+x}" ]; then
 		mailboxes="$(printf "INBOX\\nDrafts\\nJunk\\nTrash\\nSent\\nArchive")"
 	else
-		info="$(curl --location-trusted -s -m 5 --user "$login:$(pass "$passprefix$fulladdr")" --url "${protocol:-imaps}://$imap:${iport:-993}")"
+		if command -v curl >/dev/null 2>&1;then
+			info="$(curl --location-trusted -s -m 5 --user "$login:$(pass "$passprefix$fulladdr")" --url "${protocol:-imaps}://$imap:${iport:-993}")"
+		elif command -v wget >/dev/null 2>&1;then
+			info="$(wget --quiet --timeout=5 --user="$login:$(pass "$passprefix$fulladdr")" --header="Authorization: Basic $(echo -n "$login:$(pass "$passprefix$fulladdr")" | base64)" --method=GET --body-data="" --output-document=- "${protocol:-imaps}://$imap:${iport:-993}")"
+
+		fi
 		[ -z "$info" ] && errorexit
 		mailboxes="$(echo "$info" | grep -v HasChildren | sed "s/.*\" //;s/\"//g" | tr -d '\r')"
 	fi

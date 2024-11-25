@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
@@ -8,11 +8,9 @@
 
 Laptop_Name="$(cat /sys/class/dmi/id/product_version)"
 
-if [[ "$Laptop_Name" ]]; then
-	Laptop_Thinkpad_X1="$(echo ${Laptop_Name,,} | grep 'thinkpad')"
+if [ "$Laptop_Name" ]; then
+	Laptop_Thinkpad_X1="$(echo "$Laptop_Name" | tr '[:upper:]' '[:lower:]' | grep 'thinkpad')"
 fi
-
-SFILE="$polybar_dir/system.ini"
 
 CARD=""
 BATTERY=""
@@ -20,59 +18,81 @@ ADAPTER=""
 INTERFACE=""
 TemperaturePath=""
 
-## create `system.ini` file
+## create system.ini file
 create_system_file_ini() {
-tee $SFILE <<- 'EOF' > /dev/null
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
-;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-;;
-;; System Variables (Edit according to your system)
-;;
-;; Warning : DO NOT DELETE THIS FILE
-;;
-;; Run `ls -1 /sys/class/power_supply/` to list list batteries and adapters.
-;;
-;; Run `ls -1 /sys/class/backlight/` to list available graphics cards.
-;;
-;; Run `ip link | awk '/state UP/ {print $2}' | tr -d :` to get active network interface.
-;;
-;; Polybar Variables For Modules :
-;; card = ${system.graphics_card}
-;; battery = ${system.battery}
-;; adapter = ACAD
-;; interface = ${system.network_interface}
-;; temperature = ${system.temperature}
+	tee $SFILE <<- EOF > /dev/null
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; System Variables (Edit according to your system)
+	;;
+	;; Warning : DO NOT DELETE THIS FILE
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; RUN for "BATTERY" : upower -i \$(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]'
+	;;
+	;; RUN for "ADAPTER" : upower -i \$(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]'
+	;;
+	;; RUN for "CARD" : light -L | grep 'backlight' | head -n1 | cut -d'/' -f3
+	;;
+	;; RUN for "INTERFACE" ethernet : ip link | awk '/UP/ {print \$2}' | tr -d : | grep -v lo | grep "^e" | head -n 1
+	;;
+	;; RUN for "INTERFACE" wifi : ip link | awk '/UP/ {print \$2}' | tr -d : | grep -v lo | grep "^w" | head -n 1
+	;;
+	;; RUN for "VPN_INTERFACE" : ip link | awk '/UP/ {print \$2}' | tr -d : | grep -v lo | grep "tun" | head -n 1 
+	;;
+	;; RUN for "TemperaturePath" : (for i in /sys/class/hwmon/hwmon*/temp*_input; do echo "\$(<\$(dirname \$i)/name): \$(cat \${i%_*}_label 2>/dev/null || echo \$(basename \${i%_*})) \$(readlink -f \$i)"; done) | grep "coretemp" | grep "temp1" | awk '{print \$5}')
+	;;
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; Polybar Variables For Modules :
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; adapter = \${system.adapter}
+	;; battery = \${system.battery}
+	;; graphics_card = \${system.graphics_card}
+	;; network_interface = \${system.network_interface}
+	;; vpn_interface = \${system.vpn_interface}
+	;; AC_only_prefix = \${system.AC_only_prefix}
+	;; AC_only_content = \${system.AC_only_content}
+	;; temperature = \${system.temperature}
+	;; distro_icon = \${system.distro_icon}
+	;; distro_name = \${system.distro_name}
+	;; NO_BT_content = \${system.NO_BT_content}
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
-[system]
-adapter = ACAD
-battery = BAT1
-graphics_card = amdgpu_bl0
-network_interface = ens32
-vpn_interface = ""
-AC_only_prefix = "  "
-AC_only_content = " AC only "
-temperature = temperature_path
-distro_icon = {distro_icon}
-distro_name = "{distro_name}"
-NO_BT_content = " "
-;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-EOF
+	[system]
+	adapter = $ADAPTER
+	battery = $BATTERY
+	graphics_card = $CARD
+	network_interface = $INTERFACE
+	vpn_interface = $VPN_INTERFACE
+	AC_only_prefix = "  "
+	AC_only_content = " AC only "
+	temperature = $TemperaturePath
+	distro_icon = $distro_icon
+	distro_name = "$distro_name"
+	NO_BT_content = " "
+	workspace_name = "$workspace_name"
+	saved_WM_name = "$saved_WM_name"
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	EOF
 }
 
 ## Get system variable values for various modules
 get_values() {
-	if command -v light >/dev/null
-	then
+	if command -v upower >/dev/null;then
+		ADAPTER=$(upower -i $(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
+		BATTERY=$(upower -i $(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
+	fi
+	
+	if command -v light >/dev/null;then
 		CARD=$(light -L | grep 'backlight' | head -n1 | cut -d'/' -f3)
 	fi
-	
-	if command -v upower >/dev/null
-	then
-		BATTERY=$(upower -i $(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
-		ADAPTER=$(upower -i $(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
-	fi
-	
+
 	E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
 	W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
 	
@@ -86,52 +106,24 @@ get_values() {
 	
 	VPN_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "tun" | head -n 1  )"
 	
+	workspace_name="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2 | tr -d '0-9')"
+	[ -z "$workspace_name" ] && workspace_name="empty"	
+	
+	saved_WM_name="$(cat $WM_name_file)"
+	
 	#varibale TemperaturePath are set at the end
-	TemperaturePath="$( (for i in /sys/class/hwmon/hwmon*/temp*_input; do echo "$(<$(dirname $i)/name): $(cat ${i%_*}_label 2>/dev/null || echo $(basename ${i%_*})) $(readlink -f $i)"; done) | grep "coretemp" | grep "temp1" | awk '{print $5}')"
-	
-}
-
-## Write values to `system.ini` file
-set_values() {
-	if [[ "$ADAPTER" ]]; then
-		sed -i "s/adapter = .*/adapter = $ADAPTER/g" 						${SFILE}
-	fi
-	if [[ "$BATTERY" ]]; then
-		sed -i "s/battery = .*/battery = $BATTERY/g" 						${SFILE}
-	fi
-	if [[ "$CARD" ]]; then
-		sed -i "s/graphics_card = .*/graphics_card = $CARD/g" 				${SFILE}
-	fi
-	if [[ "$INTERFACE" ]]; then
-		sed -i "s/network_interface = .*/network_interface = $INTERFACE/g" 	${SFILE}
-	fi
-	
-	if [[ "$VPN_INTERFACE" ]]; then
-		sed -i "s/VPN_INTERFACE = .*/VPN_INTERFACE = $VPN_INTERFACE/g" 	${SFILE}
-	fi
-	
-	if [[ "$TemperaturePath" ]]; then
-		sed -i "s|temperature = .*|temperature = $TemperaturePath|g" 	${SFILE}
-	fi
-	
-	sed -i "s/{distro_icon}/${distro_icon}/g" 	${SFILE}
-	sed -i "s/{distro_name}/${distro_name}/g" 	${SFILE}
-	 	
- 	# Change xprop_NET_DESKTOP_NAMES to desktop name
- 	xprop_NET_DESKTOP_NAMES="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2)"
- 	find $HOME/.config/polybar/. -type f -exec sed -i "s/_System_Net_Desktop_Names/${xprop_NET_DESKTOP_NAMES}/g" {} +
- 	
+	TemperaturePath="$(for i in /sys/class/hwmon/hwmon*/temp*_input; do name_file="$(dirname "$i")/name"; if [ -f "$name_file" ]; then name=$(cat "$name_file"); else name=""; fi; label_file="${i%_*}_label"; if [ -f "$label_file" ]; then label=$(cat "$label_file"); else label="$(basename "${i%_*}")"; fi; echo "$name: $label $(readlink -f "$i")"; done | grep "coretemp" | grep "temp1" | awk '{print $5}')"
 }
 
 # Fix backlight and network modules
 fix_modules() {
 	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
-		if [[ -z "$CARD" ]]; then
+		if [ -z "$CARD" ]; then
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
 			find $polybar_dir/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
 			find $polybar_dir/panels -type f -exec sed -i 's/ bna / backlight /g' {} +
-		elif [[ "$CARD" != *"intel_"* ]] || [[ "$Laptop_Thinkpad_X1" ]] ; then
+		elif echo "$CARD" | grep -q "intel_" || [ -n "$Laptop_Thinkpad_X1" ] ; then
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna / brightness /g' {} +
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / brightness-bar /g' {} +
 			find $polybar_dir/pwidgets -type f -exec sed -i 's/ bna / brightness /g' {} +
@@ -143,7 +135,7 @@ fix_modules() {
 		find $polybar_dir/panels -type f -exec sed -i 's/ AC_only / battery /g' {} +
 	fi
 	
-	if [[ "$INTERFACE" == e* ]]; then
+	if echo "$INTERFACE" | grep -q "^e"; then
 		find $polybar_dir -type f -name config.ini -exec sed -i 's/ network / ethernet /g' {} +
 		find $polybar_dir/pwidgets -type f -exec sed -i 's/ network / ethernet /g' {} +
 		find $polybar_dir/panels -type f -exec sed -i 's/ network / ethernet /g' {} +
@@ -171,15 +163,14 @@ remove_modules() {
  	find $polybar_dir -type f -exec sed -i 's/ bluetooth/ no_bluetooth/g' {} +
  	find $polybar_dir -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
- 	if [[ -z "$VPN_INTERFACE" ]]; then
+ 	if [ -z "$VPN_INTERFACE" ]; then
  		find $polybar_dir -type f -name config.ini -exec sed -i 's/ vpn_m/ no_vpn_m/g' {} +
  	else
  		find $polybar_dir -type f -name config.ini -exec sed -i 's/ no_vpn_m/ vpn_m/g' {} +
  	fi
 }
 
-create_system_file_ini
 get_values
-set_values
+create_system_file_ini
 fix_modules
 remove_modules

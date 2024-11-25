@@ -109,7 +109,7 @@ beep () {
     [[ -z "$loops" ]] && loops="1"
     for ((i=1; i<=loops; i++))
     do
-        timeout -s HUP 0.2 speaker-test -t sine -f 1000 &>/dev/null
+        timeout -s HUP 0.2 speaker-test -t sine -f 1000 >/dev/null 2>&1
         sleep 0.2
     done
 }
@@ -291,7 +291,7 @@ if [[ "$1" != "--reaction" ]] ; then
     (( setdelay )) && delay="$(date +%_S.%N)"
 
     # set 'at'
-    at -M "$attime" <<< "$(echo "sleep $delay; DISPLAY=${DISPLAY} beepmein --reaction $alarm '${reason}'")" &>/dev/null || { superecho "at input error." ; beep "2"; exit 1; } # beep two times for error
+    at -M "$attime" <<< "$(echo "sleep $delay; DISPLAY=${DISPLAY} beepmein --reaction $alarm '${reason}'")" >/dev/null 2>&1 || { superecho "at input error." ; beep "2"; exit 1; } # beep two times for error
 
 else
     # reaction
@@ -299,12 +299,12 @@ else
     if [ "$1" == "--alarm" ]; then
         shift
         notify-send "$1" &
-        blink 3 0.2 &>/dev/null &
+        blink 3 0.2 >/dev/null 2>&1 &
         playa "$alarmSample" || alarmfailsafe
         wait
     else
         notify-send "$1" &
-        blink 1 0 &>/dev/null &
+        blink 1 0 >/dev/null 2>&1 &
         playa "$reminderSample" || beep "3"
         wait
     fi

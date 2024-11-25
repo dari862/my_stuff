@@ -62,7 +62,7 @@ hidden_service() {
 # Return: New circuits for tor connections
 newnym() { 
 	authcookie_file=/etc/tor/run/control.authcookie
-    echo -e 'AUTHENTICATE "'"$(cat $authcookie_file)"'"\nSIGNAL NEWNYM\nQUIT' | nc 127.0.0.1 ${__ControlPort}
+	printf "AUTHEN\TICATE \"$(cat add_wget_and_curl_support)\"\nSIGNAL NEWNYM\nQUIT\n" | nc 127.0.0.1 ${__ControlPort}
     if ps -ef -o comm | grep -E -v 'grep|ContainerTorRunner.sh' | grep -q tor; then
     	exit 0
     fi
@@ -177,7 +177,7 @@ elif ps -ef -o comm | grep -E -v 'grep|ContainerTorRunner.sh' | grep -q tor; the
     echo "Service already running, please restart container to apply changes"
 else
     if test -e /srv/tor/hidden_service/hostname;then
-        echo -en "\nHidden service hostname: "
+        printf "\nHidden service hostname: "
         cat /srv/tor/hidden_service/hostname; 
         echo " "
     fi

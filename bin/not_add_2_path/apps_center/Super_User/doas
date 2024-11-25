@@ -14,7 +14,7 @@ Package_installer_ expect || continue
 # end to temp
 my-superuser ln -sf /usr/share/my_stuff/lib/apps/doas/doasedit /usr/share/my_stuff/system_files/bin
 my-superuser ln -sf /usr/share/my_stuff/lib/apps/doas/apps_as_root /usr/share/my_stuff/system_files/bin
-my-superuser cp -r /usr/share/my_stuff/lib/apps/doas/doas.conf /etc
+my-superuser cp -r /usr/share/my_stuff/system_files/doas.conf /etc
 
 my-superuser adduser "$USER" sudo || :
 

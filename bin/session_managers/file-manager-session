@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: file-manager-session
 # DESCRIPTION: manage file-manager processes for start, restart and stop all file-manager instances
@@ -20,7 +20,7 @@ fi
 # NAME: stop
 # DESCRIPTION: stop all keyring process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof $file_manager_name)" ] && killall $file_manager_name
 	[ "$(pidof $file_manager_name)" ] && killall -9 $file_manager_name
 }
@@ -30,13 +30,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: load file-manager
 #===================================================================================
-function start() {
+start() {
 	${file_manager_command} &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start)
 		start		
 	;;

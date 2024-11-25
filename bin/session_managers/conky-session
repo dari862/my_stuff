@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: conky-session
 # DESCRIPTION: manage conky processes for start, restart and stop all conky instances
@@ -21,7 +21,7 @@ fi
 # NAME: stop
 # DESCRIPTION: stop all conky process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof conky)" ] && killall conky
 	[ "$(pidof conky)" ] && killall -9 conky
 }
@@ -31,18 +31,18 @@ function stop() {
 # NAME: start
 # DESCRIPTION: load conkyrc2core file in user conky path based on conky_theme_now var
 #===================================================================================
-function start() {
+start() {
 	sleep 3
 	while IFS="" read -r theme || [ -n "$theme" ]
 	do
-		(conky -c $HOME/$theme &>/dev/null) &
+		(conky -c $HOME/$theme >/dev/null 2>&1) &
   		sleep 0.5
 	done < ${conky_theme_file}
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

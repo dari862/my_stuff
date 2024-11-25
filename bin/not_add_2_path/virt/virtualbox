@@ -1,21 +1,21 @@
-#!/bin/bash
-
+#!/bin/sh
+	ep_url="https://download.virtualbox.org/virtualbox/7.1.4/Oracle_VirtualBox_Extension_Pack-7.1.4-165100.vbox-extpack"
+	t=$(mktemp -d)
 	say 'Installing package...' 1
 	
-	Package_installer_ curl wget gnupg2 lsb-release || failed_
-	curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc| my-superuser gpg --dearmor -o /etc/apt/trusted.gpg.d/vbox.gpg 
-	curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc| my-superuser gpg --dearmor -o /etc/apt/trusted.gpg.d/oracle_vbox.gpg 
+	Package_installer_ gnupg2 lsb-release || failed_
+	download_key "gpg" "https://www.virtualbox.org/download/oracle_vbox_2016.asc" "/etc/apt/trusted.gpg.d/vbox.gpg "
+	download_key "gpg" "https://www.virtualbox.org/download/oracle_vbox.asc" "/etc/apt/trusted.gpg.d/oracle_vbox.gpg "
 	echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" | my-superuser tee /etc/apt/sources.list.d/virtualbox.list > /dev/null 2>&1
 	Package_update_   || failed_
-	Package_installer_ linux-headers-$(uname -r) dkms virtualbox-$(curl -s https://download.virtualbox.org/virtualbox/LATEST.TXT | cut -d '.' -f1).* virtualbox-ext-pack || failed_
+	Package_installer_ linux-headers-$(uname -r) dkms virtualbox-$(getURL '2term' "https://download.virtualbox.org/virtualbox/LATEST.TXT" | cut -d '.' -f1).* virtualbox-ext-pack || failed_
 	my-superuser usermod -aG vboxusers $USER 
-	# Install extension pack
-	echo -e "\e[1mDownloading and installing Extension pack..\e[0m"
-	t=$(mktemp -d)
-	wget -P "$t" "$ep_url"  
-	[ $? -eq 0 ] && yes | vboxmanage extpack install --replace "$t"/*extpack 
-	rm -rf "$t"
 	
+	printf "\e[1mDownloading and installing Extension pack..\e[0m\n"
+	if getURL 'download2' "$t" "$ep_url";then
+		yes | my-superuser vboxmanage extpack install --replace "$t"/*extpack 
+		rm -rf "$t"
+	fi	
 	say
 	say "virtualbox has been installed successfully."
 	say

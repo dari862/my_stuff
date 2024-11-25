@@ -1,14 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 lightdmconf="/etc/lightdm/lightdm.conf"
-is_autologin_enable=$(grep "^autologin-user=" "${lightdmconf}")
-
-if [ "$1" = "--check" ];then
-	if test "${is_autologin_enable}"; then
-		echo enabled 
+if [ "$1" = "--is-enable" ];then
+	if grep -q "^autologin-user=" "${lightdmconf}"; then
+		exit 0
 	else
-		echo disabled
+		exit 1
 	fi
-	exit 0
 fi
 
 my-superuser sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}

@@ -166,7 +166,7 @@ EOF
 }
 
 HELP_(){
-	if command -v bc &>/dev/null;then
+	if command -v bc >/dev/null 2>&1;then
 		Usage_bc
 	else
 		Usage_bash
@@ -182,7 +182,7 @@ do
         ;;
     esac
 done
-if command -v bc &>/dev/null;then
+if command -v bc >/dev/null 2>&1;then
 	if [[ -z "$1" ]];then
 		clear
 		

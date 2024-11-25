@@ -2,17 +2,16 @@
 
 app_name="GPU Drivers"
 if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
-	read -p "do you want to add Cuda Support? (Y/n)" a_Cuda;
-	[ "${a_Cuda,,}" = "y" ] && _cuda_="cuda"
-	
-	read -p "do you want to install opensource nvidia-kernel? (Y/n)" a_kernel_open_dkms_;
-	[ "${a_kernel_open_dkms_,,}" = "y" ] && _kernel_open_dkms_="nvidia-kernel-open-dkms"
+	_cuda_=""
+	_kernel_open_dkms_=""
+	say '  do you want to add Cuda Support?' 'Y' && _cuda_="cuda"
+	say 'do you want to install opensource nvidia-kernel?' 'Y' && _kernel_open_dkms_="cuda"
 fi
 
 if [ -f /etc/os-release ]; then
     # freedesktop.org and systemd
     . /etc/os-release
-    version_=$(echo "${VERSION_ID//./}")
+    version_="$(echo "${VERSION_ID}" | sed 's/.//g')"
     distro_name_="$ID"
     distro_name_and_ver_=$ID$version_
 elif [ -f /etc/lsb-release ]; then
@@ -33,7 +32,7 @@ if [ "$distro_name_" = "ubuntu" ];then
 fi
 
 if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
-	curl -fSsL "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" | my-superuser gpg --dearmor | my-superuser tee /usr/share/keyrings/nvidia-drivers.gpg > /dev/null 2>&1
+	download_key "gpg" "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" "/usr/share/keyrings/nvidia-drivers.gpg"
 	echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | my-superuser tee /etc/apt/sources.list.d/nvidia-drivers.list > /dev/null 2>&1
 	
 	say 'Updating sources...' 1

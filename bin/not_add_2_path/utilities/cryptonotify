@@ -10,14 +10,14 @@ date > ~/.cache/crypto/price
 
 echo "$ShortName" | while read coin
 do
-	price=$(curl rate.sx/1$coin 2> /dev/null)
-	if [ $coin = "BAT" ]; then
+	price="$(getURL '2term' rate.sx/1$coin 2> /dev/null)"
+	if [ "$coin" = "BAT" ]; then
 		icon=🦁
-	elif [ $coin = "LBC" ]; then
+	elif [ "$coin" = "LBC" ]; then
 		icon=📖
-	elif [ $coin = "TRX" ]; then
+	elif [ "$coin" = "TRX" ]; then
 		icon=🔺
-	elif [ $coin = "ADA" ]; then
+	elif [ "$coin" = "ADA" ]; then
 		icon="⚛️ "
 	fi
 

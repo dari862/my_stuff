@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 usr_setup_flag_file="$1"
 backup_date="$(date +'%d-%m-%Y-%HH%mm')"
 backup_file_name=".backup-${backup_date}"
 backup_file_path="${HOME}/${backup_file_name}"
 mkdir -p "${backup_file_path}"
 
-remove_this_Array=(
+remove_this_Array="
 .xsessionrc
 .xsession
 .subversion
@@ -30,20 +30,20 @@ remove_this_Array=(
 .profile
 .zprofile
 .xprofile
-)
-for i in ${!remove_this_Array[*]}; do
-	[ -f "${HOME}/${remove_this_Array[$i]}" ] && mv "${HOME}/${remove_this_Array[$i]}" "${backup_file_path}"  &> /dev/null;
+"
+for i in ${remove_this_Array}; do
+	[ -f "${HOME}/${i}" ] && mv "${HOME}/${i}" "${backup_file_path}"  > /dev/null 2>&1
 done
 
 mkdir -p "${backup_file_path}/.config"
-move_this_Array=($(ls /usr/share/"my_stuff"/system_files/skel/.config/))
-for movethis in "${move_this_Array[@]}"; do
-	[ -e "${HOME}/.config/${movethis}" ] && mv "${HOME}/.config/${movethis}" "${backup_file_path}/.config"  &> /dev/null;
+move_this_Array="$(ls /usr/share/"my_stuff"/system_files/skel/.config/)"
+for movethis in ${move_this_Array}; do
+	[ -e "${HOME}/.config/${movethis}" ] && mv "${HOME}/.config/${movethis}" "${backup_file_path}/.config"  > /dev/null 2>&1
 done
 
 cp -rf /usr/share/my_stuff/system_files/skel/. $HOME || cp -rf /usr/share/my_stuff/system_files/skel/. $HOME
 
-wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" &>/dev/null && is_it_zero_byte="true"
+wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" > /dev/null 2>&1 && is_it_zero_byte="true"
 
 [ "${is_it_zero_byte}" = "true" ] && cp -rf /usr/share/my_stuff/system_files/skel/. $HOME
 
@@ -52,11 +52,11 @@ wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" &>/dev/null && is_it_ze
 cd $HOME
 
 for hf in .bash_histor*;do
-	new_hf=${hf/./}
-	mv $hf .local/share/bash_history/$new_hf &>/dev/null || :
+	new_hf="$(echo "$hf" | sed "s/^.//g")"
+	mv $hf .local/share/bash_history/$new_hf > /dev/null 2>&1 || :
 done
 
-mv $HOME/.lesshst $HOME/.cache/lesshst &>/dev/null || :
+mv $HOME/.lesshst $HOME/.cache/lesshst > /dev/null 2>&1 || :
 
 if command -v xfconf-query >/dev/null ; then
 	xfconf-query -c xfwm4 -np /general/theme -t 'string' -s Adwaita

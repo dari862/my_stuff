@@ -8,10 +8,10 @@ if [ -f "$__config_path" ];then
 	source <(sed '/^# /d;/^#!/d;s/#//g' "$__config_path")
 else
 	__tlp_="tlp"
-	if command -v $__tlp_ &> /dev/null; then
-		yad --form --width="200" --height="100" --field="$__tlp_ not found : apt install $__tlp_:LBL" &>/dev/null
+	if command -v $__tlp_ >/dev/null 2>&1; then
+		yad --form --width="200" --height="100" --field="$__tlp_ not found : apt install $__tlp_:LBL" >/dev/null 2>&1
 	else
-		yad --form --width="200" --height="100" --field="$__config_path does not exist:LBL" &>/dev/null
+		yad --form --width="200" --height="100" --field="$__config_path does not exist:LBL" >/dev/null 2>&1
 	fi
 	exit
 fi
@@ -946,7 +946,7 @@ show_statistics(){
 	else
 		tlp_stat="$($(which tlp-stat) -c -s -t -r -u)"
 	fi
-	yad --form --scroll --width="720" --height="420" --field="$tlp_stat:LBL" &>/dev/null
+	yad --form --scroll --width="720" --height="420" --field="$tlp_stat:LBL" >/dev/null 2>&1
 	unset tlp_stat
 }
 export -f show_statistics
@@ -1394,8 +1394,8 @@ _restore_default_value(){
 	pkexec cp -r "/usr/share/${Custom_distro_dir_name}/lib/tlp-defaults/tlp-${__tlp_version_}.conf" /etc/tlp.conf
 	exval=$?
 	case $exval in
-        	0) yad --form --width="200" --height="100" --field="$0 restored config to default value:LBL" &>/dev/null;;
-        	1) yad --form --width="200" --height="100" --field="$0 failed to restore default value:LBL" &>/dev/null;;
+        	0) yad --form --width="200" --height="100" --field="$0 restored config to default value:LBL" >/dev/null 2>&1;;
+        	1) yad --form --width="200" --height="100" --field="$0 failed to restore default value:LBL" >/dev/null 2>&1;;
 	esac
 }
 

@@ -13,9 +13,9 @@ Package_installer_ ${app_name} || continue
 # Copy users config
 say "Setting configs to all users..."
 for d in /home/*/ /root/; do
-    [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes 
+    [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes 
     user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-    if [[ -d "$d/.config/myshell" ]];then
+    if [ -d "$d/.config/myshell" ];then
 		my-superuser sed -i 's/export VISUAL=.*/export VISUAL=emacs/g' "$d/.config/myshell/zsh/zprofile"
 		my-superuser sed -i 's/export CLI_EDITER=.*/export CLI_EDITER=emacs/g' "$d/.config/myshell/zsh/zprofile"
 		my-superuser sed -i 's/export VISUAL=.*/export VISUAL=emacs/g' "$d/.config/myshell/bash/profile"

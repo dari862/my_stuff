@@ -17,17 +17,18 @@ set_time_zone(){
 fix_time(){
 	echo "runing fix_time_ function"
 	get_date_from_here=""
-	list_to_test=(debian.com ipinfo.io 104.16.132.229)
+	list_to_test="debian.com ipinfo.io 104.16.132.229"
 	
-	for test in "${list_to_test[@]}";do
-		ping -c 1 $test &>/dev/null && get_date_from_here="$test" && break
+	for test in ${list_to_test};do
+		ping -c 1 $test >/dev/null 2>&1 && get_date_from_here="$test" && break
 	done
 		
-	if [[ -z "$get_date_from_here" ]];then 
-		echo "failed to ping all of this: ${list_to_test[@]}" && exit 1
+	if [ -z "$get_date_from_here" ];then 
+		echo "failed to ping all of this: ${list_to_test}" && exit 1
 	else
-		my-superuser date -s "$(curl --head -sL --max-redirs 0 $get_date_from_here 2>&1 | sed -n 's/^ *Date: *//p')" &>/dev/null
-		__timezone_online="$(curl -s https://ipinfo.io/ 2>/dev/null | grep timezone | awk -F: '{print $2}' | sed 's/"//g;s/,//g;s/ //g')"
+		current_date="$(getURL 'head' "$get_date_from_here" 2>&1 | sed -n 's/^ *Date: *//p')"
+		my-superuser date -s "$current_date" >/dev/null 2>&1
+		__timezone_online="$(getURL '2term' https://ipinfo.io/ 2>/dev/null | grep timezone | awk -F: '{print $2}' | sed 's/"//g;s/,//g;s/ //g')"
 		set_time_zone "$__timezone_online"
 	fi
 }

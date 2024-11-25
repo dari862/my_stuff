@@ -1,20 +1,8 @@
-#!/bin/bash
-#    bl-printing-pipemenu an Openbox pipemenu for configuring printing
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#!/bin/sh
+#    printing-pipemenu an Openbox pipemenu for configuring printing
 
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/chroot/var"
 
 HELP='    bl-printing-pipemenu an Openbox Pipe Menu for configuring printing
     It should normally be called from an openbox menu.
@@ -39,23 +27,23 @@ do
 done
 
 if [ "${1-}" = "-e" ] || [ "${1-}" = "--enable" ];then
-	popup_terminal "echo 'CUPS is installed but not running' && read -p 'Press enter to try to start CUPS' && service_manager start cups.service"
+	popup_terminal "echo 'CUPS is installed but not running' && read -p 'Press enter to try to start CUPS' && superuser $ENABLE_CUPS"
 fi
 
 # Pipemenu
 menuStart
-if dpkg-query -W cups > /dev/null 2>&1; then
-	if type 'system-config-printer' > /dev/null 2>&1 ; then
-		menuItem 'Configure Printers' 'system-config-printer'
+if [ -d "$CUPS_CHROOT_DIR" ]; then
+	if command -v "$CUPS_GUI" > /dev/null 2>&1 ; then
+		menuItem 'Configure Printers' "my-superuser $CUPS_GUI"
 	fi
 	
-	if service_manager is-active cups ; then
+	if ss -tuln | grep -q :631; then
 		menuItem 'open cups admin page' "my-www-browser http://localhost:631"
 	else
 		menuItem 'enable cups admin page' "$0 --enable"
 	fi
 else
-	menuItem 'install Printers Drivers' 'popup_terminal --install cups'
+	menuItem 'install Printers Drivers' 'popup_terminal --chroot cups'
 fi
 menuEnd
 exit 0

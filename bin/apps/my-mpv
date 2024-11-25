@@ -9,7 +9,7 @@ if ! hash mpv; then
     exit 1
 fi
 
-if [[ -z "$@" ]];then
+if [ -z "$@" ];then
 	icon_name="yad-mpv"
 	icon="/usr/share/my_stuff/images/${icon_name}.png"
 		

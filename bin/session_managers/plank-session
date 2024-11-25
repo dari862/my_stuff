@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: plank-session
 # DESCRIPTION: manage plank processes for start, restart and stop all dunst instances
@@ -16,7 +16,7 @@ check_run_plank_="$(cat ${plank_config} 2>/dev/null)"
 # NAME: stop
 # DESCRIPTION: stop all plank process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof plank)" ] && killall plank 
 	[ "$(pidof plank)" ] && killall -9 plank
 }
@@ -26,20 +26,20 @@ function stop() {
 # NAME: start
 # DESCRIPTION: start plank
 #===================================================================================
-function start() {
-  [ "$check_run_plank_" == "yes" ] && exec plank &
+start() {
+  [ "$check_run_plank_" = "yes" ] && exec plank &
 }
 
-function disable() {
+disable() {
   echo "no" > "${plank_config}"
 }
 
-function enable_() {
+enable_() {
   echo "yes" > "${plank_config}"
 }
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

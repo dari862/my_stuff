@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Script for open blueman manager and install it if not installed
 # If BT is running open blueman-manager
 # If BT is not installed installl BT and open manager
@@ -6,7 +6,7 @@
 # NO BT INSTALLED
 if [ "$1" = "-I" ]; then
     # INSTALL BT
-    if ! dpkg -l blueman &>/dev/null || ! dpkg -l bluez 2>/dev/null | grep -q "^ii"; then
+    if ! dpkg -l blueman >/dev/null 2>&1 || ! dpkg -l bluez 2>/dev/null | grep -q "^ii"; then
         # Install package
 		my-installer --install 'bluez'
 
@@ -17,27 +17,30 @@ if [ "$1" = "-I" ]; then
 		echo "  -------------------------------"
         echo "  Users must allow to bluetooth group in order to admin Bluetooth"
 		echo
-        read -p "  Users (space separated): " ul
+        echo "  Users (space separated): "
+        read ul
         for u in $ul; do
             my-superuser adduser $u bluetooth
         done
 
         # Open bt manager
         echo
-        read -p "Press enter to open bluetooth manager"
+        echo "Press enter to open bluetooth manager"
+        read
         blueman-manager
 
     # START BT
     else
         echo "Bluetooth is installed but not running"
-        read -p "Press enter to try to start bluetooth"
+        echo "Press enter to try to start bluetooth"
+        read
         service_manager start bluetooth.service
         sleep 1
         service_manager is-active bluetooth && blueman-manager
     fi
 
 # OPEN BT ADMIN
-elif service_manager is-active bluetooth.service && which blueman-manager &>/dev/null; then
+elif service_manager is-active bluetooth.service && which blueman-manager >/dev/null 2>&1; then
     blueman-manager
     exit
 

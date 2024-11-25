@@ -1,12 +1,10 @@
-#!/bin/bash
-is_bbr_enabled_=$(grep 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ] )
-if [ "$1" = "--check" ];then
-	if [ -z "$is_bbr_enabled_" ];then
-		echo disabled
+#!/bin/sh
+if [ "$1" = "--is-enable" ];then
+	if grep -q 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ];then
+		exit 0
 	else
-		echo enabled 
+		exit 1
 	fi
-	exit 0
 fi
 
 echo "net.core.default_qdisc=fq" | my-superuser tee /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1

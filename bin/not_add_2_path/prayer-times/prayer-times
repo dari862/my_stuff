@@ -77,7 +77,7 @@ check() {
   if [[ "$fetch_prayers" || "$available_month" != "${date[month]}" ]]; then
     echo "-- fetching current month prayer calendar (${date[month]}-${date[year]})"
     # Documentation: https://aladhan.com/prayer-times-api#GetCalendar
-    curl -Lso "$prayers_json" "https://api.aladhan.com/v1/calendar/${date[year]}/${date[month]}?latitude=$lat&longitude=$long&method=$method"
+    getURL 'download2' "https://api.aladhan.com/v1/calendar/${date[year]}/${date[month]}?latitude=$lat&longitude=$long&method=$method" "$prayers_json"
   fi
 }
 

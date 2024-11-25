@@ -4,13 +4,16 @@ app_name="noisetorch"
 
 install_NoiseTorch(){
 	my-superuser tee /tmp/NoiseTorch_updater_my_stuff <<- 'EOF' > /dev/null 
-	wget -qO- 'https://api.github.com/repos/noisetorch/NoiseTorch/releases/latest' \
-  			| grep '"browser_download_url"' \
-  			| grep '.tgz' \
-  			| cut -f2,3 -d':' \
-  			| tr -d '"' \
-  			| head -1 \
-  			| xargs wget -O /tmp/NoiseTorch.tgz
+  		#!/bin/sh
+		set -e
+		. "/usr/share/my_stuff/system_files/Package-manager"
+		download_url="$(getURL '2term' 'https://api.github.com/repos/noisetorch/NoiseTorch/releases/latest' \
+  		| grep '"browser_download_url"' \
+  		| grep '.tgz' \
+  		| cut -f2,3 -d':' \
+  		| tr -d '"' \
+  		| head -1)" 
+		getURL 'download2' "${download_url}" "/tmp/NoiseTorch.tgz"
 		mkdir -p /tmp/NoiseTorch
 		tar -C /tmp/NoiseTorch -h -xzf /tmp/NoiseTorch.tgz
 		cd /tmp/NoiseTorch/.local

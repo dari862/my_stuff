@@ -159,7 +159,7 @@ saveStyle(){
     while IFS="" read -r theme
 	do
 		mkdir -p "$CONFIG_DIR/config/conky"
-		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/conky" &>/dev/null
+		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/conky" >/dev/null 2>&1
 	done < ${conky_sessionfile_file}
 	
 	# getGTKtheme
@@ -185,7 +185,7 @@ saveStyle(){
     sed -i '/^$/d' "${tint2_sessionfile_file}"
     while IFS="" read -r theme
 	do
-		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/tint2" &>/dev/null
+		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/tint2" >/dev/null 2>&1
 	done < ${tint2_sessionfile_file}
 	
 	# getOBtheme
@@ -481,14 +481,14 @@ Launch_YAD_(){
     	
     	# kill lxappearance
     	if [[ $(pgrep lxappearance | grep $pid) ]];then
-        	kill -9 $pid &>/dev/null
+        	kill -9 $pid >/dev/null 2>&1
     	fi
 	
     	# restore hidden windows
     	while read line; do
         	WINDOW=$(echo $line | awk '{print $1}') # Window_ID is first field
         	DTOP=$(echo $line | awk '{print $2}' )  # Desktop number is second field
-        	if (( $DTOP == $CURRDTOP )) &>/dev/null;then
+        	if (( $DTOP == $CURRDTOP )) >/dev/null 2>&1;then
             	xdotool windowactivate "$WINDOW"
         	fi
     	done < "$TMPSCREENSHOT"
@@ -664,7 +664,7 @@ Launch_YAD_(){
 	# test for blobthemes config directory, create if it doesn't exist
 	mkdir -p "$CONFIGPATH"
 	# create file to hold most recent saved configuration name
-	if [[ ! -f $CURSESSION ]] &>/dev/null;then
+	if [[ ! -f $CURSESSION ]] >/dev/null 2>&1;then
     	touch "$CURSESSION"
 	fi
 	countMonitors

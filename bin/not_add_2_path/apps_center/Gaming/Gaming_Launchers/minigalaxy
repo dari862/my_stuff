@@ -17,10 +17,11 @@ else
 	
 	say 'Installing package...' 1
 	
-	cd "$(mktemp -d)" && wget -qO- 'https://api.github.com/repos/sharkwouter/minigalaxy/releases/latest' \
-  	| grep '"browser_download_url"' \
-  	| grep '.deb' \
-  	| cut -f2,3 -d':' \
-  	| tr -d '"' \
-  	| xargs wget && my-superuser apt-get install -y ./minigalaxy_*.deb
+	cd "$(mktemp -d)"
+	download_url="$(getURL '2term' 'https://api.github.com/repos/sharkwouter/minigalaxy/releases/latest' \
+		| grep '"browser_download_url"' \
+		| grep '.deb' \
+		| cut -f2,3 -d':' \
+		| tr -d '"')"
+	getURL 'download' "$download_url" && my-superuser apt-get install -y ./minigalaxy_*.deb
 fi

@@ -36,7 +36,7 @@ panel_picker() {
 	
 	mkdir -p "$WM_config_dir"
 
-	if command -v polybar &> /dev/null
+	if command -v polybar >/dev/null 2>&1
 	then
 		polybar_in_rofi="polybar"
 		((++count))
@@ -45,7 +45,7 @@ panel_picker() {
 		spliter1=""
 	fi
 	
-	if command -v xfce4-panel &> /dev/null
+	if command -v xfce4-panel >/dev/null 2>&1
 	then
 		xfce4_in_rofi="xfce4-panel"
 		((++count))
@@ -54,7 +54,7 @@ panel_picker() {
 		spliter2=""
 	fi
 	
-	if command -v tint2 &> /dev/null
+	if command -v tint2 >/dev/null 2>&1
 	then
 		tint2_in_rofi="tint2"
 		((++count))
@@ -80,7 +80,7 @@ panel_picker() {
 		-theme "$rofi_style_dir"/runner.rasi \
 		<<< "obmenu|bunsenlabs")"
 		if [ "$which_MENU" == "bunsenlabs" ]; then
-			if command -v jgmenu &> /dev/null;then
+			if command -v jgmenu >/dev/null 2>&1;then
 				which_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
 				-theme "$rofi_style_dir"/runner.rasi \
 				<<< "jgmenu|obmenu")"
@@ -127,6 +127,7 @@ panel_launcher() {
 		
 	if [ "$_panel_name_" = "polybar" ]; then 
 		# Start polybar
+		polybar_workspace_fixer
     	polybar-session &
 
 		# Enable power management

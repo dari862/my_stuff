@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 NVIDIA_VENDOR="NVIDIA Corporation"
 AMD_VENDOR="AMD"
 SOFTWARE_VENDOR="Mesa/X.org"
@@ -169,7 +169,7 @@ run_yad_gui_(){
 	exval=$?
 	case $exval in
 		2)
-		__MODE_=${__MODE_::-1}
+		__MODE_=$(echo "$__MODE_" | sed 's/.$//')
 		case $__MODE_ in
     		Integrated) run_Integrated_mode_;;
         	Hybrid) run_Hybrid_mode_;;

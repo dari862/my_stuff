@@ -13,12 +13,12 @@ my-superuser mkdir -p ${distro_path}/updater
 my-superuser mkdir -p ${distro_path}/downloaded
 my-superuser tee ${distro_path}/updater/quran_file_updater <<- 'EOF' > /dev/null
 #!/bin/sh
-
 distro_path="/usr/share/my_stuff/system_files"
+PATH="${distro_path}/bin:$PATH"
 app_name="quran"
-online_ver="$(wget -qO- 'https://api.github.com/repos/0xzer0x/quran-companion/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
+online_ver="$(getURL '2term' 'https://api.github.com/repos/0xzer0x/quran-companion/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
 online_ver_in_app="echo $online_ver | sed 's/v//g'"
-wget https://github.com/0xzer0x/quran-companion/releases/download/$online_ver/Quran_Companion-${online_ver_in_app}-x86_64.AppImage
+getURL 'download2' "https://github.com/0xzer0x/quran-companion/releases/download/$online_ver/Quran_Companion-${online_ver_in_app}-x86_64.AppImage" "/tmp/quran_companion.AppImage"
 mkdir -p Quran
 mv Quran_Companion-${online_ver_in_app}-x86_64.AppImage Quran/Quran_Companion.AppImage
 chmod +x Quran/Quran_Companion.AppImage

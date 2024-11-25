@@ -9,7 +9,7 @@
 dir="$HOME/.config/"
 
 # Variables and functions
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 readonly EXECXCOMP='picom'
 readonly RESTART_ATTEMPTS=20
@@ -61,7 +61,7 @@ if [[ $1 = '--edit' ]]; then # Edit picom settings
     if ! [ -e "$HOME/.config/picom.conf" ]; then
         cp '/usr/share/my_stuff/system_files/skel/.config/picom.conf' "$HOME/.config/picom.conf"
     fi
-    if hash exo-open &>/dev/null; then
+    if hash exo-open >/dev/null 2>&1; then
         exo-open "$HOME/.config/picom.conf"
     else
         geany "$HOME/.config/picom.conf"

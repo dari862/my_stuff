@@ -14,9 +14,9 @@ timestamp=$(date +"%I:%M %p")
 if [ "$crunch_appname" = "Spotify" ]; then
     random_name=$(mktemp --suffix ".png")
     artlink=$(playerctl metadata mpris:artUrl | sed -e 's/open.spotify.com/i.scdn.co/g')
-    curl -s "$artlink" -o "$random_name"
+    getURL 'download2' "$artlink" "$random_name"
     crunch_icon=$random_name
-elif [[ "$crunch_appname" == "AN2Linux" ]]; then
+elif [ "$crunch_appname" = "AN2Linux" ]; then
     crunch_icon="/usr/share/icons/Adwaita/48x48/apps/android-sdk.svg"
 fi
     

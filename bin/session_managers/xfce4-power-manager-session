@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: conky-session
 # DESCRIPTION: manage xfce4-power-manager processes for start, restart and stop all xfce4-power-manager instances
@@ -12,7 +12,7 @@
 # NAME: stop
 # DESCRIPTION: stop all xfce4-power-manager process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof xfce4-power-manager)" ] && killall xfce4-power-manager 
 	[ "$(pidof xfce4-power-manager)" ] && killall -9 xfce4-power-manager
 }
@@ -22,13 +22,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: run xfce4-power-manager
 #===================================================================================
-function start() {
+start() {
   xfce4-power-manager &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

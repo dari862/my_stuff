@@ -2,4 +2,4 @@
 
 say 'Installing package...' 1
 	
-curl -s 'https://liquorix.net/install-liquorix.sh' | my-superuser bash
+getURL '2term' 'https://liquorix.net/install-liquorix.sh' | my-superuser bash

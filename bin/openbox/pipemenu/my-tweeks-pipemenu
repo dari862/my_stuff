@@ -25,8 +25,8 @@ do
     esac
 done
 
-source "/usr/share/my_stuff/lib/common/includes_functions"
-source "/usr/share/my_stuff/lib/common/DB"
+. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/DB"
 
 TWEEKS=($(cat "${tweeks_db_path}"))
 

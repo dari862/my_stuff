@@ -36,11 +36,11 @@ else
 		if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ]; then
 			# REPOSITORY UPDATE-NOTIFICATION
 			say "Updating package repositoriy..."
-			my-superuser apt-get update &> /dev/null
+			my-superuser apt-get update >/dev/null 2>&1
 		else
-			my-superuser killall -9 apt-get  &> /dev/null || my-superuser killall -9 apt &> /dev/null
+			my-superuser killall -9 apt-get  >/dev/null 2>&1 || my-superuser killall -9 apt >/dev/null 2>&1
 			say "Updating package repositoriy..."
-			my-superuser apt-get update &> /dev/null
+			my-superuser apt-get update >/dev/null 2>&1
 		fi
 	}
 	full_upgrade_(){
@@ -59,3 +59,17 @@ else
 		done
 	}
 fi
+
+download_key(){
+	mode="${1-}"
+	url="${2-}"
+	path="${3-}"
+	if [ "${mode}" = "gpg" ];then
+		getURL '2term' "${url}" | my-superuser gpg --dearmor --yes -o "${path}"
+	elif [ "${mode}" = "download" ];then
+		getURL '2term' "${url}" | my-superuser tee "${path}" > /dev/null 2>&1
+	elif [ "${mode}" = "key" ];then
+		getURL '2term' "${url}" | my-superuser apt-key --keyring "${path}" add -
+	fi
+	my-superuser chmod a+r "${path}"
+}

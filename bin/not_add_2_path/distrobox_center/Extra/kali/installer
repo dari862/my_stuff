@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 set -e
 
 distro_name="kali"
@@ -8,12 +8,12 @@ cd "${script_full_path}"
 
 __format=""
 
-if [[ "$CONTAINER_RT" = "podman" ]];then
+if [ "$CONTAINER_RT" = "podman" ];then
 	__format='--format docker'
 fi
 
 mode=""
-if [[ "$mode" == "root" ]]; then
+if [ "$mode" = "root" ]; then
         root_command="--root"
 else
         root_command=""
@@ -32,21 +32,22 @@ wm_kali_linux(){
 	__WM_="kali-desktop-i3 i3blocks rofi acpid dunst feh playerctl alsa-utils xbacklight wireless-tools network-manager"
 	__wm_command="sudo apt-get install -yq ${__WM_} ; exit 0"
 	__arg_="${1-}"
-	if [[ "${__arg_}" = "ask" ]];then
-		read -p '  Do you want to add kali to xsession? (yes or no [default yes])' xsession_kali
-		[[ -z "$xsession_kali" ]] && xsession_kali="yes"
-		xsession_kali="${xsession_kali,,}"
-		[[ "$xsession_kali" = "^y " ]] && xsession_kali="yes"
-		if [[ "$xsession_kali" = "yes" ]];then
+	if [ "${__arg_}" = "ask" ];then
+		say '  Do you want to add kali to xsession? (yes or no [default yes])'
+		read -r yn
+		yn="$(printf "%s" "$yn" | tr '[:lower:]' '[:upper:]' )"
+		[ -z "$yn" ] && yn="Y"
+		[ "$yn" = "YES" ] && yn="Y"
+		if [ "$yn" = "Y" ];then
 			xsession_kali="enabled"
 		fi
-	else
-		if [[ $xsession_kali == "enabled" ]]; then
-			distrobox enter --name "$distro_name" ${root_command} -- "${__wm_command}"
-			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/distrobox_center/Extra/Extra/kali/i3/kali-i3.desktop /usr/share/xsessions/
-			mkdir -p "$prefix/$distro_name"/.config
-			cp -r /usr/share/my_stuff/bin/not_add_2_path/distrobox_center/Extra/kali_i3/.config/* "$prefix/$distro_name"/.config
-		fi
+	fi
+	
+	if [ $xsession_kali = "enabled" ]; then
+		distrobox enter --name "$distro_name" ${root_command} -- "${__wm_command}"
+		my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/distrobox_center/Extra/Extra/kali/i3/kali-i3.desktop /usr/share/xsessions/
+		mkdir -p "$prefix/$distro_name"/.config
+		cp -r /usr/share/my_stuff/bin/not_add_2_path/distrobox_center/Extra/kali_i3/.config/* "$prefix/$distro_name"/.config
 	fi
 }
 
@@ -66,7 +67,7 @@ distrobox create --image "local/${distro_name}" \
          --home "$prefix/$distro_name" ${root_command} || failed_to_run "failed to deploy container image."
 
 say 'Createing container lanucher ...' 1
-echo '#!/bin/bash' > "${tmp_folder}/${distro_name}"
+echo '#!/bin/sh' > "${tmp_folder}/${distro_name}"
 echo "distrobox enter --name \"$distro_name\" ${root_command} " >> "${tmp_folder}/${distro_name}"
 
 chmod +x "${tmp_folder}/${distro_name}"

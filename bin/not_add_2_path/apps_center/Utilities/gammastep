@@ -6,10 +6,10 @@ say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue
 
-if command -v jq &>/dev/null;then
-	_lat_lon="$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | jq -r '"\(.location.lat):\(.location.lng)"')"
-elif command -v awk &>/dev/null;then
-	_lat_lon="$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | awk 'OFS=":" {print $3,$5}' | tr -d ',}')"
+if command -v jq >/dev/null 2>&1;then
+	_lat_lon="$(getURL '2term' "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | jq -r '"\(.location.lat):\(.location.lng)"')"
+elif command -v awk >/dev/null 2>&1;then
+	_lat_lon="$(getURL '2term' "https://location.services.mozilla.com/v1/geolocate?key=geoclue" | awk 'OFS=":" {print $3,$5}' | tr -d ',}')"
 fi
 
 _lat="$(echo ${_lat_lon} | awk -F: '{print $1}')"
@@ -29,7 +29,7 @@ my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adj
 my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/color_temperature_adjuster_gui/tray_color_temperature_adjuster /usr/share/my_stuff/system_files/bin
 
 for d in /home/*/ ; do
-	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" &>/dev/null && continue # Skip dirs that no are homes
+	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 	# Create config folders if no exists
 	d="$d/.config/autostart"; [ ! -d "$d" ] && my-superuser mkdir -v -p "$d" && my-superuser cp -r /usr/share/my_stuff/system_files/skel/.config/autostartscripts/gammastep.sh "$d" && my-superuser chown -R $user_and_group "$d"

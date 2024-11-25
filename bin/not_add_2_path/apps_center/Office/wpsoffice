@@ -4,13 +4,12 @@ t=$(mktemp -d)
 
 say "Downloading packages..."
 
-my-superuser wget -P "$t" "$url"  
-if [ $? -eq 0 ]; then
-	yes | my-superuser dpkg -i "$t/"*
+if getURL '2term' "$url" | my-superuser tee "$t/wps-office" >/dev/null 2>&1;then
+	yes | my-superuser dpkg -i "$t/wps-office"
 	say "Installing packages..."
 	my-superuser Package_installer_ -f
 fi 
-my-superuser rm -rf "$t"
+my-superuser rm -rdf "$t"
 
 # Remove strange WPS dirs ?¿
 my-superuser rm -rf /home/*/模板 /root/模板 /etc/skel/模板

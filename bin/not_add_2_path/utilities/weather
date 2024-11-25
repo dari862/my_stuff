@@ -280,11 +280,11 @@ Show_Weather_Doppler(){
 	getdoppler() {
 		notify-send "🌦️ Doppler RADAR" "Pulling most recent Doppler RADAR for $loc."
 		case "$cont" in
-			"US") curl -sL "https://radar.weather.gov/ridge/standard/${loc}_loop.gif" > "$doppler" ;;
-			"EU") curl -sL "https://api.sat24.com/animated/${loc}/rainTMC/2/" > "$doppler" ;;
-			"AF") curl -sL "https://api.sat24.com/animated/${loc}/rain/2/" > "$doppler" ;;
+			"US") getURL '2term' "https://radar.weather.gov/ridge/standard/${loc}_loop.gif" > "$doppler" ;;
+			"EU") getURL '2term' "https://api.sat24.com/animated/${loc}/rainTMC/2/" > "$doppler" ;;
+			"AF") getURL '2term' "https://api.sat24.com/animated/${loc}/rain/2/" > "$doppler" ;;
 			"DE") loc="$(echo "$loc" | tr "[:upper:]" "[:lower:]")"
-			curl -sL "https://www.dwd.de/DWD/wetter/radar/radfilm_${loc}_akt.gif" > "$doppler" ;;
+			getURL '2term' "https://www.dwd.de/DWD/wetter/radar/radfilm_${loc}_akt.gif" > "$doppler" ;;
 		esac
 	}
 	
@@ -305,7 +305,7 @@ Show_Weather_Forecast(){
 	source "${weather_conf}"
 	
 	# Get a weather report from 'wttr.in' and save it locally.
-	getforecast() { timeout --signal=1 2s curl -sf "$url/$LOCATION" > "$weatherreport" || exit 1; }
+	getforecast() { timeout --signal=1 2s getURL '2term' "$url/$LOCATION" > "$weatherreport" || exit 1; }
 	
 	# Forecast should be updated only once a day.
 	checkforecast() {
@@ -353,7 +353,7 @@ Shows_the_current_moon_phase(){
 	moonfile="${XDG_DATA_HOME:-$HOME/.local/share}/moonphase"
 	
 	[ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ] ||
-		{ curl -sf "wttr.in/?format=%m" > "$moonfile" || exit 1 ;}
+		{ getURL '2term' "wttr.in/?format=%m" > "$moonfile" || exit 1 ;}
 	
 	icon="$(cat "$moonfile")"
 	

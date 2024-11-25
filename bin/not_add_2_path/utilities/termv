@@ -2,6 +2,15 @@
 set -euo pipefail
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
+if command -v curl >/dev/null 2>&1;then
+	get_data_from_url(){
+		curl -s "${1}" --etag-compare "${2}" --etag-save "${3}" -o "${4}" -H "accept-encoding:gzip" --compressed
+	}
+elif command -v wget >/dev/null 2>&1;then
+	get_data_from_url(){
+		wget --quiet --header="accept-encoding:gzip" --compression=gzip --output-document="${4}" --header="If-None-Match: ${2}" --save-headers --no-check-certificate "${1}"
+	}
+fi
 
 opt_="${1-}"
 
@@ -84,9 +93,9 @@ update_jsonfiles(){
     printf '%s' "Downloading ${TERMV_CHANNELS_URL:?}... "
     [ -f "${channelsEtagpath:?}" ] && oldChannelsetag=$(<"${channelsEtagpath}") || oldChannelsetag="null"
 
-    curl -s "${TERMV_CHANNELS_URL}" --etag-compare "${channelsEtagpath:?}" --etag-save "${channelsEtagpath:?}" -o "${TERMV_CACHE_DIR:?}/channels_data.json_new" \
-    -H "accept-encoding:gzip" --compressed && channelsDownloaded=1 || channelsDownloaded=0
-
+	get_data_from_url "${TERMV_CHANNELS_URL}" "${channelsEtagpath:?}" "${channelsEtagpath:?}" "${TERMV_CACHE_DIR:?}/channels_data.json_new" && \
+	channelsDownloaded=1 || channelsDownloaded=0
+	
     newChannelsetag=$(<"${channelsEtagpath}")
 
     if [ ${channelsDownloaded} -eq 1 ] && [ "${newChannelsetag}" = "${oldChannelsetag}" ]; then
@@ -105,9 +114,9 @@ update_jsonfiles(){
     streamsEtagpath="${TERMV_CACHE_DIR:?}/streams_etag"
     printf '%s' "Downloading ${TERMV_STREAMS_URL:?}... "
     [ -f "${streamsEtagpath:?}" ] && oldStreamsetag=$(<"${streamsEtagpath}") || oldStreamsetag="null"
-
-    curl -s "${TERMV_STREAMS_URL}" --etag-compare "${streamsEtagpath:?}" --etag-save "${streamsEtagpath:?}" -o "${TERMV_CACHE_DIR:?}/streams_data.json_new" \
-    -H "accept-encoding:gzip" --compressed && streamsDownloaded=1 || streamsDownloaded=0
+	
+	get_data_from_url "${TERMV_STREAMS_URL}" "${streamsEtagpath:?}" "${streamsEtagpath:?}" "${TERMV_CACHE_DIR:?}/streams_data.json_new" && \
+	streamsDownloaded=1 || streamsDownloaded=0
 
     newStreamsetag=$(<"${streamsEtagpath}")
 
@@ -148,7 +157,7 @@ mkdir -p "${TERMV_CACHE_DIR:?}"
 mkdir -p "${TERMV_LOCAL_DIR:?}"
        
 # check if necessary programs are installed
-check_4_dependencies_if_installed mpv fzf jq curl gawk
+check_4_dependencies_if_installed mpv fzf jq gawk
 
 while [ "$opt_" ]; do
     case "$opt_" in

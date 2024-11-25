@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: dunst-session
 # DESCRIPTION: manage mpd processes for start, restart and stop all mpd instances
@@ -14,7 +14,7 @@ mpdconf_path="$HOME/.config/mpd/mpd.conf"
 # NAME: stop
 # DESCRIPTION: stop all mpd process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof mpd)" ] && killall mpd
 	[ "$(pidof mpd)" ] && killall -9 mpd
 }
@@ -24,13 +24,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: load mpd with config file
 #===================================================================================
-function start() {
+start() {
 	mpd ${mpdconf_path} &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: dunst-session
 # DESCRIPTION: manage keyring processes for start, restart and stop all keyring instances
@@ -27,7 +27,7 @@ xfce_polkit_path="/usr/lib/xfce-polkit/xfce-polkit"
 # NAME: stop
 # DESCRIPTION: stop all keyring process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof $keyring_name)" ] && killall $keyring_name
 	[ "$(pidof $keyring_name)" ] && killall -9 $keyring_name
 }
@@ -37,13 +37,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: load keyring
 #===================================================================================
-function start() {
+start() {
 ${keyring_path} &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start)
 		start		
 	;;

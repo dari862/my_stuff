@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: picom-session
 # DESCRIPTION: manage picom processes for start, restart and stop all picom instances
@@ -14,7 +14,7 @@ picom_path="$HOME/.config/picom.conf"
 # NAME: stop
 # DESCRIPTION: stop all picom process
 #===================================================================================
-function stop() {	
+stop() {	
 	[ "$(pidof picom)" ] && killall picom
 	[ "$(pidof picom)" ] && killall -9 picom
 }
@@ -24,20 +24,20 @@ function stop() {
 # NAME: start
 # DESCRIPTION: run picom
 #===================================================================================
-function start() {
+start() {
   	[ ! "$(pidof picom)" ] && exec picom --daemon --config "$picom_path" &
-	[[ $(pidof tint2) ]] && tint2-session
+	[ $(pidof tint2) ] && tint2-session
 }
 
-function toggle() {
-	if [[ $(pidof tint2) ]];then
+toggle() {
+	if [ $(pidof tint2) ];then
 		stop
 	else
 		start
 	fi
 }
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start)
 		start		
 	;;

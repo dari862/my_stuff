@@ -2,6 +2,6 @@
 
 say 'Installing package...' 1
 
-curl -L https://nixos.org/nix/install | sh -s -- --daemon
+getURL '2term' https://nixos.org/nix/install | sh -s -- --daemon
 [ -d "$HOME/.local/share/applications" ] && ln -sf $HOME/.nix-profile/share/applications/* $HOME/.local/share/applications/
 

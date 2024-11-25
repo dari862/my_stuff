@@ -1,5 +1,5 @@
-#!/bin/bash
-set -euo pipefail                           # Treat unset variables as an error
+#!/bin/sh
+set -e
 
 ### Tor's TransPort
 __TransPort="9040"
@@ -22,16 +22,16 @@ start_tor(){
 	_tor_container_all="$($REAL_CONTAINER_RT ps -a | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
 	_tor_container_exit="$($REAL_CONTAINER_RT ps -a --filter "status=exited" | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
 		
-	if [[ -z "$_tor_container_all" ]]; then
+	if [ -z "$_tor_container_all" ]; then
 	 __tor_mode="create"
 	fi
 	
-	if [[ ! -z "$_tor_container_exit" ]]; then
+	if [ -n "$_tor_container_exit" ]; then
 	 __tor_mode="start"
 	fi
 	
 	### get the container tor runs in
-	if [[ "$__tor_mode" == "create" ]]; then
+	if [ "$__tor_mode" = "create" ]; then
     	echo 'ERROR: tor proxy container not running.'
     	echo 'running container.'
     	echo "$REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy"
@@ -45,8 +45,8 @@ start_tor(){
     
     _tor_container="$($REAL_CONTAINER_RT ps | awk '/torproxy/ {print $NF; quit}' | head -1)"
     
-    if [[ "$__tor_mode" == "start" ]]; then
-    	if ! $REAL_CONTAINER_RT start $_tor_container &>/dev/null;then
+    if [ "$__tor_mode" = "start" ]; then
+    	if ! $REAL_CONTAINER_RT start $_tor_container >/dev/null 2>&1;then
     		echo 'ERROR: failed to run container.'
     		exit 1
     	fi

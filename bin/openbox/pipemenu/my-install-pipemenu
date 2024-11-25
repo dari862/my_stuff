@@ -14,7 +14,7 @@ Options (usually passed from the menu):
 
 '
 
-source "/usr/share/my_stuff/lib/common/DB"
+. "/usr/share/my_stuff/lib/common/DB"
 
 LIST_OF_APPS_SCRIPTS_=($(cd "${apps_db_path}" && ls 2>/dev/null))
 
@@ -34,7 +34,7 @@ do
     esac
 done
 
-source "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 if [[ ${1-} = --openboxmenu ]]; then # pipemenu
 	# This function is specific to this script.

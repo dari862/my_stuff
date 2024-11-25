@@ -16,11 +16,12 @@ case "$url" in
 	*mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|*youtube.com/shorts*|*youtu.be*|*hooktube.com*|*bitchute.com*|*videos.lukesmith.xyz*|*odysee.com*)
 		setsid -f mpv -quiet "$url" >/dev/null 2>&1 ;;
 	*png|*jpg|*jpe|*jpeg|*gif|*webp)
-		curl -sL "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && nsxiv -a "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
+		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && nsxiv -a "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
 	*pdf|*cbz|*cbr)
-		curl -sL "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && zathura "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
+		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && zathura "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
 	*mp3|*flac|*opus|*mp3?source*)
-		qndl "$url" 'curl -LO'  >/dev/null 2>&1 ;;
+		cd "/tmp/$USER"
+		getURL 'download' "$url" ;;
 	*)
 		[ -f "$url" ] && setsid -f "$TERMINAL" -e "$EDITOR" "$url" >/dev/null 2>&1 || setsid -f my-www-browser "$url" >/dev/null 2>&1
 esac

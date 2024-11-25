@@ -1,18 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 
 pulseconfig="/etc/pulse/default.pa"
-is_pulseaudio_suspend_disable=$(grep "#load-module module-suspend-on-idle" "${pulseconfig}")
 
-if [ "$1" = "--check" ];then
+if [ "$1" = "--is-enable" ];then
 	if [ ! -f ${pulseconfig} ]; then
-		echo enabled 
+		exit 0
 	else
-		if test "${is_pulseaudio_suspend_disable}"; then
-			echo enabled 
+		if grep -q "#load-module module-suspend-on-idle" "${pulseconfig}"; then
+			exit 0
 		fi
-		echo disabled
+		exit 1
 	fi
-	exit 0
 fi
 
 my-superuser sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}

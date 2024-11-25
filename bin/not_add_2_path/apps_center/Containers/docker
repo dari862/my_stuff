@@ -1,8 +1,8 @@
 #!/bin/sh
 
-pre_app_name=(ca-certificates curl)
-app_name=(docker-ce)
-extra_apps_=(docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras)
+pre_app_name="ca-certificates"
+app_name="docker-ce"
+extra_apps_="docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras"
 
 say "Installing ${pre_app_name} ..." 1
 
@@ -11,8 +11,7 @@ Package_installer_ ${pre_app_name} || continue
 if [ ! -f /etc/apt/keyrings/docker.asc ];then
 	. /etc/os-release 
 	my-superuser install -m 0755 -d /etc/apt/keyrings
-	my-superuser curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-	my-superuser chmod a+r /etc/apt/keyrings/docker.asc
+	download_key "download" "https://download.docker.com/linux/ubuntu/gpg" "/etc/apt/keyrings/docker.asc"
 fi
 
 if [ ! -f /etc/apt/sources.list.d/docker.list ];then
@@ -32,8 +31,8 @@ say 'Installing ${app_name}...' 1
 Package_installer_ ${app_name} || continue
 
 
-say 'Installing ${extra_apps_[@]} ...' 1
-Package_installer_ "${extra_apps_[@]}" || continue
+say 'Installing ${extra_apps_} ...' 1
+Package_installer_ "${extra_apps_}" || continue
 
 my-superuser usermod -aG docker ${USER} || :
 service_manager enable docker.service || :

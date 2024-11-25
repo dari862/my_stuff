@@ -2,7 +2,7 @@
 # Usage: menuItem label command
 
 
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 # Pipemenu
 menuStart

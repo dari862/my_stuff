@@ -111,7 +111,7 @@
 			</item>
 			<item label="Audio Settings">
 				<action name="Execute">
-					<command>openbox_scripts --volume-controller</command>
+					<command>distro_scripts --volume-controller</command>
 				</action>
 			</item>
 			<item label="Settings Manager">

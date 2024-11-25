@@ -27,7 +27,7 @@
 #
 ########################################################################
 #
-### REQUIRES:  yad, jq, xprop, wmctrl, wget, curl, xdotool, convert
+### REQUIRES:  yad, jq, xprop, wmctrl, xdotool, convert
 #
 ########################################################################
 
@@ -102,7 +102,7 @@ OK="--button=OK:0"
 
 ### required programs ###
 declare -a APPS
-APPS=( "yad" "xprop" "wmctrl" "wget" "curl" "xdotool" "convert" )
+APPS=( "yad" "xprop" "wmctrl" "xdotool" "convert" )
 
 ### FUNCTIONS  #########################################################
 ### Get script args ###
@@ -284,7 +284,7 @@ function take_screenshot() {
     while the screenshot takes place.   "
 
     if (( DELAY > 1 ));then
-        if echo "${CMD_SCREENSHOT}" | grep -w "\-d" &>/dev/null;then     # show countdown indicator
+        if echo "${CMD_SCREENSHOT}" | grep -w "\-d" >/dev/null 2>&1;then     # show countdown indicator
             ${DIALOG} --image=dialog-information --undecorated  \
                 --timeout=${DELAY} --timeout-indicator=bottom \
                 --text="${msg}" \
@@ -347,7 +347,7 @@ function image_resize(){
         resize=${enlarge}
     fi
     if (( ans != 1 ));then
-        temp_file=$(mktemp --tmpdir resize.XXX) # stores curl output for use by ${response}
+        temp_file=$(mktemp --tmpdir resize.XXX) # stores url output for use by ${response}
         resize_cmd="convert ${img} -resize ${resize}% ${img_file}"
         message='
         Resizing image...
@@ -445,20 +445,26 @@ function run_browser(){     # run browser with API url, or user's account
 }
 
 function upload_image(){
-    temp_file=$(mktemp --tmpdir response.XXX) # stores curl output for use by ${response}
-    curl_cmd="curl -s --location --request POST https://api.imgbb.com/1/upload?key=${CLIENT_API_KEY} \
-    --form image=@${img_file}"
+    temp_file=$(mktemp --tmpdir response.XXX) # stores url output for use by ${response}
+   	if command -v curl >/dev/null 2>&1;then
+    	url_cmd="curl -s --location --request POST https://api.imgbb.com/1/upload?key=${CLIENT_API_KEY} \
+    	--form image=@${img_file}"
+    	url_command="curl"
+    elif command -v wget >/dev/null 2>&1;then
+		url_cmd="wget --quiet --method=POST --body-file=${img_file} --header=\"Content-Type: multipart/form-data\" \"https://api.imgbb.com/1/upload?key=${CLIENT_API_KEY}\""
+		url_command="wget"
+	fi
     local message='
     Uploading screenshot to imgbb...
 
     '
 
-    # Run curl command passed as first arg; write output to tempfile; pipe to yad --progress
+    # Run url command passed as first arg; write output to tempfile; pipe to yad --progress
 set -x  # needed so pulsate progress displays, for some reason
-    eval "${curl_cmd}" 2>&1 > "${temp_file}" | yad --progress --pulsate --auto-close \
+    eval "${url_cmd}" 2>&1 > "${temp_file}" | yad --progress --pulsate --auto-close \
     --progress-text="${message}" \
     --undecorated --on-top --sticky --center \
-    --borders=20 --button='Cancel':'/bin/bash -c "killall curl"' 2>/dev/null
+    --borders=20 --button='Cancel':"/bin/sh -c \"killall ${url_command}\"" 2>/dev/null
 set +x
     response=$(cat "${temp_file}")  # used by calling function
     rm -f "${temp_file}"
@@ -472,7 +478,7 @@ set +x
 
     # download image thumbnail, for display in YAD dialog
     thumb_tempfile="${HOME}/tmp/thumb.jpg"
-    wget -q -O "${thumb_tempfile}" "${img_small}"
+    getURL "download2" "${img_small}" "${thumb_tempfile}"
 
     KEEP_BB=1                               # Keep BBCodes on clipboard
     notify_msg "BBCode placed on clipboard"
@@ -633,7 +639,7 @@ function main(){
 
     # Show 'Delete' button until image has been deleted
     while true;do
-        if wget --spider "${del_url}" 2>/dev/null; then # page exists
+        if getURL 'head' "${del_url}" | grep "HTTP/1.1 200 OK" >/dev/null; then # page exists
             ret=$(${DIALOG} --image-on-top --image="${thumb_tempfile}" "${TITLE}" \
                 --width=680 ${T}"${TEXT}" --text-align=left \
                 --form \

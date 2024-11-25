@@ -111,7 +111,7 @@ function send_notifcation_msg {
 	then
 	    get_total_updates
 	    # notify user of updates
-	    if hash notify-send &>/dev/null; then
+	    if hash notify-send >/dev/null 2>&1; then
 			if (( UPDATES > 50 )); then
 		    	notify-send -u critical -i $NOTIFY_ICON \
 				"You really need to update!!" "$UPDATES New packages"

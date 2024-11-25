@@ -16,10 +16,12 @@ else
 	clear
 	
 	say 'Installing package...' 1
-	
-	cd /tmp/$USER
-	[[ "$(lsb_release -r)" == *'20.04'* ]] && \
-  	wget -qO openrgb.deb https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_buster_6128731.deb \
-  	|| wget -qO openrgb.deb https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_bullseye_6128731.deb
+
+	lsb_release -r | grep '20.04' && \
+  	getURL 'download2' 'https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_buster_6128731.deb' "/tmp/$USER/openrgb.deb" \
+  	|| getURL 'download2' 'https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_bullseye_6128731.deb' "/tmp/$USER/openrgb.deb"
+
 	my-superuser apt-get install -y ./openrgb.deb
+	
+	rm -f openrgb.deb
 fi

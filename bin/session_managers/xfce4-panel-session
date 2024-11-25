@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: xfce4-panel-session
 # DESCRIPTION: manage xfce4-panel processes for start, restart and stop all xfce4-panel instances
@@ -12,7 +12,7 @@
 # NAME: stop
 # DESCRIPTION: stop all xfce4-panel process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof xfce4-panel)" ] && xfce4-panel --quit
 	[ "$(pidof xfce4-panel)" ] && killall xfce4-panel
 	[ "$(pidof xfce4-panel)" ] && killall -9 xfce4-panel
@@ -23,13 +23,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: start xfsettingsd
 #===================================================================================
-function start() {
+start() {
 	xfce4-panel &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

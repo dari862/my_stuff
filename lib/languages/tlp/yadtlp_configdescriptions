@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 TLP_ENABLE__ID_DESCRIPTION="Enable/disable TLP"
 

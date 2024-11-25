@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 set -e
 
 distro_name="parrot"
@@ -8,7 +8,7 @@ cd "${script_full_path}"
 
 __format=""
 
-if [[ "$CONTAINER_RT" = "podman" ]];then
+if [ "$CONTAINER_RT" = "podman" ];then
 	__format='--format docker'
 fi
 
@@ -16,7 +16,7 @@ prefix="$HOME/.local/distrobox"
 tmp_folder=""
 
 mode=""
-if [[ "$mode" == "root" ]]; then
+if [ "$mode" = "root" ]; then
         root_command="--root"
 else
         root_command=""
@@ -52,7 +52,7 @@ distrobox create --image "local/${distro_name}" \
          --home "$prefix/$distro_name" ${root_command} || failed_to_run "failed to deploy container image."
 
 say 'Createing container lanucher ...' 1
-echo '#!/bin/bash' > "${tmp_folder}/${distro_name}"
+echo '#!/bin/sh' > "${tmp_folder}/${distro_name}"
 echo "distrobox enter --name \"$distro_name\" ${root_command} " >> "${tmp_folder}/${distro_name}"
 
 chmod +x "${tmp_folder}/${distro_name}"

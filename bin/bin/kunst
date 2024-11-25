@@ -101,14 +101,14 @@ get_cover_online() {
 	API_URL="https://api.deezer.com/search/autocomplete?q=$(mpc current)" && API_URL=${API_URL//' '/'%20'}
 
 	# Extract the albumcover from the json returned
-	IMG_URL=$(curl -s "$API_URL" | jq -r '.playlists.data[0] | .picture_big')
+	IMG_URL=$(getURL '2term' "$API_URL" | jq -r '.playlists.data[0] | .picture_big')
 
 	if [ "$IMG_URL" = '' ] || [ "$IMG_URL" = 'null' ];then
         [ ! "$SILENT" ] && echo "error: cover not found online"
 		ARTLESS=true
 	else
         [ ! "$SILENT" ] && echo "kunst: cover found online"
-		curl -o "$COVER" -s "$IMG_URL"
+		getURL 'download2' "$IMG_URL" "$COVER"
 		ARTLESS=false
 	fi
 
@@ -117,7 +117,7 @@ get_cover_online() {
 update_cover() {
 	# Extract the album art from the mp3 file and dont show the messsy
 	# output of ffmpeg
-	ffmpeg -i "$MUSIC_DIR$(mpc current -f %file%)" "$COVER" -y &> /dev/null
+	ffmpeg -i "$MUSIC_DIR$(mpc current -f %file%)" "$COVER" -y >/dev/null 2>&1
 
 	# Get the status of the previous command
 	STATUS=$?
@@ -136,7 +136,7 @@ update_cover() {
             if [ -f "$CANDIDATE" ]; then
                 STATUS=0
                 ARTLESS=false
-                convert "$CANDIDATE" $COVER &> /dev/null
+                convert "$CANDIDATE" $COVER >/dev/null 2>&1
                 [ ! "$SILENT" ] && echo "kunst: found cover.png"
             fi
         done
@@ -150,7 +150,7 @@ update_cover() {
 
 	# Resize the image to 250x250
 	if [ "$ARTLESS" == false ]; then
-		convert "$COVER" -resize "$SIZE" "$COVER" &> /dev/null
+		convert "$COVER" -resize "$SIZE" "$COVER" >/dev/null 2>&1
         [ ! "$SILENT" ] && echo "kunst: resized album art to $SIZE"
 	fi
 
@@ -162,7 +162,7 @@ pre_exit() {
     # because if the user quits sxiv before they
     # exit kunst, an error will be shown
     # from kill and we dont want that
-	kill -9 "$(cat /tmp/$USER/kunst.pid)" &>/dev/null
+	kill -9 "$(cat /tmp/$USER/kunst.pid)" >/dev/null 2>&1
  
 }
 
@@ -170,7 +170,7 @@ main() {
 
     dependencies=(convert bash ffmpeg mpc jq mpd)
     for dependency in "${dependencies[@]}"; do
-        type -p "$dependency" &>/dev/null || {
+        type -p "$dependency" >/dev/null 2>&1 || {
             echo "error: Could not find '${dependency}', is it installed?" >&2
             exit 1
         }
@@ -217,7 +217,7 @@ main() {
 		# Waiting for an event from mpd; play/pause/next/previous
 		# this is lets kunst use less CPU :)
 		while true; do
-		    mpc idle player &>/dev/null && (mpc status | grep "\[playing\]" &>/dev/null) && break
+		    mpc idle player >/dev/null 2>&1 && (mpc status | grep "\[playing\]" >/dev/null 2>&1) && break
 		done
         [ ! "$SILENT" ] && echo "kunst: received event from mpd"
 	done

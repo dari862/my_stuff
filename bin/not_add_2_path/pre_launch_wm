@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 #### Fix missing files        ########################################################################
 
-source "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/WM"
 
 if mkdir -p "/tmp/$USER";then
 	chmod 700 "/tmp/$USER"
@@ -9,15 +9,16 @@ else
 	echo "$0: ERROR failed to create /tmp/$USER"
 fi
 
-if [ ! -d "${WM_config_dir}" ];then
+if [ ! -f "${WM_config_dir}/rofi_picked" ];then
 	panel_manager --picker
 	style-manager --set
+	touch "${WM_config_dir}/rofi_picked"
 fi
 
 #### START SETTINGS  #################################################################################
 
 # Exec first script screenlayout found
-if [ "$(ls -A ~/.screenlayout &> /dev/null)" ] 
+if [ "$(ls -A ~/.screenlayout >/dev/null 2>&1)" ] 
 then
 	"$(ls ~/.screenlayout/*.sh | head -1)"
 else

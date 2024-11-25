@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: dunst-session
 # DESCRIPTION: manage dunst processes for start, restart and stop all dunst instances
@@ -14,7 +14,7 @@ dunstrc_path="$HOME/.config/dunst/dunstrc"
 # NAME: stop
 # DESCRIPTION: stop all dunst process
 #===================================================================================
-function stop() {
+stop() {
 		[ "$(pidof dunst)" ] && killall dunst
 		[ "$(pidof dunst)" ] && killall -9 dunst
 }
@@ -24,13 +24,13 @@ function stop() {
 # NAME: start
 # DESCRIPTION: load dunst with config file
 #===================================================================================
-function start() {
+start() {
   exec dunst -config ${dunstrc_path} 2>/tmp/$USER/dunst_error &
 }
 
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		

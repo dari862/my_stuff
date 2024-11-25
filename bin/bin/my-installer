@@ -57,7 +57,7 @@ install_distrobox(){
 		say 'install distrobox ...' 1
 		box_app_name="distrobox"
 		box_app_location="$(find ${_APPS_LIBDIR}/ -name ${box_app_name})"
-		if command -v $box_app_name 2>/dev/null && dpkg -s $box_app_name &>/dev/null;then
+		if command -v $box_app_name 2>/dev/null && dpkg -s $box_app_name >/dev/null 2>&1;then
 			my-superuser touch '/usr/share/my_stuff/system_files/Distrobox_ready'
 			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui.desktop /usr/share/applications
 			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui /usr/share/my_stuff/system_files/bin
@@ -98,8 +98,8 @@ install_container_software(){
 		fi
 		
 		if [ ! -f '/usr/share/my_stuff/system_files/Container_Group' ];then
-			if command -v $container_software 2>/dev/null && dpkg -s ${container_software}* &>/dev/null;then
-				if groups | grep "${__newGroup}" &>/dev/null;then
+			if command -v $container_software 2>/dev/null && dpkg -s ${container_software}* >/dev/null 2>&1;then
+				if groups | grep "${__newGroup}" >/dev/null 2>&1;then
 					my-superuser ln -sf "$(my-superuser which $container_software)" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
 					return
 				fi
@@ -108,13 +108,11 @@ install_container_software(){
 			say 'install container software ...' 1
 			install_as_dependency "$container_software"
 			echo "${__newGroup}" | my-superuser tee '/usr/share/my_stuff/system_files/Container_Group' > /dev/null 2>&1
-			echo "You need to logout."
-			read -srn1
+			say "You need to logout." 'pause'
 			exit
 		else	
-			if ! groups | grep "$(cat '/usr/share/my_stuff/system_files/Container_Group')" &>/dev/null;then
-				echo "You need to logout."
-				read -srn1
+			if ! groups | grep "$(cat '/usr/share/my_stuff/system_files/Container_Group')" >/dev/null 2>&1;then
+				say "You need to logout." 'pause'
 				exit
 			else
 				my-superuser ln -sf "$(my-superuser which $container_software)" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
@@ -127,7 +125,7 @@ install_container_software(){
 
 __run_(){
 	__file_location="$(find ${_files_path}/ -name ${file_name_})"
-	[ -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' && read -srn1 && exit 1
+	[ -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' 'pause' && exit 1
 	
 	. "/usr/share/my_stuff/system_files/Package-manager"
 	
@@ -177,6 +175,8 @@ __run_(){
 			say 'Deploy distrobox ...' 1
 		elif [ "${container_install}" = "true" ];then
 			say 'Createing container image ...' 1
+		elif [ "${running_chroot}" = "true" ];then
+			say 'Createing Chroot...' 1
 		elif [ "${running_tweek}" = "true" ];then
 			say 'running tweek...' 1
 		fi
@@ -193,6 +193,8 @@ __run_(){
 			remove_from_db "${file_name_}" "distroboxs" || continue
 		elif [ "${container_install}" = "true" ];then
 			remove_from_db "${file_name_}" "containers" || continue
+		elif [ "${chroot_install}" = "true" ];then
+			remove_from_db "${file_name_}" "chroots" || continue
 		elif [ "${running_tweek}" = "true" ];then
 			remove_from_db "${file_name_}" "tweeks" || continue
 		fi
@@ -200,10 +202,10 @@ __run_(){
 		end_superuser
 		
 		say
+		say
 		say "${file_name_} has been installed successfully."
 		say
-		[ -z "${needed_app}" ] && say 'Hit any key to exit...'
-		[ -z "${needed_app}" ] && read -srn1
+		[ -z "${needed_app}" ] && say 'Hit any key to exit...' 'pause'
 		break
 	done
 }
@@ -217,6 +219,8 @@ remove_from_db(){
 		from_db="${distrobox_deploy_db_path}"
 	elif [[ "${from_db}" = "containers" ]];then
 		from_db="${containers_deploy_db_path}"
+	elif [[ "${from_db}" = "chroots" ]];then
+		from_db="${chroots_deploy_db_path}"
 	elif [[ "${from_db}" = "tweeks" ]];then
 		from_db="${tweeks_db_path}"
 	fi
@@ -261,6 +265,7 @@ case $option in
 		;;
 		--chroot) 
 			running_chroot=true 
+			chroot_install=true
 			_files_path="${_CHROOTS_LIBDIR}"
 		;;
 		*) show_help;;

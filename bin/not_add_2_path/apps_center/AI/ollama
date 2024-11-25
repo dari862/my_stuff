@@ -1,5 +1,5 @@
 #!/bin/sh
 say 'Installing ollama ...' 1
 mkdir -p /tmp/$USER/ollama
-curl -SL --progress-bar https://ollama.com/install.sh -o /tmp/$USER/ollama/install.sh || continue
+getURL 'download2' 'https://ollama.com/install.sh' "/tmp/$USER/ollama/install.sh" || continue
 sh /tmp/$USER/ollama/install.sh  || continue

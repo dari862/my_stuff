@@ -79,7 +79,7 @@ check_if_installed() {
 			esac
 			reset_color
 		}
-	if ! type -p "$dependency" &>/dev/null;then
+	if ! type -p "$dependency" >/dev/null 2>&1;then
 		echo -e ${RED}"[!] ERROR: Could not find ${GREEN}'${dependency}'${RED}, is it installed?" >&2
 		reset_color
 		Do_want_to_install_not_installed_apps_are
@@ -115,7 +115,7 @@ Prerequisite() {
 					SETTER="swaybg -i"
 				elif [[ "$DESKTOP_SESSION" =~ ^(PANTHEON|Pantheon|pantheon|GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg|UBUNTU|Ubuntu|ubuntu|DEEPIN|Deepin|deepin|POP|Pop|pop)$ ]]; then
 					SETTER="gsettings set org.gnome.desktop.background picture-uri"
-				elif type -p "feh" &>/dev/null;then
+				elif type -p "feh" >/dev/null 2>&1;then
 					SETTER="feh --bg-fill"
 				else 
 					check_if_installed xwallpaper
@@ -421,12 +421,13 @@ Download_wallpapers_now(){
 			echo "Downloading 2-3 urls for wallpapers"
 			mkdir -p /tmp/$USER/dynamic-wallpaper/images/
 			mkdir -p /tmp/$USER/dynamic-wallpaper/tempfornow
-			wget -P /tmp/$USER/dynamic-wallpaper/tempfornow https://raw.githubusercontent.com/adi1090x/files/master/dynamic-wallpaper/wallpapers/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz
+			getURL 'download2' "https://raw.githubusercontent.com/adi1090x/files/master/dynamic-wallpaper/wallpapers/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz" "/tmp/$USER/dynamic-wallpaper/tempfornow/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz"
 			mkdir -p /tmp/$USER/dynamic-wallpaper/images/london
 			tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" -C /tmp/$USER/dynamic-wallpaper/images/london && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" /tmp/$USER/dynamic-wallpaper
 			mkdir -p /tmp/$USER/dynamic-wallpaper/images/mountfuji
 			tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji" -C /tmp/$USER/dynamic-wallpaper/images/mountfuji && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji.tar.gz" /tmp/$USER/dynamic-wallpaper
 			for f in /tmp/$USER/dynamic-wallpaper/tempfornow/*.tar.gz -C ; do tar -xvf "$f" -C "/tmp/$USER/dynamic-wallpaper/images/"; done
+			
 			mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
 		;;
 		NO|N) echo "skipping Download...";

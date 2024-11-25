@@ -1,27 +1,28 @@
-#!/bin/bash
-
-# The dashboard displays installed applications into yad based window. 
+#!/bin/sh
+# The dashboard displays installed applications into a yad-based window. 
 apps_dashboard_tmp="/tmp/$USER/apps-dashboard"
-if [ -d "${apps_dashboard_tmp}" ]; then
-	rm -rf 
+if [ -d "$apps_dashboard_tmp" ]; then
+    rm -rf "$apps_dashboard_tmp"
 fi
 
-mkdir "${apps_dashboard_tmp}"
-remove_from_array=($(grep -rwn 'NoDisplay=true' /usr/share/applications/*))
-apps_list=($(ls /usr/share/applications/*.desktop))
+mkdir -p "$apps_dashboard_tmp"
 
-for element in "${remove_from_array[@]}" ;do
-	apps_list=("${apps_list[@]/$element}")
+remove_noDisplay_apps=$(grep -rl 'NoDisplay=true' /usr/share/applications/*.desktop)
+apps_list=$(ls /usr/share/applications/*.desktop)
+
+for app in $remove_noDisplay_apps; do
+    apps_list=$(echo "$apps_list" | sed "s|$app||")
 done
 
-for apps in "${apps_list[@]}" ;do
-	cp -a $apps "${apps_dashboard_tmp}"
+for app in $apps_list; do
+    if [ -f "$app" ]; then
+        cp -a "$app" "$apps_dashboard_tmp/"
+    fi
 done
 
-yad --icons --read-dir="${apps_dashboard_tmp}" --monitor \
- --sort-by-name --center --undecorated --skip-taskbar --borders=20\
- --button="Cancel!gtk-cancel":1 --buttons-layout=center --maximized
+yad --icons --read-dir="$apps_dashboard_tmp" --monitor \
+    --sort-by-name --center --undecorated --skip-taskbar --borders=20 \
+    --button="Cancel!gtk-cancel":1 --buttons-layout=center --maximized
+rm -rf "$apps_dashboard_tmp"
 
-rm -rf "${apps_dashboard_tmp}"
 exit 0
-

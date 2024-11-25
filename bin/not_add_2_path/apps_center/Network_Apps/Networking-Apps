@@ -1,6 +1,6 @@
 #!/bin/sh
 
-app_name=(iwd network-manager-openvpn network-manager-openvpn-gnome openssh-server wireguard-tools wireless-tools)
+app_name="iwd network-manager-openvpn network-manager-openvpn-gnome openssh-server wireguard-tools wireless-tools"
 
 say 'Installing package...' 1
 

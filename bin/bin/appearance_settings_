@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 if command -v lxappearance >/dev/null ;then
 	lxappearance && reload-gtk23

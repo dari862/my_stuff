@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Launch rofi with custom configuration
 rofi -modi drun -show drun \

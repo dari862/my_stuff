@@ -46,12 +46,13 @@ old_bg_()
 }
 
 restore(){
+	sleep 0.5
 	if [ "$(livewall --check-run-live)" = "true" ]; then
-		( sleep 0.5 && livewall --run-live ) &
+		( livewall --run-live ) &
 	elif command -v xwallpaper >/dev/null ; then
-		( sleep 4.5 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" ) &
+		( sleep 2 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" ) &
 	else
-		( sleep 1.5 && nitrogen --restore ) &
+		( sleep 1 && nitrogen --restore ) &
 	fi
 }
 

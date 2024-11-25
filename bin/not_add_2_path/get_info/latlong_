@@ -1,11 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/sh
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/API"
 
-if [[ ! -f "${latlong_stored_file}" ]];then
+if [ ! -f "${latlong_stored_file}" ];then
 	mkdir -p ${script_config_path}
 	# Geolocate IP:
-	ipinfo=$(curl -s ipinfo.io)
-	echo "$ipinfo" | jq -r '.loc' > "${latlong_stored_file}"
+	getURL '2term' ipinfo.io | jq -r '.loc' > "${latlong_stored_file}"
 fi
 cat "${latlong_stored_file}"

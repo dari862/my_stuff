@@ -1,0 +1,395 @@
+#!/bin/sh
+set -e
+. "/usr/share/my_stuff/lib/chroot/var"
+CHROOT_DIR="${TOR_CHROOT_DIR}"
+. "/usr/share/my_stuff/lib/chroot/functions"
+
+base_chroot_creater
+
+say "preparing $TOR_CHROOT_NAME ..."
+# Chroot into the environment and install packages
+my-superuser chroot "${CHROOT_DIR}" /bin/bash -c "
+# Install essential packages
+
+mkdir -p /var/lib/tor /etc/tor/run /var/log/tor
+groupadd -g $__GUID $_TOR_USER
+useradd -u $__UUID -g $_TOR_USER -s /bin/sh -d /var/lib/tor -M $_TOR_USER
+chmod 750 /etc/tor
+chmod 700 /etc/tor/run
+
+apt update
+apt install -y tor
+cp -r /etc/tor/torrc /etc/tor/torrc.backup
+" || failed_to_run "Failed to install ${_TOR_NAME} in chroot"
+
+say "Create $TOR_CHROOT_NAME torrc in the chroot..."
+my-superuser tee "${CHROOT_DIR}/etc/tor/torrc"  << EOF > /dev/null
+AutomapHostsOnResolve 1
+ControlPort $__ControlPort
+ControlSocket /etc/tor/run/control
+ControlSocketsGroupWritable 1
+CookieAuthentication 1
+CookieAuthFile /etc/tor/run/control.authcookie
+CookieAuthFileGroupReadable 1
+DNSPort $__DNSPort
+DataDirectory /var/lib/tor
+ExitPolicy reject *:*
+Log notice stderr
+RunAsDaemon 0
+SocksPort $__SocksPort IsolateDestAddr
+TransPort $__TransPort
+VirtualAddrNetworkIPv4 10.192.0.0/10
+EOF
+
+say "Create start-tor.sh in the chroot..."
+my-superuser tee "${CHROOT_DIR}/usr/bin/start-tor.sh" << 'EOF' > /dev/null
+#!/bin/sh
+set -o nounset                              # Treat unset variables as an error
+
+file=/etc/tor/torrc
+
+__ControlPort=9051
+
+BW="${BW:-""}"
+EXITNODE="${EXITNODE:-""}"
+LOCATION="${LOCATION:-""}"
+PASSWORD="${PASSWORD:-""}"
+SERVICE="${SERVICE:-""}"
+USERID="${USERID:-""}"
+GROUPID="${GROUPID:-""}"
+
+### bandwidth: set the BW available for relaying
+# Arguments:
+#   KiB/s) KiB/s of data that can be relayed
+# Return: Updated configuration file
+bandwidth() { 
+	kbs="${1:-10}" 
+    sed -i '/^RelayBandwidth/d' $file
+    echo "RelayBandwidthRate $kbs KB" >>$file
+    echo "RelayBandwidthBurst $(( kbs * 2 )) KB" >>$file
+}
+
+### exitnode: Allow exit traffic
+# Arguments:
+#   N/A)
+# Return: Updated configuration file
+exitnode() {  
+    sed -i '/^ExitPolicy/d' $file
+}
+
+### exitnode_country: Only allow traffic to exit in a specified country
+# Arguments:
+#   country) country where we want to exit
+# Return: Updated configuration file
+exitnode_country() { 
+	country="$1" 
+    sed -i '/^StrictNodes/d; /^ExitNodes/d' $file
+    echo "StrictNodes 1" >>$file
+    echo "ExitNodes {$country}" >>$file
+}
+
+### hidden_service: setup a hidden service
+# Arguments:
+#   port) port to connect to service
+#   host) host:port where service is running
+# Return: Updated configuration file
+hidden_service() { 
+	port="$1" 
+	host="$2" 
+    sed -i '/^HiddenServicePort '"$port"' /d' $file
+    grep -q '^HiddenServiceDir' $file || echo "HiddenServiceDir /var/lib/tor/hidden_service" >>$file
+    echo "HiddenServicePort $port $host" >>$file
+}
+
+### newnym: setup new circuits
+# Arguments:
+#   N/A)
+# Return: New circuits for tor connections
+newnym() { 
+	authcookie_file=/etc/tor/run/control.authcookie
+    echo -e 'AUTHENTICATE "'"$(cat $authcookie_file)"'"\nSIGNAL NEWNYM\nQUIT' | nc 127.0.0.1 ${__ControlPort}
+    if ps -ef -o comm | grep -E -v 'grep|ContainerTorRunner.sh' | grep -q tor; then
+    	exit 0
+    fi
+}
+
+### password: setup a hashed password
+# Arguments:
+#   passwd) passwd to set
+# Return: Updated configuration file
+password() { 
+	passwd="$1"
+	hashed_passwd="$(tor --hash-password "$passwd" |tail -n 1)"
+    sed -i '/^HashedControlPassword/d' $file
+    echo "HashedControlPassword $hashed_passwd" >>$file 2>/dev/null
+}
+
+### usage: Help
+# Arguments:
+#   none)
+# Return: Help text
+usage() { 
+	RC="${1:-0}"
+    Usage="Usage: ${0##*/} [-opt] [command]
+Options (fields in '[]' are optional, '<>' are required):
+    -h          This help
+    -b \"\"       Configure tor relaying bandwidth in KB/s
+                possible arg: \"[number]\" - # of KB/s to allow
+    -e          Allow this to be an exit node for tor traffic
+    -l \"<country>\" Configure tor to only use exit nodes in specified country
+                required args: \"<country>\" (IE, "US" or "DE")
+                <country> - country traffic should exit in
+    -n          Generate new circuits now
+    -p \"<password>\" Configure tor HashedControlPassword for control port
+    -s \"<port>;<host:port>\" Configure tor hidden service
+                required args: \"<port>;<host:port>\"
+                <port> - port for .onion service to listen on
+                <host:port> - destination for service request
+
+The 'command' (if provided and valid) will be run instead of torproxy
+" 
+	echo $Usage >&2
+    exit $RC
+}
+
+while getopts ":hb:el:np:s:" opt; do
+    case "$opt" in
+        h) usage ;;
+        b) bandwidth "$OPTARG" ;;
+        e) exitnode ;;
+        l) exitnode_country "$OPTARG" ;;
+        n) newnym ;;
+        p) password "$OPTARG" ;;
+        s) eval hidden_service $(echo $OPTARG | sed 's/^/"/; s/$/"/; s/;/" "/g') ;;
+        "?") echo "Unknown option: -$OPTARG"; usage 1 ;;
+        ":") echo "No argument value for option: -$OPTARG"; usage 2 ;;
+    esac
+done
+shift $(( OPTIND - 1 ))
+
+if [ -n "${BW}" ];then
+	bandwidth "$BW"
+fi
+
+if [ "${EXITNODE}" ];then
+	exitnode
+fi
+
+if [ "${LOCATION}" ];then
+	exitnode_country "$LOCATION"
+fi
+
+if [ "${PASSWORD}" ];then
+	password "$PASSWORD"
+fi
+
+if [ "${SERVICE}" ];then
+	eval hidden_service $(echo $SERVICE | sed 's/^/"/; s/$/"/; s/;/" "/g')
+fi
+
+if echo "${USERID}" | grep -q "^[0-9]\+$";then
+	usermod -u $USERID -o tor
+fi
+
+if echo "${USERID}" | grep -q "^[0-9]\+$";then
+	groupmod -g $GROUPID -o tor
+fi
+
+for env in $(printenv | grep '^TOR_'); do
+    name="$(echo ${env%%=*} | cut -c5-)"
+    val="\"${env##*=}\""
+    if echo "${USERID}" | grep -q "_";then
+    	continue
+    fi
+    
+    if echo $val | grep -E '(^\"true+\"$|^\"false+\"$|^\"[0-9]+\"$)';then
+    	val="$(echo $val | sed 's|"||g')"
+    fi
+    
+    if grep -q "^$name" /etc/tor/torrc; then
+        sed -i "/^$name/s| .*| $val|" /etc/tor/torrc
+    else
+        echo "$name $val" >>/etc/tor/torrc
+    fi
+done
+
+if [ $# -ge 1 ] && test -x "$(which $1 2>&-)"; then
+    exec "$@"
+elif [ $# -ge 1 ]; then
+    echo "ERROR: command not found: $1"
+    exit 13
+elif ps -ef -o comm | grep -E -v 'grep|ContainerTorRunner.sh' | grep -q tor; then
+    echo "Service already running, please restart container to apply changes"
+else
+    if test -e /srv/tor/hidden_service/hostname;then
+        echo -en "\nHidden service hostname: "
+        cat /srv/tor/hidden_service/hostname; 
+        echo " "
+    fi
+    exec /usr/bin/tor
+fi
+
+EOF
+my-superuser sed -i "s/__ControlPort=.*/__ControlPort=$__ControlPort/g" "${CHROOT_DIR}/usr/bin/start-tor.sh"
+
+say "Change permission of $TOR_CHROOT_NAME in the chroot..."
+my-superuser chroot "${CHROOT_DIR}" /bin/bash -c "
+rm -rf /tmp/*
+chmod 0755 /usr/bin/start-tor.sh
+chown -Rh $_TOR_USER:$_TOR_USER /var/lib/tor /etc/tor /var/log/tor
+" || failed_to_run "Change permission of $_TOR_NAME in the chroot..."
+
+say "Create ${start_tor_chroot_script_name} for controlling chroot..."
+my-superuser tee "$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name" <<- EOF > /dev/null
+#!/bin/sh
+chroot $CHROOT_DIR /bin/sh -c "su - $_TOR_USER -c '/usr/bin/start-tor.sh'" 
+EOF
+my-superuser chmod +x "$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name" || failed_to_run "Failed to set execute permission on launch script"
+
+say "Create ${start_torproxy_script_name} for controlling chroot..."
+echo '#!/bin/sh' | my-superuser tee "$CHROOT_SCRIPT_PATH/$start_torproxy_script_name" > /dev/null
+echo "set -e
+
+if dpkg -s ufw >/dev/null 2>&1;then
+	ignore_ufw=false
+	if ufw status | grep -q \"inactive\";then
+		ignore_ufw=true
+	fi
+else
+	ignore_ufw=true
+fi
+
+stop_ufw(){
+	if [ \"\$ignore_ufw\" = \"true\" ];then
+		return
+	fi
+	ufw disable >/dev/null 2>&1
+}
+
+start_ufw(){
+	if [ \"\$ignore_ufw\" = \"true\" ];then
+		return
+	fi
+	ufw enable >/dev/null 2>&1
+}
+
+start_tor(){
+	# Most of this is from
+	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
+	# destinations you don't want routed through Tor
+	if test -f \"$RULES\"; then
+		echo \"$RULES exists. Either delete it, or stop tor-router first.\"
+		exit 1
+	else
+		stop_ufw
+		# Only save the rules when we are sure that everything is working
+		iptables-save >$RULES
+	
+		### flush iptables
+		iptables -F
+		iptables -t nat -F
+		
+		### set iptables *nat to ignore tor user
+		iptables -t nat -A OUTPUT -m owner --uid-owner $__UUID -j RETURN
+		
+		### redirect all DNS output to tor's DNSPort
+		iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $__DNSPort
+		
+		### set iptables *filter
+		iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+		
+		### allow clearnet access for hosts in $_non_tor
+		for _clearnet in $_non_tor 127.0.0.0/8; do
+   			iptables -t nat -A OUTPUT -d \$_clearnet -j RETURN
+   			iptables -A OUTPUT -d \$_clearnet -j ACCEPT
+		done
+		
+		### redirect all other output to tor's TransPort
+		iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $__TransPort
+		
+		### allow only tor output
+		iptables -A OUTPUT -m owner --uid-owner $__UUID -j ACCEPT
+		iptables -A OUTPUT -j REJECT
+	fi
+}
+
+stop_tor(){
+	if test -f \"$RULES\"; then
+		echo \"Restoring previous rules from $RULES\"
+		iptables -F
+		iptables-restore <\"$RULES\"
+		rm \"$RULES\"
+		start_ufw
+	else
+		echo \"$RULES does not exist. Not doing anything.\"
+		exit
+	fi
+}
+
+restart_tor(){
+	stop_tor
+	sleep 1
+	start_tor
+}
+
+__arg_=\"\${1-}\"
+
+case \"\$__arg_\" in
+start)
+	start_tor
+	;;
+
+stop)
+	stop_tor
+	;;
+
+restart)
+	restart_tor
+	;;
+*)
+	echo \"Usage: $0 {start|stop|restart}\"
+	;;
+esac
+" | my-superuser tee -a "$CHROOT_SCRIPT_PATH/$start_torproxy_script_name" > /dev/null
+my-superuser chmod +x "$CHROOT_SCRIPT_PATH/$start_torproxy_script_name" || failed_to_run "Failed to set execute permission on launch script"
+
+echo '#!/bin/sh' | my-superuser tee "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" > /dev/null
+echo "
+set -e
+my-superuser \"$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name\"
+" | my-superuser tee -a "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" > /dev/null
+my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" || failed_to_run "Failed to set execute permission on launch script"
+
+echo '#!/bin/sh' | my-superuser tee "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_start" > /dev/null
+echo "my-superuser \"$CHROOT_SCRIPT_PATH/$start_torproxy_script_name\" start" | my-superuser tee -a "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_start"  > /dev/null
+my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_start" || failed_to_run "Failed to set execute permission on launch script"
+
+echo '#!/bin/sh' | my-superuser tee "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_stop" > /dev/null
+echo "my-superuser \"$CHROOT_SCRIPT_PATH/$start_torproxy_script_name\" stop" | my-superuser tee -a "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_stop"  > /dev/null
+my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_stop" || failed_to_run "Failed to set execute permission on launch script"
+
+if [ -f "/etc/doas.conf" ];then
+	my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${start_tor_chroot_script_name}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${start_torproxy_script_name}
+	EOF
+else
+	my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${start_tor_chroot_script_name}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${start_torproxy_script_name}
+	EOF
+fi
+
+if [ -d "/etc/sudoers.d" ];then
+	my-superuser tee "/etc/sudoers.d/${TOR_CHROOT_NAME}" > /dev/null <<- EOF
+	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/${start_tor_chroot_script_name}
+	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/${start_torproxy_script_name}
+	EOF
+	my-superuser chmod 400 "/etc/sudoers.d/${TOR_CHROOT_NAME}"
+fi
+
+say 
+say 
+say "You can now start $_TOR_NAME from the chroot using the command: $start_tor_chroot_script_name"
+say "You can reroute all your traffic through $_TOR_NAME chroot using the command: ${start_torproxy_script_name}_start"
+say "You can stop reroute of traffic through $_TOR_NAME chroot using the command: ${start_torproxy_script_name}_stop"

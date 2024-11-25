@@ -6,7 +6,7 @@ op2__="${2-}"
 tldr_dir="$HOME/.local/share/tldr"
 
 update_tldr_(){
-	cd "${tldr_dir}" &> /dev/null && git pull 2> /dev/null
+	cd "${tldr_dir}" >/dev/null 2>&1 && git pull 2> /dev/null
 }
 
 run_my_tldr_(){
@@ -19,7 +19,7 @@ run_my_tldr_(){
 		update_tldr_
 	fi
 	
-	[ -n "$(cd "${tldr_dir}" &> /dev/null && git checkout | sed '$ d')" ] && git checkout .
+	[ -n "$(cd "${tldr_dir}" >/dev/null 2>&1 && git checkout | sed '$ d')" ] && git checkout .
 
 	command_2_find_="$(find "${tldr_dir}/pages/" -name ${op2__}.md)"
 	
@@ -45,7 +45,7 @@ main()
 {
 case $op__ in
 	-c|--cheat)
-		curl -s "cheat.sh/$op2__"
+		getURL '2term' "cheat.sh/$op2__"
 	;;
 	-t|--tldr)
 		run_my_tldr_

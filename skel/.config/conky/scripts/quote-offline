@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
  
 # Keep this updated when you add or take away quotes on the case list
 num_quotes=70
- 
+random_it="$(od -An -N2 -i /dev/urandom  | awk '{print int($1)}')"
 # Generate a random quote number variable, 'rand'
-rand=$[ ( $RANDOM % $num_quotes ) + 1 ]
+rand=$(( ( $random_it % $num_quotes ) + 1 ))
 case $rand in  #BEGIN CASE
         1) quote="Living to learn, learning to live. (Erik Dubois)";;
         2) quote="The Linux philosophy is 'Laugh in the face of danger'. Oops! Wrong One. 'Do it yourself'. Yes, that's it.  (Linus Torvalds)";;

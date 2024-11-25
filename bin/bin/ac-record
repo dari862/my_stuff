@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 ## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
 ##
@@ -8,15 +8,15 @@
 icons_dir="/usr/share/my_stuff/icons/dunst"
 
 # File
-time=`date +%Y-%m-%d-%H-%M-%S`
-screen=`xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current'`
-dir="`xdg-user-dir VIDEOS`/Screenrecorder"
+time=$(date +%Y-%m-%d-%H-%M-%S)
+screen=$(xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current')
+dir="$(xdg-user-dir VIDEOS)/Screenrecorder"
 file="Capture_${time}.mp4"
 
 # notify
-notify_user () {
+notify_user() {
 	notify_cmd="dunstify -u low -h string:x-dunst-stack-tag:obscreenrecord -i ${icons_dir}/video.png"
-	if [[ -e "$dir/$file" ]]; then
+	if [ -e "$dir/$file" ]; then
 		${notify_cmd} "Saved in $dir"
 	else
 		${notify_cmd} "Video Deleted."
@@ -24,52 +24,66 @@ notify_user () {
 }
 
 # countdown
-countdown () {
-	for sec in `seq $1 -1 1`; do
-		dunstify -t 1000 -h string:x-dunst-stack-tag:screenrecordtimer -i ${icons_dir}/timer.png "Starting in : $sec"
+countdown() {
+	for sec in $(seq "$1" -1 1); do
+		dunstify -t 1000 -h string:x-dunst-stack-tag:screenrecordtimer -i "${icons_dir}/timer.png" "Starting in : $sec"
 		sleep 1
 	done
 }
 
 # capture
 rec_screen() {
-	countdown '3'
+	countdown 3
 	sleep 1
-	if [[ "$1" == "noaudio" ]]; then
-		ffmpeg -hide_banner -loglevel error -video_size ${screen} -framerate 25 -f x11grab -i :0.0+0,0 ${dir}/${file}
+	if [ "$1" = "noaudio" ]; then
+		ffmpeg -hide_banner -loglevel error -video_size "${screen}" -framerate 25 -f x11grab -i :0.0+0,0 "${dir}/${file}"
 	else
-		ffmpeg -hide_banner -loglevel error -video_size ${screen} -framerate 25 -f x11grab -i :0.0+0,0 -f pulse -ac 2 -i default ${dir}/${file}
+		ffmpeg -hide_banner -loglevel error -video_size "${screen}" -framerate 25 -f x11grab -i :0.0+0,0 -f pulse -ac 2 -i default "${dir}/${file}"
 	fi
 	notify_user
 }
 
 rec_area() {
 	get_win_data=$(slop -f "%x %y %w %h %g %i") || exit 1
-	read -r X Y W H G ID < <(echo $get_win_data)
-	
-	countdown '3'
+	# Parse the output into individual variables
+	set -- $get_win_data
+	X="$1"
+	Y="$2"
+	W="$3"
+	H="$4"
+	countdown 3
 	sleep 1
-	if [[ "$1" == "noaudio" ]]; then
-		ffmpeg -hide_banner -loglevel error -video_size ${W}x${H} -framerate 25 -f x11grab -i :0.0+${X},${Y} ${dir}/${file}
+	if [ "$1" = "noaudio" ]; then
+		ffmpeg -hide_banner -loglevel error -video_size "${W}x${H}" -framerate 25 -f x11grab -i :0.0+${X},${Y} "${dir}/${file}"
 	else
-		ffmpeg -hide_banner -loglevel error -video_size ${W}x${H} -framerate 25 -f x11grab -i :0.0+${X},${Y} -f pulse -ac 2 -i default ${dir}/${file}
+		ffmpeg -hide_banner -loglevel error -video_size "${W}x${H}" -framerate 25 -f x11grab -i :0.0+${X},${Y} -f pulse -ac 2 -i default "${dir}/${file}"
 	fi
 	notify_user
 }
 
-# Directory
-if [[ ! -d "$dir" ]]; then
+# Ensure the directory exists
+if [ ! -d "$dir" ]; then
 	mkdir -p "$dir"
 fi
 
-if [[ "$1" == "--screen" ]]; then
-	rec_screen
-elif [[ "$1" == "--area" ]]; then
-	rec_area
-elif [[ "$1" == "--screen-na" ]]; then
-	rec_screen noaudio
-elif [[ "$1" == "--area-na" ]]; then
-	rec_area noaudio
-fi
+# Parse command-line arguments
+case "$1" in
+	--screen)
+		rec_screen
+		;;
+	--area)
+		rec_area
+		;;
+	--screen-na)
+		rec_screen noaudio
+		;;
+	--area-na)
+		rec_area noaudio
+		;;
+	*)
+		echo "Usage: $0 {--screen|--area|--screen-na|--area-na}"
+		exit 1
+		;;
+esac
 
 exit 0

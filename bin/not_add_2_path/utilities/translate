@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 #
 # Description: Translate using Google Translate (through Lingva Translate)
-# Dependencies: rofi and curl
 
 # Set with the flags "-e", "-u","-o pipefail" cause the script to fail
 # if certain things happen, which is a good thing.  Otherwise, we can
@@ -33,9 +32,9 @@ libretranslate_instance="https://libretranslate.de"
 lingva_instance="https://lingva.ml"
 # Uncomment to manually set the languages translate will show
 # LibreTranslate languages:
-#   - `curl -Ss "https://libretranslate.de/languages" | jq`
+#   - `getURL '2term' "https://libretranslate.de/languages" | jq`
 # Lingva Translate languages:
-#   - `curl -Ss "https://lingva.ml/api/v1/languages/source" | jq`
+#   - `getURL '2term' "https://lingva.ml/api/v1/languages/source" | jq`
 # from_code=es
 # to_code=en
 
@@ -61,11 +60,11 @@ main() {
   if [ -f "$lang_map" ]; then
   	if [ "$(stat -c %y "$lang_map" 2>/dev/null | cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ]; then
   		local url=${translate_languages_url["${translate_service}"]}
-  		curl -Ss "$url" | sed -e 's/","name":"/ /g' -e 's/"},{"code":"/\n/g' -e 's/\[{"code":"//g' -e 's/}]//g' -e 's/{"languages"://g' -e 's/"}//g' > $lang_map
+  		getURL '2term' "$url" | sed -e 's/","name":"/ /g' -e 's/"},{"code":"/\n/g' -e 's/\[{"code":"//g' -e 's/}]//g' -e 's/{"languages"://g' -e 's/"}//g' > $lang_map
   	fi
   else
   	local url=${translate_languages_url["${translate_service}"]}
-  	curl -Ss "$url" | sed -e 's/","name":"/ /g' -e 's/"},{"code":"/\n/g' -e 's/\[{"code":"//g' -e 's/}]//g' -e 's/{"languages"://g' -e 's/"}//g' > $lang_map
+  	getURL '2term' "$url" | sed -e 's/","name":"/ /g' -e 's/"},{"code":"/\n/g' -e 's/\[{"code":"//g' -e 's/}]//g' -e 's/{"languages"://g' -e 's/"}//g' > $lang_map
   fi  
  
   if [[ ! -v translate_mode ]]; then
@@ -95,9 +94,13 @@ main() {
   translation_method=${translate_method[${translate_service}]}
 
   if [[ "${translation_method}" == "POST" ]]; then
-    translation=$(curl -X "${translation_method}" -Ss "${translation_url}")
+  	if command -v curl >/dev/null 2>&1;then
+    	translation=$(curl -X "${translation_method}" -Ss "${translation_url}")
+    elif command -v wget >/dev/null 2>&1;then
+		translation=$(wget --quiet --method="${translation_method}" --output-document=- "${translation_url}")
+	fi
   else 
-    translation=$(curl -Ss "${translation_url}")
+    translation=$(getURL '2term' "${translation_url}")
   fi
   
   translation="$(echo "$translation" | sed -e 's/{"translation":"//g' -e 's/"}//g')"

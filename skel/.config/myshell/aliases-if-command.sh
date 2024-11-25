@@ -5,17 +5,17 @@ elif ! command -v bat >/dev/null; then
 	alias bat='cat'
 fi
 
-if command -v fzf &>/dev/null;then
+if command -v fzf >/dev/null 2>&1;then
 	alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 fi
 
 # better find
-if command -v fdfind &>/dev/null;then
+if command -v fdfind >/dev/null 2>&1;then
 	alias fd='fdfind'
 fi
 
 # better cd
-if command -v zoxide &>/dev/null;then 
+if command -v zoxide >/dev/null 2>&1;then 
 	alias z='zoxide'
 fi
 

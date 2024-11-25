@@ -14,7 +14,7 @@ Options (usually passed from the menu):
 
 '
 
-source "/usr/share/my_stuff/lib/common/DB"
+. "/usr/share/my_stuff/lib/common/DB"
 
 LIST_OF_APPS_SCRIPTS_=($(cd "${apps_db_path}" && ls 2>/dev/null))
 
@@ -34,7 +34,7 @@ do
     esac
 done
 
-source "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 if [[ ${1-} = --openboxmenu ]]; then # pipemenu
 	menuStart "my_stuffGuiAppsPipemenu" "My Stuff GUI Apps"
@@ -45,7 +45,7 @@ if [[ ${1-} = --openboxmenu ]]; then # pipemenu
 	menuItem "GUI MPV" "my-mpv"
 	menuItem "Style Manager" "style-manager"
 	menuItem "ScreenShot" "yadshot.sh"
-	menuItem "wget" "yadwget"
+	menuItem "URL Downloader" "url_downloader"
 	menuItem "Autostart Manager" "yautostart"
 	menuItem "USB formatter" "hub usb-formatter"
 	menuItem "Package Manager" "yadstore"
@@ -60,17 +60,17 @@ if [[ ${1-} = --openboxmenu ]]; then # pipemenu
 		menuItem "QT5 Settings" "qt5ct"
 		menuItem "Kvantum Manager" "kvantummanager"
 	fi
-	if command -v quickemu_gui &> /dev/null; then
+	if command -v quickemu_gui >/dev/null 2>&1; then
 		menuItem "QuickEMU GUI" "quickemu_gui"
 	fi
-	if command -v distrogui &> /dev/null; then
+	if command -v distrogui >/dev/null 2>&1; then
 		menuItem "DistroBOX GUI" "distrogui"
 	fi
 	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
 		menuItem "GPU Switcher" "gui_GPU_Switcher"
 		menuItem "GUI TLP" "yadtlp.sh"
 	fi
-	if command -v fingerprint_gui &> /dev/null; then
+	if command -v fingerprint_gui >/dev/null 2>&1; then
 		menuItem "Fingerprint GUI" "fingerprint_gui"
 	fi
     menuEnd
@@ -82,7 +82,7 @@ elif [[ ${1-} = --jgmenu ]]; then # pipemenu
 	jgmenuItem "GUI MPV" "my-mpv"
 	jgmenuItem "Style Manager" "style-manager"
 	jgmenuItem "ScreenShot" "yadshot.sh"
-	jgmenuItem "wget" "yadwget"
+	jgmenuItem "URL Downloader" "url_downloader"
 	jgmenuItem "Autostart Manager" "yautostart"
 	jgmenuItem "USB formatter" "hub usb-formatter"
 	jgmenuItem "Package Manager" "yadstore"
@@ -97,17 +97,17 @@ elif [[ ${1-} = --jgmenu ]]; then # pipemenu
 		jgmenuItem "QT5 Settings" "qt5ct"
 		jgmenuItem "Kvantum Manager" "kvantummanager"
 	fi
-	if command -v quickemu_gui &> /dev/null; then
+	if command -v quickemu_gui >/dev/null 2>&1; then
 		jgmenuItem "QuickEMU GUI" "quickemu_gui"
 	fi
-	if command -v distrogui &> /dev/null; then
+	if command -v distrogui >/dev/null 2>&1; then
 		jgmenuItem "DistroBOX GUI" "distrogui"
 	fi
 	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
 		jgmenuItem "GPU Switcher" "gui_GPU_Switcher"
 		jgmenuItem "GUI TLP" "yadtlp.sh"
 	fi
-	if command -v fingerprint_gui &> /dev/null; then
+	if command -v fingerprint_gui >/dev/null 2>&1; then
 		jgmenuItem "Fingerprint GUI" "fingerprint_gui"
 	fi
     jgmenuEnd

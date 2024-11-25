@@ -12,16 +12,16 @@ confirm_it=false
 
 _logout(){
 	[ "$confirm_it" = true ] && confirmation_dialog
-	DESKTOP_SESSION_all_small_latter=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
-	if [ "$DESKTOP_SESSION_all_small_latter" = "*openbox" ] || [ "$DESKTOP_SESSION_all_small_latter" = "openbox" ]; then
+	wm_name="$(cat "$WM_name_file")"
+	if [ "$wm_name" = "openbox" ];then
 		openbox --exit
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "*bspwm" ] || [ "$DESKTOP_SESSION_all_small_latter" = "bspwm" ]; then
+	elif [ "$wm_name" = "bspwm" ];then
 		bspc quit
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "i3" ]; then
+	elif [ "$wm_name" = "i3" ];then
 		i3-msg exit
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "qtile" ]; then	
+	elif [ "$wm_name" = "qtile" ];then
 		qtile cmd-obj -o cmd -f shutdown
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "awesome" ]; then	
+	elif [ "$wm_name" = "awesome" ];then
 		awesome --replace
 	else
 		([ "$(command -v systemctl)" ] && systemctl --user exit) || loginctl terminate-session "$XDG_SESSION_ID"
@@ -29,16 +29,16 @@ _logout(){
 } 
 
 _reload(){
-	DESKTOP_SESSION_all_small_latter=$(echo "$DESKTOP_SESSION" | sed -e 's/\(.*\)/\L\1/')
-	if [ "$DESKTOP_SESSION_all_small_latter" = "*openbox" ]; then
+	wm_name="$(cat "$WM_name_file")"
+	if [ "$wm_name" = "openbox" ];then
 		openbox --reconfigure
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "*bspwm" ]; then
+	elif [ "$wm_name" = "bspwm" ];then
 		bspc --restart
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "i3" ]; then
+	elif [ "$wm_name" = "i3" ];then
 		i3-msg restart
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "qtile" ]; then	
+	elif [ "$wm_name" = "qtile" ];then
 		qtile cmd-obj -o cmd -f restart
-	elif [ "$DESKTOP_SESSION_all_small_latter" = "awesome" ]; then	
+	elif [ "$wm_name" = "awesome" ];then
 		awesome --replace
 	fi
 } 

@@ -1,16 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-is_ipv6_disabled=$(grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep 'ipv6.disable=1')
 
-if [ "$1" = "--check" ];then
-	if test "${is_ipv6_disabled}"; then
-		echo enabled 
+if [ "$1" = "--is-enable" ];then
+	if grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1'; then
+		exit 0
 	else
-		echo disabled
+		exit 1
 	fi
-	exit 0
 fi
+
 echo "disabling IPv6 stack (kernal level)."
 if ! grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then
 	if grep -q 'GRUB_CMDLINE_LINUX=""' /etc/default/grub;then

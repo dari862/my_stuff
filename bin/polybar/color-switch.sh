@@ -2,8 +2,7 @@
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
 
-if [ "$ROFI_STYLE" == "grayblocks" ] || [ "$ROFI_STYLE" == "docky" ] || [ "$ROFI_STYLE" == "cuts" ]
-then
+if [ "$ROFI_STYLE" = "grayblocks" ] || [ "$ROFI_STYLE" = "docky" ] || [ "$ROFI_STYLE" = "cuts" ];then
 	symbol_for_themes_=""
 else
 	symbol_for_themes_="♥"

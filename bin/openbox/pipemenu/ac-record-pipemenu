@@ -4,7 +4,7 @@
 ##
 ## Openbox Pipemenu to Record Screen with slop and ffmpeg
 
-. "/usr/share/my_stuff/lib/common/includes_functions"
+. "/usr/share/my_stuff/lib/common/pipemenu"
 
 menuStart
 	if [[ `pidof ffmpeg` ]]; then

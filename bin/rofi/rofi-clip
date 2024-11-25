@@ -5,7 +5,7 @@
 . "${script_config_path}/clipmanager/config.ini" 
 
 if pgrep clipmanager >/dev/null 2>&1;then
-	cat "${_history}" | ${rofi_command}
+	cat "${_history}" | ${rofi_command} | xclip -selection clipboard
 else
 	echo "$0: ERROR clipmanager is not running."
 	exit 1

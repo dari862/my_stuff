@@ -1,12 +1,12 @@
 #!/bin/bash
     
-if command -v virt-manager &> /dev/null; then
+if command -v virt-manager >/dev/null 2>&1; then
 	virt-manager &
 	exit
-elif command -v virtualbox &> /dev/null; then
+elif command -v virtualbox >/dev/null 2>&1; then
 	virtualbox &
 	exit
-elif command -v vmplayer &> /dev/null; then
+elif command -v vmplayer >/dev/null 2>&1; then
 	vmplayer &
 	exit
 fi

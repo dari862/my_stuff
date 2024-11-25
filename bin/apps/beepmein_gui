@@ -42,7 +42,7 @@ See also:
     beepmein(1)
 "
 
-if command -v gmrun &>/dev/null;then
+if command -v gmrun >/dev/null 2>&1;then
 	runner_menu_="gmrun"
 else
 	runner_menu_="rofi-url-handler"
@@ -109,9 +109,9 @@ kill_queue_(){
 export -f kill_queue_
 	
 menu_picker_(){
-	if command -v yad &>/dev/null;then
+	if command -v yad >/dev/null 2>&1;then
 		use_yad_
-	elif command -v jgmenu &>/dev/null;then
+	elif command -v jgmenu >/dev/null 2>&1;then
 		use_jgmenu_
 	fi
 }

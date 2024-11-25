@@ -1,194 +1,172 @@
-#!/bin/bash
+#!/bin/sh
 set -e
-opt="${1-}"
-source "/usr/share/my_stuff/lib/common/WM"
-source "/usr/share/my_stuff/lib/common/DB"
-source "/usr/share/my_stuff/lib/common/openbox"
 
+# Default to empty string if no option is provided
+opt="${1-}"
+
+# Import necessary libraries
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/DB"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+# Directories
 _SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/apps_center"
 _DISTROBOX_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/distrobox_center"
 _CONTAINERS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/containers_center"
 _CHROOTS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/chroots_center"
+_TWEEKS_DIR="/usr/share/my_stuff/bin/not_add_2_path/tweeks_center"
 
-create_tweeks_db(){
-	_TWEEKS_DIR="/usr/share/my_stuff/bin/not_add_2_path/tweeks_center"
-	LS_TWEEKS=($(ls ${_TWEEKS_DIR}))
-	for tweek in "${LS_TWEEKS[@]}"; do
-		[[ "$(${_TWEEKS_DIR}/${tweek} --check)" != "enabled" ]] && echo "${tweek}" >> "${tweeks_db_path}"
-	done
+# Helper function to check if a command is installed
+is_installed() {
+  command -v "$1" >/dev/null 2>&1 || dpkg -s "$1" >/dev/null 2>&1
 }
 
-create_apps_db_and_gaming_db(){
-	GAMING_SCRIPTS_Dir_Name="Gaming"
-	create_apps_db(){
-		cd "${_SCRIPTS_LIBDIR}"
-		LIST_OF_APPS_SCRIPTS_=($(ls | grep -v "${GAMING_SCRIPTS_Dir_Name}" ))
-		if ((${#LIST_OF_APPS_SCRIPTS_[@]} > 0));then
-			mkdir -p "${apps_db_path}"
-			for d in "${LIST_OF_APPS_SCRIPTS_[@]}";do
-				if [ -d "$d" ];then
-					[ -f "${apps_db_path}/$d" ] && rm "${apps_db_path}/$d"
-					cd "$d"
-					for app in *;do
-						if ! hash "${app}" 2>/dev/null && ! dpkg -s "${app}" &>/dev/null;then
-							app_name2=$(echo "$app" | awk -F_ '{print $1}')
-							if ! hash "${app_name2}" 2>/dev/null && ! dpkg -s "${app_name2}" &>/dev/null;then
-								if grep -q 'app_name=\$' "${app}";then
-									app_name3="${app}"
-								else
-									if grep -q 'app_name="' "${app}";then
-										app_name3="$(grep 'app_name="' "${app}" | awk -F'"' '{print $2}')"
-									elif grep -q 'app_name=(' "${app}";then
-										tempapps=($(grep 'app_name=(' "${app}" | awk -F'(' '{print $2}' | sed 's/)//'))
-										for tempapp in "${tempapps[@]}";do
-											app_name3="${tempapp}"
-											if ! hash "${tempapp}" 2>/dev/null && ! dpkg -s "${tempapp}" &>/dev/null;then
-												break
-											fi
-										done
-									fi
-								fi
-								if ! hash "${app_name3}" 2>/dev/null && ! dpkg -s "${app_name3}" &>/dev/null;then
-									echo "${app}" >> "${apps_db_path}/$d"
-								fi
-							fi
-						fi
-					done
-					cd ..
-				fi
-			done
-		fi
-	}
-	create_gaming_db(){
-		cd "${_SCRIPTS_LIBDIR}"/"${GAMING_SCRIPTS_Dir_Name}"
-		LIST_OF_GAMING_SCRIPTS_=($(ls))
-		if ((${#LIST_OF_GAMING_SCRIPTS_[@]} > 0));then
-			mkdir -p "${gaming_db_path}"
-			for d in "${LIST_OF_GAMING_SCRIPTS_[@]}";do
-				if [ -d "$d" ];then
-					[ -f "${gaming_db_path}/$d" ] && rm "${gaming_db_path}/$d"
-					cd "$d"
-					for Gapp in *;do
-						if ! hash "${Gapp}" 2>/dev/null && ! dpkg -s "${Gapp}" &>/dev/null;then
-							gapp_name2=$(echo "$Gapp" | awk -F_ '{print $1}')
-							if ! hash "${gapp_name2}" 2>/dev/null && ! dpkg -s "${gapp_name2}" &>/dev/null;then
-								if grep -q 'app_name=\$' "${Gapp}";then
-									gapp_name3="${Gapp}"
-								else
-									if grep -q 'app_name="' "${Gapp}";then
-										gapp_name3="$(grep 'app_name="' "${Gapp}" | awk -F'"' '{print $2}')"
-									elif grep -q 'app_name=(' "${app}";then
-										tempapps=($(grep 'app_name=(' "${Gapp}" | awk -F'(' '{print $2}' | sed 's/)//'))
-										for tempapp in "${tempapps[@]}";do
-											gapp_name3="${tempapp}"
-											if ! hash "${tempapp}" 2>/dev/null && ! dpkg -s "${tempapp}" &>/dev/null;then
-												break
-											fi
-										done
-									fi
-								fi
-								if ! hash "${gapp_name3}" 2>/dev/null && ! dpkg -s "${gapp_name3}" &>/dev/null;then
-									echo "${Gapp}" >> "${gaming_db_path}/$d"
-								fi
-							fi
-						fi
-					done
-					cd ..
-				fi
-			done
-		fi
-	}
-	create_apps_db
-	create_gaming_db
+# Helper function to create a database from directories
+create_db_from_dirs() {
+  dir="$1"
+  db_path="$2"
+
+  # Ensure db_path exists
+  mkdir -p "$db_path"
+
+  # Iterate over subdirectories in the specified directory
+  for d in "$dir"/*/; do
+    # Extract the base name of the directory (e.g., last part of the path)
+    dir_name=$(basename "$d")
+
+    # If the corresponding file already exists in the db_path, remove it
+    if [ -f "${db_path}/$dir_name" ]; then
+      rm "${db_path}/$dir_name"
+    fi
+
+    # Create the db file for the directory
+    touch "${db_path}/$dir_name"
+
+    # Iterate over the files in the subdirectory (ignoring directories)
+    for app in "$d"/*; do
+      if [ -f "$app" ] && ! is_installed "$(basename "$app")"; then
+        echo "$(basename "$app")" >> "$db_path/$dir_name"
+      fi
+    done
+  done
 }
 
-create_distrobox_deploy_db(){
-	cd "${_DISTROBOX_SCRIPTS_LIBDIR}"
-	DISTROBOX_LIST_OF_DEPLOYS_SCRIPTS_=($(ls -p | grep -v / || :))
-	if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
-		for deploy in "${DISTROBOX_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
-			[[ "$(distrobox list | grep " ${deploy} " && echo true)" != "true" ]] && echo "${deploy}" >> "${distrobox_deploy_db_path}"
-		done
-	else
-		for deploy in "${DISTROBOX_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
-			echo "${deploy}" >> "${distrobox_deploy_db_path}"
-		done
-	fi
+# Create the Tweeks database
+create_tweeks_db() {
+  # Check if _TWEEKS_DIR is valid and not empty
+  if [ -z "$(ls -A "${_TWEEKS_DIR}")" ]; then
+    rm -rdf "${_TWEEKS_DIR}"
+  fi
+  
+  if [ ! -d "${_TWEEKS_DIR}" ]; then
+    mkdir -p "${_TWEEKS_DIR}"
+  fi
+  
+  # Loop over files in _TWEEKS_DIR
+  for tweek in "${_TWEEKS_DIR}"/*; do
+    # Skip if it's not a file (can be a subdirectory or something else)
+    if [ -f "$tweek" ]; then
+      # Check if the tweek is not enabled
+      if ${tweek} --is-enable; then
+        echo "$(basename "$tweek")" >> "${tweeks_db_path}"
+      fi
+    fi
+  done
 }
 
-create_containers_deploy_db(){
-	cd "${_CONTAINERS_SCRIPTS_LIBDIR}"
-	CONTAINERS_LIST_OF_DEPLOYS_SCRIPTS_=($(ls -p | grep -v / || :))
-	if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ];then
-		for container in "${CONTAINERS_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
-			[ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ] && echo "${container}" >> "${containers_deploy_db_path}"
-		done
-	else
-		for container in "${CONTAINERS_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
-			echo "${container}" >> "${containers_deploy_db_path}"	
-		done
-	fi
+# Create apps and gaming database
+create_apps_db_and_gaming_db() {
+  create_db_from_dirs "${_SCRIPTS_LIBDIR}" "${apps_db_path}"
+  create_db_from_dirs "${_SCRIPTS_LIBDIR}/Gaming" "${gaming_db_path}"
 }
 
-create_chroots_deploy_db(){
-	cd "${_CHROOTS_SCRIPTS_LIBDIR}"
-	CHROOTS_LIST_OF_DEPLOYS_SCRIPTS_=($(ls -p | grep -v / || :))
-	if [ -d '/etc/schroot/chroot.d' ];then
-		for chroot in "${CHROOTS_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
-			[ ! -f "${_CHROOTS_SCRIPTS_LIBDIR}/${chroot}" ] && echo "${chroot}" >> "${chroots_deploy_db_path}"
-		done
-	else
-		for chroot in "${CHROOTS_LIST_OF_DEPLOYS_SCRIPTS_[@]}"; do
-			echo "${chroot}" >> "${chroots_deploy_db_path}"	
-		done
-	fi
+# Create distrobox deploy database
+create_distrobox_deploy_db() {
+  cd "${_DISTROBOX_SCRIPTS_LIBDIR}"
+  list_of_deploys=$(find . -maxdepth 1 -type f -exec basename {} \;)
+
+  if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ]; then
+    for deploy in $list_of_deploys; do
+      if ! distrobox list | grep -q " ${deploy} "; then
+        echo "$deploy" >> "${distrobox_deploy_db_path}"
+      fi
+    done
+  else
+    for deploy in $list_of_deploys; do
+      echo "$deploy" >> "${distrobox_deploy_db_path}"
+    done
+  fi
 }
 
-create_styles_db(){
-	source "/usr/share/my_stuff/lib/common/panel"
-	source "/usr/share/my_stuff/lib/common/openbox"
+# Create containers deploy database
+create_containers_deploy_db() {
+  cd "${_CONTAINERS_SCRIPTS_LIBDIR}"
+  list_of_containers=$(find . -maxdepth 1 -type f -exec basename {} \;)
 
-	# Dir
+  if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ]; then
+    for container in $list_of_containers; do
+      if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ]; then
+        echo "$container" >> "${containers_deploy_db_path}"
+      fi
+    done
+  else
+    for container in $list_of_containers; do
+      echo "$container" >> "${containers_deploy_db_path}"
+    done
+  fi
+}
+
+# Create chroots deploy database
+create_chroots_deploy_db() {
+  cd "${_CHROOTS_SCRIPTS_LIBDIR}"
+  list_of_chroots=$(find . -maxdepth 1 -type f -exec basename {} \;)
+
+  if [ -d '/etc/schroot/chroot.d' ]; then
+    for chroot in $list_of_chroots; do
+      if [ ! -f "${_CHROOTS_SCRIPTS_LIBDIR}/${chroot}" ]; then
+        echo "$chroot" >> "${chroots_deploy_db_path}"
+      fi
+    done
+  else
+    for chroot in $list_of_chroots; do
+      echo "$chroot" >> "${chroots_deploy_db_path}"
+    done
+  fi
+}
+
+# Create styles database
+create_styles_db() {
+	. "/usr/share/my_stuff/lib/common/panel"
+	. "/usr/share/my_stuff/lib/common/openbox"
+
 	if [ -f "$OB_STYLE_NORMAL" ]; then
 		dir="/usr/share/my_stuff/system_files/blob/polybar"
 	else
 		dir="/usr/share/my_stuff/system_files/blob/tint2"
 	fi
 
-	cd $dir && ls -d */ 2>/dev/null | cut -f1 -d'/' | grep -v "default" > "${styles_db_path}"
+	find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name "default" -exec basename {} \; | sort > "$styles_db_path"
 }
 
-create_all_db_execpt_style_db(){
-	mkdir -p "${db_dir}"
-	
-	if [ ! -f "${tweeks_db_path}" ] ; then
-		create_tweeks_db
-	fi 
-		
-	if [ ! -f "${apps_db_path}" ] ; then
-		create_apps_db_and_gaming_db
-	fi 
-	
-	if [ ! -f "${distrobox_deploy_db_path}" ] ; then
-		create_distrobox_deploy_db
-	fi
-	
-	if [ ! -f "${containers_deploy_db_path}" ] ; then
-		create_containers_deploy_db
-	fi
-	
-	if [ ! -f "${chroots_deploy_db_path}" ] ; then
-		create_chroots_deploy_db
-	fi
+# Create all databases except the styles database
+create_all_db_except_style_db() {
+  mkdir -p "${db_dir}"
+
+  [ ! -f "${tweeks_db_path}" ] && create_tweeks_db
+  [ ! -f "${apps_db_path}" ] && create_apps_db_and_gaming_db
+  [ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
+  [ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
+  [ ! -f "${chroots_deploy_db_path}" ] && create_chroots_deploy_db
 }
 
-case $opt in
-		--tweeks) create_tweeks_db ;;
-		--apps) create_apps_db_and_gaming_db ;;
-		--deploy) create_distrobox_deploy_db ;;
-		--containers) create_containers_deploy_db ;;
-		--chroots) create_chroots_deploy_db ;;
-		--styles) create_styles_db ;;
-		--all) create_all_db_execpt_style_db ;;
-		*) : ;;
+# Case statement to trigger the appropriate function
+case "$opt" in
+  --tweeks) create_tweeks_db ;;
+  --apps) create_apps_db_and_gaming_db ;;
+  --deploy) create_distrobox_deploy_db ;;
+  --containers) create_containers_deploy_db ;;
+  --chroots) create_chroots_deploy_db ;;
+  --styles) create_styles_db ;;
+  --all) create_all_db_except_style_db ;;
+  *) echo "Invalid option"; exit 1 ;;
 esac

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 # FILE: emacs-session
 # DESCRIPTION: manage emacs daemon for start, restart and stop 
@@ -11,7 +11,7 @@
 # NAME: stop
 # DESCRIPTION: stop all emacs process
 #===================================================================================
-function stop() {
+stop() {
 	[ "$(pidof emacs)" ] && killall emacs 
 	[ "$(pidof emacs)" ] && killall -9 emacs
 }
@@ -21,12 +21,12 @@ function stop() {
 # NAME: start
 # DESCRIPTION: start emacs
 #===================================================================================
-function start() {
+start() {
   exec /usr/bin/emacs --daemon &
 }
 
 # EXEC ACTION ACCORDING $1
-case "${1,,}" in
+case "${1}" in
 	""|start|restart)
 		stop
 		start		
