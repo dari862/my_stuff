@@ -4,10 +4,9 @@ __timezone_s="${2-}"
 
 set_time_zone(){
 	__timezone="${1-}"
-	__timezone_q="${__timezone@Q}"
 	echo "Using ${__timezone} as time zone."
 	if command -v timedatectl >/dev/null 2>&1;then
-		my-superuser timedatectl set-timezone $__timezone_q
+		my-superuser timedatectl set-timezone $__timezone
 	else
 		my-superuser ln -sf /usr/share/zoneinfo/$__timezone /etc/localtime
 		my-superuser hwclock --systohc

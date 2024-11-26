@@ -18,13 +18,13 @@ if command -v curl >/dev/null;then
 		curl -fsSLO "${url}" --progress-bar
 	fi
 elif command -v wget >/dev/null;then
-	if [ "${mode}" = "head" ];then
-		wget --head -fsS --max-redirs 0 "${url}"
-	elif [ "${mode}" = "2term" ];then
-		wget -fsSL "${url}"
-	elif [ "${mode}" = "download2" ];then
-		wget -fsSLo "$path" "${url}" --progress-bar
-	elif [ "${mode}" = "download" ];then
-		wget -fsSLO "${url}" --progress-bar
+	if [ "${mode}" = "head" ]; then
+    	wget -S --spider --max-redirect=0 "${url}"
+	elif [ "${mode}" = "2term" ]; then
+    	wget -qO- "${url}"
+	elif [ "${mode}" = "download2" ]; then
+    	wget -q --show-progress -O "$path" "${url}"
+	elif [ "${mode}" = "download" ]; then
+    	wget --show-progress -O "${url##*/}" "${url}"
 	fi
 fi
