@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 opt="${1-}"
 arg_="${2-}"
@@ -41,7 +41,7 @@ Set_Style_using_rofi(){
 	-theme "$rofi_style_dir"/launcher.rasi \
 	<<< "$list_styles")"
 	
-	[ -z "$Picked_Style" ] && Picked_Style=${default_style}
+	[ -z "$Picked_Style" ] && Picked_Style="${default_style}"
 	
 	Seter_Style_
 }
@@ -75,7 +75,7 @@ Set_tint2_Style_(){
 Seter_Style_(){
 	style="${Picked_Style}"
 	cp -r ${CONFIGPATH}/${style}/config/* $HOME/.config
-	[ -d "${CONFIGPATH}/${style}/cache" ] && cp -r ${CONFIGPATH}/${style}/cache $HOME/.cache
+	[ -d "${CONFIGPATH}/${style}/cache" ] && cp -r "${CONFIGPATH}/${style}/cache $HOME/.cache"
 	dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
 	if [ -f "$OB_STYLE_NORMAL" ]; then
 		Set_polybar_Style_
@@ -84,7 +84,7 @@ Seter_Style_(){
 	fi
 	[ "$(pidof openbox)" ] && openbox --reconfigure
 	reload-gtk23
-	if [ -f ${CONFIGPATH}/${style}/random_wallpaper ];then
+	if [ -f "${CONFIGPATH}/${style}/random_wallpaper" ];then
 		# Set random wallpaper for actual rice
 		setbg -d "/usr/share/my_stuff/my_wallpapers/${style}_*"
 	else
@@ -123,7 +123,7 @@ saveStyle(){
 	DUNSTDir="$HOME/.config/dunst"
 
 	# getplank
-    if [[ -f $PLANK_CACHE ]];then
+    if [[ -f "$PLANK_CACHE" ]];then
         mkdir -p "$CONFIG_DIR/cache"
         cp "$PLANK_CACHE" "$CONFIG_DIR/cache"
         mkdir -p "$PLANK"
@@ -131,20 +131,20 @@ saveStyle(){
     fi
     
     # getdunst
-	if [[ -f $DUNSTDir/theme.dunstrc ]];then
+	if [[ -f "$DUNSTDir/theme.dunstrc" ]];then
         mkdir -p "$CONFIG_DIR/config/dunst"
         cp "$DUNSTDir/theme.dunstrc" "$CONFIG_DIR/config/dunst"
     fi
 
     # getBg    # find if feh or nitrogen or xwallpaper was used. Save config file(s)
-    if [[ -e $NITROFILE ]];then    # use nitrogen for background
+    if [[ -e "$NITROFILE" ]];then    # use nitrogen for background
         mkdir -p "$CONFIG_DIR/config/nitrogen"
         cp "$NITROFILE" "$CONFIG_DIR/config/nitrogen"
     fi
-    if [[ -e $FEHFILE ]];then  # use feh for background
+    if [[ -e "$FEHFILE" ]];then  # use feh for background
     	cp "$FEHFILE" "$CONFIG_DIR"
     fi
-    if [[ -e $FEHFILE ]];then  # use feh for background
+    if [[ -e "$FEHFILE" ]];then  # use feh for background
     	cp "$FEHFILE" "$CONFIG_DIR"
     fi
     
@@ -176,7 +176,7 @@ saveStyle(){
     tint2_sessionfile_file="$CONFIG_DIR/config/tint2/tint2-sessionfile"
     mkdir -p "$CONFIG_DIR/config/tint2"
     pgrep -a tint2 | while read pid cmd;do
-    	if [[ ${cmd%% *} = tint2 ]];then
+    	if [[ "${cmd%% *}" = tint2 ]];then
     		TPATH=$(echo "$cmd" | awk '{print $NF}')
     		echo "$TPATH" >> "$tint2_sessionfile_file"
     	fi
@@ -192,7 +192,7 @@ saveStyle(){
 	mkdir -p "$OBPATH/theme"
 	mkdir -p "$CONFIG_DIR/config/openbox/theme"
 	
-	[ -f "${OBPATH}/theme/rctheme" ] &&  source ${OBPATH}/theme/rctheme
+	[ -f "${OBPATH}/theme/rctheme" ] &&  . "${OBPATH}/theme/rctheme"
 	
 	theme_font_name=($(grep '<name>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -2))
 	
@@ -317,7 +317,7 @@ Launch_YAD_(){
         	0)  setName
             	saveStyle
             	getScreenshot
-            	if [[ -d $CONFIGDIR-BKP ]];then
+            	if [[ -d "$CONFIGDIR-BKP" ]];then
                 	rm -rf "$CONFIGDIR-BKP"
                 	echo -e "\n  Temporary $CONFIGDIR deleted\n"
             	fi
@@ -338,10 +338,10 @@ Launch_YAD_(){
     	NUMDIRS=0
     	NUMDIRS=$(ls -l "$CONFIGPATH" | grep -c ^d) # check if any dirs present
     	if (( $NUMDIRS == 0 ));then
-        	if [[ -f $CURSESSION ]];then
+        	if [[ -f "$CURSESSION" ]];then
             	rm $CURSESSION
         	fi
-    	elif (( $NUMDIRS > 0 )) && [[ -f $CURSESSION ]];then
+    	elif (( "$NUMDIRS" > 0 )) && [[ -f "$CURSESSION" ]];then
         	SET=$(cat $CURSESSION)
     	fi
 	}
@@ -376,14 +376,14 @@ Launch_YAD_(){
     	MSG2="  No file specified for new saved session.\n\n  Try again?"
     	LOOP=1
     	DEL=0
-    	while [[ $LOOP ]];do  # loop dialog if nothing is selected
+    	while [[ "$LOOP" ]];do  # loop dialog if nothing is selected
         	ANS=$($DIALOG --entry \
             	$CANCEL --button="OK:0" \
             	"$T$MSG" \
             	2>/dev/null )
         	if (( $? == 1 )) ;then # Cancel was selected
             	Intro
-        	elif [[ ! $ANS ]] ;then     # entry was empty
+        	elif [[ ! "$ANS" ]] ;then     # entry was empty
             	$DIALOG --image="dialog-question" \
             	"$CANCEL" "$OK" \
             	"$T$MSG2" \
@@ -398,16 +398,10 @@ Launch_YAD_(){
         	else
             	ANS=$(echo $ANS | sed -e 's/ /_/g')    # replace any spaces in dir name
             	CONFIGDIR="$CONFIGPATH/$ANS"
-            	if [[ -d $CONFIGDIR ]];then
+            	if [[ -d "$CONFIGDIR" ]];then
                 	echo -e "\n  $CONFIGDIR już istnieje"
 	
-                	$DIALOG --form --image="dialog-question" \
-                	--text="$OVERWRITE_SESSION" \
-                	"$CANCEL" "$OK" \
-                	--width=300 \
-                	2>/dev/null
-	
-                	if (( $? == 0 ));then
+                	if $DIALOG --form --image="dialog-question" --text="$OVERWRITE_SESSION" "$CANCEL" "$OK" --width=300 2>/dev/null;then
                     	mv {"$CONFIGDIR","$CONFIGDIR-BKP"} && mkdir -p "$CONFIGDIR"
                     	TXT="  (Existing session overwritten)"
                     	break
@@ -480,7 +474,7 @@ Launch_YAD_(){
     	xdotool mousemove_relative --sync --polar 0 10 click 3
     	
     	# kill lxappearance
-    	if [[ $(pgrep lxappearance | grep $pid) ]];then
+    	if pgrep lxappearance | grep "$pid";then
         	kill -9 $pid >/dev/null 2>&1
     	fi
 	
@@ -510,12 +504,12 @@ Launch_YAD_(){
         	msg=""
 			apps_as_root --yad true && cat "$1/$LDM" | my-superuser tee "$LDMDIR/$LDMnew" > /dev/null 2>&1
         	ret=( "${PIPESTATUS[@]}" )
-        	if [[ ${ret[1]} = 0 ]]
+        	if [[ "${ret[1]}" = 0 ]]
         	then
             	msg="Restored: lightdm-gtk-greeter.conf"
             	echo "\n  $msg"
             	return 0
-        	elif [[ ${ret[0]} = 1 ]]
+        	elif [[ "${ret[0]}" = 1 ]]
         	then
             	msg="Authentication cancelled\n\nlightdm-gtk-greeter.conf was not restored"
             	echo "$0: $msg" >&2
@@ -539,19 +533,19 @@ Launch_YAD_(){
     	thumbsARR=()
     	i=0
     	for dir in "$CONFIGPATH"/* ;do
-        	if [[ -d $dir ]];then
+        	if [[ -d "$dir" ]];then
             	d=$(echo $dir | sed -e 's/ /_/g')    # replace any spaces in dir name
             	namesARR[$i]="<big>$(basename $d)</big>" # add theme collection name to array
             	d=${d##*/}  # get directory name
             	# Get name of current session, set icon for TRUE/FALSE
-            	if [[ $SET = $d ]];then
+            	if [[ "$SET" = "$d" ]];then
                 	setARR[$i]="gtk-yes"
             	else
                 	setARR[$i]="gtk-no"
             	fi
             	IMGTHUMB="Brak"     # Placeholder if no thumbnail found
             	f="$dir"/*"-thumb.jpg"
-            	if [[ $f ]];then
+            	if [[ "$f" ]];then
                 	IMGTHUMB="$f"
             	fi
             	thumbsARR[$i]="$IMGTHUMB"
@@ -567,7 +561,7 @@ Launch_YAD_(){
     	ViewRestoreDialog
     	FPATH=""
     	LOOP=1
-    	while [[ $LOOP ]] ;do
+    	while [[ "$LOOP" ]] ;do
         	CONFIG=$($DIALOGDEC --list --title="$TITLE" --image=preferences-desktop-theme\
             	--text="$MAIN_TEXT" \
             	--separator=" " \
@@ -583,7 +577,7 @@ Launch_YAD_(){
             	$DLGLIST \
             	2>/dev/null )
         	RET=$?
-        	if [[ $CONFIG ]];then
+        	if [[ "$CONFIG" ]];then
             	Style=$(echo "$CONFIG" | awk -F'[>|<]' '{print $3}' )
             	FPATH="$CONFIGPATH/$Style"
         	fi
@@ -596,7 +590,7 @@ Launch_YAD_(){
             		exit 0
                 	;;
             	2)  # DELETE
-            		if [[ ! $CONFIG ]];then
+            		if [[ ! "$CONFIG" ]];then
                     	$DIALOG --text="$CHOOSE_BEFORE_DELETE" "$EXIT" "$OK" 2>/dev/null
                     	if (( $? == 0 ));then
                         	continue
@@ -605,9 +599,7 @@ Launch_YAD_(){
                     	fi
                 	fi
                 	TEXT="$DELETE_FOR_SURE"
-                	$DIALOG "$T$TEXT" "$CANCEL" "$OK" 2>/dev/null
-	
-                	if (( $? == 0 ));then
+                	if $DIALOG "$T$TEXT" "$CANCEL" "$OK" 2>/dev/null;then
                     	[ -f "$FPATH" ] && rm -rf "$FPATH"
                     	[ -f "$FPATH.jpg" ] && rm "$FPATH.jpg"
                     	echo -e "\n$Style DELETED"
@@ -626,7 +618,7 @@ Launch_YAD_(){
                 	saveStyle
                 	getScreenshot
                 	$DIALOG --text="$SETTINGS_SAVED <b>$ANS</b>" --image="gtk-save" "$OK" 2>/dev/null
-                	if [[ -d $CONFIGDIR-BKP ]];then
+                	if [[ -d "$CONFIGDIR-BKP" ]];then
                     	rm -rf "$CONFIGDIR-BKP"
                     	echo -e "\n  Temporary $CONFIGDIR deleted\n"
                 	fi
@@ -634,7 +626,7 @@ Launch_YAD_(){
                 	;;
             	4)  # show screenshot in image viewer
                 	SEL=$(echo "$CONFIG" | awk -F'[>|<]' '{print $3}' )
-                	if [[ $SEL ]];then
+                	if [[ "$SEL" ]];then
                     	img="$CONFIGPATH/$SEL.jpg"
                     	$IMGCMD "$img"
                 	else
@@ -664,12 +656,12 @@ Launch_YAD_(){
 	# test for blobthemes config directory, create if it doesn't exist
 	mkdir -p "$CONFIGPATH"
 	# create file to hold most recent saved configuration name
-	if [[ ! -f $CURSESSION ]] >/dev/null 2>&1;then
+	if [[ ! -f "$CURSESSION" ]] >/dev/null 2>&1;then
     	touch "$CURSESSION"
 	fi
 	countMonitors
 	getSet
-	if (( $NUMDIRS == 0 ));then
+	if (( "$NUMDIRS" == 0 ));then
     	Intro
 	else
     	restoreSettings

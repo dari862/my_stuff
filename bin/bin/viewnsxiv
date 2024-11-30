@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 _handle_url(){
 	getURL '2term' "$1" > "/tmp/$USER/$(echo "$@" | sed "s/.*\///;s/%20/ /g")" && \

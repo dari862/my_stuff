@@ -1,14 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 # youtube-dl wrapper to download web series / playlists / etc.
 set -eu
+START=""
 
 ask_question(){
-	read -p "$1" answer
+	echo "$1"
+	read answer
 	echo $answer
 }
 
 check_command() {
-  local state=true
+  state=true
   for package in "${@}"; do
     if ! command -v "${package}" >/dev/null; then
       echo "MISSING: ${package} not installed."
@@ -44,7 +46,7 @@ while [ $# -ge 1 ]; do
       shift 2
       ;;
     -r|--resolution)
-      RESOLUTION="${2/[pi]/}"
+      RESOLUTION=$(echo "$2" | tr -d 'pi')
       shift 2
       ;;
     -s|--start)
@@ -62,14 +64,15 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-# Prompt for inputs if they were not already specified on the command line.
-if ! [[ -v NAME ]]; then
-  NAME=$(ask_question "What is the name of the series?");
+if [ -z "$NAME" ]; then
+  NAME=$(ask_question "What is the name of the series?")
 fi
-if ! [[ -v URL ]]; then
-  URL=$(ask_question "What is the URL?");
+
+if [ -z "$URL" ]; then
+  URL=$(ask_question "What is the URL?")
 fi
-if ! [[ -v RESOLUTION ]]; then
+
+if [ -z "$RESOLUTION" ]; then
   RESOLUTION=720
 fi
 
@@ -88,24 +91,21 @@ case "${RESOLUTION}" in
     ;;
 esac
 
-if ! [[ -v VIDEODIR ]]; then
-  if [[ -v mediadir ]]; then
-    if [ -d "${mediadir}" ]; then
-      VIDEODIR="${mediadir}/Web Series"
-    elif [[ -v videodir ]]; then
-      if [ -d "${videodir}" ]; then
-        VIDEODIR="${videodir}"
-      else
-        VIDEODIR="$(pwd)"
-      fi
-    fi
+if [ -z "${VIDEODIR}" ]; then
+  if [ -n "${mediadir}" ] && [ -d "${mediadir}" ]; then
+    VIDEODIR="${mediadir}/Web Series"
+  elif [ -n "${videodir}" ] && [ -d "${videodir}" ]; then
+    VIDEODIR="${videodir}"
+  else
+    VIDEODIR="$(pwd)"
   fi
 fi
+
 
 mkdir -p "${VIDEODIR}/${NAME}"
 cd "${VIDEODIR}/${NAME}"
 
-if [[ -v START ]]; then
+if [ -z "$START" ]; then
   "${YTDL}" "${URL}" \
     --write-sub \
     --embed-subs \

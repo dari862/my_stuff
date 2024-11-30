@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 shopt -s extglob
 
 _livewallpaper_dir="${HOME}/.local/livewallpaper"
@@ -17,7 +17,7 @@ fi
 command -v ffmpeg >/dev/null 2>&1 || _ffmpeg_="I need ffmpeg: my-superuser apt install --no-install-recommends ffmpeg \n"
 command -v feh >/dev/null 2>&1 || _feh_="I need feh: my-superuser apt install --no-install-recommends feh \n"
 
-if [[ -n ${_feh_} ]] || [[ -n ${_ffmpeg_}  ]];then
+if [[ -n "${_feh_}" ]] || [[ -n "${_ffmpeg_}"  ]];then
 	echo "${_ffmpeg_}" 
 	echo "${_feh_}" 
 	exit 1
@@ -80,8 +80,8 @@ _video(){
 		a="$(basename "${vid_dir_name}")"
 	else	
 		[[ -z "$1" ]] && { echo "${Report_Video}"; exit 1; }
-		[[ $(file -b --mime-type ${1} | cut -d"/" -f1) != 'video' ]] && { echo "${Invalid_format}"; exit 1; }
-		[[ $(file -b --mime-type ${1} | cut -d"/" -f2) != @(mp4|x-m4v) ]] && { echo "${mp4_only}"; exit 1; }
+		[[ $(file -b --mime-type "${1}" | cut -d"/" -f1) != 'video' ]] && { echo "${Invalid_format}"; exit 1; }
+		[[ $(file -b --mime-type "${1}" | cut -d"/" -f2) != @(mp4|x-m4v) ]] && { echo "${mp4_only}"; exit 1; }
     	a=1     
     	for i in $(ls -d $_dir_vid/*/ 2>/dev/null); do
        	if [[ -d "$_dir_vid/$a" ]]; then
@@ -139,7 +139,7 @@ _set_video(){
     if [[ $(echo "$1" | sed -n -r '/^[0-9]+$/p') == "" ]]; then
         echo "${Use_numbers} '${0##*/} --list-videos'."
     else
-        if [[ "$1" -gt "$(ls -d1 ${_dir_vid}/* | wc -l)" ]]; then
+        if [[ "$1" -gt "$(ls -d1 "${_dir_vid}"/* | wc -l)" ]]; then
             echo "${Use_numbers_from} $(ls -d1 ${_dir_vid}/* | wc -l)"
             exit 1
         else

@@ -1,36 +1,24 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 check_4_dependencies_if_installed nmcli sed 
 
 show_error() {
-  local red=$'\033[0;91m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
-    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
-  else
-    echo -e "${red}${*}${nc}" 1>&2
-  fi
+  red="\033[0;91m"
+  nc="\033[0m"
+  printf "${red}${1}${nc}" 1>&2
 }
 
 show_info() {
-  local green=$'\033[0;92m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
-    echo "${1:--e}" "${green}${*:2}${nc}"
-  else
-    echo -e "${green}${*}${nc}"
-  fi
+  green="\033[0;92m"
+  nc="\033[0m"
+  printf "${green}${1}${nc}"
 } 
 
 show_warning() {
-  local yellow=$'\033[0;93m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
-    echo "${1:--e}" "${yellow}${*:2}${nc}"
-  else
-    echo -e "${yellow}${*}${nc}"
-  fi
+  yellow="\033[0;93m"
+  nc="\033[0m"
+  printf "${yellow}${1}${nc}"
 }
 
 # Script requires nm-cli, so check that the Network Manager service is running.
@@ -39,69 +27,68 @@ if ! service_manager is-active NetworkManager; then
   service_manager enable NetworkManager
 fi
 
-function check_wg_config {
-  local in="${1}"
-  local name="${1%.*}"
-  name="$(basename "${1}")"
-  local conn
-  local conn_data
+check_wg_config() {
+  in="$1"
+  name="${in%.*}"  # Strip the extension (assumes '.' is the separator)
+  name=$(basename "$in")  # Ensure we're using just the base file name without path
 
-  local ipv4addr
-  local ipv6addr
+  ipv4addr=$(sed -n "s/^Address = \([^,]*\).*/\1/p" "$in")
+  ipv6addr=$(sed -n "s/^Address = [^,]*,\([^ ]*\).*/\1/p" "$in")
 
-  local found=false
+  found=false
 
-  ipv4addr="$(sed -n "s/^Address = \(.*\)/\1/p" "${in}" | cut -d"," -f1)"
-  ipv6addr="$(sed -n "s/^Address = \(.*\)/\1/p" "${in}" | cut -d"," -f2)"
+  # Pipe the output of nmcli directly into the while loop
+  nmcli conn show | sed -n "s/^\([A-Za-z0-9()\ -]\+\)\s\+[a-f0-9-]\+\s\+wireguard\s\+.*/\1/p" | \
+  while IFS= read -r conn; do
+    [ -z "$conn" ] && continue  # Skip empty lines
 
-  # Check whether the config IP addresses, etc. are already found in an
-  # existing connection.
-  while read -r conn; do
-    [ -z "${conn}" ] && continue
-    conn_data="$(nmcli conn show "${conn}")"
-    if [[ "${conn_data}" =~ ipv6.addresses:\ *${ipv6addr} ]] &&
-       [[ "${conn_data}" =~ ipv4.addresses:\ *${ipv4addr} ]] &&
-       [[ "${conn_data}" =~ connection.interface-name:\ *${name} ]]; then
+    conn_data=$(nmcli conn show "$conn")
+    
+    # Check if the connection matches our required conditions
+    if echo "$conn_data" | grep -q "ipv6.addresses.*$ipv6addr" && \
+       echo "$conn_data" | grep -q "ipv4.addresses.*$ipv4addr" && \
+       echo "$conn_data" | grep -q "connection.interface-name.*$name"; then
       found=true
       break
     fi
-  done <<< \
-    "$(nmcli conn show |
-       sed -n "s/^\([A-Za-z0-9()\ -]\+\)\s\+[a-f0-9-]\+\s\+wireguard\s\+.*/\1/p" |
-       sed -e "s/ \+$//g")"
+  done
 
-  if "${found}"; then
+  if [ "$found" = true ]; then
     show_warning "WARNING: matching configuration for ${in@Q} already exists." >&2
-    return 1
+    return 1  # Return non-zero to indicate the config already exists
   else
-    return 0
+    return 0  # Return 0 for success, i.e., no matching config found
   fi
 }
 
-function import_wg_config {
-  local in="${1}"
-  local name="${in%.*}"
+import_wg_config() {
+  in="${1}"
+  name="${in%.*}"
   name="$(basename "${name}")"
   nmcli conn import type wireguard file "${in}"
   nmcli conn down "${name}"
   nmcli conn modify "${name}" connection.autoconnect no
 }
 
-function rename_wg_iface {
-  local in="${1}"
-  local oldname="${in%.*}"
+rename_wg_iface() {
+  in="${1}"
+  oldname="${in%.*}"
   oldname="$(basename "${oldname}")"
-  local newname="${2}"
-  local id="${1##*[-_]}"
+  newname="${2}"
+  id="${1##*[-_]}"
   id="${id%.*}"
-  if [[ "${newname}" =~ ${id} ]]; then
-    nmcli conn modify "${oldname}" connection.id "${newname}"
-  else
-    nmcli conn modify "${oldname}" connection.id "${newname} (${id})"
-  fi
+
+  case "${newname}" in
+    *"${id}"*)
+      nmcli conn modify "${oldname}" connection.id "${newname}"
+      ;;
+    *)
+      nmcli conn modify "${oldname}" connection.id "${newname} (${id})"
+      ;;
+  esac
 }
 
-function print_usage {
+print_usage() {
   show_info "Usage: nm-wg-import -i <config file> -n <wg connection name>"
 }
 
@@ -114,7 +101,7 @@ LONGOPTIONS=help,input:,name:
 PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
 eval set -- "${PARSED}"
 
-while [ ${#} -ge 1 ]; do
+while [ $# -ge 1 ]; do
   case "${1}" in
     -i | --input)
       INPUT="${2}"
@@ -126,7 +113,7 @@ while [ ${#} -ge 1 ]; do
       ;;
     -h | --help)
       print_usage
-      exit
+      exit 0
       ;;
     --)
       shift
@@ -139,21 +126,22 @@ while [ ${#} -ge 1 ]; do
   esac
 done
 
-if ! [[ -v INPUT ]]; then
+# Check if the INPUT variable is set
+if [ -z "$INPUT" ]; then
   show_error "ERROR: no input given. Exiting."
   exit 3
 fi
 
-if ! [ -f "${INPUT}" ]; then
+# Check if the file exists
+if [ ! -f "$INPUT" ]; then
   show_error "ERROR: input ${INPUT@Q} does not exist. Exiting."
   exit 3
 fi
 
-if check_wg_config "${INPUT}"; then
-  import_wg_config "${INPUT}"
-  if [[ -v NAME ]]; then
-    if [[ -n "${NAME}" ]]; then
-      rename_wg_iface "${INPUT}" "${NAME}"
-    fi
+# Check and import the WireGuard config
+if check_wg_config "$INPUT"; then
+  import_wg_config "$INPUT"
+  if [ -n "$NAME" ]; then
+    rename_wg_iface "$INPUT" "$NAME"
   fi
 fi

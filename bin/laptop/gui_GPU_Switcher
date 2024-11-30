@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 NVIDIA_VENDOR="NVIDIA Corporation"
 AMD_VENDOR="AMD"
 SOFTWARE_VENDOR="Mesa/X.org"

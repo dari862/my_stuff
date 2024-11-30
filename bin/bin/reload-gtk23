@@ -1,13 +1,13 @@
-#!/bin/bash
-#===================================================================================
+#!/bin/sh
+##########################################
 xsettingsd_error_log="/tmp/$USER/reload-gtk23.error.log"
 xsettingsd_conf_file="$HOME/.config/xsettingsd/xsettingsd.conf"
 
-if [[ -f "$HOME/.config/gtk-3.0/settings.ini" ]];then
+if [ -f "$HOME/.config/gtk-3.0/settings.ini" ];then
 	gtkrcfile="$HOME/.config/gtk-3.0/settings.ini"
-elif [[ -f "${GTK2_RC_FILES}" ]];then
+elif [ -f "${GTK2_RC_FILES}" ];then
 	gtkrcfile="${GTK2_RC_FILES}"
-elif [[ -f "$HOME/.gtk-2.0/gtkrc-2.0" ]];then
+elif [ -f "$HOME/.gtk-2.0/gtkrc-2.0" ];then
 	gtkrcfile="$HOME/.gtk-2.0/gtkrc-2.0"
 else
 	echo "no gtkrc file exist"
@@ -15,20 +15,24 @@ else
 fi
 
 mkdir -p $HOME/.config/xsettingsd
-if [[ -e "${xsettingsd_conf_file}" ]];then
+if [ -e "${xsettingsd_conf_file}" ];then
 	# clear the content of file
-	> "${xsettingsd_conf_file}"
+	: > "${xsettingsd_conf_file}"
 else
 	# create empty file
 	touch "${xsettingsd_conf_file}"
 fi
 
 # Loop through each line in the original configuration
-while IFS= read -r line; do
-  # Extract the key and value from the line
-  key=${line%%=*}
-  value=${line#*=}
-  value="${value//\"/}"
+grep -E '^gtk-|^Net/|^Xft/' "$gtkrcfile" | while IFS= read -r line; do
+  # Extract key (everything before the first equal sign)
+  key=$(echo "$line" | cut -d '=' -f 1)
+
+  # Extract value (everything after the first equal sign)
+  value=$(echo "$line" | cut -d '=' -f 2-)
+
+  # Remove quotes around the value (if any), using `sed`
+  value=$(echo "$value" | sed 's/^"\(.*\)"$/\1/')
   # Convert the key to the desired format
   case $key in
     gtk-theme-name)
@@ -59,7 +63,7 @@ while IFS= read -r line; do
     gtk-toolbar-icon-size)
       category="Gtk"
       new_key="ToolbarIconSize"
-      if [[ "$value" = "GTK_ICON_SIZE_LARGE_TOOLBAR" ]];then
+      if [ "$value" = "GTK_ICON_SIZE_LARGE_TOOLBAR" ];then
       	value=3
       else
       	value=2
@@ -84,7 +88,7 @@ while IFS= read -r line; do
     gtk-enable-animations)
       category="Gtk"
       new_key="EnableAnimations"
-      if [[ "$value" = true ]];then
+      if [ "$value" = true ];then
       	value=1
       else
       	value=0
@@ -231,16 +235,19 @@ while IFS= read -r line; do
   esac
 
   # Print the new line in the desired format with quotes around string values
-  if [[ $value =~ ^[0-9]+$ ]]; then
-    # Use value directly for numeric values (no quotes)
-    value="$value"
-  else
-    # Use quotes for non-numeric values
-	value="\"$value\""
-  fi
+  case "$value" in
+  	*[!0-9]*)
+    	# Non-numeric value, add quotes around it
+    	value="$value"
+    ;;
+  	*)
+    	# Numeric value, no quotes
+    	value="\"$value\""
+    ;;
+	esac
   echo "$category/$new_key $value" >> ${xsettingsd_conf_file}
-done < <(grep -E '^gtk-|^Net/|^Xft/' ${gtkrcfile})  # Assuming your config is in file.conf
+done
 
-[[ -f "$HOME/.xsettingsd" ]] && rm -f $HOME/.xsettingsd
+[ -f "$HOME/.xsettingsd" ] && rm -f "$HOME/.xsettingsd"
 [ "$(pidof xsettingsd)" ] && killall -HUP xsettingsd
 xsettingsd >${xsettingsd_error_log} 2>&1 &

@@ -1,32 +1,26 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 check_4_dependencies_if_installed grep ip sed
 
+ip=""
+
 # Command line script to add a routing table entry for an IP address. Useful
 # for accessing network printers when behind a VPN that interferes with access
-# to local machines addressed by a local/internal DNS.
+# to machines addressed by a local/internal DNS.
 show_error() {
-  local red=$'\033[0;91m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
-    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
-  else
-    echo -e "${red}${*}${nc}" 1>&2
-  fi
+  red="\033[0;91m"
+  nc="\033[0m"
+  printf "${red}${1}${nc}"
 }
 
 show_header() {
-  local cyan=$'\033[0;96m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
-    echo "${1:--e}" "${cyan}${*:2}${nc}"
-  else
-    echo -e "${cyan}${*}${nc}"
-  fi
+  cyan="\033[0;96m"
+  nc="\033[0m"
+  printf "${cyan}${1}${nc}"
 }
 
-function print_usage {
+print_usage (){
   show_header "Usage: allow-ip -i|--ip <ip address> -m|--mask <bitmask>"
 }
 
@@ -39,19 +33,17 @@ while [ ${#} -ge 1 ]; do
   case "${1}" in
     -i | --ip)
       # If IP address given as xxx.xxx.xxx.xxx:
-      if [[ "${2}" == "$(echo "${2}" |
-                         sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ]]; then
+      if [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ]; then
         IP="${2}"
       # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
-      elif [[ "${2}" == "$(echo "${2}" |
-                           sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ]]; then
+      elif [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ]; then
         IP="$(echo "${2}" | cut -d"/" -f1)"
         MASK="$(echo "${2}" | cut -d"/" -f2)"
       fi
       shift 2
       ;;
     -m | --mask)
-      if ((${2} >= 0 && ${2} <= 32)); then
+      if [ "$2" -ge 0 ] && [ "$2" -le 32 ]; then
         MASK="${2}"
       fi
       shift 2
@@ -72,7 +64,7 @@ while [ ${#} -ge 1 ]; do
 done
 
 # Exit if no ip address supplied.
-if ! [[ -v IP ]]; then
+if [ -z "$IP" ]; then
   show_error "Give me the IP address."
   exit 3
 fi

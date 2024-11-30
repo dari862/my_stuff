@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #    screenshot-pipemenu - a obmenu pipe menu for screenshots
 #
 #    This program is free software: you can redistribute it and/or modify

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 ## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
 ##
@@ -7,7 +7,7 @@
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
 menuStart
-	if [[ `pidof ffmpeg` ]]; then
+	if pidof ffmpeg >/dev/null 2>&1; then
 		menuItem 'Stop Screen Recorder' "pkill ffmpeg"
 		menuSeparator
 	fi

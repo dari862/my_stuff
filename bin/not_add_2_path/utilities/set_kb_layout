@@ -18,7 +18,7 @@ HELP_List="1 add_kb_layout
 3 notify-send
 4 echo kb_layout"
 
-if [ -z "$(grep us ${kb_layout_ini_path}/${kb_layout_name} 2>/dev/null|| :)" ];then
+if [ -z "$(grep us "${kb_layout_ini_path}/${kb_layout_name}" 2>/dev/null|| :)" ];then
 	mkdir -p ${kb_layout_ini_path}
 	echo "us" > ${kb_layout_ini_path}/${kb_layout_name}
 fi
@@ -27,7 +27,7 @@ add_kb_layout(){
 	kb_choice="$(awk '/! layout/{flag=1; next} /! variant/{flag=0} flag {print $2, "- " $1}' /usr/share/X11/xkb/rules/base.lst | ${rofi_command} -p "" )"
 	kb="$(echo "$kb_choice" | awk '{print $3}')"
 	
-	if [ -n "$kb" ] && [ "$(grep $kb ${kb_layout_ini_path}/${kb_layout_name})" != "$kb" ];then
+	if [ -n "$kb" ] && [ "$(grep "$kb" "${kb_layout_ini_path}/${kb_layout_name}")" != "$kb" ];then
 		echo "$kb" >> ${kb_layout_ini_path}/${kb_layout_name}
 	fi
 	

@@ -60,7 +60,7 @@ fi
 shopt -s globstar
 
 # Disable the bell
-if [[ $iatest -gt 0 ]]; then bind "set bell-style visible"; fi
+if [[ "$iatest" -gt 0 ]]; then bind "set bell-style visible"; fi
 
 # Expand the history size
 export HISTFILESIZE=10000
@@ -92,27 +92,27 @@ PROMPT_COMMAND='history -a'
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-if [ -f ${BASHDOTDIR}/aliases ]; then
+if [ -f "${BASHDOTDIR}"/aliases ]; then
     source ${BASHDOTDIR}/aliases
 fi
 
-if [ -f ${BASHDOTDIR}/functions ]; then
+if [ -f "${BASHDOTDIR}"/functions ]; then
     source ${BASHDOTDIR}/functions
 fi
 
-if [ -f $My_shell_DIR/aliases.sh ]; then
+if [ -f "$My_shell_DIR"/aliases.sh ]; then
     source $My_shell_DIR/aliases.sh
 fi
 
-if [ -f $My_shell_DIR/aliases-if-command.sh ]; then
+if [ -f "$My_shell_DIR"/aliases-if-command.sh ]; then
     source $My_shell_DIR/aliases-if-command.sh
 fi
 
-if [ -f $My_shell_DIR/misc.sh ]; then
+if [ -f "$My_shell_DIR"/misc.sh ]; then
     source $My_shell_DIR/misc.sh
 fi
 
-if [ -f $My_shell_DIR/functions.sh ]; then
+if [ -f "$My_shell_DIR"/functions.sh ]; then
     source $My_shell_DIR/functions.sh
 fi
 

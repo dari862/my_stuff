@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 installation_script_name="my-installer"
 _distrobox_center_path='/usr/share/my_stuff/bin/not_add_2_path/distrobox_center'
@@ -10,16 +10,9 @@ Options (usually passed from the menu):
     -h --help   show this message
     --openboxmenu   generate xml obmenu pipemenu for installing applications.
     --jgmenu   generate jgmenu pipemenu for installing applications.
-    (the package must be in one of the app lists in this file)
-
-'
-
+    (the package must be in one of the app lists in this file)'
+    
 . "/usr/share/my_stuff/lib/common/DB"
-
-LIST_OF_APPS_SCRIPTS_=($(cd "${apps_db_path}" && ls 2>/dev/null))
-
-picked_gaming_db_path="${gaming_db_path}"
-LIST_OF_GAMES_SCRIPTS_=($(cd "${picked_gaming_db_path}" && ls 2>/dev/null))
 
 ########################################################################
 
@@ -36,7 +29,7 @@ done
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
-if [[ ${1-} = --openboxmenu ]]; then # pipemenu
+if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
 	menuStart "my_stuffGuiAppsPipemenu" "My Stuff GUI Apps"
 	menuItem "Apps Dashboard" "apps-dashboard"
 	menuItem "live wallpaper" "livewall_gui"
@@ -75,7 +68,7 @@ if [[ ${1-} = --openboxmenu ]]; then # pipemenu
 	fi
     menuEnd
  #    menuEnd   
-elif [[ ${1-} = --jgmenu ]]; then # pipemenu
+elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
 	jgmenuItem "Apps Dashboard" "apps-dashboard"
 	jgmenuItem "Alarm" "beepmein_gui"
 	jgmenuItem "Control Center" "control_center"
@@ -112,7 +105,7 @@ elif [[ ${1-} = --jgmenu ]]; then # pipemenu
 	fi
     jgmenuEnd
 #    menuEnd
-elif [[ ${1-} ]]; then
+elif [ "${1-}" ]; then
     echo "$0: no such option $*" >&2
     echo
     echo "#################################################"

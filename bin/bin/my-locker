@@ -1,13 +1,13 @@
-#!/usr/bin/env bash
+#!/bin/sh
 __arg_="${1-}"
 __image_full_path_="${2-}"
-source "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/WM"
 
 my_locker_folder="$HOME/.config/${scriptconfig_name}/my_locker"
-[ ! -d "$my_locker_folder" ] && mkdir -p $my_locker_folder
+[ ! -d "$my_locker_folder" ] && mkdir -p "$my_locker_folder"
 [ ! -f "$my_locker_folder/config.ini" ] && cp -r "/usr/share/my_stuff/lib/locker/config.ini" "$my_locker_folder"
 
-source "$my_locker_folder/config.ini"
+. "$my_locker_folder/config.ini"
 
 check_if_image_is_png()
 {

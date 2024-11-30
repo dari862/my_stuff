@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 installation_script_name="popup_terminal"
 
@@ -20,9 +20,9 @@ Options (usually passed from the menu):
 
 . "/usr/share/my_stuff/lib/common/DB"
 
-DEPLOYS=($(cat "${distrobox_deploy_db_path}"))
-CONTAINERS=($(cat "${containers_deploy_db_path}"))
-CHROOTS=($(cat "${chroots_deploy_db_path}"))
+DEPLOYS="$(cat "${distrobox_deploy_db_path}")"
+CONTAINERS="$(cat "${containers_deploy_db_path}")"
+CHROOTS="$(cat "${chroots_deploy_db_path}")"
 
 ########################################################################
 
@@ -53,21 +53,21 @@ if [ "${which_menu}" = "--openboxmenu" ]; then
 	
 	if [ -n "${DEPLOYS}" ];then
 		menuSeparator "Distrobox to Deploy."
-		for deploy in "${DEPLOYS[@]}"; do
+		for deploy in ${DEPLOYS}; do
    			menuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
 		done
 	fi
 	
 	if [ -n "${CONTAINERS}" ];then
 		menuSeparator "Containers to Deploy."
-		for container in "${CONTAINERS[@]}"; do
+		for container in ${CONTAINERS}; do
    			menuItem "${container} container" "${installation_script_name} --container ${container}"
 		done
 	fi
 	
 	if [ -n "${CHROOTS}" ];then
 		menuSeparator "Chroots to Deploy."
-		for chroot in "${CHROOTS[@]}"; do
+		for chroot in ${CHROOTS}; do
    			menuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
 		done
 	fi
@@ -85,21 +85,21 @@ elif [ "${which_menu}" = "--jgmenu" ]; then
 	
 	if [ -n "${DEPLOYS}" ];then
 		jgmenuSeparator "DistroboxtoDeploy" "Distrobox to Deploy."
-    	for deploy in "${DEPLOYS[@]}"; do
+    	for deploy in ${DEPLOYS}; do
    			jgmenuItem "${deploy} Box" "${installation_script_name} --deploy ${deploy}"
 		done
 	fi
 	
 	if [ -n "${CONTAINERS}" ];then	
 		jgmenuSeparator "ContainerstoDeploy" "Containers to Deploy."
-		for container in "${CONTAINERS[@]}"; do
+		for container in ${CONTAINERS}; do
    			jgmenuItem "${container} container" "${installation_script_name} --container ${container}"
 		done
 	fi
 	
 	if [ -n "${CHROOTS}" ];then	
 		jgmenuSeparator "ChrootstoDeploy" "Chroots to Deploy."
-		for chroot in "${CHROOTS[@]}"; do
+		for chroot in ${CHROOTS}; do
    			jgmenuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
 		done
 	fi

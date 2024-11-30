@@ -87,16 +87,16 @@ main(){
 
 if [ -z "${__is_there_arg_}" ]; then
 	__run_rofi;
-elif [[ "$__is_there_arg_" = "bl-beepmein"* ]];then
+elif echo "$__is_there_arg_" | grep -q "beepmein";then
 	__arg2_="$2"
 	shift 2
 	___all_arg_="$@"
 	if [ "$__arg2_" = "--nr" ];then
-		bl-beepmein ${___all_arg_}
+		beepmein ${___all_arg_}
 	else
 		__time_="$(__ask_rofi "${__arg2_}")"
 		_reason_="$(__reason_rofi )"
-		bl-beepmein --reason "${_reason_}" "${__time_}" ${___all_arg_}
+		beepmein --reason "${_reason_}" "${__time_}" ${___all_arg_}
 	fi
 else
 	__rofi_value="$(__ask_rofi "${__is_there_arg_}")"

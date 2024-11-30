@@ -157,7 +157,7 @@ for env in $(printenv | grep '^TOR_'); do
     	continue
     fi
     
-    if echo $val | grep -E '(^\"true+\"$|^\"false+\"$|^\"[0-9]+\"$)';then
+    if echo "$val" | grep -E '(^\"true+\"$|^\"false+\"$|^\"[0-9]+\"$)';then
     	val="$(echo $val | sed 's|"||g')"
     fi
     
@@ -168,9 +168,9 @@ for env in $(printenv | grep '^TOR_'); do
     fi
 done
 
-if [ $# -ge 1 ] && test -x "$(which $1 2>&-)"; then
+if [ "$#" -ge 1 ] && test -x "$(which "$1" 2>&-)"; then
     exec "$@"
-elif [ $# -ge 1 ]; then
+elif [ "$#" -ge 1 ]; then
     echo "ERROR: command not found: $1"
     exit 13
 elif ps -ef -o comm | grep -E -v 'grep|ContainerTorRunner.sh' | grep -q tor; then

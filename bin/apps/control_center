@@ -1,6 +1,4 @@
 #!/bin/bash
-#    acc: Control Center
-#    Copyright (C) 2019-2022 napcok <napcok@gmail.com>
 #
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/openbox"

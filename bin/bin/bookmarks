@@ -5,8 +5,8 @@
 # A simple script for browser bookmarks
 
 database="${script_config_path}/bookmarks"
-[ ! -f $database ] && touch $database
+[ ! -f "$database" ] && touch $database
 
 mark="$(cat $database | $rofi_command -p 'Bookmarks:')"
 
-[ ! -z $mark ] && my-www-browser $mark
+[ ! -z "$mark" ] && my-www-browser $mark

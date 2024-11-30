@@ -96,7 +96,7 @@ if [ -f "${Thunar_file_path}" ];then
 	create_Thunar_tmp_file
 fi
 
-if [ -f "${x11_file_path}" ];then
+if command -v rxvt > /dev/null 2>&1; then
 	create_x11_tmp_file
 fi
 

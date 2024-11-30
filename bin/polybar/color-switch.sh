@@ -1,6 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
+
+rofi_command_to_use=""
 
 if [ "$ROFI_STYLE" = "grayblocks" ] || [ "$ROFI_STYLE" = "docky" ] || [ "$ROFI_STYLE" = "cuts" ];then
 	symbol_for_themes_=""
@@ -9,14 +11,12 @@ else
 fi
 
 # Launch Rofi
-MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' \
--theme "$rofi_style_dir"/styles.rasi \
-<<< "$symbol_for_themes_ amber|$symbol_for_themes_ blue|$symbol_for_themes_ blue-gray|$symbol_for_themes_ brown|$symbol_for_themes_ cyan|$symbol_for_themes_ deep-orange|\
+MENU="$(printf "$symbol_for_themes_ amber|$symbol_for_themes_ blue|$symbol_for_themes_ blue-gray|$symbol_for_themes_ brown|$symbol_for_themes_ cyan|$symbol_for_themes_ deep-orange|\
 $symbol_for_themes_ deep-purple|$symbol_for_themes_ green|$symbol_for_themes_ gray|$symbol_for_themes_ indigo|$symbol_for_themes_ blue-light|$symbol_for_themes_ green-light|\
 $symbol_for_themes_ lime|$symbol_for_themes_ orange|$symbol_for_themes_ pink|$symbol_for_themes_ purple|$symbol_for_themes_ red|$symbol_for_themes_ teal|$symbol_for_themes_ yellow|$symbol_for_themes_ amber-dark|\
 $symbol_for_themes_ blue-dark|$symbol_for_themes_ blue-gray-dark|$symbol_for_themes_ brown-dark|$symbol_for_themes_ cyan-dark|$symbol_for_themes_ deep-orange-dark|\
 $symbol_for_themes_ deep-purple-dark|$symbol_for_themes_ green-dark|$symbol_for_themes_ gray-dark|$symbol_for_themes_ indigo-dark|$symbol_for_themes_ blue-light-dark|\
-$symbol_for_themes_ green-light-dark|$symbol_for_themes_ lime-dark|$symbol_for_themes_ orange-dark|$symbol_for_themes_ pink-dark|$symbol_for_themes_ purple-dark|$symbol_for_themes_ red-dark|$symbol_for_themes_ teal-dark|$symbol_for_themes_ yellow-dark")"
+$symbol_for_themes_ green-light-dark|$symbol_for_themes_ lime-dark|$symbol_for_themes_ orange-dark|$symbol_for_themes_ pink-dark|$symbol_for_themes_ purple-dark|$symbol_for_themes_ red-dark|$symbol_for_themes_ teal-dark|$symbol_for_themes_ yellow-dark" | rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -theme "$rofi_style_dir"/styles.rasi)"
             case "$MENU" in
 				## Light Colors
 				*amber) colors-light.sh --amber ;;

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 run_tweeks_script_="popup_terminal"
 
@@ -28,24 +28,24 @@ done
 . "/usr/share/my_stuff/lib/common/pipemenu"
 . "/usr/share/my_stuff/lib/common/DB"
 
-TWEEKS=($(cat "${tweeks_db_path}"))
+TWEEKS="$(cat "${tweeks_db_path}")"
 
-if [[ ${1-} = --openboxmenu ]]; then # pipemenu
+if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
     shift 1
 	menuStart "RunDebianTweeks" "Run Debian Tweeks"
-	for tweek in "${TWEEKS[@]}"; do
+	for tweek in ${TWEEKS}; do
     	menuItem "run ${tweek}" "${run_tweeks_script_} --tweek ${tweek}"
     done
     menuEnd
  #    menuEnd   
-elif [[ ${1-} = --jgmenu ]]; then # pipemenu
+elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
     shift 1
-	for tweek in "${TWEEKS[@]}"; do
+	for tweek in ${TWEEKS}; do
     	jgmenuItem "run ${tweek}" "${run_tweeks_script_} --tweek ${tweek}"
     done
     jgmenuEnd
 #    menuEnd
-elif [[ ${1-} ]]; then
+elif [ "${1-}" ]; then
     echo "$0: no such option $*" >&2
     echo
     echo "#################################################"

@@ -32,7 +32,7 @@
 			</action>
 		</item>
 		<separator/>
-		<item label="Virtual Machine" icon="&icons;/virtualbox.png"><action name="Execute"><command>popup_terminal "virtual_machine"</command></action></item> 
+		<item label="Virtual Machine" icon="&icons;/virtualbox.png"><action name="Execute"><command>popup_terminal --install virtual_machine</command></action></item> 
 		<separator/>
 		<menu icon="&icons;/apps.png" id="applications-menu" label="Applications" execute="obamenu"/>
 		<separator/>

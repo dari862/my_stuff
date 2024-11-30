@@ -96,7 +96,7 @@ get_values() {
 	E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
 	W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
 	
-	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
+	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 		INTERFACE="${W_INTERFACE}"
 	elif [ -n "${E_INTERFACE}" ];then
 		INTERFACE="${E_INTERFACE}"
@@ -117,7 +117,7 @@ get_values() {
 
 # Fix backlight and network modules
 fix_modules() {
-	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
+	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 		if [ -z "$CARD" ]; then
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
@@ -145,10 +145,10 @@ fix_modules() {
 remove_modules() {
 	polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g' | cut -c 1-3)
 	string_size_of_polybar_ver="${#polybar_ver}"
-	if [ $string_size_of_polybar_ver != 3 ];then
-		if [ $string_size_of_polybar_ver = 1 ];then
+	if [ "$string_size_of_polybar_ver" != 3 ];then
+		if [ "$string_size_of_polybar_ver" = 1 ];then
 			polybar_ver="${polybar_ver}00"
-		elif [ $string_size_of_polybar_ver = 2 ];then
+		elif [ "$string_size_of_polybar_ver" = 2 ];then
 			polybar_ver="${polybar_ver}0"
 		else
 			polybar_ver="$(echo $polybar_ver | cut -c1-3)"

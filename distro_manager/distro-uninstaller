@@ -57,7 +57,7 @@ for d in /home/*; do
 		
 		my-superuser wc -c "$d/.bashrc" | grep "^0" >/dev/null 2>&1 && is_it_zero_byte="true"
 		
-		[ "${is_it_zero_byte}" = "true" ] && my-superuser cp -rf /etc/skel/. $d
+		[ "${is_it_zero_byte}" = "true" ] && my-superuser cp -rf /etc/skel/. "$d"
 		
 		backuped="$(my-superuser ls "$d/.backup"*/.config)"
 		for movethis in ${backuped}; do

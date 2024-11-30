@@ -15,7 +15,7 @@ tint2_config="${config_dir}/tint2"
 tint2_sessionfile_="${tint2_config}/tint2-sessionfile"
 DEFAULTTINT2="/.config/tint2/default.tint2rc"
 
-if [ ! -f $tint2_sessionfile_ ]; then
+if [ ! -f "$tint2_sessionfile_" ]; then
 	echo "$0: There is no session file: ${tint2_sessionfile_}, generating now..." >&2
 	echo "${DEFAULTTINT2}" > "$tint2_sessionfile_"
 fi

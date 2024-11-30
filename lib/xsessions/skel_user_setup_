@@ -45,7 +45,7 @@ cp -rf /usr/share/my_stuff/system_files/skel/. $HOME || cp -rf /usr/share/my_stu
 
 wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" > /dev/null 2>&1 && is_it_zero_byte="true"
 
-[ "${is_it_zero_byte}" = "true" ] && cp -rf /usr/share/my_stuff/system_files/skel/. $HOME
+[ "${is_it_zero_byte}" = "true" ] && cp -rf /usr/share/my_stuff/system_files/skel/. "$HOME"
 
 [ "${is_it_zero_byte}" != "true" ] && touch "$usr_setup_flag_file"
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #===================================================================================
 terminal_name="kitty"
 my_installer_script_name="my-installer"
@@ -7,7 +7,7 @@ fullscreen_mode=""
 arg_="${1-}"
 shift 1
 file_name_="$@"
-if [[ -z "${file_name_}" ]];then
+if [ -z "${file_name_}" ];then
 	file_name_="${arg_}"
 	arg_="${terminal_name}"
 fi
@@ -49,7 +49,7 @@ run_editor(){
 }
 
 run_editor_with_super_user(){	
-	local CLI_EDITER_PATH="$(which $CLI_EDITER)"
+	CLI_EDITER_PATH="$(which $CLI_EDITER)"
 	${terminal_name} -T "${file_name_} - CLI Editor" -e my-superuser $CLI_EDITER_PATH "${file_name_}"
 }
 

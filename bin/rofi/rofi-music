@@ -8,7 +8,7 @@
 RASI="$rofi_style_dir/mpd.rasi"
 
 # Buttons
-layout=$(cat ${RASI} | grep BUTTON | cut -d'=' -f2 | tr -d '[:blank:],*/')
+layout=$(cat "${RASI}" | grep BUTTON | cut -d'=' -f2 | tr -d '[:blank:],*/')
 if [ "$layout" = "TRUE" ]; then
 	button_music=''
 	button_play=''

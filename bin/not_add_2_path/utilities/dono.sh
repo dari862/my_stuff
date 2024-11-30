@@ -1,14 +1,12 @@
 #!/bin/bash
-set -euo pipefail
+set -e
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
 opt="${1-h}"
 
-HELP_List=(
-"1 Note_manager"
-"2 Todo_Creater"
-"3 Todo_list"
-)
+HELP_List="1 Note_manager
+2 Todo_Creater
+3 Todo_list"
 
 notes_and_todo_folder="$HOME/Documents/dono"
 todo_folder="$notes_and_todo_folder/Todo"
@@ -30,8 +28,8 @@ get_notes() {
 }
 
 create_note() {
-	local file=$(echo "$title" | sed 's/ /_/g;s/\(.*\)/\L\1/g')
-	local template=$(cat <<- END
+	file=$(echo "$title" | sed 's/ /_/g;s/\(.*\)/\L\1/g')
+	template=$(cat <<- END
 ---
 title: $title
 date: $(date --rfc-3339=seconds)
@@ -55,8 +53,8 @@ edit_note() {
 }
 
 delete_note() {
-    local note=$1
-    local action=$(echo -e "Yes\nNo" | ${rofi_command} -p "Are you sure you want to delete $note? ")
+    note=$1
+    action=$(echo -e "Yes\nNo" | ${rofi_command} -p "Are you sure you want to delete $note? ")
 
     case $action in
         "Yes")
@@ -69,11 +67,11 @@ delete_note() {
 }
 
 note_context() {
-    local note=$1
-    local note_location="$notes_folder/$note"
+    note=$1
+    note_location="$notes_folder/$note"
     if [ -f "$note_location" ]
     then
-    	local action=$(echo -e "Edit\nDelete" | ${rofi_command} -p "$note > ")
+    	action=$(echo -e "Edit\nDelete" | ${rofi_command} -p "$note > ")
     	case $action in
 			"Edit")
             	edit_note "$note_location"
@@ -88,9 +86,9 @@ note_context() {
 }
 
 new_note() {
-	if [ "$note_option" == "New" ]
+	if [ "$note_option" = "New" ]
 	then
-		local title=$(echo -e "Cancel" | ${rofi_command} -p "Input title: ")
+		title=$(echo -e "Cancel" | ${rofi_command} -p "Input title: ")
     	case "$title" in
         	"Cancel")
             	Note_manager
@@ -100,14 +98,14 @@ new_note() {
             	;;
     	esac
     else
-    	local title="$1"
+    	title="$1"
     	create_note
     fi
 }
 
 Note_manager()
 {
-	[ ! -d "$notes_folder" ] && mkdir -p $notes_folder
+	[ ! -d "$notes_folder" ] && mkdir -p "$notes_folder"
 	
 	all_notes="$(get_notes)"
 	first_menu="New"
@@ -143,7 +141,7 @@ cp2cb() {
 
 # Description: Store multiple one-line texts or codes and copy one of them when needed.
 Todo_Creater() {
-  [ ! -f "$todo_file" ] && mkdir -p $todo_folder && touch $todo_file
+  [ ! -f "$todo_file" ] && mkdir -p "$todo_folder" && touch "$todo_file"
   while :
   do
   	# Picking our options.
@@ -178,12 +176,12 @@ Todo_Creater() {
 
 Todo_list()
 {
-	[ ! -f ${todo_file} ] && Todo_Creater
+	[ ! -f "${todo_file}" ] && Todo_Creater
 	while :
 	do
 		choice=$(cat "${todo_file}" | ${rofi_command} -p 'To Do:' "$@")
 		line_number="$(grep -Fxn "$choice" "${todo_file}" | cut -f1 -d:)"
-		if [ "$(echo $choice | grep $done_symbol)" ]
+		if [ "$(echo $choice | grep "$done_symbol")" ]
 		then
 			new_choice="$(echo $choice | sed "s/$done_symbol/  /g")"
 		else
@@ -200,7 +198,7 @@ Todo_list()
 
 help()
 {
-	Chosen_OPT="$(printf '%s\n' "${HELP_List[@]}" | ${rofi_command} -p '')"
+	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | ${rofi_command} -p '')"
 	opt="$(echo $Chosen_OPT | awk '{ print $1 }')"
 	main
 }

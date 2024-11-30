@@ -36,11 +36,11 @@ else
 		if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ]; then
 			# REPOSITORY UPDATE-NOTIFICATION
 			say "Updating package repositoriy..."
-			my-superuser apt-get update >/dev/null 2>&1
+			my-superuser apt-get update
 		else
 			my-superuser killall -9 apt-get  >/dev/null 2>&1 || my-superuser killall -9 apt >/dev/null 2>&1
 			say "Updating package repositoriy..."
-			my-superuser apt-get update >/dev/null 2>&1
+			my-superuser apt-get update
 		fi
 	}
 	full_upgrade_(){

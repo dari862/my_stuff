@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 opt="${1-}"
 case $opt in
 		--system) 

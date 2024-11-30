@@ -109,7 +109,7 @@ function displayss() {
     HSIZEYAD=$(($HSIZE+75))
     yad_opts=()
     yad_opts+=(--window-icon="$ICON_PATH" --center --picture)
-    if [ $WSCREEN_RES -le $WSIZE ] || [ $HSCREEN_RES -le $HSIZE ]; then
+    if [ "$WSCREEN_RES" -le "$WSIZE" ] || [ "$HSCREEN_RES" -le "$HSIZE" ]; then
     	yad_opts+=(--size=fit --width=$WSCREEN_RES --height=$HSCREEN_RES)
     else
     	yad_opts+=(--size=orig --width=$WSIZEYAD --height=$HSIZEYAD)
@@ -295,7 +295,7 @@ function yadshotsettings() {
 	yad_opts+=(--field="Delay before capture":NUM "$SS_DELAY!0..120" --button="gtk-ok":0)
 	
     OUTPUT="$(yad "${yad_opts[@]}")"
-    if [[ $? = 0 ]];then
+    if [[ "$?" = 0 ]];then
     	SELECTION="$(echo $OUTPUT | cut -f1 -d",")"
     	DECORATIONS="$(echo $OUTPUT | cut -f2 -d",")"
     	COPYONCAP="$(echo $OUTPUT | cut -f3 -d",")"

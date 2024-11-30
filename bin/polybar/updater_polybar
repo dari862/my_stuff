@@ -21,11 +21,11 @@ print_total_updates(){
 	UPDATES=$(cat "$updates_file" | wc -l)
 	
 	update-notification -n
-	if [ $UPDATES -eq 0 ]; then
+	if [ "$UPDATES" -eq 0 ]; then
 		echo "$BAR_ICON 0"
-	elif [ $UPDATES -eq 1 ]; then
+	elif [ "$UPDATES" -eq 1 ]; then
 		echo "$BAR_ICON $UPDATES Update"
-	elif [ $UPDATES -gt 1 ]; then
+	elif [ "$UPDATES" -gt 1 ]; then
 		echo "$BAR_ICON $UPDATES Updates"
 	else
 		echo "$BAR_ICON"

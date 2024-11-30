@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-if [[ -z $1 ]];then
+if [ -z "$1" ];then
 	. "/usr/share/my_stuff/lib/common/pipemenu"
 	
 	menuStart "scalinglistmenu" "Pick scaling."

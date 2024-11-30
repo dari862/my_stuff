@@ -1,6 +1,4 @@
-#!/usr/bin/env bash
-
-## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+#!/bin/sh
 
 # Import Current Theme
 . "/usr/share/my_stuff/lib/common/WM"
@@ -13,8 +11,8 @@ prompt='Screenshot'
 mesg="Directory :: `xdg-user-dir PICTURES`/Screenshots"
 
 # Options
-layout=`cat ${RASI} | grep 'USE_ICON' | cut -d'=' -f2`
-if [[ "$layout" == 'NO' ]]; then
+layout="$(cat ${RASI} | grep 'USE_ICON' | cut -d'=' -f2)"
+if [ "$layout" = 'NO' ]; then
 	shot_now=" Capture Desktop"
 	shot_area=" Capture Area"
 	shot_win=" Capture Window"
@@ -39,7 +37,7 @@ rofi_cmd() {
 
 # Pass variables to rofi dmenu
 run_rofi() {
-	echo -e "$shot_now\n$shot_area\n$shot_win\n$shot_after_5sec\n$shot_after_10sec" | rofi_cmd
+	printf "$shot_now\n$shot_area\n$shot_win\n$shot_after_5sec\n$shot_after_10sec" | rofi_cmd
 }
 
 # Actions

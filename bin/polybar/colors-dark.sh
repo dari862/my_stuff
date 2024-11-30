@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Color files
 . "/usr/share/my_stuff/lib/common/WM"
@@ -8,11 +8,11 @@
 PFILE="$polybar_style_dir/colors.ini"
 
 # Change colors
-if [ "$polybar_STYLE" == "colorblocks" ] || [ "$polybar_STYLE" == "shapes" ] || [ "$polybar_STYLE" == "shades" ]
+if [ "$polybar_STYLE" = "colorblocks" ] || [ "$polybar_STYLE" = "shapes" ] || [ "$polybar_STYLE" = "shades" ]
 then
 	change_color() {
 	# polybar
-	if [ "$polybar_STYLE" == "colorblocks" ]
+	if [ "$polybar_STYLE" = "colorblocks" ]
 	then
 		sed -i -e 's/background = #.*/background = #141C21/g' $PFILE
 		sed -i -e "s/foreground = #.*/foreground = $FG/g" $PFILE
@@ -20,7 +20,7 @@ then
 		sed -i -e 's/background = #.*/background = #1F1F1F/g' $PFILE
 		sed -i -e 's/foreground = #.*/foreground = #FFFFFF/g' $PFILE
 	fi
-	if [ "$polybar_STYLE" == "colorblocks" ]
+	if [ "$polybar_STYLE" = "colorblocks" ]
 	then
 	sed -i -e 's/foreground-alt = #.*/foreground-alt = #FFFFFF/g' $PFILE
 	else
@@ -36,7 +36,7 @@ then
 	sed -i -e "s/shade8 = #.*/shade8 = $SH8/g" $PFILE
 	
 	
-	if [ "$polybar_STYLE" == "colorblocks" ]
+	if [ "$polybar_STYLE" = "colorblocks" ]
 	then
 		rofi_bg="#141C21FF"
 	else
@@ -59,7 +59,7 @@ then
 	
 	polybar-msg cmd restart
 	}
-elif [ "$polybar_STYLE" == "docky" ] || [ "$polybar_STYLE" == "material" ]
+elif [ "$polybar_STYLE" = "docky" ] || [ "$polybar_STYLE" = "material" ]
 then
 	change_color() {
 	# polybar
@@ -87,7 +87,7 @@ then
 	
 	polybar-msg cmd restart
 	}
-elif [ "$polybar_STYLE" == "cuts" ]
+elif [ "$polybar_STYLE" = "cuts" ]
 then
 	BG="0a0a0a"
 	FG="f5f5f5"
@@ -117,7 +117,7 @@ then
 		
 		polybar-msg cmd restart
 	}
-elif [ "$polybar_STYLE" == "grayblocks" ] 
+elif [ "$polybar_STYLE" = "grayblocks" ] 
 then
 	change_color() {
 	# polybar
@@ -145,7 +145,7 @@ then
 	
 	polybar-msg cmd restart
 	}
-elif [ "$polybar_STYLE" == "hack" ] || [ "$polybar_STYLE" == "hack_large" ]
+elif [ "$polybar_STYLE" = "hack" ] || [ "$polybar_STYLE" = "hack_large" ]
 then
 	change_color() {
 	# polybar
@@ -181,133 +181,133 @@ fi
 
 
 
-if  [[ $1 = "--amber" ]]; then
+if  [ "$1" = "--amber" ]; then
 	MF="#1F1F1F"
 	AC="#ffb300"
 	FG="#141C21"
 	SH1="#FF6F00"	SH2="#FF8F00"	SH3="#FFA000"	SH4="#FFB300"
 	SH5="#FFC107"	SH6="#FFCA28"	SH7="#FFD54F"	SH8="#FFE082"
 	change_color
-elif  [[ $1 = "--blue" ]]; then
+elif  [ "$1" = "--blue" ]; then
 	MF="#FFFFFF"
 	AC="#1e88e5"
 	FG="#F5F5F5"
 	SH1="#0D47A1"	SH2="#1565C0"	SH3="#1976D2"	SH4="#1E88E5"
 	SH5="#2196F3"	SH6="#42A5F5"	SH7="#64B5F6"	SH8="#90CAF9"
 	change_color
-elif  [[ $1 = "--blue-gray" ]]; then
+elif  [ "$1" = "--blue-gray" ]; then
 	MF="#FFFFFF"
 	AC="#546e7a"
 	FG="#F5F5F5"
 	SH1="#263238"	SH2="#37474F"	SH3="#455A64"	SH4="#546E7A"
 	SH5="#607D8B"	SH6="#78909C"	SH7="#90A4AE"	SH8="#B0BEC5"
 	change_color
-elif  [[ $1 = "--brown" ]]; then
+elif  [ "$1" = "--brown" ]; then
 	MF="#FFFFFF"
 	AC="#6d4c41"
 	FG="#F5F5F5"
 	SH1="#3E2723"	SH2="#4E342E"	SH3="#5D4037"	SH4="#6D4C41"
 	SH5="#795548"	SH6="#8D6E63"	SH7="#A1887F"	SH8="#BCAAA4"
 	change_color
-elif  [[ $1 = "--cyan" ]]; then
+elif  [ "$1" = "--cyan" ]; then
 	MF="#1F1F1F"
 	AC="#00acc1"
 	FG="#141C21"
 	SH1="#006064"	SH2="#00838F"	SH3="#0097A7"	SH4="#00ACC1"
 	SH5="#00BCD4"	SH6="#26C6DA"	SH7="#4DD0E1"	SH8="#80DEEA"
 	change_color
-elif  [[ $1 = "--deep-orange" ]]; then
+elif  [ "$1" = "--deep-orange" ]; then
 	MF="#FFFFFF"
 	AC="#f4511e"
 	FG="#F5F5F5"
 	SH1="#BF360C"	SH2="#D84315"	SH3="#E64A19"	SH4="#F4511E"
 	SH5="#FF5722"	SH6="#FF7043"	SH7="#FF8A65"	SH8="#FFAB91"
 	change_color
-elif  [[ $1 = "--deep-purple" ]]; then
+elif  [ "$1" = "--deep-purple" ]; then
 	MF="#FFFFFF"
 	AC="#5e35b1"
 	FG="#F5F5F5"
 	SH1="#311B92"	SH2="#4527A0"	SH3="#512DA8"	SH4="#5E35B1"
 	SH5="#673AB7"	SH6="#7E57C2"	SH7="#9575CD"	SH8="#B39DDB"
 	change_color
-elif  [[ $1 = "--green" ]]; then
+elif  [ "$1" = "--green" ]; then
 	MF="#FFFFFF"
 	AC="#43a047"
 	FG="#F5F5F5"
 	SH1="#1B5E20"	SH2="#2E7D32"	SH3="#388E3C"	SH4="#43A047"
 	SH5="#4CAF50"	SH6="#66BB6A"	SH7="#81C784"	SH8="#A5D6A7"
 	change_color
-elif  [[ $1 = "--gray" ]]; then
+elif  [ "$1" = "--gray" ]; then
 	MF="#FFFFFF"
 	AC="#757575"
 	FG="#141C21"
 	SH1="#212121"	SH2="#424242"	SH3="#616161"	SH4="#757575"
 	SH5="#9E9E9E"	SH6="#BDBDBD"	SH7="#D4D4D4"	SH8="#EEEEEE"
 	change_color
-elif  [[ $1 = "--indigo" ]]; then
+elif  [ "$1" = "--indigo" ]; then
 	MF="#FFFFFF"
 	AC="#3949ab"
 	FG="#F5F5F5"
 	SH1="#1A237E"	SH2="#283593"	SH3="#303F9F"	SH4="#3949AB"
 	SH5="#3F51B5"	SH6="#5C6BC0"	SH7="#7986CB"	SH8="#9FA8DA"
 	change_color
-elif  [[ $1 = "--light-blue" ]]; then
+elif  [ "$1" = "--light-blue" ]; then
 	MF="#1F1F1F"
 	AC="#039be5"
 	FG="#141C21"
 	SH1="#01579B"	SH2="#0277BD"	SH3="#0288D1"	SH4="#039BE5"
 	SH5="#03A9F4"	SH6="#29B6F6"	SH7="#4FC3F7"	SH8="#81D4FA"
 	change_color
-elif  [[ $1 = "--light-green" ]]; then
+elif  [ "$1" = "--light-green" ]; then
 	MF="#1F1F1F"
 	AC="#7cb342"
 	FG="#141C21"
 	SH1="#33691E"	SH2="#558B2F"	SH3="#689F38"	SH4="#7CB342"
 	SH5="#8BC34A"	SH6="#9CCC65"	SH7="#AED581"	SH8="#C5E1A5"
 	change_color
-elif  [[ $1 = "--lime" ]]; then
+elif  [ "$1" = "--lime" ]; then
 	MF="#1F1F1F"
 	AC="#c0ca33"
 	FG="#141C21"
 	SH1="#827717"	SH2="#9E9D24"	SH3="#AFB42B"	SH4="#C0CA33"
 	SH5="#CDDC39"	SH6="#D4E157"	SH7="#DCE775"	SH8="#E6EE9C"
 	change_color
-elif  [[ $1 = "--orange" ]]; then
+elif  [ "$1" = "--orange" ]; then
 	MF="#1F1F1F"
 	AC="#fb8c00"
 	FG="#141C21"
 	SH1="#E65100"	SH2="#EF6C00"	SH3="#F57C00"	SH4="#FB8C00"
 	SH5="#FF9800"	SH6="#FFA726"	SH7="#FFB74D"	SH8="#FFCC80"
 	change_color
-elif  [[ $1 = "--pink" ]]; then
+elif  [ "$1" = "--pink" ]; then
 	MF="#FFFFFF"
 	AC="#d81b60"
 	FG="#F5F5F5"
 	SH1="#880E4F"	SH2="#AD1457"	SH3="#C2185B"	SH4="#D81B60"
 	SH5="#E91E63"	SH6="#EC407A"	SH7="#F06292"	SH8="#F48FB1"
 	change_color
-elif  [[ $1 = "--purple" ]]; then
+elif  [ "$1" = "--purple" ]; then
 	MF="#FFFFFF"
 	AC="#8e24aa"
 	FG="#F5F5F5"
 	SH1="#4A148C"	SH2="#6A1B9A"	SH3="#7B1FA2"	SH4="#8E24AA"
 	SH5="#9C27B0"	SH6="#AB47BC"	SH7="#BA68C8"	SH8="#CE93D8"
 	change_color
-elif  [[ $1 = "--red" ]]; then
+elif  [ "$1" = "--red" ]; then
 	MF="#FFFFFF"
 	AC="#e53935"
 	FG="#F5F5F5"
 	SH1="#B71C1C"	SH2="#C62828"	SH3="#D32F2F"	SH4="#E53935"
 	SH5="#EE413D"	SH6="#EF5350"	SH7="#E57373"	SH8="#EF9A9A"
 	change_color
-elif  [[ $1 = "--teal" ]]; then
+elif  [ "$1" = "--teal" ]; then
 	MF="#FFFFFF"
 	AC="#00897b"
 	FG="#F5F5F5"
 	SH1="#004D40"	SH2="#00695C"	SH3="#00796B"	SH4="#00897B"
 	SH5="#009688"	SH6="#26A69A"	SH7="#4DB6AC"	SH8="#80CBC4"
 	change_color
-elif  [[ $1 = "--yellow" ]]; then
+elif  [ "$1" = "--yellow" ]; then
 	MF="#1F1F1F"
 	AC="#fdd835"
 	FG="#141C21"

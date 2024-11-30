@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 . "/usr/share/my_stuff/lib/common/WM"
 
@@ -6,9 +6,9 @@ HOME_mouse_speed_conf="${script_config_path}/mouse-speed.conf"
 if [ ! -f "${HOME_mouse_speed_conf}" ];then
 	mouse-speed --create-config
 fi
-source "$HOME_mouse_speed_conf"
+. "$HOME_mouse_speed_conf"
 
-MOUSE_DECELERATION=$(bc <<< "scale = 1; $MOUSE_DECELERATION * 100 / $CURRENTSPEED")
+MOUSE_DECELERATION=$(echo "scale=1; $MOUSE_DECELERATION * 100 / $CURRENTSPEED" | bc)
 
 __run_(){
 	output_of_yad="$@"
@@ -22,8 +22,8 @@ __run_(){
 		mouse-speed -d $Disable_mouse_acceleration
 	fi
 	
-	let current_Accelerate_mouse_=$(($current_mouse_speed * $((100+$Accelerate_mouse_)) /100))
-    if [ $Accelerate_mouse_ -lt 3 ]; then
+	current_Accelerate_mouse_=$(expr $current_mouse_speed \* \( 100 + $Accelerate_mouse_ \) / 100)
+    if [ "$Accelerate_mouse_" -lt 3 ];then
     	current_Accelerate_mouse_=$(($current_mouse_speed+1))
     fi
     
@@ -44,7 +44,7 @@ __run_(){
 	fi
 }
 
-yad_out=$(yad --form \
+yad_out="$(yad --form \
     --title="${title_name}" \
     --window-icon="$icon" \
     --width=400 \
@@ -58,9 +58,9 @@ yad_out=$(yad --form \
     --button="Reset mouse speed":10 \
     --button="Apply":20 \
     --button="Exit":30
-)
+)"
 case $? in
 	10) mouse-speed -r;;
-	20) __run_ "${yad_out[@]}";;
+	20) __run_ "${yad_out}";;
 	30) exit 0;;
 esac

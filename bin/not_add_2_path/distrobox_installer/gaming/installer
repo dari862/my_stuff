@@ -2,9 +2,7 @@
 set -e
 
 distro_name="gaming"
-
-script_full_path="$(dirname "$(realpath "$0")")"
-cd "${script_full_path}"
+cd "${distrobbox_script_installer_path}/${distro_name}"
 
 __format=""
 
@@ -66,11 +64,11 @@ say 'Createing container image ...' 1
 CONTAINER_RT build -t ${distro_name} . ${__format} --no-cache
 
 say 'Deploy container image ...' 1
-distrobox create --pull --image "local/$distro_name" \
+distrobox create --pull --image "localhost/$distro_name" \
 		--name "$distro_name" \
 		--home "$prefix/$distro_name" \
 		"${enable_gpu}" || failed_to_run "Couldn't create distrobox container. GPU: $GPU; AUDIO SYSTEM: $AUDIO_SYSTEM"
-distrobox enter --name "$distro_name" --additional-flags "--env XDG_CURRENT_DESKTOP=X-Generic --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8" -- "${Phase_number_file}"
+distrobox enter --name "$distro_name" --additional-flags "--env XDG_CURRENT_DESKTOP=X-Generic --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8"
 
 say 'Createing container lanucher ...' 1
 echo '#!/bin/sh' > "${tmp_folder}/${distro_name}"

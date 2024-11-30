@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 if command -v redshift >/dev/null 2>&1;then
 	_command="redshift"
 	_name="redshift"
@@ -13,8 +13,8 @@ fi
 _Enabled="$(pgrep -l ${_command} >/dev/null 2>&1 && echo TRUE || echo FALSE)"
 _Autostart="$(service_manager is-enable ${_name}.service && echo TRUE || echo FALSE)"
 
-[[ ! -d "$HOME/.config/${_name}" ]] && mkdir -p "$HOME/.config/${_name}"
-[[ ! -f "$HOME/.config/${_name}/${_config_name}" ]] && cp -r /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf $HOME/.config/${_name}/${_config_name}
+[ ! -d "$HOME/.config/${_name}" ] && mkdir -p "$HOME/.config/${_name}"
+[ ! -f "$HOME/.config/${_name}/${_config_name}" ] && cp -r /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf "$HOME/.config/${_name}/${_config_name}"
 
 Set_(){
 	_lat="$(grep "lat=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
@@ -77,26 +77,26 @@ Save_(){
 	Suspend_for="$(echo "${_yad_output}" | awk -F'|' '{print $2}')"
 	_Autostart="$(echo "${_yad_output}" | awk -F'|' '{print $3}')"
 
-	if [ "$_Autostart" == "TRUE" ];then
+	if [ "$_Autostart" = "TRUE" ];then
 		service_manager enable user ${_name}.service
 	else
 		service_manager disable user ${_name}.service
 	fi
 	
-	if [ "$_Enabled" == "FALSE" ];then
+	if [ "$_Enabled" = "FALSE" ];then
 		kill_commnad
 	fi
 	
-	if [ "$Suspend_for" == "30 min" ];then
+	if [ "$Suspend_for" = "30 min" ];then
 		kill_commnad
 		Suspend_command 30
-	elif [ "$Suspend_for" == "1 Hour" ];then
+	elif [ "$Suspend_for" = "1 Hour" ];then
 		kill_commnad
 		Suspend_command 60
-	elif [ "$Suspend_for" == "2 Hour" ];then
+	elif [ "$Suspend_for" = "2 Hour" ];then
 		kill_commnad
 		Suspend_command 120
-	elif [ "$_Enabled" == "TRUE" ];then
+	elif [ "$_Enabled" = "TRUE" ];then
 		${_command}
 	fi
 }

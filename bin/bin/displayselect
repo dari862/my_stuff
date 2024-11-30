@@ -112,7 +112,7 @@ postrun() { # Stuff to run to clean up.
 		autorandr -s $chosen >/dev/null 2>&1
 	fi
 	
-	my_session_manager reload # reload current sessions work with openbox bspwm i3-msg qtile and awesomewm
+	my_session_manager --no-confirm reload # reload current sessions work with openbox bspwm i3-msg qtile and awesomewm
 	{ killall dunst ; setsid -f dunst ;} >/dev/null 2>&1 # Restart dunst to ensure proper location on screen
 }
 

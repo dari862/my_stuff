@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 FILE=/tmp/$USER/target
 
@@ -8,7 +8,7 @@ if [ $# -eq 0 ]; then
 	else
 		printf "No Target"
 	fi
-elif [ $1 = "reset" ]; then
+elif [ "$1" = "reset" ]; then
 	rm /tmp/$USER/target
 else
 	echo $1 > $FILE

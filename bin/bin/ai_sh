@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 API_path="/usr/share/my_stuff/lib/common/API"
 OPENAI_KEY=$(cat "${API_path}/${OPENAI}" 2>/dev/null || :)
@@ -9,7 +9,7 @@ handle_error() {
     if echo "$response" | jq -e '.error' >/dev/null; then
         error_type=$(echo "$response" | jq -r '.error.type')
         error_message=$(echo "$response" | jq -r '.error.message')
-        echo -e "Error: $error_type\nMessage: $error_message"
+        printf "Error: $error_type\nMessage: $error_message"
         exit 1
     fi
 }
@@ -148,7 +148,7 @@ SIZE="512x512"
 CONTEXT=false
 
 # Argument parsing
-while [ "$#" -gt 0 ]; do
+while [ -n "$1" ]; do
     case $1 in
         -i | --init-prompt)
             CHAT_INIT_PROMPT="$2"
@@ -157,7 +157,7 @@ while [ "$#" -gt 0 ]; do
             shift 2
             ;;
         --init-prompt-from-file)
-            CHAT_INIT_PROMPT=$(<"$2")
+            CHAT_INIT_PROMPT=$(cat "$2")
             SYSTEM_PROMPT="$CHAT_INIT_PROMPT"
             CONTEXT=true
             shift 2
@@ -167,7 +167,7 @@ while [ "$#" -gt 0 ]; do
             shift 2
             ;;
         --prompt-from-file)
-            prompt=$(<"$2")
+            prompt=$(cat "$2")
             shift 2
             ;;
         -t | --temperature)
@@ -225,7 +225,7 @@ if [ "$MULTI_LINE_PROMPT" = true ]; then
     while IFS= read -r line; do
         echo "$line" >> "$tmpfile"
     done
-    prompt=$(<"$tmpfile")
+    prompt=$(cat "$tmpfile")
 fi
 
 # Use context for chat if enabled
@@ -246,7 +246,7 @@ else
         chat_history_file="${API_path}/chat_history.json"
         message="{\"role\": \"user\", \"content\": \"$prompt\"}"
         if [ -s "$chat_history_file" ]; then
-            chat_history=$(<"$chat_history_file")
+            chat_history=$(cat "$chat_history_file")
             response=$(request_to_chat "$message")
         else
             response=$(request_to_chat "$message")

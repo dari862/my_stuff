@@ -98,13 +98,13 @@ update_jsonfiles(){
 	
     newChannelsetag=$(<"${channelsEtagpath}")
 
-    if [ ${channelsDownloaded} -eq 1 ] && [ "${newChannelsetag}" = "${oldChannelsetag}" ]; then
+    if [ "${channelsDownloaded}" -eq 1 ] && [ "${newChannelsetag}" = "${oldChannelsetag}" ]; then
         touch "${TERMV_CACHE_DIR:?}/channels_data.json" ;
         printf '\033[33;1m %s \033[0m\n' "Your version is already up to date." ;
-    elif [ ${channelsDownloaded} -eq 1 ]; then
+    elif [ "${channelsDownloaded}" -eq 1 ]; then
       mv -f "${TERMV_CACHE_DIR:?}/channels_data.json_new" "${TERMV_CACHE_DIR:?}/channels_data.json"
         printf '\033[32;1m %s \033[0m\n' "Done!" ;
-    elif [ ${channelsDownloaded} -eq 0 ]; then
+    elif [ "${channelsDownloaded}" -eq 0 ]; then
         rm -f "${channelsEtagpath:?}" "${TERMV_CACHE_DIR:?}/channels_data.json_new"
         echo "${oldChannelsetag}" > "${channelsEtagpath}"
         printf '\033[31;1m %s \033[0m\n' "Uh oh, failed!"
@@ -120,13 +120,13 @@ update_jsonfiles(){
 
     newStreamsetag=$(<"${streamsEtagpath}")
 
-    if [ ${streamsDownloaded} -eq 1 ] && [ "${newStreamsetag}" = "${oldStreamsetag}" ]; then
+    if [ "${streamsDownloaded}" -eq 1 ] && [ "${newStreamsetag}" = "${oldStreamsetag}" ]; then
         touch "${TERMV_CACHE_DIR:?}/streams_data.json" ;
         printf '\033[33;1m %s \033[0m\n' "Your version is already up to date." ;
-    elif [ ${streamsDownloaded} -eq 1 ]; then
+    elif [ "${streamsDownloaded}" -eq 1 ]; then
       mv -f "${TERMV_CACHE_DIR:?}/streams_data.json_new" "${TERMV_CACHE_DIR:?}/streams_data.json"
         printf '\033[32;1m %s \033[0m\n' "Done!" ;
-    elif [ ${streamsDownloaded} -eq 0 ]; then
+    elif [ "${streamsDownloaded}" -eq 0 ]; then
         rm -f "${streamsEtagpath:?}" "${TERMV_CACHE_DIR:?}/streams_data.json_new"
         echo "${oldStreamsetag}" > "${streamsEtagpath}"
         printf '\033[31;1m %s \033[0m\n' "Uh oh, failed!"

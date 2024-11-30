@@ -55,7 +55,11 @@ extra_stuff(){
 	[ "$confirm_it" = true ] && confirmation_dialog
 	# hibernate | hybrid-sleep | suspend-then-hibernate | reboot | poweroff
 	# The systemd or elogind compatibility magic.   #
-	([ "$(command -v systemctl)" ] && systemctl "$1") || loginctl "$1"
+	if command -v systemctl >/dev/null 2>&1;then
+		systemctl "$1"
+	else
+		loginctl "$1"
+	fi
 	exit $?
 }
 
@@ -117,7 +121,7 @@ confirmation_dialog(){
 		no=' No'
 	fi
 	
-	ans="$(echo "$yes\n$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$rofi_style_dir"/confirm.rasi)"
+	ans="$(printf "$yes\n$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$rofi_style_dir"/confirm.rasi)"
 	
 	if [ "$ans" = "$yes" ];then
 		return
@@ -206,11 +210,7 @@ Powermenu
 "
 }
 ## Options #############################################
-if [ -z "$opt_" ];then
-	on_terminal && tty_menu
-elif on_terminal;then
-	:
-elif [ "$opt_" = "--no-confirm" ];then
+if [ "$opt_" = "--no-confirm" ] || [ "$opt_" = "-n" ] ;then
 	opt_="${opt2_}"
 else
 	layout="$(grep BUTTON "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
@@ -222,19 +222,26 @@ if on_graphical_session;then
 		rofi_menu
 	elif  [ "$opt_" = "--yad" ]; then		
 		yad_menu
-	elif  [ "$confirm_it" = "true" ] && [ -z "$opt_" ]; then
-		rofi_menu
+	elif  [ -z "$opt_" ]; then
+		if [ "$confirm_it" = "true" ];then
+			rofi_menu
+		elif  on_terminal; then
+			tty_menu
+		fi
 	fi
+else
+	tty_menu
 fi
 
 case "$opt_" in
-	"logout") _logout;;
+	logout) _logout;;
 	suspent) _suspend;;
-	"reboot") extra_stuff reboot;;
+	reboot) extra_stuff reboot;;
 	shutdown) extra_stuff poweroff;;
 	lock) _lock;;
-	"hibernate") extra_stuff hibernate;;
-	"hybrid-Sleep") extra_stuff hybrid-sleep;;
+	hibernate) extra_stuff hibernate;;
+	hybrid-Sleep) extra_stuff hybrid-sleep;;
 	moniter_off) _moniter_off ;;
+	reload) _reload ;;
 	*) help_menu;;
 esac

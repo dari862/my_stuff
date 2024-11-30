@@ -7,10 +7,10 @@ set -eu
 picked_cfg="${1-}"
 database="${script_config_path}/confedit-list"
 
-[ ! -f $database ] && touch $database
+[ ! -f "$database" ] && touch $database
 
 if [ -z "$picked_cfg" ];then
-	cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' $database | column -s '##' -t | $rofi_command -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
+	cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' "$database" | column -s '##' -t | $rofi_command -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
 else
 	cfg=$(grep "$picked_cfg" $database | grep -oP "\|.*" | sed 's/| //')
 fi

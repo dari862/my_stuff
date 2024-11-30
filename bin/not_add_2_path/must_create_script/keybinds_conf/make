@@ -61,7 +61,7 @@ for d in /home/*/; do
 	if [ -f "${usr_setup_flag_file}" ];then
 		# Create config folders if no exists
 		user_and_group=$(stat "$(dirname "${d}.config")" -c %u:%g)
-		d="${d}.config/keybinds"; [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"
+		d="${d}.config/keybinds"; [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R "$user_and_group" "$d"
 		my-superuser cp -r "${skel_keybinds_dir}/keybinds.conf" "$d" && my-superuser chown -R $user_and_group "${d}${CONF_FILE}"
 	fi
 done

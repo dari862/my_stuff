@@ -13,7 +13,7 @@ export TERMINAL_PROG="${TERMINAL}"
 export BROWSER="firefox" # librewolf
 
 # myshell config dir
-export My_X11_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/x11/myshell"
+export My_X11_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/x11"
 export My_shell_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myshell"
 export BASHDOTDIR="${My_shell_DIR}/bash"
 export ZDOTDIR="${My_shell_DIR}/zsh"

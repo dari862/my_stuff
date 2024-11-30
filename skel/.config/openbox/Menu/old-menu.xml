@@ -21,7 +21,7 @@
 		<separator/>
 		<item label="Virtual Machine" icon="&icons;/virtualbox.png">
 			<action name="Execute">
-				<command>popup_terminal "virtual_machine"</command>
+				<command>popup_terminal --install virtual_machine</command>
 			</action>
 		</item> 
 	    

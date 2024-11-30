@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 . "/usr/share/my_stuff/lib/common/WM"
@@ -66,7 +66,7 @@ if [ ! -f "$HOME_mouse_speed_conf" ];then
 	echo "create state file in $HOME_mouse_speed_conf"
 fi
 
-source "$HOME_mouse_speed_conf"
+. "$HOME_mouse_speed_conf"
 echo "CurrenSpeed: $CURRENTSPEED"
 echo "# this is the current speed-state for mouse-speed"
 
@@ -78,7 +78,7 @@ VERBOSE=false
 PARSED_OPTIONS=$(getopt -n "$0"  -o hrs:vVd:a: --long "help,reset,set:,verbose,vv,version,decelerate:,accelerate:"  -- "$@")
 
 #Bad arguments, something has gone wrong with the getopt command.
-if [ $? -ne 0 ]; then
+if [ "$?" -ne 0 ]; then
   exit 1
 fi
 
@@ -171,21 +171,21 @@ while true; do
     
     -r|--reset)
       echo "Speed reset to 100%"
-      let CURRENTSPEED=100
+      CURRENTSPEED=100
       shift;;
 
     -d|--decelerate)
       #decelerate speed if argument -d i set
       if [ -n "$2" ]; then
         echo "Speed decellerated for $2"
-        let CURRENTSPEED=$(($CURRENTSPEED * $((100-$2)) /100))
+        CURRENTSPEED=$(($CURRENTSPEED * $((100-$2)) /100))
       fi
       shift 2;;
 
     -a|--accelerate)
       if [ -n "$2" ]; then
         echo "Speed accellerated for $2"
-        let CURRENTSPEED=$(($CURRENTSPEED * $((100+$2)) /100))
+        CURRENTSPEED=$(($CURRENTSPEED * $((100+$2)) /100))
         if [ $CURRENTSPEED -lt 3 ]; then
           CURRENTSPEED=$(($CURRENTSPEED+1))
         fi
@@ -195,7 +195,7 @@ while true; do
     -s|--set)
       if [ -n "$2" ]; then
         echo "Speed set to $2%"
-        let CURRENTSPEED=$2
+        CURRENTSPEED=$2
       else
         echo "Missing argument at option $2"
       fi
@@ -242,20 +242,20 @@ if [ "$mouse_acceleration" = "false" ];then
 	exit
 fi
 
-if [[ $CURRENTSPEED -gt 100 ]]; then
+if [ "$CURRENTSPEED" -gt 100 ]; then
     echo "SPEED max is 100%"
     sed -i 's/CURRENTSPEED=.*/CURRENTSPEED=100/g' "$HOME_mouse_speed_conf"
 fi
-if [[ $CURRENTSPEED -lt 1 ]]; then 
+if [ "$CURRENTSPEED" -lt 1 ]; then 
     echo "SPEED min is 1%"
     sed -i 's/CURRENTSPEED=.*/CURRENTSPEED=1/g' "$HOME_mouse_speed_conf"
 fi
 
-echo new Speed: $CURRENTSPEED
+echo "new Speed: $CURRENTSPEED"
 
-MOUSE_DECELERATION=$(bc <<< "scale = 1; $MOUSE_DECELERATION * 100 / $CURRENTSPEED")
+MOUSE_DECELERATION=$(awk "BEGIN {print $MOUSE_DECELERATION * 100 / $CURRENTSPEED}")
 echo new mouse deceleration: $MOUSE_DECELERATION; 
-TOUCHPAD_DECELERATION=$(bc <<< "scale = 1; $TOUCHPAD_DECELERATION * 100 / $CURRENTSPEED")
+TOUCHPAD_DECELERATION=$(awk "BEGIN {print $TOUCHPAD_DECELERATION * 100 / $CURRENTSPEED}")
 echo new touchpad deceleration: $TOUCHPAD_DECELERATION; 
 
 sed -i 's/MOUSE_DECELERATION=.*/MOUSE_DECELERATION=$MOUSE_DECELERATION/g' "$HOME_mouse_speed_conf"
@@ -265,7 +265,7 @@ sed -i 's/CURRENTSPEED=.*/CURRENTSPEED=$CURRENTSPEED/g' "$HOME_mouse_speed_conf"
 #set touchpad
 TP=$(xinput --list --short | grep -i $TOUCHPAD_STRING | cut -f 1 | cut -d" " -f 5- | sed 's/\s\+$//g')
 if [ "$TP" ]; then
-  if [ $VERBOSE == true ]; then
+  if [ "$VERBOSE" = true ]; then
     echo setting speed for $TP
     echo was before:
     xinput --list-props "$TP"|grep Accel
@@ -274,11 +274,11 @@ if [ "$TP" ]; then
   xinput --set-prop "$TP" "Device Accel Constant Deceleration" $TOUCHPAD_DECELERATION
   xinput --set-prop "$TP" "Device Accel Velocity Scaling" $TOUCHPAD_SCALING
   )
-  if [ $VERBOSE == true ]; then
+  if [ "$VERBOSE" = true ]; then
     echo touchpad now set to:
     xinput --list-props "$TP"|grep Accel
   fi
-elif [ $VERBOSE == true ]; then
+elif [ "$VERBOSE" = true ]; then
   echo 'Touchpad device "'$TOUCHPAD_STRING'" not in xinput --list'
   echo call '"'$0 -help'"' for help
   echo
@@ -292,12 +292,12 @@ if [ "$MOUSE" ]; then
   xinput --set-prop "pointer:$M" "Device Accel Constant Deceleration" $MOUSE_DECELERATION
   xinput --set-prop "pointer:$M" "Device Accel Velocity Scaling" $MOUSE_SCALING
   )
-  if [ $VERBOSE == true ]; then
+  if [ "$VERBOSE" = true ]; then
     echo mouse now set to:
     xinput --list-props "$M"|grep Accel
   fi
  done
-elif [ $VERBOSE == true ]; then
+elif [ "$VERBOSE" = true ]; then
   echo 'Mouse device not found in xinput --list'
   echo "If you have a mouse installed that wasn't found,"
   echo "call "'"'$0 --help'"'" for help"
@@ -305,7 +305,7 @@ fi
 
 if [ "$palm_detectin_on" ]; then
 	if [ "$TP" ]; then
-  		if [ $VERBOSE == true ]; then
+  		if [ "$VERBOSE" = true ]; then
     		echo was before:
     		xinput --list-props "$TP"|grep Palm
   		fi
@@ -313,11 +313,11 @@ if [ "$palm_detectin_on" ]; then
   		xinput --set-prop "$TP" "Synaptics Palm Detection" 1
   		xinput --set-prop "$TP" "Synaptics Palm Dimensions" 5, 5
   		)
-  		if [ $VERBOSE == true ]; then
+  		if [ "$VERBOSE" = true ]; then
     		echo touchpad now set to:
     		xinput --list-props "$TP"|grep Palm
   		fi
-	elif [ $VERBOSE == true ]; then
+	elif [ "$VERBOSE" = true ]; then
   		echo 'Touchpad device "'$TOUCHPAD_STRING'" not in xinput --list'
   		echo call '"'$0 -help'"' for help
   		echo

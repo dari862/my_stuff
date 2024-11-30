@@ -2,7 +2,7 @@
 __config_path="/etc/tlp.conf"
 __tlp_version_="$(tlp-stat -s | head -1)"
 
-source "/usr/share/my_stuff/lib/languages/tlp/yadtlp_configdescriptions"
+. "/usr/share/my_stuff/lib/languages/tlp/yadtlp_configdescriptions"
 
 if [ -f "$__config_path" ];then
 	source <(sed '/^# /d;/^#!/d;s/#//g' "$__config_path")
@@ -287,7 +287,7 @@ main_yad(){
     yad_opts+=( --field="TLP DEFAULT MODE ${TLP_DEFAULT_MODE__ID_DESCRIPTION}:cb" "${TLP_DEFAULT_MODE}!AC!BAT")
     yad_opts+=( --field="TLP PERSISTEN DEFAULT ${TLP_PERSISTENT_DEFAULT__ID_DESCRIPTION}:cb" "${TLP_PERSISTENT_DEFAULT}!0!1")
     yad_opts+=( --field="TLP PS IGNORE ${TLP_PS_IGNORE__ID_DESCRIPTION}:cb" "\"${TLP_PS_IGNORE}\"!\"AC\"$__add_usb!\"BAT\"")
-	yad "${yad_opts[@]}" > $General &
+	yad "${yad_opts[@]}" > "$General" &
 	
 	#  - name: Audio
 	yad_opts=()
@@ -297,7 +297,7 @@ main_yad(){
     yad_opts+=( --field="SOUND POWER SAVE ON AC ${SOUND_POWER_SAVE__GROUP_DESCRIPTION}::NUM" "$SOUND_POWER_SAVE_ON_AC"!0..3600!1)
     yad_opts+=( --field="SOUND POWER SAVE ON_BAT ${SOUND_POWER_SAVE__GROUP_DESCRIPTION}::NUM" "$SOUND_POWER_SAVE_ON_BAT"!0..3600!1)
     yad_opts+=( --field="SOUND POWER SAVE CONTROLLER ${SOUND_POWER_SAVE_CONTROLLER__ID_DESCRIPTION}:CHK" "${SOUND_POWER_SAVE_CONTROLLER}")
-	yad "${yad_opts[@]}" > $Audio &
+	yad "${yad_opts[@]}" > "$Audio" &
 	
 	#  - name: Disks
 	yad_opts=()
@@ -324,7 +324,7 @@ main_yad(){
     yad_opts+=( --field="BAY POWEROFF ON AC ${BAY_POWEROFF_ON_BAT__ID_DESCRIPTION}:CHK" "${BAY_POWEROFF_ON_AC}")
     yad_opts+=( --field="BAY POWEROFF ON BAT ${BAY_POWEROFF_ON_BAT__ID_DESCRIPTION}:CHK" "${BAY_POWEROFF_ON_BAT}")
     yad_opts+=( --field="BAY DEVICE ${BAY_DEVICE__ID_DESCRIPTION}" "$BAY_DEVICE")
-	yad "${yad_opts[@]}" > $Disks &
+	yad "${yad_opts[@]}" > "$Disks" &
 	
 	#  - name: Graphics
 	yad_opts=()
@@ -343,7 +343,7 @@ main_yad(){
     yad_opts+=( --field="RADEON DPM STATE ON BAT ${RADEON_DPM_STATE__GROUP_DESCRIPTION}:cb" "${RADEON_DPM_STATE_ON_BAT}!battery!performance")
     yad_opts+=( --field="RADEON DPM PERF LEVEL ON AC ${RADEON_DPM_PERF_LEVEL__GROUP_DESCRIPTION}:cb" "${RADEON_DPM_PERF_LEVEL_ON_AC}!auto!low!high")
     yad_opts+=( --field="RADEON DPM PERF LEVEL ON BAT ${RADEON_DPM_PERF_LEVEL__GROUP_DESCRIPTION}:cb" "${RADEON_DPM_PERF_LEVEL_ON_BAT}!auto!low!high")
-	yad "${yad_opts[@]}" > $Graphics &
+	yad "${yad_opts[@]}" > "$Graphics" &
 	
 	#  - name: Network
 	yad_opts=()
@@ -353,7 +353,7 @@ main_yad(){
     yad_opts+=( --field="WIFI PWR ON AC ${WIFI_PWR__GROUP_DESCRIPTION}:CHK" "${WIFI_PWR_ON_AC}")
     yad_opts+=( --field="WIFI PWR ON BAT ${WIFI_PWR__GROUP_DESCRIPTION}:CHK" "${WIFI_PWR_ON_BAT}")
     yad_opts+=( --field="WOL DISABLE ${WOL_DISABLE__ID_DESCRIPTION}:CHK" "${WOL_DISABLE}")
-	yad "${yad_opts[@]}" > $Network &
+	yad "${yad_opts[@]}" > "$Network" &
 	
 	#  - name: PCIe
 	yad_opts=()
@@ -368,7 +368,7 @@ main_yad(){
     yad_opts+=( --field="RUNTIME PM DRIVER DENYLIST ${RUNTIME_PM_DRIVER_BLACKLIST__ID_DESCRIPTION}" "$RUNTIME_PM_DRIVER_DENYLIST")
     [[ "$__tlp_version_" != "1.3" ]] && yad_opts+=(--field="RUNTIME PM ENABLE ${RUNTIME_PM_GROUP__ID_DESCRIPTION}" "$RUNTIME_PM_ENABLE")
 	[[ "$__tlp_version_" != "1.3" ]] && yad_opts+=(--field="RUNTIME PM DISABLE ${RUNTIME_PM_GROUP__ID_DESCRIPTION}" "$RUNTIME_PM_DISABLE")
-	yad "${yad_opts[@]}" > $PCIe &
+	yad "${yad_opts[@]}" > "$PCIe" &
 	
 	#  - name: Processor
 	yad_opts=()
@@ -411,7 +411,7 @@ main_yad(){
 			yad_opts+=(--field="MEM SLEEP ON BAT ${MEM_SLEEP__GROUP_DESCRIPTION}:cb" "${MEM_SLEEP_ON_BAT}!s2idle!deep")
 		fi
 	fi
-	yad "${yad_opts[@]}" > $Processor &
+	yad "${yad_opts[@]}" > "$Processor" &
 	
 	#  - name: Radio
 	yad_opts=()
@@ -438,7 +438,7 @@ main_yad(){
     yad_opts+=( --field="DEVICES TO DISABLE ON DOCK ${DEVICES_ON_DOCK__GROUP_DESCRIPTION}" "${DEVICES_TO_DISABLE_ON_DOCK}")
     yad_opts+=( --field="DEVICES TO ENABLE ON UNDOCK ${DEVICES_ON_UNDOCK__GROUP_DESCRIPTION}" "${DEVICES_TO_ENABLE_ON_UNDOCK}")
     yad_opts+=( --field="DEVICES TO DISABLE ON UNDOCK ${DEVICES_ON_UNDOCK__GROUP_DESCRIPTION}" "${DEVICES_TO_DISABLE_ON_UNDOCK}")
-	yad "${yad_opts[@]}" > $Radio &
+	yad "${yad_opts[@]}" > "$Radio" &
 
 	#  - name: USB
 	yad_opts=()
@@ -454,7 +454,7 @@ main_yad(){
     yad_opts+=( --field="USB EXCLUDE WWAN ${USB_EXCLUDE_WWAN__ID_DESCRIPTION}:CHK" "${USB_EXCLUDE_WWAN}")
     yad_opts+=( --field="USB ALLOWLIST!gtk-yes!${USB_ALLOWLIST__ID_DESCRIPTION}:FBTN" "bash -c _USB_ALLOWLIST")
     [[ "$__tlp_version_" != "1.7" ]] && yad_opts+=(--field="USB AUTOSUSPEND DISABLE ON SHUTDOWN ${USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN__ID_DESCRIPTION}:CHK" "${USB_AUTOSUSPEND_DISABLE_ON_SHUTDOWN}")
-	yad "${yad_opts[@]}" > $USB &
+	yad "${yad_opts[@]}" > "$USB" &
 
 	#  - name: ThinkPad_Battery
 	yad_opts=()
@@ -469,7 +469,7 @@ main_yad(){
     yad_opts+=( --field="NATACPI ENABLE ${NATACPI_ENABLE__ID_DESCRIPTION}:CHK" "${NATACPI_ENABLE}")
     yad_opts+=( --field="TPACPI ENABLE ${TPACPI_ENABLE__ID_DESCRIPTION}:CHK" "${TPACPI_ENABLE}")
     yad_opts+=( --field="TPSMAPI ENABLE ${TPSMAPI_ENABLE__ID_DESCRIPTION}:CHK" "${TPSMAPI_ENABLE}")
-	yad "${yad_opts[@]}" > $ThinkPad_Battery &
+	yad "${yad_opts[@]}" > "$ThinkPad_Battery" &
 	
 	#main window
 	yad --notebook --tab-pos="left" --key=$KEY \
@@ -520,7 +520,7 @@ _DISK_DEVICES(){
 	for i in "${!ans[@]}"
 	do
 
-  	if [[ ${ans[$i]} == TRUE ]]
+  	if [[ "${ans[$i]}" == TRUE ]]
   	then
     	name=${__lsblk_list[$i]}
 		name=${name%|*}
@@ -721,7 +721,7 @@ _SATA_LINKPWR_ON_AC(){
 	
 	for i in "${!ans[@]}"
 	do
-  	if [[ ${ans[$i]} == TRUE ]]
+  	if [[ "${ans[$i]}" == TRUE ]]
   	then
     	m=${menu[$i]}
     	name=${m%|*}
@@ -763,7 +763,7 @@ _SATA_LINKPWR_ON_BAT(){
 	
 	for i in "${!ans[@]}"
 	do
-  	if [[ ${ans[$i]} == TRUE ]]
+  	if [[ "${ans[$i]}" == TRUE ]]
   	then
     	m=${menu[$i]}
     	name=${m%|*}
@@ -804,7 +804,7 @@ _DISK_APM_CLASS_DENYLIST(){
 	
 	for i in "${!ans[@]}"
 	do
-  	if [[ ${ans[$i]} == TRUE ]]
+  	if [[ "${ans[$i]}" == TRUE ]]
   	then
     	m=${menu[$i]}
     	name=${m%|*}
@@ -842,7 +842,7 @@ _RUNTIME_PM_DENYLIST(){
 	
 	for i in "${!ans[@]}"
 	do
-  	if [[ ${ans[$i]} == TRUE ]]
+  	if [[ "${ans[$i]}" == TRUE ]]
   	then
     	m=${menu[$i]}
     	name=${m%|*}
@@ -884,7 +884,7 @@ _USB_DENYLIST(){
 	
 	for i in "${!ans[@]}"
 	do
-  	if [[ ${ans[$i]} == TRUE ]]
+  	if [[ "${ans[$i]}" == TRUE ]]
   	then
     	m=${menu[$i]}
     	name=${m%|*}
@@ -927,7 +927,7 @@ _USB_ALLOWLIST(){
 	
 	for i in "${!ans[@]}"
 	do
-  	if [[ ${ans[$i]} == TRUE ]]
+  	if [[ "${ans[$i]}" == TRUE ]]
   	then
     	m=${menu[$i]}
     	name=${m%|*}

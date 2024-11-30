@@ -198,10 +198,10 @@ if command -v bc >/dev/null 2>&1;then
 		echo -e "\e[1;36m Your's Option:| Algebric | Trigonometric | \e[0m"
 		
 		read -p "Option: " op1
-		if [[ $op1 = 'q' || $op1 = 'Q' ]]
+		if [[ "$op1" = 'q' || "$op1" = 'Q' ]]
 		then
 		break
-		elif [[ ( ( $op1 = 'A' || $op1 = 'a' ) || ( $op1 = 'Algebric' || $op1 = 'algebric' ) ) || $op1 = 'algeb' ]]
+		elif [[ ( ( "$op1" = 'A' || "$op1" = 'a' ) || ( "$op1" = 'Algebric' || "$op1" = 'algebric' ) ) || "$op1" = 'algeb' ]]
 		then 
   		clear
   		echo -e "Algebric Option"
@@ -209,10 +209,10 @@ if command -v bc >/dev/null 2>&1;then
   		echo -e "\e[1;34m --------------------------------------------------------\e[0m"
   		echo -e " \e[1;3;5;31m >>> \e[0m"
   		read -p  "Option:" op
-  		if [ $op = 'q' ]
+  		if [ "$op" = 'q' ]
 		then
 			break
-		elif [ $op = 'root' ]
+		elif [ "$op" = 'root' ]
 		then
 			read -p "Enter a number:" x
 			echo -e " \e[1;33m  sqrt($x)=$(echo "sqrt(9)" | bc) \e[0m"
@@ -220,25 +220,25 @@ if command -v bc >/dev/null 2>&1;then
 		read -p " Enter first number: " v1
 		
 		read -p " Enter second number: " v2
-		if   [ $op = '+' ]
+		if   [ "$op" = '+' ]
 		then
 			echo -e " \e[1;33m #$v1+$v2=$(echo "scale=5;$v1 + $v2 " | bc) \e[0m"
-		elif [ $op = '-' ]
+		elif [ "$op" = '-' ]
 		then
 			echo -e "\e[1;33m #$v1-$v2=$(echo "scale=5;$v1 - $v2" | bc) \e[0m"
-		elif [ $op = 'x' ]
+		elif [ "$op" = 'x' ]
 		then
 			echo -e "\e[1;33m #$v1 X $v2=$(echo "scale=5;$v1 * $v2" | bc) \e[0m"
-		elif [ $op = '/' ] 
+		elif [ "$op" = '/' ] 
 		then
 			echo -e "\e[1;33m #$v1/$v2=$(echo " scale=5;$v1 / $v2 " | bc) \e[0m"
-		elif [ $op = '^' ]
+		elif [ "$op" = '^' ]
 		then
 			echo -e "\e[1;33m #$v1^$v2=$(echo "scale=5;$v1 ^ $v2  " | bc) \e[0m"
-		elif [ $op = 'rem' ]
+		elif [ "$op" = 'rem' ]
 		then
 			echo -e "\e[1;33m #remainder:$(echo "scale=5;$v1 % $v2 " | bc)\e[0m"
-		elif [ $op = '%' ] 
+		elif [ "$op" = '%' ] 
 		then
 			a=$(echo "scale=2;( $v1 * 100 ) / $v2 " | bc)
 			echo -e "\e[1;33m #$v1 is $a% of $v2 \e[0m"
@@ -248,7 +248,7 @@ if command -v bc >/dev/null 2>&1;then
 		fi
 		
 		
-		elif [[ $op1 = 'T' || $op1 = 't' || $op1 = 'trigonometric' || $op1 = 'Trigonometric' ]]
+		elif [[ "$op1" = 'T' || "$op1" = 't' || "$op1" = 'trigonometric' || "$op1" = 'Trigonometric' ]]
 		echo "Trigonometric"
 		then
   		clear
@@ -259,56 +259,56 @@ if command -v bc >/dev/null 2>&1;then
   		read -p "Angle: " z
   		read -p "degre or radian: " u
   		
-   		if [[ $u = 'degre' || $u = 'd' || $u = 'deg' || $u = 'degree' || $u = 'D' || $u = 'Degre' ]]
+   		if [[ "$u" = 'degre' || "$u" = 'd' || "$u" = 'deg' || "$u" = 'degree' || "$u" = 'D' || "$u" = 'Degre' ]]
    		then
     		pi=3.14159
     		t=$(echo "scale=5;$z * $pi" | bc )
     		t1=$(echo "scale=5;$t / 180.0" | bc )
     		x=$t1
     		echo "angle:$x radiun"
-   		elif [[ $u = 'r' || $u = 'R' || $u = 'rad' || $u = 'Rad' || $u = 'radian' || $u = 'Radian' ]]
+   		elif [[ "$u" = 'r' || "$u" = 'R' || "$u" = 'rad' || "$u" = 'Rad' || "$u" = 'radian' || "$u" = 'Radian' ]]
    		then
     		echo "Angle:$z radiun"
    		else
     		echo "No unit for angle"
    		fi
 		
-   		if [[ $op = 'sin' ]]
+   		if [[ "$op" = 'sin' ]]
    		then
     		sin
-   		elif [[ $op = 'cos' ]]
+   		elif [[ "$op" = 'cos' ]]
    		then
     		cos
-   		elif [[ $op = 'tan' ]]
+   		elif [[ "$op" = 'tan' ]]
    		then
     		tan
-   		elif [[ $op = 'cosine' ]]
+   		elif [[ "$op" = 'cosine' ]]
    		then
     		cosine
-   		elif [[ $op = 'sec' ]]
+   		elif [[ "$op" = 'sec' ]]
    		then
     		sec
-   		elif [[ $op = 'cot' ]]
+   		elif [[ "$op" = 'cot' ]]
    		then
     		cot;
    		else
      		read -p "Enter the value: " x
-     		if [[ $op = 'asin' ]]
+     		if [[ "$op" = 'asin' ]]
      		then
        		asin
-     		elif [[ $op = 'acos' ]]
+     		elif [[ "$op" = 'acos' ]]
      		then
        		acos
-     		elif [[ $op = 'atan' ]]
+     		elif [[ "$op" = 'atan' ]]
      		then
        		atan
-     		elif [[ $op = 'acosine' ]]
+     		elif [[ "$op" = 'acosine' ]]
      		then
        		acosine
-     		elif [[ $op = 'asec' ]]
+     		elif [[ "$op" = 'asec' ]]
      		then
      		asec
-     		elif [[ $op = 'acot' ]]
+     		elif [[ "$op" = 'acot' ]]
      		then
      		acot
      		else

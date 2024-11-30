@@ -28,7 +28,7 @@
 			</action>
 		</item>
 		<separator/>
-		<item label="Virtual Machine"><action name="Execute"><command>popup_terminal "virtual_machine"</command></action></item> 
+		<item label="Virtual Machine"><action name="Execute"><command>popup_terminal --install virtual_machine</command></action></item> 
 	    <separator/>
 		<menu id="app-menu" execute="obamenu" label="Applications"/>
 		<menu id="preferences" label="Preferences">

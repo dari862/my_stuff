@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Set a background color
+openbox_xdg_autostart_path="/usr/lib/x86_64-linux-gnu/openbox-xdg-autostart"
 BG=""
 if which hsetroot >/dev/null 2>/dev/null; then
   BG=hsetroot
@@ -36,6 +37,6 @@ fi
 if which xdg-autostart >/dev/null 2>/dev/null; then
    CMD=xdg-autostart
 else
-   CMD=/usr/share/my_stuff/lib/xsessions/openbox_files/openbox-xdg-autostart
+   CMD=$openbox_xdg_autostart_path
 fi
 exec $CMD "$@"

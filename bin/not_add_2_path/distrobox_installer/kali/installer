@@ -1,19 +1,15 @@
 #!/bin/sh
 set -e
 
-distro_name="parrot"
-
-script_full_path="$(dirname "$(realpath "$0")")"
-cd "${script_full_path}"
+distro_name="kali"
+__WM_="kali-desktop-i3 i3blocks rofi acpid dunst feh playerctl alsa-utils xbacklight wireless-tools network-manager"
+cd "${distrobbox_script_installer_path}/${distro_name}"
 
 __format=""
 
 if [ "$CONTAINER_RT" = "podman" ];then
 	__format='--format docker'
 fi
-
-prefix="$HOME/.local/distrobox"
-tmp_folder=""
 
 mode=""
 if [ "$mode" = "root" ]; then
@@ -22,23 +18,30 @@ else
         root_command=""
 fi
 
+prefix="$HOME/.local/distrobox"
+tmp_folder=""
+xsession_kali=""
+
 Pre_createing_container_image(){
 	tmp_folder=$(mktemp -d /tmp/${distro_name}-container-XXXXXXXX)
 	mkdir -p "$HOME/.local/distrobox/$distro_name"
-	cd "$HOME/.local/distrobox/$distro_name"
-	touch Profile
-	touch 1.profile
-	touch 2.profile
-	touch 3.profile
-	touch Zion
-	touch '(Reversed).colors'
-	touch Breeze
-	touch High
-	touch Contrast.colors
-	touch Dark.colors
 }
 
+wm_kali_linux(){
+	__wm_command="sudo apt-get install -yq ${__WM_} ; exit 0"
+	if [ "$xsession_kali" = "enabled" ]; then
+		distrobox enter --name "$distro_name" ${root_command} -- "${__wm_command}"
+		my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/distrobox_installer/Extra/kali/i3/kali-i3.desktop /usr/share/xsessions/
+		mkdir -p "$prefix/$distro_name"/.config
+		cp -r /usr/share/my_stuff/bin/not_add_2_path/distrobox_installer/kali_i3/.config/* "$prefix/$distro_name"/.config
+	fi
+}
+
+
+
 ###################################################################
+prompt '  Do you want to add kali to xsession?' 'Y' && xsession_kali="enabled"
+
 say 'Pre-createing container image ...' 1
 
 Pre_createing_container_image || failed_to_run "failed to install Pre-createing container image."
@@ -47,9 +50,10 @@ say 'Createing container image ...' 1
 CONTAINER_RT build -t ${distro_name} . ${__format} --no-cache
 
 say 'Deploy container image ...' 1
-distrobox create --image "local/${distro_name}" \
+distrobox create --image "localhost/${distro_name}" \
          --name "$distro_name" \
          --home "$prefix/$distro_name" ${root_command} || failed_to_run "failed to deploy container image."
+distrobox enter --name "$distro_name" ${root_command}  -- "exit" || :
 
 say 'Createing container lanucher ...' 1
 echo '#!/bin/sh' > "${tmp_folder}/${distro_name}"
@@ -58,6 +62,8 @@ echo "distrobox enter --name \"$distro_name\" ${root_command} " >> "${tmp_folder
 chmod +x "${tmp_folder}/${distro_name}"
 mkdir -p "$HOME/.local/bin"
 mv "${tmp_folder}/${distro_name}" "$HOME/.local/bin"
+
+wm_kali_linux || failed_to_run "failed to install ${__WM_}."
 
 distrobox stop "$distro_name" --yes ${root_command}
 

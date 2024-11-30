@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 #### Fix missing files        ########################################################################
 
 . "/usr/share/my_stuff/lib/common/WM"

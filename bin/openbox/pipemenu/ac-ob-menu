@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ## Openbox Pipemenu to change openbox menu style
 
 # Variables and functions

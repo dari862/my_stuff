@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import imaplib
 obj = imaplib.IMAP4_SSL('imap.gmail.com',993)
-obj.login('addyxxx@xxx.xxx','xxxxxxxxxx') # write your email and password
+obj.login('gmail@chucknoris.com','xxxxxxxx') # write your email and password
 obj.select()
 print(len(obj.search(None, 'UnSeen')[1][0].split()))

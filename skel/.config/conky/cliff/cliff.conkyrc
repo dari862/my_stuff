@@ -132,7 +132,7 @@ ${voffset 12}${offset 60}${font Noto Sans:Bold:size=12}${if_running mpd}\
 ${mpd_title}${else}MPD${endif}${font}
 ${offset 70}${if_running mpd}${mpd_artist}${else}Is not playing${endif}
 ${voffset 12}${offset 60}${font Noto Sans:Bold:size=12} You have \
-${execi 600 ~/.config/conky/sidepanes/res/email}${font}
+${execi 600 ~/.config/conky/scripts/email}${font}
 ${offset 70}Unread Email
 ${voffset 12}${offset 60}${font Noto Sans:Bold:size=12}${fs_free} Free${font}
 ${offset 70}from ${fs_size} fs size

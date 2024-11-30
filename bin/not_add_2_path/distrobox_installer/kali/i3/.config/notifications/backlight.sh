@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 
 CUR=$(echo $(cat /sys/class/backlight/*/brightness) / $(cat /sys/class/backlight/*/max_brightness) | bc -l)
 BRI=$(echo $((CUR * 100)) | cut -d'.' -f1)

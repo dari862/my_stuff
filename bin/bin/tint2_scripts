@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 tint2_script_path="/usr/share/my_stuff/bin/not_add_2_path"
 opt="${1-}"
 

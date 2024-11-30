@@ -1,9 +1,4 @@
-#!/usr/bin/env bash
-# ┬┌─┬ ┬┌┐┌┌─┐┌┬┐
-# ├┴┐│ ││││└─┐ │
-# ┴ ┴└─┘┘└┘└─┘ ┴
-# Created by Siddharth Dushantha
-#
+#!/bin/bash
 # Dependencies: sxiv, imagemagick, bash, ffmpeg, mpc, jq, mpd
 
 VERSION=1.2.9

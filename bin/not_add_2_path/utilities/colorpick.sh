@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -e
 
 # Function to copy to clipboard with different tools depending on the display server
 cp2cb() {

@@ -8,6 +8,7 @@ panel_manager --launch &
 # update notifcation
 update-notification -n &
 
-for script in $HOME/.config/autostartscripts/*;do
-	$script
+cd $HOME/.config/autostartscripts/
+for script in *;do
+	./$script
 done

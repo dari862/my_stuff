@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # MEDIA_Control
 # Set the player
 [ -n "$(pgrep spotify)" ] && Control="spotify" || Control="MPD"
@@ -8,7 +8,7 @@ Cover="/tmp/$USER/cover.png"
 # if cover not found in metadata use this instead
 bkpCover="/usr/share/my_stuff/lib/fallback.webp"
 # mpd music directory for mpd clients.
-mpddir="~/Music"
+mpddir="$HOME/Music"
 LAST_SONG_FILE="/tmp/$USER/last_song.txt"
 
 case $Control in
@@ -130,7 +130,7 @@ case $Control in
 
 				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ]; then
 					albumart="$(playerctl --player="$Control" metadata mpris:artUrl | sed -e 's/open.spotify.com/i.scdn.co/g')"
-					if [[ $(playerctl --player="$Control" metadata mpris:artUrl) ]]; then
+					if playerctl --player="$Control" metadata mpris:artUrl; then
 						getURL 'download2' "$albumart" "$Cover"
 					else
 						cp $bkpCover $Cover

@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-#set -euo pipefail
+#!/bin/sh
 
 # Because certain programs like to insert their own newlines and fuck up my format (im looking at you thunderbird)
 # we need to crunch each input to ensure that each component is its own line in the log file
@@ -21,7 +20,4 @@ elif [ "$crunch_appname" = "AN2Linux" ]; then
 fi
     
 
-echo -en "$timestamp\n$crunch_urgency\n$crunch_icon\n$crunch_body\n$crunch_summary\n$crunch_appname\n" >> /tmp/$USER/dunstlog
-
-
-#echo "$crunch_appname\n$crunch_summary\n$crunch_body\n$crunch_icon\n$crunch_urgency\x0f" >> /tmp/$USER/dunstlog
+printf "$timestamp\n$crunch_urgency\n$crunch_icon\n$crunch_body\n$crunch_summary\n$crunch_appname\n" >> /tmp/$USER/dunstlog

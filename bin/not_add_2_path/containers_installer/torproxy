@@ -25,7 +25,7 @@ my-superuser sed -i "s/__TUUID=.*/__TUUID=${__TUUID}/g" Dockerfile
 
 __format=""
 
-if [ "$(basename $(realpath $(which $CONTAINER_RT)))" = "podman" ];then
+if [ "$(basename $(realpath $(which "$CONTAINER_RT")))" = "podman" ];then
 	__format='--format docker'
 fi
 

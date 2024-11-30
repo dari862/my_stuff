@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # ---------------------------------------------------------------------
 # Pipemenu to install remote desktop software on My Stuff Linux.
 #
@@ -40,7 +40,7 @@ do
     esac
 done
 
-if [[ $1 = --install ]]; then
+if [ "$1" = "--install" ]; then
     case $2 in
     viewer)
         my-installer --install 'xtightvncviewer'
@@ -54,7 +54,7 @@ if [[ $1 = --install ]]; then
         ;;
     esac
 
-elif [[ $1 ]]; then
+elif [ "$1" ]; then
     echo "$0: no such option $*" >&2
     exit 1
 
@@ -72,7 +72,7 @@ else
     menuSeparator
 
     # Server
-    if [[ -x /usr/lib/vino/vino-server ]]; then
+    if [ -x /usr/lib/vino/vino-server ]; then
         if pidof -s vino-server > /dev/null; then
             menuItem 'Stop VNC Server' 'killall vino-server'
         else

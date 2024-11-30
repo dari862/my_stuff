@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
@@ -6,9 +6,9 @@
 ## Openbox Pipemenu to change openbox styles
 
 # Variables and functions
-source "/usr/share/my_stuff/lib/common/WM"
-source "/usr/share/my_stuff/lib/common/panel"
-source "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/panel"
+. "/usr/share/my_stuff/lib/common/openbox"
 
 	# Dir
 	pdir="$HOME/.config/polybar"
@@ -29,7 +29,7 @@ source "/usr/share/my_stuff/lib/common/openbox"
 	}
 	
 	font_bar () {
-		if [[ "$FONT" ]]; then
+		if [ "$FONT" ]; then
 			PSTYLE=$(cat $pdir/launch.sh | grep STYLE | head -n 1 | tr -d 'STYLE=' | tr -d \" | tr -d "[:blank:]")
 			sed -i -e "s/font-0 = .*/font-0 = $FNAME:$FSTYLE:size=$FSIZE;2/g" $pdir/"$PSTYLE"/config.ini
 			polybar-msg cmd restart
@@ -39,7 +39,7 @@ source "/usr/share/my_stuff/lib/common/openbox"
 	}
 	
 	font_rofi () {
-		if [[ "$FONT" ]]; then
+		if [ "$FONT" ]; then
 			RSTYLE=$(cat $rofi_style_dir/bin/music | grep STYLE | head -n 1 | tr -d 'STYLE=' | tr -d \")
 			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "${rofi_style_dir}"/font.rasi
 			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "$rofi_style_dir/askpass.rasi" "$rofi_style_dir/confirm.rasi"
@@ -49,7 +49,7 @@ source "/usr/share/my_stuff/lib/common/openbox"
 	}
 	
 	font_term () {
-		if [[ "$FONT" ]]; then
+		if [ "$FONT" ]; then
 			sed -i -e "s/family: .*/family: \"$FNAME\"/g" "$tdir"/fonts.yml "$tdir"/fullscreen-fonts.yml
 			sed -i -e "s/size: .*/size: $FSIZE/g" "$tdir"/fonts.yml "$tdir"/fullscreen-fonts.yml
 		else
@@ -58,7 +58,7 @@ source "/usr/share/my_stuff/lib/common/openbox"
 	}
 	
 	font_ob () {
-		if [[ "$FONT" ]]; then
+		if [ "$FONT" ]; then
 			sed -i 's/font_var "'.*'"/font_var "'"$FNAME"'"/g' ${OBPATH}/rc.xml
 			sed -i 's/size_var "'.*'"/size_var "'"$FSIZE"'"/g' ${OBPATH}/rc.xml
 			openbox --reconfigure
@@ -68,7 +68,7 @@ source "/usr/share/my_stuff/lib/common/openbox"
 	}
 	
 	font_dunst () {
-		if [[ "$FONT" ]]; then
+		if [ "$FONT" ]; then
 			sed -i -e "s/font = .*/font = $FNAME $FSTYLE $FSIZE/g" $ddir/dunstrc
 			pkill dunst && dunst &
 		else
@@ -77,38 +77,38 @@ source "/usr/share/my_stuff/lib/common/openbox"
 	}
 	
 	font_gtk () {
-		if [[ "$FONT" ]]; then
+		if [ "$FONT" ]; then
 			xfconf-query -c xsettings -p /Gtk/FontName -s "$FNAME $FSTYLE $FSIZE"
 		else
 			exit 0
 		fi
 	}
 	
-	if [[ "$1" == "--bar" ]]; then
+	if [ "$1" = "--bar" ]; then
 		getfonts
 		font_bar
 	
-	elif [[ "$1" == "--rofi" ]]; then
+	elif [ "$1" = "--rofi" ]; then
 		getfonts
 		font_rofi
 	
-	elif [[ "$1" == "--terminal" ]]; then
+	elif [ "$1" = "--terminal" ]; then
 		getfonts
 		font_term
 	
-	elif [[ "$1" == "--openbox" ]]; then
+	elif [ "$1" = "--openbox" ]; then
 		getfonts
 		font_ob
 	
-	elif [[ "$1" == "--dunst" ]]; then
+	elif [ "$1" = "--dunst" ]; then
 		getfonts
 		font_dunst
 	
-	elif [[ "$1" == "--gtk" ]]; then
+	elif [ "$1" = "--gtk" ]; then
 		getfonts
 		font_gtk
 	
-	elif [[ "$1" == "--all" ]]; then
+	elif [ "$1" = "--all" ]; then
 		getfonts
 		font_bar
 		font_rofi

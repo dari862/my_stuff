@@ -1,7 +1,4 @@
-#!/bin/bash
-# yautostart: Mabox XDG Autostart GUI script
-# Copyright (C) 2019 napcok <napcok@gmail.com>
-#
+#!/bin/sh
  
 case $LANG in
  	pl*)
@@ -39,8 +36,8 @@ case $LANG in
  	;;
 esac
 
-remove_from_xdg_list=()
-remove_from_xdg_autostart_list=()
+remove_from_xdg_list=""
+remove_from_xdg_autostart_list=""
 config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
 # Copy only new files from /etc/xdg/autostart/
 mkdir -p $config_dir/autostart
@@ -50,42 +47,40 @@ yad_results=$(mktemp --tmpdir autostart.XXXXXXXXXX)
 results=$(mktemp --tmpdir autostart.XXXXXXXXXX)
 
 # $config_dir/autostart list
-if [ -n "$(ls $config_dir/autostart/*.desktop 2>/dev/null)" ] ;then
+if [ -n "$(ls "$config_dir"/autostart/*.desktop 2>/dev/null)" ] ;then
 	for f in $config_dir/autostart/*.desktop; do	
 		echo true >> $get_autostart_apps_
 		echo $f >> $get_autostart_apps_
-		name=$(grep -m 1 -e '^[[:blank:]]*Name=' $f | cut -d = -f 2)
+		name=$(grep -m 1 -e '^[[:blank:]]*Name=' "$f" | cut -d = -f 2)
 		echo "$name" >> $get_autostart_apps_
-		#grep -m 1 -e '^[[:blank:]]*Exec' $f | cut -d = -f 2
-		comment=$(grep -m 1 -e '^[[:blank:]]*Comment=' $f | cut -d = -f 2)
+		comment=$(grep -m 1 -e '^[[:blank:]]*Comment=' "$f" | cut -d = -f 2)
 		if [ -n "$comment" ];then 
 			echo "${comment}"  >> $get_autostart_apps_
 		else
 			echo "$NO_DESC" >> $get_autostart_apps_
 		fi
 		basename_of_f=$(basename $f)
-		remove_from_xdg_autostart_list+=($basename_of_f)
+		remove_from_xdg_autostart_list="$remove_from_xdg_autostart_list $basename_of_f"
 	done
 fi
 # /etc/xdg/autostart list
-xdg_autostart_list=($(ls /etc/xdg/autostart/*.desktop))
+xdg_autostart_list="$(ls /etc/xdg/autostart/*.desktop)"
 
 if [ -n "$remove_from_xdg_autostart_list" ];then
-	for element in "${remove_from_xdg_autostart_list[@]}"; do
-		xdg_autostart_list=("${xdg_autostart_list[@]/$element}")
+	for element in ${remove_from_xdg_autostart_list}; do
+    	xdg_autostart_list="$(echo "$xdg_autostart_list" | sed "s/\b$element\b//g")"
 	done
 fi
 
 unset remove_from_xdg_autostart_list
 
-for f in "${xdg_autostart_list[@]}"; do
+for f in ${xdg_autostart_list}; do
 	if [ -f "$f" ];then
 		echo false >> $get_autostart_apps_
 		echo $f >> $get_autostart_apps_
-		name=$(grep -m 1 -e '^[[:blank:]]*Name=' $f | cut -d = -f 2)
+		name=$(grep -m 1 -e '^[[:blank:]]*Name=' "$f" | cut -d = -f 2)
 		echo "$name" >> $get_autostart_apps_
-		#grep -m 1 -e '^[[:blank:]]*Exec' $f | cut -d = -f 2
-		comment=$(grep -m 1 -e '^[[:blank:]]*Comment=' $f | cut -d = -f 2)
+		comment=$(grep -m 1 -e '^[[:blank:]]*Comment=' "$f" | cut -d = -f 2)
 		if [ -n "$comment" ];then 
 			echo "${comment}"  >> $get_autostart_apps_
 		else

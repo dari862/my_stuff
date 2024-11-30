@@ -1,3 +1,4 @@
+#!/bin/zsh
 if [ -f "/usr/share/my_stuff/bin/bin/pfetch" ]; then
 	pfetch
 fi

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 USAGE="
 lazygit [OPTION]... <msg>
@@ -19,18 +19,18 @@ lazygit [OPTION]... <msg>
         -h, --help              show this help text
 "
 
-function _gconfig {
-	echo -e " Going to create git config."
-	echo -e " Enter user email (leave blank to abort)."
-	echo -n -e " [msg]: "
+_gconfig (){
+	echo " Going to create git config."
+	echo " Enter user email (leave blank to abort)."
+	printf " [msg]: "
 	read msg
-	echo -e " Enter user name (leave blank to abort)."
-	echo -n -e " [msg]: "
+	echo " Enter user name (leave blank to abort)."
+	printf " [msg]: "
 	read msg_2
 
 	if [ -z "$msg" ] || [ -z "$msg_2" ]
 		then
-			echo -e " Aborted."
+			echo " Aborted."
 			echo
 			exit
 	fi
@@ -38,12 +38,12 @@ function _gconfig {
 	git config --global user.name "$msg_2"
 }
 
-function _sshkey {
+_sshkey (){
 	echo  "Generating new ssh keys without a password"
 	ssh-keygen -q -f $HOME/.ssh/git_key -t ecdsa -b 521 -N ""
 }
 
-function _glog {
+_glog (){
 	setterm -linewrap off 2> /dev/null
 
 	git --no-pager log --all --color=always --graph --abbrev-commit --decorate --date-order \
@@ -65,72 +65,72 @@ function _glog {
 	setterm -linewrap on 2> /dev/null
 }
 
-function _status {
+_status (){
 	echo
 
-	echo -e " git status"
+	echo " git status"
 	echo
 	git status
 
 	echo
 }
 
-function _pull {
+_pull (){
 	echo
 
-	echo -e " git pull"
+	echo " git pull"
 	echo
 	git pull
 
 	echo
 }
 
-function _log {
+_log (){
 	echo
 
-	echo -e " git log -1"
+	echo " git log -1"
 	git log -1
 
 	echo
 }
 
-function _send {
+_send (){
 
 	_status
 	
-	if [ -z "`git status --porcelain`" ]
+	if [ -z "$(git status --porcelain)" ]
 		then
-			echo -e " Nothing to commit."
+			echo " Nothing to commit."
 			echo
 			exit
 	fi
 
 
-	echo -e " Going to ADD all, COMMIT and PUSH."
-	echo -e " Enter commit message (leave blank to abort)."
+	echo " Going to ADD all, COMMIT and PUSH."
+	echo " Enter commit message (leave blank to abort)."
 	echo
-	echo -n -e " [msg]: "
+	printf " [msg]: "
 	read msg
 	echo
 
 	if [ -z "$msg" ]
 		then
-			echo -e " Aborted."
+			echo " Aborted."
 			echo
 			exit
 	fi
 
-	echo -e " git add --all"
+	echo " git add --all"
 	echo
 	git add --all
 	echo
 
-	echo -e " git commit -m \"$msg\""
+	echo " git commit -m \"$msg\""
 	echo
 	git commit -m "$msg"
 	echo
 
-	echo -e " git push"
+	echo " git push"
 	echo
 	git push
 	echo
