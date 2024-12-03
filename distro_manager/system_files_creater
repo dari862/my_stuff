@@ -67,27 +67,10 @@ my-superuser mkdir -p "/root/Templates"
 show_im "copy doas.conf to correct location."
 my-superuser cp -r "/usr/share/my_stuff/lib/apps/doas/doas.conf" "/usr/share/my_stuff/system_files/doas.conf"
 
-show_im "prepares for hub script"
-my-superuser mkdir -p "${_hub_script_dir}"
-my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/pmxkcd/pmxkcd "${_hub_script_dir}"
-my-superuser ln -sf ${__distro_path}/bin/not_add_2_path/utilities/* "${_hub_script_dir}"
-my-superuser ln -sf ${__distro_path}/bin/rofi/* "${_hub_script_dir}" 
-my-superuser ln -sf ${__distro_path}/bin/bin/displayselect "${_hub_script_dir}"
-my-superuser ln -sf ${__distro_path}/bin/apps/* "${_hub_script_dir}"
-my-superuser ln -sf ${__distro_path}/bin/not_add_2_path/pmxkcd/pmxkcd "${_hub_script_dir}"
-command -v systemctl >/dev/null 2>&1 && my-superuser rm -f "${_hub_script_dir}"/yautostart
-
-show_im "remove not need script for hub script"
-command -v systemctl >/dev/null 2>&1 && my-superuser ln -sf ${__distro_path}/bin/not_add_2_path/utilities/errcheck "${_hub_script_dir}"
-remove_this_script_="hub rofi-launcher rofi-runner"
-for script in ${remove_this_script_};do
-	my-superuser rm "${_hub_script_dir}"/"$script"
-done
-
 show_im "creating missing dir"
 
-my-superuser mkdir -p "${__distro_path}"/bin/not_add_2_path/distrobox_center/Apps
-my-superuser mkdir -p "${__distro_path}"/bin/not_add_2_path/distrobox_center/Gaming
+my-superuser mkdir -p "${__distro_path}"/bin/my_installer/distrobox_center/Apps
+my-superuser mkdir -p "${__distro_path}"/bin/my_installer/distrobox_center/Gaming
 
 show_im "create uniq system files"
 my-superuser mkdir -p "${__distro_path}"/system_files/updater
@@ -99,8 +82,6 @@ my-superuser mkdir -p "${__distro_path}"/system_files/applications
 
 show_im "LN essional files"
 my-superuser mkdir -p "${__distro_path}"/system_files/bin
-my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/pmxkcd/pmxkcd "${__distro_path}"/system_files/bin/
-command -v systemctl >/dev/null 2>&1 && my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/utilities/errcheck "${__distro_path}"/system_files/bin/
 
 show_im "copy skell file to system_files/skel ."
 my-superuser cp -r "${__distro_path}/skel" "${__distro_path}/system_files"
@@ -112,6 +93,14 @@ my-superuser mkdir -p "${__distro_path}"/system_files/skel/.config/mpd/playlists
 my-superuser touch "${__distro_path}"/system_files/skel/.config/mpd/database
 my-superuser mkdir -p "${__distro_path}"/system_files/skel/.local/share/bash_history
 
+show_im "prepares hub script dir"
+my-superuser mkdir -p "${_hub_script_dir}"
+_script_for_hub="$(grep -rI "# if this line exist script will be part of hub script." "${__distro_path}"/bin | awk -F: '{print $1}')"
+for script in ${_script_for_hub};do
+	my-superuser ln -sf "$script" "${_hub_script_dir}"
+done
+
+show_im "copy extra skell that we need to copy to system_files/skel ."
 if command -v geany >/dev/null ; then
 	show_im "copy geany skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/geany" "${__distro_path}/system_files/skel/.config" 
@@ -236,10 +225,16 @@ if [ -d "${__distro_path}/bin/bin" ] ; then
 	my-superuser ln -sf "${__distro_path}"/bin/bin/* "${__distro_path}"/system_files/bin
 fi
 
+if [ -d "${__distro_path}/bin/extra" ] ; then
+	show_im "exra bin files to system_files/bin ."
+	my-superuser ln -sf "${__distro_path}"/bin/extra/* "${__distro_path}"/system_files/bin
+fi
+
 if [ -d "${__distro_path}/bin/apps" ] ; then
 	show_im "apps bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/apps/* "${__distro_path}"/system_files/bin
 	command -v systemctl >/dev/null 2>&1 && my-superuser rm -f "${__distro_path}"/system_files/bin/yautostart
+	! command -v systemctl >/dev/null 2>&1 && my-superuser rm -f ${__distro_path}/system_files/bin/errcheck
 fi
 
 if [ -d "${__distro_path}/bin/rofi" ] ; then
@@ -279,9 +274,10 @@ show_im "Running script for create_DB.sh --all"
 my-superuser ${__distro_path}/bin/not_add_2_path/create_DB.sh --all
 
 show_im "Running must_create_script."
-for script in "${__distro_path}"/bin/not_add_2_path/must_create_script/*;do
+for script_dir in "${__distro_path}"/bin/must_create_script/*;do
 	show_im "running $(basename "$script"). from must_create_script ."
-	. "$script"/make
+	cd "${script_dir}"
+	./make
 done
 
 show_im "Create keybinds."

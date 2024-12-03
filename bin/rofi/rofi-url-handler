@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# if this line exist script will be part of hub script.
 
 __is_there_arg_="$@"
 

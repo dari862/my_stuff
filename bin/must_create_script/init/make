@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+target_path="/usr/share/my_stuff/system_files/bin/service_manager"
+# openrc
+if command -v rc-service > /dev/null 2>&1; then
+	my-superuser ln -sf "openrc" "${target_path}"
+# systemd	
+else
+	my-superuser ln -sf "systemd" "${target_path}"
+fi

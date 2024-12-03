@@ -1,8 +1,4 @@
 #!/bin/sh
-
-installation_script_name="my-installer"
-_distrobox_center_path='/usr/share/my_stuff/bin/not_add_2_path/distrobox_center'
-
 HELP='    my-install-pipemenu a obmenu Pipe Menu for installing applications
     It should normally be called from a obmenu menu.
 
@@ -11,8 +7,6 @@ Options (usually passed from the menu):
     --openboxmenu   generate xml obmenu pipemenu for installing applications.
     --jgmenu   generate jgmenu pipemenu for installing applications.
     (the package must be in one of the app lists in this file)'
-    
-. "/usr/share/my_stuff/lib/common/DB"
 
 ########################################################################
 
@@ -40,10 +34,10 @@ if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
 	menuItem "ScreenShot" "yadshot.sh"
 	menuItem "URL Downloader" "url_downloader"
 	menuItem "Autostart Manager" "yautostart"
-	menuItem "USB formatter" "hub usb-formatter"
+	menuItem "USB formatter" "usb-formatter"
 	menuItem "Package Manager" "yadstore"
 	menuItem "Script Hub" "hub"
-	menuItem "pmxkcd" "hub pmxkcd"
+	menuItem "pmxkcd" "pmxkcd"
 	if [ $(command -v btmgmt >/dev/null) ] && [ "$(btmgmt info | awk 'BEGIN{split("1.0b 1.1 1.2 2.0 2.1 3.0 4.0 4.1 4.2 5.0 5.1 5.2 5.3",i," ")}')" != "" ] # check bluetooth
 	then
 		menuItem "Bluetooth" "bt-session"
@@ -77,10 +71,10 @@ elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
 	jgmenuItem "ScreenShot" "yadshot.sh"
 	jgmenuItem "URL Downloader" "url_downloader"
 	jgmenuItem "Autostart Manager" "yautostart"
-	jgmenuItem "USB formatter" "hub usb-formatter"
+	jgmenuItem "USB formatter" "usb-formatter"
 	jgmenuItem "Package Manager" "yadstore"
 	jgmenuItem "Script Hub" "hub"
-	jgmenuItem "pmxkcd" "hub pmxkcd"
+	jgmenuItem "pmxkcd" "pmxkcd"
 	if [ $(command -v btmgmt >/dev/null) ] && [ "$(btmgmt info | awk 'BEGIN{split("1.0b 1.1 1.2 2.0 2.1 3.0 4.0 4.1 4.2 5.0 5.1 5.2 5.3",i," ")}')" != "" ] # check bluetooth
 	then
 		jgmenuItem "Bluetooth" "bt-session"

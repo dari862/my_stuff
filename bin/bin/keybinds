@@ -14,7 +14,7 @@ elif [ "$__opt" = "--gui" ] || [ "$__opt" = "-g" ];then
     --fontname=Monospace --button=gtk-close
     exit
 elif [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
-	my-superuser /usr/share/my_stuff/bin/not_add_2_path/must_create_script/keybinds_conf/make
+	my-superuser /usr/share/my_stuff/bin/must_create_script/keybinds_conf/make
 	exit
 elif [ "$__opt" = "--initial-step" ];then
 	if [ $(id -u) -ne 0 ];then

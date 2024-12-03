@@ -1,4 +1,5 @@
 #!/bin/bash
+# if this line exist script will be part of hub script.
 
 opt="${1-}"
 arg_="${2-}"
@@ -88,7 +89,7 @@ Seter_Style_(){
 		# Set random wallpaper for actual rice
 		setbg -d "/usr/share/my_stuff/my_wallpapers/${style}_*"
 	else
-		setbg -r
+		setbg -s "/usr/share/my_stuff/my_wallpapers/${style}_*"
 	fi
 	
 	theme_geany

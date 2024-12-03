@@ -56,20 +56,9 @@ restore(){
 	fi
 }
 
-save_wall(){
-	if command -v xwallpaper >/dev/null ; then
-		if [ -f "$HOME/.config/nitrogen/bg-saved.cfg" ];then
-			tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
-			[xin_-1]
-			file=$op2__
-			mode=5
-			bgcolor=#000000
-			EOF
-		fi
-	else
-		nitrogen --save --set-zoom-fill $color_ $op2__
-		sleep 1
-	fi
+style_wall(){
+	op2__="$(find $op2__ | head -n 1)"
+	set_wall
 }
 
 random_wall(){
@@ -82,12 +71,26 @@ set_wall(){
 	restore
 }
 
+save_wall(){
+	if command -v xwallpaper >/dev/null ; then
+		tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
+		[xin_-1]
+		file=$op2__
+		mode=5
+		bgcolor=#000000
+		EOF
+	else
+		nitrogen --save --set-zoom-fill $color_ $op2__
+		sleep 1
+	fi
+}
+
 main()
 {
 	case $op__ in
 		-r) restore ;;
 		-o) old_bg_ $op2__ ;;
-		-s) set_wall ;;
+		-s) style_wall ;;
 		-S) Save_wall ;;
 		-d) random_wall ;;
 		*) pickbg ;;

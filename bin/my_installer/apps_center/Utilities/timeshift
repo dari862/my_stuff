@@ -1,0 +1,12 @@
+#!/bin/sh
+
+app_name="timeshift"
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+say 'extra config...' 1
+my-superuser mkdir -p /etc/apt/apt.conf.d/
+my-superuser mv "/usr/share/my_stuff/bin/my_installer/timeshift-autosnap-apt/80-timeshift-autosnap-apt" "/etc/apt/apt.conf.d/"
+my-superuser mv "/usr/share/my_stuff/bin/my_installer/timeshift-autosnap-apt/timeshift-autosnap-apt" "/usr/bin/"
+my-superuser mv "/usr/share/my_stuff/bin/my_installer/timeshift-autosnap-apt/timeshift-autosnap-apt" "/etc/"

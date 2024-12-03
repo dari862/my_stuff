@@ -236,7 +236,7 @@ grep -E '^gtk-|^Net/|^Xft/' "$gtkrcfile" | while IFS= read -r line; do
 
   # Print the new line in the desired format with quotes around string values
   case "$value" in
-  	*[!0-9]*)
+  	[0-9])
     	# Non-numeric value, add quotes around it
     	value="$value"
     ;;
@@ -251,3 +251,8 @@ done
 [ -f "$HOME/.xsettingsd" ] && rm -f "$HOME/.xsettingsd"
 [ "$(pidof xsettingsd)" ] && killall -HUP xsettingsd
 xsettingsd >${xsettingsd_error_log} 2>&1 &
+
+file_manager_real="$(basename $(realpath $(which my-file-manager)))"
+if [ "${file_manager_real}" = "pcmanfm" ];then
+	file-manager-session restart >/dev/null 2>&1
+fi

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# if this line exist script will be part of hub script.
 # Load current theme
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"

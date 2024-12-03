@@ -1,4 +1,6 @@
 #!/bin/bash
+# if this line exist script will be part of hub script.
+
 # Title: yadshot
 # Author: simoniz0r
 # Description: Uses yad to provide a simple GUI for using slop to capture screenshots using Imagemagick's import

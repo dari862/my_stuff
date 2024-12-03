@@ -1,5 +1,0 @@
-#!/bin/sh
-echo "cleaning apt"
-my-superuser apt-get -y autoremove
-my-superuser apt-get -y autoclean
-echo "apt cleaned."

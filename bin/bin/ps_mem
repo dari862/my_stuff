@@ -1,23 +1,22 @@
 #!/bin/sh
 #===================================================================================
+if [ "$(id -u)" -ne 0 ]; then
+    echo "[$(date +%y/%m/%d_%H:%M:%S)] $(basename $0) [ ERROR ] You need root level privileges to run script."
+    exit 1
+fi
+
 tput civis
-
-# Prompt for input text
 echo "Text to highlight: "
-read t
-
-# Loop to continuously update the display
-while true; do
-    clear
-    out=$(/usr/share/my_stuff/bin/not_add_2_path/ps_mem.py -S)
-    outl=$(echo "$out" | wc -l)
-    sl=$(tput lines)
-    
-    if [ "$sl" -lt "$outl" ]; then
-        echo "$out" | sed -e "3,$((outl-sl+4))d"
-    else
-        echo "$out"
-    fi
-	sleep 2
-	read input
-done | grep -i --color=auto "^|$t"
+read -r input  
+while true;do
+	clear
+	out=$(/usr/share/my_stuff/bin/not_add_2_path/ps_mem.py -S)
+	outl=$(echo "$out" | wc -l)
+	sl=$(tput lines)
+	if [ "$sl" -lt "$outl" ]; then
+		echo "$out" | sed -e "3,$((outl-sl+4))d"
+	else 
+		echo "$out"
+	fi
+	read -r input
+done | egrep --color=auto -i "^|$t"

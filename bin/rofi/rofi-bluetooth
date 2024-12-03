@@ -1,4 +1,5 @@
 #!/bin/sh
+# if this line exist script will be part of hub script.
 # Depends on:
 #   repositories: rofi, bluez-utils (contains bluetoothctl)
 if [ ! -d /sys/class/bluetooth ]; then

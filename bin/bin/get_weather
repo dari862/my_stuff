@@ -125,7 +125,7 @@ get_weather_report_more(){
 connectiontest() {
     local -i i attempts=${1-0}
     for (( i=0; i < attempts || attempts == 0; i++ )); do
-        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null; then
+        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null 2>&1; then
             return 0
         fi
         if (( i == attempts - 1 )); then # if last attempt
@@ -135,7 +135,8 @@ connectiontest() {
 }
 
 placeholder() {
-    if (( $1 == 1 )) >/dev/null 2>&1;then
+    if [ "$1" = "1" ];then
+    	echo ""
         echo "No internet connection"
         echo "Weather information unavailable"
     else
@@ -147,7 +148,7 @@ placeholder() {
 }
 
 get_json_data_(){
-	if [[ -z $place ]] >/dev/null 2>&1;then
+	if [ -z $place ];then
 		# Geolocate IP:
 		[ ! -f "${latlong_stored_file}" ] && get_scripts --latlong >/dev/null 2>&1
         latlong=$(cat "${latlong_stored_file}")
@@ -157,7 +158,7 @@ get_json_data_(){
         id="lat=$lat&lon=$long"
     else
         # check if numeric id, or placename is being used
-        [[ ${place##*[!0-9]*} ]] >/dev/null 2>&1 && id="id=$place" || id="q=$place"
+        [ ${place##*[!0-9]*} ] && id="id=$place" || id="q=$place"
     fi
 	appid="APPID=$appid"
 	units="&units=$units"
@@ -337,12 +338,11 @@ parse_weather_for_conky_vision(){
 	cp -f $HOME/.config/conky/vision/#fff__32/${forecast4_file}.png ${cache_folder}/forecast-4.png
 }
 
-if [[ -z "$appid" ]] >/dev/null 2>&1;then
+if [ -z "$appid" ];then
     placeholder 0 && exit 1
 else
-    connectiontest 10  
-    if (( $? == 0 )) >/dev/null 2>&1;then
-    	if [[ $units == metric ]] >/dev/null 2>&1;then
+   if connectiontest 10 >/dev/null 2>&1;then
+    	if [ "$units" = "metric" ];then
     		scaleT="°C"
     		scaleV="m/s"
 		else
@@ -352,15 +352,15 @@ else
         # get json data from openweathermap:
         get_json_data_
         
-        if [[ "$__opt" == "-m" ]];then
+        if [ "$__opt" = "-m" ];then
 			get_weather_report_more
-		elif [[ "$__opt" == "-v" ]];then	
+		elif [ "$__opt" = "-v" ];then
 			parse_weather_for_conky_vision
 		else
 			get_weather_report_less
-			if  [[ "${__opt}" = "-i" ]]; then
+			if  [ "$__opt" = "-i" ];then
     			echo "${weather_ICON} ${WEATHER_TEMP}${scaleT}"
-    		elif  [[ "${__opt}" = "-t" ]]; then
+    		elif  [ "$__opt" = "-t" ];then
     			echo "${weather_description}"
 			else
     			echo "${weather_TEXT} ${WEATHER_TEMP}${scaleT}"

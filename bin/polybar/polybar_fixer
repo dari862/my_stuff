@@ -6,12 +6,6 @@
 . "/usr/share/my_stuff/lib/common/polybar"
 . "/usr/share/my_stuff/system_files/disto_icons"
 
-Laptop_Name="$(cat /sys/class/dmi/id/product_version)"
-
-if [ "$Laptop_Name" ]; then
-	Laptop_Thinkpad_X1="$(echo "$Laptop_Name" | tr '[:upper:]' '[:lower:]' | grep 'thinkpad')"
-fi
-
 CARD=""
 BATTERY=""
 ADAPTER=""
@@ -33,7 +27,7 @@ create_system_file_ini() {
 	;;
 	;; RUN for "ADAPTER" : upower -i \$(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]'
 	;;
-	;; RUN for "CARD" : light -L | grep 'backlight' | head -n1 | cut -d'/' -f3
+	;; RUN for "CARD" : ls -1 /sys/class/backlight/ | head -n 1
 	;;
 	;; RUN for "INTERFACE" ethernet : ip link | awk '/UP/ {print \$2}' | tr -d : | grep -v lo | grep "^e" | head -n 1
 	;;
@@ -89,10 +83,8 @@ get_values() {
 		BATTERY=$(upower -i $(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
 	fi
 	
-	if command -v light >/dev/null;then
-		CARD=$(light -L | grep 'backlight' | head -n1 | cut -d'/' -f3)
-	fi
-
+	CARD="$(ls -1 /sys/class/backlight/ | head -n 1)"
+	
 	E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
 	W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
 	
@@ -123,7 +115,7 @@ fix_modules() {
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
 			find $polybar_dir/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
 			find $polybar_dir/panels -type f -exec sed -i 's/ bna / backlight /g' {} +
-		elif echo "$CARD" | grep -q "intel_" || [ -n "$Laptop_Thinkpad_X1" ] ; then
+		elif echo "$CARD" | grep -q "intel_";then
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna / brightness /g' {} +
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / brightness-bar /g' {} +
 			find $polybar_dir/pwidgets -type f -exec sed -i 's/ bna / brightness /g' {} +

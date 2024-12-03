@@ -1,4 +1,6 @@
 #!/bin/sh
+# if this line exist script will be part of hub script.
+
 # The dashboard displays installed applications into a yad-based window. 
 apps_dashboard_tmp="/tmp/$USER/apps-dashboard"
 if [ -d "$apps_dashboard_tmp" ]; then

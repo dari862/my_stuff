@@ -1,7 +1,6 @@
 #!/bin/sh
 
 installation_script_name="popup_terminal"
-_distrobox_center_path='/usr/share/my_stuff/bin/not_add_2_path/distrobox_center'
 
 HELP='    my-install-pipemenu a obmenu Pipe Menu for installing applications
     It should normally be called from a obmenu menu.
@@ -46,7 +45,7 @@ if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
         shift 2
         if [ -n "${tag}" ] && [ -n "${label}" ]; then
         	menuSubmenu "$tag" "$label"
-        	for App in "${@}"; do
+        	for App in ${@}; do
         		App_name=$(echo "${App}" | awk -F"_" '{print $1}')
                 menuItem "Install ${App_name}" "${installation_script_name} --game ${App}"
         	done
@@ -90,7 +89,7 @@ elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
         label=$2
         menu_content="$3"
         shift 2
-        for App in "${@}"; do
+        for App in ${@}; do
         	App_name=$(echo "${App}" | awk -F"_" '{print $1}')
             jgmenuItem "Install ${App_name}" "${installation_script_name} --game ${App}"
         done

@@ -96,9 +96,10 @@ on_graphical_session(){
 tty_menu(){
 	opt_=""
    	clear
+   	printf "Please choose an option \n"
    	echo "1) Logout	  3) Hibernate	    5) Reboot	      7) Quit
 2) Suspend	  4) Hybrid-Sleep   6) Power-Off"
-	read -r "Please choose an option " option
+	read option
 	option="$(echo "${option}" | tr '[:upper:]' '[:lower:]' )"
     case $option in
     	"logout"|1)		opt_="logout";;
@@ -213,23 +214,34 @@ Powermenu
 if [ "$opt_" = "--no-confirm" ] || [ "$opt_" = "-n" ] ;then
 	opt_="${opt2_}"
 else
-	layout="$(grep BUTTON "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 	confirm_it=true
 fi
 
 if on_graphical_session;then
-	if  [ "$opt_" = "--rofi" ]; then	
-		rofi_menu
+	if [ -z "$opt_" ];then
+		show_menu="rofi"
+	elif  [ "$opt_" = "--rofi" ]; then	
+		show_menu="rofi"
 	elif  [ "$opt_" = "--yad" ]; then		
-		yad_menu
-	elif  [ -z "$opt_" ]; then
-		if [ "$confirm_it" = "true" ];then
-			rofi_menu
-		elif  on_terminal; then
-			tty_menu
-		fi
+		show_menu="yad"
+	elif  [ "$opt_" = "--tty" ]; then		
+		show_menu="tty"
+	fi
+elif on_terminal; then
+	if  [ "$opt_" = "--tty" ] || [ -z "$opt_" ];then
+		show_menu="tty"
 	fi
 else
+	printf "$0 : failed to run on_graphical_session and on_terminal."
+	exit 1
+fi
+
+if  [ "$show_menu" = "rofi" ]; then	
+	layout="$(grep BUTTON "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+	rofi_menu
+elif  [ "$show_menu" = "yad" ]; then		
+	yad_menu
+elif  [ "$show_menu" = "tty" ]; then		
 	tty_menu
 fi
 

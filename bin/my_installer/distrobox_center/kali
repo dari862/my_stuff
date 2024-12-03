@@ -1,0 +1,2 @@
+#!/bin/sh
+. "/usr/share/my_stuff/bin/my_installer/distrobox_installer/kali/installer"

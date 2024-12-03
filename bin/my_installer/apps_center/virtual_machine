@@ -1,0 +1,37 @@
+#!/bin/sh
+
+app_name="virtual_machine"
+if command -v virt-manager >/dev/null 2>&1; then
+	virt-manager &
+	exit
+elif command -v virtualbox >/dev/null 2>&1; then
+	virtualbox &
+	exit
+elif command -v vmplayer >/dev/null 2>&1; then
+	vmplayer &
+	exit
+fi
+
+my-installer --tweek "Enable_IOMMU_support" || continue
+printf 'Do you want to install VirtualBox or Virt-manager?    \n[1 or m] for Virt-manager    \n[2 or b] for VirtualBox    \n[3 or v] for VMware player    \nDefaulting to Virt-manager'
+stty -icanon -echo time 0 min 1
+REPLY="$(head -c1)"
+stty icanon echo
+[ -z "$REPLY" ] && REPLY="1"
+case "$REPLY" in
+	1|m|M)
+		. "/usr/share/my_stuff/bin/my_installer/virt/virt-manager/virt-manager"
+	;;
+	2|b|B)
+		. "/usr/share/my_stuff/bin/my_installer/virt/virtualbox"
+	;;
+	3|v|V)
+		. "/usr/share/my_stuff/bin/my_installer/virt/vmplayer"
+	;;
+	*)
+		echo "$0: no such install option $REPLY"
+    	continue
+    ;;
+esac
+clear 
+say ' --- Installtion Complated --- ' && say '  Press any key to exit' 'pause'

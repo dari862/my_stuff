@@ -150,8 +150,8 @@ time1_font = Sans bold 11
 clock_font_color = #b5b5b5 100
 clock_padding = 12 4
 clock_background_id = 0
-clock_lclick_command = tint2_scripts --calendar
-clock_rclick_command = tint2_scripts --calendar
+clock_lclick_command = distro_scripts --calendar
+clock_rclick_command = distro_scripts --calendar
 
 # Tooltips
 tooltip = 1

@@ -10,11 +10,11 @@ opt="${1-}"
 . "/usr/share/my_stuff/lib/common/openbox"
 
 # Directories
-_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/apps_center"
-_DISTROBOX_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/distrobox_center"
-_CONTAINERS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/containers_center"
-_CHROOTS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/chroots_center"
-_TWEEKS_DIR="/usr/share/my_stuff/bin/not_add_2_path/tweeks_center"
+_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/apps_center"
+_DISTROBOX_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/distrobox_center"
+_CONTAINERS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/containers_center"
+_CHROOTS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_center"
+_TWEEKS_DIR="/usr/share/my_stuff/bin/my_installer/tweeks_center"
 
 # Helper function to check if a command is installed
 is_installed() {
@@ -25,30 +25,36 @@ is_installed() {
 create_db_from_dirs() {
   dir="$1"
   db_path="$2"
-
+  remove_this="$3"	
   # Ensure db_path exists
   mkdir -p "$db_path"
 
   # Iterate over subdirectories in the specified directory
-  for d in "$dir"/*/; do
-    # Extract the base name of the directory (e.g., last part of the path)
-    dir_name=$(basename "$d")
-
-    # If the corresponding file already exists in the db_path, remove it
-    if [ -f "${db_path}/$dir_name" ]; then
-      rm "${db_path}/$dir_name"
-    fi
-
-    # Create the db file for the directory
-    touch "${db_path}/$dir_name"
-
-    # Iterate over the files in the subdirectory (ignoring directories)
-    for app in "$d"/*; do
-      if [ -f "$app" ] && ! is_installed "$(basename "$app")"; then
-        echo "$(basename "$app")" >> "$db_path/$dir_name"
-      fi
-    done
-  done
+	for d in "$dir"/*/; do
+    	# Extract the base name of the directory (e.g., last part of the path)
+    	dir_name=$(basename "$d")
+	
+    	# If the corresponding file already exists in the db_path, remove it
+    	if [ -f "${db_path}/$dir_name" ]; then
+      		rm "${db_path}/$dir_name"
+    	fi
+	
+    	# Create the db file for the directory
+    	touch "${db_path}/$dir_name"
+	
+    	# Iterate over the files in the subdirectory (ignoring directories)
+    	for app in "$d"/*; do
+      		if [ -f "$app" ] && ! is_installed "$(basename "$app")"; then
+        		echo "$(basename "$app")" >> "$db_path/$dir_name"
+      		fi
+    	done
+    	[ ! -s "$db_path/$dir_name" ] && rm -f "$db_path/$dir_name"
+	done
+	if [ -n "$remove_this" ];then
+		for d in $remove_this; do
+			rm -rdf "${db_path}/$d"
+		done
+	fi
 }
 
 # Create the Tweeks database
@@ -67,7 +73,7 @@ create_tweeks_db() {
     # Skip if it's not a file (can be a subdirectory or something else)
     if [ -f "$tweek" ]; then
       # Check if the tweek is not enabled
-      if ${tweek} --is-enable; then
+      if ! ${tweek} --is-enable; then
         echo "$(basename "$tweek")" >> "${tweeks_db_path}"
       fi
     fi
@@ -76,7 +82,7 @@ create_tweeks_db() {
 
 # Create apps and gaming database
 create_apps_db_and_gaming_db() {
-  create_db_from_dirs "${_SCRIPTS_LIBDIR}" "${apps_db_path}"
+  create_db_from_dirs "${_SCRIPTS_LIBDIR}" "${apps_db_path}" "Gaming"
   create_db_from_dirs "${_SCRIPTS_LIBDIR}/Gaming" "${gaming_db_path}"
 }
 

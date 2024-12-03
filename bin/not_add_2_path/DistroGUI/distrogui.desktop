@@ -1,7 +1,0 @@
-[Desktop Entry]
-Exec=distrogui
-Type=Application
-Name=DistroGUI
-Icon=/usr/share/my_stuff/bin/not_add_2_path/DistroGUI/dg-icon.svg
-Categories=Application;
-Terminal=false

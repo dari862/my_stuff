@@ -25,14 +25,14 @@ do
     esac
 done
 
-_APPS_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/apps_center"
-_TWEEKS_LIBDIR='/usr/share/my_stuff/bin/not_add_2_path/tweeks_center'
-_CHROOTS_LIBDIR='/usr/share/my_stuff/bin/not_add_2_path/chroots_center'
+_APPS_LIBDIR="/usr/share/my_stuff/bin/my_installer/apps_center"
+_TWEEKS_LIBDIR='/usr/share/my_stuff/bin/my_installer/tweeks_center'
+_CHROOTS_LIBDIR='/usr/share/my_stuff/bin/my_installer/chroots_center'
 
-_DISTROBOX_LIBDIR="/usr/share/my_stuff/bin/not_add_2_path/distrobox_center"
-distrobbox_script_installer_path="/usr/share/my_stuff/bin/not_add_2_path/distrobox_installer" # used to source file
+_DISTROBOX_LIBDIR="/usr/share/my_stuff/bin/my_installer/distrobox_center"
+distrobbox_script_installer_path="/usr/share/my_stuff/bin/my_installer/distrobox_installer" # used to source file
 
-_containers_center_path="/usr/share/my_stuff/bin/not_add_2_path/containers_center"
+_containers_center_path="/usr/share/my_stuff/bin/my_installer/containers_center"
 _CONTAINERS_LIBDIR="${_containers_center_path}"
 _DEPLOYED_CONTAINERS_LIBDIR="/usr/share/my_stuff/system_files/deployed_containers/deployed"
 
@@ -59,8 +59,8 @@ install_distrobox(){
 		box_app_location="$(find ${_APPS_LIBDIR}/ -name ${box_app_name})"
 		if command -v $box_app_name 2>/dev/null && dpkg -s $box_app_name >/dev/null 2>&1;then
 			my-superuser touch '/usr/share/my_stuff/system_files/Distrobox_ready'
-			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui.desktop /usr/share/applications
-			my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui /usr/share/my_stuff/system_files/bin
+			my-superuser ln -sf /usr/share/my_stuff/bin/my_installer/DistroGUI/distrogui.desktop /usr/share/applications
+			my-superuser ln -sf /usr/share/my_stuff/bin/my_installer/DistroGUI/distrogui /usr/share/my_stuff/system_files/bin
 			return
 		fi
 			
@@ -74,8 +74,8 @@ install_distrobox(){
 			
 		Package_installer_ ${box_app_name} || failed_to_run "failed to install ${box_app_name}"
 			
-		my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui.desktop /usr/share/applications
-		my-superuser ln -sf /usr/share/my_stuff/bin/not_add_2_path/DistroGUI/distrogui /usr/share/my_stuff/system_files/bin
+		my-superuser ln -sf /usr/share/my_stuff/bin/my_installer/DistroGUI/distrogui.desktop /usr/share/applications
+		my-superuser ln -sf /usr/share/my_stuff/bin/my_installer/DistroGUI/distrogui /usr/share/my_stuff/system_files/bin
 			
 		my-superuser touch '/usr/share/my_stuff/system_files/Distrobox_ready'
 
@@ -121,7 +121,7 @@ install_container_software(){
 				logout_now
 			else
 				my-superuser ln -sf "$(my-superuser which $container_software)" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
-				my-superuser ln -sf "/usr/share/my_stuff/bin/not_add_2_path/create_containers" "/usr/share/my_stuff/system_files/bin"
+				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_containers" "/usr/share/my_stuff/system_files/bin"
 				my-superuser rm -f '/usr/share/my_stuff/system_files/Container_Group'
 			fi
 		fi

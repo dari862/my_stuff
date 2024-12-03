@@ -1,5 +1,6 @@
 #!/bin/sh
- 
+# if this line exist script will be part of hub script.
+
 case $LANG in
  	pl*)
  		TITLE="Edytor autostartu XDG"

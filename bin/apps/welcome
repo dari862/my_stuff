@@ -1,4 +1,6 @@
 #!/bin/sh
+# if this line exist script will be part of hub script.
+
 #===================================================================================
 # FILE: welcome
 # DESCRIPTION: show yad dialog with Openbox welcome text
