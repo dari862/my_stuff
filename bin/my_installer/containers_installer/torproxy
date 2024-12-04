@@ -3,7 +3,7 @@ set -e
 cd "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/torproxy/"
 container_name="torproxy"
 
-. ENV
+. ./ENV
 
 my-superuser sed -i "s/__ControlPort=.*/__ControlPort=${__ControlPort}/g" Dockerfile
 my-superuser sed -i "s/__ControlPort=.*/__ControlPort=${__ControlPort}/g" ContainerTorRunner.sh

@@ -12,7 +12,7 @@ my-superuser chroot "$CUPS_CHROOT_DIR" bash -c "
 	adduser $CHROOT_USER lpadmin
 " || failed_to_run "Failed to install ${_CUPS_NAME} in chroot"
 
-say "Creating launch script to run $_CUPS_NAME from the host..."
+say "Creating script to run $_CUPS_NAME from the host..."
 my-superuser tee "$CHROOT_SCRIPT_PATH/${ENABLE_CUPS}" > /dev/null <<- EOF
 #!/bin/sh
 if ! mountpoint -q "$CUPS_CHROOT_DIR/proc"; then
@@ -31,35 +31,35 @@ chroot "$CUPS_CHROOT_DIR" su - $CHROOT_USER -c "export DISPLAY=:0.0 && system-co
 EOF
 my-superuser chmod 755 "$CHROOT_SCRIPT_PATH/${CUPS_GUI}" || failed_to_run "Failed to set execute permission on launch script"
 
-say "Creating launch script to run $_CUPS_NAME from the host..."
+say "Creating script to run $_CUPS_NAME from the host..."
 my-superuser tee "$LAUNCH_SCRIPT_PATH/${ENABLE_CUPS}" > /dev/null <<- EOF
 #!/bin/sh
-my-superuser \"$CHROOT_SCRIPT_PATH/$ENABLE_CUPS\"
+my-superuser "$CHROOT_SCRIPT_PATH/$ENABLE_CUPS"
 EOF
 my-superuser chmod 755 "$LAUNCH_SCRIPT_PATH/${ENABLE_CUPS}" || failed_to_run "Failed to set execute permission on launch script"
 
 my-superuser tee "$LAUNCH_SCRIPT_PATH/${CUPS_GUI}" > /dev/null <<- EOF
 #!/bin/sh
-my-superuser \"$CHROOT_SCRIPT_PATH/$CUPS_GUI\"
+my-superuser "$CHROOT_SCRIPT_PATH/$CUPS_GUI"
 EOF
 my-superuser chmod 755 "$LAUNCH_SCRIPT_PATH/${CUPS_GUI}" || failed_to_run "Failed to set execute permission on launch script"
 
 if [ -f "/etc/doas.conf" ];then
 	my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
-	permit persist :users as root cmd $LAUNCH_SCRIPT_PATH/${ENABLE_CUPS}
-	permit persist :users as root cmd $LAUNCH_SCRIPT_PATH/${CUPS_GUI}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${ENABLE_CUPS}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${CUPS_GUI}
 	EOF
 else
 	my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
-	permit persist :users as root cmd $LAUNCH_SCRIPT_PATH/${ENABLE_CUPS}
-	permit persist :users as root cmd $LAUNCH_SCRIPT_PATH/${CUPS_GUI}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${ENABLE_CUPS}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${CUPS_GUI}
 	EOF
 fi
 
 if [ -d "/etc/sudoers.d" ];then
 	my-superuser tee "/etc/sudoers.d/${CUPS_CHROOT_NAME}" > /dev/null <<- EOF
-	%users ALL=(ALL) NOPASSWD: $LAUNCH_SCRIPT_PATH/${ENABLE_CUPS}
-	%users ALL=(ALL) NOPASSWD: $LAUNCH_SCRIPT_PATH/${CUPS_GUI}
+	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/${ENABLE_CUPS}
+	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/${CUPS_GUI}
 	EOF
 	my-superuser chmod 400 "/etc/sudoers.d/${CUPS_CHROOT_NAME}"
 fi

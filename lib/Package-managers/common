@@ -58,7 +58,7 @@ prompt() {
 			answer="$(head -c1)"
 			stty icanon echo
             echo
-            if [ "$answer" = "Q" ]; then
+            if [ "$answer" = "Q" ] || [ "$answer" = "q" ]; then
                 return 0
             elif [ -z "$answer" ]; then
                 return 1

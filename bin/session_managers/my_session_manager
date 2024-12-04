@@ -52,15 +52,16 @@ _suspend(){
 }
 
 extra_stuff(){
+	failed_to_extra_stuff=false
 	[ "$confirm_it" = true ] && confirmation_dialog
 	# hibernate | hybrid-sleep | suspend-then-hibernate | reboot | poweroff
 	# The systemd or elogind compatibility magic.   #
 	if command -v systemctl >/dev/null 2>&1;then
-		systemctl "$1"
+		systemctl "$1" >/dev/null 2>&1 || failed_to_extra_stuff=true
 	else
-		loginctl "$1"
+		loginctl "$1" >/dev/null 2>&1 || failed_to_extra_stuff=true
 	fi
-	exit $?
+	[ "$failed_to_extra_stuff" = true ] && echo "failed to extra_stuff $1 switching to sudo $1"  && my-superuser $1
 }
 
 _lock(){

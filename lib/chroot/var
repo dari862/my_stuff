@@ -19,7 +19,7 @@ _TOR_USER="tor"
 #cups
 _CUPS_NAME="cups"
 CUPS_GUI="chroot-cups-gui"
-ENABLE_CUPS="chroot-enable-cups"
+ENABLE_CUPS="chroot-cups-enable-web"
 
 #browser
 BROWSERS_CHROOT_NAME="chroot-browsers"

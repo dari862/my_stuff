@@ -326,12 +326,6 @@ stop_tor(){
 	fi
 }
 
-restart_tor(){
-	stop_tor
-	sleep 1
-	start_tor
-}
-
 __arg_=\"\${1-}\"
 
 case \"\$__arg_\" in
@@ -342,30 +336,26 @@ start)
 stop)
 	stop_tor
 	;;
-
-restart)
-	restart_tor
-	;;
-*)
-	echo \"Usage: $0 {start|stop|restart}\"
-	;;
 esac
 " | my-superuser tee -a "$CHROOT_SCRIPT_PATH/$start_torproxy_script_name" > /dev/null
 my-superuser chmod +x "$CHROOT_SCRIPT_PATH/$start_torproxy_script_name" || failed_to_run "Failed to set execute permission on launch script"
 
-echo '#!/bin/sh' | my-superuser tee "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" > /dev/null
-echo "
-set -e
-my-superuser \"$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name\"
-" | my-superuser tee -a "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" > /dev/null
+my-superuser tee "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" > /dev/null <<- EOF
+#!/bin/sh
+my-superuser "$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name"
+EOF
 my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" || failed_to_run "Failed to set execute permission on launch script"
 
-echo '#!/bin/sh' | my-superuser tee "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_start" > /dev/null
-echo "my-superuser \"$CHROOT_SCRIPT_PATH/$start_torproxy_script_name\" start" | my-superuser tee -a "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_start"  > /dev/null
+my-superuser tee "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_start" > /dev/null <<- EOF
+#!/bin/sh
+my-superuser "$CHROOT_SCRIPT_PATH/$start_torproxy_script_name" start
+EOF
 my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_start" || failed_to_run "Failed to set execute permission on launch script"
 
-echo '#!/bin/sh' | my-superuser tee "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_stop" > /dev/null
-echo "my-superuser \"$CHROOT_SCRIPT_PATH/$start_torproxy_script_name\" stop" | my-superuser tee -a "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_stop"  > /dev/null
+my-superuser tee "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_stop" > /dev/null <<- EOF
+#!/bin/sh
+my-superuser "$CHROOT_SCRIPT_PATH/$start_torproxy_script_name" stop
+EOF
 my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/${start_torproxy_script_name}_stop" || failed_to_run "Failed to set execute permission on launch script"
 
 if [ -f "/etc/doas.conf" ];then
