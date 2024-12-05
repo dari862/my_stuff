@@ -275,7 +275,7 @@ my-superuser ${__distro_path}/bin/not_add_2_path/create_DB.sh --all
 
 show_im "Running must_create_script."
 for script_dir in "${__distro_path}"/bin/must_create_script/*;do
-	show_im "running $(basename "$script"). from must_create_script ."
+	show_im "running $(basename "$script_dir"). from must_create_script ."
 	cd "${script_dir}"
 	./make
 done

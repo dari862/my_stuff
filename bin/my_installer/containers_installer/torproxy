@@ -155,7 +155,7 @@ stop_tor(){
 		my-superuser iptables -X
 		my-superuser iptables -t nat -X
 		my-superuser iptables -t mangle -X
-		if my-superuser iptables-restore < \"$RULES\";then
+		if my-superuser sh -c 'iptables-restore < \"$RULES\"';then
 			my-superuser rm -f \"$RULES\"
 			start_ufw
 		fi

@@ -36,7 +36,6 @@ say() {
     width=$(tput cols 2>/dev/tty)
     echo "$1" | fold -s -w $((width - 3)) | sed 's/^/  /' # wraps text nicely and adds two leading spaces
     if [ "${2}" = 'pause' ]; then
-        echo 'Press any key to continue.'
         stty -icanon -echo time 0 min 1
 		head -c1 >/dev/null
 		stty icanon echo
