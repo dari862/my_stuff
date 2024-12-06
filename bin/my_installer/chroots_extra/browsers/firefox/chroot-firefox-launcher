@@ -1,0 +1,5 @@
+#!/bin/sh
+if ! mountpoint -q "/usr/share/my_stuff/system_files/chroots/chroot-browsers/proc"; then
+	mount --bind "/proc" "/usr/share/my_stuff/system_files/chroots/chroot-browsers/proc"
+fi
+chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" su - chrootuser -c "export DISPLAY=:0.0 && firefox"

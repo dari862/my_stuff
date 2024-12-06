@@ -1,0 +1,151 @@
+#!/bin/sh
+set -e
+. "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/torproxy/ENV"
+REAL_CONTAINER_RT="$(readlink -f $(which CONTAINER_RT))"
+RULES="/usr/share/my_stuff/system_files/tor-router.save"
+
+__arg_="${1-}"
+
+if dpkg -s ufw >/dev/null 2>&1;then
+	ignore_ufw=false
+	if my-superuser ufw status | grep -q "inactive";then
+		ignore_ufw=true
+	fi
+else
+	ignore_ufw=true
+fi
+
+check_tor_container(){
+	# Most of this is from
+	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
+	
+	### set variables
+	# destinations you don't want routed through Tor
+	_tor_container=""
+	_tor_container_exit=""
+	__tor_mode=""
+	_non_tor="192.168.1.0/24 192.168.0.0/24"
+	_tor_container_all="$($REAL_CONTAINER_RT ps -a | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
+	_tor_container_exit="$($REAL_CONTAINER_RT ps -a --filter 'status=exited' | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
+		
+	if [ -z "$_tor_container_all" ]; then
+	 __tor_mode="create"
+	fi
+	
+	if [ -n "$_tor_container_exit" ]; then
+	 __tor_mode="start"
+	fi
+	
+	### get the container tor runs in
+	if [ "$__tor_mode" = "create" ]; then
+    	echo 'ERROR: tor proxy container not running.'
+    	echo 'running container.'
+    	echo "$REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy"
+    	if ! $REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy;then
+    		echo 'ERROR: failed to create container.'
+    		exit 1
+    	fi
+    	
+    	sleep 1
+	fi
+    
+    _tor_container="$($REAL_CONTAINER_RT ps | awk '/torproxy/ {print $NF; quit}' | head -1)"
+    
+    if [ "$__tor_mode" = "start" ]; then
+    	if ! $REAL_CONTAINER_RT start $_tor_container >/dev/null 2>&1;then
+    		echo 'ERROR: failed to run container.'
+    		exit 1
+    	fi
+	fi
+}
+
+stop_ufw(){
+	if [ "$ignore_ufw" = "true" ];then
+		return
+	fi
+	my-superuser ufw disable >/dev/null 2>&1
+}
+
+start_ufw(){
+	if [ "$ignore_ufw" = "true" ];then
+		return
+	fi
+	my-superuser ufw enable >/dev/null 2>&1
+}
+
+start_tor(){
+	# Most of this is from
+	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
+	# destinations you don't want routed through Tor
+	if test -f "$RULES"; then
+		echo "$RULES exists. Either delete it, or stop tor-router first."
+		exit 1
+	else
+		stop_ufw
+		# Only save the rules when we are sure that everything is working
+		if ! my-superuser iptables-save | my-superuser tee "$RULES" >/dev/null 2>&1;then
+			echo "failed to create $RULES existing."
+		fi
+		my-superuser chmod 700 "$RULES"
+		
+		### flush iptables
+		my-superuser iptables -F
+		my-superuser iptables -t nat -F
+		
+		### set iptables *nat to ignore tor user
+		my-superuser iptables -t nat -A OUTPUT -m owner --uid-owner $__UUID -j RETURN
+		
+		### redirect all DNS output to tor's DNSPort
+		my-superuser iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $__DNSPort
+		
+		### set iptables *filter
+		my-superuser iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+		
+		### allow clearnet access for hosts in $_non_tor
+		for _clearnet in $_non_tor 127.0.0.0/8; do
+   			my-superuser iptables -t nat -A OUTPUT -d $_clearnet -j RETURN
+   			my-superuser iptables -A OUTPUT -d $_clearnet -j ACCEPT
+		done
+		
+		### redirect all other output to tor's TransPort
+		my-superuser iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $__TransPort
+		
+		### allow only tor output
+		my-superuser iptables -A OUTPUT -m owner --uid-owner $__UUID -j ACCEPT
+		my-superuser iptables -A OUTPUT -j REJECT
+	fi
+}
+
+stop_tor(){
+	if test -f "$RULES"; then
+		echo "Restoring previous rules from $RULES"
+		my-superuser iptables -F
+		my-superuser iptables -t nat -F
+		my-superuser iptables -t mangle -F
+		my-superuser iptables -X
+		my-superuser iptables -t nat -X
+		my-superuser iptables -t mangle -X
+		if my-superuser sh -c "iptables-restore < \"$RULES\"";then
+			my-superuser rm -f "$RULES"
+			start_ufw
+		fi
+	else
+		echo "$RULES does not exist. Not doing anything."
+		exit
+	fi
+}
+
+case "$__arg_" in
+	start)
+		check_tor_container
+		start_tor
+		;;
+	
+	stop)
+		stop_tor
+		;;
+	*)
+		check_tor_container
+		start_tor
+		;;
+esac

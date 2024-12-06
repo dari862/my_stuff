@@ -164,3 +164,11 @@ fi
 __dpkg_configure() {
     my-superuser dpkg --configure -a
 }
+
+
+my_installer_ln_script() {
+	my-superuser mkdir -p ${distro_path}/updater
+	my-superuser mkdir -p ${distro_path}/downloaded
+	my-superuser ln -sf "/usr/share/my_stuff/bin/script_to_ln/${2}" "/usr/share/my_stuff/system_files/updater"
+	"/usr/share/my_stuff/system_files/updater/${2}" 
+}

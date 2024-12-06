@@ -1,5 +1,6 @@
 #!/bin/sh
 ROOT_CHROOT_DIR="/usr/share/my_stuff/system_files/chroots"
+EXTRA_CHROOT_DIR="/usr/share/my_stuff/bin/my_installer/chroots_extra"
 LAUNCH_SCRIPT_PATH="/usr/share/my_stuff/system_files/bin"
 CHROOT_SCRIPT_PATH="/usr/share/my_stuff/system_files/chroots_scripts"
 CHROOT_USER="chrootuser"
@@ -24,13 +25,23 @@ ENABLE_CUPS="chroot-cups-enable-web"
 #browser
 BROWSERS_CHROOT_NAME="chroot-browsers"
 chroot_default_browser_name="chroot-browser"
+SCRIPT_NAME="chroot-${APP_NAME}"
+LAUNCHER_SCRIPT_NAME="chroot-${APP_NAME}-launcher"
 
+#tor
 TOR_CHROOT_NAME="chroot-${_TOR_NAME}"
 CUPS_CHROOT_NAME="chroot-${_CUPS_NAME}"
 
-RULES="${CHROOT_SCRIPT_PATH}/tor-router.save"
+#cups
 CUPS_CHROOT_DIR="${ROOT_CHROOT_DIR}/${CUPS_CHROOT_NAME}"
+
+#browser
 BROWSERS_CHROOT_DIR="${ROOT_CHROOT_DIR}/${BROWSERS_CHROOT_NAME}"
-TOR_CHROOT_DIR="${ROOT_CHROOT_DIR}/${TOR_CHROOT_NAME}"
-launch_default_chroot_browser="${LAUNCH_SCRIPT_PATH}/${chroot_default_browser_name}"
+Extra_chroot_browser="${EXTRA_CHROOT_DIR}/browsers/${APP_NAME}"
+launch_default_chroot_browser="${Extra_chroot_browser}/${chroot_default_browser_name}"
+launch_chroot_browser="${Extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}"
 my_www_browser_path="${LAUNCH_SCRIPT_PATH}/my-www-browser"
+
+#tor
+RULES="${CHROOT_SCRIPT_PATH}/tor-router.save"
+TOR_CHROOT_DIR="${ROOT_CHROOT_DIR}/${TOR_CHROOT_NAME}"s

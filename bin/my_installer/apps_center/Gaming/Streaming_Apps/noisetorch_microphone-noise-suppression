@@ -1,35 +1,6 @@
 #!/bin/sh
 
 app_name="noisetorch"
-
-install_NoiseTorch(){
-	my-superuser tee /tmp/NoiseTorch_updater_my_stuff <<- 'EOF' > /dev/null 
-  		#!/bin/sh
-		set -e
-		. "/usr/share/my_stuff/system_files/Package-manager"
-		download_url="$(getURL '2term' 'https://api.github.com/repos/noisetorch/NoiseTorch/releases/latest' \
-  		| grep '"browser_download_url"' \
-  		| grep '.tgz' \
-  		| cut -f2,3 -d':' \
-  		| tr -d '"' \
-  		| head -1)" 
-		getURL 'download2' "${download_url}" "/tmp/NoiseTorch.tgz"
-		mkdir -p /tmp/NoiseTorch
-		tar -C /tmp/NoiseTorch -h -xzf /tmp/NoiseTorch.tgz
-		cd /tmp/NoiseTorch/.local
-		cp -r bin/noisetorch /usr/share/my_stuff/system_files/bin/
-		cp -r share/applications/noisetorch.desktop /usr/share/my_stuff/system_files/applications
-		mkdir -p /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps
-		cp -r share/icons/hicolor/256x256/apps/noisetorch.png /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps
-		ln -sf /usr/share/my_stuff/system_files/applications/noisetorch.desktop /usr/share/applications
-		ln -sf /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps/noisetorch.png /usr/share/icons/hicolor/256x256/apps
-		gtk-update-icon-cache
-		setcap 'CAP_SYS_RESOURCE=+ep' /usr/share/my_stuff/system_files/bin/noisetorch
-	EOF
-	my-superuser chmod +x /tmp/NoiseTorch_updater_my_stuff
-	my-superuser /tmp/NoiseTorch_updater_my_stuff
-}
-
 if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
 	say 'Updating sources...' 1
 	Distrobox_Package_update_	
@@ -41,5 +12,5 @@ else
 	Package_update_
 	clear
 	say 'Installing package...' 1
-	install_NoiseTorch
+	my_installer_ln_script "NoiseTorch_updater"  || failed_to_run "failed to run NoiseTorch_updater ."
 fi	

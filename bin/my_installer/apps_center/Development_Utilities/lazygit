@@ -11,22 +11,6 @@ if [ "${no_neovim}" = "no_neovim" ];then
 	say "Installing Neovim..." 1
 	install_as_dependency Neovim
 fi
-say "Create ${Title} updater and installer..." 1
-my-superuser mkdir -p ${distro_path}/updater
-my-superuser mkdir -p ${distro_path}/downloaded
-my-superuser tee ${distro_path}/updater/lazygit_updater <<- 'EOF' > /dev/null
-#!/bin/sh
-distro_path="/usr/share/my_stuff/system_files"
-PATH="${distro_path}/bin:$PATH"
-lazygit_tmp="$(mktemp -d /tmp/lazygit-XXXXXX)"
-cd ${lazygit_tmp}
-lazygit_version=$(getURL '2term' "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-getURL 'download2' "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${lazygit_version}_Linux_x86_64.tar.gz" "lazygit.tar.gz"
-tar -xf lazygit.tar.gz lazygit
-my-superuser install lazygit ${distro_path}/bin
-rm lazygit.tar.gz lazygit
-EOF
-my-superuser chmod +x ${distro_path}/updater/lazygit_updater
 
 say "Installing ${Title} updater and installer..." 1
-${distro_path}/updater/lazygit_updater || failed_to_run "failed to run lazygit_updater ."
+my_installer_ln_script "lazygit_updater" || failed_to_run "failed to run lazygit_updater ."

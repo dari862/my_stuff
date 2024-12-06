@@ -8,26 +8,5 @@ localsend_skel_path="${skel_path}/.config/localsend"
 
 __choice=""
 
-say "Create ${app_name} updater and installer..." 1
-
-my-superuser tee /tmp/localsend_updater <<- 'EOF' > /dev/null
-#!/bin/sh
-. "/usr/share/my_stuff/system_files/Package-manager"
-distro_path="/usr/share/my_stuff/system_files"
-
-localsend_tmp="$(mktemp -d /tmp/localsend-XXXXXX)"
-cd ${localsend_tmp}
-localsend_version=$(getURL '2term' "https://api.github.com/repos/jesseduffield/localsend/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-getURL 'download2' "https://github.com/localsend/localsend/releases/latest/download/LocalSend-${LOCALSEND_VERSION}-linux-x86-64.deb" "localsend.deb"
-my-superuser apt install -y ./localsend.deb
-rm localsend.tar.gz localsend
-EOF
-
-my-superuser chmod +x /tmp/localsend_updater
-my-superuser chown root:root /tmp/localsend_updater
-my-superuser mkdir -p ${distro_path}/updater
-my-superuser mkdir -p ${distro_path}/downloaded
-my-superuser mv /tmp/localsend_updater ${distro_path}/updater
-
 say "Installing ${app_name} updater and installer..." 1
-${distro_path}/updater/localsend_updater || failed_to_run "failed to run localsend_updater ."
+my_installer_ln_script "localsend_updater" || failed_to_run "failed to run localsend_updater ."

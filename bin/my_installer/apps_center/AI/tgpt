@@ -15,5 +15,4 @@ else
 fi
 
 say 'Installing tgpt ...' 1
-getURL '2term' "https://github.com/aandrew-me/tgpt/releases/latest/download/tgpt-${OS}-${ARCH}" | my-superuser tee /usr/share/my_stuff/system_files/bin/tgpt >/dev/null 2>&1 || continue
-my-superuser chmod +x /usr/share/my_stuff/system_files/bin/tgpt
+my_installer_ln_script "tgpt_updater" || failed_to_run "failed to run tgpt_updater ."

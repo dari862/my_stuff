@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+getURL '2term' "https://github.com/aandrew-me/tgpt/releases/latest/download/tgpt-${OS}-${ARCH}" | my-superuser tee /usr/share/my_stuff/system_files/bin/tgpt >/dev/null 2>&1
+my-superuser chmod +x /usr/share/my_stuff/system_files/bin/tgpt

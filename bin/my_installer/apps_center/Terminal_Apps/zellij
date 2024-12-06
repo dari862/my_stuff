@@ -8,26 +8,5 @@ zellij_skel_path="${skel_path}/.config/zellij"
 
 __choice=""
 
-say "Create ${app_name} updater and installer..." 1
-
-my-superuser tee /tmp/zellij_updater <<- 'EOF' > /dev/null
-#!/bin/sh
-. "/usr/share/my_stuff/system_files/Package-manager"
-distro_path="/usr/share/my_stuff/system_files"
-
-zellij_tmp="$(mktemp -d /tmp/zellij-XXXXXX)"
-cd ${zellij_tmp}
-getURL 'download2' "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz" "zellij.tar.gz"
-tar -xf zellij.tar.gz zellij
-install zellij ${distro_path}/bin
-rm zellij.tar.gz zellij
-EOF
-
-my-superuser chmod +x /tmp/zellij_updater
-my-superuser chown root:root /tmp/zellij_updater
-my-superuser mkdir -p ${distro_path}/updater
-my-superuser mkdir -p ${distro_path}/downloaded
-my-superuser mv /tmp/zellij_updater ${distro_path}/updater
-
 say "Installing ${app_name} updater and installer..." 1
-my-superuser ${distro_path}/updater/zellij_updater || failed_to_run "failed to run zellij_updater ."
+my_installer_ln_script "zellij_updater" || failed_to_run "failed to run zellij_updater ."

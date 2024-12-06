@@ -1,0 +1,10 @@
+#!/bin/sh
+. "/usr/share/my_stuff/system_files/Package-manager"
+distro_path="/usr/share/my_stuff/system_files"
+
+zellij_tmp="$(mktemp -d /tmp/zellij-XXXXXX)"
+cd ${zellij_tmp}
+getURL 'download2' "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz" "zellij.tar.gz"
+tar -xf zellij.tar.gz zellij
+install zellij ${distro_path}/bin
+rm zellij.tar.gz zellij

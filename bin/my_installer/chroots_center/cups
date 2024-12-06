@@ -1,8 +1,8 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/chroot/var"
 CHROOT_DIR="${CUPS_CHROOT_DIR}"
-
 . "/usr/share/my_stuff/lib/chroot/functions"
+
 trap cleanup EXIT # from chroot_functions
 base_chroot_creater
 
