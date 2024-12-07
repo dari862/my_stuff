@@ -1,0 +1,11 @@
+_APPS_LIBDIR="/usr/share/my_stuff/bin/my_installer/apps_center"
+_TWEEKS_LIBDIR='/usr/share/my_stuff/bin/my_installer/tweeks_center'
+_CHROOTS_LIBDIR='/usr/share/my_stuff/bin/my_installer/chroots_center'
+
+_DISTROBOX_LIBDIR="/usr/share/my_stuff/bin/my_installer/distrobox_center"
+distrobbox_script_installer_path="/usr/share/my_stuff/bin/my_installer/distrobox_installer" # used to source file
+
+_containers_center_path="/usr/share/my_stuff/bin/my_installer/containers_center"
+_CONTAINERS_LIBDIR="${_containers_center_path}"
+_DEPLOYED_CONTAINERS_LIBDIR="/usr/share/my_stuff/system_files/deployed_containers/deployed"
+

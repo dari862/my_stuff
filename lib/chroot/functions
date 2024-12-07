@@ -24,7 +24,7 @@ base_chroot_creater(){
 		my-superuser debootstrap stable "$CHROOT_DIR" http://deb.debian.org/debian || failed_to_run "Debootstrap failed"
 				
 		say "Creating user $CHROOT_USER inside the chroot..."
-		my-superuser chroot "$CHROOT_DIR" useradd -m "$CHROOT_USER" || failed_to_run "Failed to create user in chroot"
+		my-superuser chroot "$CHROOT_DIR" useradd -m "$CHROOT_USER" -s /bin/bash || failed_to_run "Failed to create user in chroot"
 		
 		say "Installing and configer locales in the chroot..."
 		my-superuser chroot "$CHROOT_DIR" bash -c "
@@ -44,9 +44,8 @@ base_chroot_creater(){
 }
 
 chroot_creater(){
-	base_chroot_creater
-	
 	if [ ! -d "${CHROOT_DIR}" ];then
+		base_chroot_creater
 		say "Mounting necessary filesystems for chroot..."
 		for fs in /proc /sys /dev /dev/pts /run; do
 			if ! mountpoint -q "$CHROOT_DIR$fs"; then
@@ -56,10 +55,24 @@ chroot_creater(){
 			
 		say "Installing dependencies in the chroot..."
 		my-superuser chroot "$CHROOT_DIR" bash -c "
-    		apt update && apt install -y dbus-x11 libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libpci-dev libegl1-mesa libgl1-mesa-glx
+    		apt update && apt install -y dbus-x11 libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libpci-dev libgl1 libegl1-mesa libgl1-mesa-glx
 		" || failed_to_run "Failed to install required packages in chroot"
 
 		say "Configuring chroot for X11 forwarding..."
 		my-superuser chroot "$CHROOT_DIR" su - $CHROOT_USER -c "echo 'export DISPLAY=:0.0' >> /home/$CHROOT_USER/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
+		my-superuser chroot "$CHROOT_DIR" sh -c "echo 'export DISPLAY=:0.0' >> /etc/skel/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
 	fi
+}
+
+Create_users_to_chroot(){
+	list_of_users_are="$(grep "users:" /etc/group | awk -F: '{print $NF}' | sed 's/,/ /g')"
+	for user2add in ${list_of_users_are};do
+		new_chroot_user="chroot${user2add}"
+		if my-superuser chroot "$CHROOT_DIR" id "${new_chroot_user}" >/dev/null 2>&1;then
+			:
+		else
+			my-superuser chroot "$CHROOT_DIR" useradd -m "${new_chroot_user}" -s /bin/bash
+			my-superuser xhost +local:${new_chroot_user}
+		fi
+	done
 }

@@ -1,5 +1,13 @@
 #!/bin/sh
+current_user="chroot$(/usr/bin/logname)"
+if chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" id "${current_user}" >/dev/null 2>&1;then
+	:
+else
+	chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" useradd -m "${current_user}" -s /bin/bash
+	xhost +local:${current_user}
+fi
+
 if ! mountpoint -q "/usr/share/my_stuff/system_files/chroots/chroot-browsers/proc"; then
 	mount --bind "/proc" "/usr/share/my_stuff/system_files/chroots/chroot-browsers/proc"
 fi
-chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" su - chrootuser -c "export DISPLAY=:0.0 && firefox"
+chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" su - "${current_user}" -c "export DISPLAY=:0.0 && firefox"

@@ -3,23 +3,9 @@
 CHROOT_DIR="${BROWSERS_CHROOT_DIR}"
 . "/usr/share/my_stuff/lib/chroot/functions"
 
-set_default_chroot_browser_as_my_www_browser(){
-	printf "\n###############################################\n"
-	printf "Do you want to set ${APP_NAME} as default browser? 'my-www-browser' (yes or no)"
-	printf "\n###############################################"
-    stty -icanon -echo time 0 min 1
-	answer2="$(head -c1)"
-	stty icanon echo
-    echo
-    if [ "$answer2" = "y" ] || [ "$answer2" = "Y" ]; then
-     	my-superuser ln -sf "$launch_default_chroot_browser" "$my_www_browser_path"
-    fi
-}
-
 create_default_chroot_browser(){
 	my-superuser ln -sf "${launch_default_chroot_browser}" "${LAUNCH_SCRIPT_PATH}" || failed_to_run "Failed to set execute permission on launch script"
 	my-superuser ln -sf "${launch_default_chroot_browser}.desktop" "/usr/share/applications" || failed_to_run "Failed to set execute permission on launch script"
-	set_default_chroot_browser_as_my_www_browser
 }
 
 end_of_chroot_creater(){	
@@ -46,9 +32,14 @@ end_of_chroot_creater(){
 	
 	if [ ! -f "${LAUNCH_SCRIPT_PATH}/${chroot_default_browser_name}" ];then
 		create_default_chroot_browser
-	else
-		set_default_chroot_browser_as_my_www_browser
 	fi
+	
+	if [ "$make_chroot_browser_default_browser" = true ]; then
+     	my-superuser ln -sf "$launch_default_chroot_browser" "$my_www_browser_path"
+    fi
+    
+	Create_users_to_chroot
+	
 	say 
 	say 
 	say "You can now launch $APP_NAME from the chroot using the command: $SCRIPT_NAME"	

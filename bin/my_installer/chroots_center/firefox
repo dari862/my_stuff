@@ -1,5 +1,7 @@
 #!/bin/sh
 APP_NAME="firefox"
+make_chroot_browser_default_browser=false
+prompt "Do you want to set chroot-${APP_NAME} as default browser(my-www-browser)?" 'Y' && make_chroot_browser_default_browser=true
 . "/usr/share/my_stuff/lib/chroot/browsers_creater"
 
 my-superuser chroot "$BROWSERS_CHROOT_DIR" bash -c "
@@ -18,3 +20,4 @@ my-superuser chroot "$BROWSERS_CHROOT_DIR" bash -c "
     apt purge -y curl
 " || failed_to_run "Failed to install ${APP_NAME} in chroot"
 end_of_chroot_creater
+my-superuser touch "${_CHROOTS_INSTALLED_LIBDIR}/firefox"

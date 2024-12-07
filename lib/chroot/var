@@ -3,7 +3,8 @@ ROOT_CHROOT_DIR="/usr/share/my_stuff/system_files/chroots"
 EXTRA_CHROOT_DIR="/usr/share/my_stuff/bin/my_installer/chroots_extra"
 LAUNCH_SCRIPT_PATH="/usr/share/my_stuff/system_files/bin"
 CHROOT_SCRIPT_PATH="/usr/share/my_stuff/system_files/chroots_scripts"
-CHROOT_USER="chrootuser"
+_CHROOTS_INSTALLED_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_extra/installed"
+CHROOT_USER="chroot$(logname)"
 #tor
 __GUID=4444
 __UUID=4444

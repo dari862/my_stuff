@@ -63,7 +63,9 @@ if [ -d "/etc/sudoers.d" ];then
 	EOF
 	my-superuser chmod 400 "/etc/sudoers.d/${CUPS_CHROOT_NAME}"
 fi
-	
+
+my-superuser touch "${_CHROOTS_INSTALLED_LIBDIR}/cups"
+
 say 
 say 
 say "You can now enable $_CUPS_NAME from the chroot using the command: $ENABLE_CUPS"

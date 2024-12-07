@@ -68,7 +68,7 @@ if [ "${which_menu}" = "--openboxmenu" ]; then
 	if [ -n "${CHROOTS}" ];then
 		menuSeparator "Chroots to Deploy."
 		for chroot in ${CHROOTS}; do
-   			menuItem "${chroot} container" "${installation_script_name} --chroot ${chroot}"
+   			menuItem "${chroot} Chroot" "${installation_script_name} --chroot ${chroot}"
 		done
 	fi
 	

@@ -8,13 +8,7 @@ opt="${1-}"
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/DB"
 . "/usr/share/my_stuff/lib/common/openbox"
-
-# Directories
-_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/apps_center"
-_DISTROBOX_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/distrobox_center"
-_CONTAINERS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/containers_center"
-_CHROOTS_SCRIPTS_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_center"
-_TWEEKS_DIR="/usr/share/my_stuff/bin/my_installer/tweeks_center"
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
 
 # Helper function to check if a command is installed
 is_installed() {
@@ -59,17 +53,17 @@ create_db_from_dirs() {
 
 # Create the Tweeks database
 create_tweeks_db() {
-  # Check if _TWEEKS_DIR is valid and not empty
-  if [ -z "$(ls -A "${_TWEEKS_DIR}")" ]; then
-    rm -rdf "${_TWEEKS_DIR}"
+  # Check if _TWEEKS_LIBDIR is valid and not empty
+  if [ -z "$(ls -A "${_TWEEKS_LIBDIR}")" ]; then
+    rm -rdf "${_TWEEKS_LIBDIR}"
   fi
   
-  if [ ! -d "${_TWEEKS_DIR}" ]; then
-    mkdir -p "${_TWEEKS_DIR}"
+  if [ ! -d "${_TWEEKS_LIBDIR}" ]; then
+    mkdir -p "${_TWEEKS_LIBDIR}"
   fi
   
-  # Loop over files in _TWEEKS_DIR
-  for tweek in "${_TWEEKS_DIR}"/*; do
+  # Loop over files in _TWEEKS_LIBDIR
+  for tweek in "${_TWEEKS_LIBDIR}"/*; do
     # Skip if it's not a file (can be a subdirectory or something else)
     if [ -f "$tweek" ]; then
       # Check if the tweek is not enabled
@@ -82,13 +76,13 @@ create_tweeks_db() {
 
 # Create apps and gaming database
 create_apps_db_and_gaming_db() {
-  create_db_from_dirs "${_SCRIPTS_LIBDIR}" "${apps_db_path}" "Gaming"
-  create_db_from_dirs "${_SCRIPTS_LIBDIR}/Gaming" "${gaming_db_path}"
+  create_db_from_dirs "${_APPS_LIBDIR}" "${apps_db_path}" "Gaming"
+  create_db_from_dirs "${_APPS_LIBDIR}/Gaming" "${gaming_db_path}"
 }
 
 # Create distrobox deploy database
 create_distrobox_deploy_db() {
-  cd "${_DISTROBOX_SCRIPTS_LIBDIR}"
+  cd "${_DISTROBOX_LIBDIR}"
   list_of_deploys=$(find . -maxdepth 1 -type f -exec basename {} \;)
 
   if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ]; then
@@ -106,7 +100,7 @@ create_distrobox_deploy_db() {
 
 # Create containers deploy database
 create_containers_deploy_db() {
-  cd "${_CONTAINERS_SCRIPTS_LIBDIR}"
+  cd "${_CONTAINERS_LIBDIR}"
   list_of_containers=$(find . -maxdepth 1 -type f -exec basename {} \;)
 
   if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ]; then
@@ -124,12 +118,12 @@ create_containers_deploy_db() {
 
 # Create chroots deploy database
 create_chroots_deploy_db() {
-  cd "${_CHROOTS_SCRIPTS_LIBDIR}"
+  . "/usr/share/my_stuff/lib/chroot/var"
+  cd "${_CHROOTS_LIBDIR}"
   list_of_chroots=$(find . -maxdepth 1 -type f -exec basename {} \;)
-
-  if [ -d '/etc/schroot/chroot.d' ]; then
+  if [ -d "${ROOT_CHROOT_DIR}" ]; then
     for chroot in $list_of_chroots; do
-      if [ ! -f "${_CHROOTS_SCRIPTS_LIBDIR}/${chroot}" ]; then
+      if [ ! -f "${_CHROOTS_INSTALLED_LIBDIR}/${chroot}" ]; then
         echo "$chroot" >> "${chroots_deploy_db_path}"
       fi
     done

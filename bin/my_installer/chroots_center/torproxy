@@ -101,6 +101,8 @@ if [ -d "/etc/sudoers.d" ];then
 	my-superuser chmod 400 "/etc/sudoers.d/${TOR_CHROOT_NAME}"
 fi
 
+my-superuser touch "${_CHROOTS_INSTALLED_LIBDIR}/torproxy"
+
 say 
 say 
 say "You can now start $_TOR_NAME from the chroot using the command: $start_tor_chroot_script_name"
