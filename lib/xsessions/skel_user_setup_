@@ -36,18 +36,21 @@ for i in ${remove_this_Array}; do
 done
 
 mkdir -p "${backup_file_path}/.config"
-move_this_Array="$(ls /usr/share/"my_stuff"/system_files/skel/.config/)"
+move_this_Array="$(ls /usr/share/my_stuff/system_files/skel/.config/ | sed '/WM_common_config/d')"
 for movethis in ${move_this_Array}; do
 	[ -e "${HOME}/.config/${movethis}" ] && mv "${HOME}/.config/${movethis}" "${backup_file_path}/.config"  > /dev/null 2>&1
 done
 
 cp -rf /usr/share/my_stuff/system_files/skel/. $HOME || cp -rf /usr/share/my_stuff/system_files/skel/. $HOME
 
-wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" > /dev/null 2>&1 && is_it_zero_byte="true"
-
-[ "${is_it_zero_byte}" = "true" ] && cp -rf /usr/share/my_stuff/system_files/skel/. "$HOME"
-
-[ "${is_it_zero_byte}" != "true" ] && touch "$usr_setup_flag_file"
+if wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" > /dev/null 2>&1;then
+	if cp -rf /usr/share/my_stuff/system_files/skel/. "$HOME";then
+		touch "$usr_setup_flag_file"
+	else
+		echo "failed: to copy /usr/share/my_stuff/system_files/skel"
+		exit 1
+	fi
+fi
 
 cd $HOME
 

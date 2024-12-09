@@ -57,7 +57,7 @@ restore(){
 }
 
 style_wall(){
-	op2__="$(find $op2__ | head -n 1)"
+	op2__="$(find "/usr/share/my_stuff/my_wallpapers/${op2__}_*" | head -n 1)"
 	set_wall
 }
 
@@ -73,6 +73,7 @@ set_wall(){
 
 save_wall(){
 	if command -v xwallpaper >/dev/null ; then
+		mkdir -p "$HOME/.config/nitrogen"
 		tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
 		[xin_-1]
 		file=$op2__
@@ -90,8 +91,8 @@ main()
 	case $op__ in
 		-r) restore ;;
 		-o) old_bg_ $op2__ ;;
-		-s) style_wall ;;
-		-S) Save_wall ;;
+		-s) set_wall ;;
+		-S) style_wall ;;
 		-d) random_wall ;;
 		*) pickbg ;;
 	esac

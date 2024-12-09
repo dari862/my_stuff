@@ -89,7 +89,7 @@ Seter_Style_(){
 		# Set random wallpaper for actual rice
 		setbg -d "/usr/share/my_stuff/my_wallpapers/${style}_*"
 	else
-		setbg -s "/usr/share/my_stuff/my_wallpapers/${style}_*"
+		setbg -S "${style}"
 	fi
 	
 	theme_geany

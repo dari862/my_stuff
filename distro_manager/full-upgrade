@@ -9,8 +9,6 @@ if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
 fi
 
 Custom_distro_path="/usr/share/my_stuff"
-current_full_upgrade_ver="$(cat ${Custom_distro_path}/distro_manager/full_upgrade_ver)"
-online_full_upgrade_ver=""
 
 . "${Custom_distro_path}/system_files/Package-manager"
 x_session_picker_path="${Custom_distro_path}/system_files/bin/xsessions/openbox"
@@ -19,117 +17,141 @@ usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -
 usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g')"
 usr_flag_setup_path="${usr_flag_setup_dir}/${usr_flag_setup_name}"
 
-update_full_upgrade(){
-	print_purple "\n==> check full upgrade version. \n"
+update_full_upgrade_script(){
+	print_purple "==> check if full upgrade need update. "
+	do_full_upgrade_need_update=false
 	my-superuser mkdir -p /tmp/root/disto_updater
-	cd /tmp/disto_updater
-	getURL '2term' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full_upgrade_ver | my-superuser tee full_upgrade_ver >/dev/null 2>&1
-	online_full_upgrade_ver="$(cat full_upgrade_ver)"
+	cd /tmp/root/disto_updater
+	getURL '2term' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade | my-superuser tee full-upgrade >/dev/null 2>&1
+	my-superuser chmod +x full-upgrade
+	[ -n "$(diff full-upgrade /usr/share/my_stuff/distro_manager/full-upgrade)" ] && do_full_upgrade_need_update=true
 	
-	if [ "${current_full_upgrade_ver}" -lt "${online_full_upgrade_ver}" ];then
-		getURL '2term' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade | my-superuser tee full-upgrade >/dev/null 2>&1
-		chmod +x full-upgrade
+	if [ "${do_full_upgrade_need_update}" = true ];then
+		print_purple "==> running new version of full-upgrade. "
 		my-superuser ./full-upgrade && exit || ( print_RED "failed to full upgrade" && exit 1 )
 	else
-		print_GREEN "\n==> full upgrade up to date.\n"
+		print_GREEN "==> full upgrade up to date."
 	fi
 }
 
 print_RED() {
 	_msg_="${1-}"
-	printf "\033[0;31m${_msg_}\033[0m"
+	printf "\n\033[0;31m${_msg_}\033[0m\n"
 	exit 1
 }
 print_GREEN() {
 	_msg_="${1-}"
-	printf "\033[0;32m${_msg_}\033[0m"
+	printf "\n\033[0;32m${_msg_}\033[0m\n"
 }
 print_purple() {
 	_msg_="${1-}"
-	printf "\033[1;35m${_msg_}\033[0m"
+	printf "\n\033[1;35m${_msg_}\033[0m\n"
 }
 
 __upgrade_current_repo_(){
-	  print_purple "\n==> status"
+	  print_purple "==> status"
 	  __git_status="$(my-superuser git status 2>&1 | grep 'fatal: unknown index entry format')"
 	  if [ -n "$__git_status" ];then
 	  	my-superuser rm -f .git/index
 	  	my-superuser git status || :
 	  fi
-      print_purple "\n==> Fetching"
+      print_purple "==> Fetching"
       my-superuser git fetch  || print_RED "git fetch failed... "
       
-      print_purple "\n==> Pulling"
+      print_purple "==> Stash (dont apply local changes)."
+      my-superuser git stash  || print_RED "git stash failed... "
+      
+      print_purple "==> Pulling"
       my-superuser git pull
 }
 
-# check out connection
-connectiontest
-
-update_full_upgrade
-
-print_purple "\n==> sync package repositories\n"
-Package_update_
-print_GREEN "\n==> sync completed\n"
-
-print_purple "\n==> full system upgrade\n"
-full_upgrade_
-print_GREEN "\n==> full system upgraded\n"
-
-print_purple "\n==> clean package repository and remove orphan packages\n"
-Package_remove_ || :
-__dpkg_configure
-print_GREEN "\n==> orphan packages removed \n"
-
-if [ -d "${Custom_distro_path}/system_files/updater" ];then
-	print_purple "\n==> updating packages(s).\n"
+update_packages(){
 	cd "${Custom_distro_path}/system_files/updater"
 	updaters_list="$(ls)"
 	first_updater_file="$(echo "$updaters_list" | head -n 1)"
 	if [ -f "${updaters_list}" ];then
 		for updater in "${updaters_list}";do
-			print_purple "\n==> runing $updater updater.\n"
+			print_purple "==> runing $updater updater."
 			./$updater
 		done
 	fi
-	print_GREEN "\n==> updating packages(s) completed. \n"
-fi
+}
 
-print_purple "\n==> checking Distro for update.\n"
-cd "${Custom_distro_path}"
-
-if $(git fetch >/dev/null 2>&1);then
-	print_GREEN "\n==> Distro is up to date.\n" 
-else
-	print_purple "\n==> Updating Distro.\n"
-	if __upgrade_current_repo_;then
-		for d in /home/*/ ; do
-    		[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
-    		f="${d}${usr_flag_setup_path}"
-			# my-superuser test -f "${f}" && my-superuser rm -f "${f}"
-		done
+Updating_Distro(){
+	print_purple "==> checking Distro for update."
+	cd "${Custom_distro_path}"
+	
+	if $(git fetch >/dev/null 2>&1);then
+		print_GREEN "==> Distro is up to date." 
 	else
-		print_RED "Updating Distro Failed... "
+		print_purple "==> Updating Distro."
+		if __upgrade_current_repo_;then
+			for d in /home/*/ ; do
+    			[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
+    			f="${d}${usr_flag_setup_path}"
+				my-superuser test -f "${f}" && my-superuser rm -f "${f}"
+			done
+		else
+			print_RED "Updating Distro Failed... "
+		fi
+		print_GREEN "==> Distro is up to date." 
 	fi
-	print_GREEN "\n==> Distro is up to date.\n" 
-fi
+}
 
-if [ -d "${Custom_distro_path}/opt/git" ];then
-	print_purple "\n==> updating git repository(s).\n"
+Updating_opt(){
 	cd "${Custom_distro_path}/opt/git/"
 	__git_dir_to_update_="$(ls)"
 	first__git_dir_to_update_file="$(echo "$__git_dir_to_update_" | head -n 1)"
 	if [ -d "${first__git_dir_to_update_file}" ];then
 		for __repo_ in "${__git_dir_to_update_}";do
-			print_purple "\n==> ${__repo_} repository.\n"
+			print_purple "==> ${__repo_} repository."
 			cd "${__repo_}"
 			__upgrade_current_repo_
 			cd ..
-			print_GREEN "\n==> ${__repo_} repository updated.\n"
+			print_GREEN "==> ${__repo_} repository updated."
 		done
 	fi
-	print_GREEN "\n==> fully git repository(s) updated.\n"
+}
+
+post_updating(){
+	print_purple "==> running system_files_creater."
+	my-superuser /usr/share/my_stuff/distro_manager/system_files_creater
+}
+
+connectiontest
+
+update_full_upgrade_script
+
+print_purple "==> sync package repositories"
+Package_update_
+print_GREEN "==> sync completed"
+
+print_purple "==> full system upgrade"
+full_upgrade_
+print_GREEN "==> full system upgraded"
+
+print_purple "==> clean package repository and remove orphan packages"
+Package_remove_ || :
+__dpkg_configure
+print_GREEN "==> orphan packages removed "
+
+if [ -d "${Custom_distro_path}/system_files/updater" ];then
+	print_purple "==> updating packages(s)."
+	update_packages
+	print_GREEN "==> updating packages(s) completed. "
 fi
 
-print_GREEN "\n==> Done\n"
+Updating_Distro
+
+if [ -d "${Custom_distro_path}/opt/git" ];then
+	print_purple "==> updating git repository(s)."
+	Updating_opt
+	print_GREEN "==> fully git repository(s) updated."
+fi
+
+print_purple "==> post updating."
+post_updating
+print_GREEN "==> post updating completed ."
+
+print_GREEN "==> Done"
 exit 0
