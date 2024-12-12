@@ -3,7 +3,7 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
 #### Pre Launch      #################################################################################
-/usr/share/my_stuff/bin/not_add_2_path/pre_launch_wm
+/usr/share/my_stuff/bin/WM/pre_launch_wm
 
 #### START SETTINGS  #################################################################################
 ## Environtment
@@ -138,4 +138,4 @@ fi
 # Start bspwm scripts
 bspfloat &
 
-/usr/share/my_stuff/bin/not_add_2_path/post_launch_wm
+/usr/share/my_stuff/bin/WM/post_launch_wm

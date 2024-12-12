@@ -3,7 +3,7 @@
 clipboard-manager-session &
 
 # Start panel		
-panel_manager --launch &
+panel_launcher &
 
 # update notifcation
 update-notification -n &

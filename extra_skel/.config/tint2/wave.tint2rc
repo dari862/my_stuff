@@ -204,7 +204,7 @@ battery_padding = 10 0
 battery_background_id = 2
 battery_hide = 100
 battery_lclick_command = distro_scripts --power_settings
-battery_rclick_command = distro_scripts --notify-batt-stat
+battery_rclick_command = get_scripts --notify-batt-stat
 battery_mclick_command = 
 battery_uwheel_command = 
 battery_dwheel_command = 
@@ -286,7 +286,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 4
 execp = new
-execp_command = distro_scripts --network
+execp_command = get_scripts --network
 execp_interval = 1
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -310,7 +310,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 5
 execp = new
-execp_command = distro_scripts --battery
+execp_command = get_scripts --battery
 execp_interval = 10
 execp_has_icon = 0
 execp_cache_icon = 0

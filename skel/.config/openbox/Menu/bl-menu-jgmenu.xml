@@ -61,7 +61,7 @@
         <item label="BLOB Themes Manager">
             <action name="Execute">
                 <command>
-                    style-manager --yad
+                    style_picker_yad
                 </command>
             </action>
         </item>
@@ -182,7 +182,7 @@
             </action>
         </item>
     </menu>
-    <menu id="Compositor" execute="ac-compositor" label="Compositor"/>
+    <menu id="Compositor" execute="ac-compositor-pipemenu" label="Compositor"/>
     <menu id="Conky" execute="bl-conky-pipemenu" label="Conky"/>
     <menu id="panel_settings" execute="ac-panel-settings" label="Taskbar"/>
         <item label="Appearance">
@@ -195,7 +195,7 @@
         <item label="Reload GTK">
             <action name="Execute">
                 <command>
-                    reload-gtk23
+                    reload_gtk23
                 </command>
             </action>
         </item>

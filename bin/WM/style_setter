@@ -1,0 +1,77 @@
+#!/bin/bash
+style="${1-}"
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/rofi"
+
+GLOBALBLOBPATH="/usr/share/my_stuff/system_files/blob"
+BLOBPATH="$HOME/.config"
+CURSESSION="$WM_config_dir/tint2_style"
+
+if [ -f "$OB_STYLE_NORMAL" ]; then
+	CONFIGPATH="${BLOBPATH}/blob/polybar"
+	default_style="default"
+else
+	CONFIGPATH="${BLOBPATH}/blob/tint2"
+	default_style="Beryllium"
+fi
+
+if [ -z "${style}" ];then
+	style="${default_style}"
+fi
+
+STYLEPATH="${CONFIGPATH}/${style}"
+
+OB_themeing(){
+	. "${OBPATH}/theme/rctheme"
+	sed -i 's/theme_var "'.*'"/theme_var "'"$theme"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/titleLayout_var "'.*'"/titleLayout_var "'"$titleLayout"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/top_var "'.*'"/top_var "'"$top"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/bottom_var "'.*'"/bottom_var "'"$bottom"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/right_var "'.*'"/right_var "'"$right"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/left_var "'.*'"/left_var "'"$left"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/font_var "'.*'"/font_var "'"$font"'"/g' ${OBPATH}/rc.xml
+	sed -i 's/size_var "'.*'"/size_var "'"$size"'"/g' ${OBPATH}/rc.xml
+}
+
+Set_polybar_Style_(){
+	cat $HOME/.config/dunst/global > $HOME/.config/dunst/dunstrc
+	cat $HOME/.config/dunst/theme.dunstrc >> $HOME/.config/dunst/dunstrc
+	cat $HOME/.config/dunst/experimental >> $HOME/.config/dunst/dunstrc
+	cp -r ${BACKUP_OB_RC_FILE} ${OBPATH}
+	OB_themeing
+	polybar_launch_creater
+}
+
+Set_tint2_Style_(){
+	cp -r ${BACKUP_OB_RC_FILE} ${OBPATH}
+	OB_themeing
+}
+
+if [ ! -d "${BLOBPATH}/blob" ];then
+	cp -r "${GLOBALBLOBPATH}" "${BLOBPATH}"
+	find "${BLOBPATH}/blob/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
+fi
+
+cp -r ${STYLEPATH}/config/* $HOME/.config
+[ -d "${STYLEPATH}/cache" ] && cp -r "${STYLEPATH}/cache $HOME/.cache"
+dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
+
+if [ -f "$OB_STYLE_NORMAL" ]; then
+	Set_polybar_Style_
+else
+	Set_tint2_Style_
+fi
+
+[ "$(pidof openbox)" ] && openbox --reconfigure
+reload_gtk23
+
+if [ -f "${STYLEPATH}/random_wallpaper" ];then
+	# Set random wallpaper for actual rice
+	setbg -d "${style}"
+else
+	setbg -S "${style}"
+fi
+
+theme_geany

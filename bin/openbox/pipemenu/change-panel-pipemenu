@@ -50,15 +50,15 @@
 		menuSeparator "Current Bar : $BAR"
 		
 		if [ "$BAR" != 'polybar' ] && [ "$polybar_installed" = true ] ; then
-		menuItem "Use Polybar as your statusbar" "panel_manager --change polybar"
+		menuItem "Use Polybar as your statusbar" "panel_changer polybar"
 		fi
 		
 		if [ "$BAR" != 'tint2' ] && [ "$tint2_installed" = true ] ; then
-		menuItem "Use Tint2 as your panel/taskbar" "panel_manager --change tint2"
+		menuItem "Use Tint2 as your panel/taskbar" "panel_changer tint2"
 		fi
 		
 		if [ "$BAR" != 'xfce4-panel' ] && [ "$xfce4_installed" = true ] ; then
-		menuItem "Use xfce4-panel as your panel/taskbar" "panel_manager --change xfce4-panel"
+		menuItem "Use xfce4-panel as your panel/taskbar" "panel_changer xfce4-panel"
 		fi
 		
 		if [ "$polybar_installed" = false ] ; then

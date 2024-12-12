@@ -225,6 +225,13 @@ if [ -d "${__distro_path}/bin/bin" ] ; then
 	my-superuser ln -sf "${__distro_path}"/bin/bin/* "${__distro_path}"/system_files/bin
 fi
 
+if [ -d "${__distro_path}/bin/WM" ] ; then
+	show_im "bin WM files to system_files/bin ."
+	my-superuser ln -sf "${__distro_path}"/bin/WM/* "${__distro_path}"/system_files/bin
+	my-superuser rm -f "${__distro_path}"/system_files/bin/create_DB.sh "${__distro_path}"/system_files/bin/pre_launch_wm "${__distro_path}"/system_files/bin/post_launch_wm 
+	
+fi
+
 if [ -d "${__distro_path}/bin/extra" ] ; then
 	show_im "exra bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/extra/* "${__distro_path}"/system_files/bin
@@ -271,7 +278,7 @@ fi
 ##################################################################################
 
 show_im "Running script for create_DB.sh --all"
-my-superuser ${__distro_path}/bin/not_add_2_path/create_DB.sh --all
+my-superuser ${__distro_path}/bin/WM/create_DB.sh --all
 
 show_im "Running must_create_script."
 for script_dir in "${__distro_path}"/bin/must_create_script/*;do

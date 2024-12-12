@@ -1,13 +1,14 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
-version_number="4.9.0"
-printf "\33[2K\r\033[1;34mChecking dependencies...\033[0m\n"
-check_4_dependencies_if_installed curl sed grep 
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/rofi"
 
+version_number="4.9.0"
+check_4_dependencies_if_installed sed grep
 # UI
 
 external_menu() {
-    rofi "$1" -sort -dmenu -i -width 1500 -p "$2"
+    rofi "$1" -sort -dmenu -i -width 1500 -p "$2" -theme "$rofi_style_dir"/runner.rasi
 }
 
 launcher() {
@@ -77,7 +78,6 @@ help_info() {
         Use given title as ani-skip query
       -N, --nextep-countdown
         Display a countdown to the next episode
-      -U, --update
         Update the script
     Some example usages:
       %s -q 720p banana fish
@@ -177,7 +177,7 @@ get_episode_url() {
 search_anime() {
     search_gql="query(        \$search: SearchInput        \$limit: Int        \$page: Int        \$translationType: VaildTranslationTypeEnumType        \$countryOrigin: VaildCountryOriginEnumType    ) {    shows(        search: \$search        limit: \$limit        page: \$page        translationType: \$translationType        countryOrigin: \$countryOrigin    ) {        edges {            _id name availableEpisodes __typename       }    }}"
 
-    perform_url_ search_show | sed 's|Show|\
+    perform_url_ search_show "$1" | sed 's|Show|\
 |g' | sed -nE "s|.*_id\":\"([^\"]*)\",\"name\":\"([^\"]*)\".*${mode}\":([1-9][^,]*).*|\1	\2 (\3 episodes)|p"
 }
 
@@ -302,8 +302,7 @@ play() {
 }
 
 if command -v curl >/dev/null 2>&1;then
-	perform_url_() {
-    	action="$1"
+	perform_url_(){
     	case "$action" in
         	"get_ani_cli")
             	curl -s "$animeschedule/anime/$anime"
@@ -318,20 +317,20 @@ if command -v curl >/dev/null 2>&1;then
             	curl -e "$allanime_refr" -s -G "${allanime_api}/api" --data-urlencode "variables={\"showId\":\"$id\",\"translationType\":\"$mode\",\"episodeString\":\"$ep_no\"}" --data-urlencode "query=$episode_embed_gql" -A "$agent"
             	;;
         	"search_show")
-            	curl -e "$allanime_refr" -s -G "${allanime_api}/api" --data-urlencode "variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$1\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" --data-urlencode "query=$search_gql" -A "$agent"
+            	curl -e "$allanime_refr" -s -G "${allanime_api}/api" --data-urlencode "variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$2\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" --data-urlencode "query=$search_gql" -A "$agent"
             	;;
         	"get_episode_list")
             	curl -e "$allanime_refr" -s -G "${allanime_api}/api" --data-urlencode "variables={\"showId\":\"$*\"}" --data-urlencode "query=$episodes_list_gql" -A "$agent"
             	;;
             "animeschedule")
-				curl -s -G "$animeschedule/api/v3/anime" --data-urlencode "q=${2}"
+				curl -s -G "$animeschedule/api/v3/anime" --data-urlencode "q=$2"
 				;;
         	*)
             	echo "Invalid action specified."
             	return 1
             	;;
     	esac
-	}
+    }
 elif command -v wget >/dev/null 2>&1;then
 	perform_url_() {
 		action="$1"
@@ -352,7 +351,7 @@ elif command -v wget >/dev/null 2>&1;then
 			;;
 			"search_show")
 				wget -qO- --referer="$allanime_refr" --user-agent="$agent" --method=GET --header="Content-Type: application/x-www-form-urlencoded" \
-					--body-data="variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$1\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" \
+					--body-data="variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$2\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" \
 					--body-data="query=$search_gql" "${allanime_api}/api"
 			;;
 			"get_episode_list")
@@ -473,11 +472,15 @@ while [ $# -gt 0 ]; do
 done
 [ "$use_external_menu" = "0" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-m"}"
 [ "$use_external_menu" = "1" ] && multi_selection_flag="${ANI_CLI_MULTI_SELECTION:-"-multi-select"}"
-printf "\33[2K\r\033[1;34mChecking dependencies...\033[0m\n"
+
 if [ "$skip_intro" = 1 ];then
-	command -v ani-skip >/dev/null 2>&1 || echo "[ERROR] 0$: ani-skip does not exist"
+	command -v "ani-skip" >/dev/null || true
 fi
-if [ -z "$ANI_CLI_NON_INTERACTIVE" ]; then check_4_dependencies_if_installed fzf || true; fi
+
+if [ -z "$ANI_CLI_NON_INTERACTIVE" ]; then 
+	check_4_dependencies_if_installed fzf
+fi
+
 case "$player_function" in
     debug) ;;
     download) check_4_dependencies_if_installed ffmpeg aria2c ;;
@@ -488,7 +491,7 @@ case "$player_function" in
     android*) printf "\33[2K\rChecking of players on Android is disabled\n" ;;
     *iSH*) printf "\33[2K\rChecking of players on iOS is disabled\n" ;;
     *iina*) true ;; # handled out of band in where_iina
-    *) check_4_dependencies_if_installed "$player_function" ;;
+    *) check_4_dependencies_if_installed $player_function ;;
 esac
 
 # searching

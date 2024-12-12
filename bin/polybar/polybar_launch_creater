@@ -6,7 +6,7 @@
 polybar_launcher_path="$HOME/.local/bin/polybar_launch"
 
 if [ ! -s "${rofi_style_name_path}" ] || ( [ "$_panel_name_" = "polybar" ] && [ ! -s "${polybar_style_name_path}" ] );then
-	style-manager --rofi
+	style_picker_rofi
 fi
 
 if [ ! -f "$SFILE" ];then

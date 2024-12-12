@@ -39,7 +39,7 @@ Exit,my_session_manager yad,system-shutdown
 ^tag(bl-utilities)
 Back,^back()
 Take Screenshot,^pipe(screenshot-pipemenu)
-BLOB Themes Manager,(style-manager --yad)
+BLOB Themes Manager,(style_picker_yad)
 SSH,^pipe(jgmenu_run ob --cmd="bl-sshconfig-pipemenu" --tag="bl-sshconfig-pipemenu")
 Remote Desktop,^pipe(jgmenu_run ob --cmd="bl-remote-desktop-pipemenu" --tag="bl-remote-desktop-pipemenu")
 App Finder,rofi-launcher
@@ -50,11 +50,11 @@ My Stuff,^checkout(bl-blConfig)
 Openbox,^checkout(bl-obConfig)
 jgmenu,^checkout(bl-jgmenuConfig)
 Keybinds,^checkout(bl-xbindkeysConfig)
-Compositor,^pipe(jgmenu_run ob --cmd="ac-compositor" --tag="ac-compositor")
+Compositor,^pipe(jgmenu_run ob --cmd="ac-compositor-pipemenu" --tag="ac-compositor-pipemenu")
 Conky,^pipe(jgmenu_run ob --cmd="bl-conky-pipemenu" --tag="bl-conky-pipemenu"),conky-manager
 Tint2,^pipe(jgmenu_run ob --cmd="bl-tint2-pipemenu" --tag="bl-tint2-pipemenu"),tint2
-Appearance,sh -c 'lxappearance; reload-gtk23',preferences-desktop-theme
-Reload GTK,reload-gtk23,preferences-desktop-theme
+Appearance,sh -c 'lxappearance; reload_gtk23',preferences-desktop-theme
+Reload GTK,reload_gtk23,preferences-desktop-theme
 Font configuration,my-text-editor ~/.config/fontconfig/fonts.conf,preferences-desktop-font
 Wallpaper,pickbg,preferences-desktop-wallpaper,wallpaper
 Notifications,notifications_config,notifyconf

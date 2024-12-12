@@ -1,0 +1,15 @@
+#!/bin/bash
+panel_name="${1-}"
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/panel"
+
+if [ "$panel_name"== 'tint2' ]; then
+	echo 'tint2' > "${_panel_name_path_}"
+elif [ "$panel_name" = 'polybar' ]; then
+	echo 'polybar' > "${_panel_name_path_}"
+elif [ "$panel_name" = 'xfce4-panel' ]; then
+	echo 'xfce4-panel' > "${_panel_name_path_}"
+fi
+panel_launcher --reload
+/usr/share/my_stuff/bin/WM/create_DB.sh --styles &

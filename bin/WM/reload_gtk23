@@ -1,6 +1,6 @@
 #!/bin/sh
 ##########################################
-xsettingsd_error_log="/tmp/$USER/reload-gtk23.error.log"
+xsettingsd_error_log="/tmp/$USER/reload_gtk23.error.log"
 xsettingsd_conf_file="$HOME/.config/xsettingsd/xsettingsd.conf"
 
 if [ -f "$HOME/.config/gtk-3.0/settings.ini" ];then

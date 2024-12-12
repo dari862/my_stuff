@@ -1672,7 +1672,7 @@ ${Rofi_Network_Menu}
 
 # Rofi Themes Menu
 ${Rofi_Themes_Menu}
-	sh style-manager --rofi
+	sh style_picker_rofi
 
 # Rofi Menus/Applets
 ${Rofi_rofi_screenshot}

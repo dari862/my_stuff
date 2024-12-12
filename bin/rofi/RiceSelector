@@ -25,4 +25,4 @@ selected=$(
 )
 
 # If a valid option was selected, write the value to the configuration file and change theme.
-[ -n "$selected" ] && [ "$selected" != "$ROFI_STYLE" ] && style-manager --change "${selected}"
+[ -n "$selected" ] && [ "$selected" != "$ROFI_STYLE" ] && style_changer "${selected}"

@@ -425,7 +425,7 @@ yad --plug=$KEY --tabnum=4 --borders=20 --text="$LOOK_DESC" --icons --read-dir=/
 # MOTYWY
 yad --plug=$KEY --tabnum=5 --borders=20 --uri-handler=my-text-editor \
 --text="<b>$MT_MNGR</b>\n $MT_MNGR_DESC" \
---form --field="$MT_MNGR!preferences-desktop-theme:FBTN" "style-manager --yad" \
+--form --field="$MT_MNGR!preferences-desktop-theme:FBTN" "style_picker_yad" \
 > $res5 &
 
 # CONKY

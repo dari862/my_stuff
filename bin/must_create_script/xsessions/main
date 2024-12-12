@@ -21,13 +21,13 @@ if [ ! -f "$usr_setup_flag_file" ];then
 	fi
 	
     # Import user config files
-    if [ -x /usr/share/my_stuff/lib/xsessions/skel_user_setup_ ];then
-        /usr/share/my_stuff/lib/xsessions/skel_user_setup_ "$usr_setup_flag_file" || failed_to_run_skel_user_setup_=true
+    if [ -x /usr/share/my_stuff/bin/not_add_2_path/skel_user_setup_ ];then
+        /usr/share/my_stuff/bin/not_add_2_path/skel_user_setup_ "$usr_setup_flag_file" || failed_to_run_skel_user_setup_=true
     fi
     
     if [ "$failed_to_run_skel_user_setup_" = true ]
 	then
-		/usr/share/my_stuff/lib/xsessions/skel_user_setup_ "$usr_setup_flag_file" || echo "failed to run skel_user_setup_"
+		/usr/share/my_stuff/bin/not_add_2_path/skel_user_setup_ "$usr_setup_flag_file" || echo "failed to run skel_user_setup_"
 	fi
 	
     # Actions here are usually handled by scripts in /etc/X11/Xsession.d/

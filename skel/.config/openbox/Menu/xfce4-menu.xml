@@ -126,7 +126,7 @@
                 </item>
         	</menu>
 
-        	<menu id="CompositingPipeMenu" execute="ac-compositor" label="Compositor" icon="&icons;/compositor.png"/>		
+        	<menu id="CompositingPipeMenu" execute="ac-compositor-pipemenu" label="Compositor" icon="&icons;/compositor.png"/>		
 
         	<menu id="panel_settings" execute="ac-panel-settings" label="Taskbar" icon="&icons;/compositor.png"/>
 

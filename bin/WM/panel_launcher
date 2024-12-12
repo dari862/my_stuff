@@ -1,0 +1,74 @@
+#!/bin/bash
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/panel"
+
+if [ "${1-}" = "--reload" ] || [ "${1-}" = "-r" ];then
+	polybar-session stop
+	xfce4-panel-session stop
+	tint2-session stop
+	panel_launcher
+fi
+	
+_panel_name_="$(cat ${_panel_name_path_})"
+
+# Start Conky
+conky-session &
+		
+## Notification Daemon
+dunst-session &
+
+# Start compositor
+picom-session &
+
+## Launch Plank
+#plank-session
+		
+if [ "$_panel_name_" = "polybar" ]; then 
+	# Start polybar
+	polybar_workspace_fixer
+   	polybar-session &
+
+	# Enable power management
+	power-manager-session &
+	
+	# Start volume control
+	audio-session stop &
+	
+	# Start network manager
+	nm-applet-session stop &	
+	
+	# Lauch xsettingsd daemon
+	xfsettingsd-session stop &
+	
+elif [ "$_panel_name_" =  "xfce4-panel" ]; then
+	# Start xfce4-panel
+   	xfce4-panel-session &
+   	
+   	# Lauch xsettingsd daemon
+	xfsettingsd-session &
+
+	# Start volume control
+	audio-session &
+	
+	# Start network manager
+	nm-applet-session &		
+		
+	# Enable power management
+	power-manager-session xfce4 &
+	
+elif [ "$_panel_name_" =  "tint2" ]; then
+	# panel - taskbar, system tray, battery, clock
+	tint2-session &
+	
+	# Start volume control
+	audio-session &
+
+	# Start network manager
+	nm-applet-session stop &
+
+	# Enable power management
+	power-manager-session &
+		
+   	# Lauch xsettingsd daemon
+	xfsettingsd-session stop &
+fi

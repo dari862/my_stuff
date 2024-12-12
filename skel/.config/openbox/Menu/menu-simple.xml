@@ -73,7 +73,7 @@
 					<action name="Restart"/>
 				</item>
 			</menu>
-			<menu id="CompositingPipeMenu" execute="ac-compositor" label="Compositor"/>
+			<menu id="CompositingPipeMenu" execute="ac-compositor-pipemenu" label="Compositor"/>
 			<menu id="XrandrPipeMenu" execute="ac-randr" label="Display / Monitor"/>
 			<menu id="ScalePipeMenu" execute="ac-scale-randr" label="Display / Monitor Scaling"/>
 			<separator/>

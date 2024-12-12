@@ -277,7 +277,7 @@ execp_markup = 1
 execp_font_color = #aaffaa 100
 execp_padding = 2 0
 execp_tooltip = I will tell you a secret...
-execp_lclick_command = distro_scripts --notify-uname
+execp_lclick_command = get_scripts --notify-uname
 execp_background_id = 2
 
 # End of config

@@ -6,11 +6,8 @@ case $opt in
 		--launcher) rofi-launcher ;;
 		--runner) rofi-runner ;;
 		--power_settings) power_manager_settings ;;
-		--battery) ${tint2_script_path}/tint2-battery ;;
-		--notify-batt-stat) [ -f /usr/share/my_stuff/system_files/this_is_laptop ] && notify-send "$(${tint2_script_path}/batt_stat)" ;;
 		--networkmanager) rofi-network-manager ;;
 		--nm-editor) nm-connection-editor ;;
-		--network) ${tint2_script_path}/tint2-network ;;
 		--blueman) [ $(command -v blueman-manager >/dev/null 2>&1) ] && blueman-manager ;;
 		--rofi-bluetooth) [ $(command -v blueman-manager >/dev/null 2>&1) ] && rofi-bluetooth ;;
 		--bluetooth) bluetooth.sh ;;
@@ -26,5 +23,4 @@ case $opt in
 		--volume-controller) volume_controller ;;
 		--powermenu) my_session_manager yad ;;
 		--beepmein) beepmein_gui --standalone ;;
-		--notify-uname) notify-send "$(uname -srn)" ;;
 esac

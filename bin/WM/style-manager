@@ -1,0 +1,30 @@
+#!/bin/bash
+not_add_to_path="/usr/share/my_stuff/bin/not_add_2_path"
+
+tint2manager(){
+	${not_add_to_path}/tint2-manager
+}
+
+tint2edit(){
+	${not_add_to_path}/tint2-edit
+}
+
+conkyedit(){
+	${not_add_to_path}/conky-edit
+}
+
+conkymanager(){
+	${not_add_to_path}/conky-manager
+}
+
+conkymove(){
+	${not_add_to_path}/conkymove
+}
+
+case "${1-}" in
+		--tint2manager) tint2manager ;;
+		--tint2edit) tint2edit ;;
+		--conkyedit) conkyedit ;;
+		--conkymanager) conkymanager ;;
+		--conkymove) conkymove ;;
+esac

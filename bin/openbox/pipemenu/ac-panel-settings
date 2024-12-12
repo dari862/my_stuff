@@ -15,7 +15,7 @@ if [ "$_panel_name_" = "polybar" ]; then
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
 		. "/usr/share/my_stuff/lib/common/DB"
 		count=1
-		[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles
+		[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/WM/create_DB.sh --styles
 		# Styles
 		styles="$(cat "${styles_db_path}")"
 		menuSeparator "| Simple |"

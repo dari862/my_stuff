@@ -3,8 +3,6 @@ usr_setup_flag_file="$1"
 backup_date="$(date +'%d-%m-%Y-%HH%mm')"
 backup_file_name=".backup-${backup_date}"
 backup_file_path="${HOME}/${backup_file_name}"
-mkdir -p "${backup_file_path}"
-
 remove_this_Array="
 .xsessionrc
 .xsession
@@ -31,26 +29,46 @@ remove_this_Array="
 .zprofile
 .xprofile
 "
+move_this_Array="$(ls /usr/share/my_stuff/system_files/skel/.config/ | sed '/WM_common_config/d')"
+
+#-----------------------------------------------------------##-----------------------------------------------------------#
+
+the_copyed_skel_are_correpted(){
+	wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" > /dev/null 2>&1 && return 0
+	#test="$(find ./bin -type f -exec sha256sum {} \; | sort | sha256sum)"
+	#test2="$(find ./bin -type f -exec sha256sum {} \; | sort | sha256sum)"
+	#[ "$test" = "$test2" ] && echo yes
+}
+
+copy_skel_(){
+	cp -rf /usr/share/my_stuff/system_files/skel/. "$HOME"
+	if the_copyed_skel_are_correpted;then
+		return 1
+	fi
+}
+
+#-----------------------------------------------------------##-----------------------------------------------------------#
+
+mkdir -p "${backup_file_path}"
+
 for i in ${remove_this_Array}; do
 	[ -f "${HOME}/${i}" ] && mv "${HOME}/${i}" "${backup_file_path}"  > /dev/null 2>&1
 done
 
 mkdir -p "${backup_file_path}/.config"
-move_this_Array="$(ls /usr/share/my_stuff/system_files/skel/.config/ | sed '/WM_common_config/d')"
+
 for movethis in ${move_this_Array}; do
 	[ -e "${HOME}/.config/${movethis}" ] && mv "${HOME}/.config/${movethis}" "${backup_file_path}/.config"  > /dev/null 2>&1
 done
 
-cp -rf /usr/share/my_stuff/system_files/skel/. $HOME || cp -rf /usr/share/my_stuff/system_files/skel/. $HOME
+copy_skel_ || copy_skel_ || copy_skel_
 
-if wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" > /dev/null 2>&1;then
-	if cp -rf /usr/share/my_stuff/system_files/skel/. "$HOME";then
-		touch "$usr_setup_flag_file"
-	else
-		echo "failed: to copy /usr/share/my_stuff/system_files/skel"
-		exit 1
-	fi
+if the_copyed_skel_are_correpted;then
+	echo "[ERROR] $(basename "$0") : failed: to copy /usr/share/my_stuff/system_files/skel"
+	exit 1
 fi
+
+touch "$usr_setup_flag_file"
 
 cd $HOME
 

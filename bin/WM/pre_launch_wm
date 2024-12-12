@@ -10,8 +10,8 @@ else
 fi
 
 if [ ! -f "${WM_config_dir}/rofi_picked" ];then
-	panel_manager --picker
-	style-manager --set
+	panel_picker
+	style_setter
 	touch "${WM_config_dir}/rofi_picked"
 fi
 
