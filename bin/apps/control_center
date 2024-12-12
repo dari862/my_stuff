@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 #
 . "/usr/share/my_stuff/lib/common/WM"
@@ -296,7 +296,7 @@ case $LANG in
 esac
 
 function maindialog(){
-	KEY=$RANDOM
+	KEY=$(od -An -N2 -i /dev/urandom | tr -d ' ')
 
 	res1=$(mktemp --tmpdir acc-tab1.XXXXXXXX)
 	res2=$(mktemp --tmpdir acc-tab2.XXXXXXXX)
@@ -322,21 +322,16 @@ if [ -f /etc/lsb-release ] ; then
 	OSCODE=$(grep CODENAME /etc/lsb-release |cut -d '=' -f2)
 fi
  # system uptime
-UPT="$(uptime -p)"
-UPT="${UPT/up /}"
-UPT="${UPT/ day?/d}"
-UPT="${UPT/ hour?/h}"
-UPT="${UPT/ minute?/m}"
+UPT=$(uptime -p | sed -e 's/^up //' -e 's/ day/d/' -e 's/ hour/h/' -e 's/ minute/m/' -e 's/s//g')
+
 # install date
-if [[ -e /var/log/pacman.log ]]; then
-        INST="$(sed 1q /var/log/pacman.log)"
-        INST="${INST/ */}"
-        INST="${INST/T*/}" # newer pacman adds a different timestamp (TXX:XX:XX+0000), we just want the date
-        INST="${INST/\[/}"
-        #INST="${INST//\-/ }"
+if [ -f /var/log/pacman.log ]; then
+        INST=$(sed 1q /var/log/pacman.log | awk '{print $1}' | sed -e 's/T.*//' -e 's/\[//')
+		#INST=$(echo "$INST" | tr '-' ' ')
+
 fi
 
-if [[ -e /var/log/apt/term.log ]]; then
+if [ -f /var/log/apt/term.log ]; then
         INST="$(stat /var/log/apt/term.log | grep Modify: | awk -F" " '{print $2}')"
 fi
 # Days ago
@@ -344,8 +339,8 @@ TODAY=$(date +%F)
 TODAY_in_sec=$(date +%s -d ${TODAY})
 INST_in_sec=$(date +%s -d ${INST})
 DIFF_in_sec=$(($TODAY_in_sec - $INST_in_sec))
-let DIFF=$(($DIFF_in_sec / 86400))
-if [[ "$DIFF" -gt "1" ]];then
+DIFF=$((DIFF_in_sec / 86400))
+if [ "$DIFF" -gt 1 ];then
 DAGO="(${DIFF} ${DAYS_AGO})"
 else
 DAGO=""
@@ -358,10 +353,7 @@ else
 fi
 
 # kernel version
-KERN="${KERN:-$(uname -sr | awk '{print $2}')}"
-KERN="${KERN/-*/}"
-KERN="${KERN/linux/}"
-KERN="${KERN,,}"
+KERN=$(uname -r | cut -d'-' -f1 | sed 's/linux//' | tr '[:upper:]' '[:lower:]')
 
 RESOLUTION=$(xdpyinfo | awk '/^ +dimensions/ {print $2}')
 

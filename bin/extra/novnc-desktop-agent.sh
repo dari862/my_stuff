@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 
@@ -26,7 +26,8 @@ MSG_CONNECTED="someone connected from"
 # ENVIRONMENT
 # -----------------------------------------------------------------------------
 PGID=$$
-RUNDIR="/var/run/user/$UID"
+USER_ID="$(id -u)"
+RUNDIR="/var/run/user/$USER_ID"
 PIDFILE="$RUNDIR/vnc.$PGID"
 HOST=$(hostname -I | awk '{print $1}')
 PORT=6080
@@ -38,16 +39,16 @@ echo $PGID > $PIDFILE
 # -----------------------------------------------------------------------------
 # cleanup
 # -----------------------------------------------------------------------------
-function cleanup {
+cleanup() {
     set +e
 
-    pkill -U $UID -f " YAD-$PGID"
-    pkill -U $UID -f " VNC-$PGID"
-    sleep 0.2 && pkill -U $UID -9 -f " VNC-$PGID"
-    pkill -U $UID -f "websockify .*$PORT"
+    pkill -U $USER_ID -f " YAD-$PGID"
+    pkill -U $USER_ID -f " VNC-$PGID"
+    sleep 0.2 && pkill -U $USER_ID -9 -f " VNC-$PGID"
+    pkill -U $USER_ID -f "websockify .*$PORT"
 
     rm -f $PIDFILE
-    pkill -U $UID -g $PGID
+    pkill -U $USER_ID -g $PGID
 }
 
 # trap func
@@ -57,27 +58,27 @@ trap cleanup EXIT
 # -----------------------------------------------------------------------------
 # terminate_active_instances: terminate the active instances except this one
 # -----------------------------------------------------------------------------
-function terminate_active_instances {
+terminate_active_instances() {
     ls $RUNDIR/vnc.* | grep -v "vnc.$PGID" | \
     while read -r pidfile
     do
         pgid=$(echo $pidfile | cut -d '.' -f2)
 
-        pkill -U $UID -f " YAD-$pgid" || true
-        pkill -U $UID -f " VNC-$pgid" || true
-        sleep 0.2 && pkill -U $UID -9 -f " VNC-$pgid" || true
-        pkill -U $UID -f "websockify .*$PORT" || true
+        pkill -U $USER_ID -f " YAD-$pgid" || true
+        pkill -U $USER_ID -f " VNC-$pgid" || true
+        sleep 0.2 && pkill -U $USER_ID -9 -f " VNC-$pgid" || true
+        pkill -U $USER_ID -f "websockify .*$PORT" || true
 
-        pkill -U $UID -g $pgid || true
+        pkill -U $USER_ID -g $pgid || true
         rm -f $pidfile
     done
 }
 
 
 # -----------------------------------------------------------------------------
-# renew-credential: regenerate the x11vnc password
+# renew_credential: regenerate the x11vnc password
 # -----------------------------------------------------------------------------
-function renew-credential {
+renew_credential() {
     mkdir -p ~/.vnc
     PASSWD=$(shuf -i 100000-999999 -n 1)
     x11vnc -storepasswd $PASSWD ~/.vnc/passwd
@@ -94,12 +95,11 @@ function renew-credential {
 
 
 # -----------------------------------------------------------------------------
-# start-websockify
+# start_websockify
 # -----------------------------------------------------------------------------
-function start-websockify {
-    while read -r output
-    do
-        if [[ -n "$(echo $output | egrep 'connecting to')" ]]; then
+start_websockify() {
+     websockify --heartbeat=30 $PORT 127.0.0.1:$VNCPORT 2>&1 | while IFS= read -r output; do
+        if [ -n "$(echo $output | egrep 'connecting to')" ]; then
             ip=$(echo $output | cut -d ' ' -f1)
             yad --title="" --escape-ok --fixed --borders=20 \
                 --text-align=center --timeout=5 --no-buttons \
@@ -108,41 +108,40 @@ function start-websockify {
                 --field="<b><big><big>$ip</big></big></b>:LBL" \
                 -- YAD-$PGID &
         fi
-    done < <(websockify --heartbeat=30 $PORT 127.0.0.1:$VNCPORT 2>&1)
+    done
 }
 
 
 # -----------------------------------------------------------------------------
-# share-desktop: start and manage the x11vnc and websockify instances
+# share_desktop: start and manage the x11vnc and websockify instances
 # -----------------------------------------------------------------------------
-function share-desktop {
-    oldport=0
-    splashed=false
+share_desktop() {
+	splashed=false
+	oldport=""
+	
+	x11vnc -display :0 -localhost -autoport 5900 -noipv6 -nolookup \
+       	-once -loop -usepw -shared -noxdamage -nodpms \
+       	-tag VNC-$PGID 2>&1 | while IFS= read -r output; do
+    	if echo "$output" | egrep -q '^PORT='; then
+        	VNCPORT=$(echo "$output" | cut -d '=' -f2)
+	
+        	# restart websockify if the port is changed
+        	if [ "$oldport" != "$VNCPORT" ]; then
+            	pkill -U "$USER_ID" -f "websockify .*$PORT" || true
+            	start_websockify &
+            	oldport="$VNCPORT"
+        	fi
+    	# open the permanent splash window if it's not opened before
+    	elif echo "$output" | egrep -q 'client_set_net:' && [ "$splashed" = false ]; then
+        	pkill -U "$USER_ID" -f " YAD-$PGID" || true
+        	(yad --title="$TITLE" --splash --no-escape --borders=20 \
+            	--buttons-layout=edge --button=gtk-close:0 \
+            	--text="$MSG_CLOSE" \
+            	-- YAD-$PGID && kill "$PGID") &
+        	splashed=true
+    	fi
+	done
 
-    while read -r output
-    do
-        if [[ -n "$(echo $output | egrep '^PORT=')" ]]; then
-            VNCPORT=$(echo $output | cut -d '=' -f2)
-
-            # restart websockify if the port is changed
-            if [[ "$oldport" != "$VNCPORT" ]]; then
-                pkill -U $UID -f "websockify .*$PORT" || true
-                start-websockify &
-                oldport=$VNCPORT
-            fi
-        # open the permanent splash window if it's not opened before
-        elif [[ -n "$(echo $output | egrep 'client_set_net:')" ]] && \
-             [[ "$splashed" = false ]]; then
-            pkill -U $UID -f " YAD-$PGID" || true
-            (yad --title="$TITLE" --splash --no-escape --borders=20 \
-                --buttons-layout=edge --button=gtk-close:0 \
-                --text="$MSG_CLOSE" \
-                -- YAD-$PGID && kill $PGID) &
-            splashed=true
-        fi
-    done < <(x11vnc -display :0 -localhost -autoport 5900 -noipv6 -nolookup \
-                    -once -loop -usepw -shared -noxdamage -nodpms \
-                    -tag VNC-$PGID 2>&1)
 }
 
 # -----------------------------------------------------------------------------
@@ -150,7 +149,7 @@ function share-desktop {
 # -----------------------------------------------------------------------------
 # check the running instances. don't go on if the user don't accept to
 # terminate the old instances.
-[[ -n "$(ls $RUNDIR/vnc.* | grep -v vnc.$PGID)" ]] && \
+[ -n "$(ls $RUNDIR/vnc.* | grep -v vnc.$PGID)" ] && \
     yad --title="$TITLE" --splash --no-escape --borders=20 \
         --buttons-layout=edge --button=gtk-yes:0 --button=gtk-no:1 \
         --text="$MSG_CLOSE_OLD" \
@@ -166,7 +165,7 @@ yad --title="$TITLE" --splash --no-escape --borders=20 \
     -- YAD-$PGID
 
 # renew and share the credential
-renew-credential
+renew_credential
 
 # start to share the desktop
-share-desktop
+share_desktop

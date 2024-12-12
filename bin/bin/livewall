@@ -1,12 +1,10 @@
-#!/bin/bash
-shopt -s extglob
-
+#!/bin/sh
 _livewallpaper_dir="${HOME}/.local/livewallpaper"
 _dir_vid="${_livewallpaper_dir}/video"
 _autorun_livewall_file="${_livewallpaper_dir}/autorun"
 
 if [ "${1-}" = "-c" ] || [ "${1-}" = "--check-run-live" ];then
-	if [[ -f "${_autorun_livewall_file}" ]];then
+	if [ -f "${_autorun_livewall_file}" ];then
 		echo "true"
 	else
 		echo "false"
@@ -14,14 +12,7 @@ if [ "${1-}" = "-c" ] || [ "${1-}" = "--check-run-live" ];then
 	exit
 fi
 
-command -v ffmpeg >/dev/null 2>&1 || _ffmpeg_="I need ffmpeg: my-superuser apt install --no-install-recommends ffmpeg \n"
-command -v feh >/dev/null 2>&1 || _feh_="I need feh: my-superuser apt install --no-install-recommends feh \n"
-
-if [[ -n "${_feh_}" ]] || [[ -n "${_ffmpeg_}"  ]];then
-	echo "${_ffmpeg_}" 
-	echo "${_feh_}" 
-	exit 1
-fi
+check_4_dependencies_if_installed ffmpeg feh
 
 Use_numbers="Use numbers indicated by"
 Preparing_video="Preparing the video..."
@@ -31,7 +22,7 @@ mp4_only="MP4 format only"
 Report_Video="Report Video"
 no_videos="No videos."
 
-[[ ! -d "${_dir_vid}" ]] && mkdir -p "${_dir_vid}"
+[ ! -d "${_dir_vid}" ] && mkdir -p "${_dir_vid}"
 
 __help(){
   cat <<EOF
@@ -68,7 +59,7 @@ ctrl_c(){
 
 _quit_loop(){
     script_pid=$(pgrep -r "$0")
-    if [[ ! -z "$script_pid" ]];then
+    if [ -n "$script_pid" ];then
     	kill $script_pid 2>/dev/null >/dev/null
     fi
 }
@@ -79,22 +70,36 @@ _video(){
 		vid_dir_name="$(grep -R "$1" "${_dir_vid}" | awk -F'/video.info' '{print $1}')"
 		a="$(basename "${vid_dir_name}")"
 	else	
-		[[ -z "$1" ]] && { echo "${Report_Video}"; exit 1; }
-		[[ $(file -b --mime-type "${1}" | cut -d"/" -f1) != 'video' ]] && { echo "${Invalid_format}"; exit 1; }
-		[[ $(file -b --mime-type "${1}" | cut -d"/" -f2) != @(mp4|x-m4v) ]] && { echo "${mp4_only}"; exit 1; }
+		[ -z "$1" ] && { echo "${Report_Video}"; exit 1; }
+		mime_type=$(file -b --mime-type "$1" | cut -d"/" -f1)
+		if [ "$mime_type" != "video" ]; then
+    		echo "$Invalid_format"
+    		exit 1
+		fi
+		
+		extension=$(file -b --mime-type "$1" | cut -d"/" -f2)
+		case "$extension" in
+    		mp4|x-m4v)
+        		# Valid formats
+        		;;
+    		*)
+        		echo "$mp4_only"
+        		exit 1
+        		;;
+		esac
     	a=1     
     	for i in $(ls -d $_dir_vid/*/ 2>/dev/null); do
-       	if [[ -d "$_dir_vid/$a" ]]; then
-           	let a=a+1
+       	if [ -d "$_dir_vid/$a" ]; then
+           	a=$((a + 1))
        	fi
     	done
 	
     	mkdir -p "$_dir_vid/$a"
 	
-    	echo -e "${Preparing_video}...\r"
+    	printf "${Preparing_video}...\n"
     	ffmpeg -y -ss 00:00 -i ${1} -t 10 "${_dir_vid}/${a}/filename%05d.jpg" > ${_dir_vid}/${a}/video.info 2>&1
     	t=$(ls ${_dir_vid}/${a}/* | wc -l)
-    	let t=t-1
+    	t=$((t - 1))
     	echo ${1} > ${_dir_vid}/${a}/video.info
 	fi
 
@@ -103,14 +108,14 @@ _video(){
     while : ; do
         feh --bg-scale $(ls -1 ${_dir_vid}/${a}/* | sed -n "${i}p")
         sleep 0.01
-        let i=i+1
-        [[ "${i}" -gt "${t}" ]] && i=1              
+        i=$((i + 1))
+        [ "${i}" -gt "${t}" ] && i=1              
     done &
 }
 
 __autorun(){
-	if [[ -z "${1-}" ]];then
-		[[ -f "${_autorun_livewall_file}" ]] && rm -f "${_autorun_livewall_file}"
+	if [ -z "${1-}" ];then
+		[ -f "${_autorun_livewall_file}" ] && rm -f "${_autorun_livewall_file}"
 	else
 		if ! grep -q "$1" "${_autorun_livewall_file}";then
 			echo "${1-}" > "${_autorun_livewall_file}"
@@ -119,7 +124,7 @@ __autorun(){
 }
 
 __runit(){
-	if [[ -f "${_autorun_livewall_file}" ]];then
+	if [ -f "${_autorun_livewall_file}" ];then
 		video_name="$(cat "${_autorun_livewall_file}")"
 		_video "${video_name}"
 	fi
@@ -127,8 +132,8 @@ __runit(){
 
 _list_vid(){
     check_if_vid_exist_in_dir
-    __numbers_=($(cd ${_dir_vid} && ls))
-    for i in "${__numbers_[@]}"; do
+    __numbers_="$(cd ${_dir_vid} && ls)"
+    for i in ${__numbers_}; do
     	#videonumber → videoname
     	echo "${i} → $(cat ${_dir_vid}/${i}/video.info)"
     done
@@ -136,22 +141,22 @@ _list_vid(){
 
 _set_video(){
     check_if_vid_exist_in_dir
-    if [[ $(echo "$1" | sed -n -r '/^[0-9]+$/p') == "" ]]; then
+    if [ -z "$(echo "$1" | sed -n -r '/^[0-9]+$/p')" ]; then
         echo "${Use_numbers} '${0##*/} --list-videos'."
     else
-        if [[ "$1" -gt "$(ls -d1 "${_dir_vid}"/* | wc -l)" ]]; then
+        if [ "$1" -gt "$(ls -d1 "${_dir_vid}"/* | wc -l)" ]; then
             echo "${Use_numbers_from} $(ls -d1 ${_dir_vid}/* | wc -l)"
             exit 1
         else
             t=$(ls ${_dir_vid}/${1}/* | wc -l)
-            let t=t-1
+            t=$((t - 1))
             i=1
             # ctrl_c
             while : ; do
                 feh --bg-scale $(ls -1 ${_dir_vid}/${1}/* | sed -n "${i}p")
                 sleep 0.01
-                let i=i+1
-                [[ "${i}" -gt "${t}" ]] && i=1              
+                i=$((i + 1))
+                [ "${i}" -gt "${t}" ] && i=1              
             done &
         fi
     fi

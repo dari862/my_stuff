@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #    bl-tint2-pipemenu - an Openbox pipemenu for tint2 manipulation
 #    This program is free software: you can redistribute it and/or modify
@@ -64,33 +64,46 @@ loadReload(){
     fi
 }
 
-loadEditSubmenu(){
-    local pid command TPATH TINT2
+loadEditSubmenu() {
     menuSubmenu "EditTint2" "Edit Tint2s"
-        if type style-manager >/dev/null 2>&1;then
-            menuItem "Tint2 Editor" "style-manager --tint2edit"
-        fi
-# tint2conf removed here but still available from "Applications" menu as Settings > Panel Manager
-#        menuItem "Tint2 Config GUI" "tint2conf"
-        menuItem "Default tint2rc" "my-text-editor '$TINT2DEFAULT'"
-        if pgrep -x -u "$USER" tint2 >/dev/null;then
-            menuSubmenu "RunningTint2" "Running Tint2s"
-            while read -r pid; do
-                mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
-                [[ ${command[0]} = 'tint2' ]]  || { echo "$0: pgrep parsing failed: command is not 'tint2'" >&2; continue;}
-                if (( ${#command[@]} > 1 )); then
-                    TPATH=${command[-1]} # tint2 takes no options other than -c, which is optional
-                    [[ $TPATH = /* ]] || TPATH="$HOME/$TPATH" # assume path is relative to $HOME
-                    TINT2=${TPATH#${TINT2PATH}/}
-                else
-                    TPATH="$TINT2DEFAULT"
-                    TINT2="Default tint2rc"
-                fi
-                [[ -f $TPATH ]] || { echo "$0: pgrep tint2 parsing failed: $TPATH is not a file" >&2; continue;}
-                menuItem "$TINT2" "my-text-editor ${TPATH@Q}"
-            done < <(pgrep -x 'tint2' -u "$USER")
-            menuSubmenuEnd
-        fi
+
+    if type style-manager >/dev/null 2>&1; then
+        menuItem "Tint2 Editor" "style-manager --tint2edit"
+    fi
+
+    menuItem "Default tint2rc" "my-text-editor '$TINT2DEFAULT'"
+
+    if pgrep -x -u "$USER" tint2 >/dev/null; then
+        menuSubmenu "RunningTint2" "Running Tint2s"
+        
+        pgrep -x -u "$USER" tint2 | while read -r pid; do
+            cmdline=""
+            while IFS= read -r part; do
+                cmdline="$cmdline $part"
+            done < "/proc/${pid}/cmdline"
+            set -- $cmdline
+            if [ "$1" != "tint2" ]; then
+                echo "$0: pgrep parsing failed: command is not 'tint2'" >&2
+                continue
+            fi
+            TPATH=""
+            set -- $cmdline
+            while [ "$1" ]; do
+                TPATH="$1"
+                shift
+            done
+            if [ "${TPATH#"/"}" = "$TPATH" ]; then
+                TPATH="$HOME/$TPATH"
+            fi
+            TINT2="${TPATH#${TINT2PATH}/}"
+            if [ ! -f "$TPATH" ]; then
+                echo "$0: pgrep tint2 parsing failed: $TPATH is not a file" >&2
+                continue
+            fi
+            menuItem "$TINT2" "my-text-editor $TPATH"
+        done
+        menuSubmenuEnd
+    fi
     menuSubmenuEnd
 }
 
@@ -101,7 +114,7 @@ checkHelpfile(){
     --filename=$HELPFILE --fontname=Monospace \
     --width=650 --height=700 \
     --button=OK:0"
-    if [[ -e $HELPFILE ]];then
+    if [ -e "$HELPFILE" ];then
         menuItem "Tint2 Manager Help" "$DLG"
     fi
 }

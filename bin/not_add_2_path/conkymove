@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ##
 #    conkymove: a script to set the position of a moveable Conky
 #

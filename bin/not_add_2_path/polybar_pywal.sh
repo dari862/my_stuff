@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/polybar"

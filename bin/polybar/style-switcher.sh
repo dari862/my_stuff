@@ -122,7 +122,7 @@ then
 		echo "$style_name" > "$rofi_style_name_path"
 		
 		# Change wallpaper
-		setbg -s /usr/share/my_stuff/my_wallpapers/"$bg"
+		setbg -R /usr/share/my_stuff/my_wallpapers/"$bg"
 		
 		# Restarting polybar
 		polybar_launch_creater

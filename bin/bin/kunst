@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Dependencies: sxiv, imagemagick, bash, ffmpeg, mpc, jq, mpd
 
 VERSION=1.2.9
@@ -67,9 +67,7 @@ done
 # This is a base64 endcoded image which will be used if
 # the file does not have an emmbeded album art.
 # The image is an image of a music note
-read -r -d '' MUSIC_NOTE << EOF
-iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJESURBVGhD7Zg/axRRFMVXAtpYphEVREKClnHfJI0MmReSfAC3tRejhaBgo70fwN7aD2BvEU0gfztbu5AqMxNjoVnvG87KZXy7z5m5dxLI/OCw8Pade+7M3n3Dbq+jo6OjY8RwMJhKk+hhlph3eRJ9w/LF5jCOr1PTj6jpD7mNjkjDkbDl4vFjpX87teZJlkSfSD9501zYfv5QJ1fyZHGexuJtZs12ZqMzX8NlwX4+nK3NXMutWaOm39Nd/u5rMCSUao80fjBNwY+p8Y+krNxQVaGsLsfWzFLYS2r4M30Rf5WbaCJE6OILlhIidPEFSwkRuviCpYQIXXzB1WX26bR6ky4v3OPriNCFB1YRHa079Pr6eKk/h1IFfA+WdOGBk+QeXtT0Ft3pV6e2fxf2f+AeLOnCA8tC0xv09H1xGi/cgWUi3I8lXXigEzX8u3gmWPP8JI5uYdt/w2thSRceSM0/zVfnb+CtWvB6WNJFOlC6XhDpQOl6QaQDpesFkQ6UrhdEOlC6XpA6gcPB/avumKXnxCadXHkha766tTr1GlE18CRZvEmN7nHfOMGiS5XA4mdmYg64Z5Jg06VKYHlEQoKtOVIz6zx8f0iwNUNyZt2F+3zjBFt9pGe22gWYFLb6lEckJNjGUmWEssR8ga0+0jNL9Z75fD7Rp7UOW32kZxb/1u37vFyUu+sODtjqozGzxaFADfprFM3vuD3Y3gytmf17LJPHXbgTNb5BWhe58yNan1lpWp9ZDVqdWS1am9mOjo7LRq/3B1ESKyYUVquzAAAAAElFTkSuQmCC
-EOF
+MUSIC_NOTE="iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJESURBVGhD7Zg/axRRFMVXAtpYphEVREKClnHfJI0MmReSfAC3tRejhaBgo70fwN7aD2BvEU0gfztbu5AqMxNjoVnvG87KZXy7z5m5dxLI/OCw8Pade+7M3n3Dbq+jo6OjY8RwMJhKk+hhlph3eRJ9w/LF5jCOr1PTj6jpD7mNjkjDkbDl4vFjpX87teZJlkSfSD9501zYfv5QJ1fyZHGexuJtZs12ZqMzX8NlwX4+nK3NXMutWaOm39Nd/u5rMCSUao80fjBNwY+p8Y+krNxQVaGsLsfWzFLYS2r4M30Rf5WbaCJE6OILlhIidPEFSwkRuviCpYQIXXzB1WX26bR6ky4v3OPriNCFB1YRHa079Pr6eKk/h1IFfA+WdOGBk+QeXtT0Ft3pV6e2fxf2f+AeLOnCA8tC0xv09H1xGi/cgWUi3I8lXXigEzX8u3gmWPP8JI5uYdt/w2thSRceSM0/zVfnb+CtWvB6WNJFOlC6XhDpQOl6QaQDpesFkQ6UrhdEOlC6XpA6gcPB/avumKXnxCadXHkha766tTr1GlE18CRZvEmN7nHfOMGiS5XA4mdmYg64Z5Jg06VKYHlEQoKtOVIz6zx8f0iwNUNyZt2F+3zjBFt9pGe22gWYFLb6lEckJNjGUmWEssR8ga0+0jNL9Z75fD7Rp7UOW32kZxb/1u37vFyUu+sODtjqozGzxaFADfprFM3vuD3Y3gytmf17LJPHXbgTNb5BWhe58yNan1lpWp9ZDVqdWS1am9mOjo7LRq/3B1ESKyYUVquzAAAAAElFTkSuQmCC"
 
 is_connected() {
 	# Check if internet is connected. We are using api.deezer.com to test
@@ -87,13 +85,14 @@ get_cover_online() {
 	# Check if connected to internet
 	is_connected
 
-	if [ "$connected" == false ];then
+	if [ "$connected" = false ];then
 		ARTLESS=true
 		return
 	fi
 
 	# Try to get the album cover online from api.deezer.com
-	API_URL="https://api.deezer.com/search/autocomplete?q=$(mpc current)" && API_URL=${API_URL//' '/'%20'}
+	API_URL="https://api.deezer.com/search/autocomplete?q=$(mpc current)"
+	API_URL=$(echo "$API_URL" | sed 's/ /%20/g')
 
 	# Extract the albumcover from the json returned
 	IMG_URL=$(getURL '2term' "$API_URL" | jq -r '.playlists.data[0] | .picture_big')
@@ -127,7 +126,7 @@ update_cover() {
 
 		# Check if there is an album cover/art in the folder.
 		# Look at issue #9 for more details
-        for CANDIDATE in "$DIR/cover."{png,jpg}; do
+        for CANDIDATE in "$DIR/cover.png" "$DIR/cover.jpg"; do
             if [ -f "$CANDIDATE" ]; then
                 STATUS=0
                 ARTLESS=false
@@ -144,7 +143,7 @@ update_cover() {
 	fi
 
 	# Resize the image to 250x250
-	if [ "$ARTLESS" == false ]; then
+	if [ "$ARTLESS" = false ]; then
 		convert "$COVER" -resize "$SIZE" "$COVER" >/dev/null 2>&1
         [ ! "$SILENT" ] && echo "kunst: resized album art to $SIZE"
 	fi
@@ -163,14 +162,8 @@ pre_exit() {
 
 main() {
 
-    dependencies=(convert bash ffmpeg mpc jq mpd)
-    for dependency in "${dependencies[@]}"; do
-        type -p "$dependency" >/dev/null 2>&1 || {
-            echo "error: Could not find '${dependency}', is it installed?" >&2
-            exit 1
-        }
-    done
-
+    check_4_dependencies_if_installed convert bash ffmpeg mpc jq mpd
+    
     [ "$KUNST_MUSIC_DIR" != "" ] && MUSIC_DIR="$KUNST_MUSIC_DIR"
     [ "$KUNST_SIZE" != "" ] && SIZE="$KUNST_SIZE"
     [ "$KUNST_POSITION" != "" ] && POSITION="$KUNST_POSITION"
@@ -182,7 +175,7 @@ main() {
 
 		update_cover
 
-		if [ "$ARTLESS" == true ];then
+		if [ "$ARTLESS" = true ];then
 			# Change the path to COVER because the music note
 			# image is a png not jpg
 			COVER=/usr/share/my_stuff/icons/dunst/music.png
@@ -197,7 +190,7 @@ main() {
             printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
         fi
 
-		if [ "$FIRST_RUN" == true ]; then
+		if [ "$FIRST_RUN" = true ]; then
 			FIRST_RUN=false
 
 			# Display the album art using sxiv
@@ -221,7 +214,8 @@ main() {
 # Disable CTRL-Z because if we allowed this key press,
 # then the script would exit but, sxiv would still be
 # running
-trap "" SIGTSTP
+# 20 eq to SIGTSTP
+trap "" 20
 
 trap EXIT
 main

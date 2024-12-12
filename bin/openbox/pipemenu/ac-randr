@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # A small utility to make xrandr adjustments from an OpenBox menu.
 # To install, put this file somewhere and make sure it is executable.
@@ -39,7 +39,7 @@ tmp_outputs_connected_file="/tmp/$USER/outputs_connected"
 xrandr -q | grep "connected" | while read -r line; do
     output="${line%% *}"
 
-    if [[ "$line" == *"disconnected"* ]]; then
+    if echo "$line" | grep -q "disconnected"; then
     	echo "$output" >> "${tmp_outputs_disconnected_file}"
     else
     	echo "$output" >> "${tmp_outputs_connected_file}"
@@ -50,7 +50,7 @@ outputs_disconnected="$(cat "${tmp_outputs_disconnected_file}")"
 outputs_connected="$(cat "${tmp_outputs_connected_file}")"
 
 mk_position_controls() {
-	local output="$1"
+	output="$1"
     # Create XML element for the menu
     echo "<menu id=\"${output}-position\" type=\"position\" label=\"Position\">"
     words_in_outputs_connected="$(echo $outputs_connected | wc -w)"
@@ -59,7 +59,7 @@ mk_position_controls() {
 		for position in left-of right-of above below same-as; do
 			echo "<menu id=\"--$position\" label=\"$position\">"
 				for other in ${outputs_connected}; do
-					if [[ "${output}" != "$other" ]]; then
+					if [ "${output}" != "$other" ]; then
 						echo "<item label=\"$other\">"
 						echo "<action name=\"execute\">"
 						echo "<command>xrandr --output ${output} --$position $other</command>"
@@ -79,9 +79,9 @@ mk_position_controls() {
 
 # Function to create executable menu node
 mk_exe_node() {
-    local output="$1"
-    local name="$2"
-    local command="$3"
+    output="$1"
+    name="$2"
+    command="$3"
     
     echo "<item label=\"$name\">"
     echo "<action name=\"execute\">"
@@ -98,20 +98,20 @@ mk_exe_node() {
 
 # Read user's rc file and return menu entries
 get_rc_menu() {
-    while IFS= read -r line; do
+    cat "$HOME/$RCFILE" | while IFS= read -r line; do
         section="${line%%=*}"
         command="${line#*=}"
 
         echo "<menu id=\"shortcut-$section\" label=\"$section\">"
         echo "$(mk_exe_node "$output" "$section" "$command")"
         echo "</menu>"
-    done < "$HOME/$RCFILE"
+    done
 }
 
 # Retrieve connected outputs and their states
 get_xrandr_info() {
     xrandr -q | while read -r line; do
-        if [[ "$line" == *"connected"* ]]; then
+        if echo "$line" | grep -q " connected"; then
             echo "$line"
         fi
     done
@@ -121,10 +121,10 @@ get_xrandr_info() {
 echo "<openbox_pipe_menu>"
 echo "<separator label=\"Current: $(xrandr -q | grep primary | grep -o -e [0-9]*x[0-9]*+[0-9]*+[0-9]*)\" />"
 # Output menu for each connected display
-while IFS= read -r output_info; do
+get_xrandr_info | while IFS= read -r output_info; do
     output="${output_info%% *}"
     mode="${output_info#* }"
-    if grep -q "disconnected" <<< "$mode";then
+    if echo "$mode" | grep -q "disconnected";then
 		echo "<item label=\"$output\" />"
     else
 		is_prim="$(echo $mode | grep -o "primary " || echo "")"
@@ -155,7 +155,7 @@ while IFS= read -r output_info; do
 		
 		echo "</menu>"
 	fi
-done < <(get_xrandr_info)
+done
 
 # Shortcuts from rc file
 echo "<separator label=\"Shortcuts\" />"

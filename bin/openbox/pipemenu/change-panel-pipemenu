@@ -18,11 +18,11 @@
 	fi
 	
 	# Check which bar is running
-	if [ $(pidof polybar) ]; then
+	if pidof polybar >/dev/null 2>&1; then
 		BAR='polybar'
-	elif [ $(pidof tint2) ]; then
+	elif pidof tint2 >/dev/null 2>&1; then
 		BAR='tint2'
-	elif [ $(pidof xfce4-panel) ]; then
+	elif pidof xfce4-panel >/dev/null 2>&1; then
 		BAR='xfce4-panel'
 	fi
 	

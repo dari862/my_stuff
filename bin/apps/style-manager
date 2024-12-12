@@ -87,7 +87,7 @@ Seter_Style_(){
 	reload-gtk23
 	if [ -f "${CONFIGPATH}/${style}/random_wallpaper" ];then
 		# Set random wallpaper for actual rice
-		setbg -d "/usr/share/my_stuff/my_wallpapers/${style}_*"
+		setbg -d "${style}"
 	else
 		setbg -S "${style}"
 	fi
@@ -97,6 +97,7 @@ Seter_Style_(){
 
 Set_Style_and_launch(){
 	Seter_Style_
+	setbg -r
 	panel_manager --reload
 }
 

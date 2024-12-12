@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 choices=""
 configdir="$HOME/.local/quickemu"
@@ -32,8 +32,8 @@ create_VM_() {
 }
 
 choose_VM_and_run_() {
-	vms=(*.conf)
-	chosen=$(printf '%s\n' "${vms[@]%.*}" | yad --width=640 --height=500 --title="Create VM" --list --print-all --radiolist --column="check" --column="Distro" || return)	
+	vms="$(ls *.conf | sed 's/.conf//g')"
+	chosen=$(printf '%s\n' "${vms}" | yad --width=640 --height=500 --title="Create VM" --list --print-all --radiolist --column="check" --column="Distro" || return)	
 	popup_terminal "Downloading $os $release $edition" "echo -e '\\nStarting $chosen \\n'; quickemu -vm "$chosen.conf""
 }
 

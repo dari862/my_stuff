@@ -2,8 +2,7 @@
 set -a
 	DEV_PATH=$(dirname $(realpath "$0"))
 	DEV_SUB_PATH="$DEV_PATH/dev-sub"
-	source /usr/share/my_stuff/lib/bash_active_select
-	#source "/usr/share/my_stuff/lib/bash_active_select"
+	. /usr/share/my_stuff/lib/bash_active_select
 	run_ascii_art(){
 		clear
 		ascii_art='
@@ -40,4 +39,4 @@ set -a
 set +a
 
 echo "" # Add spacing
-source $DEV_SUB_PATH/menu.sh
+. $DEV_SUB_PATH/menu.sh

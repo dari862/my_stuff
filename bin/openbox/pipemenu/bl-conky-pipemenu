@@ -59,21 +59,20 @@ loadReload(){
 }
 
 loadEditSubmenu(){
-    local pid command CPATH CONKY
     menuSubmenu "EditConky" "Edit Conkys"
         if type style-manager >/dev/null 2>&1;then  # style-manager --conkyedit script found
             menuItem "Conky Editor" "style-manager --conkyedit"
         fi
         if pgrep -x -u "$USER" conky >/dev/null;then
             menuSubmenu "RunningConky" "Running Conkys"
-            while read -r pid; do
+            pgrep -x 'conky' -u "$USER" | while read -r pid; do
                 mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
                 for i in "${!command[@]}"; do
                     [[ ${command[i]} = '-c' ]] && { CPATH="${command[i+1]}"; break;}
                     [[ ${command[i]} = '--config='* ]] && { CPATH="${command[i]#--config=}"; break;}
                 done
                 CONKY=${CPATH#${CONKYPATH}/}
-            done < <(pgrep -x 'conky' -u "$USER")
+            done
             menuSubmenuEnd
         fi
     menuSubmenuEnd
@@ -92,7 +91,7 @@ checkHelpfile(){
     --filename=$HELPFILE --fontname=Monospace \
     --width=650 --height=700 \
     --button=OK:0"
-    if [[ -e $HELPFILE ]];then
+    if [ -f "$HELPFILE" ];then
         menuItem "Conky Manager Help" "$DLG"
     fi
 }

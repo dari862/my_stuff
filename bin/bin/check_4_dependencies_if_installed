@@ -4,6 +4,21 @@ not_installed_apps_are=""
 
 . "/usr/share/my_stuff/system_files/Package-manager"
 
+on_terminal(){
+   	if [ -t 0 ]
+   	then
+       	if [ -t 1 ] && [ -t 2 ]
+       	then
+           	return 0
+       	else
+           	echo "$0: STDIN is on terminal, but not STDOUT or STDERR" >&2
+           	exit 1
+       	fi
+   	else
+       	return 1
+   	fi
+}
+
 has() {
 	case "$(command -v "$1" 2>/dev/null)" in
    		alias*|"") return 1
@@ -33,10 +48,19 @@ Do_want_to_install_dependencies()
 for prog in "$@"; do
 	! has "$prog" && dependencies_not_installed="${dependencies_not_installed}${prog} , " && not_installed_apps_are="${not_installed_apps_are} ${prog}"
 done
-	
-if [ -n "${dependencies_not_installed}" ]
-then
-	_pem "Missing dependencies, please install: ${dependencies_not_installed%??}."
-	Do_want_to_install_dependencies
-fi
 
+if on_terminal;then
+	if [ -n "${dependencies_not_installed}" ]
+	then
+		_pem "Missing dependencies, please install: ${dependencies_not_installed%??}."
+		Do_want_to_install_dependencies
+	fi
+else
+	yad --image="dialog-question" \
+		--title "Alert" \
+		--text-align=center \
+		--text="Missing dependencies, please install" \
+		--entry --entry-label=Label \
+		--entry-text="${not_installed_apps_are}"
+	exit 1
+fi

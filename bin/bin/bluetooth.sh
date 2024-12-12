@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #             __ _       _     _            _              _   _
 #  _ __ ___  / _(_)     | |__ | |_   _  ___| |_ ___   ___ | |_| |__
 # | '__/ _ \| |_| |_____| '_ \| | | | |/ _ \ __/ _ \ / _ \| __| '_ \
@@ -193,14 +193,17 @@ print_status() {
 
         paired_devices_cmd="devices Paired"
         # Check if an outdated version of bluetoothctl is used to preserve backwards compatibility
-        if (( $(echo "$(bluetoothctl version | cut -d ' ' -f 2) < 5.65" | bc -l) )); then
+        bluetooth_version=$(bluetoothctl version | cut -d ' ' -f 2)
+        if awk "BEGIN {if ($bluetooth_version < 5.65) exit 0}"; then
             paired_devices_cmd="paired-devices"
         fi
-
-        mapfile -t paired_devices < <(bluetoothctl $paired_devices_cmd | grep Device | cut -d ' ' -f 2)
+		paired_devices=""
+        bluetoothctl $paired_devices_cmd | grep Device | cut -d ' ' -f 2 | while IFS= read -r device; do
+    		paired_devices="$paired_devices $device"  # Add each device to the array
+		done
         counter=0
 
-        for device in "${paired_devices[@]}"; do
+        for device in ${paired_devices}; do
             if device_connected "$device"; then
                 device_alias=$(bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-)
 
@@ -209,8 +212,7 @@ print_status() {
                 else
                     printf " %s" "$device_alias"
                 fi
-
-                ((counter++))
+				counter=$((counter + 1))
             fi
         done
         printf "\n"

@@ -233,7 +233,7 @@ cmd stop ${{
 	kill -TSTP $(ps -p $$ -o 'ppid=')
 }}
 
-cmd setbg "$1"
+cmd setbg -R "$1"
 
 # Key mappings
 

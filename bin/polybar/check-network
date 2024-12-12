@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
@@ -8,7 +8,7 @@ then
     disconnected=""
     disconnected2=""
     disconnected3=""
-    if [ "$Style" == "beach" ]
+    if [ "$Style" = "beach" ]
     then
         disconnected4=""
     fi
@@ -26,15 +26,15 @@ ID="$(ip route | awk '/default/ { print $5 }')"
 if [ "$Style" != "hack" ]
 then
     while true; do       
-		if [[ $ID == e* ]]; then
+		if echo "$ID" | grep "^e"; then
             echo "$ethernet_connected" ; sleep 25
-        elif [[ $ID == w* ]]; then
+        elif echo "$ID" | grep "^w"; then
             echo "$wireless_connected" ; sleep 25
         else
             echo "$disconnected" ; sleep 0.5
             echo "$disconnected2" ; sleep 0.5
             echo "$disconnected3" ; sleep 0.5
-            if [ "$Style" == "beach" ]
+            if [ "$Style" = "beach" ]
             then
                 echo "$disconnected4" ; sleep 0.5
             fi
@@ -42,9 +42,9 @@ then
     done
 else
     while true; do
-        if [[ $ID == e* ]]; then
+        if echo "$ID" | grep "^e"; then
             echo "$connected Online" ; sleep 25
-        elif [[ $ID == w* ]]; then
+        elif echo "$ID" | grep "^w"; then
             echo "$connected Online" ; sleep 25
         else
             echo "$disconnected Offline" ; sleep 5

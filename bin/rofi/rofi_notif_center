@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 #set -euo pipefail
 

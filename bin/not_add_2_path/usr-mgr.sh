@@ -1,21 +1,21 @@
-#!/bin/bash
+#!/bin/sh
 # User manager script for Linux
 # Created by Y.G.
 
 # Envs
 # ---------------------------------------------------\
 PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+SCRIPT_PATH=$(dirname "$(realpath "$0")")
 cd $SCRIPT_PATH
 
 # Vars
 # ---------------------------------------------------\
-ME=`basename "$0"`
+ME=$(basename "$0")
 BACKUPS=$SCRIPT_PATH/backups
-SERVER_NAME=`hostname`
-SERVER_IP=`hostname -I | cut -d' ' -f1`
+SERVER_NAME=$(hostname)
+SERVER_IP=$(hostname -I | cut -d' ' -f1)
 LOG=$SCRIPT_PATH/actions.log
-DISTRO_UNAME=`uname`
+DISTRO_UNAME=$(uname)
 
 # Output messages
 # ---------------------------------------------------\
@@ -35,27 +35,27 @@ ON_ERROR="Oops"
 ON_CHECK="✓"
 
 Info() {
-  echo -en "[${1}] ${GREEN}${2}${NC}\n"
+  printf "[${1}] ${GREEN}${2}${NC}\n"
 }
 
 Warn() {
-  echo -en "[${1}] ${PURPLE}${2}${NC}\n"
+  printf "[${1}] ${PURPLE}${2}${NC}\n"
 }
 
 Success() {
-  echo -en "[${1}] ${GREEN}${2}${NC}\n"
+  printf "[${1}] ${GREEN}${2}${NC}\n"
 }
 
 Error () {
-  echo -en "[${1}] ${RED}${2}${NC}\n"
+  printf "[${1}] ${RED}${2}${NC}\n"
 }
 
 Splash() {
-  echo -en "${WHiTE} ${1}${NC}\n"
+  printf "${WHiTE} ${1}${NC}\n"
 }
 
 space() { 
-  echo -e ""
+  printf ""
 }
 
 
@@ -88,18 +88,18 @@ isRoot() {
 checkDistro() {
     # Checking distro
     if [ -e /etc/centos-release ]; then
-        DISTRO=`cat /etc/redhat-release | awk '{print $1,$4}'`
+        DISTRO=$(cat /etc/redhat-release | awk '{print $1,$4}')
         RPM=1
     elif [ -e /etc/fedora-release ]; then
-        DISTRO=`cat /etc/fedora-release | awk '{print ($1,$3~/^[0-9]/?$3:$4)}'`
+        DISTRO=$(cat /etc/fedora-release | awk '{print ($1,$3~/^[0-9]/?$3:$4)}')
         RPM=2
     elif [ -e /etc/os-release ]; then
-        DISTRO=`lsb_release -d | awk -F"\t" '{print $2}'`
+        DISTRO=$(lsb_release -d | awk -F"\t" '{print $2}')
         RPM=0
         DEB=1
     fi
 
-    if [[ "$DISTRO_UNAME" == 'Linux' ]]; then
+    if [ "$DISTRO_UNAME" = 'Linux' ]; then
         _LINUX=1
         Warn "Server info" "${SERVER_NAME} ${SERVER_IP} (${DISTRO}"
     else
@@ -111,8 +111,12 @@ checkDistro() {
 # Yes / No confirmation
 confirm() {
     # call with a prompt string or use a default
-    read -r -p "${1:-Are you sure? [y/N]} " response
-    case "$response" in
+    printf "${1:-Are you sure? [y/N]} "
+    stty -icanon -echo time 0 min 1
+	answer="$(head -c1)"
+	stty icanon echo
+    printf
+    case "$answer" in
         [yY][eE][sS]|[yY]) 
             true
             ;;
@@ -123,28 +127,29 @@ confirm() {
 }
 
 check_bkp_folder() {
-    if [[ ! -d "$BACKUPS" ]]; then
+    if [ ! -d "$BACKUPS" ]; then
         mkdir -p $BACKUPS
     fi
 }
 
 gen_pass() {
-  local l=$1
-  [ "$l" == "" ] && l=9
+  l=$1
+  [ "$l" = "" ] && l=9
   tr -dc A-Za-z0-9 < /dev/urandom | head -c ${l} | xargs
 }
 
 create_user() {
 
     space
-    read -p "Enter user name: " user
+    printf "Enter user name: "
+    read user
 
     if id -u "$user" >/dev/null 2>&1; then
         Error "Error" "User $user exists. Try to set another user name."
     else
         Info "Info" "User $user will be create.."
 
-        local pass=$(gen_pass)
+        pass=$(gen_pass)
         
         if confirm "Promote user to admin? (y/n or enter for n)"; then
             useradd -m -s /bin/bash -G wheel ${user}
@@ -157,7 +162,6 @@ create_user() {
         echo "$user:$pass" | chpasswd
 
         Info "Info" "User created. Name: $user. Password: $pass"
-        logthis "User created. Name: $user. Password: $pass"
 
     fi
     space
@@ -182,17 +186,19 @@ reset_password() {
     space
     while :
     do
-        read -p "Enter user name: " user
-        if id $user &> /etc/null 
+    	printf "Enter user name: " 
+        read user
+        if id $user > /dev/null 2>&1 
         then
             
             if confirm "Generate password automatically? (y/n or enter for n)"; then
-                local pass=$(gen_pass)
+                pass=$(gen_pass)
                 echo "$user:$pass" | chpasswd
                 Info "Info" "Password changed. Name: $user. Password: $pass"
                 logthis "Password changed. Name: $user. Password: $pass"
             else
-                read -p "Enter passwords: " password
+            	printf "Enter user passwords: " 
+        		read password
                 echo "$password" | passwd --stdin $user
                 Info "Info" "Password changed. Name: $user. Password: $password"
                 logthis "Password changed. Name: $user. Password: $password"
@@ -212,12 +218,13 @@ lock_user() {
     space
     while :
     do
-        read -p "Enter user name: " user
+        printf "Enter user name: " 
+        read user
         if [ -z $user ]
         then
             Error "Error" "Username can't be empty"
         else
-            if id $user &> /etc/null
+            if id $user > /dev/null 2>&1
             then
                 passwd -l $user
                 Info "Info" "User $user locked"
@@ -236,17 +243,18 @@ unlock_user() {
     space
     while :
     do
-        read -p "Enter user name: " user
+        printf "Enter user name: " 
+        read user
         if [ -z $user ]
         then
             Error "Error" "Username can't be empty"
         else
-            if id $user &> /etc/null
+            if id $user > /dev/null 2>&1
             then
 
-                local locked=$(cat /etc/shadow | grep $user | grep !)
+                locked=$(cat /etc/shadow | grep $user | grep !)
 
-                if [[ -z $locked ]]; then
+                if [ -z $locked ]; then
                     Info "Info" "User $user not locked"
                 else
                     passwd -u $user
@@ -271,12 +279,13 @@ backup_user() {
     space
     while :
     do
-        read -p "Enter user name: " user
+        printf "Enter user name: " 
+        read user
         if [ -z $user ]
         then
             Error "Error" "Username can't be empty"
         else
-            if id $user &> /etc/null
+            if id $user > /dev/null 2>&1
             then
                 check_bkp_folder
                 homedir=$(grep ${user}: /etc/passwd | cut -d ":" -f 6)
@@ -300,15 +309,16 @@ generate_ssh_key() {
     space
     while :
     do
-        read -p "Enter user name: " user
+        printf "Enter user name: " 
+        read user
         if [ -z $user ]
         then
             Error "Error" "Username can't be empty"
         else
-            if id $user &> /etc/null
+            if id $user > /dev/null 2>&1
             then
-                local sshf="/home/$user/.ssh"
-                if [[ ! -d "$sshf" ]]; then
+                sshf="/home/$user/.ssh"
+                if [ ! -d "$sshf" ]; then
                     mkdir -p $sshf
                     chown $user:$user $sshf
                     chmod 700 $sshf
@@ -335,18 +345,19 @@ delete_user() {
     space
     while :
     do
-        read -p "Enter user name: " user
+        printf "Enter user name: " 
+        read user
         if [ -z $user ]
         then
             Error "Error" "Username can't be empty"
         else
-            if id $user &> /etc/null
+            if id $user > /dev/null 2>&1
             then
                 
                 if confirm "Completely delete user (y/n or press enter for n)"; then
                     userdel -r -f $user
-                    if [[ -f /etc/sudoers.d/$user ]]; then
-                        yes | rm -r /etc/sudoers.d/$user
+                    if [ -f /etc/sudoers.d/$user ]; then
+                        rm -rf /etc/sudoers.d/$user
                     fi
                     
                     Info "Info" "User $user deleted"
@@ -366,15 +377,16 @@ promote_user() {
     space
     while :
     do
-        read -p "Enter user name: " user
+        printf "Enter user name: " 
+        read user
         if [ -z $user ]
         then
             Error "Error" "Username can't be empty"
         else
-            if id $user &> /etc/null
+            if id $user > /dev/null 2>&1
             then
                 
-                if id $user | grep wheel &> /etc/null
+                if id $user | grep wheel > /dev/null 2>&1
                 then
                     Info "Info" "User already promoted to wheel group"
                     space
@@ -399,19 +411,20 @@ degrate_user() {
     space
     while :
     do
-        read -p "Enter user name: " user
+        printf "Enter user name: " 
+        read user
         if [ -z $user ]
         then
             Error "Error" "Username can't be empty"
         else
-            if id $user &> /etc/null
+            if id $user > /dev/null 2>&1
             then
                 
-                if id $user | grep wheel &> /etc/null
+                if id $user | grep wheel > /dev/null 2>&1
                 then
                     Info "Info" "User already promoted to wheel group. Degrating..."
                     gpasswd -d $user wheel
-                    yes | rm -r /etc/sudoers.d/$user
+                    rm -rf /etc/sudoers.d/$user
                     space
                 else
                     Info "Info" "User not promoted to wheel group"
@@ -436,21 +449,21 @@ checkDistro
   while true
     do
         PS3='Please enter your choice: '
-        options=(
-        "Create new user"
-        "List users"
-        "Reset password for user"
-        "Lock user"
-        "Unlock user"
-        "List all locked users"
-        "Backup user"
-        "Generate SSH key for user"
-        "Promote user to admin"
-        "Degrate user from admin"
-        "Delete user"
-        "Quit"
-        )
-        select opt in "${options[@]}"
+        options="
+        'Create new user'
+        'List users'
+        'Reset password for user'
+        'Lock user'
+        'Unlock user'
+        'List all locked users'
+        'Backup user'
+        'Generate SSH key for user'
+        'Promote user to admin'
+        'Degrate user from admin'
+        'Delete user'
+        'Quit'
+        "
+        select opt in ${options}
         do
          case $opt in
             "Create new user")

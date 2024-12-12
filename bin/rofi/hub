@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
 . "/usr/share/my_stuff/lib/common/openbox"
@@ -27,7 +27,7 @@ scripts_hub()
 	# Description: a hub that you can execute all the other scripts from
 	# Dependencies: rofi, executable dmscripts, all the dependancies from dmscripts
 	list_scripts="$(list_scripts_hub)"
-	MENU="$(echo -e "$list_scripts" | ${rofi_command} -p '')"
+	MENU="$(printf "$list_scripts" | ${rofi_command} -p '')"
 	if [ -n "$MENU" ]
 	then
 		script_name_="$MENU"
@@ -39,9 +39,9 @@ scripts_hub()
 execuite_scripts_()
 {
 	if [ -f "${full_script_path}" ];then
-		run_this_in_popup_=('ani-cli' 'sparky-usb-formatter' 'displayselect') 
+		run_this_in_popup_="'ani-cli' 'sparky-usb-formatter' 'displayselect'"
 		
-		if [[ "${run_this_in_popup_[*]}" = *"${script_name_}"* ]];then
+		if echo "${run_this_in_popup_}" | grep -q "${script_name_}";then
 			run_it_in_popup_="" #run it in popup
 		else
 			run_it_in_popup_=$(grep -e "popup" -e "yad" -e "rofi" "${full_script_path}" || :) # check if it contain yad popup or rofi if yes then dont run in popup
@@ -67,7 +67,7 @@ execuite_scripts_()
 
 main_rofi_menu()
 {
-	MENU="$(echo -e "1- hub for executing script \n2- list of configuration files to edit" | ${rofi_command} -p '')"
+	MENU="$(printf "1- hub for executing script \n2- list of configuration files to edit" | ${rofi_command} -p '')"
 	case $MENU in
 		1-*) scripts_hub ;;
 		2-*) confedit "$reset_of_opt___" ;; # script in bin
@@ -87,7 +87,7 @@ help()
 	list_scripts_hub
 	echo ""
 	echo "================="
-	echo -e "type s for script hub \ntype c for config editor hub" 
+	printf "type s for script hub \ntype c for config editor hub\n" 
 }
 
 case $opt___ in

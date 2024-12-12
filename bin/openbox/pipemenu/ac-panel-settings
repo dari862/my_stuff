@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 ## Commands Executed By Openbox Powermenu
 . "/usr/share/my_stuff/lib/common/WM"
@@ -17,11 +17,11 @@ if [ "$_panel_name_" = "polybar" ]; then
 		count=1
 		[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_DB.sh --styles
 		# Styles
-		styles=($(cat "${styles_db_path}"))
+		styles="$(cat "${styles_db_path}")"
 		menuSeparator "| Simple |"
-		for style in "${styles[@]}"; do
+		for style in ${styles}; do
 			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
-			better_style_name="${style^}"
+			better_style_name=$(echo "$style" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
 			menuItem "${count}. ${better_style_name}" "polybar_picker $style"
 			count=$(($count+1))
 		done
@@ -82,7 +82,6 @@ elif [ "$_panel_name_" = "tint2" ]; then
 	}
 	
 	loadEditSubmenu(){
-    	local pid command TPATH TINT2
     	menuSubmenu "EditTint2" "Edit Tint2s"
         	if type style-manager >/dev/null 2>&1;then
             	menuItem "Tint2 Editor" "style-manager --tint2edit"
@@ -92,7 +91,7 @@ elif [ "$_panel_name_" = "tint2" ]; then
         	menuItem "Default tint2rc" "my-text-editor '$TINT2DEFAULT'"
         	if pgrep -x -u "$USER" tint2 >/dev/null;then
             	menuSubmenu "RunningTint2" "Running Tint2s"
-            	while read -r pid; do
+            	pgrep -x 'tint2' -u "$USER" | while read -r pid; do
                 	mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
                 	[[ ${command[0]} = 'tint2' ]]  || { echo "$0: pgrep parsing failed: command is not 'tint2'" >&2; continue;}
                 	if (( ${#command[@]} > 1 )); then
@@ -105,7 +104,7 @@ elif [ "$_panel_name_" = "tint2" ]; then
                 	fi
                 	[[ -f $TPATH ]] || { echo "$0: pgrep tint2 parsing failed: $TPATH is not a file" >&2; continue;}
                 	menuItem "$TINT2" "my-text-editor ${TPATH@Q}"
-            	done < <(pgrep -x 'tint2' -u "$USER")
+            	done
             	menuSubmenuEnd
         	fi
     	menuSubmenuEnd
@@ -118,7 +117,7 @@ elif [ "$_panel_name_" = "tint2" ]; then
     	--filename=$HELPFILE --fontname=Monospace \
     	--width=650 --height=700 \
     	--button=OK:0"
-    	if [[ -e $HELPFILE ]];then
+    	if [ -f "$HELPFILE" ];then
         	menuItem "Tint2 Manager Help" "$DLG"
     	fi
 	}

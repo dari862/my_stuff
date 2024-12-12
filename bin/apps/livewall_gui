@@ -1,20 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 
-command -v ffmpeg >/dev/null 2>&1 || _ffmpeg_="I need ffmpeg: my-superuser apt install --no-install-recommends ffmpeg \n"
-command -v feh >/dev/null 2>&1 || _feh_="I need feh: my-superuser apt install --no-install-recommends feh \n"
-if [ -n "${_feh_}" ] || [ -n "${_ffmpeg_}"  ];then
-	yad --image="dialog-question" \
-	--title "Alert" \
-	--text "\n \n \n \n ${_ffmpeg_} ${_feh_}" 
-	exit 1
-fi
+check_4_dependencies_if_installed ffmpeg feh
 title_name="Live wallpaper"
 icon_name="livewall_gui"
 icon="/usr/share/my_stuff/images/${icon_name}.png"
 _dir_vid="$(livewall --print-vid-path)"
 
-function live_it(){
+live_it(){
     [ -z "$1" ] && return
 	if [ "$2" = "TRUE" ];then
 		livewall --add-autorun-live "$video_path"
@@ -23,24 +16,24 @@ function live_it(){
     fi
 }
 
-function list_it(){
+list_it(){
     if ! ls -d ${_dir_vid}/* 2>/dev/null >/dev/null; then
         exit 1
     fi
-	menu=()
-    __numbers_=($(cd ${_dir_vid} && ls))
-    for i in "${__numbers_[@]}"; do
+	menu=""
+    __numbers_="$(cd ${_dir_vid} && ls)"
+    for i in ${__numbers_}; do
     	#videonumber → videoname
-    	menu+=("${i}" "'$(cat ${_dir_vid}/${i}/video.info)'")
+    	menu="${menu} ${i} '$(cat ${_dir_vid}/${i}/video.info)'"
     done
     
-	yad_opts=(--list
+	yad_opts="--list
 			--width=400
     		--height=350
   			--column=Number
   			--column=Name
-  			"${menu[@]}")
-	ans=($(yad "${yad_opts[@]}"))
+  			\"${menu}\""
+	ans="$(yad ${yad_opts})"
 	number_is="$(echo "$ans" | awk -F'|' '{print $1}')"
     livewall -I "$number_is"
 }

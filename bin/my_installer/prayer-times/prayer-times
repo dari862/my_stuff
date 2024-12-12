@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 source "$HOME/.config/scriptconfig/prayer-times.conf"
 _option="${1-}"
 if [ "$_option" = "daemon" ];then

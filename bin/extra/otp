@@ -11,7 +11,7 @@
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
 
-check_4_dependencies_if_installed pass pass-otp || exit 1
+check_4_dependencies_if_installed pass pass-otp
 
 dir="${PASSWORD_STORE_DIR}"
 
@@ -19,7 +19,7 @@ choice="$({ echo "🆕add" ; echo "🕙sync-time" ; ls "$dir"/*-otp.gpg ;} | sed
 
 case $choice in
 	🆕add )
-		check_4_dependencies_if_installed zbar-tools || exit 1
+		check_4_dependencies_if_installed zbar-tools
 
 		temp=$(mktemp -p "$XDG_RUNTIME_DIR" --suffix=.png)
 		otp="otp-test-script"

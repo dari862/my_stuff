@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 #    tint2-edit: a My Stuff tint2 config file editor
 #
@@ -52,24 +52,20 @@ CANCEL="--button=gtk-cancel:1"
 
 # for yad text display of filenames
 pangoEscape() {
-    local string="${1//&/&amp;}"
-    string="${string//</&lt;}"
-    string="${string//>/&gt;}"
+    string=$(echo "$string" | sed -e 's/&/&amp;/g' -e 's/</&lt;/g' -e 's/>/&gt;/g')
     printf '%s' "$string"
 }
 
-findTints(){
-    LISTTINT=() # global
-    local file name
-    shopt -s globstar
-    for file in "$TINT2PATH"/**;do
-        [[ -f $file ]] || continue
-        [[ $file = *~ ]] && continue # ignore backups
-        grep -q "panel_monitor" "$file" || continue # not a tint2rc file
-        name=${file#$TINT2PATH/}
-        LISTTINT+=(FALSE "$(pangoEscape "$name")" "$file")
+findTints() {
+    LISTTINT=""
+    find "$TINT2PATH" -type f ! -name '*~' | while IFS= read -r file; do
+        if ! grep -q "panel_monitor" "$file"; then
+            continue
+        fi
+        name=$(echo "$file" | sed "s|^$TINT2PATH/||")
+        LISTTINT="$LISTTINT FALSE $(pangoEscape "$name") $file"
     done
-    shopt -u globstar
+    printf "%s\n" "$LISTTINT"
 }
 
 ######## END FUNCTIONS #################################################
@@ -92,15 +88,15 @@ findTints
 choice=$( $DLGDEC $WINICON --list --title="$TITLE" \
     --text="Select Tint2s to edit from the list\nMultiple Tint2s can be chosen\n" \
     --checklist  --separator='' \
-    --column="Select:CHK" --column="Tint2 Name:TEXT" --column="path:HD" "${LISTTINT[@]}" \
+    --column="Select:CHK" --column="Tint2 Name:TEXT" --column="path:HD" "${LISTTINT}" \
     --print-column=3 $OK $CANCEL )
 
-if (( $? == 1 )); then # cancel button pressed
+if [ $? -eq 1 ]; then # cancel button pressed
     exit 0
 else
-    while read -r path
+    echo "$choice" | while IFS= read -r path
     do
-        [[ -r $path ]] || continue
+        [ -r "$path" ] || continue
         my-text-editor "$path"
-    done <<< "$choice"
+    done
 fi

@@ -57,16 +57,16 @@ restore(){
 }
 
 style_wall(){
-	op2__="$(find "/usr/share/my_stuff/my_wallpapers/${op2__}_*" | head -n 1)"
-	set_wall
+	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -name "${op2__}_*" | head -n 1)"
+	save_wall
 }
 
 random_wall(){
-	op2__="$(find $op2__ | shuf -n 1)"
-	set_wall
+	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -name "${op2__}_*" | shuf -n 1)"
+	save_wall
 }
 
-set_wall(){
+save_and_restore(){
 	save_wall
 	restore
 }
@@ -91,9 +91,10 @@ main()
 	case $op__ in
 		-r) restore ;;
 		-o) old_bg_ $op2__ ;;
-		-s) set_wall ;;
+		-s) save_wall ;;
 		-S) style_wall ;;
 		-d) random_wall ;;
+		-R) save_and_restore ;;
 		*) pickbg ;;
 	esac
 }

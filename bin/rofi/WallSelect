@@ -1,14 +1,14 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # if this line exist script will be part of hub script.
 
 # Set some variables
 # Load current theme
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
-if [[ "$ROFI_STYLE" == "panels/"* ]];then
+if echo "$ROFI_STYLE" | grep -q "panels/" ;then
 	ROFI_STYLE_NAME="panels"
 else
-	ROFI_STYLE_NAME="${ROFI_STYLE#*/}"
+	ROFI_STYLE_NAME="$(echo "$ROFI_STYLE" | cut -d'/' -f2-)"
 fi
 wall_dir="/usr/share/my_stuff/my_wallpapers"
 temp_dir="/tmp/$USER/walls/$ROFI_STYLE_NAME"
@@ -19,9 +19,9 @@ mkdir -p "${temp_dir}"
 monitor_res=$(($(xdpyinfo | awk '/dimensions/{print $2}' | cut -d 'x' -f1) * 14 / $(xdpyinfo | awk '/resolution/{print $2}' | cut -d 'x' -f1)))
 rofi_override="element-icon{size:${monitor_res}px;}"
 rofi_command="rofi -dmenu -theme $HOME/.config/rofi/$ROFI_STYLE/WallSelect.rasi -theme-str $rofi_override"
-
+list_all_wall="$(find "${wall_dir}" -name "${ROFI_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null)"
 # Convert images in directory and save to cache dir
-for imagen in "$wall_dir"/"${ROFI_STYLE_NAME}"_*.{jpg,jpeg,png,webp}; do
+for imagen in $list_all_wall; do
     [ -f "$imagen" ] || continue
     nombre_archivo=$(basename "$imagen")
     cache_file="${temp_dir}/${nombre_archivo}"
@@ -41,4 +41,4 @@ done
 wall_selection=$(find "${wall_dir}" -name "${ROFI_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -exec basename {} \; | sort | while read -r A ; do  echo -en "$A\x00icon\x1f""${temp_dir}"/"$A\n" ; done | $rofi_command)
 
 # Set wallpaper
-[[ -n "$wall_selection" ]] && setbg -s "${wall_dir}/${wall_selection}"
+[ -n "$wall_selection" ] && setbg -R "${wall_dir}/${wall_selection}"

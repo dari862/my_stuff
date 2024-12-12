@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
@@ -25,7 +25,7 @@ else
 fi
 
 # if argument is --clear, empty .recently-used.xbel
-[[ "$1" == '--clear' ]] && {
+[ "$1" = '--clear' ] && {
     tee "${file_path}" <<-'EOF' > /dev/null
 	<?xml version="1.0" encoding="UTF-8"?>
 	<xbel version="1.0"

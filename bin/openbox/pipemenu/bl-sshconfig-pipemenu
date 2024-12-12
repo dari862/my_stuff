@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # ---------------------------------------------------------------------
 #    bl-sshconfig-pipemenu - an Openbox pipemenu for Graphics applications
 #
@@ -43,13 +43,13 @@ done
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
-if [[ $1 = --install ]]; then
+if [ "$1" = "--install" ]; then
     my-installer --install 'openssh-server'
     exit 1
-elif [[ $1 = --conf ]]; then
+elif [ "$1" = "--conf" ]; then
     my-text-editor ${HOME}/.ssh/config
     exit 1
-elif [[ $1 ]]; then
+elif [ "$1" ]; then
     echo "$0: no such option $*" >&2
     exit 1
 else
@@ -60,7 +60,7 @@ else
         menuItem 'Edit SSH user config' "$0 --conf"
     else
         menuItem 'Install OpenSSH Server' "$0 --install"
-		if [ -f ${HOME}/.ssh/config ]; then
+		if [ -f "${HOME}/.ssh/config" ]; then
 			menuSeparator
 			menuItem 'Edit SSH user config' "$0 --conf"
 		fi
