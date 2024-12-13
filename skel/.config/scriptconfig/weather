@@ -1,0 +1,22 @@
+#### User configurables:  ##############################################
+
+# Either set the location manually here, or by passing it as a script parameter in the Conky.
+# "yourlocation" must be a name (which doesn't have spaces), or a numeric id.
+#
+# id's can be obtained from http://bulk.openweathermap.org/sample/city.list.json.gz
+# Download and extract the json file, then simply search for an id with grep.
+#   For example:   grep "New York" city.list.json
+#
+# If $place is not set, then the script attempts to get a geolocation from the IP address.
+
+place="1716924"
+#place=""
+#place="yourlocation"   # Uncomment and add name or id. NB If the name has spaces, then you must use the id.
+
+# Choose fahrenheit/Imperial or Celcius/metric:
+#units='imperial'
+units='metric'
+
+lang="" 
+	
+#########################################################################

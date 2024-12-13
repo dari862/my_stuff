@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Obsidian
+Comment=Obsidian
+Exec=flatpak run md.obsidian.Obsidian
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/obsidian-icon.png
+Categories=GTK;
+MimeType=text/html;text/xml;application/xhtml_xml;
+StartupNotify=true

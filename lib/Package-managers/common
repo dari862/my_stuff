@@ -122,7 +122,7 @@ flatpak_install() {
     __icons_="${1:-}"
     __flatpak_="${2:-}"
     flatpak install -y flathub "${__flatpak_}"
-    my-superuser ln -sf "/usr/share/my_stuff/lib/Dev-Env/applications/${__icons_}.desktop" "/usr/share/applications"
+    my-superuser ln -sf "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" "/usr/share/applications"
 }
 
 copy_from_extra_skel() {

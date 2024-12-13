@@ -106,7 +106,7 @@ where_iina() {
 
 # extract the video links from response of embed urls, extract mp4 links form m3u8 lists
 get_links() {
-    episode_link="$(perform_url_ get_embed_link | sed 's|},{|\
+    episode_link="$(perform_url_ get_embed_link "$*" | sed 's|},{|\
 |g' | sed -nE 's|.*link":"([^"]*)".*"resolutionStr":"([^"]*)".*|\2 >\1|p;s|.*hls","url":"([^"]*)".*"hardsub_lang":"en-US".*|\1|p')"
 
     case "$episode_link" in
@@ -198,7 +198,7 @@ time_until_next_ep() {
 episodes_list() {
     episodes_list_gql="query (\$showId: String!) {    show(        _id: \$showId    ) {        _id availableEpisodesDetail    }}"
 
-    perform_url_ get_episode_list | sed -nE "s|.*$mode\":\[([0-9.\",]*)\].*|\1|p" | sed 's|,|\
+    perform_url_ get_episode_list "$*" | sed -nE "s|.*$mode\":\[([0-9.\",]*)\].*|\1|p" | sed 's|,|\
 |g; s|"||g' | sort -n -k 1
 }
 
@@ -303,11 +303,12 @@ play() {
 
 if command -v curl >/dev/null 2>&1;then
 	perform_url_(){
-    	case "$action" in
+    	case "$1" in
         	"get_ani_cli")
             	curl -s "$animeschedule/anime/$anime"
             	;;
         	"get_embed_link")
+        		shift 1
             	curl -e "$allanime_refr" -s "https://${allanime_base}$*" -A "$agent"
             	;;
         	"get_extract_link")
@@ -320,6 +321,7 @@ if command -v curl >/dev/null 2>&1;then
             	curl -e "$allanime_refr" -s -G "${allanime_api}/api" --data-urlencode "variables={\"search\":{\"allowAdult\":false,\"allowUnknown\":false,\"query\":\"$2\"},\"limit\":40,\"page\":1,\"translationType\":\"$mode\",\"countryOrigin\":\"ALL\"}" --data-urlencode "query=$search_gql" -A "$agent"
             	;;
         	"get_episode_list")
+        		shift 1
             	curl -e "$allanime_refr" -s -G "${allanime_api}/api" --data-urlencode "variables={\"showId\":\"$*\"}" --data-urlencode "query=$episodes_list_gql" -A "$agent"
             	;;
             "animeschedule")
@@ -333,12 +335,12 @@ if command -v curl >/dev/null 2>&1;then
     }
 elif command -v wget >/dev/null 2>&1;then
 	perform_url_() {
-		action="$1"
-		case "$action" in
+		case "$1" in
 			"get_ani_cli")
 				wget -qO- "$animeschedule/anime/$anime"
 			;;
 			"get_embed_link")
+				shift 1
 				wget -qO- --referer="$allanime_refr" --user-agent="$agent" "https://${allanime_base}$*"
 			;;
 			"get_extract_link")
@@ -355,6 +357,7 @@ elif command -v wget >/dev/null 2>&1;then
 					--body-data="query=$search_gql" "${allanime_api}/api"
 			;;
 			"get_episode_list")
+				shift 1
 				wget -qO- --referer="$allanime_refr" --user-agent="$agent" --method=GET --header="Content-Type: application/x-www-form-urlencoded" \
 					--body-data="variables={\"showId\":\"$*\"}" --body-data="query=$episodes_list_gql" "${allanime_api}/api"
 			;;

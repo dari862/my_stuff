@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -22,29 +22,8 @@
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/API"
+. "$HOME/.config/scriptconfig/weather"
 
-#### User configurables:  ##############################################
-
-# Either set the location manually here, or by passing it as a script parameter in the Conky.
-# "yourlocation" must be a name (which doesn't have spaces), or a numeric id.
-#
-# id's can be obtained from http://bulk.openweathermap.org/sample/city.list.json.gz
-# Download and extract the json file, then simply search for an id with grep.
-#   For example:   grep "New York" city.list.json
-#
-# If $place is not set, then the script attempts to get a geolocation from the IP address.
-
-place="1716924"
-#place=""
-#place="yourlocation"   # Uncomment and add name or id. NB If the name has spaces, then you must use the id.
-
-# Choose fahrenheit/Imperial or Celcius/metric:
-#units='imperial'
-units='metric'
-
-lang="" 
-	
-#########################################################################
 __opt="${1-}"
 scaleT=""
 scaleV=""
@@ -59,39 +38,18 @@ weather_description=""
 weather_TEXT=""
 
 get_weather_report_less(){
+	WEATHER_MAIN=$(echo "$WEATHER_INFO" | jq -r '.weather[0].main')
+    WEATHER_TEMP=$(echo "$WEATHER_INFO" | jq -r '.main.temp')
 
-	WEATHER_MAIN=$(echo "${WEATHER_INFO}" | grep -o -e '\"main\":\"[a-Z]*\"' | awk -F ':' '{print $2}' | tr -d '"')
-	WEATHER_TEMP=$(echo "${WEATHER_INFO}" | grep -o -e '\"temp\":\-\?[0-9]*' | awk -F ':' '{print $2}' | tr -d '"')
-	
-	if echo "${WEATHER_MAIN}" | grep -q "Snow"; then
-    	weather_ICON=""
-    	weather_description="If You go outside, don't forget to bring your jacket"
-    	weather_TEXT="Snow"
-	elif echo "${WEATHER_MAIN}" | grep -qE "Rain|Drizzle"; then
-    	weather_ICON=""
-    	weather_description="If You go outside, don't forget to bring your umbrella"
-    	weather_TEXT="Rainy"
-	elif echo "${WEATHER_MAIN}" | grep -q "Cloud"; then
-    	weather_ICON=""
-    	weather_description="A perfect weather to play outside"
-    	weather_TEXT="Cloudy"
-    elif echo "${WEATHER_MAIN}" | grep -q "Storm"; then
-    	weather_ICON=""
-    	weather_description="Stormy outside stay at home."
-    	weather_TEXT="Storm"
-	elif echo "${WEATHER_MAIN}" | grep -q "Clear"; then
-    	weather_ICON=""
-    	weather_description="If You go outside, don't forget to bring your hat"
-    	weather_TEXT="Clear"
-	elif echo "${WEATHER_MAIN}" | grep -qE "Fog|Mist"; then
-    	weather_ICON=""
-    	weather_description="If You want to go, don't forget to check your headlamp"
-    	weather_TEXT="Fog"
-	else
-    	weather_ICON=" ${WEATHER_MAIN}"
-    	weather_description="The Weather is unknown"
-    	weather_TEXT="${WEATHER_MAIN}"
-	fi
+    case "$WEATHER_MAIN" in
+        "Snow") weather_ICON=""; weather_description="Cold and snowy"; weather_TEXT="Snow" ;;
+        "Rain" | "Drizzle") weather_ICON=""; weather_description="Bring an umbrella"; weather_TEXT="Rainy" ;;
+        "Clouds") weather_ICON=""; weather_description="Perfect for outdoor activities"; weather_TEXT="Cloudy" ;;
+        "Storm") weather_ICON=""; weather_description="Stay indoors, stormy weather"; weather_TEXT="Storm" ;;
+        "Clear") weather_ICON=""; weather_description="Sunny, wear a hat"; weather_TEXT="Clear" ;;
+        "Fog" | "Mist") weather_ICON=""; weather_description="Foggy, use your headlamp"; weather_TEXT="Fog" ;;
+        *) weather_ICON=" $WEATHER_MAIN"; weather_description="Unusual weather"; weather_TEXT="$WEATHER_MAIN" ;;
+    esac
 }
 
 get_weather_report_more(){       
@@ -127,33 +85,26 @@ connectiontest() {
         if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null; then
             return 0
         fi
-        if [ "$i" -eq $((attempts - 1)) ]; then # if last attempt
-            return 1
-        fi
         i=$((i + 1))
     done
+    return 1
 }
 
 placeholder() {
-    if [ "$1" = "1" ];then
-    	echo ""
-        echo "No internet connection"
-        echo "Weather information unavailable"
-    else
-        echo "No API key"
-        echo "Weather information unavailable"
-        echo "Get API KEY by registering for one at http://openweathermap.org/api"
-        echo "And save it at ${API_path}/."
-    fi
+    case "$1" in
+        1)	echo ""
+        	echo "No internet connection. Weather information unavailable."
+        ;;
+        0)	echo "No API key." 
+        	echo "Weather information unavailable. Get one from http://openweathermap.org/api" 
+        ;;
+    esac
 }
 
 get_json_data_(){
 	if [ -z "$place" ]; then
     	# Geolocate IP:
-    	if [ ! -f "$latlong_stored_file" ]; then
-        	get_scripts --latlong >/dev/null 2>&1
-    	fi
-    	latlong=$(cat "$latlong_stored_file")
+    	latlong=$(cat "$latlong_stored_file" 2>/dev/null || get_scripts --latlong)
     	
     	# Parse the latitude and longitude using cut for better POSIX compatibility
     	lat=$(echo "$latlong" | cut -d',' -f1)
@@ -181,185 +132,123 @@ get_json_data_(){
 
 parse_weather_for_conky_vision(){
 	cache_folder="$HOME/.cache/conky-vision"
-	image_folder="$HOME/.config/conky/vision/"
-	
-	parse_weather_file="${cache_folder}/parse_weather_file"
-	forecast_info=$(getURL '2term' "${api_prefix}forecast?${appid}&${id}${units}${lang}")
-	weather_info=$(getURL '2term' "${api_prefix}weather?${appid}&${id}${units}${lang}")
-	
-	mkdir -p "${image_folder}"
+	image_folder="$HOME/.config/conky/vision/#fff__32"
+
 	mkdir -p "${cache_folder}"
-	
-	res=""
+		
+	parse_weather_file="${cache_folder}/parse_weather_file"
+	forecast="$(getURL '2term' "${api_prefix}forecast?${appid}&${id}${units}${lang}")"
+
 	get_time () {
-    	idx="$1"
-	
-    	time=$(echo "$forecast_info" | jq ".list[$idx].dt_txt")
-    	time=$(echo "$time" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    	time=$(echo "$time" | sed 's/"$//')
-	
-    	echo "$time"
+    	local idx="$1"
+		echo "$forecast" | jq -r ".list[$idx].dt_txt" | awk '{print $2}'
 	}
 	
-	find_position() {
-    	day="$1"
-    	pos=0
-    	idx=0
-    	time=""
-    	
-    	if [ "$day" -eq 0 ]; then
-        	echo "$idx"
-        	return
-    	fi
-    	
+	find_position () {
+    	local day="$1"
+    	local pos=0
+    	local idx=0
+    	local time=""
+	
+    	[[ $day == 0 ]] && echo "$idx" && return
+	
     	while true; do
         	time=$(get_time "$idx")
-        	
-        	if [ "$time" = "00:00:00" ]; then
-            	pos=$(expr $pos + 1)
-        	fi
-        	
-        	if [ "$time" = "null" ]; then
-            	break
-        	fi
-        	
-        	if [ "$pos" -eq "$day" ]; then
-            	break
-        	fi
-        	
-        	idx=$(expr $idx + 1)
+	
+        	[[ $time == "00:00:00" ]] && ((pos++))
+	
+        	[[ $time == "null" ]] && break
+        	[[ $pos == "$day" ]] && break
+	
+        	((idx++))
     	done
-    	
+	
     	echo "$idx"
 	}
+
+	get_property () {
+    	local res=0
+		
+		local mode="$1"
+    	local prop="$2"
+    	local day="$3"
 	
-	get_min_property() {
-    	res=0
-    	prop="$1"
-    	day="$2"
-    	
+    	local idx
     	idx=$(find_position "$day")
-    	
-    	time=0
-    	i=0
-    	outarray=""
-    	
-    	while true; do
-        	if [ "$time" = "null" ]; then
-            	break
-        	fi
-        	
-        	value=$(echo "$forecast_info" | jq ".list[$idx]$prop")
-        	outarray="$outarray$ i: $value"
-        	
-        	i=$(expr $i + 1)
-        	idx=$(expr $idx + 1)
-        	
-        	time=$(get_time "$idx")
-        	
-        	# The records for every 3 hours are dumped in an array with no
-        	# indication to which day they belong.
-        	# The first record of each day (except today) is calculated at time
-        	# '00:00:00', so we use that to know when a new day starts.
-        	if [ "$time" = "00:00:00" ]; then
-            	break
-        	fi
-    	done
-    	
-    	# Sorting and finding the smallest value
-    	sorted=$(echo "$outarray" | sort -n | head -n1)
-    	res=$(echo "$sorted" | awk '{print $2}')
-    	
-    	if [ "$res" = "null" ]; then
-        	echo "$res"
-        	return
-    	fi
-    	
-    	echo "$res"
+		if [[ "$mode" = "first" ]];then
+			res=$(echo "$forecast" | jq ".list[$idx]$prop")
+		elif [[ "$mode" = "avg" ]];then
+			local prop_num=0
+    		local it=0
+		
+    		while true; do
+        		[[ $time == "null" ]] && break
+		
+        		it=$(echo "$forecast" | jq ".list[$idx]$prop")
+		
+        		it="$res+$it"
+        		res=$(bc -l <<< "$it")
+		
+        		(( prop_num++ ))
+        		(( idx++ ))
+		
+        		time=$(get_time "$idx")
+	
+        		[[ $time == "00:00:00" ]] && break
+    		done
+		
+    		res="$(bc -l <<< "$res/$prop_num")"
+		
+		else
+    		local time=0
+    		local i=0
+    		local outarray=()
+		
+    		while true; do
+        		[[ $time == "null" ]] && break
+		
+        		outarray[$i]="$(echo "$forecast" | jq ".list[$idx]$prop")"
+		
+        		(( i++ ))
+        		(( idx++ ))
+		
+        		time=$(get_time "$idx")
+	
+        		[[ $time == "00:00:00" ]] && break
+    		done
+    		IFS=$'\n'
+    		if [[ "$mode" = "max" ]];then
+    			res=($(sort -nr <<<"${outarray[*]}" | head -n1))
+			elif [[ "$mode" = "min" ]];then
+				res=($(sort -n<<<"${outarray[*]}" | head -n1))
+			fi
+			unset IFS
+		fi
+    		
+    	[[ $res == "null" ]] && echo $res && return
+	
+    	LC_NUMERIC=C printf %.0f $res
 	}
-	
-	get_max_property() {
-    	res=0
-    	prop="$1"
-    	day="$2"
-	
-    	idx=$(find_position "$day")
-	
-    	time=0
-    	i=0
-    	outarray=""
-	
-    	while true; do
-        	if [ "$time" = "null" ]; then
-            	break
-        	fi
-	
-        	# Collect the property value
-        	value=$(echo "$forecast_info" | jq ".list[$idx]$prop")
-        	outarray="$outarray $value"
-	
-        	i=$(expr $i + 1)
-        	idx=$(expr $idx + 1)
-	
-        	time=$(get_time "$idx")
-	
-        	# The records for every 3 hours are dumped in an array with no
-        	# indication to which day they belong.
-        	# The first record of each day (except today) is calculated at time
-        	# '00:00:00', so we use that to know when a new day starts.
-        	if [ "$time" = "00:00:00" ]; then
-            	break
-        	fi
-    	done
-	
-    	# Sorting the values in descending order and finding the maximum
-    	res=$(echo "$outarray" | tr ' ' '\n' | sort -nr | head -n1)
-	
-    	if [ "$res" = "null" ]; then
-        	echo "$res"
-        	return
-    	fi
-	
-    	LC_NUMERIC=C printf "%.0f\n" "$res"
-	}
-	
-	get_first_property() {
-    	res=0
-    	prop="$1"
-    	day="$2"
-	
-    	idx=$(find_position "$day")
-	
-    	res=$(echo "$forecast_info" | jq ".list[$idx]$prop")
-	
-    	if [ "$res" = "null" ]; then
-        	echo "$res"
-        	return
-    	fi
-	
-    	LC_NUMERIC=C printf "%.0f\n" "$res"
-	}
-	current_weather="$(echo "$weather_info" | jq .main.temp | awk '{print int($1+0.5)}')"
+	current_weather="$(echo "$WEATHER_INFO" | jq .main.temp | awk '{print int($1+0.5)}')"
 	echo "${current_weather}°" > ${parse_weather_file}
-	echo "$(get_max_property '.main.temp' '1')°" >> ${parse_weather_file}
-	echo "$(get_max_property '.main.temp' '2')°" >> ${parse_weather_file}
-	echo "$(get_max_property '.main.temp' '3')°" >> ${parse_weather_file}
-	echo "$(get_max_property '.main.temp' '4')°" >> ${parse_weather_file}
+	for day in {1..4}; do
+    	echo "$(get_property 'max' '.main.temp' "$day")°" >> ${parse_weather_file}
+	done
+	for day in {1..4}; do
+    	echo "$(get_property 'min' '.main.temp' "$day")°" >> ${parse_weather_file}
+	done
+
+	current_file="$(echo "$WEATHER_INFO" | jq .weather[0].id)"
+	forecast1_file="$(get_property 'first' '.weather[0].id' '1')"
+	forecast2_file="$(get_property 'first' '.weather[0].id' '2')"
+	forecast3_file="$(get_property 'first' '.weather[0].id' '3')"
+	forecast4_file="$(get_property 'first' '.weather[0].id' '4')"
 	
-	echo "$(get_min_property '.main.temp' '1')°" >> ${parse_weather_file}
-	echo "$(get_min_property '.main.temp' '2')°" >> ${parse_weather_file}
-	echo "$(get_min_property '.main.temp' '3')°" >> ${parse_weather_file}
-	echo "$(get_min_property '.main.temp' '4')°" >> ${parse_weather_file}
-	current_file="$(echo "$weather_info" | jq .weather[0].id)"
-	forecast1_file="$(get_first_property '.weather[0].id' '1')"
-	forecast2_file="$(get_first_property '.weather[0].id' '2')"
-	forecast3_file="$(get_first_property '.weather[0].id' '3')"
-	forecast4_file="$(get_first_property '.weather[0].id' '4')"
-	cp -f $HOME/.config/conky/vision/#fff__32/${current_file}.png ${cache_folder}/current.png
-	cp -f $HOME/.config/conky/vision/#fff__32/${forecast1_file}.png ${cache_folder}/forecast-1.png
-	cp -f $HOME/.config/conky/vision/#fff__32/${forecast2_file}.png ${cache_folder}/forecast-2.png
-	cp -f $HOME/.config/conky/vision/#fff__32/${forecast3_file}.png ${cache_folder}/forecast-3.png
-	cp -f $HOME/.config/conky/vision/#fff__32/${forecast4_file}.png ${cache_folder}/forecast-4.png
+	cp -f ${image_folder}/${current_file}.png ${cache_folder}/current.png
+	cp -f ${image_folder}/${forecast1_file}.png ${cache_folder}/forecast-1.png
+	cp -f ${image_folder}/${forecast2_file}.png ${cache_folder}/forecast-2.png
+	cp -f ${image_folder}/${forecast3_file}.png ${cache_folder}/forecast-3.png
+	cp -f ${image_folder}/${forecast4_file}.png ${cache_folder}/forecast-4.png
 }
 
 if [ -z "$appid" ];then
