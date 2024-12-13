@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 
 . "/usr/share/my_stuff/lib/common/WM"
@@ -16,9 +16,8 @@ else
 fi
 
 list_styles="$(cd "$CONFIGPATH" && ls -d * 2>/dev/null)"
-Picked_Style="$(rofi -no-config -no-lazy-grab -dmenu -i -p '' \
-	-theme "$rofi_style_dir"/launcher.rasi \
-	<<< "$list_styles")"
+Picked_Style="$(echo "$list_styles" | rofi -no-config -no-lazy-grab -dmenu -i -p '' \
+	-theme "$rofi_style_dir"/launcher.rasi )"
 	
 [ -z "$Picked_Style" ] && Picked_Style="${default_style}"
 	

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ## Battery Executor For Tint2
 ## Dependencies: acpi
 get_status() {

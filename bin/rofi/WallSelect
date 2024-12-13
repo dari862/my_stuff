@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 
 # Set some variables
@@ -38,7 +38,7 @@ for imagen in $list_all_wall; do
 done
 
 # Launch rofi
-wall_selection=$(find "${wall_dir}" -name "${ROFI_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -exec basename {} \; | sort | while read -r A ; do  echo -en "$A\x00icon\x1f""${temp_dir}"/"$A\n" ; done | $rofi_command)
+wall_selection=$(find "${wall_dir}" -name "${ROFI_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -exec basename {} \; | sort | while read -r A ; do  printf "$A\x00icon\x1f""${temp_dir}"/"$A\n" ; done | $rofi_command)
 
 # Set wallpaper
 [ -n "$wall_selection" ] && setbg -R "${wall_dir}/${wall_selection}"

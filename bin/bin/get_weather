@@ -140,27 +140,27 @@ parse_weather_for_conky_vision(){
 	forecast="$(getURL '2term' "${api_prefix}forecast?${appid}&${id}${units}${lang}")"
 
 	get_time () {
-    	local idx="$1"
+    	idx="$1"
 		echo "$forecast" | jq -r ".list[$idx].dt_txt" | awk '{print $2}'
 	}
 	
 	find_position () {
-    	local day="$1"
-    	local pos=0
-    	local idx=0
-    	local time=""
+    	day="$1"
+    	pos=0
+    	idx=0
+    	time=""
 	
-    	[[ $day == 0 ]] && echo "$idx" && return
+    	[ $day = 0 ] && echo "$idx" && return
 	
     	while true; do
         	time=$(get_time "$idx")
 	
-        	[[ $time == "00:00:00" ]] && ((pos++))
+        	[ $time = "00:00:00" ] && $(expr $pos + 1 )
 	
-        	[[ $time == "null" ]] && break
-        	[[ $pos == "$day" ]] && break
+        	[ $time = "null" ] && break
+        	[ $pos = "$day" ] && break
 	
-        	((idx++))
+        	$(expr $idx + 1 )
     	done
 	
     	echo "$idx"
@@ -189,8 +189,8 @@ parse_weather_for_conky_vision(){
         		it="$res+$it"
         		res=$(bc -l <<< "$it")
 		
-        		(( prop_num++ ))
-        		(( idx++ ))
+        		$(expr $prop_num + 1 )
+        		$(expr $idx + 1 )
 		
         		time=$(get_time "$idx")
 	
@@ -209,8 +209,8 @@ parse_weather_for_conky_vision(){
 		
         		outarray[$i]="$(echo "$forecast" | jq ".list[$idx]$prop")"
 		
-        		(( i++ ))
-        		(( idx++ ))
+        		$(expr $i + 1 )
+        		$(expr $idx + 1 )
 		
         		time=$(get_time "$idx")
 	

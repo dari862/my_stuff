@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 # Load current theme
 . "/usr/share/my_stuff/lib/common/WM"
@@ -20,7 +20,7 @@ selected_index=$(printf '%s\n' "${list_of_ani_theme}" | awk -v cur="$ROFI_STYLE"
 # Show the rofi selection menu.
 selected=$(
     for rice in ${list_of_ani_theme}; do
-        echo -en "$rice\0icon\x1f${rices_path}/$rice/preview.jpg\n"
+        printf "$rice\0icon\x1f${rices_path}/$rice/preview.jpg\n"
     done | $rofi_command -theme-str "$rofi_override" -selected-row "$selected_index"
 )
 

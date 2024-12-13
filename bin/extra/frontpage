@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 . "/usr/share/my_stuff/lib/common/WM"
 
 tmp_dir="$(mktemp -d /tmp/$USER/frontpage_XXXXX)"
@@ -46,43 +46,43 @@ third_depth=""
 # Read each line from the input file
 while IFS= read -r line; do
     # Check if the line starts with a "#"
-    if [[ $line =~ ^# ]]; then
+    if echo "$line" | grep -q "^#" >/dev/null 2>&1; then
     	stored_line="$line"
         # Count the number of '#' to determine the depth
-        stored_depth=$(grep -o "#" <<< "$stored_line" | wc -l)
-        if [[ "$stored_depth" = 3 ]] && [[ -z "$third_depth" ]];then
+        stored_depth=$(echo "$stored_line" | grep -o "#" | wc -l)
+        if [ "$stored_depth" = 3 ] && [ -z "$third_depth" ];then
         	third_depth="$stored_line"
-        elif [[ "$stored_depth" -gt 0 ]] && [[ ! -z "$third_depth" ]];then
+        elif [ "$stored_depth" -gt 0 ] && [ -n "$third_depth" ];then
         	echo '</ul></li>' >> "$tmp_output"
-        	if [[ "$stored_depth" = 3 ]];then
+        	if [ "$stored_depth" = 3 ];then
         		third_depth="$stored_line"
         	else
         		third_depth=""
         	fi
 		fi
 		
-        if [[ "$stored_depth" = 2 ]] && [[ -z "$second_depth" ]];then
+        if [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
         	second_depth="$stored_line"
-        elif [[ "$stored_depth" = 2 ]] && [[ ! -z "$second_depth" ]];then
+        elif [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
         	echo '</ul></li>' >> "$tmp_output"
         	second_depth="$stored_line"
-        elif [[ "$stored_depth" = 1 ]];then
+        elif [ "$stored_depth" = 1 ];then
         	second_depth=""
 		fi
 		
-		if [[ "$stored_depth" = 1 ]] && [[ -z "$first_depth" ]];then
+		if [ "$stored_depth" = 1 ] && [ -z "$first_depth" ];then
         	first_depth="$stored_line"
-        elif [[ "$stored_depth" = 1 ]] && [[ ! -z "$first_depth" ]];then
+        elif [ "$stored_depth" = 1 ] && [ -n "$first_depth" ];then
         	echo '</ul></div>' >> "$tmp_output"
         	first_depth="$stored_line"
 		fi
     fi
     echo "$line" >> "$tmp_output" 
 done < "$input"
-if [[ ! -z "$third_depth" ]];then
+if [ -n "$third_depth" ];then
 	echo "$third_depth third_depth" >> "$tmp_output" 
 fi
-if [[ ! -z "$first_depth" ]];then
+if [ -n "$first_depth" ];then
 	echo "$first_depth first_depth" >> "$tmp_output"
 fi
 

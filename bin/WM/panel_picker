@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 default_panel="polybar"
 
 . "/usr/share/my_stuff/lib/common/WM"
@@ -34,7 +34,7 @@ mkdir -p "$WM_config_dir"
 if command -v polybar >/dev/null 2>&1
 then
 	polybar_in_rofi="polybar"
-	((++count))
+	count=$((count + 1))
 	which_panel_MENU="polybar"
 else
 	spliter1=""
@@ -43,7 +43,7 @@ fi
 if command -v xfce4-panel >/dev/null 2>&1
 then
 	xfce4_in_rofi="xfce4-panel"
-	((++count))
+	count=$((count + 1))
 	which_panel_MENU="xfce4-panel"
 else
 	spliter2=""
@@ -52,46 +52,43 @@ fi
 if command -v tint2 >/dev/null 2>&1
 then
 	tint2_in_rofi="tint2"
-	((++count))
+	count=$((count + 1))
 	which_panel_MENU="tint2"
 fi
 
-if (( count > 1 )); then
-	which_panel_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
-	-theme "$rofi_style_dir"/runner.rasi \
-	<<< "${polybar_in_rofi}${spliter1}${xfce4_in_rofi}${spliter2}${tint2_in_rofi}")"
+if [ "$count" -gt 1 ]; then
+	which_panel_MENU="$(echo "${polybar_in_rofi}${spliter1}${xfce4_in_rofi}${spliter2}${tint2_in_rofi}" | \
+	rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$rofi_style_dir"/runner.rasi)"
 fi
 
 cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 
-if [ "$which_panel_MENU" == "polybar" ]; then
+if [ "$which_panel_MENU" = "polybar" ]; then
 	which_menu_to_use obmenu
 	which_OB_style_to_use normal
-elif [ "$which_panel_MENU" == "xfce4-panel" ]; then
+elif [ "$which_panel_MENU" = "xfce4-panel" ]; then
 	which_menu_to_use obmenu
 	which_OB_style_to_use normal
-elif [ "$which_panel_MENU" == "tint2" ]; then
-	which_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
-	-theme "$rofi_style_dir"/runner.rasi \
-	<<< "obmenu|bunsenlabs")"
-	if [ "$which_MENU" == "bunsenlabs" ]; then
+elif [ "$which_panel_MENU" = "tint2" ]; then
+	which_MENU="$(echo "obmenu|bunsenlabs" | rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
+	-theme "$rofi_style_dir"/runner.rasi)"
+	if [ "$which_MENU" = "bunsenlabs" ]; then
 		if command -v jgmenu >/dev/null 2>&1;then
-			which_MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
-			-theme "$rofi_style_dir"/runner.rasi \
-			<<< "jgmenu|obmenu")"
-			if [ "$which_MENU" == "obmenu" ]; then
+			which_MENU="$(echo "jgmenu|obmenu" | \
+				rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$rofi_style_dir"/runner.rasi)"
+			if [ "$which_MENU" = "obmenu" ]; then
 				which_MENU="bunsenlabs"
 			fi
 		fi
 	fi
-	if [ "$which_MENU" == "jgmenu" ]; then
+	if [ "$which_MENU" = "jgmenu" ]; then
 		which_menu_to_use jgmenu
 		which_OB_style_to_use bl
 		setbg -s --set-color=#18191A /usr/share/my_stuff/my_wallpapers/default/Beryllium-1440x900.jpg
-	elif [ "$which_MENU" == "bunsenlabs" ]; then
+	elif [ "$which_MENU" = "bunsenlabs" ]; then
 		which_menu_to_use obmenu
 		which_OB_style_to_use bl
-	elif [ "$which_MENU" == "obmenu" ]; then
+	elif [ "$which_MENU" = "obmenu" ]; then
 		which_menu_to_use obmenu
 		which_OB_style_to_use normal
 		echo "/.config/tint2/old.tint2rc" > $HOME/.config/tint2/tint2-sessionfile

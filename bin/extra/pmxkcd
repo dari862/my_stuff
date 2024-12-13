@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 
 pmrm=$(which rm)
@@ -16,7 +16,7 @@ if command -v curl >/dev/null 2>&1;then
 	}
 	download_failed_cleanup_() {
 		getw_pid=$(pidof curl)
-		if [[ -z "${getw_pid// }" ]]; then
+		if [ -z "$(echo "$getw_pid" | tr -d '[:space:]')" ]; then
 			yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
 			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
 			if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
@@ -42,7 +42,7 @@ elif command -v wget >/dev/null 2>&1;then
 	
 	download_failed_cleanup_() {
     	getw_pid=$(pidof wget)
-    	if [[ -z "${getw_pid// }" ]]; then
+    	if [ -z "$(echo "$getw_pid" | tr -d '[:space:]')" ]; then
         	yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
         	"$pmrm" -f /tmp/$USER/pmxkcd_current.json
         	if [ -f "/tmp/$USER/pmxkcd_random.json" ]; then

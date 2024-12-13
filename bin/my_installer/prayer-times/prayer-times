@@ -1,5 +1,5 @@
-#!/bin/sh
-source "$HOME/.config/scriptconfig/prayer-times.conf"
+#!/bin/bash
+. "$HOME/.config/scriptconfig/prayer-times.conf"
 _option="${1-}"
 if [ "$_option" = "daemon" ];then
 	$0 sync

@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 
-set -euo pipefail
+set -euo
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
@@ -28,7 +28,7 @@ change_timezone() {
 		fi
 	done
 	zoneinfolist=$(echo "${zoneinfo}" | sed 's/ /\n/g' )
-	res="$(echo -e "${zoneinfolist}" | \
+	res="$(printf "${zoneinfolist}" | \
          ${rofi_command} -p "Select time zone ('ESC' to Exit):")"
 	clear
   

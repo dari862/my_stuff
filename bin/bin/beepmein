@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #    beepmein - a simple alarm clock based on 'at'
 #    Copyright (C) 2019-2020 brontosaurusrex
 #
