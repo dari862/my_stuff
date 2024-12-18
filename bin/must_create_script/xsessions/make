@@ -4,11 +4,13 @@ set -e
 my-superuser mkdir -p /usr/share/my_stuff/system_files/bin/xsessions
 
 cat "main" | my-superuser tee /usr/share/my_stuff/system_files/bin/xsessions/openbox > /dev/null 2>&1
+echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | my-superuser tee -a /usr/share/my_stuff/system_files/bin/xsessions/openbox > /dev/null 2>&1
 echo "echo 'openbox' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | my-superuser tee -a /usr/share/my_stuff/system_files/bin/xsessions/openbox > /dev/null 2>&1
 cat "/usr/share/my_stuff/lib/common/openbox" "openbox.sh" | my-superuser tee -a /usr/share/my_stuff/system_files/bin/xsessions/openbox > /dev/null 2>&1
 
 
 cat "main" | my-superuser tee /usr/share/my_stuff/system_files/bin/xsessions/bspwm > /dev/null 2>&1
+echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | my-superuser tee -a /usr/share/my_stuff/system_files/bin/xsessions/bspwm > /dev/null 2>&1
 echo "echo 'bspwm' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | my-superuser tee -a /usr/share/my_stuff/system_files/bin/xsessions/bspwm > /dev/null 2>&1
 cat "bspwm.sh" | my-superuser tee -a /usr/share/my_stuff/system_files/bin/xsessions/bspwm > /dev/null 2>&1
 

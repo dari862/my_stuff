@@ -23,7 +23,7 @@ done
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
-if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
+obmenu_options(){
 	menuStart "my_stuffGuiAppsPipemenu" "My Stuff GUI Apps"
 	menuItem "Apps Dashboard" "apps-dashboard"
 	menuItem "live wallpaper" "livewall_gui"
@@ -62,7 +62,9 @@ if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
 	fi
     menuEnd
  #    menuEnd   
-elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
+}
+
+jgmenu_options(){
 	jgmenuItem "Apps Dashboard" "apps-dashboard"
 	jgmenuItem "Alarm" "beepmein_gui"
 	jgmenuItem "Control Center" "control_center"
@@ -99,12 +101,11 @@ elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
 	fi
     jgmenuEnd
 #    menuEnd
-elif [ "${1-}" ]; then
-    echo "$0: no such option $*" >&2
-    echo
-    echo "#################################################"
-    echo
-    echo "$HELP"
-    exit 1
+}
+
+if [ "${1-}" = "--jgmenu" ]; then # pipemenu
+	jgmenu_options
+else
+	obmenu_options
 fi
 exit 0

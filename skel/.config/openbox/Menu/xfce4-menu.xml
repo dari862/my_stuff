@@ -66,7 +66,7 @@
 	    <menu id="StylePipeMenu" icon="&icons;/themes.png" execute="change-style-pipemenu" label="Change Style"/>
 	    <menu id="PanelPipeMenu" icon="&icons;/themes.png" execute="change-panel-pipemenu" label="Change Panel"/>
             <menu id="obConfig" label="Desktop" icon="&icons;/openbox.png">	
-            	<menu id="ac-ob-menu" execute="ac-ob-menu" label="Menu Style"/>
+            	<menu id="ac-ob-menu-pipemenu" execute="ac-ob-menu-pipemenu" label="Menu Style"/>
 	            <item label="Openbox Preferences" icon="&icons;/openbox.png">
 	                <action name="Execute">
 	                    <command>

@@ -30,27 +30,25 @@ done
 
 TWEEKS="$(cat "${tweeks_db_path}")"
 
-if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
-    shift 1
+obmenu_options(){
 	menuStart "RunDebianTweeks" "Run Debian Tweeks"
 	for tweek in ${TWEEKS}; do
     	menuItem "run ${tweek}" "${run_tweeks_script_} --tweek ${tweek}"
     done
     menuEnd
- #    menuEnd   
-elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
-    shift 1
+ #    menuEnd
+}
+
+jgmenu_options(){
 	for tweek in ${TWEEKS}; do
     	jgmenuItem "run ${tweek}" "${run_tweeks_script_} --tweek ${tweek}"
     done
     jgmenuEnd
 #    menuEnd
-elif [ "${1-}" ]; then
-    echo "$0: no such option $*" >&2
-    echo
-    echo "#################################################"
-    echo
-    echo "$HELP"
-    exit 1
+}
+
+if [ "${1-}" = "--jgmenu" ]; then # pipemenu
+	jgmenu_options
+else
+	obmenu_options
 fi
-exit 0

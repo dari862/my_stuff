@@ -6,7 +6,7 @@ run_change_module_=false
 
 workspace_name="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2 | tr -d '0-9')"
 [ -z "$workspace_name" ] && workspace_name="empty"
-current_WM_name="$(cat "$WM_name_file")"
+current_WM_name="$(cat "$WM_name_file_path")"
 
 change_module_(){
 	find "${polybar_dir}" -type f -name config.ini -exec sed -i "s/[^ \t]*NameWorkspace[^ \t]*/$1/g" {} +

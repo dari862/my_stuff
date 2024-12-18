@@ -546,7 +546,7 @@
         </action>
       </mousebind>
       <mousebind button="Right" action="Press">
-        <!-- ## this line will be replaced using panel_manager ## -->
+        <action name="ShowMenu"><menu>root-menu</menu></action> <!-- never remove this line menu style are :obmenu -->
       </mousebind>
     </context>
 

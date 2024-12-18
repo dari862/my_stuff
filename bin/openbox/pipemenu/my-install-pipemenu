@@ -34,18 +34,57 @@ do
 done
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
+jgmenu_options(){
+    # This function is specific to this script.
+    # It generates an install submenu for a group of packages.
+    # Usage: generate_installmenu tag label list (of packages)
+    generate_installmenu_jgmenu() {
+        tag=$1
+        label=$2
+        menu_content="$3"
+        shift 2
+        for App in ${menu_content}; do
+        	App_name=$(echo "${App}" | awk -F"_" '{print $1}')
+            jgmenuItem "Install ${App_name}" "${installation_script_name} --game ${App}"
+        done
+        [ -n "${menu_content}" ] && jgmenuSubmenu 'root' "$tag" "$label"
+    }
+	cd "${apps_db_path}"
+	for dir in ${LIST_OF_APPS_SCRIPTS_};do
+		apps_dir_name=$(echo "$dir" | sed 's/_/ /')
+		apps_in_dir="$(cat "$dir" 2>/dev/null)"
+		generate_installmenu_jgmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
+	done
+	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
+		jgmenuItem "GPU Driver (GamingMenu after install)" "${installation_script_name} --install GPU_Driver_"
+	else
+		cd "${picked_gaming_db_path}"
+		jgmenuSubmenu 'root' "GamingMenu" "Gaming"
+		for gd in ${LIST_OF_GAMES_SCRIPTS_};do
+			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
+			Gaming_in_dir="$(cat "$gd" 2>/dev/null)"
+			generate_installmenu_jgmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
+		done
+	fi
+	
+	if [ ! -f "/usr/share/my_stuff/system_files/Cyber_ready" ];then
+		jgmenuItem "Cybersecurity Apps" "${installation_script_name} --install Cyber_"
+	fi
+    jgmenuEnd
+#    menuEnd
+}
 
-if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
+obmenu_options(){
 	# This function is specific to this script.
     # It generates an install submenu for a group of packages.
     # Usage: generate_installmenu tag label list (of packages)
     generate_installmenu() {
         tag=$1
         label=$2
-        shift 2
+        menu_content="$3"
         if [ -n "${tag}" ] && [ -n "${label}" ]; then
         	menuSubmenu "$tag" "$label"
-        	for App in ${@}; do
+        	for App in ${menu_content}; do
         		App_name=$(echo "${App}" | awk -F"_" '{print $1}')
                 menuItem "Install ${App_name}" "${installation_script_name} --game ${App}"
         	done
@@ -70,7 +109,7 @@ if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
 		menuSubmenu "GamingMenu" "Gaming"
 		for gd in ${LIST_OF_GAMES_SCRIPTS_};do
 			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
-			Gaming_in_dir="$(cat "$d" 2>/dev/null)"
+			Gaming_in_dir="$(cat "$gd" 2>/dev/null)"
 			generate_installmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
 		done
 		menuSubmenuEnd
@@ -80,50 +119,12 @@ if [ "${1-}" = "--openboxmenu" ]; then # pipemenu
 	fi
     menuEnd
  #    menuEnd   
-elif [ "${1-}" = "--jgmenu" ]; then # pipemenu
-    # This function is specific to this script.
-    # It generates an install submenu for a group of packages.
-    # Usage: generate_installmenu tag label list (of packages)
-    generate_installmenu_jgmenu() {
-        tag=$1
-        label=$2
-        menu_content="$3"
-        shift 2
-        for App in ${@}; do
-        	App_name=$(echo "${App}" | awk -F"_" '{print $1}')
-            jgmenuItem "Install ${App_name}" "${installation_script_name} --game ${App}"
-        done
-        [ -n "${menu_content}" ] && jgmenuSubmenu 'root' "$tag" "$label"
-    }
-	cd "${apps_db_path}"
-	for dir in ${LIST_OF_APPS_SCRIPTS_};do
-		apps_dir_name=$(echo "$dir" | sed 's/_/ /')
-		apps_in_dir="$(cat "$dir" 2>/dev/null)"
-		generate_installmenu_jgmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
-	done
-	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
-		jgmenuItem "GPU Driver (GamingMenu after install)" "${installation_script_name} --install GPU_Driver_"
-	else
-		cd "${picked_gaming_db_path}"
-		jgmenuSubmenu 'root' "GamingMenu" "Gaming"
-		for gd in ${LIST_OF_GAMES_SCRIPTS_};do
-			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
-			Gaming_in_dir="$(cat "$d" 2>/dev/null)"
-			generate_installmenu_jgmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
-		done
-	fi
-	
-	if [ ! -f "/usr/share/my_stuff/system_files/Cyber_ready" ];then
-		jgmenuItem "Cybersecurity Apps" "${installation_script_name} --install Cyber_"
-	fi
-    jgmenuEnd
-#    menuEnd
-elif [ "${1-}" ]; then
-    echo "$0: no such option $*" >&2
-    echo
-    echo "#################################################"
-    echo
-    echo "$HELP"
-    exit 1
+}
+
+if [ "${1-}" = "--jgmenu" ]; then # pipemenu
+	jgmenu_options
+else
+	obmenu_options
 fi
+
 exit 0

@@ -16,7 +16,7 @@ else
 	. "${script_config_path}/welcome_keybinds"
 fi
 
-wm_name="$(cat "$WM_name_file")"
+current_wm_name="$(cat "$WM_name_file_path")"
 field="Show this message on startup"
 
 # Openbox welcome text
@@ -85,7 +85,7 @@ text_awesome="<big><b>Welcome TO My Stuff \!</b></big>\n
 <b> Open editor</b>				<tt>${conky_Editor}</tt>\n
 "
 
-case $wm_name in
+case $current_wm_name in
 	openbox)
 		text=${text_openbox}
 	;;

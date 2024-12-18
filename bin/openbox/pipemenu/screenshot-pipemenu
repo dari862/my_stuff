@@ -151,7 +151,7 @@ jgmenu_options(){
 	jgmenuEnd
 }	
 
-if grep -q "<startupnotify><enabled>false</enabled><name>jgmenu</name></startupnotify>" ${OBPATH}/rc.xml;then
+if [ "${1-}" = "--jgmenu" ]; then # pipemenu
 	jgmenu_options
 else
 	obmenu_options

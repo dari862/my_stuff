@@ -8,6 +8,7 @@ Terminal (fullscreen)=super + t
 #;##---------- Rofi Launcher & Menus ----------##
 Rofi Themes Menu=ctrl + alt + t
 Rofi rofi-root=super + r
+JGmenu_run=button3
 #;##---------- Applications ----------##
 Terminal Apps {$CLI_EDITER,ranger}=ctrl + alt + {v,r}
 #;##---------- System Keys ----------##

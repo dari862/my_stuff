@@ -9,6 +9,7 @@ panel_launcher &
 update-notification -n &
 
 cd $HOME/.config/autostartscripts/
-for script in *;do
+autostartscripts_list="$(ls 2>/dev/null)"
+for script in ${autostartscripts_list};do
 	./$script
 done

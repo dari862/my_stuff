@@ -1,11 +1,10 @@
 #!/bin/sh
 
-op__="$1"
-op2__="$2"
-color_="$3"
-
-case $op__ in
-	*)
-		nitrogen
-	;;
-esac
+if command -v nitrogen >/dev/null 2>&1;then
+	nitrogen
+else
+	image_file=$(yad --file-selection --title="Select an Image" --filter="Images | *.png *.jpg *.jpeg *.gif *.bmp" --filename="/usr/share/my_stuff/my_wallpapers/")
+	if [ -n "$image_file" ]; then
+    	setbg -R "$image_file"
+	fi
+fi

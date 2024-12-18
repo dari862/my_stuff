@@ -49,6 +49,56 @@ Set_tint2_Style_(){
 	OB_themeing
 }
 
+Set_jgmenu_Style_(){
+	if ! grep -q "never remove this line menu style are :jgmenu" "${BACKUP_OB_RC_FILE}";then
+		return 0
+	fi
+	
+	if . "${STYLEPATH}/config/openbox/theme/rctheme";then
+		switch_theme=true
+		config_file="/usr/share/my_stuff/Theme_Stuff/themes/$theme/openbox-3/themerc"
+		jgmenurc_file="${STYLEPATH}/config/jgmenu/jgmenurc"
+		if [ ! -f "$jgmenurc_file" ];then
+			switch_theme=false
+			echo "[ERROR] $0 failed to locate $jgmenurc_file"
+		fi
+		
+		if [ ! -f "$config_file" ];then
+			switch_theme=false
+			echo "[ERROR] $0 failed to locate $config_file"
+		fi
+		
+		if [ "$switch_theme" = true ];then
+			color_menu_bg=$(grep 'osd.border.color:' "$config_file" | awk '{print $2}')
+			color_menu_border=$(grep 'menu.border.color:' "$config_file" | awk '{print $2}')
+			color_norm_bg=$(grep 'menu.items.bg.color:' "$config_file" | awk '{print $2}')
+			color_norm_fg=$(grep 'menu.items.text.color:' "$config_file" | awk '{print $2}')
+			color_sel_bg=$(grep 'menu.items.active.bg.color:' "$config_file" | awk '{print $2}')
+			color_sel_fg=$(grep 'menu.items.active.text.color:' "$config_file" | awk '{print $2}')
+			color_sel_border=$(grep 'menu.items.active.bg.color:' "$config_file" | awk '{print $2}')
+			color_title_bg=$(grep 'menu.title.bg.color:' "$config_file" | awk '{print $2}')
+			color_title_fg=$(grep 'menu.title.text.color:' "$config_file" | awk '{print $2}')
+			color_title_border=$(grep 'menu.title.bg.color:' "$config_file" | awk '{print $2}')
+			color_sep_fg=$(grep 'menu.separator.color:' "$config_file" | awk '{print $2}')
+	
+			sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
+			sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg 100/g" "$jgmenurc_file"
+			sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border 100/g" "$jgmenurc_file"
+			sed -i "s/colwior_norm_bg .*/color_norm_bg       = $color_norm_bg 00/g" "$jgmenurc_file"
+			sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg 100/g" "$jgmenurc_file"
+			sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg 100/g" "$jgmenurc_file"
+			sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg 100/g" "$jgmenurc_file"
+			sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border 100/g" "$jgmenurc_file"
+			sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg 100/g" "$jgmenurc_file"
+			sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg 100/g" "$jgmenurc_file"
+			sed -i "s/color_title_border .*/color_title_border  = $color_title_border 100/g" "$jgmenurc_file"
+			sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg 100/g" "$jgmenurc_file"
+		fi
+	else
+		echo "[ERROR] $0 failed to source openbox rctheme"
+	fi
+}
+
 if [ ! -d "${BLOBPATH}/blob" ];then
 	cp -r "${GLOBALBLOBPATH}" "${BLOBPATH}"
 	find "${BLOBPATH}/blob/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
@@ -64,6 +114,10 @@ else
 	Set_tint2_Style_
 fi
 
+if command -v jgmenu >/dev/null 2>&1;then
+	Set_jgmenu_Style_
+fi
+	
 [ "$(pidof openbox)" ] && openbox --reconfigure
 reload_gtk23
 

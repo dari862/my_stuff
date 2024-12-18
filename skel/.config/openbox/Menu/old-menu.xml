@@ -102,7 +102,7 @@
             </menu>
 
         	<menu id="obmenu" label="Menu" icon="&icons;/menu.png">
-				<menu id="ac-ob-menu" execute="ac-ob-menu" label="Menu Style"/>
+				<menu id="ac-ob-menu-pipemenu" execute="ac-ob-menu-pipemenu" label="Menu Style"/>
                 <item label="Edit menu.xml" icon="&icons;/text-editor.png">
                     <action name="Execute">
                         <command>

@@ -31,14 +31,14 @@ Display Keybinds,^pipe(jgmenu_run ob --cmd="my_stuff-kb-pipemenu" --tag="my_stuf
 ^sep()
 Applications,^checkout(apps)
 ^sep()
-Lock Screen,bl-lock,system-lock-screen
-Exit,my_session_manager yad,system-shutdown
+Lock Screen,my_session_manager lock,system-lock-screen
+Exit,my_session_manager --yad,system-shutdown
 
 . /usr/share/my_stuff/lib/docs/menu-includes/help-menu
 
 ^tag(bl-utilities)
 Back,^back()
-Take Screenshot,^pipe(screenshot-pipemenu)
+Take Screenshot,^pipe(jgmenu_run ob --cmd="screenshot-pipemenu" --tag="screenshot-pipemenu")
 BLOB Themes Manager,(style_picker_yad)
 SSH,^pipe(jgmenu_run ob --cmd="bl-sshconfig-pipemenu" --tag="bl-sshconfig-pipemenu")
 Remote Desktop,^pipe(jgmenu_run ob --cmd="bl-remote-desktop-pipemenu" --tag="bl-remote-desktop-pipemenu")
@@ -69,6 +69,7 @@ Edit environment,my-text-editor ~/.config/openbox/environment
 
 Openbox,^tag(bl-obConfig),openbox
 Back,^back()
+Menu Style,^pipe(jgmenu_run ob --cmd="ac-ob-menu-pipemenu" --tag="ac-ob-menu-pipemenu")
 Edit rc.xml,my-text-editor ~/.config/openbox/rc.xml
 ^sep()
 WM Preferences,obconf --config-file ~/.config/openbox/rc.xml
@@ -115,7 +116,7 @@ Quick System Info,sysinfo_script_ --hardware2
 ^sep()
 Printers,^pipe(jgmenu_run ob --cmd="printing-pipemenu" --tag="bl-printing-pipemenu"),printer
 Task Manager (htop),sysinfo_script_ --process,htop
-Install Favourite Packages,^pipe(my-install-pipemenu --jgmenu)
+Install Favourite Packages,^pipe(jgmenu_run ob --cmd="my-install-pipemenu" --tag="my-install-pipemenu")
 Synaptic Package Manager,sh -c 'apps_as_root synaptic',synaptic
 Login Settings,apps_as_root my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf,lightdm-settings
 Login Interface,lightdm-gtk-greeter-settings-pkexec,lightdm-settings

@@ -39,9 +39,7 @@ done
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
-which_menu="${1-}"
-
-if [ "${which_menu}" = "--openboxmenu" ]; then
+obmenu_options(){
 	menuStart "DeployFavouriteContainers" "Deploy containers using Distrobox and Containers softwares"
 	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
@@ -73,8 +71,10 @@ if [ "${which_menu}" = "--openboxmenu" ]; then
 	fi
 	
     menuEnd
- #    menuEnd   
-elif [ "${which_menu}" = "--jgmenu" ]; then
+ #    menuEnd  
+}
+  
+jgmenu_options(){
     if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
 			jgmenuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU_Driver_"
@@ -106,9 +106,12 @@ elif [ "${which_menu}" = "--jgmenu" ]; then
 	
     jgmenuEnd
 #    menuEnd
-elif [ "${which_menu}" ]; then
-    echo "$0: no such option $1" >&2
-    echo "$HELP"
-    exit 1
+}
+
+if [ "${1-}" = "--jgmenu" ]; then # pipemenu
+	jgmenu_options
+else
+	obmenu_options
 fi
+
 exit 0

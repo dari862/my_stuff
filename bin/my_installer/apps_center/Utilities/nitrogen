@@ -5,14 +5,3 @@ app_name="nitrogen"
 say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue
-
-cd "/usr/share/my_suff/extra_blob/"
-cd polybar
-for theme in *;do
-	my-superuser cp -r "${theme}/config/nitrogen" "/usr/share/my_suff/system_files/blob/tint2/${theme}/config" 
-done
-cd ..
-cd tint2
-for theme in *;do
-	my-superuser cp -r "${theme}/config/nitrogen" "/usr/share/my_suff/system_files/blob/tint2/${theme}/config" 
-done

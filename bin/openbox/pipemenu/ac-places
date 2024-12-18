@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
@@ -54,7 +55,7 @@ case $1 in
     --recent)
         shift
         output='<openbox_pipe_menu>'
-        if [ "$(command -v ac-recent-files)" ]; then
+        if [[ "$(command -v ac-recent-files)" ]]; then
             output="$output
   <separator label=\"Recently opened...\"/>
   <menu execute=\"ac-recent-files\" id=\"recent\" label=\"files\"/>"
@@ -68,15 +69,15 @@ esac
 path=${1:-$HOME}
 path=${path%/}
 
-[ -d $path ] || { echo "$0 : $path is not a directory" >&2 ; exit 1 ; }
+[[ -d $path ]] || { echo "$0 : $path is not a directory" >&2 ; exit 1 ; }
 
 # only escape if string needs it
 case $path in
-    *\&*|*\<*|*\>*|*\"*|*\'*) pathe=$(echo "$path" | sed "s/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g;s/\"/\&quot;/g;s/'/\&apos;/g;") ;;
+    *\&*|*\<*|*\>*|*\"*|*\'*) pathe=$(sed "s/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g;s/\"/\&quot;/g;s/'/\&apos;/g;" <<<"$path") ;;
     *)                        pathe=$path
 esac
 case $pathe in
-    *\&apos\;*) pathe_apos=$(echo "$pathe" | sed 's/\&apos;/\&apos;\&quot;\&apos;\&quot;\&apos;/g;') ;;
+    *\&apos\;*) pathe_apos=$(sed 's/\&apos;/\&apos;\&quot;\&apos;\&quot;\&apos;/g;' <<<"$pathe") ;;
     *)          pathe_apos=$pathe
 esac
 
@@ -89,29 +90,29 @@ output="$output
   </item>
   <separator/>"
 
-[ "$path" = "$HOME" ] && extra_entries="$shown_dotfiles"
+[[ "$path" == "$HOME" ]] && extra_entries="$shown_dotfiles"
 
 for i in $path/* $extra_entries; do
 
-    [ ! -e $i ] && continue
+    [[ ! -e $i ]] && continue
     shortname=${i##*/}
 
     case $shortname in
-        *\&*|*\<*|*\>*|*\"*|*\'*) shortnamee=$(echo "$shortname" | sed "s/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g;s/\"/\&quot;/g;s/'/\&apos;/g;") ;;
+        *\&*|*\<*|*\>*|*\"*|*\'*) shortnamee=$(sed "s/\&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g;s/\"/\&quot;/g;s/'/\&apos;/g;" <<<"$shortname") ;;
         *)                        shortnamee=$shortname
     esac
     case $shortnamee in
-        *\&apos\;*) shortnamee_apos=$(echo "$shortnamee" | sed 's/\&apos;/\&apos;\&quot;\&apos;\&quot;\&apos;/g;') ;;
+        *\&apos\;*) shortnamee_apos=$(sed 's/\&apos;/\&apos;\&quot;\&apos;\&quot;\&apos;/g;' <<<"$shortnamee") ;;
         *)          shortnamee_apos=$shortnamee
     esac
     case $shortnamee in
-        *_*) shortnamee_label=$(echo "$shortnamee" | sed 's/_/__/g;') ;;
+        *_*) shortnamee_label=$(sed 's/_/__/g;' <<<"$shortnamee") ;;
         *)   shortnamee_label=$shortnamee
     esac
 
     # NOTE1: If you want directories and files listed together
     # change directories_menu="$directories_menu to: files_menu="$files_menu
-    if [ -d $i ]; then
+    if [[ -d $i ]]; then
         directories_menu="$directories_menu
   <menu id=\"$pathe_apos/$shortnamee_apos\" label=\"$shortnamee_label\" execute=\"&apos;$0&apos; &apos;$pathe_apos/$shortnamee_apos&apos;\"/>"
     else

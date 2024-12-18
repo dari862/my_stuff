@@ -37,6 +37,7 @@ create_sourcemainbindkey_conf_file(){
 	sed -i 's/Super/super/g' keybinds_to_sourcemainbindkey.conf
 	sed -i 's/Shift/shift/g' keybinds_to_sourcemainbindkey.conf
 	
+	sed -i '/#__App__name# :: .*/d' keybinds_to_sourcemainbindkey.conf
 	csplit -z keybinds_to_sourcemainbindkey.conf /#csplit_file_here#/ '{*}' >/dev/null 2>&1
 	
 	sed -i 's/super/Mod4/g' xx00
@@ -83,8 +84,9 @@ create_sourcemainbindkey_conf_file(){
 	sed -i 's/alt/A/g' xx11
 	sed -i 's/super/W/g' xx11
 	sed -i 's/shift/S/g' xx11
-	
+		
 	sed -i 's/sed_it_to_backtick/grave/g' xx12
+	sed -i 's/button/~button/g' xx12
 	
 	sed -i 's/<Alt>=/alt=/g' xx13
 	sed -i 's/<Alt>1=/alt1=/g' xx13
@@ -1660,11 +1662,11 @@ ${Terminal_fullscreen}
 
 # Rofi App Launcher
 ${Rofi_App_Launcher}
-	sh rofi-launcher
+	rofi-launcher
 
 # Rofi App Runner
 ${Rofi_App_Runner}
-	sh rofi-runner
+	rofi-runner
 	
 # Rofi Network Menu
 ${Rofi_Network_Menu}
@@ -1672,24 +1674,27 @@ ${Rofi_Network_Menu}
 
 # Rofi Themes Menu
 ${Rofi_Themes_Menu}
-	sh style_picker_rofi
+	style_picker_rofi
 
 # Rofi Menus/Applets
 ${Rofi_rofi_screenshot}
-	sh rofi-screenshot
+	rofi-screenshot
 
 ${Rofi_rofi_music}
-	sh rofi-music
+	rofi-music
 
 ${Rofi_rofi_windows}
-	sh rofi-windows
+	rofi-windows
 	
 ${Rofi_rofi_root}
-	sh rofi-root
+	rofi-root
 	
 ${Rofi_rofi_powermenu}
-	sh my_session_manager --rofi
+	my_session_manager --rofi
 
+${JGmenu_run}
+	run_JGmenu
+	
 ##---------- Applications ----------##
 
 # my_file_manager

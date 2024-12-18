@@ -78,22 +78,24 @@ create_system_file_ini() {
 
 ## Get system variable values for various modules
 get_values() {
-	if command -v upower >/dev/null;then
-		ADAPTER=$(upower -i $(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
-		BATTERY=$(upower -i $(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
-	fi
+	ADAPTER="$(find /sys/class/power_supply -maxdepth 1 -type l -name "A[CD]*" | head -n1 | xargs basename 2>/dev/null)"
+	BATTERY="$(find /sys/class/power_supply -maxdepth 1 -type l -name "BAT*" | head -n1 | xargs basename 2>/dev/null)"
 	
-	CARD="$(ls -1 /sys/class/backlight/ | head -n 1)"
+	CARD="$(find /sys/class/backlight -maxdepth 1 -type l | head -n1 | xargs basename 2>/dev/null)"
 	
-	E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
-	W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
+	INTERFACE="$(ip -o route get 1 2>/dev/null | awk '{print $5}')"
 	
-	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
-		INTERFACE="${W_INTERFACE}"
-	elif [ -n "${E_INTERFACE}" ];then
-		INTERFACE="${E_INTERFACE}"
-	else
-		INTERFACE="${W_INTERFACE}"
+	if [ -z "${INTERFACE}" ];then
+		E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
+		W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
+		
+		if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
+			INTERFACE="${W_INTERFACE}"
+		elif [ -n "${E_INTERFACE}" ];then
+			INTERFACE="${E_INTERFACE}"
+		else
+			INTERFACE="${W_INTERFACE}"
+		fi
 	fi
 	
 	VPN_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "tun" | head -n 1  )"
@@ -101,7 +103,7 @@ get_values() {
 	workspace_name="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2 | tr -d '0-9')"
 	[ -z "$workspace_name" ] && workspace_name="empty"	
 	
-	saved_WM_name="$(cat $WM_name_file)"
+	saved_WM_name="$(cat $WM_name_file_path)"
 	
 	#varibale TemperaturePath are set at the end
 	TemperaturePath="$(for i in /sys/class/hwmon/hwmon*/temp*_input; do name_file="$(dirname "$i")/name"; if [ -f "$name_file" ]; then name=$(cat "$name_file"); else name=""; fi; label_file="${i%_*}_label"; if [ -f "$label_file" ]; then label=$(cat "$label_file"); else label="$(basename "${i%_*}")"; fi; echo "$name: $label $(readlink -f "$i")"; done | grep "coretemp" | grep "temp1" | awk '{print $5}')"

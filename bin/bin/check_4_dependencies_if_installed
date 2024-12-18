@@ -1,22 +1,28 @@
 #!/bin/sh
 dependencies_not_installed=""
 not_installed_apps_are=""
-
 . "/usr/share/my_stuff/system_files/Package-manager"
 
 on_terminal(){
-   	if [ -t 0 ]
-   	then
-       	if [ -t 1 ] && [ -t 2 ]
-       	then
-           	return 0
-       	else
-           	echo "$0: STDIN is on terminal, but not STDOUT or STDERR" >&2
-           	exit 1
+	_on_terminal=true
+	_STDOUT=""
+	_STDERR=""
+	
+   	if [ -t 0 ];then
+   		if [ ! -t 1 ];then
+   			_STDOUT="STDOUT"
+   			_on_terminal=false
+   		fi
+   		if [ ! -t 2 ];then
+   			_STDERR="STDERR"
+   			_on_terminal=false
+   		fi
+       	if [ "$_on_terminal" = false ];then
+       		echo "$0: STDIN is on terminal, but not ${STDOUT} , ${_STDERR}" >&2
+           	return 1
        	fi
-   	else
-       	return 1
    	fi
+   	return 0
 }
 
 has() {
@@ -36,8 +42,8 @@ Do_want_to_install_dependencies()
 	read -r yn
 	yn="$(echo "$yn" | tr '[:upper:]' '[:lower:]')"
 	case $yn in 
-		YES|Y) Package_installer_ ${not_installed_apps_are};;
-		NO|N) echo "exiting..." && exit;;
+		y*) Package_installer_ ${not_installed_apps_are};;
+		n*) echo "exiting..." && exit;;
 		* ) _pem "invalid response" ;;
 	esac
 }

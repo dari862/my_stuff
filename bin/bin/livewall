@@ -1,10 +1,13 @@
 #!/bin/sh
-_livewallpaper_dir="${HOME}/.local/livewallpaper"
-_dir_vid="${_livewallpaper_dir}/video"
-_autorun_livewall_file="${_livewallpaper_dir}/autorun"
+option="${1-}"
+option2="${2-}"
 
-if [ "${1-}" = "-c" ] || [ "${1-}" = "--check-run-live" ];then
-	if [ -f "${_autorun_livewall_file}" ];then
+livewallpaper_dir="${HOME}/.local/livewallpaper"
+video_dir="${livewallpaper_dir}/video"
+autorun_file="${livewallpaper_dir}/autorun"
+
+if [ "$option" = "-c" ] || [ "$option" = "--check-run-live" ];then
+	if [ -f "${autorun_file}" ];then
 		echo "true"
 	else
 		echo "false"
@@ -12,19 +15,20 @@ if [ "${1-}" = "-c" ] || [ "${1-}" = "--check-run-live" ];then
 	exit
 fi
 
+# keep it after check
 check_4_dependencies_if_installed ffmpeg feh
 
 Use_numbers="Use numbers indicated by"
-Preparing_video="Preparing the video..."
+Preparingprocess_video="Preparing the video..."
 Use_numbers_from="Use numbers numbers from 1 to"
 Invalid_format="Invalid format."
 mp4_only="MP4 format only"
 Report_Video="Report Video"
-no_videos="No videos."
+noprocess_videos="No videos."
 
-[ ! -d "${_dir_vid}" ] && mkdir -p "${_dir_vid}"
+[ ! -d "${video_dir}" ] && mkdir -p "${video_dir}"
 
-__help(){
+show_help(){
   cat <<EOF
 usage: ${0##*/} [options]
   
@@ -46,131 +50,154 @@ EOF
 	exit
 }
 
-check_if_vid_exist_in_dir(){
-    if ! ls -d ${_dir_vid}/* 2>/dev/null >/dev/null; then
-        echo ${no_videos}
+checkprocess_video_exists_in_dir(){
+    if ! ls -d ${video_dir}/* 2>/dev/null >/dev/null; then
+        echo ${noprocess_videos}
         exit 1
     fi
 }
 
-ctrl_c(){
+check_if_positive_integer(){
+    case "$1" in
+        ''|*[!0-9]* )  # Reject anything with non-digit characters
+            echo "[ERROR] $(basename $0): It's not a positive integer at ($2)."
+            ;;
+        *): ;;
+    esac
+}
+
+handle_ctrl_c(){
     exit 127
 }
 
-_quit_loop(){
-    script_pid=$(pgrep -r "$0")
-    if [ -n "$script_pid" ];then
-    	kill $script_pid 2>/dev/null >/dev/null
-    fi
+quit_loop(){
+	setbg -r
+	killall -9 livewall 2>/dev/null >/dev/null
 }
 
-_video(){
-	_quit_loop
-	if grep -qR "$1" "${_dir_vid}";then
-		vid_dir_name="$(grep -R "$1" "${_dir_vid}" | awk -F'/video.info' '{print $1}')"
-		a="$(basename "${vid_dir_name}")"
-	else	
-		[ -z "$1" ] && { echo "${Report_Video}"; exit 1; }
-		mime_type=$(file -b --mime-type "$1" | cut -d"/" -f1)
-		if [ "$mime_type" != "video" ]; then
-    		echo "$Invalid_format"
-    		exit 1
-		fi
-		
-		extension=$(file -b --mime-type "$1" | cut -d"/" -f2)
-		case "$extension" in
-    		mp4|x-m4v)
-        		# Valid formats
-        		;;
-    		*)
-        		echo "$mp4_only"
-        		exit 1
-        		;;
-		esac
-    	a=1     
-    	for i in $(ls -d $_dir_vid/*/ 2>/dev/null); do
-       	if [ -d "$_dir_vid/$a" ]; then
-           	a=$((a + 1))
-       	fi
-    	done
+start_live_wallpaper(){
+	video_number="${1-}"
+	check_if_positive_integer "$video_number" "start_live_wallpaper"
 	
-    	mkdir -p "$_dir_vid/$a"
-	
-    	printf "${Preparing_video}...\n"
-    	ffmpeg -y -ss 00:00 -i ${1} -t 10 "${_dir_vid}/${a}/filename%05d.jpg" > ${_dir_vid}/${a}/video.info 2>&1
-    	t=$(ls ${_dir_vid}/${a}/* | wc -l)
-    	t=$((t - 1))
-    	echo ${1} > ${_dir_vid}/${a}/video.info
-	fi
-
-    i=1
-    # ctrl_c
+	t=$(ls "${video_dir}/$video_number"/* | wc -l)
+	t=$((t - 1))
+	i=1
+    # handle_ctrl_c
     while : ; do
-        feh --bg-scale $(ls -1 ${_dir_vid}/${a}/* | sed -n "${i}p")
+        feh --bg-scale $(ls -1 "${video_dir}/$video_number"/* | sed -n "${i}p")
         sleep 0.01
         i=$((i + 1))
         [ "${i}" -gt "${t}" ] && i=1              
-    done &
-}
-
-__autorun(){
-	if [ -z "${1-}" ];then
-		[ -f "${_autorun_livewall_file}" ] && rm -f "${_autorun_livewall_file}"
-	else
-		if ! grep -q "$1" "${_autorun_livewall_file}";then
-			echo "${1-}" > "${_autorun_livewall_file}"
-		fi
-	fi
-}
-
-__runit(){
-	if [ -f "${_autorun_livewall_file}" ];then
-		video_name="$(cat "${_autorun_livewall_file}")"
-		_video "${video_name}"
-	fi
-}
-
-_list_vid(){
-    check_if_vid_exist_in_dir
-    __numbers_="$(cd ${_dir_vid} && ls)"
-    for i in ${__numbers_}; do
-    	#videonumber → videoname
-    	echo "${i} → $(cat ${_dir_vid}/${i}/video.info)"
     done
 }
 
-_set_video(){
-    check_if_vid_exist_in_dir
-    if [ -z "$(echo "$1" | sed -n -r '/^[0-9]+$/p')" ]; then
+convertprocess_video_to_live_wallpaper(){
+	[ -z "$video_path" ] && { echo "${Report_Video}"; exit 1; }
+	mime_type=$(file -b --mime-type "$video_path" | cut -d"/" -f1)
+	if [ "$mime_type" != "video" ]; then
+    	echo "$Invalid_format"
+    	exit 1
+	fi
+		
+	extension=$(file -b --mime-type "$video_path" | cut -d"/" -f2)
+	case "$extension" in
+    	mp4|x-m4v)
+       		# Valid formats
+       		;;
+    	*)
+       		echo "$mp4_only"
+       		exit 1
+       		;;
+	esac
+	a=1     
+	for i in $(ls -d "$video_dir"/*/ 2>/dev/null); do
+		if [ -d "$video_dir/$a" ]; then
+			a=$((a + 1))
+		fi
+	done
+	
+	mkdir -p "$video_dir/$a"
+	
+	printf "${Preparingprocess_video}...\n"
+	ffmpeg -y -ss 00:00 -i "$video_path" -t 10 "${video_dir}/${a}/filename%05d.jpg" > "${video_dir}/${a}"/video.info 2>&1
+	echo "$video_path" > "${video_dir}/${a}"/video.info
+}
+
+process_video(){
+	video_path="$option2"
+	[ -z "$video_path" ] && video_path="$option"
+	a=""
+	quit_loop
+	if grep -qR "$video_path" "${video_dir}";then
+		vid_dir_name="$(grep -R "$video_path" "${video_dir}" | awk -F'/video.info' '{print $1}')"
+		a="$(basename "${vid_dir_name}")"
+	else
+		convertprocess_video_to_live_wallpaper
+	fi
+	start_live_wallpaper "${a}" &
+}
+
+setup_autorun(){
+	video_number="$option2"
+	[ -z "$video_number" ] && video_number="$option"
+	check_if_positive_integer "$video_number" "setup_autorun"
+	if [ -z "$video_number" ];then
+		if [ -f "${autorun_file}" ];then
+			rm -f "${autorun_file}"
+		else
+			:
+		fi
+	else
+		if ! grep -q "$video_number" "${autorun_file}";then
+			echo "$video_number" > "${autorun_file}"
+		fi
+	fi
+	process_video
+}
+
+run_autorun(){
+	if [ -f "${autorun_file}" ];then
+		video_name="$(cat "${autorun_file}")"
+		process_video "${video_name}"
+	fi
+}
+
+list_videos(){
+    checkprocess_video_exists_in_dir
+    video_numbers="$(cd ${video_dir} && ls)"
+    if [ -z "$video_numbers" ]; then
+        exit 1
+    fi
+    for i in ${video_numbers}; do
+    	#videonumber   videoname
+    	echo "${i} '$(cat ${video_dir}/${i}/video.info)'"
+    done
+}
+
+runprocess_video_by_the_number(){
+	video_number="$option2"
+	check_if_positive_integer "$video_number" "runprocess_video_by_the_number"
+    checkprocess_video_exists_in_dir
+    if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ]; then
         echo "${Use_numbers} '${0##*/} --list-videos'."
+        echo "${Use_numbers_from} $(ls -d1 ${video_dir}/* | wc -l)"
+        exit 1
     else
-        if [ "$1" -gt "$(ls -d1 "${_dir_vid}"/* | wc -l)" ]; then
-            echo "${Use_numbers_from} $(ls -d1 ${_dir_vid}/* | wc -l)"
-            exit 1
-        else
-            t=$(ls ${_dir_vid}/${1}/* | wc -l)
-            t=$((t - 1))
-            i=1
-            # ctrl_c
-            while : ; do
-                feh --bg-scale $(ls -1 ${_dir_vid}/${1}/* | sed -n "${i}p")
-                sleep 0.01
-                i=$((i + 1))
-                [ "${i}" -gt "${t}" ] && i=1              
-            done &
-        fi
+		start_live_wallpaper "$video_number" &
     fi
 }
-__print_vid_path(){
-	echo "${_dir_vid}"
+
+__print_liveprocess_video_path(){
+	echo "${video_dir}"
 }
-case "${1}" in
-	-h|--help) __help ;;
-	-p|--print-vid-path )__print_vid_path ;;
-	-q|--quit) _quit_loop ;;
-	-L|--list-videos) _list_vid ;;
-	-I|--set-video) _set_video "${2}" ;;
-	-a|--add-autorun-live) __autorun "${2}" && _video "${2}" ;;
-	-r|--run-live) __runit ;;
-	*) __autorun && _video "${1}" ;;
+
+case "${option}" in
+	-h|--help) show_help ;;
+	-p|--print-video-directory) __print_liveprocess_video_path ;;
+	-q|--quit) quit_loop ;;
+	-L|--list-videos) list_videos ;;
+	-I|--select-video) runprocess_video_by_the_number ;;
+	-a|--enable-autorun) setup_autorun ;;
+	-r|--run-live-wallpaper) run_autorun ;;
+	*) setup_autorun ;;
 esac

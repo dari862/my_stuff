@@ -80,6 +80,7 @@
     <separator/>
     <menu id="preferences-system" label="Preferences">
     <menu id="preferences-openbox" label="Openbox">
+        <menu id="ac-ob-menu-pipemenu" execute="ac-ob-menu-pipemenu" label="Menu Style"/>
         <item label="Edit rc.xml">
             <action name="Execute">
                 <command>
