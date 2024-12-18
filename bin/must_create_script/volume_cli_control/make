@@ -1,4 +1,5 @@
 #!/bin/sh
+volume_cli_control_path="/usr/share/my_stuff/system_files/bin/volume_cli_control"
 if command -v pactl > /dev/null 2>&1; then
 	pak=pactl
 elif command -v pulsemixer > /dev/null 2>&1; then
@@ -10,5 +11,5 @@ else
 	exit 1
 fi
 
-cat head $pak tail | my-superuser tee /usr/share/my_stuff/system_files/bin/volume_cli_control > /dev/null 2>&1
-my-superuser chmod +x /usr/share/my_stuff/system_files/bin/volume_cli_control
+cat head $pak tail | my-superuser tee "$volume_cli_control_path" > /dev/null 2>&1
+my-superuser chmod +x "$volume_cli_control_path"

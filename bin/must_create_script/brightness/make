@@ -1,4 +1,6 @@
 #!/bin/sh
+disto_brightness_controller_path="/usr/share/my_stuff/system_files/bin/disto_brightness_controller"
+
 if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 	if command -v xbacklight >/dev/null 2>&1; then
 		pak=xbacklight
@@ -9,6 +11,6 @@ if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 		exit 1
 	fi
 	
-	cat "head" "$pak" "tail" | my-superuser tee /usr/share/my_stuff/system_files/bin/brightness >/dev/null 2>&1
-	my-superuser chmod +x /usr/share/my_stuff/system_files/bin/disto_brightness_controller
+	cat "head" "$pak" "tail" | my-superuser tee "$disto_brightness_controller_path" >/dev/null 2>&1
+	my-superuser chmod +x "$disto_brightness_controller_path"
 fi
