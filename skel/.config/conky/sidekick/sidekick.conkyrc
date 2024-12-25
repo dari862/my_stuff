@@ -130,7 +130,7 @@ update_interval = 1,
 conky.text = [[
 ${color1}• ${color} Hello, ${execi 60 whoami}
 
-${color2}• ${color} Today will be ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather}
+${color2}• ${color} Today will be ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -d}
 
 ${color3}• ${color} ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -t}
 

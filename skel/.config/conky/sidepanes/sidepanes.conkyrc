@@ -133,7 +133,7 @@ ${voffset 5}${offset 75} ${time %a %-d %B at %H:%M}
 
 ${image ~/.config/conky/sidepanes/res/weather.png -p 10,112 -s 72x72}
 ${offset 75} Weather
-${voffset 5}${offset 75} Today Will Be ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather}
+${voffset 5}${offset 75} Today Will Be ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -d}
 
 ${image ~/.config/conky/sidepanes/res/wifi.png -p 10,176 -s 72x72}
 ${offset 75} Wifi

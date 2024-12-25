@@ -260,7 +260,6 @@ my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/nbrowser/nbrowser.desk
 
 if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
 	show_im "laptop stuff."
-	my-superuser ln -sf "${__distro_path}"/bin/laptop/gpu-switcher-session "${__distro_path}"/system_files/skel/.config/autostartscripts/
 	my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/yadtlp.desktop "${__distro_path}"/system_files/applications
 	my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/yadtlp.desktop /usr/share/applications
 	my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/toggletouch "${__distro_path}"/system_files/bin
@@ -291,3 +290,6 @@ show_im "Create keybinds."
 my-superuser "${__distro_path}"/system_files/bin/keybinds --initial-step
 
 my-superuser ln -sf ${__distro_path}/distro_manager/full-upgrade ${__distro_path}/system_files/bin
+
+show_im "Create conky weather icons."
+my-superuser "${__distro_path}"/bin/not_add_2_path/conky_weather_icon

@@ -1,3 +1,4 @@
 #!/bin/sh
 #xqp 0 $(xdo id -N Bspwm -n root) && jgmenu --csv-file=~/.config/jgmenu/prepend.csv --config-file=~/.config/jgmenu/jgmenurc
-xdo id -N Bspwm -n root && jgmenu --csv-file=~/.config/jgmenu/prepend.csv --config-file=~/.config/jgmenu/jgmenurc
+#xdo id -N Bspwm -n root && jgmenu --csv-file=~/.config/jgmenu/prepend.csv --config-file=~/.config/jgmenu/jgmenurc
+bspc query -D -d 'focused.!occupied' &&  jgmenu --csv-file=~/.config/jgmenu/prepend.csv --config-file=~/.config/jgmenu/jgmenurc

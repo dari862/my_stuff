@@ -60,5 +60,6 @@ while true; do
         2) choose_VM_and_run_;;
         3) quickget_open_distro_homepage;;
         99) break;;
+        *) echo "[ERROR] $0 : exval= $exval ." && exit 1;;
     esac
 done

@@ -24,7 +24,7 @@ __run_(){
 		mouse-speed -d $Disable_mouse_acceleration
 	fi
 	
-	current_Accelerate_mouse_=$(expr $current_mouse_speed \* \( 100 + $Accelerate_mouse_ \) / 100)
+	current_Accelerate_mouse_=$((current_mouse_speed * $((Accelerate_mouse_ + 100 )) / 100))
     if [ "$Accelerate_mouse_" -lt 3 ];then
     	current_Accelerate_mouse_=$(($current_mouse_speed+1))
     fi

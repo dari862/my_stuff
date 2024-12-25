@@ -6,11 +6,11 @@ livewallpaper_dir="${HOME}/.local/livewallpaper"
 video_dir="${livewallpaper_dir}/video"
 autorun_file="${livewallpaper_dir}/autorun"
 
-if [ "$option" = "-c" ] || [ "$option" = "--check-run-live" ];then
+if [ "$option" = "-c" ] || [ "$option" = "--run-live-autorun-enabled" ];then
 	if [ -f "${autorun_file}" ];then
-		echo "true"
+		return 0
 	else
-		echo "false"
+		return 1
 	fi
 	exit
 fi

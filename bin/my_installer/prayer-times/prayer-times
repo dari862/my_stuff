@@ -2,10 +2,10 @@
 . "$HOME/.config/scriptconfig/prayer-times.conf"
 _option="${1-}"
 if [ "$_option" = "daemon" ];then
-	$0 sync
+	sync_it
 	while true;do
 		sleep 28800 # sleep 8h
-		$0 sync
+		sync_it
 	done
 	exit
 fi
@@ -285,6 +285,11 @@ waybar-status() {
   printf '{ "text": "%s", "class": "%s" }' "$next_text" "$nextprayer"
 }
 
+sync_it() {
+  check
+  add-jobs
+}
+
 case "${_option}" in
 check)
   check
@@ -293,8 +298,7 @@ jobs)
   add-jobs
   ;;
 sync)
-  check
-  add-jobs
+  sync_it
   ;;
 current)
   current

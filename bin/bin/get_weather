@@ -1,287 +1,121 @@
 #!/bin/bash
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## Requires:
-##          jq
-##          API Key from http://openweathermap.org/api
-##
-## USAGE: Call this script from Conky with ( replace "<t>" with the update interval)
-##          ${execpi <t> /path/to/get_weather [location]}
+__opt="${1-}"
+__opt2="${2-}"
+
+show_Extra=false
+script_config_path="$HOME/.config/scriptconfig"
+weather_script_config_path="${script_config_path}/weather"
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/API"
-. "$HOME/.config/scriptconfig/weather"
 
-__opt="${1-}"
-scaleT=""
-scaleV=""
-WEATHER_INFO=""
-api_prefix="api.openweathermap.org/data/2.5/"
-appid=$(cat "${API_path}/${weather}" || :)
+[ ! -f "$weather_script_config_path" ] && cp -r "/usr/share/my_stuff/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
+. "$weather_script_config_path"
 
-WEATHER_MAIN=""
-WEATHER_TEMP=""
-weather_ICON=""
-weather_description=""
-weather_TEXT=""
+if [ -z "$place" ]; then
+	. "/usr/share/my_stuff/bin/not_add_2_path/weather/country_list"
+   	# Geolocate IP:
+   	place=$(get_scripts --location)
+   	chosen="$(printf "%s" "$country_list" | grep "$place" )"
+	
+	# Set continent code and radar code.
+	continentcode=$(printf "%s" "$chosen" | cut -d':' -f1 | tr "[:lower:]" "[:upper:]")
+	radarcode=$(printf "%s" "$chosen" | cut -d' ' -f2 | cut -d':' -f1 | tr '[:lower:]' '[:upper:]')
+	place=$(printf "%s" "$chosen" | cut -d':' -f3 | cut -f1 -d',' | sed 's/^ //')
+	place="${place:-$radarcode}" # Default place to radarcode if not set
 
-get_weather_report_less(){
-	WEATHER_MAIN=$(echo "$WEATHER_INFO" | jq -r '.weather[0].main')
-    WEATHER_TEMP=$(echo "$WEATHER_INFO" | jq -r '.main.temp')
+	sed -i  -e "s/continentcode=.*/continentcode=\"$continentcode\"/" \
+			-e "s/radarcode=.*/radarcode=\"$radarcode\"/" \
+			-e "s/place=.*/place=\"$place\"/" \
+		"${weather_script_config_path}"
+fi
 
-    case "$WEATHER_MAIN" in
-        "Snow") weather_ICON=""; weather_description="Cold and snowy"; weather_TEXT="Snow" ;;
-        "Rain" | "Drizzle") weather_ICON=""; weather_description="Bring an umbrella"; weather_TEXT="Rainy" ;;
-        "Clouds") weather_ICON=""; weather_description="Perfect for outdoor activities"; weather_TEXT="Cloudy" ;;
-        "Storm") weather_ICON=""; weather_description="Stay indoors, stormy weather"; weather_TEXT="Storm" ;;
-        "Clear") weather_ICON=""; weather_description="Sunny, wear a hat"; weather_TEXT="Clear" ;;
-        "Fog" | "Mist") weather_ICON=""; weather_description="Foggy, use your headlamp"; weather_TEXT="Fog" ;;
-        *) weather_ICON=" $WEATHER_MAIN"; weather_description="Unusual weather"; weather_TEXT="$WEATHER_MAIN" ;;
-    esac
-}
+if [ "$mode" = "wttr" ];then
+	weatherreport="$wttr_weatherreport"
+elif [ "$mode" = "openweather" ];then
+	weatherreport="$ow_weatherreport"
+fi
 
-get_weather_report_more(){       
-        city=$(echo "$WEATHER_INFO" | jq -r '.name') # In case location has spaces in the name
-        weather_desc=$(echo "$WEATHER_INFO" | jq -r '.weather[0].description')   # In case description has spaces in the name
-
-        # load values into array:
-        all="$(echo "$WEATHER_INFO" | jq -r '.coord.lon,.coord.lat,.weather[0].main,.main.temp,.main.pressure,.main.temp_min,.main.temp_max,.wind.speed,.wind.deg,.clouds.all,.sys.sunrise,.sys.sunset,.main.humidity' | tr '\n' ' ')"
-        longitude=$(printf '%06.1f' $(echo "$all" | awk '{print $1}'))
-        latitude=$(printf '%+.1f' $(echo "$all" | awk '{print $2}'))
-        condition="$(echo "$all" | awk '{print $3}')"
-        temperature=$(printf '%+.1f%s' $(echo "$all" | awk '{print $4}') $scaleT)
-        pressure=$(printf '%.f %s' $(echo "$all" | awk '{print $5}') mb)
-        temperature_min=$(printf '%+.1f%s' $(echo "$all" | awk '{print $6}') $scaleT)
-        temperature_max=$(printf '%+.1f%s' $(echo "$all" | awk '{print $7}') $scaleT)
-        windspeed=$(printf '%.1f %s' $(echo "$all" | awk '{print $8}') $scaleV)
-        winddir=$(printf '%3.f%s' $(echo "$all" | awk '{print $9}') °)
-        cloud_cover=$(printf '%d%s' $(echo "$all" | awk '{print $10}') %)
-        sunrise=$(date -d @$(echo "$all" | awk '{print $11}') +"%R")
-        sunset=$(date -d @$(echo "$all" | awk '{print $12}') +"%R")
-        humidity="$(echo "$all" | awk '{print $13}')"
-        description="$weather_desc"
-
-        #Example format for output:
-        #printf "%s; %s; %s %s" "$city" "$temperature" "$windspeed" "$winddir"
-        printf "%s: %s\nTemp: %s\nHumidity: %s\n" "$city" "$description" "$temperature" "$humidity"
-}
+[ "$__opt2" = "extra" ] && show_Extra=true
 
 connectiontest() {
     i=0
     attempts=${1:-0}
     while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
-        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null; then
+        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null 2>&1; then
             return 0
         fi
         i=$((i + 1))
     done
-    return 1
+    echo ""
+    echo "No internet connection. Weather information unavailable."
+    exit 1
 }
 
-placeholder() {
-    case "$1" in
-        1)	echo ""
-        	echo "No internet connection. Weather information unavailable."
-        ;;
-        0)	echo "No API key." 
-        	echo "Weather information unavailable. Get one from http://openweathermap.org/api" 
-        ;;
-    esac
+get_moon_phase() { 
+	# Moon Phase should be updated only once a day.
+	[ ! -s "$moonfile" ] && [ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && (getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || echo "[ERROR] $0 : failed to run get_moon_phase")
+	cat "$moonfile" && echo ""
 }
 
-get_json_data_(){
-	if [ -z "$place" ]; then
-    	# Geolocate IP:
-    	latlong=$(cat "$latlong_stored_file" 2>/dev/null || get_scripts --latlong)
-    	
-    	# Parse the latitude and longitude using cut for better POSIX compatibility
-    	lat=$(echo "$latlong" | cut -d',' -f1)
-    	long=$(echo "$latlong" | cut -d',' -f2)
-    	
-    	id="lat=$lat&lon=$long"
+getdoppler() {
+	[ -s "$doppler" ] && [ $(($(date '+%s') - $(stat -c %Y "$doppler"))) -le "$secs" ] && return
+	case "$continentcode" in
+		"US") getURL '2term' "https://radar.weather.gov/ridge/standard/${radarcode}_loop.gif" > "$doppler" ;;
+		"EU") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rainTMC/2/" > "$doppler" ;;
+		"AF") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rain/2/" > "$doppler" ;;
+		"DE") radarcode="$(echo "$radarcode" | tr "[:upper:]" "[:lower:]")"
+				getURL '2term' "https://www.dwd.de/DWD/wetter/radar/radfilm_${radarcode}_akt.gif" > "$doppler" ;;
+	esac
+}
+
+main() {	
+	if old_weather_data_;then
+		connectiontest 10 && get_weather_data_
+	fi
+
+	if [ "$__opt" = "-m" ];then
+		get_weather_report_more
+	elif [ "$__opt" = "-v" ];then
+		parse_weather_for_conky_vision
 	else
-    	# Check if it's a numeric id or a placename
-    	if echo "$place" | grep -q '^[0-9]\+$'; then
-        	id="id=$place"
-    	else
-        	id="q=$place"
-    	fi
-	fi
-	appid="APPID=$appid"
-	units="&units=$units"
-	if [ -n "${lang}" ];then
-		lang="&lang=$lang"
-	fi
-	
-	WEATHER_URL="${api_prefix}weather?${appid}&${id}${units}${lang}"
-	
-	WEATHER_INFO=$(getURL '2term' "${WEATHER_URL}")
-}
-
-parse_weather_for_conky_vision(){
-	cache_folder="$HOME/.cache/conky-vision"
-	image_folder="$HOME/.config/conky/vision/#fff__32"
-
-	mkdir -p "${cache_folder}"
-		
-	parse_weather_file="${cache_folder}/parse_weather_file"
-	forecast="$(getURL '2term' "${api_prefix}forecast?${appid}&${id}${units}${lang}")"
-
-	get_time () {
-    	idx="$1"
-		echo "$forecast" | jq -r ".list[$idx].dt_txt" | awk '{print $2}'
-	}
-	
-	find_position () {
-    	day="$1"
-    	pos=0
-    	idx=0
-    	time=""
-	
-    	[ $day = 0 ] && echo "$idx" && return
-	
-    	while true; do
-        	time=$(get_time "$idx")
-	
-        	[ $time = "00:00:00" ] && $(expr $pos + 1 )
-	
-        	[ $time = "null" ] && break
-        	[ $pos = "$day" ] && break
-	
-        	$(expr $idx + 1 )
-    	done
-	
-    	echo "$idx"
-	}
-
-	get_property () {
-    	local res=0
-		
-		local mode="$1"
-    	local prop="$2"
-    	local day="$3"
-	
-    	local idx
-    	idx=$(find_position "$day")
-		if [[ "$mode" = "first" ]];then
-			res=$(echo "$forecast" | jq ".list[$idx]$prop")
-		elif [[ "$mode" = "avg" ]];then
-			local prop_num=0
-    		local it=0
-		
-    		while true; do
-        		[[ $time == "null" ]] && break
-		
-        		it=$(echo "$forecast" | jq ".list[$idx]$prop")
-		
-        		it="$res+$it"
-        		res=$(bc -l <<< "$it")
-		
-        		$(expr $prop_num + 1 )
-        		$(expr $idx + 1 )
-		
-        		time=$(get_time "$idx")
-	
-        		[[ $time == "00:00:00" ]] && break
-    		done
-		
-    		res="$(bc -l <<< "$res/$prop_num")"
-		
-		else
-    		local time=0
-    		local i=0
-    		local outarray=()
-		
-    		while true; do
-        		[[ $time == "null" ]] && break
-		
-        		outarray[$i]="$(echo "$forecast" | jq ".list[$idx]$prop")"
-		
-        		$(expr $i + 1 )
-        		$(expr $idx + 1 )
-		
-        		time=$(get_time "$idx")
-	
-        		[[ $time == "00:00:00" ]] && break
-    		done
-    		IFS=$'\n'
-    		if [[ "$mode" = "max" ]];then
-    			res=($(sort -nr <<<"${outarray[*]}" | head -n1))
-			elif [[ "$mode" = "min" ]];then
-				res=($(sort -n<<<"${outarray[*]}" | head -n1))
-			fi
-			unset IFS
+		get_weather_report_less
+		if [ "$show_Extra" = true ];then
+			scaleT=""
+			weather_ICON=""
+			weather_TEXT=""
 		fi
-    		
-    	[[ $res == "null" ]] && echo $res && return
-	
-    	LC_NUMERIC=C printf %.0f $res
-	}
-	current_weather="$(echo "$WEATHER_INFO" | jq .main.temp | awk '{print int($1+0.5)}')"
-	echo "${current_weather}°" > ${parse_weather_file}
-	for day in {1..4}; do
-    	echo "$(get_property 'max' '.main.temp' "$day")°" >> ${parse_weather_file}
-	done
-	for day in {1..4}; do
-    	echo "$(get_property 'min' '.main.temp' "$day")°" >> ${parse_weather_file}
-	done
-
-	current_file="$(echo "$WEATHER_INFO" | jq .weather[0].id)"
-	forecast1_file="$(get_property 'first' '.weather[0].id' '1')"
-	forecast2_file="$(get_property 'first' '.weather[0].id' '2')"
-	forecast3_file="$(get_property 'first' '.weather[0].id' '3')"
-	forecast4_file="$(get_property 'first' '.weather[0].id' '4')"
-	
-	cp -f ${image_folder}/${current_file}.png ${cache_folder}/current.png
-	cp -f ${image_folder}/${forecast1_file}.png ${cache_folder}/forecast-1.png
-	cp -f ${image_folder}/${forecast2_file}.png ${cache_folder}/forecast-2.png
-	cp -f ${image_folder}/${forecast3_file}.png ${cache_folder}/forecast-3.png
-	cp -f ${image_folder}/${forecast4_file}.png ${cache_folder}/forecast-4.png
+		if  [ "$__opt" = "-i" ];then
+   			echo "${weather_ICON} ${WEATHER_TEMP}${scaleT}"
+   		elif  [ "$__opt" = "-t" ];then
+   			echo "${weather_description}"
+		elif  [ "$__opt" = "-d" ];then
+   			echo "${weather_TEXT} ${WEATHER_TEMP}${scaleT}"
+   		elif  [ "$__opt" = "-n" ];then
+   			echo -e "${weather_ICON} ${WEATHER_TEMP}${scaleT} \n ${weather_description} \n"
+   		fi
+	fi
 }
 
-if [ -z "$appid" ];then
-    placeholder 0 && exit 1
+mkdir -p "$weather_script_data_path" || echo "[ERROR] $0 : mkdir -p $weather_script_data_path"
+	
+if [ "$units" = "metric" ];then
+   	scaleT="°C"
+   	scaleV="m/s"
 else
-   if connectiontest 10 >/dev/null 2>&1;then
-    	if [ "$units" = "metric" ];then
-    		scaleT="°C"
-    		scaleV="m/s"
-		else
-    		scaleT="°F"
-    		scaleV="mph"
-		fi
-        # get json data from openweathermap:
-        get_json_data_
-        
-        if [ "$__opt" = "-m" ];then
-			get_weather_report_more
-		elif [ "$__opt" = "-v" ];then
-			parse_weather_for_conky_vision
-		else
-			get_weather_report_less
-			if  [ "$__opt" = "-i" ];then
-    			echo "${weather_ICON} ${WEATHER_TEMP}${scaleT}"
-    		elif  [ "$__opt" = "-t" ];then
-    			echo "${weather_description}"
-			else
-    			echo "${weather_TEXT} ${WEATHER_TEMP}${scaleT}"
-    		fi
-		fi
-    else
-        placeholder 1
-    fi
+   	scaleT="°F"
+   	scaleV="mph"
 fi
 
-exit
+if [ "$__opt" = "moon" ];then
+	connectiontest 10 && get_moon_phase
+elif [ "$__opt" = "doppler" ];then
+	connectiontest 10 && getdoppler
+elif [ "$mode" = "wttr" ];then
+	. "/usr/share/my_stuff/bin/not_add_2_path/weather/wttr"
+	main
+elif [ "$mode" = "openweather" ];then
+	. "/usr/share/my_stuff/bin/not_add_2_path/weather/openweather"
+	main
+fi

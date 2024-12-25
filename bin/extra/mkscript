@@ -10,12 +10,12 @@ if [ -z "$ans" ];then
 	
 	# Set a name for the script
 	while [ -z "$ans" ];
-	do
-  	read -r ans
-	
-  	if [ -z "$ans" ]; then
-    	printf "File Name: "
-  	fi
+		do
+  		read -r ans
+		
+  		if [ -z "$ans" ]; then
+    		printf "File Name: "
+  		fi
 	done
 fi
 file=$scripts_folder_/$ans

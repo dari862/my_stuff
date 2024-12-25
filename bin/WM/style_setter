@@ -50,10 +50,6 @@ Set_tint2_Style_(){
 }
 
 Set_jgmenu_Style_(){
-	if ! grep -q "never remove this line menu style are :jgmenu" "${BACKUP_OB_RC_FILE}";then
-		return 0
-	fi
-	
 	if . "${STYLEPATH}/config/openbox/theme/rctheme";then
 		switch_theme=true
 		config_file="/usr/share/my_stuff/Theme_Stuff/themes/$theme/openbox-3/themerc"

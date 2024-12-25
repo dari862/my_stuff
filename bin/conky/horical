@@ -8,9 +8,9 @@ OVER=" "
 REST=" "
 # -------- This part is to find out the number of days in a month to display-----------#
 year=$(date +%-Y)
-e1=$(expr "$year" % 400)
-e2=$(expr "$year" % 100)
-e3=$(expr "$year" % 4)
+e1=$((year % 400))
+e2=$((year % 100))
+e3=$((year % 4))
 
 if [ "$e1" -eq 0 ]; then
     leap=1
@@ -72,7 +72,7 @@ fi
 # Build the top line with abbreviated weekday names
 day_of_week=$(date +%u)
 day_of_month=$(date +%e)
-f=$(expr "$day_of_month" % 7)
+f=$((day_of_month % 7))
 
 if [ "$day_of_week" -lt "$f" ]; then
     y=$((day_of_week + 8 - f))

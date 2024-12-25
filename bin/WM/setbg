@@ -47,7 +47,7 @@ old_bg_()
 
 restore(){
 	sleep 0.5
-	if [ "$(livewall --check-run-live)" = "true" ]; then
+	if livewall --run-live-autorun-enabled; then
 		( livewall --run-live ) &
 	elif command -v xwallpaper >/dev/null ; then
 		( sleep 2 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" ) &
@@ -57,12 +57,12 @@ restore(){
 }
 
 style_wall(){
-	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -name "${op2__}_*" | head -n 1)"
+	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -type f -name "${op2__}_*" | sort | head -n 1)"
 	save_wall
 }
 
 random_wall(){
-	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -name "${op2__}_*" | shuf -n 1)"
+	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -type f -name "${op2__}_*" | shuf -n 1)"
 	save_wall
 }
 
