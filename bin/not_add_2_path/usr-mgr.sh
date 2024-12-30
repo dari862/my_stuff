@@ -5,17 +5,17 @@
 # Envs
 # ---------------------------------------------------\
 PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-SCRIPT_PATH=$(dirname "$(realpath "$0")")
-cd $SCRIPT_PATH
+SCRIPT_PATH="$(dirname "$(realpath "$0")")"
+cd $SCRIPT_PATH || echo "[ERROR] $0 : failed to cd $SCRIPT_PATH" exit 1
 
 # Vars
 # ---------------------------------------------------\
 ME=$(basename "$0")
-BACKUPS=$SCRIPT_PATH/backups
-SERVER_NAME=$(hostname)
-SERVER_IP=$(hostname -I | cut -d' ' -f1)
-LOG=$SCRIPT_PATH/actions.log
-DISTRO_UNAME=$(uname)
+BACKUPS="$SCRIPT_PATH/backups"
+SERVER_NAME="$(hostname)"
+SERVER_IP="$(hostname -I | cut -d' ' -f1)"
+LOG="$SCRIPT_PATH/actions.log"
+DISTRO_UNAME="$(uname)"
 
 # Output messages
 # ---------------------------------------------------\
@@ -69,7 +69,7 @@ logthis() {
 }
 
 isRoot() {
-    if [ $(id -u) -ne 0 ]; then
+    if [ "$(id -u)" -ne 0 ]; then
         Error "You must be root user to continue"
         exit 1
     fi

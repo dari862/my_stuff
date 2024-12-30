@@ -1,22 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 #===================================================================================
-if [ "$(id -u)" -ne 0 ]; then
-    echo "[$(date +%y/%m/%d_%H:%M:%S)] $(basename $0) [ ERROR ] You need root level privileges to run script."
-    exit 1
-fi
+failed_(){
+	massage="${1-}"
+	"[ERROR] $0 : ${massage}"
+	exit 1
+}
 
-tput civis
-echo "Text to highlight: "
-read -r input  
-while true;do
-	clear
-	out=$(/usr/share/my_stuff/bin/not_add_2_path/ps_mem.py -S)
-	outl=$(echo "$out" | wc -l)
-	sl=$(tput lines)
-	if [ "$sl" -lt "$outl" ]; then
-		echo "$out" | sed -e "3,$((outl-sl+4))d"
-	else 
-		echo "$out"
-	fi
-	read -r input
-done | egrep --color=auto -i "^|$t"
+ps_mem_path="/usr/share/my_stuff/bin/not_add_2_path/ps_mem/"
+cd "${ps_mem_path}" || failed_ "Failed to cd ${ps_mem_path}."
+my-superuser ./sudo_ps_mem

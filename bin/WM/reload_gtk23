@@ -252,7 +252,7 @@ done
 [ "$(pidof xsettingsd)" ] && killall -HUP xsettingsd
 xsettingsd >${xsettingsd_error_log} 2>&1 &
 
-file_manager_real="$(basename $(realpath $(which my-file-manager)))"
+file_manager_real="$(basename "$(realpath "$(which my-file-manager)")")"
 if [ "${file_manager_real}" = "pcmanfm" ];then
 	file-manager-session restart >/dev/null 2>&1
 fi

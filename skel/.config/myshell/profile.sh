@@ -35,6 +35,9 @@ export PASSWORD_STORE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/password-store"
 export HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/bash_history/bash_history"
 export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 
+# Establish error file location
+#export ERRFILE="$XDG_CACHE_HOME/X11/xsession-errors"
+
 # Other program settings:
 #export ALSA_CONFIG_PATH="$XDG_CONFIG_HOME/alsa/asoundrc"
 #export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"

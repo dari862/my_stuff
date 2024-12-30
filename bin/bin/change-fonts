@@ -17,7 +17,7 @@
 		exit 1
 	fi
 	tdir="$HOME/.config/alacritty"
-	odir="${OBPATH}"
+	odir="${OBPATH}/rc.xml"
 	ddir="$HOME/.config/dunst"
 	
 	# Font
@@ -40,7 +40,6 @@
 	
 	font_rofi () {
 		if [ "$FONT" ]; then
-			RSTYLE=$(cat $rofi_style_dir/bin/music | grep STYLE | head -n 1 | tr -d 'STYLE=' | tr -d \")
 			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "${rofi_style_dir}"/font.rasi
 			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "$rofi_style_dir/askpass.rasi" "$rofi_style_dir/confirm.rasi"
 		else
@@ -59,8 +58,8 @@
 	
 	font_ob () {
 		if [ "$FONT" ]; then
-			sed -i 's/font_var "'.*'"/font_var "'"$FNAME"'"/g' ${OBPATH}/rc.xml
-			sed -i 's/size_var "'.*'"/size_var "'"$FSIZE"'"/g' ${OBPATH}/rc.xml
+			sed -i 's/font_var "'.*'"/font_var "'"$FNAME"'"/g' ${odir}
+			sed -i 's/size_var "'.*'"/size_var "'"$FSIZE"'"/g' ${odir}
 			openbox --reconfigure
 		else
 			exit 0

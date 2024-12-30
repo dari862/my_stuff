@@ -13,4 +13,7 @@
 	IMG:   #D46389ff;
 	ON:    #A3BE8Cff;
 	OFF:   #BF616Aff;
+	BGP:    #212B30ff;
+    FGP:    #C4C7C5ff;
+    BDRP:   #EC407Aff;
 }

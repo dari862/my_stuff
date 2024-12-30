@@ -14,21 +14,7 @@ if [ "$option" = "-c" ] || [ "$option" = "--run-live-autorun-enabled" ];then
 	fi
 	exit
 fi
-
-# keep it after check
-check_4_dependencies_if_installed ffmpeg feh
-
-Use_numbers="Use numbers indicated by"
-Preparingprocess_video="Preparing the video..."
-Use_numbers_from="Use numbers numbers from 1 to"
-Invalid_format="Invalid format."
-mp4_only="MP4 format only"
-Report_Video="Report Video"
-noprocess_videos="No videos."
-
-[ ! -d "${video_dir}" ] && mkdir -p "${video_dir}"
-
-show_help(){
+if [ "$option" = "-h" ] || [ "$option" = "--help" ];then
   cat <<EOF
 usage: ${0##*/} [options]
   
@@ -48,7 +34,20 @@ usage: ${0##*/} [options]
 **** Use 3-digit images, example: 011
 EOF
 	exit
-}
+fi
+
+# keep it after check
+check_4_dependencies_if_installed ffmpeg feh
+
+Use_numbers="Use numbers indicated by"
+Preparingprocess_video="Preparing the video..."
+Use_numbers_from="Use numbers numbers from 1 to"
+Invalid_format="Invalid format."
+mp4_only="MP4 format only"
+Report_Video="Report Video"
+noprocess_videos="No videos."
+
+[ ! -d "${video_dir}" ] && mkdir -p "${video_dir}"
 
 checkprocess_video_exists_in_dir(){
     if ! ls -d ${video_dir}/* 2>/dev/null >/dev/null; then
@@ -57,38 +56,26 @@ checkprocess_video_exists_in_dir(){
     fi
 }
 
-check_if_positive_integer(){
-    case "$1" in
-        ''|*[!0-9]* )  # Reject anything with non-digit characters
-            echo "[ERROR] $(basename $0): It's not a positive integer at ($2)."
-            ;;
-        *): ;;
-    esac
-}
-
 handle_ctrl_c(){
     exit 127
 }
 
 quit_loop(){
 	setbg -r
-	killall -9 livewall 2>/dev/null >/dev/null
+	pid_2_kill=$(pgrep -f '/bin/sh.*livewall.*' | grep -v "^$$$")
+	if [ -n "$pid_2_kill" ]; then
+		kill -9 $pid_2_kill 2>/dev/null
+	fi
 }
 
-start_live_wallpaper(){
-	video_number="${1-}"
-	check_if_positive_integer "$video_number" "start_live_wallpaper"
-	
-	t=$(ls "${video_dir}/$video_number"/* | wc -l)
-	t=$((t - 1))
-	i=1
-    # handle_ctrl_c
-    while : ; do
-        feh --bg-scale $(ls -1 "${video_dir}/$video_number"/* | sed -n "${i}p")
-        sleep 0.01
-        i=$((i + 1))
-        [ "${i}" -gt "${t}" ] && i=1              
-    done
+check_if_positive_integer(){
+    case "$1" in
+        ''|*[!0-9]* )  # Reject anything with non-digit characters
+            echo "[ERROR] $(basename $0): It's not a positive integer at ($2)."
+            return 1
+            ;;
+        *): ;;
+    esac
 }
 
 convertprocess_video_to_live_wallpaper(){
@@ -110,7 +97,7 @@ convertprocess_video_to_live_wallpaper(){
        		;;
 	esac
 	a=1     
-	for i in $(ls -d "$video_dir"/*/ 2>/dev/null); do
+	for i in "$video_dir"/*/; do
 		if [ -d "$video_dir/$a" ]; then
 			a=$((a + 1))
 		fi
@@ -140,37 +127,38 @@ process_video(){
 setup_autorun(){
 	video_number="$option2"
 	[ -z "$video_number" ] && video_number="$option"
-	check_if_positive_integer "$video_number" "setup_autorun"
+	
 	if [ -z "$video_number" ];then
 		if [ -f "${autorun_file}" ];then
 			rm -f "${autorun_file}"
 		else
 			:
 		fi
+	elif check_if_positive_integer "$video_number" "setup_autorun";then
+		if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ]; then
+        	echo "${Use_numbers} '${0##*/} --list-videos'."
+        	echo "${Use_numbers_from} $(ls -d1 ${video_dir}/* | wc -l)"
+        	exit 1
+    	fi
+		echo "$video_number" > "${autorun_file}"
+		start_live_wallpaper "$video_number" &
 	else
-		if ! grep -q "$video_number" "${autorun_file}";then
-			echo "$video_number" > "${autorun_file}"
-		fi
-	fi
-	process_video
-}
-
-run_autorun(){
-	if [ -f "${autorun_file}" ];then
-		video_name="$(cat "${autorun_file}")"
-		process_video "${video_name}"
+		process_video
 	fi
 }
 
-list_videos(){
-    checkprocess_video_exists_in_dir
-    video_numbers="$(cd ${video_dir} && ls)"
-    if [ -z "$video_numbers" ]; then
-        exit 1
-    fi
-    for i in ${video_numbers}; do
-    	#videonumber   videoname
-    	echo "${i} '$(cat ${video_dir}/${i}/video.info)'"
+start_live_wallpaper(){
+	video_number="${1-}"
+
+	t=$(ls "${video_dir}/$video_number"/* | wc -l)
+	t=$((t - 1))
+	i=1
+    # handle_ctrl_c
+    while : ; do
+        feh --bg-scale "$(ls -1 "${video_dir}/$video_number"/* | sed -n "${i}p")"
+        sleep 0.01
+        i=$((i + 1))
+        [ "${i}" -gt "${t}" ] && i=1              
     done
 }
 
@@ -187,6 +175,25 @@ runprocess_video_by_the_number(){
     fi
 }
 
+run_autorun(){
+	if [ -f "${autorun_file}" ];then
+		video_name="$(cat "${autorun_file}")"
+		process_video "${video_name}"
+	fi
+}
+
+list_videos(){
+    checkprocess_video_exists_in_dir
+    video_numbers="$(cd ${video_dir} && ls)"
+    if [ -z "$video_numbers" ]; then
+        exit
+    fi
+    for i in ${video_numbers}; do
+    	#videonumber   videoname
+    	echo "${i} '$(cat ${video_dir}/${i}/video.info)'"
+    done
+}
+
 __print_liveprocess_video_path(){
 	echo "${video_dir}"
 }
@@ -199,5 +206,5 @@ case "${option}" in
 	-I|--select-video) runprocess_video_by_the_number ;;
 	-a|--enable-autorun) setup_autorun ;;
 	-r|--run-live-wallpaper) run_autorun ;;
-	*) setup_autorun ;;
+	*) process_video ;;
 esac

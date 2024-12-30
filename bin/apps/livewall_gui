@@ -1,7 +1,6 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
 
-check_4_dependencies_if_installed ffmpeg feh
 title_name="Live wallpaper"
 icon_name="livewall_gui"
 icon="/usr/share/my_stuff/images/${icon_name}.png"

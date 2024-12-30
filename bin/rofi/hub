@@ -5,8 +5,10 @@
 
 ls_bin="/usr/bin/ls"
 opt___="${1-}"
-shift 1
-reset_of_opt___="$@"
+if [ -n "$opt___" ];then
+	shift 1
+	reset_of_opt___="$@"
+fi
 _hub_script_dir="/usr/share/my_stuff/system_files/hub_script"
 script_name_=""
 full_script_path=""

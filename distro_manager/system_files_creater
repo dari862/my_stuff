@@ -13,18 +13,18 @@ show_m(){
 
 show_wm(){
 	message="${1-}"
-	printf '%b' "\\033[1;33m[!]\\033[0m${message}\n"
+	printf '%b' "\\033[1;33m[!] \\033[0m${message}\n"
 }
 
 show_em(){
 	message="${1-}"
-	printf '%b' "\\033[1;31m[-]${message}\\033[0m\n"
+	printf '%b' "\\033[1;31m[-] ${message}\\033[0m\n"
 	exit 1 # show_em
 }
 
 show_im(){
 	message="${1-}"
-	printf '%b' "\\033[1;34m[*]\\033[0m${message}\n"
+	printf '%b' "\\033[1;34m[*] \\033[0m${message}\n"
 }
 ##################################################################################
 show_im "update Databases ex: locate"

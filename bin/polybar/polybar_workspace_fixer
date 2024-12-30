@@ -19,11 +19,11 @@ change_module_internal_(){
 	_internal_name="${1-}"
 	if [ "$_internal_name" = "bspwm" ];then
 		if grep -rq "internal/xworkspaces" "${polybar_dir}";then
-			sed -i "s|internal/xworkspaces|internal/bspwm|g" "${polybar_dir}"
+			find "${polybar_dir}" -type f -name modules.ini -exec sed -i sed -i "s|internal/xworkspaces|internal/bspwm|g" {} +
 		fi
 	elif [ "$_internal_name" = "xworkspaces" ];then
 		if grep -rq "internal/bspwm" "${polybar_dir}";then
-			sed -i "s|internal/bspwm|internal/xworkspaces|g" "${polybar_dir}"
+			find "${polybar_dir}" -type f -name modules.ini -exec sed -i sed -i "s|internal/bspwm|internal/xworkspaces|g" {} +
 		fi
 	fi	
 }

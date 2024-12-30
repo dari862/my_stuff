@@ -5,15 +5,20 @@ style="${1-}"
 . "/usr/share/my_stuff/lib/common/openbox"
 . "/usr/share/my_stuff/lib/common/rofi"
 
+show_em(){
+	echo "[ERROR] $0 : $1"
+}
+
 GLOBALBLOBPATH="/usr/share/my_stuff/system_files/blob"
-BLOBPATH="$HOME/.config"
+CONFIG_PATH="$HOME/.config"
+BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
 
 if [ -f "$OB_STYLE_NORMAL" ]; then
-	CONFIGPATH="${BLOBPATH}/blob/polybar"
+	CONFIGPATH="${BLOBPATH}/polybar"
 	default_style="default"
 else
-	CONFIGPATH="${BLOBPATH}/blob/tint2"
+	CONFIGPATH="${BLOBPATH}/tint2"
 	default_style="Beryllium"
 fi
 
@@ -50,78 +55,85 @@ Set_tint2_Style_(){
 }
 
 Set_jgmenu_Style_(){
-	if . "${STYLEPATH}/config/openbox/theme/rctheme";then
-		switch_theme=true
-		config_file="/usr/share/my_stuff/Theme_Stuff/themes/$theme/openbox-3/themerc"
-		jgmenurc_file="${STYLEPATH}/config/jgmenu/jgmenurc"
-		if [ ! -f "$jgmenurc_file" ];then
-			switch_theme=false
-			echo "[ERROR] $0 failed to locate $jgmenurc_file"
-		fi
-		
-		if [ ! -f "$config_file" ];then
-			switch_theme=false
-			echo "[ERROR] $0 failed to locate $config_file"
-		fi
-		
-		if [ "$switch_theme" = true ];then
-			color_menu_bg=$(grep 'osd.border.color:' "$config_file" | awk '{print $2}')
-			color_menu_border=$(grep 'menu.border.color:' "$config_file" | awk '{print $2}')
-			color_norm_bg=$(grep 'menu.items.bg.color:' "$config_file" | awk '{print $2}')
-			color_norm_fg=$(grep 'menu.items.text.color:' "$config_file" | awk '{print $2}')
-			color_sel_bg=$(grep 'menu.items.active.bg.color:' "$config_file" | awk '{print $2}')
-			color_sel_fg=$(grep 'menu.items.active.text.color:' "$config_file" | awk '{print $2}')
-			color_sel_border=$(grep 'menu.items.active.bg.color:' "$config_file" | awk '{print $2}')
-			color_title_bg=$(grep 'menu.title.bg.color:' "$config_file" | awk '{print $2}')
-			color_title_fg=$(grep 'menu.title.text.color:' "$config_file" | awk '{print $2}')
-			color_title_border=$(grep 'menu.title.bg.color:' "$config_file" | awk '{print $2}')
-			color_sep_fg=$(grep 'menu.separator.color:' "$config_file" | awk '{print $2}')
-	
-			sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
-			sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg 100/g" "$jgmenurc_file"
-			sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border 100/g" "$jgmenurc_file"
-			sed -i "s/colwior_norm_bg .*/color_norm_bg       = $color_norm_bg 00/g" "$jgmenurc_file"
-			sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg 100/g" "$jgmenurc_file"
-			sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg 100/g" "$jgmenurc_file"
-			sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg 100/g" "$jgmenurc_file"
-			sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border 100/g" "$jgmenurc_file"
-			sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg 100/g" "$jgmenurc_file"
-			sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg 100/g" "$jgmenurc_file"
-			sed -i "s/color_title_border .*/color_title_border  = $color_title_border 100/g" "$jgmenurc_file"
-			sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg 100/g" "$jgmenurc_file"
-		fi
-	else
+	if ! . "${STYLEPATH}/config/openbox/theme/rctheme";then
 		echo "[ERROR] $0 failed to source openbox rctheme"
+		return
+	fi
+	if ! . "${STYLEPATH}/jgmenu_theme";then
+		echo "[ERROR] $0 failed to source jgmenu_theme"
+		return
+	fi
+	
+	jgmenurc_file="$HOME/.config/jgmenu/jgmenurc"
+	
+	if [ ! -f "$jgmenurc_file" ];then
+		switch_theme=false
+		show_em "failed to locate $jgmenurc_file"
+		return
+	fi
+
+	switch_theme=true
+	
+	if [ "$switch_theme" = true ];then
+		sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
+		sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
+		sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border/g" "$jgmenurc_file"
+		sed -i "s/colwior_norm_bg .*/color_norm_bg       = $color_norm_bg/g" "$jgmenurc_file"
+		sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg/g" "$jgmenurc_file"
+		sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg/g" "$jgmenurc_file"
+		sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg/g" "$jgmenurc_file"
+		sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border/g" "$jgmenurc_file"
+		sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg/g" "$jgmenurc_file"
+		sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg/g" "$jgmenurc_file"
+		sed -i "s/color_title_border .*/color_title_border  = $color_title_border/g" "$jgmenurc_file"
+		sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg/g" "$jgmenurc_file"
+		sed -i "s/item_margin_x .*/item_margin_x        = $item_margin_x/g" "$jgmenurc_file"
+		sed -i "s/item_margin_y .*/item_margin_y        = $item_margin_y/g" "$jgmenurc_file"
+		sed -i "s/stay_alive .*/stay_alive        = $stay_alive/g" "$jgmenurc_file"
+		sed -i "s/menu_padding_right .*/menu_padding_right        = $menu_padding_right/g" "$jgmenurc_file"
+		sed -i "s/menu_padding_bottom .*/menu_padding_bottom        = $menu_padding_bottom/g" "$jgmenurc_file"
+		sed -i "s/menu_padding_left .*/menu_padding_left        = $menu_padding_left/g" "$jgmenurc_file"
+		sed -i "s/menu_radius .*/menu_radius        = $menu_radius/g" "$jgmenurc_file"
+		sed -i "s/sep_halign .*/sep_halign        = $sep_halign/g" "$jgmenurc_file"
+		sed -i "s/icon_size .*/icon_size        = $icon_size/g" "$jgmenurc_file"
+		sed -i "s/icon_theme .*/icon_theme        = $icon_theme/g" "$jgmenurc_file"
+		sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
 	fi
 }
 
-if [ ! -d "${BLOBPATH}/blob" ];then
-	cp -r "${GLOBALBLOBPATH}" "${BLOBPATH}"
-	find "${BLOBPATH}/blob/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
+if [ ! -d "${BLOBPATH}" ];then
+	cp -r "${GLOBALBLOBPATH}" "${BLOBPATH}" || show_em "failed to cp -r \"${GLOBALBLOBPATH}\" \"${BLOBPATH}\""
+	find "${BLOBPATH}/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} + || show_em "failed to change MmdmdmdmdmdmdmdmdmM to $USER"
 fi
 
-cp -r ${STYLEPATH}/config/* $HOME/.config
-[ -d "${STYLEPATH}/cache" ] && cp -r "${STYLEPATH}/cache $HOME/.cache"
+cp -r ${STYLEPATH}/config/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
+if [ -d "${STYLEPATH}/cache" ];then
+	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
+fi
 dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
 
 if [ -f "$OB_STYLE_NORMAL" ]; then
-	Set_polybar_Style_
+	Set_polybar_Style_ || show_em "failed to run Set_polybar_Style_"
 else
-	Set_tint2_Style_
+	Set_tint2_Style_ || show_em "failed to run Set_tint2_Style_"
 fi
 
 if command -v jgmenu >/dev/null 2>&1;then
-	Set_jgmenu_Style_
+	if [ -f "$CONFIG_PATH/jgmenu/jgmenurc" ]; then
+		Set_jgmenu_Style_ || show_em "failed to run Set_jgmenu_Style_"
+	else
+		show_em "file does not exist ($CONFIG_PATH/jgmenu/jgmenurc) ."
+	fi
 fi
 	
-[ "$(pidof openbox)" ] && openbox --reconfigure
-reload_gtk23
+[ "$(pidof openbox)" ] && openbox --reconfigure || show_em "failed to run openbox --reconfigure "
+reload_gtk23 || show_em "failed to run reload_gtk23"
 
 if [ -f "${STYLEPATH}/random_wallpaper" ];then
 	# Set random wallpaper for actual rice
-	setbg -d "${style}"
+	setbg -d "${style}" || show_em "failed to run setbg -d ${style}"
 else
-	setbg -S "${style}"
+	setbg -S "${style}" || show_em "failed to run setbg -S ${style}"
 fi
 
-theme_geany
+theme_geany || show_em "failed to run theme_geany"

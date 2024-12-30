@@ -11,4 +11,7 @@
     UGT:   #EF2D6D;
 	ON:    #17D07D;
 	OFF:   #EF2D6D;
+	BGf:    #EDFEFEff;
+    FGf:    #303030ff;
+    BDRf:   #EF2D6Dff;
 }
