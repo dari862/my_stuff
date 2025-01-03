@@ -40,8 +40,8 @@ Exit,my_session_manager --yad,system-shutdown
 Back,^back()
 Take Screenshot,^pipe(jgmenu_run ob --cmd="screenshot-pipemenu" --tag="screenshot-pipemenu")
 BLOB Themes Manager,(style_picker_yad)
-SSH,^pipe(jgmenu_run ob --cmd="bl-sshconfig-pipemenu" --tag="bl-sshconfig-pipemenu")
-Remote Desktop,^pipe(jgmenu_run ob --cmd="bl-remote-desktop-pipemenu" --tag="bl-remote-desktop-pipemenu")
+SSH,^pipe(jgmenu_run ob --cmd="sshconfig-pipemenu" --tag="sshconfig-pipemenu")
+Remote Desktop,^pipe(jgmenu_run ob --cmd="remote-desktop-pipemenu" --tag="remote-desktop-pipemenu")
 App Finder,rofi-launcher
 
 ^tag(bl-preferences)
@@ -51,8 +51,8 @@ Openbox,^checkout(bl-obConfig)
 jgmenu,^checkout(bl-jgmenuConfig)
 Keybinds,^checkout(bl-xbindkeysConfig)
 Compositor,^pipe(jgmenu_run ob --cmd="ac-compositor-pipemenu" --tag="ac-compositor-pipemenu")
-Conky,^pipe(jgmenu_run ob --cmd="bl-conky-pipemenu" --tag="bl-conky-pipemenu"),conky-manager
-Tint2,^pipe(jgmenu_run ob --cmd="bl-tint2-pipemenu" --tag="bl-tint2-pipemenu"),tint2
+Conky,^pipe(jgmenu_run ob --cmd="conky-pipemenu" --tag="bl-conky-pipemenu"),conky-manager
+Tint2,^pipe(jgmenu_run ob --cmd="tint2-pipemenu" --tag="bl-tint2-pipemenu"),tint2
 Appearance,sh -c 'lxappearance; reload_gtk23',preferences-desktop-theme
 Reload GTK,reload_gtk23,preferences-desktop-theme
 Font configuration,my-text-editor ~/.config/fontconfig/fonts.conf,preferences-desktop-font
@@ -124,7 +124,7 @@ GParted Partition Manager,apps_as_root gparted,gparted
 Set Default Browser,"""popup_terminal 'Select Default Browser' 'my-alternatives --set my-www-browser'""",web-browser
 Edit Debian Alternatives,galternatives,galternatives
 ^sep()
-About My Stuff Alternatives,yad --button="OK":0 --center --text-info --title="About My Stuff Alternatives" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-bl-alternatives.txt" --width=900 --height=700 --fontname=Monospace,About-my_stuff-Alternatives
+About My Stuff Alternatives,yad --button="OK":0 --center --text-info --title="About My Stuff Alternatives" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-alternatives.txt" --width=900 --height=700 --fontname=Monospace,About-my_stuff-Alternatives
 
 ^tag(apps)
 

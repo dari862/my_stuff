@@ -48,32 +48,27 @@ done
 
 outputs_disconnected="$(cat "${tmp_outputs_disconnected_file}")"
 outputs_connected="$(cat "${tmp_outputs_connected_file}")"
+words_in_outputs_connected="$(echo $outputs_connected | wc -w)"
 
 mk_position_controls() {
 	local output="$1"
     # Create XML element for the menu
     echo "<menu id=\"${output}-position\" type=\"position\" label=\"Position\">"
-    words_in_outputs_connected="$(echo $outputs_connected | wc -w)"
-	if [ $words_in_outputs_connected -gt 1 ]; then
-		# Iterate over outputs and create submenus
-		for position in left-of right-of above below same-as; do
-			echo "<menu id=\"--$position\" label=\"$position\">"
-				for other in ${outputs_connected}; do
-					if [[ "${output}" != "$other" ]]; then
-						echo "<item label=\"$other\">"
-						echo "<action name=\"execute\">"
-						echo "<command>xrandr --output ${output} --$position $other</command>"
-						echo "</action>"
-						echo "</item>"
-					fi
-				done
-			echo "</menu>"
-		done
-	else
-        echo "<menu id=\"${output}--$position\" type=\"--$position\" label=\"$position\">"
-        echo "<separator label=\"&lt;none&gt;\" />"
-        echo "</menu>"
-	fi
+	
+	# Iterate over outputs and create submenus
+	for position in left-of right-of above below same-as; do
+		echo "<menu id=\"--$position\" label=\"$position\">"
+			for other in ${outputs_connected}; do
+				if [[ "${output}" != "$other" ]]; then
+					echo "<item label=\"$other\">"
+					echo "<action name=\"execute\">"
+					echo "<command>xrandr --output ${output} --$position $other</command>"
+					echo "</action>"
+					echo "</item>"
+				fi
+			done
+		echo "</menu>"
+	done
 	echo "</menu>"
 }
 
@@ -140,8 +135,11 @@ while IFS= read -r output_info; do
 		
 		echo "</menu>"
 		
-		echo "<separator />"
-		mk_position_controls "$output"
+		if [ $words_in_outputs_connected -gt 1 ]; then
+			echo "<separator />"
+			mk_position_controls "$output"
+		fi
+		
 		echo "<separator />"
 		
 		echo "$(mk_exe_node "$output" "Right" "--rotate right")"

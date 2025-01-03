@@ -7,7 +7,6 @@
 @import "theme.rasi"
 
 configuration {
-	modi: "drun";	
 	display-drun: "Search";
  }
 

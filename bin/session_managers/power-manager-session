@@ -16,13 +16,16 @@ xfce4(){
 #===================================================================================
 start() {
 	xfce4-power-manager-session stop
-	my_power_manager
+	pidof -q my_power_manager || my_power_manager
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start)
+	""|restart)
+		start		
+	;;
+	start)
 		start		
 	;;
 	xfce4)	

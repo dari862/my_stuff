@@ -1,2 +1,0 @@
-#!/bin/sh
-my-superuser "/usr/share/my_stuff/bin/my_installer/chroots_extra/browsers/firefox/chroot-firefox-launcher"

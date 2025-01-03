@@ -1,15 +1,16 @@
 FROM alpine
 
-ARG __ControlPort=9051
-ARG __DNSPort=5353
-ARG __SocksPort=9050
-ARG __TransPort=9040
-ARG __GUID=4444
-ARG __UUID=4444
+ARG __ControlPort
+ARG __DNSPort
+ARG __SocksPort
+ARG __TransPort
+ARG __GUID
+ARG __UUID
+ARG _TOR_USER
 
 RUN mkdir -p /var/lib/tor /etc/tor/run /var/log/tor
-RUN addgroup -g $__GUID tor
-RUN adduser -u $__UUID -G tor -s /bin/false -h /var/lib/tor -D tor
+RUN addgroup -g $__GUID $_TOR_USER
+RUN adduser -u $__UUID -G $_TOR_USER -s /bin/false -h /var/lib/tor -D $_TOR_USER
 
 RUN chmod 750 /etc/tor
 RUN chmod 700 /etc/tor/run
@@ -18,7 +19,7 @@ RUN chmod 700 /etc/tor/run
 RUN apk --no-cache --no-progress upgrade
 RUN apk --no-cache --no-progress add curl tini tor
 
-RUN chown -Rh tor:tor /var/lib/tor /etc/tor /var/log/tor
+RUN chown -Rh $_TOR_USER:$_TOR_USER /var/lib/tor /etc/tor /var/log/tor
 
 # configure tor
 RUN echo "AutomapHostsOnResolve 1" >>/etc/tor/torrc && \
@@ -36,20 +37,21 @@ RUN echo "AutomapHostsOnResolve 1" >>/etc/tor/torrc && \
     echo "SocksPort $__SocksPort IsolateDestAddr" >>/etc/tor/torrc && \
     echo "TransPort $__TransPort" >>/etc/tor/torrc && \
     echo "VirtualAddrNetworkIPv4 10.192.0.0/10" >>/etc/tor/torrc
-#RUN echo 'User tor' >>/etc/tor/torrc
+#RUN echo "User $_TOR_USER" >>/etc/tor/torrc
 
 RUN rm -rf /tmp/*
 
-COPY ContainerTorRunner.sh /usr/bin/
-COPY ContainerTorChecker.sh /usr/bin/
-RUN chmod 0755 /usr/bin/ContainerTorRunner.sh 
-RUN chmod 0755 /usr/bin/ContainerTorChecker.sh
+COPY ContainerChecker.sh /usr/bin/
+COPY start-service.sh /usr/bin/
+
+RUN chmod 0755 /usr/bin/start-service.sh
+RUN chmod 0755 /usr/bin/ContainerChecker.sh
 
 VOLUME ["/etc/tor", "/var/lib/tor"]
 
-USER tor
+USER $_TOR_USER
 
 HEALTHCHECK --interval=60s --timeout=15s --start-period=20s \
-            CMD /usr/bin/ContainerTorChecker.sh
+            CMD /usr/bin/ContainerChecker.sh
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/ContainerTorRunner.sh"]
+ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/start-service.sh"]

@@ -14,8 +14,7 @@
 #===================================================================================
 stop() {
 	# Terminate already running bar instances
-	[ "$(pidof polybar)" ] && killall polybar 2>/dev/null
-	[ "$(pidof polybar)" ] && killall -9 polybar 2>/dev/null	
+	kill_process.sh polybar 2>/dev/null	
 	# Wait until the processes have been shut down
 	while pgrep -u $(id -u) -x polybar >/dev/null; do sleep 1; done
 }
@@ -26,14 +25,17 @@ stop() {
 # DESCRIPTION: start polybar
 #===================================================================================
 start() {
-	polybar_launch &
+	pidof -q polybar || polybar_launch &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

@@ -19,8 +19,7 @@ fi
 # DESCRIPTION: stop all audio process
 #===================================================================================
 stop() {
-	[ "$(pidof ${audio_app})" ] && killall ${audio_app} 
-	[ "$(pidof ${audio_app})" ] && killall -9 ${audio_app}
+	kill_process.sh ${audio_app}
 }
 
 
@@ -29,15 +28,18 @@ stop() {
 # DESCRIPTION: start audio app
 #===================================================================================
 start() {
-  sleep 2
-  ${audio_app} &
+	sleep 2
+	pidof -q ${audio_app} || ${audio_app} &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

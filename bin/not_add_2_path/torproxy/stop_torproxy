@@ -1,0 +1,2 @@
+#!/bin/sh
+my-superuser /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy stop

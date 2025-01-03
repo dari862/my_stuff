@@ -65,7 +65,7 @@ my-superuser mkdir -p "/root/Templates"
 
 ##################################################################################
 show_im "copy doas.conf to correct location."
-my-superuser cp -r "/usr/share/my_stuff/lib/apps/doas/doas.conf" "/usr/share/my_stuff/system_files/doas.conf"
+my-superuser cp -rp "/usr/share/my_stuff/lib/apps/doas/doas.conf" "/usr/share/my_stuff/system_files/doas.conf"
 
 show_im "creating missing dir"
 

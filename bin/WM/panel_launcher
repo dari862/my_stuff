@@ -11,13 +11,13 @@ fi
 _panel_name_="$(cat ${_panel_name_path_})"
 
 # Start Conky
-conky-session &
+conky-session restart &
 		
 ## Notification Daemon
-dunst-session &
+dunst-session restart &
 
 # Start compositor
-picom-session &
+picom-session restart &
 
 ## Launch Plank
 #plank-session
@@ -25,10 +25,10 @@ picom-session &
 if [ "$_panel_name_" = "polybar" ]; then 
 	# Start polybar
 	polybar_workspace_fixer
-   	polybar-session &
+   	polybar-session restart &
 
 	# Enable power management
-	power-manager-session &
+	power-manager-session start &
 	
 	# Start volume control
 	audio-session stop &
@@ -41,32 +41,32 @@ if [ "$_panel_name_" = "polybar" ]; then
 	
 elif [ "$_panel_name_" =  "xfce4-panel" ]; then
 	# Start xfce4-panel
-   	xfce4-panel-session &
+   	xfce4-panel-session restart &
    	
    	# Lauch xsettingsd daemon
-	xfsettingsd-session &
+	xfsettingsd-session start &
 
 	# Start volume control
-	audio-session &
+	audio-session start &
 	
 	# Start network manager
-	nm-applet-session &		
+	nm-applet-session start &		
 		
 	# Enable power management
 	power-manager-session xfce4 &
 	
 elif [ "$_panel_name_" =  "tint2" ]; then
 	# panel - taskbar, system tray, battery, clock
-	tint2-session &
+	tint2-session restart &
 	
 	# Start volume control
-	audio-session &
+	audio-session start &
 
 	# Start network manager
 	nm-applet-session stop &
 
 	# Enable power management
-	power-manager-session &
+	power-manager-session start &
 		
    	# Lauch xsettingsd daemon
 	xfsettingsd-session stop &

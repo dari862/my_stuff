@@ -15,8 +15,7 @@ picom_path="$HOME/.config/picom.conf"
 # DESCRIPTION: stop all picom process
 #===================================================================================
 stop() {	
-	[ "$(pidof picom)" ] && killall picom
-	[ "$(pidof picom)" ] && killall -9 picom
+	kill_process.sh picom
 }
 
 
@@ -25,8 +24,10 @@ stop() {
 # DESCRIPTION: run picom
 #===================================================================================
 start() {
-  	[ ! "$(pidof picom)" ] && exec picom --daemon --config "$picom_path" &
-	[ $(pidof tint2) ] && tint2-session
+  	if ! pidof -q picom ;then
+  		exec picom --daemon --config "$picom_path" &
+		pidof -q tint2 || tint2-session
+	fi
 }
 
 toggle() {
@@ -38,12 +39,12 @@ toggle() {
 }
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start)
+	""|restart)
+		stop
 		start		
 	;;
-	restart)
-		stop
-		start
+	start)
+		start		
 	;;
 	stop)	
 		stop	

@@ -14,8 +14,7 @@
 #===================================================================================
 stop() {
 	[ "$(pidof xfce4-panel)" ] && xfce4-panel --quit
-	[ "$(pidof xfce4-panel)" ] && killall xfce4-panel
-	[ "$(pidof xfce4-panel)" ] && killall -9 xfce4-panel
+	kill_process.sh xfce4-panel
 }
 
 
@@ -24,14 +23,17 @@ stop() {
 # DESCRIPTION: start xfsettingsd
 #===================================================================================
 start() {
-	xfce4-panel &
+	pidof -q xfce4-panel || xfce4-panel &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

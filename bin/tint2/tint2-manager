@@ -30,7 +30,7 @@
 #   the "tint2-session" script. To start them at login, add the
 #   following line to autostart:
 #
-#           bl-tint2-session
+#           tint2-session
 #
 ########################################################################
 
@@ -66,7 +66,7 @@ Use:
     the "tint2-session" script. To start them at login, add the
     following line to autostart:
 
-            bl-tint2-session
+            tint2-session
 '
 
 # look for a help option somewhere, then exit

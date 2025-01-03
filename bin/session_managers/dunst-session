@@ -15,8 +15,7 @@ dunstrc_path="$HOME/.config/dunst/dunstrc"
 # DESCRIPTION: stop all dunst process
 #===================================================================================
 stop() {
-		[ "$(pidof dunst)" ] && killall dunst
-		[ "$(pidof dunst)" ] && killall -9 dunst
+	kill_process.sh dunst
 }
 
 
@@ -25,14 +24,17 @@ stop() {
 # DESCRIPTION: load dunst with config file
 #===================================================================================
 start() {
-  exec dunst -config ${dunstrc_path} 2>/tmp/$USER/dunst_error &
+	pidof -q dunst || exec dunst -config ${dunstrc_path} 2>/tmp/$USER/dunst_error &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

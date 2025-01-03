@@ -176,6 +176,9 @@ __run_(){
 			say 'Createing container image ...' 1
 		elif [ "${running_chroot}" = "true" ];then
 			say 'Createing Chroot...' 1
+			if ! command -v create_chroot >/dev/null 2>&1;then
+				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_chroot" "/usr/share/my_stuff/system_files/bin"
+			fi
 		elif [ "${running_tweek}" = "true" ];then
 			say 'running tweek...' 1
 		fi

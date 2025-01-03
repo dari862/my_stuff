@@ -126,7 +126,7 @@ then
 		
 		# Restarting polybar
 		polybar_launch_creater
-		polybar-session &
+		polybar-session restart &
 	}
 fi
 

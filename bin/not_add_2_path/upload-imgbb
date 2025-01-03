@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-################### bl-imgbb-upload ####################################
+################### upload-imgbb ####################################
 # Take screenshots and upload them to imgbb.
 #
 # Credentials for an account can be set up.
@@ -40,14 +40,14 @@ SCRIPT=$(basename "$0")
 THUMB_SIZE=250                      # Thumbnail to be 250px wide
 KEEP_BB=1                           # Flag to keep BBCode on clipboard
 TEST=0                              # Flag for '--test-account' parameter
-USAGE="bl-imgbb-upload is a script to take screenshots and upload them to imgbb
+USAGE="upload-imgbb is a script to take screenshots and upload them to imgbb
 
 Credentials for an account can be set up.
 A settings file (imgbb.conf) is created in $HOME/.config/image-upload/imgbb
 The script returns BB-Code for the direct image link, and a linked thumbnail.
 YAD dialogs are used for user interaction.
 
-Usage:    bl-imgbb-upload [option]... [file]...
+Usage:    upload-imgbb [option]... [file]...
 
 With no script args, ${SCRIPT} will upload a screenshot of
 the full desktop.
@@ -89,7 +89,7 @@ done
 
 #### API Key ###
 . "/usr/share/my_stuff/lib/common/API"
-CLIENT_API_KEY="$(cat "${API_path}/${imgbb}" || :)"
+CLIENT_API_KEY="$(cat "${API_path}/${imgbb}" 2>/dev/null || :)"
 
 #### YAD ###
 DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"

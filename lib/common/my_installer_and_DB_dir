@@ -1,3 +1,4 @@
+#!/bin/sh
 _APPS_LIBDIR="/usr/share/my_stuff/bin/my_installer/apps_center"
 _TWEEKS_LIBDIR='/usr/share/my_stuff/bin/my_installer/tweeks_center'
 _CHROOTS_LIBDIR='/usr/share/my_stuff/bin/my_installer/chroots_center'
@@ -9,3 +10,6 @@ _containers_center_path="/usr/share/my_stuff/bin/my_installer/containers_center"
 _CONTAINERS_LIBDIR="${_containers_center_path}"
 _DEPLOYED_CONTAINERS_LIBDIR="/usr/share/my_stuff/system_files/deployed_containers/deployed"
 
+ROOT_CHROOT_DIR="/usr/share/my_stuff/system_files/chroots"
+_CHROOTS_INSTALLED_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_installer/installed"
+INSTALLER_CHROOT_DIR="/usr/share/my_stuff/bin/my_installer/chroots_installer"

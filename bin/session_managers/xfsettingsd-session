@@ -13,8 +13,7 @@
 # DESCRIPTION: stop all conky process
 #===================================================================================
 stop() {
-	[ "$(pidof xfsettingsd)" ] && killall xfsettingsd
-	[ "$(pidof xfsettingsd)" ] && killall -9 xfsettingsd
+	kill_process.sh xfsettingsd
 }
 
 
@@ -23,14 +22,17 @@ stop() {
 # DESCRIPTION: start xfsettingsd
 #===================================================================================
 start() {
-  xfsettingsd &
+  pidof -q xfsettingsd || xfsettingsd &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

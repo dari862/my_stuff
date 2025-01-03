@@ -29,8 +29,7 @@ fi
 stop() {
 	for prosses2kill in diodon greenclip xfce4-clipman clipmanager
 	do
-		[ "$(pidof $prosses2kill)" ] && killall $prosses2kill
-		[ "$(pidof $prosses2kill)" ] && killall -9 $prosses2kill
+		kill_process.sh $prosses2kill
 	done
 }
 
@@ -40,14 +39,17 @@ stop() {
 # DESCRIPTION: start clipboard-manager
 #===================================================================================
 start() {
-  ${clipboard_manager_command} &
+  pidof -q ${clipboard_manager_command} || ${clipboard_manager_command} &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

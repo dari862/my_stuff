@@ -54,53 +54,6 @@ Set_tint2_Style_(){
 	OB_themeing
 }
 
-Set_jgmenu_Style_(){
-	if ! . "${STYLEPATH}/config/openbox/theme/rctheme";then
-		echo "[ERROR] $0 failed to source openbox rctheme"
-		return
-	fi
-	if ! . "${STYLEPATH}/jgmenu_theme";then
-		echo "[ERROR] $0 failed to source jgmenu_theme"
-		return
-	fi
-	
-	jgmenurc_file="$HOME/.config/jgmenu/jgmenurc"
-	
-	if [ ! -f "$jgmenurc_file" ];then
-		switch_theme=false
-		show_em "failed to locate $jgmenurc_file"
-		return
-	fi
-
-	switch_theme=true
-	
-	if [ "$switch_theme" = true ];then
-		sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
-		sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
-		sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border/g" "$jgmenurc_file"
-		sed -i "s/colwior_norm_bg .*/color_norm_bg       = $color_norm_bg/g" "$jgmenurc_file"
-		sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg/g" "$jgmenurc_file"
-		sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg/g" "$jgmenurc_file"
-		sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg/g" "$jgmenurc_file"
-		sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border/g" "$jgmenurc_file"
-		sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg/g" "$jgmenurc_file"
-		sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg/g" "$jgmenurc_file"
-		sed -i "s/color_title_border .*/color_title_border  = $color_title_border/g" "$jgmenurc_file"
-		sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg/g" "$jgmenurc_file"
-		sed -i "s/item_margin_x .*/item_margin_x        = $item_margin_x/g" "$jgmenurc_file"
-		sed -i "s/item_margin_y .*/item_margin_y        = $item_margin_y/g" "$jgmenurc_file"
-		sed -i "s/stay_alive .*/stay_alive        = $stay_alive/g" "$jgmenurc_file"
-		sed -i "s/menu_padding_right .*/menu_padding_right        = $menu_padding_right/g" "$jgmenurc_file"
-		sed -i "s/menu_padding_bottom .*/menu_padding_bottom        = $menu_padding_bottom/g" "$jgmenurc_file"
-		sed -i "s/menu_padding_left .*/menu_padding_left        = $menu_padding_left/g" "$jgmenurc_file"
-		sed -i "s/menu_radius .*/menu_radius        = $menu_radius/g" "$jgmenurc_file"
-		sed -i "s/sep_halign .*/sep_halign        = $sep_halign/g" "$jgmenurc_file"
-		sed -i "s/icon_size .*/icon_size        = $icon_size/g" "$jgmenurc_file"
-		sed -i "s/icon_theme .*/icon_theme        = $icon_theme/g" "$jgmenurc_file"
-		sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
-	fi
-}
-
 if [ ! -d "${BLOBPATH}" ];then
 	cp -r "${GLOBALBLOBPATH}" "${BLOBPATH}" || show_em "failed to cp -r \"${GLOBALBLOBPATH}\" \"${BLOBPATH}\""
 	find "${BLOBPATH}/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} + || show_em "failed to change MmdmdmdmdmdmdmdmdmM to $USER"
@@ -120,7 +73,7 @@ fi
 
 if command -v jgmenu >/dev/null 2>&1;then
 	if [ -f "$CONFIG_PATH/jgmenu/jgmenurc" ]; then
-		Set_jgmenu_Style_ || show_em "failed to run Set_jgmenu_Style_"
+		system_default_colors "jgmenu" "${STYLEPATH}/config" || show_em "failed to run system_default_colors"
 	else
 		show_em "file does not exist ($CONFIG_PATH/jgmenu/jgmenurc) ."
 	fi

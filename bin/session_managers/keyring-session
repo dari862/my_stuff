@@ -28,8 +28,7 @@ xfce_polkit_path="/usr/lib/xfce-polkit/xfce-polkit"
 # DESCRIPTION: stop all keyring process
 #===================================================================================
 stop() {
-	[ "$(pidof "$keyring_name")" ] && killall "$keyring_name"
-	[ "$(pidof "$keyring_name")" ] && killall -9 "$keyring_name"
+	kill_process.sh "$keyring_name"
 }
 
 
@@ -38,18 +37,18 @@ stop() {
 # DESCRIPTION: load keyring
 #===================================================================================
 start() {
-${keyring_path} &
+	pidof -q ${keyring_path} || ${keyring_path} &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start)
+	""|restart)
+		stop
 		start		
 	;;
-	restart)	
-		stop
-		start
+	start)
+		start		
 	;;
 	stop)	
 		stop	

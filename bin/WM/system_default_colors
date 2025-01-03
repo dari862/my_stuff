@@ -1,0 +1,97 @@
+#!/bin/sh
+
+__opt2_="${2:-}"
+path_to_config="${2:-$HOME/.config}"
+
+kitty_themeing(){
+	:
+}
+
+openbox_themeing(){
+	:
+}
+
+alacritty_themeing(){
+	:
+}
+
+geany_themeing(){
+	:
+}
+
+create_jgmenu_theme(){
+	config_file="/usr/share/my_stuff/Theme_Stuff/themes/$theme/openbox-3/themerc"
+	color_menu_bg=$(grep 'osd.border.color:' "$config_file" | awk '{print $2}')
+	color_menu_border=$(grep 'menu.border.color:' "$config_file" | awk '{print $2}')
+	color_norm_bg=$(grep 'menu.items.bg.color:' "$config_file" | awk '{print $2}')
+	color_norm_fg=$(grep 'menu.items.text.color:' "$config_file" | awk '{print $2}')
+	color_sel_bg=$(grep 'menu.items.active.bg.color:' "$config_file" | awk '{print $2}')
+	color_sel_fg=$(grep 'menu.items.active.text.color:' "$config_file" | awk '{print $2}')
+	color_sel_border=$(grep 'menu.items.active.bg.color:' "$config_file" | awk '{print $2}')
+	color_title_bg=$(grep 'menu.title.bg.color:' "$config_file" | awk '{print $2}')
+	color_title_fg=$(grep 'menu.title.text.color:' "$config_file" | awk '{print $2}')
+	color_title_border=$(grep 'menu.title.bg.color:' "$config_file" | awk '{print $2}')
+	color_sep_fg=$(grep 'menu.separator.color:' "$config_file" | awk '{print $2}')
+	item_margin_x=1
+	item_margin_y=1
+	stay_alive=1
+	menu_padding_right=0
+	menu_padding_bottom=0
+	menu_padding_left=0
+	menu_radius=1
+	sep_halign=right
+	icon_size=0
+	icon_theme=""
+	menu_border=0
+}
+
+jgmenu_themeing(){
+	jgmenurc_file="$HOME/.config/jgmenu/jgmenurc"
+	
+	if [ ! -f "$jgmenurc_file" ];then
+		show_em "failed to locate $jgmenurc_file"
+		return
+	fi
+	
+	if [ -f "${path_to_config}/../jgmenu_theme" ];then
+			. "${path_to_config}/../jgmenu_theme"
+	else
+		if ! . "${path_to_config}/openbox/theme/rctheme";then
+			echo "[ERROR] $0 failed to source openbox rctheme"
+			return
+		fi
+		create_jgmenu_theme
+	fi
+
+	sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
+	sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
+	sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border/g" "$jgmenurc_file"
+	sed -i "s/color_norm_bg .*/color_norm_bg       = $color_norm_bg/g" "$jgmenurc_file"
+	sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg/g" "$jgmenurc_file"
+	sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg/g" "$jgmenurc_file"
+	sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg/g" "$jgmenurc_file"
+	sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border/g" "$jgmenurc_file"
+	sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg/g" "$jgmenurc_file"
+	sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg/g" "$jgmenurc_file"
+	sed -i "s/color_title_border .*/color_title_border  = $color_title_border/g" "$jgmenurc_file"
+	sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg/g" "$jgmenurc_file"
+	sed -i "s/item_margin_x .*/item_margin_x        = $item_margin_x/g" "$jgmenurc_file"
+	sed -i "s/item_margin_y .*/item_margin_y        = $item_margin_y/g" "$jgmenurc_file"
+	sed -i "s/stay_alive .*/stay_alive        = $stay_alive/g" "$jgmenurc_file"
+	sed -i "s/menu_padding_right .*/menu_padding_right        = $menu_padding_right/g" "$jgmenurc_file"
+	sed -i "s/menu_padding_bottom .*/menu_padding_bottom        = $menu_padding_bottom/g" "$jgmenurc_file"
+	sed -i "s/menu_padding_left .*/menu_padding_left        = $menu_padding_left/g" "$jgmenurc_file"
+	sed -i "s/menu_radius .*/menu_radius        = $menu_radius/g" "$jgmenurc_file"
+	sed -i "s/sep_halign .*/sep_halign        = $sep_halign/g" "$jgmenurc_file"
+	sed -i "s/icon_size .*/icon_size        = $icon_size/g" "$jgmenurc_file"
+	sed -i "s/icon_theme .*/icon_theme        = $icon_theme/g" "$jgmenurc_file"
+	sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
+}
+
+case "$1" in
+	"kitty") kitty_themeing ;;
+	"openbox") openbox_themeing ;;
+	"alacritty") alacritty_themeing ;;
+	"geany") geany_themeing ;;
+	"jgmenu") jgmenu_themeing ;;
+esac

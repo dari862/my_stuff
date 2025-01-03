@@ -22,8 +22,7 @@ fi
 # DESCRIPTION: stop all conky process
 #===================================================================================
 stop() {
-	[ "$(pidof conky)" ] && killall conky
-	[ "$(pidof conky)" ] && killall -9 conky
+	kill_process.sh conky
 }
 
 
@@ -43,8 +42,11 @@ start() {
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

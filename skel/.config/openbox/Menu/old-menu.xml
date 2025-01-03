@@ -135,7 +135,7 @@
 			
         	<menu id="panel_settings" execute="ac-panel-settings" label="Taskbar" icon="&icons;/compositor.png"/>
 
-        	<menu id="Conky" execute="bl-conky-pipemenu" label="Conky" icon="&icons;/panel.png"/>
+        	<menu id="Conky" execute="conky-pipemenu" label="Conky" icon="&icons;/panel.png"/>
         	
         	<menu id="autostart" label="Autostarted programs" icon="&icons;/startup.png">		
 	            <item label="Edit Openbox Autostart" icon="&icons;/text-editor.png">

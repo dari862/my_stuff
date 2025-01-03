@@ -133,7 +133,7 @@
 
         	<menu id="CompositingPipeMenu" execute="ac-compositor-pipemenu" label="Compositor" icon="&icons;/cmd.png"/>			
 			<menu id="panel_settings" execute="ac-panel-settings" label="Taskbar" icon="&icons;/cmd.png"/>
-        	<menu id="Conky" execute="bl-conky-pipemenu" label="Conky"/>
+        	<menu id="Conky" execute="conky-pipemenu" label="Conky"/>
         	
         	<menu id="autostart" label="Autostarted programs">		
 	            <item label="Edit Openbox Autostart">

@@ -13,8 +13,7 @@
 # DESCRIPTION: stop all xfce4-power-manager process
 #===================================================================================
 stop() {
-	[ "$(pidof xfce4-power-manager)" ] && killall xfce4-power-manager 
-	[ "$(pidof xfce4-power-manager)" ] && killall -9 xfce4-power-manager
+	kill_process.sh xfce4-power-manager
 }
 
 
@@ -23,14 +22,17 @@ stop() {
 # DESCRIPTION: run xfce4-power-manager
 #===================================================================================
 start() {
-  xfce4-power-manager &
+  pidof -q xfce4-power-manager || xfce4-power-manager &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

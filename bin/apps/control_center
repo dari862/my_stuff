@@ -402,7 +402,7 @@ yad --plug=$KEY --tabnum=1 --borders=10 \
 yad --plug=$KEY --tabnum=2 --borders=20 \
 --text="$TINT_DESC \n" --image=tint2conf \
 --columns=1 --form \
---field="$T_RESTART:FBTN" "tint2-session" \
+--field="$T_RESTART:FBTN" "tint2-session restart" \
 --field="$ADVANCED:LBL" "" \
 --field="$T_CHOOSE:FBTN" "style-manager --tint2manager" \
 --field="$TINT_DIR:FBTN" "my-text-editor $HOME/.config/tint2/" \
@@ -432,7 +432,7 @@ yad --plug=$KEY --tabnum=5 --borders=20 --uri-handler=my-text-editor \
 yad --plug=$KEY --tabnum=6 --borders=20 \
 --text="$CONKY_DESC \n" --image=conky \
 --form \
---field="$CONKY_RESTART:FBTN" "conky-session" \
+--field="$CONKY_RESTART:FBTN" "conky-session restart" \
 --field="$ADVANCED :LBL" "" \
 --field="$CONKY_CHOOSE:FBTN" "style-manager --conkymanager" \
 --field="$CONKY_EDIT:FBTN" "style-manager --conkyedit" \
@@ -444,7 +444,7 @@ yad --plug=$KEY --tabnum=7 --borders=20 \
 --text="$COMP_DESC" --image=compton \
 --columns=1 --form \
 --field="$COMP_EDIT:FBTN" "my-text-editor $HOME/.config/picom.conf" \
---field="$COMP_RESTART:FBTN" "picom-session" \
+--field="$COMP_RESTART:FBTN" "picom-session restart" \
 --field="$COMP_TOGGLE:FBTN" "picom-session toggle" \
 > $res7 &
 

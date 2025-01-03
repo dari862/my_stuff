@@ -101,13 +101,17 @@ if [ "$package_screenshot" = "ImageMagick" ] || [ "$package_screenshot" = "ffmpe
 			MAXW=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f2 -d" ")
 			MAXH=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f4 -d" ")
 			output=$(slop --nokeyboard $DEC_ARG 0,119,255,0.34 -f "%x %y %w %h %g %i")
-  			echo "$output" | while IFS=" " read -r X Y W H G ID; do
-				[ "$W" -eq 1921 ] && W=1920
-				[ "$W" -gt "$MAXW" ] && W="$MAXW"
-				[ "$H" -gt "$MAXH" ] && H="$MAXH"
-				[ "$X" -gt "$MAXW" ] && X="$MAXW"
-				[ "$Y" -gt "$MAXH" ] && Y="$MAXH"
-			done
+  			X="$(echo "$output" | cut -d " " -f1)"
+  			Y="$(echo "$output" | cut -d " " -f2)"
+  			W="$(echo "$output" | cut -d " " -f3)"
+  			H="$(echo "$output" | cut -d " " -f4)"
+  			G="$(echo "$output" | cut -d " " -f5)"
+  			ID="$(echo "$output" | cut -d " " -f6)"
+			[ "$W" -eq 1921 ] && W=1920
+			[ "$W" -gt "$MAXW" ] && W="$MAXW"
+			[ "$H" -gt "$MAXH" ] && H="$MAXH"
+			[ "$X" -gt "$MAXW" ] && X="$MAXW"
+			[ "$Y" -gt "$MAXH" ] && Y="$MAXH"
 		else
 			W=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f2 -d" ")
 			H=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f4 -d" ")

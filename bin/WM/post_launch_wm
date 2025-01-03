@@ -1,6 +1,6 @@
 #!/bin/sh
 # Start clipboard-manager
-clipboard-manager-session &
+clipboard-manager-session start &
 
 # Start panel		
 panel_launcher &

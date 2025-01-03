@@ -118,9 +118,7 @@ create_containers_deploy_db() {
 
 # Create chroots deploy database
 create_chroots_deploy_db() {
-  . "/usr/share/my_stuff/lib/chroot/var"
-  cd "${_CHROOTS_LIBDIR}"
-  list_of_chroots=$(find . -maxdepth 1 -type f -exec basename {} \;)
+  list_of_chroots=$(find "${_CHROOTS_LIBDIR}" -maxdepth 1 -type f -exec basename {} \;)
   if [ -d "${ROOT_CHROOT_DIR}" ]; then
     for chroot in $list_of_chroots; do
       if [ ! -f "${_CHROOTS_INSTALLED_LIBDIR}/${chroot}" ]; then

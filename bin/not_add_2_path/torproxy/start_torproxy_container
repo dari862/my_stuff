@@ -1,0 +1,4 @@
+#!/bin/sh
+. "/usr/share/my_stuff/bin/not_add_2_path/torproxy/check_container"
+check_tor_container
+/usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy

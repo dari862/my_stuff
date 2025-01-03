@@ -98,26 +98,26 @@ case "$polybar_STYLE" in
 			EOF
 		;;
 	cynthia|melissa)
-		tee -a "${polybar_launcher_path}" <<- EOF > /dev/null
+		tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
 			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &
 			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &
 		EOF
 		;;
 	karla)
-		tee -a "${polybar_launcher_path}" <<- EOF > /dev/null
-			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini"
-			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini"
-			MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini"
+		tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
+			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini" &
 		EOF
 		;;
 	pamela|andrea)
-		tee -a "${polybar_launcher_path}" <<- EOF > /dev/null
-			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini"
-			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini"
-			MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini"
-			MONITOR=$mon polybar -q bar4 -c "${polybar_style_dir}/config.ini"
-			MONITOR=$mon polybar -q bar5 -c "${polybar_style_dir}/config.ini"
-			MONITOR=$mon polybar -q bar6 -c "${polybar_style_dir}/config.ini"
+		tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
+			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar4 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar5 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar6 -c "${polybar_style_dir}/config.ini" &
 		EOF
 		;;
 	*)

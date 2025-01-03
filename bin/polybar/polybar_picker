@@ -14,4 +14,4 @@ then
 	echo "$@" > "${rofi_style_name_path}"
 fi
 
-polybar-session
+polybar-session restart

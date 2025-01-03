@@ -17,8 +17,7 @@ check_run_plank_="$(cat ${plank_config} 2>/dev/null)"
 # DESCRIPTION: stop all plank process
 #===================================================================================
 stop() {
-	[ "$(pidof plank)" ] && killall plank 
-	[ "$(pidof plank)" ] && killall -9 plank
+	kill_process.sh plank
 }
 
 
@@ -27,7 +26,9 @@ stop() {
 # DESCRIPTION: start plank
 #===================================================================================
 start() {
-  [ "$check_run_plank_" = "yes" ] && exec plank &
+	if pidof -q plank;then
+		[ "$check_run_plank_" = "yes" ] && exec plank &
+	fi
 }
 
 disable() {
@@ -40,8 +41,11 @@ enable_() {
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

@@ -48,7 +48,6 @@ if [ ! -f "$usr_setup_flag_file" ];then
         /usr/bin/xdg-user-dirs-update
     fi
     
-    mpd-session
-    ( sleep 1 && cd ~/Music/ && mpc -q add * ) &
+    mpd-session pre
     set_git_aliases
 fi

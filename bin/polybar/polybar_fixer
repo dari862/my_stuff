@@ -107,6 +107,10 @@ get_values() {
 	
 	#varibale TemperaturePath are set at the end
 	TemperaturePath="$(for i in /sys/class/hwmon/hwmon*/temp*_input; do name_file="$(dirname "$i")/name"; if [ -f "$name_file" ]; then name=$(cat "$name_file"); else name=""; fi; label_file="${i%_*}_label"; if [ -f "$label_file" ]; then label=$(cat "$label_file"); else label="$(basename "${i%_*}")"; fi; echo "$name: $label $(readlink -f "$i")"; done | grep "coretemp" | grep "temp1" | awk '{print $5}')"
+	if [ -z "$TemperaturePath" ]; then
+ 		TemperaturePath="$HOME/.config/polybar/noTemperature"
+ 		echo "noTemp" > "$TemperaturePath"
+ 	fi
 }
 
 # Fix backlight and network modules

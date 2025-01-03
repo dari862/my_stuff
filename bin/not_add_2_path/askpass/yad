@@ -1,0 +1,2 @@
+#!/bin/sh
+yad --center --width=300 --image=keys.png --title 'Sudo-Password' --button='Ok:0' --button='Cancel:1'  --entry --hide-text --text 'Please enter your password'

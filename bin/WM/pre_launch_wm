@@ -26,18 +26,17 @@ else
 fi
 
 # Start keyring	
-keyring-session &
+keyring-session start &
 
 ## Start Music Player Daemon
-mpd-session &
+mpd-session start &
 
 # Set wallpaper
 setbg -r
 
-
 ## Notification Daemon
-dunst-session  &
+dunst-session start &
 
 ## file-manager Daemon
-file-manager-session &
+file-manager-session start &
 

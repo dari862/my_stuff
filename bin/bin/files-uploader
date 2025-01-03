@@ -2,7 +2,7 @@
 #
 # files-uploader: script to upload files to an image hosting service
 # Taking of screenshots is also supported.
-# At present this is a wrapper script around bl-imgur-upload,
+# At present this is a wrapper script around imgur-upload,
 # but may be extended in the future.
 
 # var

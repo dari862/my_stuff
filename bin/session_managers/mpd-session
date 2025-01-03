@@ -15,8 +15,7 @@ mpdconf_path="$HOME/.config/mpd/mpd.conf"
 # DESCRIPTION: stop all mpd process
 #===================================================================================
 stop() {
-	[ "$(pidof mpd)" ] && killall mpd
-	[ "$(pidof mpd)" ] && killall -9 mpd
+	kill_process.sh mpd
 }
 
 
@@ -25,18 +24,29 @@ stop() {
 # DESCRIPTION: load mpd with config file
 #===================================================================================
 start() {
-	mpd ${mpdconf_path} &
+	pidof -q mpd || mpd ${mpdconf_path} &
 }
 
+pre() {
+	stop
+	start
+	( sleep 1 && cd ~/Music/ && mpc -q add * ) &
+}
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	
 		stop	
+	;;
+	pre)	
+		pre	
 	;;
 	*)	
 		echo "Usage: mpd-session [start|stop|restart]"

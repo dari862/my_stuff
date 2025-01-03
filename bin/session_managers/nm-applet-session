@@ -13,8 +13,7 @@
 # DESCRIPTION: stop all nm-applet process
 #===================================================================================
 stop() {
-	[ "$(pidof nm-applet)" ] && killall nm-applet
-	[ "$(pidof nm-applet)" ] && killall -9 nm-applet
+	kill_process.sh nm-applet
 }
 
 #=== FUNCTION ======================================================================
@@ -22,14 +21,17 @@ stop() {
 # DESCRIPTION: run nm-applet
 #===================================================================================
 start() {
-  nm-applet &
+  pidof -q nm-applet || nm-applet &
 }
 
 
 # EXEC ACTION ACCORDING $1
 case "${1}" in
-	""|start|restart)
+	""|restart)
 		stop
+		start		
+	;;
+	start)
 		start		
 	;;
 	stop)	

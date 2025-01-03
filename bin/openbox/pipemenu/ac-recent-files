@@ -17,7 +17,6 @@ elif [ -r "${HOME}/.local/share/recently-used.xbel" ]; then
 elif [ -r "${HOME}/.recently-used.xbel" ]; then
     file_path="${HOME}/.recently-used.xbel"
 else
-    echo "$0: cannot find a readable recently-used.xbel file" >&2
     echo '<openbox_pipe_menu>
 <separator label="No recently-used.xbel file found." />
 </openbox_pipe_menu>'

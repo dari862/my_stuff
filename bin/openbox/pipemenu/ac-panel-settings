@@ -10,7 +10,7 @@ if [ "$_panel_name_" = "polybar" ]; then
 	menuStart "PolybarMenu" "Polybar"
 	menuItem 'Open Your polybar Folder' "my-file-manager ~/.config/polybar/"
 	menuItem 'How to configure Polybar?' 'my-www-browser "https://github.com/polybar/polybar/wiki" "https://wiki.archlinux.org/title/Polybar"'
-	menuItem 'Restart' "polybar-session"
+	menuItem 'Restart' "polybar-session restart"
 	menuItem 'Stop' "polybar-session stop"
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
 		. "/usr/share/my_stuff/lib/common/DB"
@@ -31,16 +31,16 @@ elif [ "$_panel_name_" = "xfce4-panel" ]; then
 	menuItem 'GUI Xfce4-Panel Config Tool' "xfce4-panel -p"
 	menuItem 'Open Your Xfce4-Panel Folder' "my-file-manager ~/.config/xfce4/"
 	menuItem 'How to configure xfce4-panel?' 'my-www-browser "https://docs.xfce.org/xfce/xfce4-panel/start"'
-	menuItem 'Restart' "xfce4-panel-session"
+	menuItem 'Restart' "xfce4-panel-session restart"
 	menuItem 'Stop' "xfce4-panel-session stop"
 elif [ "$_panel_name_" = "tint2" ]; then
-	HELP='    bl-tint2-pipemenu an Openbox Pipe Menu for tint2 manipulation
+	HELP='    tint2-pipemenu an Openbox Pipe Menu for tint2 manipulation
     	It should normally be called from an openbox menu.
 	
 	Options:
     	-h --help   show this message
 	
-    	If bl-tint2-pipemenu is called with no options (the usual method),
+    	If tint2-pipemenu is called with no options (the usual method),
     	it will output an xml openbox pipemenu for handling tint2 sessions,
     	and editing configuration files.
 	
@@ -71,13 +71,13 @@ elif [ "$_panel_name_" = "tint2" ]; then
 	
 	loadRestart(){
     	if pgrep -x -u "$USER" tint2 >/dev/null;then
-            menuItem "Restart Tint2" "tint2-session"
+            menuItem "Restart Tint2" "tint2-session restart"
     	fi
 	}
 	
 	loadReload(){
-    	if type bl-tint2-session >/dev/null 2>&1;then
-        	menuItem "Reload Default Session" "bl-tint2-session"
+    	if type tint2-session >/dev/null 2>&1;then
+        	menuItem "Reload Default Session" "tint2-session restart"
     	fi
 	}
 	

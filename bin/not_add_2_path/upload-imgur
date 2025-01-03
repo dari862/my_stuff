@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#   bl-imgur-upload: script to take screenshots and upload them to Imgur; this
+#   upload-imgur: script to take screenshots and upload them to Imgur; this
 #   can be to an existing account, or anonymously.
 #
 #   Credentials and an access token for an account can be set up.
@@ -26,10 +26,10 @@ SETTINGS_FILE="${USR_CFG_DIR}/imgur.conf"
 SCRIPT=$(basename "$0")
 IMG_VIEWER=my-image-viewer
 
-USAGE="bl-imgur-upload is a script to take screenshots and upload them to Imgur
+USAGE="upload-imgur is a script to take screenshots and upload them to Imgur
 this can be to an existing account, or anonymously.
 
-Usage:    bl-imgur-upload [option]... [file]...
+Usage:    upload-imgur [option]... [file]...
 
 With no script args, ${SCRIPT} will upload a screenshot of
 the full desktop, as anonymous user.
@@ -115,7 +115,7 @@ elif command -v wget >/dev/null 2>&1;then
 fi
 #### CLIENT SECRET ###
 . "/usr/share/my_stuff/lib/common/API"
-CLIENT_SECRET="$(cat "${API_path}/${imgur}" || :)"
+CLIENT_SECRET="$(cat "${API_path}/${imgur}" 2>/dev/null || :)"
 
 ### Get script args ####################################################
 function getargs(){

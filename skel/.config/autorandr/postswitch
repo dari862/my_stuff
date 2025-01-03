@@ -5,14 +5,14 @@ setbg -r
 . "/usr/share/my_stuff/lib/common/panel"
 
 if [ "$_panel_name_" = "polybar" ]; then
-   polybar-session 
+   polybar-session restart
 fi
 
 if [ "$_panel_name_" = "xfce4" ]; then
-	xfce4-panel-session
+	xfce4-panel-session restart
 fi 
 
 if [ "$_panel_name_" = "tint2" ]; then
-	tint2-session
+	tint2-session restart
 fi 
 
