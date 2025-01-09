@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-check_4_dependencies_if_installed grep ip sed
+check_4_dependencies_if_installed grep ip sed || exit 1
 
 ip=""
 

@@ -162,7 +162,7 @@ pre_exit() {
 
 main() {
 
-    check_4_dependencies_if_installed convert bash ffmpeg mpc jq mpd
+    check_4_dependencies_if_installed convert bash ffmpeg mpc jq mpd || exit 1
     
     [ "$KUNST_MUSIC_DIR" != "" ] && MUSIC_DIR="$KUNST_MUSIC_DIR"
     [ "$KUNST_SIZE" != "" ] && SIZE="$KUNST_SIZE"

@@ -1,5 +1,6 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=USB_formatter
 
 script_full_path="$(readlink -f "$0")"
 DIALOG="$(which yad) --center --width 400"

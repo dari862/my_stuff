@@ -17,28 +17,45 @@ conky-session restart &
 dunst-session restart &
 
 # Start compositor
-picom-session restart &
+picom-session start &
 
 ## Launch Plank
 #plank-session
 		
 if [ "$_panel_name_" = "polybar" ]; then 
+	# Start volume control
+	audio-session stop
+	
+	# Start network manager
+	nm-applet-session stop
+	
+	# Lauch xsettingsd daemon
+	xfsettingsd-session stop
+	
 	# Start polybar
 	polybar_workspace_fixer
    	polybar-session restart &
 
 	# Enable power management
 	power-manager-session start &
-	
+elif [ "$_panel_name_" =  "tint2" ]; then
+	# Start clipboard-manager
+	clipboard-manager-session stop
+
 	# Start volume control
-	audio-session stop &
+	audio-session stop
 	
 	# Start network manager
-	nm-applet-session stop &	
+	nm-applet-session stop
+
+	# panel - taskbar, system tray, battery, clock
+	tint2-session restart &
 	
-	# Lauch xsettingsd daemon
-	xfsettingsd-session stop &
-	
+	# Start volume control
+	audio-session start &
+
+	# Enable power management
+	power-manager-session start &
 elif [ "$_panel_name_" =  "xfce4-panel" ]; then
 	# Start xfce4-panel
    	xfce4-panel-session restart &
@@ -50,24 +67,9 @@ elif [ "$_panel_name_" =  "xfce4-panel" ]; then
 	audio-session start &
 	
 	# Start network manager
-	nm-applet-session start &		
-		
-	# Enable power management
-	power-manager-session xfce4 &
+	nm-applet-session start &
 	
-elif [ "$_panel_name_" =  "tint2" ]; then
-	# panel - taskbar, system tray, battery, clock
-	tint2-session restart &
-	
-	# Start volume control
-	audio-session start &
-
-	# Start network manager
-	nm-applet-session stop &
-
 	# Enable power management
-	power-manager-session start &
-		
-   	# Lauch xsettingsd daemon
-	xfsettingsd-session stop &
+	power-manager-session xfce_start &
 fi
+	

@@ -9,6 +9,8 @@ fi
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
+. /etc/default/keyboard
+kb="$XKBLAYOUT"
 
 opt__="${1-h}"
 
@@ -22,7 +24,7 @@ HELP_List="1 add_kb_layout
 
 if [ -z "$(grep us "${kb_layout_ini_path}/${kb_layout_name}" 2>/dev/null|| :)" ];then
 	mkdir -p ${kb_layout_ini_path}
-	echo "us" > ${kb_layout_ini_path}/${kb_layout_name}
+	echo "$XKBLAYOUT" > ${kb_layout_ini_path}/${kb_layout_name}
 fi
 
 add_kb_layout(){

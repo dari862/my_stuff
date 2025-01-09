@@ -1,6 +1,4 @@
 #!/bin/sh
-# if this line exist script will be part of hub script.
-
 # youtube-dl wrapper to download web series / playlists / etc.
 set -eu
 START=""

@@ -53,8 +53,12 @@ run_editor_with_super_user(){
 	${terminal_name} -T "${file_name_} - CLI Editor" -e my-superuser $CLI_EDITER_PATH "${file_name_}"
 }
 
+run_popup_fullscreen_mode(){
+	${terminal_name} --start-as fullscreen --config /etc/xdg/kitty/kitty.conf -T "${arg_}" -e bash -c "${file_name_}"
+}
+
 run_popup_normal_mode(){
-	${terminal_name} ${fullscreen_mode} -T "${arg_}" -e bash -c "${file_name_}"
+	${terminal_name} -T "${arg_}" -e bash -c "${file_name_}"
 }
 
 case $arg_ in
@@ -68,10 +72,6 @@ case $arg_ in
 		--man) run_man ;;
 		--editor) run_editor ;;
 		--super-user-editor) run_editor_with_super_user ;;
-		--full)  
-			shift 1
-			fullscreen_mode="--start-as fullscreen --config /etc/xdg/kitty/kitty.conf"
-			run_popup_normal_mode
-		;;
+		--full) run_popup_fullscreen_mode ;;
 		*) run_popup_normal_mode;;
 esac

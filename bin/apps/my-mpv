@@ -1,4 +1,5 @@
 #!/bin/bash
+# if this line exist script will be part of gui scripts.new_name=My_MPV
 # if this line exist script will be part of hub script.
 
 # wrapper for mpv to enable use as alternative for my-media-player
@@ -10,20 +11,7 @@ if ! hash mpv; then
     exit 1
 fi
 
-if [ -z "$@" ];then
-	icon_name="yad-mpv"
-	icon="/usr/share/my_stuff/images/${icon_name}.png"
-		
-    MPVFILE="$(yad --form --window-icon="${icon}" --title="yad-mpv" --width=500 --height=100 --button=gtk-close:1 --separator=" " --text="yad-mpv\n\nSelect the files you would like to play or input a url to play.\n\n\n" --field="File(s)":MFL "" )"
-    case $? in
-        0)
-           	$0 "${MPVFILE}"
-           	;;
-        1)
-           	exit 0
-            ;;
-    esac
-else
+run_video_using_mpv(){
 	if (( $# > 0 )); then
     	for ((i=1 ; i <= $# ; i++))
     	do
@@ -60,5 +48,22 @@ else
     	fi
 	fi
 	
-	exec mpv --profile=$MPV_PROFILE "$@"
+	exec mpv --profile=$MPV_PROFILE "$@" 1>/tmp/$USER/my-mpv-logs 2>/tmp/$USER/my-mpv-logs
+}
+
+if [ -z "$@" ];then
+	icon_name="yad-mpv"
+	icon="/usr/share/my_stuff/images/${icon_name}.png"
+		
+    MPVFILE="$(yad --form --window-icon="${icon}" --title="yad-mpv" --width=500 --height=100 --button=gtk-ok:0 --button=gtk-close:1 --separator=" " --text="yad-mpv\n\nSelect the files you would like to play or input a url to play.\n\n\n" --field="File(s)":MFL "" )"
+    case $? in
+        0)
+           	run_video_using_mpv ${MPVFILE}
+           	;;
+        1)
+           	exit 0
+            ;;
+    esac
+else
+	run_video_using_mpv $@
 fi	

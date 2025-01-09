@@ -4,7 +4,7 @@ set -euo
 pass=""
 __echo_pdf_file="$@"
 
-check_4_dependencies_if_installed qpdf
+check_4_dependencies_if_installed qpdf || exit 1
 
 help(){
 	echo "pdfsplit:"

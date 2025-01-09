@@ -49,7 +49,7 @@ main()
 		ch) notify-send "🖥 CPU hogs" "$(ps axch -o cmd:15,%cpu --sort=-%cpu | head)\\n(100% per core)" ;;
 		mh) notify-send "🧠 Memory hogs" "$(ps axch -o cmd:15,%mem --sort=-%mem | head)" ;;
 		i) get_ips "${opt2}" ;;
-		E) popup_terminal --super-user-editor "/usr/share/my_stuff/bin/polybar/Resources_Monitor";;	
+		E) popup_terminal --super-user-editor "$(realpath "$0")";;	
 		*) help ;;
 	esac
 }

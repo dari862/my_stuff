@@ -26,7 +26,6 @@ stop() {
 start() {
   	if ! pidof -q picom ;then
   		exec picom --daemon --config "$picom_path" &
-		pidof -q tint2 || tint2-session
 	fi
 }
 

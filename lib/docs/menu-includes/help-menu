@@ -21,7 +21,6 @@ Compositor,popup_terminal --man picom
 jgmenu,popup_terminal --man jgmenu
 rofi,popup_terminal --man rofi
 xrandr,popup_terminal --man xrandr
-my_stuff-session,popup_terminal --man my_stuff-session
 bl-xdg-autostart,popup_terminal --man bl-xdg-autostart
 ^sep()
 My Stuff Help Files,^checkout(BLhelp)

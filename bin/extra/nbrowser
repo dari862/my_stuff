@@ -75,7 +75,7 @@ cp2cb() {
 }
 
 # check if necessary programs are installed
-check_4_dependencies_if_installed rofi
+check_4_dependencies_if_installed rofi || exit 1
 
 # check for installed browsers
 ## keep the first place to special action

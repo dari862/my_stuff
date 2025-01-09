@@ -37,7 +37,7 @@ EOF
 fi
 
 # keep it after check
-check_4_dependencies_if_installed ffmpeg feh
+check_4_dependencies_if_installed ffmpeg feh || exit 1
 
 Use_numbers="Use numbers indicated by"
 Preparingprocess_video="Preparing the video..."

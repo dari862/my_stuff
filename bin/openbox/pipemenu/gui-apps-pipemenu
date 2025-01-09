@@ -9,6 +9,17 @@ Options (usually passed from the menu):
     (the package must be in one of the app lists in this file)'
 
 ########################################################################
+gui_scripts_dir="/usr/share/my_stuff/system_files/gui_scripts"
+
+create_gui_scripts_dir(){
+	my-superuser mkdir -p "${gui_scripts_dir}"
+	_script_for_dir="$(grep -R "# if this line exist script will be part of gui scripts." "/usr/share/my_stuff/system_files/bin" | awk -F: '{print $1}')"
+	for script in ${_script_for_dir};do
+		new_name="$(grep "# if this line exist script will be part of gui scripts." "$script" | awk -F= '{print $2}')"
+		my-superuser cp -rf "$script" "${gui_scripts_dir}/$new_name"
+	done
+	exit
+}
 
 # look for a help option somewhere
 for i in "$@"
@@ -18,87 +29,29 @@ do
         echo "$HELP"
         exit 0
         ;;
+    -c|--create)
+    	create_gui_scripts_dir
+        ;;
     esac
 done
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
+cd "${gui_scripts_dir}"
+
 obmenu_options(){
 	menuStart "my_stuffGuiAppsPipemenu" "My Stuff GUI Apps"
-	menuItem "Apps Dashboard" "apps-dashboard"
-	menuItem "live wallpaper" "livewall_gui"
-	menuItem "Alarm" "beepmein_gui"
-	menuItem "Control Center" "control_center"
-	menuItem "GUI MPV" "my-mpv"
-	menuItem "Style Manager" "style_picker_yad"
-	menuItem "ScreenShot" "yadshot.sh"
-	menuItem "URL Downloader" "url_downloader"
-	menuItem "Autostart Manager" "yautostart"
-	menuItem "USB formatter" "usb-formatter"
-	menuItem "Package Manager" "yadstore"
-	menuItem "Script Hub" "hub"
-	menuItem "pmxkcd" "pmxkcd"
-	if [ $(command -v btmgmt >/dev/null) ] && [ "$(btmgmt info | awk 'BEGIN{split("1.0b 1.1 1.2 2.0 2.1 3.0 4.0 4.1 4.2 5.0 5.1 5.2 5.3",i," ")}')" != "" ] # check bluetooth
-	then
-		menuItem "Bluetooth" "bt-session"
-	fi
-	if command -v qt5ct >/dev/null
-	then
-		menuItem "QT5 Settings" "qt5ct"
-		menuItem "Kvantum Manager" "kvantummanager"
-	fi
-	if command -v quickemu_gui >/dev/null 2>&1; then
-		menuItem "QuickEMU GUI" "quickemu_gui"
-	fi
-	if command -v distrogui >/dev/null 2>&1; then
-		menuItem "DistroBOX GUI" "distrogui"
-	fi
-	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
-		menuItem "GPU Switcher" "gui_GPU_Switcher"
-		menuItem "GUI TLP" "yadtlp.sh"
-	fi
-	if command -v fingerprint_gui >/dev/null 2>&1; then
-		menuItem "Fingerprint GUI" "fingerprint_gui"
-	fi
+	for gui in *;do
+		menuItem "$gui" "${gui_scripts_dir}/$gui"
+	done
     menuEnd
  #    menuEnd   
 }
 
 jgmenu_options(){
-	jgmenuItem "Apps Dashboard" "apps-dashboard"
-	jgmenuItem "Alarm" "beepmein_gui"
-	jgmenuItem "Control Center" "control_center"
-	jgmenuItem "GUI MPV" "my-mpv"
-	jgmenuItem "Style Manager" "style_picker_yad"
-	jgmenuItem "ScreenShot" "yadshot.sh"
-	jgmenuItem "URL Downloader" "url_downloader"
-	jgmenuItem "Autostart Manager" "yautostart"
-	jgmenuItem "USB formatter" "usb-formatter"
-	jgmenuItem "Package Manager" "yadstore"
-	jgmenuItem "Script Hub" "hub"
-	jgmenuItem "pmxkcd" "pmxkcd"
-	if [ $(command -v btmgmt >/dev/null) ] && [ "$(btmgmt info | awk 'BEGIN{split("1.0b 1.1 1.2 2.0 2.1 3.0 4.0 4.1 4.2 5.0 5.1 5.2 5.3",i," ")}')" != "" ] # check bluetooth
-	then
-		jgmenuItem "Bluetooth" "bt-session"
-	fi
-	if command -v qt5ct >/dev/null
-	then
-		jgmenuItem "QT5 Settings" "qt5ct"
-		jgmenuItem "Kvantum Manager" "kvantummanager"
-	fi
-	if command -v quickemu_gui >/dev/null 2>&1; then
-		jgmenuItem "QuickEMU GUI" "quickemu_gui"
-	fi
-	if command -v distrogui >/dev/null 2>&1; then
-		jgmenuItem "DistroBOX GUI" "distrogui"
-	fi
-	if [ -f /usr/share/my_stuff/system_files/this_is_laptop ];then
-		jgmenuItem "GPU Switcher" "gui_GPU_Switcher"
-		jgmenuItem "GUI TLP" "yadtlp.sh"
-	fi
-	if command -v fingerprint_gui >/dev/null 2>&1; then
-		jgmenuItem "Fingerprint GUI" "fingerprint_gui"
-	fi
+	for gui in *;do
+		jgmenuItem "$gui" "${gui_scripts_dir}/$gui"
+	done
     jgmenuEnd
 #    menuEnd
 }

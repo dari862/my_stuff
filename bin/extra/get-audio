@@ -1,6 +1,4 @@
 #!/bin/sh
-# if this line exist script will be part of hub script.
-
 # download audio from URL and set ID3v2 metadata
 set -eu
 

@@ -783,7 +783,7 @@ elif ! . "${CREDENTIALS_FILE}" 2> /dev/null; then
     fi
 fi
 
-check_4_dependencies_if_installed yad xprop wmctrl xsel
+check_4_dependencies_if_installed yad xprop wmctrl xsel || exit 1
 
 getargs "${@}"                      # get script parameters
 

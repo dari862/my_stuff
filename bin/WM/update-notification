@@ -79,28 +79,28 @@ update () {
 #===============================================================================
 interactive_upgrade() {
 	update
-	printf
+	printf ""
 	if [ ! -s "$updates_file" ];then
 		printf "Press any key to exit..."
-		read
+		read pause
 		exit 0
 	fi
 
 	printf "Press enter to continue upgrade..."
-	read
-	printf
+	read pause
+	printf ""
 	
 	Packages_upgrade_
 	
 	if ! [ $? -eq 0 ]; then 
-		read 
+		read pause 
 		exit 1
 	fi
 
 	printf "" > "$updates_file"
-	printf
+	printf ""
 	printf "Update complete!"
-	read
+	read pause
 	exit
 }
 
@@ -175,7 +175,7 @@ list_update(){
 		cat "$updates_file"
 	fi
 	printf "Press any key to continue ..."
-	read
+	read pause
 }
 
 #=== FUNCTION ==================================================================

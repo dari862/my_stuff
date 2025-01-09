@@ -26,5 +26,5 @@ if [ -n "${old}" ]; then
 	jgmenu_run gtktheme
 	fi
 else
-	printf '%s' "$new" > "$gtktheme_cache"
+	printf '%s' "$new" > "$gtktheme_cache" >/dev/null 2>&1
 fi

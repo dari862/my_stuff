@@ -1,4 +1,5 @@
 #!/bin/bash
+# if this line exist script will be part of gui scripts.new_name=Yad_ScreenShot
 # if this line exist script will be part of hub script.
 
 # Title: yadshot

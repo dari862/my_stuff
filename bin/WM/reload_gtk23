@@ -1,20 +1,33 @@
 #!/bin/sh
 ##########################################
-xsettingsd_error_log="/tmp/$USER/reload_gtk23.error.log"
-xsettingsd_conf_file="$HOME/.config/xsettingsd/xsettingsd.conf"
+current_user="$(logname)"
+temp_user_path="/tmp/$USER"
+xsettingsd_error_log="$temp_user_path/reload_gtk23.error.log"
 
-if [ -f "$HOME/.config/gtk-3.0/settings.ini" ];then
-	gtkrcfile="$HOME/.config/gtk-3.0/settings.ini"
+xsettingsd_path="$HOME/.config/xsettingsd"
+xsettingsd_conf_file="$xsettingsd_path/xsettingsd.conf"
+
+GTK3_ini_FILES="$HOME/.config/gtk-3.0/settings.ini"
+
+if [ -f "$GTK3_ini_FILES" ];then
+	gtkrcfile="$GTK3_ini_FILES"
 elif [ -f "${GTK2_RC_FILES}" ];then
 	gtkrcfile="${GTK2_RC_FILES}"
 elif [ -f "$HOME/.gtk-2.0/gtkrc-2.0" ];then
 	gtkrcfile="$HOME/.gtk-2.0/gtkrc-2.0"
+elif [ "$USER" = "root" ];then
+	cp -r "/home/$current_user/.config/gtk-3.0/settings.ini" "/root"
+	gtkrcfile="/root/settings.ini"
+	xsettingsd_path="/root"
+	xsettingsd_conf_file="$xsettingsd_path/xsettingsd.conf"
 else
 	echo "no gtkrc file exist"
 	exit 1
 fi
 
-mkdir -p $HOME/.config/xsettingsd
+mkdir -p "${temp_user_path}"
+mkdir -p "${xsettingsd_path}"
+
 if [ -e "${xsettingsd_conf_file}" ];then
 	# clear the content of file
 	: > "${xsettingsd_conf_file}"

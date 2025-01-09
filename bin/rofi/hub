@@ -1,4 +1,6 @@
 #!/bin/sh
+# if this line exist script will be part of gui scripts.new_name=Script_Hub
+
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
 . "/usr/share/my_stuff/lib/common/openbox"
@@ -9,6 +11,7 @@ if [ -n "$opt___" ];then
 	shift 1
 	reset_of_opt___="$@"
 fi
+
 _hub_script_dir="/usr/share/my_stuff/system_files/hub_script"
 script_name_=""
 full_script_path=""
@@ -18,6 +21,17 @@ full_script_path=""
 # list_scripts_hub
 #############################################################################
 #############################################################################
+
+create_hub_script_dir()
+{
+	my-superuser mkdir -p "${_hub_script_dir}"
+	_script_for_hub="$(grep -R "# if this line exist script will be part of hub script." "/usr/share/my_stuff/system_files/bin" | awk -F: '{print $1}')"
+	for script in ${_script_for_hub};do
+		my-superuser cp -rf "$script" "${_hub_script_dir}"
+	done
+	my-superuser rm -f "${_hub_script_dir}/hub"
+	exit
+}
 
 list_scripts_hub()
 {
@@ -72,7 +86,7 @@ main_rofi_menu()
 	MENU="$(printf "1- hub for executing script \n2- list of configuration files to edit" | ${rofi_command} -p '')"
 	case $MENU in
 		1-*) scripts_hub ;;
-		2-*) confedit "$reset_of_opt___" ;; # script in bin
+		2-*) confedit ;; # script in bin
 		*) main_rofi_menu ;;
 	esac
 }
@@ -96,6 +110,7 @@ case $opt___ in
 	"") main_rofi_menu ;;
 	s) scripts_hub ;;
 	c) confedit "$reset_of_opt___";; # script in bin
+	create) create_hub_script_dir ;;
 	h) help ;;
 	*) script_name_="${opt___}" && full_script_path="${_hub_script_dir}/${script_name_}" && execuite_scripts_ ;;
 esac

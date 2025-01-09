@@ -21,6 +21,6 @@ case $opt in
 		--volumect-toggle-mic) volume_cli_control --toggle-mic ;;
 		--calendar) cal-popup --popup ;;
 		--volume-controller) volume_controller ;;
-		--powermenu) my_session_manager yad ;;
+		--powermenu) my_session_manager --yad ;;
 		--beepmein) beepmein_gui --standalone ;;
 esac

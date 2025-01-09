@@ -1,5 +1,6 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=Beep_Me_In
 
 #    beepmein-pipemenu - a beepmein pipe menu for jgmenu
 #
@@ -128,9 +129,10 @@ _prepare_config_dir(){
 	
 	if [[ ! -f "$alarmSample" ]];then
 		if command -v yad >/dev/null 2>&1 ;then
-			yad --image="dialog-question" \
+			yad --center --image="dialog-question" \
   					--title "Alert" \
-  					--text "$alarmSample does not exist genertating one" && beepmein --set-alarm
+  					--text "$alarmSample does not exist genertating one" \
+					--button="Ok" && beepmein --set-alarm
 		elif command -v gmrun >/dev/null 2>&1 ;then
 			echo "$alarmSample does not exist genertating one" && beepmein --set-alarm
 		fi
@@ -138,9 +140,10 @@ _prepare_config_dir(){
 	
 	if [[ ! -f "$reminderSample" ]];then
 		if command -v yad >/dev/null 2>&1 ;then
-			yad --image="dialog-question" \
+			yad --center --image="dialog-question" \
   					--title "Alert" \
-  					--text "$reminderSample does not exist genertating one" && beepmein --set-remind
+  					--text "$reminderSample does not exist genertating one" \
+  					--button="Ok" && beepmein --set-remind
 		elif command -v gmrun >/dev/null 2>&1 ;then
 			echo "$reminderSample does not exist genertating one" && beepmein --set-remind
 		fi

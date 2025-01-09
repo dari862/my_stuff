@@ -7,8 +7,6 @@
 # CREATED: 2020.04.09
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
-procname=tint2
-pid=$( pgrep -x -u "$USER" "$procname" )
 
 config_dir="$HOME/.config"
 tint2_config="${config_dir}/tint2"
@@ -25,9 +23,7 @@ fi
 # DESCRIPTION: stop all tint2 process
 #===================================================================================
 stop() {
-	if [ -n "$pid" ]; then
-		kill_process.sh tint2
-	fi
+	kill_process.sh tint2
 }
 
 
@@ -36,14 +32,11 @@ stop() {
 # DESCRIPTION: start tint2
 #===================================================================================
 start() {
-	if [ -z "$pid" ]; then
-		while IFS="" read -r theme || [ -n "$theme" ]
-		do
-			(tint2 -c "$HOME$theme" >/dev/null 2>&1) &
-  			sleep 0.5
-		done < ${tint2_sessionfile_}
-	fi
-
+	while IFS="" read -r theme || [ -n "$theme" ]
+	do
+		(tint2 -c "$HOME$theme" >/dev/null 2>&1) &
+		sleep 0.5
+	done < ${tint2_sessionfile_}
 }
 
 # EXEC ACTION ACCORDING $1

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # check if necessary programs are installed
-check_4_dependencies_if_installed mpv fzf jq gawk
+check_4_dependencies_if_installed mpv fzf jq gawk || exit 1
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
@@ -181,7 +181,7 @@ while [ "$opt_" ]; do
     esac
 done
 
-[ "${TERMV_SWALLOW}" = true ] && { check_4_dependencies_if_installed xdo ; }
+[ "${TERMV_SWALLOW}" = true ] && { check_4_dependencies_if_installed xdo || exit 1 ; }
 
 [ "${TERMV_FULL_SCREEN}" = true ] && TERMV_MPV_FLAGS="${TERMV_MPV_FLAGS} --fs"
 

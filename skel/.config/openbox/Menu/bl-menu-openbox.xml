@@ -112,31 +112,6 @@
             </action>
         </item>
     </menu>
-    <menu id="preferences-keybinds" label="Keybinds">
-        <item label="Edit .xbindkeysrc">
-            <action name="Execute">
-                <command>
-                    my-text-editor ~/.xbindkeysrc
-                </command>
-            </action>
-        </item>
-        <item label="Restart">
-            <action name="Execute">
-                <command>
-                    bash -c 'pkill -x xbindkeys; xbindkeys_autostart'
-                </command>
-            </action>
-        </item>
-        <separator/>
-        <separator label="Help"/>
-        <item label="man page">
-            <action name="Execute">
-                <command>
-                    popup_terminal --man xbindkeys
-                </command>
-            </action>
-        </item>
-    </menu>
     <menu id="Compositor" execute="ac-compositor-pipemenu" label="Compositor"/>
     <menu id="Conky" execute="conky-pipemenu" label="Conky"/>
     <menu id="panel_settings" execute="ac-panel-settings" label="Taskbar"/>
@@ -305,7 +280,7 @@
         <item label="Exit">
             <action name="Execute">
                 <command>
-                    my_session_manager yad
+                    my_session_manager --yad
                 </command>
             </action>
         </item>

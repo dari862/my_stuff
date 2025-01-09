@@ -4,7 +4,7 @@
 #;#############################
 ##############################
 Terminal (floating)=super + Shift + Return
-Terminal (fullscreen)=super + t
+Terminal (fullscreen)=super + Shift + t
 #;##---------- Rofi Launcher & Menus ----------##
 Rofi Themes Menu=ctrl + alt + t
 Rofi rofi-root=super + r

@@ -2,7 +2,7 @@
 app_name="doas"
 
 if ! cat /etc/group | grep sudo;then
-	my-superuser groupadd sudo
+	my-superuser groupadd sudo >/dev/null 2>&1
 fi
 
 say 'Installing package...' 1
@@ -12,10 +12,11 @@ Package_installer_ ${app_name} || continue
 #temp
 Package_installer_ expect || continue
 # end to temp
+
 my-superuser ln -sf /usr/share/my_stuff/bin/doas/doasedit /usr/share/my_stuff/system_files/bin
 my-superuser cp -rp /usr/share/my_stuff/system_files/doas.conf /etc
 
-my-superuser adduser "$USER" sudo || :
+my-superuser adduser "$USER" sudo >/dev/null 2>&1 || :
 
 if ! my-superuser doas -C /etc/doas.conf;then
 	echo "config error"
@@ -28,15 +29,18 @@ if [ -x /usr/bin/doas ]; then
 fi
 EOF
 
-my-superuser ln -sf $(which doas) /usr/bin/my-superuser
+export SUDO_FORCE_REMOVE=yes
+PASSWORD="$(tr -dc 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' < /dev/urandom | head -c 30 | base64)"
 
 say 'Remove sudo ...' 1
-export SUDO_FORCE_REMOVE=yes
-PASSWORD=$(tr -dc 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' < /dev/urandom | head -c 30 | base64)
-echo "root:${PASSWORD}" | my-superuser chpasswd
-Package_remove_ "sudo"
-my-superuser passwd -l root
-PASSWORD=""
-my-superuser dpkg -i /usr/share/my_stuff/lib/fake_empty_apps/sudo.deb
-my-superuser ln -sf $(which doas) /usr/bin/sudo
-
+my-superuser su root -c "
+	. \"/usr/share/my_stuff/system_files/Package-manager\"
+	echo \"root:${PASSWORD}\" | chpasswd
+	Package_remove_ sudo
+	passwd -l root
+	dpkg -i /usr/share/my_stuff/lib/fake_empty_apps/sudo.deb
+	ln -sf $(which doas) /usr/bin/my-superuser
+	ln -sf $(which doas) /usr/bin/sudo
+"
+unset SUDO_FORCE_REMOVE
+unset PASSWORD

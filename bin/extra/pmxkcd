@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=pmxkcd
 
 pmrm=$(which rm)
 pmkl=$(which kill)
@@ -8,46 +9,31 @@ json_get_var() {
 	from_this=${2-pmxkcd_current}
 	sed 's/,/\n/g;s/"//g' /tmp/$USER/${from_this}.json | grep "${get_this}: " | awk -F': ' '{print $2}'
 }
+
 if command -v curl >/dev/null 2>&1;then
+	dl_tools="curl"
 	get_url_() {
 		path=${1-}
 		url=${2-}
-		curl -sL --user-agent="Mozilla/5.0 Gecko/20100101" --timeout 30 -o "${path}" "${url}"
-	}
-	download_failed_cleanup_() {
-		getw_pid=$(pidof curl)
-		if [ -z "$(echo "$getw_pid" | tr -d '[:space:]')" ]; then
-			yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
-			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
-			if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
-				"$pmrm" -f /tmp/$USER/pmxkcd_random.json
-			fi
-			pmxkcd_menu
-		else
-			"$pmkl" --signal -n 15 "$getw_pid"
-			yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
-			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
-			if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
-				"$pmrm" -f /tmp/$USER/pmxkcd_random.json
-			fi
-			pmxkcd_menu
-		fi
+		curl -sSL -A "Mozilla/5.0 Gecko/20100101" --max-time 30 -o "${path}" "${url}"
 	}
 elif command -v wget >/dev/null 2>&1;then
+	dl_tools="wget"
 	get_url_() {
     	path=${1-}
     	url=${2-}
     	wget --quiet --user-agent="Mozilla/5.0 Gecko/20100101" --timeout=30 --output-document="${path}" "${url}"
 	}
-	
-	download_failed_cleanup_() {
-    	getw_pid=$(pidof wget)
+fi
+
+download_failed_cleanup_() {
+    	getw_pid=$(pidof $dl_tools)
     	if [ -z "$(echo "$getw_pid" | tr -d '[:space:]')" ]; then
-        	yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
-        	"$pmrm" -f /tmp/$USER/pmxkcd_current.json
-        	if [ -f "/tmp/$USER/pmxkcd_random.json" ]; then
-            	"$pmrm" -f /tmp/$USER/pmxkcd_random.json
-        	fi
+			yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+        	if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
+				"$pmrm" -f /tmp/$USER/pmxkcd_random.json
+			fi
         	pmxkcd_menu
     	else
         	"$pmkl" --signal -n 15 "$getw_pid"
@@ -56,10 +42,9 @@ elif command -v wget >/dev/null 2>&1;then
         	if [ -f "/tmp/$USER/pmxkcd_random.json" ]; then
             	"$pmrm" -f /tmp/$USER/pmxkcd_random.json
         	fi
-        	pmxkcd_menu
-    	fi
-	}
-fi
+       	pmxkcd_menu
+    fi
+}
 pmxkcd_random (){
 	get_url_ "/tmp/$USER/pmxkcd_current.json" "http://xkcd.com/info.0.json"
 	RETVAL=$?

@@ -41,4 +41,4 @@ esac
 
 command_2_run="${app_2_run_as_root} ${Extra_Arg}"
 
-apps_as_root "${command_2_run}"
+[ -n "${command_2_run}" ] && apps_as_root "${command_2_run}"

@@ -1,2 +1,1 @@
-#!/bin/sh
-control_center
+../apps/control_center

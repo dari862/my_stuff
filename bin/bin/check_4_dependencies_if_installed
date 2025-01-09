@@ -4,25 +4,9 @@ not_installed_apps_are=""
 . "/usr/share/my_stuff/system_files/Package-manager"
 
 on_terminal(){
-	_on_terminal=true
-	_STDOUT=""
-	_STDERR=""
-	
-   	if [ -t 0 ];then
-   		if [ ! -t 1 ];then
-   			_STDOUT="STDOUT"
-   			_on_terminal=false
-   		fi
-   		if [ ! -t 2 ];then
-   			_STDERR="STDERR"
-   			_on_terminal=false
-   		fi
-       	if [ "$_on_terminal" = false ];then
-       		echo "$0: STDIN is on terminal, but not ${STDOUT} , ${_STDERR}" >&2
-           	return 1
-       	fi
+	if [ ! -t 1 ];then
+   		return 1
    	fi
-   	return 0
 }
 
 has() {
@@ -31,9 +15,9 @@ has() {
 	esac
 }
 
-	# print error message
+# print error message
 _pem() {
-	>&2 printf '\033[31;1merror :\033[m %s\n' "$1"
+	>&2 printf '\033[31;1merror :\033[m %s\n' "$1" && return 1
 }
 
 Do_want_to_install_dependencies()
@@ -42,9 +26,9 @@ Do_want_to_install_dependencies()
 	read -r yn
 	yn="$(echo "$yn" | tr '[:upper:]' '[:lower:]')"
 	case $yn in 
-		y*) Package_installer_ ${not_installed_apps_are};;
-		n*) echo "exiting..." && exit;;
-		* ) _pem "invalid response" ;;
+		y*) Package_installer_ ${not_installed_apps_are} || _pem "Failed to run Package_installer_";;
+		n*) _pem "exiting...";;
+		* ) _pem "invalid response";;
 	esac
 }
 	
@@ -55,13 +39,13 @@ done
 if [ -n "${dependencies_not_installed}" ];then
 	if on_terminal;then
 			_pem "Missing dependencies, please install: ${dependencies_not_installed%??}."
-			Do_want_to_install_dependencies
+			Do_want_to_install_dependencies || return 1
 	else
 		yad --image="dialog-question" \
 			--title "Alert" \
 			--text-align=center \
 			--text="Missing dependencies, please install" \
 			--entry --entry-label=Label \
-			--entry-text="${not_installed_apps_are}"
+			--entry-text="${not_installed_apps_are}" && return 1
 	fi
 fi

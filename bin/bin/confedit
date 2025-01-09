@@ -7,18 +7,23 @@ set -eu
 picked_cfg="${1-}"
 database="${script_config_path}/confedit-list"
 
-[ ! -f "$database" ] && touch $database
+[ ! -f "$database" ] && cp -r "/usr/share/my_stuff/skel/.config/scriptconfig/confedit-list" "$database"
 
 if [ -z "$picked_cfg" ];then
-	cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' "$database" | column -s '##' -t | $rofi_command -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
-else
-	cfg=$(grep "$picked_cfg" $database | grep -oP "\|.*" | sed 's/| //')
+	picked_cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' "$database" | column -s '##' -t | $rofi_command -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
+	picked_cfg_expanded=$(eval echo "$picked_cfg")
 fi
 
-if [ -n "$cfg" ];then
-	if [ -z "$picked_cfg" ];then
-		popup_terminal --editor "$cfg"
+on_terminal(){
+	if [ ! -t 1 ];then
+   		return 1
+   	fi
+}
+
+if [ -n "$picked_cfg_expanded" ];then
+	if on_terminal;then
+		$CLI_EDITER "$picked_cfg_expanded"
 	else
-		$CLI_EDITER "$cfg"
+		popup_terminal --editor "$picked_cfg_expanded"
 	fi
 fi

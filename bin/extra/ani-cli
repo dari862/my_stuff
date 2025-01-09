@@ -4,7 +4,7 @@
 . "/usr/share/my_stuff/lib/common/rofi"
 
 version_number="4.9.0"
-check_4_dependencies_if_installed sed grep
+check_4_dependencies_if_installed sed grep || exit 1
 # UI
 
 external_menu() {
@@ -99,7 +99,7 @@ where_iina() {
     [ -n "$ANI_CLI_PLAYER" ] && printf "%s" "$ANI_CLI_PLAYER" && return 0
     command -v iina >/dev/null && printf "iina" && return 0
     [ -e "/Applications/IINA.app/Contents/MacOS/iina-cli" ] && echo "/Applications/IINA.app/Contents/MacOS/iina-cli" && return 0
-    check_4_dependencies_if_installed iina # exit with formating
+    check_4_dependencies_if_installed iina || exit 1 # exit with formating
 }
 
 # SCRAPING
@@ -481,20 +481,20 @@ if [ "$skip_intro" = 1 ];then
 fi
 
 if [ -z "$ANI_CLI_NON_INTERACTIVE" ]; then 
-	check_4_dependencies_if_installed fzf
+	check_4_dependencies_if_installed fzf || exit 1
 fi
 
 case "$player_function" in
     debug) ;;
-    download) check_4_dependencies_if_installed ffmpeg aria2c ;;
+    download) check_4_dependencies_if_installed ffmpeg aria2c || exit 1 ;;
     flatpak*)
-        check_4_dependencies_if_installed flatpak
+        check_4_dependencies_if_installed flatpak || exit 1
         flatpak info io.mpv.Mpv >/dev/null 2>&1 || die "Program \"mpv (flatpak)\" not found. Please install it."
         ;;
     android*) printf "\33[2K\rChecking of players on Android is disabled\n" ;;
     *iSH*) printf "\33[2K\rChecking of players on iOS is disabled\n" ;;
     *iina*) true ;; # handled out of band in where_iina
-    *) check_4_dependencies_if_installed $player_function ;;
+    *) check_4_dependencies_if_installed $player_function || exit 1 ;;
 esac
 
 # searching

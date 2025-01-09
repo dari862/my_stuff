@@ -47,5 +47,5 @@ if command -v doas >/dev/null 2>&1;then
 	}
 	EOF
 else
-	echo "$(_askpass)" | my-superuser -S true >/dev/null 2>&1 && my-superuser ${command_2_run}
+	echo "$password" | my-superuser -S true >/dev/null 2>&1 && my-superuser ${command_2_run}
 fi

@@ -44,7 +44,7 @@ HELPFILE="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
-check_4_dependencies_if_installed yad
+check_4_dependencies_if_installed yad || exit 1
 
 loadChooser(){
     if type style-manager >/dev/null 2>&1;then

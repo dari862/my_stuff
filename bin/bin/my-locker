@@ -1,7 +1,12 @@
 #!/bin/sh
 __arg_="${1-}"
 __image_full_path_="${2-}"
+
 . "/usr/share/my_stuff/lib/common/WM"
+
+if pgrep -x "i3lock" > /dev/null 2>&1;then
+	exit
+fi
 
 my_locker_folder="$HOME/.config/${scriptconfig_name}/my_locker"
 [ ! -d "$my_locker_folder" ] && mkdir -p "$my_locker_folder"

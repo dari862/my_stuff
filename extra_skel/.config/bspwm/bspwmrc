@@ -6,32 +6,31 @@
 /usr/share/my_stuff/bin/WM/pre_launch_wm
 
 #### START SETTINGS  #################################################################################
-## Environtment
+## Themeing --------------------------------------------------#
+BSPWM_FBC=''
+BSPWM_NBC=''
+BSPWM_ABC=''
+BSPWM_PFC=''
 
-## Java Applications
-# wmname LG3D
-# export _JAVA_AWT_WM_NONREPARENTING=1
-
-## Get colors from .Xresources -------------------------------#
-xrdb ~/.Xresources
 getcolors() {
-	FOREGROUND=$(xrdb -query | grep 'foreground:'| awk '{print $NF}')
-	BACKGROUND=$(xrdb -query | grep 'background:'| awk '{print $NF}')
-	BLACK=$(xrdb -query | grep 'color0:'| awk '{print $NF}')
-	RED=$(xrdb -query | grep 'color1:'| awk '{print $NF}')
-	GREEN=$(xrdb -query | grep 'color2:'| awk '{print $NF}')
-	YELLOW=$(xrdb -query | grep 'color3:'| awk '{print $NF}')
-	BLUE=$(xrdb -query | grep 'color4:'| awk '{print $NF}')
-	MAGENTA=$(xrdb -query | grep 'color5:'| awk '{print $NF}')
-	CYAN=$(xrdb -query | grep 'color6:'| awk '{print $NF}')
-	WHITE=$(xrdb -query | grep 'color7:'| awk '{print $NF}')
+	BSPWM_FBC='#81A1C1'
+	BSPWM_NBC='#2E3440'
+	BSPWM_ABC='#B48EAD'
+	BSPWM_PFC='#A3BE8C'
 }
 getcolors
+
+## Bspwm appearance
+BSPWM_BORDER='1'
+BSPWM_GAP='10'
+BSPWM_SRATIO='0.50'
+
 
 ## Configurations --------------------------------------------#
 workspaces() {
 	name=1
 	for monitor in $(bspc query -M); do
+		#bspc monitor ${monitor} -n "$name" -d '' '' '' '' '' '' '' ''
 		#bspc monitor ${monitor} -n "$name" -d 'I' 'II' 'III' 'IV' 'V'
 		#bspc monitor ${monitor} -n "$name" -d '' '' '' '' ''
 		bspc monitor ${monitor} -n "$name" -d '1' '2' '3' '4' '5'
@@ -40,27 +39,26 @@ workspaces() {
 }
 workspaces
 
-bspc config border_width        0
-bspc config top_padding         50
-bspc config right_padding       9
-bspc config left_padding        9
-bspc config bottom_padding      9
-bspc config window_gap          2
-bspc config top_monocle_padding  0
-bspc config right_monocle_padding 0
-bspc config left_monocle_padding 0
-bspc config bottom_monocle_padding 0
+## Apply bspwm configurations --------------------------------#
+bspc config border_width       		"$BSPWM_BORDER"
+bspc config top_padding       	  	50
+bspc config right_padding     	  	9
+bspc config left_padding      	  	9
+bspc config bottom_padding     	 	9
+bspc config window_gap          	"$BSPWM_GAP"
+bspc config split_ratio 			"$BSPWM_SRATIO"
+bspc config top_monocle_padding  	0
+bspc config right_monocle_padding 	0
+bspc config left_monocle_padding 	0
+bspc config bottom_monocle_padding 	0
 
-bspc config focused_border_color "$BLUE" 
-bspc config normal_border_color "$BACKGROUND"
-bspc config active_border_color "$MAGENTA"
-bspc config presel_feedback_color "$GREEN"
+bspc config focused_border_color "$BSPWM_FBC"
+bspc config normal_border_color "$BSPWM_NBC"
+bspc config active_border_color "$BSPWM_ABC"
+bspc config presel_feedback_color "$BSPWM_PFC"
 
-#bspc config borderless_monocle true
-bspc config gapless_monocle false
-bspc config paddingless_monocle true
-bspc config single_monocle false
-bspc config focus_follows_pointer true
+## Manage all the unmanaged windows remaining from a previous session.
+bspc wm --adopt-orphans
 
 # Alias for: Super key (win) = Control_Left+Tab
 xcape -e "Super_L=Control_L|Tab" 									
@@ -78,9 +76,6 @@ setxkbmap -layout us
 
 # remove all rules first
 bspc rule -r *:*
-
-# external_rules
-bspc config external_rules_command "$HOME/.config/bspwm/external_rules.sh"
 
 # 1 > terminal
 terminal="my-terminal-emulator kitty Alacritty Xfce4-terminal Pcmanfm Thunar"
@@ -115,7 +110,7 @@ for i in ${settings}; do
    bspc rule -a $i desktop='^5' state=floating follow=on focus=on; done
 
 # special rules
-floating="alacritty-float Pcmanfm Thunar Onboard Yad 'Firefox:Places'
+floating="alacritty-float Pcmanfm Thunar Onboard Yad yad 'Firefox:Places'
 Viewnior feh Nm-connection-editor"
 for i in ${floating}; do
    bspc rule -a $i state=floating follow=on focus=on; done

@@ -111,7 +111,7 @@ tty_menu(){
 	option="$(echo "${option}" | tr '[:upper:]' '[:lower:]' )"
     case $option in
     	"logout"|1)		opt_="logout";;
-    	"suspend"|2)	opt_="suspent";;
+    	"suspend"|2)	opt_="suspend";;
     	"hibernate"|3)	opt_="hibernate";;
     	"hybrid"*|4)	opt_="hybrid-sleep";;
     	"reboot"|5)		opt_="reboot";;
@@ -175,7 +175,7 @@ rofi_menu(){
         	opt_="lock"
         	;;
     	"$suspend")
-			opt_="suspent"
+			opt_="suspend"
         	;;
     	"$logout")
 			opt_="logout"
@@ -195,7 +195,7 @@ yad_menu(){
      case $? in
     	10) opt_="logout";;
      	20) opt_="lock";;
-      	30) opt_="suspent";;
+      	30) opt_="suspend";;
       	40) opt_="reboot";;
       	50) opt_="shutdown";;
       	*) exit 0;;
@@ -255,9 +255,9 @@ fi
 
 case "$opt_" in
 	logout) _logout;;
-	suspent) _suspend;;
+	suspend) _suspend;;
 	reboot) extra_stuff reboot;;
-	shutdown) extra_stuff poweroff;;
+	poweroff) extra_stuff poweroff;;
 	lock) _lock;;
 	hibernate) extra_stuff hibernate;;
 	hybrid-Sleep) extra_stuff hybrid-sleep;;

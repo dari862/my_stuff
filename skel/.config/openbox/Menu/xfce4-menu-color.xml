@@ -311,7 +311,7 @@
 
         <item label="Exit" icon="&icons;/sys-poweroff.png">
             <action name="Execute">
-                <command>my_session_manager rofi</command>
+                <command>my_session_manager --rofi</command>
             </action>
         </item>
     </menu>

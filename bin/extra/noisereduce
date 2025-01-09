@@ -6,7 +6,7 @@ usage ()
     exit
 }
 
-check_4_dependencies_if_installed ffmpeg sox
+check_4_dependencies_if_installed ffmpeg sox || exit 1
 
 if [ "$#" -ne 2 ]
 then

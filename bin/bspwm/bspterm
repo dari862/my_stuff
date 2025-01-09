@@ -1,11 +1,12 @@
 #!/bin/sh
 
 if [ "$1" = "-f" ]; then
-	my-terminal-emulator
+	bspalacritty --float
 elif [ "$1" = "-s" ]; then
-	my-terminal-emulator
+	bspalacritty --full
 elif [ "$1" = "-e" ]; then
-	popup_terminal "$2"
+	shift
+	bspalacritty -e "$@"
 else
-	my-terminal-emulator
+	bspalacritty "$@"
 fi

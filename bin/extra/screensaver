@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # if this line exist script will be part of hub script.
 
-set -euo pipefail
+#set -euo pipefail
 
 opt_="${1-}"
 
@@ -253,10 +253,24 @@ help(){
 	echo "no arg for will default to pipes screensaver"
 }
 
-case $opt_ in
-	--pipes|-p)	export -f pipes_screensaver_ && popup_terminal --full "sleep 0.5; pipes_screensaver_" ;;
-	--rain|-r) export -f Let_it_Rain_screensaver_ && popup_terminal --full "sleep 0.5; Let_it_Rain_screensaver_" ;;
-	-h|--help) help ;;
-	*) export -f pipes_screensaver_ && popup_terminal --full "sleep 0.5; pipes_screensaver_" ;;
-esac
+on_terminal(){
+	if [ ! -t 1 ];then
+   		return 1
+   	fi
+}
 
+if on_terminal;then
+	case $opt_ in
+		--pipes|-p) pipes_screensaver_ ;;
+		--rain|-r) Let_it_Rain_screensaver_ ;;
+		-h|--help) help ;;
+		*) pipes_screensaver_ ;;
+	esac
+else	
+	case $opt_ in
+		--pipes|-p) popup_terminal --full "sleep 0.5; $0 -p" ;;
+		--rain|-r) popup_terminal --full "sleep 0.5; $0 -r" ;;
+		-h|--help) help ;;
+		*) popup_terminal --full "sleep 0.5; $0" ;;
+	esac
+fi
