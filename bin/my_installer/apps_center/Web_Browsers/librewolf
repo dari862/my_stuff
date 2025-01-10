@@ -3,7 +3,7 @@ app_name="librewolf"
 extra_apps_="apt-transport-https ca-certificates"
 
 say 'Installing dependancy packages...' 1
-Package_installer_ "${extra_apps_}" || continue
+Package_installer_ ${extra_apps_} || continue
 
 clear
 

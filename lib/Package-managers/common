@@ -167,8 +167,9 @@ __dpkg_configure() {
 
 
 my_installer_ln_script() {
+	script_name="${1}"
 	my-superuser mkdir -p ${distro_path}/updater
 	my-superuser mkdir -p ${distro_path}/downloaded
-	my-superuser ln -sf "/usr/share/my_stuff/bin/script_to_ln/${2}" "/usr/share/my_stuff/system_files/updater"
-	"/usr/share/my_stuff/system_files/updater/${2}" 
+	my-superuser ln -sf "/usr/share/my_stuff/bin/script_to_ln/${script_name}" "/usr/share/my_stuff/system_files/updater"
+	"/usr/share/my_stuff/system_files/updater/${script_name}" 
 }

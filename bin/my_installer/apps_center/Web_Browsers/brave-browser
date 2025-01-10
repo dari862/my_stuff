@@ -5,7 +5,7 @@ extra_apps_="apt-transport-https"
 
 say 'Installing extra package...' 1
 
-Package_installer_ "${extra_apps_}" || continue
+Package_installer_ ${extra_apps_} || continue
 
 say 'add brave-browser sources...' 1
 download_key "download" "https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg" "/usr/share/keyrings/brave-browser-archive-keyring.gpg"

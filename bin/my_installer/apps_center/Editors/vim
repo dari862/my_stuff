@@ -15,7 +15,7 @@ say "Installing vim plugins for all users in /etc/vim/ ..."
 
 if [ -n "${extra_apps_}" ];then
 	say 'Installing extra packages...' 1
-	Package_installer_ "${extra_apps_}" || continue
+	Package_installer_ ${extra_apps_} || continue
 	clear
 fi
 

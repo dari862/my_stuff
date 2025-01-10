@@ -32,7 +32,7 @@ Package_installer_ ${app_name} || continue
 
 
 say 'Installing ${extra_apps_} ...' 1
-Package_installer_ "${extra_apps_}" || continue
+Package_installer_ ${extra_apps_} || continue
 
 my-superuser usermod -aG docker ${USER} || :
 service_manager enable docker.service || :

@@ -1,18 +1,3 @@
 #!/bin/sh
-case $(uname -m) in
-	x86_64) ARCH="amd64"   ;;
-	i386 | i686) ARCH="i386"   ;;
-	arm64 | aarch64) ARCH="arm64"   ;;
-	arm) ARCH="armv7l" ;;
-	*) echo "Unsupported architecture: $(uname -m)"; exit 1   ;;
-esac
-
-# Check if the system is macOS
-if [ $(uname -s) = "Darwin" ]; then
-	OS="mac"
-else
-	OS="linux"
-fi
-
-say 'Installing tgpt ...' 1
+ssay 'Installing tgpt ...' 1
 my_installer_ln_script "tgpt_updater" || failed_to_run "failed to run tgpt_updater ."

@@ -79,7 +79,7 @@ if [ ! -z "${vim_extra}" ];then
 fi
 
 say 'Installing extra packages...' 1
-Package_installer_ "${extra_apps_}" || continue
+Package_installer_ ${extra_apps_} || continue
 
 my-superuser ln -sf ${distro_path}/appearance_applications/Neovim.desktop /usr/share/applications
 
