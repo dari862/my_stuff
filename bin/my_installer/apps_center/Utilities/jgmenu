@@ -19,8 +19,7 @@ for theme in *;do
 	my-superuser cp -r "${theme}/jgmenu_theme" "/usr/share/my_suff/system_files/blob/tint2/${theme}"
 done
 
-for d in /home/*/; do
-	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue
+for d in /home/*; do
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 	my-superuser rm -rdf "$d/.config/blob"
 	my-superuser cp -r "/usr/share/my_stuff/system_files/blob" "$d/.config/blob"

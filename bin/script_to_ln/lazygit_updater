@@ -1,8 +1,8 @@
 #!/bin/sh
 distro_path="/usr/share/my_stuff/system_files"
 PATH="${distro_path}/bin:$PATH"
-lazygit_tmp="$(mktemp -d /tmp/lazygit-XXXXXX)"
-cd ${lazygit_tmp}
+
+cd "/tmp/$USER"
 lazygit_version=$(getURL '2term' "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
 getURL 'download2' "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${lazygit_version}_Linux_x86_64.tar.gz" "lazygit.tar.gz"
 tar -xf lazygit.tar.gz lazygit

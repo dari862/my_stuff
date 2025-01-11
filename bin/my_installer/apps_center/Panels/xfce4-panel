@@ -13,17 +13,16 @@ if [ -n "${extra_apps_}" ];then
 	Package_installer_ ${extra_apps_} || continue
 	clear
 fi
-copy_from_extra_skel ".config/xfce4"
+copy_from_extra_skel ".config/xfce4" || continue
 say "log out then log in for changes to be applyed."
 
-cd "/usr/share/my_suff/extra_blob/"
-cd polybar
+say 'Copy Files from  extra_blob...' 1
+cd "/usr/share/my_suff/extra_blob/polybar" || continue
 for theme in *;do
-	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_suff/system_files/blob/polybar/${theme}/config" 
+	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_suff/system_files/blob/polybar/${theme}/config"  || continue
 done
-cd ..
 
-cd tint2
+cd "/usr/share/my_suff/extra_blob/tint2" || continue
 for theme in *;do
-	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_suff/system_files/blob/tint2/${theme}/config" 
+	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_suff/system_files/blob/tint2/${theme}/config"  || continue
 done

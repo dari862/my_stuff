@@ -3,5 +3,5 @@
 say 'Installing zoom ...' 1
 cd /tmp/$USER
 getURL 'download2' "https://zoom.us/client/latest/zoom_amd64.deb" "zoom_amd64.deb"
-my-superuser apt-get install -y ./zoom_amd64.deb || continue
+install_deb ./zoom_amd64.deb || continue
 rm zoom_amd64.deb

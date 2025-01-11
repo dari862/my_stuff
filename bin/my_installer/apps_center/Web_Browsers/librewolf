@@ -1,26 +1,11 @@
 #!/bin/sh
 app_name="librewolf"
-extra_apps_="apt-transport-https ca-certificates"
 
-say 'Installing dependancy packages...' 1
-Package_installer_ ${extra_apps_} || continue
-
-clear
-
-say "add ${app_name} repo to sources..." 1
-download_key "gpg" "https://deb.librewolf.net/keyring.gpg" "/usr/share/keyrings/librewolf.gpg"
-. /etc/os-release 
-my-superuser tee /etc/apt/sources.list.d/librewolf.sources << EOF > /dev/null
-Types: deb
-URIs: https://deb.librewolf.net
-Suites: $VERSION_CODENAME
-Components: main
-Architectures: amd64
-Signed-By: /usr/share/keyrings/librewolf.gpg
-EOF
+say 'Adding ${app_name} repo using extrepo...' 1
+download_key "extrepo" "librewolf" || continue
 
 say 'Updating sources...' 1
-Package_update_
+Package_update_ || continue
 
 say "Installing ${app_name} ..." 1
 

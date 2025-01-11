@@ -1,6 +1,6 @@
 #!/bin/sh
 
-app_name="xbindkey"
+app_name="xbindkeys"
 
 say 'Installing package...' 1
 

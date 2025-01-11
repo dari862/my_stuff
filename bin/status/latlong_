@@ -7,4 +7,5 @@ if [ ! -f "${latlong_stored_file}" ];then
 	# Geolocate IP:
 	getURL '2term' ipinfo.io | jq -r '.loc' > "${latlong_stored_file}"
 fi
+
 cat "${latlong_stored_file}"

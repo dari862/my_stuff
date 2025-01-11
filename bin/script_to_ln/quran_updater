@@ -4,7 +4,7 @@ PATH="${distro_path}/bin:$PATH"
 app_name="quran"
 online_ver="$(getURL '2term' 'https://api.github.com/repos/0xzer0x/quran-companion/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
 online_ver_in_app="echo $online_ver | sed 's/v//g'"
-getURL 'download2' "https://github.com/0xzer0x/quran-companion/releases/download/$online_ver/Quran_Companion-${online_ver_in_app}-x86_64.AppImage" "/tmp/quran_companion.AppImage"
+getURL 'download2' "https://github.com/0xzer0x/quran-companion/releases/download/$online_ver/Quran_Companion-${online_ver_in_app}-x86_64.AppImage" "/tmp/$USER/quran_companion.AppImage"
 mkdir -p Quran
 mv Quran_Companion-${online_ver_in_app}-x86_64.AppImage Quran/Quran_Companion.AppImage
 chmod +x Quran/Quran_Companion.AppImage

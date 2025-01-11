@@ -53,7 +53,7 @@ jgmenu_options(){
 	for dir in ${LIST_OF_APPS_SCRIPTS_};do
 		apps_dir_name=$(echo "$dir" | sed 's/_/ /')
 		apps_in_dir="$(cat "$dir" 2>/dev/null)"
-		generate_installmenu_jgmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
+		[ -n "$apps_in_dir" ] && generate_installmenu_jgmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
 	done
 	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		jgmenuItem "GPU Driver (GamingMenu after install)" "${installation_script_name} --install GPU_Driver_"
@@ -63,7 +63,7 @@ jgmenu_options(){
 		for gd in ${LIST_OF_GAMES_SCRIPTS_};do
 			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
 			Gaming_in_dir="$(cat "$gd" 2>/dev/null)"
-			generate_installmenu_jgmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
+			[ -n "$apps_in_dir" ] && generate_installmenu_jgmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
 		done
 	fi
 	
@@ -96,7 +96,7 @@ obmenu_options(){
 	for dir in ${LIST_OF_APPS_SCRIPTS_};do
 		apps_dir_name=$(echo "$dir" | sed 's/_/ /')
 		apps_in_dir="$(cat "$dir" 2>/dev/null)"
-		generate_installmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
+		[ -n "$apps_in_dir" ] && generate_installmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
 	done
 	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
@@ -110,7 +110,7 @@ obmenu_options(){
 		for gd in ${LIST_OF_GAMES_SCRIPTS_};do
 			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
 			Gaming_in_dir="$(cat "$gd" 2>/dev/null)"
-			generate_installmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
+			[ -n "$apps_in_dir" ] && generate_installmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
 		done
 		menuSubmenuEnd
 	fi

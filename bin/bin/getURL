@@ -13,9 +13,9 @@ if command -v curl >/dev/null;then
 	elif [ "${mode}" = "2term" ];then
 		curl -fsSL "${url}"
 	elif [ "${mode}" = "download2" ];then
-		curl -fsSLo "$path" "${url}" --progress-bar
+		curl -fSLo "$path" "${url}" --progress-bar
 	elif [ "${mode}" = "download" ];then
-		curl -fsSLO "${url}" --progress-bar
+		curl -fSLO "${url}" --progress-bar
 	fi
 elif command -v wget >/dev/null;then
 	if [ "${mode}" = "head" ]; then
@@ -25,6 +25,7 @@ elif command -v wget >/dev/null;then
 	elif [ "${mode}" = "download2" ]; then
     	wget -q --show-progress -O "$path" "${url}"
 	elif [ "${mode}" = "download" ]; then
-    	wget --show-progress -O "${url##*/}" "${url}"
+		file_name="${url##*/}"
+    	wget --show-progress -O "${file_name}" "${url}"
 	fi
 fi

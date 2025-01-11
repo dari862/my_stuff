@@ -152,12 +152,24 @@ if command -v git >/dev/null 2>&1; then
         echo "git clone ${getthis}"
         git clone --depth=1 "${getthis}" "${getto}"
     }
+    super_clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        echo "git clone ${getthis}"
+        my-superuser git clone --depth=1 "${getthis}" "${getto}"
+    }
 elif command -v svn >/dev/null 2>&1; then
     clone_repo() {
         getthis="${1:-}"
         getto="${2:-}"
         echo "svn clone ${getthis}"
         svn clone --depth=1 "${getthis}" "${getto}"
+    }
+    super_clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        echo "svn clone ${getthis}"
+        my-superuser svn clone --depth=1 "${getthis}" "${getto}"
     }
 fi
 
@@ -168,8 +180,8 @@ __dpkg_configure() {
 
 my_installer_ln_script() {
 	script_name="${1}"
-	my-superuser mkdir -p ${distro_path}/updater
-	my-superuser mkdir -p ${distro_path}/downloaded
+	my-superuser mkdir -p /usr/share/my_stuff/system_files/updater
+	my-superuser mkdir -p /usr/share/my_stuff/system_files/downloaded
 	my-superuser ln -sf "/usr/share/my_stuff/bin/script_to_ln/${script_name}" "/usr/share/my_stuff/system_files/updater"
 	"/usr/share/my_stuff/system_files/updater/${script_name}" 
 }

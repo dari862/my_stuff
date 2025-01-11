@@ -3,21 +3,21 @@
 Disto_path="/usr/share/my_stuff"
 CONF_FILE_Path="${Disto_path}/lib/apps/nomacs"
 CONF_FILE_NAME="Image Lounge.conf"
-
 app_name="nomacs"
 	
-	say 'Installing package...' 1
+say 'Installing package...' 1
 
-	Package_installer_ ${app_name} || continue
-	
+Package_installer_ ${app_name} || continue
 
-	# Copy users config
-	say "Setting configs to all users..."
-	for d in /home/*/; do
-		# Create config folders if no exists
-		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-		d="$d/.config/"; [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"
-		d="$d/nomacs/"; [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"
-		my-superuser cp -v "${CONF_FILE_Path}/${CONF_FILE}" "$d/" && my-superuser chown -R $user_and_group "$d/${CONF_FILE}"
-	done
-	my-superuser cp -r "${RC_FILE_Path}/${CONF_FILE_NAME}" "${Disto_path}/system_files/skel/.${CONF_FILE_NAME}"
+say "Setting skel dir ..."
+my-superuser cp -r "${CONF_FILE_Path}/${CONF_FILE_NAME}" "${Disto_path}/system_files/skel/.config/nomacs/${CONF_FILE_NAME}"
+
+# Copy users config
+say "Setting configs to all users..."
+for d in /home/*; do
+	user_and_group=$(stat "$(dirname "$d")" -c %u:%g)
+	nomacs_d="$d/.config/nomacs/"
+	[ ! -d "$nomacs_d" ] && my-superuser mkdir -v "$nomacs_d"
+	my-superuser cp -v "${CONF_FILE_Path}/${CONF_FILE_NAME}" "$nomacs_d"
+	my-superuser chown -R $user_and_group "$d"
+done

@@ -10,23 +10,6 @@ fi
 
 __addgroup="$(my-superuser which addgroup)"
 __adduser="$(my-superuser which adduser)"
-__passwd="$(my-superuser which passwd)"
-__reboot="$(my-superuser which reboot)"
-
-# test if in virtual machine
-if [ "$(cat /sys/devices/virtual/dmi/id/chassis_type)" = "1" ];then # 1 eq vm
-	if dpkg -l xfce4 | grep -w "xfce4 " >/dev/null 2>&1 ;then
-		kicksecure_package=kicksecure-xfce-vm
-	else
-		kicksecure_package=kicksecure-cli-vm
-	fi
-else
-	if dpkg -l xfce4 | grep -w "xfce4 " >/dev/null 2>&1 ;then
-		kicksecure_package=kicksecure-xfce-host
-	else
-		kicksecure_package=kicksecure-cli-host
-	fi
-fi
 
 say 'Full upgrade your system...' 1
 full_upgrade_ || continue
@@ -37,47 +20,14 @@ Package_installer_ ${extra_apps_} || continue
 my-superuser $__addgroup --system console
 my-superuser $__adduser $USER console
 
-mkdir -p $HOME/.config/autostart
-
-tee $HOME/.config/autostart/kicksecure.desktop <<- EOF > /dev/null
-[Desktop Entry]
-Type=Application
-Exec=x-terminal-emulator -e $HOME/.config/autostart/kicksecure
-Hidden=false
-NoDisplay=false
-X-GNOME-Autostart-enabled=true
-Name[en_US]=kicksecure
-Name=kicksecures
-EOF
-
-tee $HOME/.config/autostart/kicksecure <<- EOF > /dev/null
-#!/bin/sh
-set -e
-
-my-superuser extrepo enable kicksecure
-my-superuser apt-get update
-my-superuser apt-get -y full-upgrade
-my-superuser apt-get install -y --no-install-recommends ${kicksecure_package}
-my-superuser repository-dist --enable --repository stable
-my-superuser extrepo disable kicksecure
-my-superuser rm /etc/apt/sources.list
-my-superuser touch /etc/apt/sources.list
-clear
-echo 'pick new password for user...'
-my-superuser $__passwd user
-clear
-rm $HOME/.config/autostart/kicksecure
-rm $HOME/.config/autostart/kicksecure.desktop
-echo ''
-echo 'installion complated...'
-echo 'Hit any key to reboot...'
-stty -icanon -echo time 0 min 1
-head -c1 >/dev/null
-stty icanon echo
-my-superuser $__reboot
-EOF
-chmod +x $HOME/.config/autostart/kicksecure
+mkdir -p $HOME/.config/autostartscripts
+ln -sf /usr/share/my_stuff/bin/kicksecure_phase2/launcher $HOME/.config/autostartscripts
+touch /tmp/$USER/not_rebooted
 
 say "Prerequisites for  kicksecure installed successfully."
 say "you need to reboot to contionue kicksecure installion."
-say "it will contion after login in you new user: user ."
+say "you need to reboot to contionue kicksecure installion."
+say "you need to reboot to contionue kicksecure installion."
+say "you need to reboot to contionue kicksecure installion."
+say "you need to reboot to contionue kicksecure installion."
+say "it will contion after login in you new user: $USER ."

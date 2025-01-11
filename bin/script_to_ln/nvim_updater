@@ -12,8 +12,8 @@ fi
 
 [ -d "${distro_path}/downloaded/Neovim" ] && my-superuser rm -rdf "${distro_path}/downloaded/Neovim"
 
-neovim_tmp="$(mktemp -d /tmp/neovim-XXXXXX)"
-cd ${neovim_tmp}
+cd "/tmp/$USER"
+
 getURL 'download' https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
 chmod +x nvim.appimage
 if ./nvim.appimage -v >/dev/null 2>$1;then

@@ -86,7 +86,7 @@ mk_exe_node() {
     echo "<command>setbg -r</command>"
     echo "</action>"
     echo "<action name=\"execute\">"
-    echo "<command>polybar_launch</command>"
+    echo "<command>panel_launcher --reload</command>"
     echo "</action>"
     echo "</item>"
 }

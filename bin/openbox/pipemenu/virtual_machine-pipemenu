@@ -1,0 +1,15 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+# Pipemenu
+menuStart
+if type -v virt-manager >/dev/null 2>&1; then
+	menuItem 'virtual_machine' 'virt-manager &'
+elif type -v virtualbox >/dev/null 2>&1; then
+	menuItem 'virtual_machine' 'virtualbox &'
+elif type -v vmplayer >/dev/null 2>&1; then
+	menuItem 'virtual_machine' 'vmplayer &'
+else
+	menuItem 'install virtual_machine' 'popup_terminal --install virtual_machine'
+fi
+menuEnd

@@ -19,3 +19,7 @@ Package_list_(){
 Packages_upgrade_(){
 	my-superuser apt-get -y upgrade
 }
+install_deb(){
+	deb_name="${1-}"
+	my-superuser apt-get install -y ${deb_name}
+}

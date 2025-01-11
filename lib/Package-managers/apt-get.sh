@@ -70,6 +70,17 @@ download_key(){
 		getURL '2term' "${url}" | my-superuser tee "${path}" > /dev/null 2>&1
 	elif [ "${mode}" = "key" ];then
 		getURL '2term' "${url}" | my-superuser apt-key --keyring "${path}" add -
+	elif [ "${mode}" = "extrepo" ];then
+		repo_name="${2-}"
+		Package_installer_ extrepo || continue
+		my-superuser extrepo enable ${repo_name} || continue
+		return
+	fi
 	fi
 	my-superuser chmod a+r "${path}"
+}
+
+install_deb(){
+	deb_name="${1-}"
+	my-superuser apt-get install -y ${deb_name}
 }

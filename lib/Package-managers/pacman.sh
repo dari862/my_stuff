@@ -65,3 +65,8 @@ else
 		done
 	}
 fi
+
+install_deb(){
+	deb_name="${1-}"
+	my-superuser apt-get install -y ${deb_name}
+}

@@ -1,8 +1,7 @@
 #!/bin/sh
 distro_path="/usr/share/my_stuff/system_files"
 PATH="${__distro_path}/bin:$PATH"
-lazydocker_tmp="$(mktemp -d /tmp/lazydocker-XXXXXX)"
-cd ${lazydocker_tmp}
+cd "/tmp/$USER"
 lazydocker_version=$(getURL '2term' "https://api.github.com/repos/jesseduffield/lazydocker/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
 getURL 'download2' "https://github.com/jesseduffield/lazydocker/releases/latest/download/lazydocker_${lazydocker_version}_Linux_x86_64.tar.gz" "lazydocker.tar.gz"
 tar -xf lazydocker.tar.gz lazydocker

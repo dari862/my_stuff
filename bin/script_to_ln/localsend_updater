@@ -2,9 +2,8 @@
 . "/usr/share/my_stuff/system_files/Package-manager"
 distro_path="/usr/share/my_stuff/system_files"
 
-localsend_tmp="$(mktemp -d /tmp/localsend-XXXXXX)"
-cd ${localsend_tmp}
-localsend_version=$(getURL '2term' "https://api.github.com/repos/jesseduffield/localsend/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+cd "/tmp/$USER"
+localsend_version=$(getURL '2term' "https://api.github.com/repos/localsend/localsend/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
 getURL 'download2' "https://github.com/localsend/localsend/releases/latest/download/LocalSend-${LOCALSEND_VERSION}-linux-x86-64.deb" "localsend.deb"
 my-superuser apt install -y ./localsend.deb
 rm localsend.tar.gz localsend

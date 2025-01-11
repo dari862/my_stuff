@@ -2,8 +2,6 @@
 app_name="prayer-times"
 
 ###################################################################
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/API"
 prayer_times_conf="/usr/share/my_stuff/system_files/skel/.config/scriptconfig/prayer-times.conf"
 method_=""
 say 'Installing prayer-times...' 1
@@ -11,11 +9,9 @@ my-superuser ln -sf /usr/share/my_stuff/bin/my_installer/prayer-times/prayer-tim
 my-superuser cp -rf /usr/share/my_stuff/bin/my_installer/prayer-times/config/prayer-times/prayer-times.conf  /usr/share/my_stuff/system_files/skel/.config/scriptconfig
 my-superuser cp -rf /usr/share/my_stuff/bin/my_installer/prayer-times/config/autostartscripts/athan-daemon  /usr/share/my_stuff/system_files/skel/.config/autostartscripts
 
-[ ! -f "${latlong_stored_file}" ] && get_scripts --latlong >/dev/null 2>&1
-latlong=$(cat "${latlong_stored_file}")
 location="$(cat /etc/timezone | awk -F/ '{print $2}')"
 reg_location="$(cat /etc/timezone | awk -F/ '{print $1}')"
-# Parse the latitude and longitude
+latlong=$(get_scripts --latlong)
 lat_=${latlong%,*}
 long_=${latlong#*,}
 

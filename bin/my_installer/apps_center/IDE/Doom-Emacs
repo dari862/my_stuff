@@ -14,7 +14,7 @@ clear
 
 [ -d "/usr/share/my_stuff/system_files/skel/.emacs.d" ] && my-superuser rm -rdf /usr/share/my_stuff/system_files/skel/.emacs.d
 
-my-superuser clone_repo --depth 1 https://github.com/hlissner/doom-emacs /usr/share/my_stuff/system_files/skel/.emacs.d
+super_clone_repo --depth 1 https://github.com/hlissner/doom-emacs /usr/share/my_stuff/system_files/skel/.emacs.d
 if ! grep -qr 'export PATH=$PATH:$HOME/.emacs.d/bin'  "/usr/share/my_stuff/system_files/skel/.config/myshell";then
 	echo "export PATH=$PATH:$HOME/.emacs.d/bin" | my-superuser tee -a "/usr/share/my_stuff/system_files/skel/.config/myshell/profile" > /dev/null 2>&1
 	echo "alias emacs=\"emacsclient -c -a 'emacs'\"" | my-superuser tee -a "/usr/share/my_stuff/system_files/skel/.config/myshell/aliases-if-command.sh" > /dev/null 2>&1
@@ -33,8 +33,7 @@ my-superuser ln -sf /usr/share/my_stuff/bin/my_installer/Doom-Emacs/doom-session
 my-superuser cp -r /usr/share/my_stuff/bin/my_installer/Doom-Emacs/emacsclient.desktop /usr/share/my_stuff/system_files/applications
 my-superuser ln -sf /usr/share/my_stuff/system_files/applications/emacsclient.desktop /usr/share/applications
 
-for d in /home/*/; do
-	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
+for d in /home/*; do
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g) 
 	[ -d "$d/.emacs.d" ] && my-superuser rm -rdf "$d/.emacs.d"
 	my-superuser cp -rv /usr/share/my_stuff/system_files/skel/.emacs.d "$d/"
