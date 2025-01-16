@@ -60,6 +60,7 @@
 			<menu id="InstallFavouritePackages" execute="my-install-pipemenu --openboxmenu" label="Install Favourite Packages"/>
 			<menu id="DeployFavouriteContainers" execute="containers-deployer-pipemenu --openboxmenu" label="Deploy Distrobox and Containers"/>
 			<menu id="RunDebianTweeks" execute="my-tweeks-pipemenu --openboxmenu" label="Run Debian Tweeks"/>
+			<menu id="InstallFullEnvironments" execute="full_environment-pipemenu --openboxmenu" label="Install Full Environments"/>
         	<separator label="GRAPHICAL PREFERENCES"/>	
         <menu id="XrandrPipeMenu" execute="ac-randr" label="Display / Monitor"/>
         <menu id="ScalePipeMenu" execute="ac-scale-randr" label="Display / Monitor Scaling"/>

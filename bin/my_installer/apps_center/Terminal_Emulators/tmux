@@ -3,7 +3,7 @@
 app_name="tmux"
 
 Disto_path="/usr/share/my_stuff"
-CONF_FILE_Path="${Disto_path}/lib/apps/nomacs"
+CONF_FILE_Path="${Disto_path}/lib/apps/tmux"
 CONF_FILE_NAME="tmux.conf"
 
 say 'Installing package...' 1

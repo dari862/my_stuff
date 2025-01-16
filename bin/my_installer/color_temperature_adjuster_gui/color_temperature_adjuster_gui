@@ -68,7 +68,7 @@ Period:${Period}
 
 Save_(){
 	kill_commnad(){
-		killall -9 ${_command}
+		kill_process.sh ${_command}
 	}
 	Suspend_command(){
 		sleep ${1}m && ${_command}

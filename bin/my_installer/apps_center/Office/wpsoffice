@@ -4,11 +4,11 @@ t=$(mktemp -d)
 
 say "Downloading packages..."
 
-if getURL '2term' "$url" | my-superuser tee "$t/wps-office" >/dev/null 2>&1;then
-	yes | my-superuser dpkg -i "$t/wps-office"
-	say "Installing packages..."
-	my-superuser Package_installer_ -f
-fi 
+getURL '2term' "$url" | my-superuser tee "$t/wps-office"
+yes | my-superuser dpkg -i "$t/wps-office"
+say "Installing packages..."
+Package_installer_ -f
+
 my-superuser rm -rdf "$t"
 
 # Remove strange WPS dirs ?¿

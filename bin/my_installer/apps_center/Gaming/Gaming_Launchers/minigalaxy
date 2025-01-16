@@ -23,5 +23,6 @@ else
 		| grep '.deb' \
 		| cut -f2,3 -d':' \
 		| tr -d '"')"
-	getURL 'download' "$download_url" && my-superuser apt-get install -y ./minigalaxy_*.deb
+	getURL 'download' "$download_url"
+	install_deb ./minigalaxy_*.deb
 fi

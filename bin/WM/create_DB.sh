@@ -132,6 +132,26 @@ create_chroots_deploy_db() {
   fi
 }
 
+# Create the FULL ENVIRONMENT database
+create_full_environment_db() {
+  # Check if _FULL_ENVIRONMENT_LIBDIR is not valid or empty
+  if [ -z "$(ls -A "${_FULL_ENVIRONMENT_LIBDIR}")" ]; then
+    rm -rdf "${_FULL_ENVIRONMENT_LIBDIR}"
+  fi
+  
+  if [ ! -d "${_FULL_ENVIRONMENT_LIBDIR}" ]; then
+    mkdir -p "${_FULL_ENVIRONMENT_LIBDIR}"
+  fi
+  
+  # Loop over files in _FULL_ENVIRONMENT_LIBDIR
+  for FE in "${_FULL_ENVIRONMENT_LIBDIR}"/*; do
+    # Skip if it's not a file (can be a subdirectory or something else)
+    if [ -f "$FE" ]; then
+      echo "$(basename "$FE")" >> "${full_environment_db_path}"
+    fi
+  done
+}
+
 # Create styles database
 create_styles_db() {
 	. "/usr/share/my_stuff/lib/common/panel"
@@ -151,6 +171,7 @@ create_all_db_except_style_db() {
   mkdir -p "${db_dir}"
 
   [ ! -f "${tweeks_db_path}" ] && create_tweeks_db
+  [ ! -f "${full_environment_db_path}" ] && create_full_environment_db
   [ ! -f "${apps_db_path}" ] && create_apps_db_and_gaming_db
   [ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
   [ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
@@ -160,6 +181,7 @@ create_all_db_except_style_db() {
 # Case statement to trigger the appropriate function
 case "$opt" in
   --tweeks) create_tweeks_db ;;
+  --fullenv) create_full_environment_db ;;
   --apps) create_apps_db_and_gaming_db ;;
   --deploy) create_distrobox_deploy_db ;;
   --containers) create_containers_deploy_db ;;

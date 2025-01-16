@@ -7,6 +7,7 @@ TOR_CHROOT_NAME="chroot-${_TOR_NAME}"
 TOR_CHROOT_DIR="${ROOT_CHROOT_DIR}/${TOR_CHROOT_NAME}"
 CHROOT_DIR="${TOR_CHROOT_DIR}"
 
+trap cleanup EXIT
 base_chroot_creater
 
 say "preparing $TOR_CHROOT_NAME ..."

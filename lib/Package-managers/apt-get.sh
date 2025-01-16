@@ -65,22 +65,22 @@ download_key(){
 	url="${2-}"
 	path="${3-}"
 	if [ "${mode}" = "gpg" ];then
-		getURL '2term' "${url}" | my-superuser gpg --dearmor --yes -o "${path}"
+		getURL '2term' "${url}" | my-superuser gpg --dearmor --yes -o "${path}" || continue
 	elif [ "${mode}" = "download" ];then
-		getURL '2term' "${url}" | my-superuser tee "${path}" > /dev/null 2>&1
+		getURL '2term' "${url}" | my-superuser tee "${path}" > /dev/null 2>&1 || continue
 	elif [ "${mode}" = "key" ];then
-		getURL '2term' "${url}" | my-superuser apt-key --keyring "${path}" add -
+		getURL '2term' "${url}" | my-superuser apt-key --keyring "${path}" add - || continue
 	elif [ "${mode}" = "extrepo" ];then
 		repo_name="${2-}"
 		Package_installer_ extrepo || continue
 		my-superuser extrepo enable ${repo_name} || continue
 		return
 	fi
-	fi
-	my-superuser chmod a+r "${path}"
+	my-superuser chmod a+r "${path}" || continue
 }
 
 install_deb(){
 	deb_name="${1-}"
-	my-superuser apt-get install -y ${deb_name}
+	my-superuser dpkg -i ${deb_name} || my-superuser apt install -y ${deb_name} || continue
+	my-superuser apt-get install -y -f || continue
 }

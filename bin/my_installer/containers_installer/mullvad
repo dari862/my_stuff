@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-cd "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/Disposable_Browser/"
+cd "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/mullvad/"
 
 __format=""
 
@@ -8,7 +8,7 @@ if [ "$(basename $(realpath $(which CONTAINER_RT)))" = "podman" ];then
 	__format='--format docker'
 fi
 
-CONTAINER_RT build -t disposable_browser . ${__format} --no-cache
+CONTAINER_RT build -t mullvad . ${__format} --no-cache
 CONTAINER_RT run --rm -it -p 4433:4433 -d disposable_browser
 
 say "container contain all nessery packages for disposable_browser ."

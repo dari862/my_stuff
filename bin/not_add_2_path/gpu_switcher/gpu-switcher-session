@@ -16,8 +16,7 @@
 # DESCRIPTION: stop all keyring process
 #===================================================================================
 stop() {
-	[ "$(pidof $__tray_name)" ] && killall $__tray_name
-	[ "$(pidof $__tray_name)" ] && killall -9 $__tray_name
+	kill_process.sh $__tray_name
 }
 
 
@@ -35,9 +34,7 @@ start() {
 # DESCRIPTION: load file-manager
 #===================================================================================
 gui() {
-	[ "$(pidof $__tray_name)" ] && killall $__gui_name
-	[ "$(pidof $__tray_name)" ] && killall -9 $__gui_name
-	
+	kill_process.sh $__gui_name
 	$__gui_name
 }
 

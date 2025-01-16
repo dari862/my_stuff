@@ -6,15 +6,6 @@ default_panel="polybar"
 . "/usr/share/my_stuff/lib/common/panel"
 . "/usr/share/my_stuff/lib/common/openbox"
 
-which_OB_style_to_use(){
-	picked_style_are="${1-}"
-	if [ "${picked_style_are}" = "bl" ];then
-		touch "${OB_STYLE_BL}"
-	else
-		touch "${OB_STYLE_NORMAL}"
-	fi
-}
-
 count=0
 spliter1="|"
 spliter2="|"
@@ -55,9 +46,9 @@ fi
 cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 
 if [ "$which_panel_MENU" = "polybar" ]; then
-	which_OB_style_to_use normal
+	/usr/share/my_stuff/bin/not_add_2_path/switchStyleto normal
 elif [ "$which_panel_MENU" = "xfce4-panel" ]; then
-	which_OB_style_to_use normal
+	/usr/share/my_stuff/bin/not_add_2_path/switchStyleto normal
 elif [ "$which_panel_MENU" = "tint2" ]; then
 	which_MENU="$(echo "obmenu|bunsenlabs" | rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit \
 	-theme "$rofi_style_dir"/runner.rasi)"
@@ -72,17 +63,17 @@ elif [ "$which_panel_MENU" = "tint2" ]; then
 	fi
 	if [ "$which_MENU" = "jgmenu" ]; then
 		ac-ob-menu jgmenu
-		which_OB_style_to_use bl
+		/usr/share/my_stuff/bin/not_add_2_path/switchStyleto bl
 		setbg -s --set-color=#18191A /usr/share/my_stuff/my_wallpapers/default/Beryllium-1440x900.jpg
 	elif [ "$which_MENU" = "bunsenlabs" ]; then
-		which_OB_style_to_use bl
+		/usr/share/my_stuff/bin/not_add_2_path/switchStyleto bl
 	elif [ "$which_MENU" = "obmenu" ]; then
-		which_OB_style_to_use normal
+		/usr/share/my_stuff/bin/not_add_2_path/switchStyleto normal
 		echo "/.config/tint2/old.tint2rc" > $HOME/.config/tint2/tint2-sessionfile
 	fi
 else
 	which_panel_MENU="$default_panel"
-	which_OB_style_to_use normal
+	/usr/share/my_stuff/bin/not_add_2_path/switchStyleto normal
 fi
 	
 echo "$which_panel_MENU" > ${_panel_name_path_}

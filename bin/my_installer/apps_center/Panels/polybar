@@ -24,3 +24,4 @@ say 'Copy bin from polybar...' 1
 if [ -d "/usr/share/my_stuff/bin/polybar" ] ; then
 	my-superuser ln -sf "/usr/share/my_stuff/bin/polybar/"* "/usr/share/my_stuff/system_files/bin" || continue
 fi
+polybar_launch_creater || continue

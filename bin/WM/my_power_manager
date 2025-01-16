@@ -225,9 +225,7 @@ my_power_manager_daemon(){
 stop_my_power_managers(){
 	for prosses2kill in my_power_manager_daemon cbatticon
 	do
-		if pidof "$prosses2kill" >/dev/null 2>&1; then
-			killall -9 $prosses2kill
-		fi
+		kill_process.sh $prosses2kill
 	done
 }
 
@@ -235,9 +233,7 @@ reload_my_power_managers(){
 	[ "$opt" = "--reload-all" ] && reload_cbatticon="cbatticon"
 	for prosses2reload in my_power_manager_daemon ${reload_cbatticon}
 	do
-		if pidof "$prosses2reload" >/dev/null 2>&1; then
-			killall -9 $prosses2reload
-		fi
+		kill_process.sh $prosses2reload
 		$prosses2reload &
 	done
 }

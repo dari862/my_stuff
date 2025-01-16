@@ -8,9 +8,9 @@ Package_installer_ ${app_name} || continue
 copy_from_extra_skel ".config/plank"
 copy_from_extra_skel ".local/share/plank"
 
-cd "/usr/share/my_suff/extra_blob/"
+cd "/usr/share/my_stuff/extra_blob/"
 cd polybar
 for theme in *;do
-	my-superuser cp -r "${theme}/config/plank" "/usr/share/my_suff/system_files/blob/tint2/${theme}/config" 
-	my-superuser cp -r "${theme}/cache" "/usr/share/my_suff/system_files/blob/tint2/${theme}" 
+	my-superuser cp -r "${theme}/config/plank" "/usr/share/my_stuff/system_files/blob/tint2/${theme}/config" 
+	my-superuser cp -r "${theme}/cache" "/usr/share/my_stuff/system_files/blob/tint2/${theme}" 
 done

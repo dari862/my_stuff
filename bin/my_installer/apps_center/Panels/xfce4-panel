@@ -17,12 +17,12 @@ copy_from_extra_skel ".config/xfce4" || continue
 say "log out then log in for changes to be applyed."
 
 say 'Copy Files from  extra_blob...' 1
-cd "/usr/share/my_suff/extra_blob/polybar" || continue
+cd "/usr/share/my_stuff/extra_blob/polybar" || continue
 for theme in *;do
-	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_suff/system_files/blob/polybar/${theme}/config"  || continue
+	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_stuff/system_files/blob/polybar/${theme}/config"  || continue
 done
 
-cd "/usr/share/my_suff/extra_blob/tint2" || continue
+cd "/usr/share/my_stuff/extra_blob/tint2" || continue
 for theme in *;do
-	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_suff/system_files/blob/tint2/${theme}/config"  || continue
+	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_stuff/system_files/blob/tint2/${theme}/config"  || continue
 done

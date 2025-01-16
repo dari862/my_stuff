@@ -41,7 +41,7 @@ main() {
 
 if [ -n "$opt" ];then
 	[ -z "$opt2" ] && opt2="Process $opt has been killed."
-	killall -9 "$opt" && notify-send "$opt" "$opt2"
+	kill_process.sh "$opt" && notify-send "$opt" "$opt2"
 else
 	main "$@"
 fi

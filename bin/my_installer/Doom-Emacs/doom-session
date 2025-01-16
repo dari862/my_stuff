@@ -12,8 +12,7 @@
 # DESCRIPTION: stop all emacs process
 #===================================================================================
 stop() {
-	[ "$(pidof emacs)" ] && killall emacs 
-	[ "$(pidof emacs)" ] && killall -9 emacs
+	kill_process.sh emacs
 }
 
 

@@ -8,7 +8,7 @@ Package_installer_ ${app_name} || continue
 copy_from_extra_skel ".config/alacritty" || continue
 
 say 'Copy Files from  extra_blob...' 1
-cd "/usr/share/my_suff/extra_blob/polybar" || continue
+cd "/usr/share/my_stuff/extra_blob/polybar" || continue
 for theme in *;do
-	my-superuser cp -r "${theme}/config/alacritty" "/usr/share/my_suff/system_files/blob/tint2/${theme}/config" || continue
+	my-superuser cp -r "${theme}/config/alacritty" "/usr/share/my_stuff/system_files/blob/polybar/${theme}/config" || continue
 done

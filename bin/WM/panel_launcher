@@ -1,14 +1,38 @@
 #!/bin/bash
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/panel"
+	
+_panel_name_="$(cat ${_panel_name_path_})"
+		
+if [ "$_panel_name_" = "polybar" ]; then 
+	# Start volume control
+	audio-session stop
+	
+	# Start network manager
+	nm-applet-session stop
+	
+	# Lauch xsettingsd daemon
+	xfsettingsd-session stop
+	
+	kill_process.sh cbatticon
+elif [ "$_panel_name_" =  "tint2" ]; then
+	# Start clipboard-manager
+	clipboard-manager-session stop
 
+	# Start volume control
+	audio-session stop
+	
+	# Start network manager
+	nm-applet-session stop
+	
+	kill_process.sh cbatticon
+fi
+	
 if [ "${1-}" = "--reload" ] || [ "${1-}" = "-r" ];then
 	polybar-session stop
 	xfce4-panel-session stop
 	tint2-session stop
 fi
-	
-_panel_name_="$(cat ${_panel_name_path_})"
 
 # Start Conky
 conky-session restart &
@@ -23,43 +47,22 @@ picom-session start &
 #plank-session
 		
 if [ "$_panel_name_" = "polybar" ]; then 
-	# Start volume control
-	audio-session stop
-	
-	# Start network manager
-	nm-applet-session stop
-	
-	# Lauch xsettingsd daemon
-	xfsettingsd-session stop
+	# Enable power management
+	power-manager-session start &
 	
 	# Start polybar
 	polybar_workspace_fixer
    	polybar-session restart &
-
-	# Enable power management
-	power-manager-session start &
 elif [ "$_panel_name_" =  "tint2" ]; then
-	# Start clipboard-manager
-	clipboard-manager-session stop
-
-	# Start volume control
-	audio-session stop
-	
-	# Start network manager
-	nm-applet-session stop
-
-	# panel - taskbar, system tray, battery, clock
-	tint2-session restart &
-	
 	# Start volume control
 	audio-session start &
 
 	# Enable power management
 	power-manager-session start &
+	
+	# panel - taskbar, system tray, battery, clock
+	tint2-session restart &
 elif [ "$_panel_name_" =  "xfce4-panel" ]; then
-	# Start xfce4-panel
-   	xfce4-panel-session restart &
-   	
    	# Lauch xsettingsd daemon
 	xfsettingsd-session start &
 
@@ -71,5 +74,8 @@ elif [ "$_panel_name_" =  "xfce4-panel" ]; then
 	
 	# Enable power management
 	power-manager-session xfce_start &
+	
+	# Start xfce4-panel
+   	xfce4-panel-session restart &
 fi
 	

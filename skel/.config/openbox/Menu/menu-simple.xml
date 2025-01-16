@@ -42,6 +42,7 @@
 			<menu id="InstallFavouritePackages" execute="my-install-pipemenu --openboxmenu" label="Install Favourite Packages"/>
 			<menu id="DeployFavouriteContainers" execute="containers-deployer-pipemenu --openboxmenu" label="Deploy Distrobox and Containers"/>
 			<menu id="RunDebianTweeks" execute="my-tweeks-pipemenu --openboxmenu" label="Run Debian Tweeks"/>
+			<menu id="InstallFullEnvironments" execute="full_environment-pipemenu --openboxmenu" label="Install Full Environments"/>
 			<menu id="obconfig" label="Openbox">
 				<menu id="ac-ob-menu-pipemenu" execute="ac-ob-menu-pipemenu" label="Menu Style"/>
 				<item label="Settings">

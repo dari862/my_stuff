@@ -95,6 +95,7 @@ Create_users_to_chroot(){
 
 if [ -n "${chroot_name}" ];then
 	if [ -f "${chroot_path}" ];then
+		my-superuser mkdir -p "${_CHROOTS_INSTALLED_LIBDIR}"
 		. "${chroot_path}"
 	else
 		say " ERROR: failed to locate chroot: ${chroot_name} "

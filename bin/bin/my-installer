@@ -120,11 +120,10 @@ install_container_software(){
 }
 
 __run_(){
-	__file_location="$(find ${_files_path}/ -name ${file_name_})"
-	[ -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' 'pause' && exit 1
-	
 	. "/usr/share/my_stuff/system_files/Package-manager"
-	
+	__file_location="$(find ${_files_path}/ -name ${file_name_})"
+	[ ! -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' 'pause' && exit 1
+
 	while true; do # do it until the package is successfully installed or user wants to exit
 		if [ "$TRYAGAIN" ]; then # previous try failed
 			say
@@ -177,10 +176,12 @@ __run_(){
 		elif [ "${running_chroot}" = "true" ];then
 			say 'Createing Chroot...' 1
 			if ! command -v create_chroot >/dev/null 2>&1;then
-				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_chroot" "/usr/share/my_stuff/system_files/bin"
+				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_chroot" "/usr/share/my_stuff/system_files/bin" || continue
 			fi
 		elif [ "${running_tweek}" = "true" ];then
 			say 'running tweek...' 1
+		elif [ "${running_fullenv}" = "true" ];then
+			say 'install full environment...' 1
 		fi
 		
 		. "${__file_location}" || continue
@@ -197,11 +198,11 @@ __run_(){
 			remove_from_db "${file_name_}" "containers" || continue
 		elif [ "${chroot_install}" = "true" ];then
 			remove_from_db "${file_name_}" "chroots" || continue
-		elif [ "${running_tweek}" = "true" ];then
-			remove_from_db "${file_name_}" "tweeks" || continue
+		elif [ "${running_fullenv}" = "true" ];then
+			remove_from_db "${file_name_}" "fullenv" || continue
 		fi
 
-		end_superuser
+		end_superuser || continue
 		
 		say
 		say
@@ -216,7 +217,7 @@ remove_from_db(){
 	file_to_remove="${1-}"
 	from_db="${2-}"
 	if [ "${from_db}" = "apps" ];then
-		from_db="$(grep -r "${file_to_remove}" "${apps_db_path}" | awk -F: '{print $1}' || grep -r "${file_to_remove}" "${gaming_db_path}" | awk -F: '{print $1}' || :)"
+		from_db="$(grep -rw "${file_to_remove}" "${apps_db_path}" | awk -F: '{print $1}' || grep -r "${file_to_remove}" "${gaming_db_path}" | awk -F: '{print $1}' || :)"
 	elif [ "${from_db}" = "distroboxs" ];then
 		from_db="${distrobox_deploy_db_path}"
 	elif [ "${from_db}" = "containers" ];then
@@ -225,8 +226,10 @@ remove_from_db(){
 		from_db="${chroots_deploy_db_path}"
 	elif [ "${from_db}" = "tweeks" ];then
 		from_db="${tweeks_db_path}"
+	elif [ "${from_db}" = "fullenv" ];then
+		from_db="${full_environment_db_path}"
 	fi
-	my-superuser sed -i "/${file_to_remove}/d" "${from_db}" || :
+	my-superuser sed -i "/^${file_to_remove}$/d" "${from_db}" || :
 }
 
 
@@ -264,6 +267,10 @@ case $option in
 		--tweek) 
 			running_tweek=true 
 			_files_path="${_TWEEKS_LIBDIR}"
+		;;
+		--fullenv) 
+			running_fullenv=true
+			_files_path="${_FULL_ENVIRONMENT_LIBDIR}"
 		;;
 		--chroot) 
 			running_chroot=true 

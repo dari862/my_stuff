@@ -27,7 +27,7 @@ while IFS= read -r i; do
     if [[ -f "$i" ]]; then
         full_path="$i\n"
     elif [[ -n "$i" ]]; then
-        incomplete_icon_path=$(fd "$i" "$directory" | head -1)
+        incomplete_icon_path=$(find "$directory" -name "$i" | head -1)
         full_path="${incomplete_icon_path}\n"
     else
         full_path="\n"

@@ -7,18 +7,18 @@
 # CREATED: 2020.04.09
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
-if command -v diodon >/dev/null 2>&1; then
+if command -v clipmanager >/dev/null 2>&1; then
+	clipboard_manager_name="clipmanager"
+	clipboard_manager_command="clipmanager"
+elif command -v diodon >/dev/null 2>&1; then
 	clipboard_manager_name="diodon"
 	clipboard_manager_command="exec diodon"
-elif command -v greenclip >/dev/null 2>&1; then
-	clipboard_manager_name="greenclip"
-	clipboard_manager_command="greenclip daemon"
 elif command -v xfce4-clipman >/dev/null 2>&1; then
 	clipboard_manager_name="xfce4-clipman"
 	clipboard_manager_command="xfce4-clipman"
-elif command -v clipmanager >/dev/null 2>&1; then
-	clipboard_manager_name="clipmanager"
-	clipboard_manager_command="clipmanager"
+elif command -v greenclip >/dev/null 2>&1; then
+	clipboard_manager_name="greenclip"
+	clipboard_manager_command="greenclip daemon"
 fi
 
 
@@ -27,8 +27,7 @@ fi
 # DESCRIPTION: stop all clipboard-manager process
 #===================================================================================
 stop() {
-	for prosses2kill in diodon greenclip xfce4-clipman clipmanager
-	do
+	for prosses2kill in clipmanager diodon xfce4-clipman greenclip;do
 		kill_process.sh $prosses2kill
 	done
 }

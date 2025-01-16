@@ -50,8 +50,8 @@ My Stuff,^checkout(bl-blConfig)
 Openbox,^checkout(bl-obConfig)
 jgmenu,^checkout(bl-jgmenuConfig)
 Compositor,^pipe(jgmenu_run ob --cmd="ac-compositor-pipemenu" --tag="ac-compositor-pipemenu")
-Conky,^pipe(jgmenu_run ob --cmd="conky-pipemenu" --tag="bl-conky-pipemenu"),conky-manager
-Tint2,^pipe(jgmenu_run ob --cmd="tint2-pipemenu" --tag="bl-tint2-pipemenu"),tint2
+Conky,^pipe(jgmenu_run ob --cmd="conky-pipemenu" --tag="conky-pipemenu"),conky-manager
+Tint2,^pipe(jgmenu_run ob --cmd="ac-panel-settings" --tag="ac-panel-settings"),tint2
 Appearance,sh -c 'lxappearance; reload_gtk23',preferences-desktop-theme
 Reload GTK,reload_gtk23,preferences-desktop-theme
 Font configuration,my-text-editor ~/.config/fontconfig/fonts.conf,preferences-desktop-font

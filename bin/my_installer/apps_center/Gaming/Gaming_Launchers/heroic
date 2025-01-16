@@ -25,5 +25,5 @@ else
   	| tr -d '"' \
   	| head -1)" 
 	getURL 'download' "${download_url}"
-	my-superuser apt-get install -y ./heroic_*.deb
+	install_deb ./heroic_*.deb
 fi

@@ -1,4 +1,4 @@
-FROM alpine
+FROM debian:latest
 
 ARG __ControlPort
 ARG __DNSPort
@@ -9,15 +9,19 @@ ARG __UUID
 ARG _TOR_USER
 
 RUN mkdir -p /var/lib/tor /etc/tor/run /var/log/tor
-RUN addgroup -g $__GUID $_TOR_USER
-RUN adduser -u $__UUID -G $_TOR_USER -s /bin/false -h /var/lib/tor -D $_TOR_USER
+RUN groupadd --gid $__GUID $_TOR_USER && \
+    useradd --uid $__UUID --gid $_TOR_USER \
+            --shell /bin/false \
+            --home-dir /var/lib/tor \
+            --create-home \
+            $_TOR_USER
 
 RUN chmod 750 /etc/tor
 RUN chmod 700 /etc/tor/run
 
 # Install tor
-RUN apk --no-cache --no-progress upgrade
-RUN apk --no-cache --no-progress add curl tini tor
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y curl tini tor
 
 RUN chown -Rh $_TOR_USER:$_TOR_USER /var/lib/tor /etc/tor /var/log/tor
 
@@ -47,6 +51,13 @@ COPY start-service.sh /usr/bin/
 RUN chmod 0755 /usr/bin/start-service.sh
 RUN chmod 0755 /usr/bin/ContainerChecker.sh
 
+COPY debian-upgrade.sh /usr/bin/debian-upgrade.sh
+RUN chmod 0755 /usr/bin/debian-upgrade.sh
+RUN echo '0 2 * * * root /usr/local/bin/debian-upgrade.sh >> /var/log/cron.log 2>&1' > /etc/cron.d/debian-upgrade-cron
+RUN chmod 0644 /etc/cron.d/debian-upgrade-cron
+RUN touch /var/log/cron.log
+RUN crontab /etc/cron.d/debian-upgrade-cron
+
 VOLUME ["/etc/tor", "/var/lib/tor"]
 
 USER $_TOR_USER
@@ -54,4 +65,4 @@ USER $_TOR_USER
 HEALTHCHECK --interval=60s --timeout=15s --start-period=20s \
             CMD /usr/bin/ContainerChecker.sh
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/start-service.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/bin/start-service.sh"]
