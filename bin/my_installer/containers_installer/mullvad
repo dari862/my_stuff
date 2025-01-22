@@ -9,7 +9,7 @@ if [ "$(basename $(realpath $(which CONTAINER_RT)))" = "podman" ];then
 fi
 
 CONTAINER_RT build -t mullvad . ${__format} --no-cache
-CONTAINER_RT run --rm -it -p 4433:4433 -d disposable_browser
+CONTAINER_RT run --rm -it -p 4433:4433 -d mullvad
 
-say "container contain all nessery packages for disposable_browser ."
+say "container contain all nessery packages for mullvad ."
 say

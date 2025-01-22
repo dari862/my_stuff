@@ -17,8 +17,8 @@ MAGENTABG="$(printf '\033[45m')"  CYANBG="$(printf '\033[46m')"  WHITEBG="$(prin
 ## Wallpaper directory
 dwall_script="/usr/share/my_stuff/bin/bin/dwall"
 wallpapers_folder_name="Dynamic_wallpapers"
-DIR="/usr/share/${wallpapers_folder_name}"
-HOUR=`date +%k`
+DIR="/usr/share/my_stuff/system_files/${wallpapers_folder_name}"
+HOUR="$(date +%k)"
 
 ## Wordsplit in ZSH
 set -o shwordsplit 2>/dev/null
@@ -59,30 +59,9 @@ exit_on_signal_SIGTERM() {
 trap exit_on_signal_SIGINT SIGINT
 trap exit_on_signal_SIGTERM SIGTERM
 
-check_if_installed() {
-	dependency=${1-}
-	Do_want_to_install_not_installed_apps_are() {
-			read -p "Do you want to proceed? (yes/no) " yn
-			yn=${yn^^}
-			case $yn in 
-				YES|Y) my-superuser apt install -y ${dependency};;
-				NO|N) echo exiting...;
-					exit;;
-				* ) >&2 printf '\033[31;1merror :\033[m %s\n' invalid response;
-					Do_want_to_install_not_installed_apps_are;;
-			esac
-			reset_color
-		}
-	if ! type -p "$dependency" >/dev/null 2>&1;then
-		echo -e ${RED}"[!] ERROR: Could not find ${GREEN}'${dependency}'${RED}, is it installed?" >&2
-		reset_color
-		Do_want_to_install_not_installed_apps_are
-	fi
-}
-
 ## Prerequisite
 Prerequisite() { 
-    check_if_installed crontab
+    check_4_dependencies_if_installed crontab
 	## Choose wallpaper setter						  
 	case "$OSTYPE" in
 		linux*)	
@@ -91,7 +70,7 @@ Prerequisite() {
 				elif [[ "$DESKTOP_SESSION" =~ ^(MATE|Mate|mate)$ ]]; then
 					SETTER="gsettings set org.mate.background picture-filename"
 				elif [[ "$DESKTOP_SESSION" =~ ^(Xfce Session|xfce session|XFCE|xfce|Xubuntu|xubuntu)$ ]]; then
-					check_if_installed xrandr
+					check_4_dependencies_if_installed xrandr
 					SCREEN="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $1}' | tr -d \:)"
 					MONITOR="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $2}' | tr -d \*+)"
 					SETTER="xfconf-query --channel xfce4-desktop --property /backdrop/screen$SCREEN/monitor$MONITOR/workspace0/last-image --set"
@@ -112,7 +91,7 @@ Prerequisite() {
 				elif type -p "feh" >/dev/null 2>&1;then
 					SETTER="feh --bg-fill"
 				else 
-					check_if_installed xwallpaper
+					check_4_dependencies_if_installed xwallpaper
 					SETTER="xwallpaper --stretch"
 				fi
 				;;
@@ -143,9 +122,9 @@ usage() {
 		  -d                             Turn on debug messages	   
 	EOF
 
-	styles=(`ls $DIR`)
+	styles="$(ls $DIR 2>/dev/null || :)"
 	printf ${GREEN}"Available styles:  "
-	printf -- ${ORANGE}'%s  ' "${styles[@]}"
+	printf -- ${ORANGE}'%s  ' "${styles}"
 	printf -- '\n\n'${WHITE}
 
     cat <<- EOF
@@ -387,119 +366,117 @@ install_now_() {
 	Download_wallpapers_now
 }
 
+YES_OR_NO()
+{
+	while true; do
+		printf "Do you want to proceed? (yes/no) " >&2
+		stty -icanon -echo time 0 min 1
+		answer="$(head -c1)"
+		stty icanon echo
+		echo
+        	
+		case "$answer" in
+			[Yy]) return 0 ;;
+			[Nn]) return 1;;
+			*) echo "invalid response";;
+		esac
+	done
+}
+
 Download_wallpapers_now(){
-	check_if_installed git
+	. "/usr/share/my_stuff/system_files/Package-manager"
+	check_4_dependencies_if_installed git
 	mkdir -p /tmp/$USER/dynamic_wallpapers
 	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"
 	echo "size wallpaper is 150 MB"
-	read -p "Do you want to proceed? (yes/no) " yn
-	yn=${yn^^}
-	case $yn in 
-		YES|Y) 
-			echo "Downloading 1-3 urls for wallpapers"
-			clone_repo https://github.com/adi1090x/dynamic-wallpaper			/tmp/$USER/dynamic-wallpaper
-			mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
-		;;
-		NO|N) echo "skipping Download...";
-		;;
-		* ) >&2 printf '\033[31;1merror :\033[m %s\n' invalid response;
-			Do_want_to_install_not_installed_apps_are;;
-	esac
-	
+	if YES_OR_NO;then
+		echo "Downloading 1-3 urls for wallpapers"
+		super_clone_repo https://github.com/adi1090x/dynamic-wallpaper			/tmp/$USER/dynamic-wallpaper
+		mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
+	else
+		echo "skipping Download..."
+	fi
 	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"
 	echo "size wallpaper is 150 MB"
-	read -p "Do you want to proceed? (yes/no) " yn
-	yn=${yn^^}
-	case $yn in 
-		YES|Y) 
-			echo "Downloading 2-3 urls for wallpapers"
-			mkdir -p /tmp/$USER/dynamic-wallpaper/images/
-			mkdir -p /tmp/$USER/dynamic-wallpaper/tempfornow
-			getURL 'download2' "https://raw.githubusercontent.com/adi1090x/files/master/dynamic-wallpaper/wallpapers/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz" "/tmp/$USER/dynamic-wallpaper/tempfornow/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz"
-			mkdir -p /tmp/$USER/dynamic-wallpaper/images/london
-			tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" -C /tmp/$USER/dynamic-wallpaper/images/london && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" /tmp/$USER/dynamic-wallpaper
-			mkdir -p /tmp/$USER/dynamic-wallpaper/images/mountfuji
-			tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji" -C /tmp/$USER/dynamic-wallpaper/images/mountfuji && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji.tar.gz" /tmp/$USER/dynamic-wallpaper
-			for f in /tmp/$USER/dynamic-wallpaper/tempfornow/*.tar.gz -C ; do tar -xvf "$f" -C "/tmp/$USER/dynamic-wallpaper/images/"; done
-			
-			mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
-		;;
-		NO|N) echo "skipping Download...";
-		;;
-		* ) >&2 printf '\033[31;1merror :\033[m %s\n' invalid response;
-			Do_want_to_install_not_installed_apps_are;;
-	esac
-	
+	if YES_OR_NO;then
+		echo "Downloading 2-3 urls for wallpapers"
+		mkdir -p /tmp/$USER/dynamic-wallpaper/images/
+		mkdir -p /tmp/$USER/dynamic-wallpaper/tempfornow
+		getURL 'download2' "https://raw.githubusercontent.com/adi1090x/files/master/dynamic-wallpaper/wallpapers/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz" "/tmp/$USER/dynamic-wallpaper/tempfornow/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz"
+		mkdir -p /tmp/$USER/dynamic-wallpaper/images/london
+		tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" -C /tmp/$USER/dynamic-wallpaper/images/london && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" /tmp/$USER/dynamic-wallpaper
+		mkdir -p /tmp/$USER/dynamic-wallpaper/images/mountfuji
+		tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji" -C /tmp/$USER/dynamic-wallpaper/images/mountfuji && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji.tar.gz" /tmp/$USER/dynamic-wallpaper
+		for f in /tmp/$USER/dynamic-wallpaper/tempfornow/*.tar.gz -C ; do tar -xvf "$f" -C "/tmp/$USER/dynamic-wallpaper/images/"; done
+		
+		mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
+	else
+		echo "skipping Download...";
+	fi
 	echo "Download wallpapers for https://github.com/saint-13/Linux_Dynamic_Wallpapers"
 	echo "size 2.5 GB"
-	read -p "Do you want to proceed? (yes/no) " yn
-	yn=${yn^^}
-	case $yn in 
-		YES|Y) 
-			echo "Downloading 3-3 urls for wallpapers"
-			clone_repo https://github.com/saint-13/Linux_Dynamic_Wallpapers	/tmp/$USER/Linux_Dynamic_Wallpapers
-			cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
-			/bin/rm -f * 2>/dev/null
+	if YES_OR_NO;then
+		echo "Downloading 3-3 urls for wallpapers"
+		super_clone_repo https://github.com/saint-13/Linux_Dynamic_Wallpapers	/tmp/$USER/Linux_Dynamic_Wallpapers
+		cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
+		/bin/rm -f * 2>/dev/null
+		
+		rm -rdf /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/Mojave
+		
+		cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01
+		extension="jpg"
+		mv *-10.${extension} cyberpunk-00-0-0.0.${extension}
+		mv *-11.${extension} cyberpunk-00-0-0.1.${extension}
+		mv *-12.${extension} cyberpunk-00-0-0.2.${extension}
+		mv *-13.${extension} cyberpunk-00-0-1.${extension}
+		mv *-14.${extension} cyberpunk-00-0-2.${extension}
+		mv *-15.${extension} cyberpunk-00-0-3.${extension}
+		newName=0
+		for filename in *; do
+			mv "$filename" "${newName}.${extension}"
+			let newName=newName+1
+		done
+		mv 15.${extension} 21.${extension}
+		mv 14.${extension} 19.${extension}
+		mv 13.${extension} 18.${extension}
+		mv 12.${extension} 17.${extension}
+		mv 11.${extension} 15.${extension}
+		mv 10.${extension} 13.${extension}
+		mv 9.${extension} 12.${extension}
+		mv 8.${extension} 11.${extension}
+		mv 7.${extension} 10.${extension}
+		mv 6.${extension} 9.${extension}
+		mv 5.${extension} 8.${extension}
+		mv 4.${extension} 7.${extension}
+		mv 3.${extension} 6.${extension}
+		mv 2.${extension} 5.${extension}
+		mv 1.${extension} 3.${extension}
+		Create_links_for_folders_now
 			
-			rm -rdf /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/Mojave
+		mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01 /tmp/$USER/dynamic_wallpapers
 			
-			cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01
-			extension="jpg"
-			mv *-10.${extension} cyberpunk-00-0-0.0.${extension}
-			mv *-11.${extension} cyberpunk-00-0-0.1.${extension}
-			mv *-12.${extension} cyberpunk-00-0-0.2.${extension}
-			mv *-13.${extension} cyberpunk-00-0-1.${extension}
-			mv *-14.${extension} cyberpunk-00-0-2.${extension}
-			mv *-15.${extension} cyberpunk-00-0-3.${extension}
+		extension=""
+		folder_2_convert_2_Dywall=""
+		d=""
+		cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
+		for d in *
+		do
+				cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/"${d}"
 			newName=0
+			fullname="$(\ls | tail -1)"
+			extension="${fullname##*.}"
 			for filename in *; do
 				mv "$filename" "${newName}.${extension}"
 				let newName=newName+1
 			done
-			mv 15.${extension} 21.${extension}
-			mv 14.${extension} 19.${extension}
-			mv 13.${extension} 18.${extension}
-			mv 12.${extension} 17.${extension}
-			mv 11.${extension} 15.${extension}
-			mv 10.${extension} 13.${extension}
-			mv 9.${extension} 12.${extension}
-			mv 8.${extension} 11.${extension}
-			mv 7.${extension} 10.${extension}
-			mv 6.${extension} 9.${extension}
-			mv 5.${extension} 8.${extension}
-			mv 4.${extension} 7.${extension}
-			mv 3.${extension} 6.${extension}
-			mv 2.${extension} 5.${extension}
-			mv 1.${extension} 3.${extension}
-			Create_links_for_folders_now
+			Convert_current_folder_2_Dywall_now
+		done
 			
-			mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01 /tmp/$USER/dynamic_wallpapers
-			
-			extension=""
-			folder_2_convert_2_Dywall=""
-			d=""
-			cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
-			for d in *
-			do
-				cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/"${d}"
-				newName=0
-				fullname="$(\ls | tail -1)"
-				extension="${fullname##*.}"
-				for filename in *; do
-					mv "$filename" "${newName}.${extension}"
-					let newName=newName+1
-				done
-				Convert_current_folder_2_Dywall_now
-			done
-			
-			mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
-			echo "Downloading complete"
-		;;
-		NO|N) echo "skipping Download...";
-		;;
-		* ) >&2 printf '\033[31;1merror :\033[m %s\n' invalid response;
-			Do_want_to_install_not_installed_apps_are;;
-	esac
+		mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
+		echo "Downloading complete"
+	else
+		echo "skipping Download..."
+	fi
 	
 	if [ ! -d /tmp/$USER/Linux_Dynamic_Wallpapers ] && [ ! -d /tmp/$USER/dynamic-wallpaper ]; then
 		exit_0
@@ -646,7 +623,7 @@ if [[ "$Set_uninstall_" == true ]]; then
 	exit_0
 fi
 
-if [[ "$Download_wallpapers_" == true ]]; then
+if [[ "$Download_wallpapers_" == true ]] || [[ ! -d "$DIR" ]]; then
 	Download_wallpapers_now
 fi
 

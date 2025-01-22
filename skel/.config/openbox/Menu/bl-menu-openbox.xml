@@ -57,6 +57,7 @@
         </item>
         <separator/>
     <menu id="applications-utilities" label="Utilities">
+    <menu id="StylePipeMenu" execute="change-style-pipemenu" label="Change Style"/>
     <menu id="TakeScreenshot" execute="screenshot-pipemenu" label="Take Screenshot"/>
         <item label="BLOB Themes Manager">
             <action name="Execute">
@@ -79,6 +80,7 @@
     <menu id="RecentFiles" execute="ac-recent-files -rl15" label="Recent Files"/>
     <separator/>
     <menu id="preferences-system" label="Preferences">
+    <menu id="PanelPipeMenu" execute="change-panel-pipemenu" label="Change Panel"/>
     <menu id="preferences-openbox" label="Openbox">
         <menu id="ac-ob-menu-pipemenu" execute="ac-ob-menu-pipemenu" label="Menu Style"/>
         <item label="Edit rc.xml">

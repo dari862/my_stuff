@@ -63,18 +63,6 @@ elif [ "$_panel_name_" = "tint2" ]; then
 	TMGR="style-manager --tint2manager"
 	HELPFILE="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt"
 	
-	switchStyle(){
-		. "/usr/share/my_stuff/lib/common/WM"
-		. "/usr/share/my_stuff/lib/common/openbox"
-		. "/usr/share/my_stuff/lib/common/DB"
-		menuSeparator 'Switch Style'
-		if [ -f "${OB_STYLE_NORMAL}" ];then
-			menuItem "Bunsenlab Style" "/usr/share/my_stuff/bin/not_add_2_path/switchStyleto bl"
-		else
-			menuItem "My-stuff Style" "/usr/share/my_stuff/bin/not_add_2_path/switchStyleto normal"
-		fi
-	}
-	
 	loadChooser(){
     	if type $TMGR >/dev/null 2>&1;then  # style-manager --tint2manager script found
         	menuItem "Tint2 Manager" "$TMGR"
@@ -141,6 +129,5 @@ elif [ "$_panel_name_" = "tint2" ]; then
 	loadEditSubmenu
 	menuSeparator
 	checkHelpfile
-	switchStyle
 fi
 menuEnd

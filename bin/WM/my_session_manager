@@ -232,12 +232,15 @@ if on_graphical_session;then
 		show_menu="rofi"
 	elif  [ "$opt_" = "--yad" ]; then		
 		show_menu="yad"
+		confirm_it=false
 	elif  [ "$opt_" = "--tty" ]; then		
 		show_menu="tty"
+		confirm_it=false
 	fi
 elif on_terminal; then
 	if  [ "$opt_" = "--tty" ] || [ -z "$opt_" ];then
 		show_menu="tty"
+		confirm_it=false
 	fi
 else
 	printf "$0 : failed to run on_graphical_session and on_terminal."

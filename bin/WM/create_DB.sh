@@ -157,7 +157,7 @@ create_styles_db() {
 	. "/usr/share/my_stuff/lib/common/panel"
 	. "/usr/share/my_stuff/lib/common/openbox"
 
-	if [ -f "$OB_STYLE_NORMAL" ]; then
+	if [ "$_panel_name_" = 'polybar' ]; then
 		dir="/usr/share/my_stuff/system_files/blob/polybar"
 	else
 		dir="/usr/share/my_stuff/system_files/blob/tint2"

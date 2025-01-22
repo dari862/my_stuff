@@ -38,6 +38,7 @@ Exit,my_session_manager --yad,system-shutdown
 
 ^tag(bl-utilities)
 Back,^back()
+Change Style,^pipe(jgmenu_run ob --cmd="change-style-pipemenu" --tag="StylePipeMenu")
 Take Screenshot,^pipe(jgmenu_run ob --cmd="screenshot-pipemenu" --tag="screenshot-pipemenu")
 BLOB Themes Manager,(style_picker_yad)
 SSH,^pipe(jgmenu_run ob --cmd="sshconfig-pipemenu" --tag="sshconfig-pipemenu")
@@ -46,6 +47,7 @@ App Finder,rofi-launcher
 
 ^tag(bl-preferences)
 Back,^back()
+Change Panel,^pipe(jgmenu_run ob --cmd="change-panel-pipemenu" --tag="PanelPipeMenu")
 My Stuff,^checkout(bl-blConfig)
 Openbox,^checkout(bl-obConfig)
 jgmenu,^checkout(bl-jgmenuConfig)

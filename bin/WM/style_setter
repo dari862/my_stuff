@@ -4,6 +4,9 @@ style="${1-}"
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/openbox"
 . "/usr/share/my_stuff/lib/common/rofi"
+. "/usr/share/my_stuff/lib/common/panel"
+	
+_panel_name_="$(cat ${_panel_name_path_})"
 
 show_em(){
 	echo "[ERROR] $0 : $1"
@@ -14,16 +17,14 @@ CONFIG_PATH="$HOME/.config"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
 
-if [ -f "$OB_STYLE_NORMAL" ]; then
+if [ "$_panel_name_" = 'polybar' ]; then
 	CONFIGPATH="${BLOBPATH}/polybar"
-	default_style="default"
 else
 	CONFIGPATH="${BLOBPATH}/tint2"
-	default_style="Beryllium"
 fi
 
 if [ -z "${style}" ];then
-	style="${default_style}"
+	style="default"
 fi
 
 STYLEPATH="${CONFIGPATH}/${style}"
@@ -40,19 +41,14 @@ OB_themeing(){
 	sed -i 's/size_var "'.*'"/size_var "'"$size"'"/g' ${OBPATH}/rc.xml
 }
 
-Set_polybar_Style_(){
+Set_Style_(){
 	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "/usr/share/my_stuff/skel/.config/dunst/global" "$HOME/.config/dunst"
 	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "/usr/share/my_stuff/skel/.config/dunst/experimental" "$HOME/.config/dunst"
 	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "/usr/share/my_stuff/skel/.config/dunst/theme.dunstrc" "$HOME/.config/dunst"
 	cat $HOME/.config/dunst/global $HOME/.config/dunst/experimental $HOME/.config/dunst/theme.dunstrc >> $HOME/.config/dunst/dunstrc
 	cp -r ${BACKUP_OB_RC_FILE} ${OBPATH}
 	OB_themeing
-	polybar_launch_creater
-}
-
-Set_tint2_Style_(){
-	cp -r ${BACKUP_OB_RC_FILE} ${OBPATH}
-	OB_themeing
+	
 }
 
 if [ ! -d "${BLOBPATH}" ];then
@@ -60,26 +56,54 @@ if [ ! -d "${BLOBPATH}" ];then
 	find "${BLOBPATH}/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} + || show_em "failed to change MmdmdmdmdmdmdmdmdmM to $USER"
 fi
 
-cp -r ${STYLEPATH}/config/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
-if [ -d "${STYLEPATH}/cache" ];then
-	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
+if command -v openbox >/dev/null 2>&1;then
+	if [ ! -f "$STYLEPATH/config/openbox/theme/rctheme" ]; then
+		system_default_colors "openbox" "${style}" || show_em "failed to run system_default_colors openbox"
+	fi
 fi
-dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
 
-if [ -f "$OB_STYLE_NORMAL" ]; then
-	Set_polybar_Style_ || show_em "failed to run Set_polybar_Style_"
-else
-	Set_tint2_Style_ || show_em "failed to run Set_tint2_Style_"
+if [ ! -f "$STYLEPATH/config/dunst/theme.dunstrc" ]; then
+	system_default_colors "dunst" "${style}" || show_em "failed to run system_default_colors dunst"
 fi
 
 if command -v jgmenu >/dev/null 2>&1;then
-	if [ -f "$CONFIG_PATH/jgmenu/jgmenurc" ]; then
-		system_default_colors "jgmenu" "${STYLEPATH}/config" || show_em "failed to run system_default_colors"
-	else
-		show_em "file does not exist ($CONFIG_PATH/jgmenu/jgmenurc) ."
+	if [ ! -f "$STYLEPATH/config/jgmenu/jgmenurc" ]; then
+		system_default_colors "jgmenu" "${style}" || show_em "failed to run system_default_colors jgmenu"
 	fi
 fi
-	
+
+if command -v geany >/dev/null 2>&1;then
+	if [ ! -f "$STYLEPATH/config/geany/theme.conf" ]; then
+		system_default_colors "geany" "${style}" || show_em "failed to run system_default_colors geany"
+	fi
+	theme_geany || show_em "failed to run theme_geany"
+fi
+
+if command -v kitty >/dev/null 2>&1;then
+	if [ ! -f "$STYLEPATH/config/kitty/theme.conf" ]; then
+		system_default_colors "kitty" "${style}" || show_em "failed to run system_default_colors kitty"
+	fi
+fi
+
+if command -v alacritty >/dev/null 2>&1;then
+	if [ ! -L "$STYLEPATH/config/alacritty/colors.yml" ]; then
+		system_default_colors "alacritty" "${style}" || show_em "failed to run system_default_colors alacritty"
+	fi
+fi
+
+cp -r "${STYLEPATH}/config"/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
+
+if [ -d "${STYLEPATH}/cache" ];then
+	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
+fi
+
+dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
+Set_Style_ || show_em "failed to run Set_Style_"
+
+if [ "$_panel_name_" = 'polybar' ]; then
+	polybar_launch_creater
+fi
+
 [ "$(pidof openbox)" ] && openbox --reconfigure || show_em "failed to run openbox --reconfigure "
 reload_gtk23 || show_em "failed to run reload_gtk23"
 
@@ -90,4 +114,4 @@ else
 	setbg -S "${style}" || show_em "failed to run setbg -S ${style}"
 fi
 
-theme_geany || show_em "failed to run theme_geany"
+system_default_colors --clean

@@ -1,8 +1,10 @@
 #!/bin/bash
-panel_name="${1-}"
-
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/panel"
+. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/DB"
+
+panel_name="${1-}"
 
 if [ "$panel_name" = 'tint2' ]; then
 	echo 'tint2' > "${_panel_name_path_}"
@@ -11,5 +13,9 @@ elif [ "$panel_name" = 'polybar' ]; then
 elif [ "$panel_name" = 'xfce4-panel' ]; then
 	echo 'xfce4-panel' > "${_panel_name_path_}"
 fi
-panel_launcher --reload
+
+style_changer "default"
+if grep -q " never remove this line menu style are :jgmenu " "${BACKUP_OB_RC_FILE}";then
+	ac-ob-menu menu-icons.xml
+fi
 /usr/share/my_stuff/bin/WM/create_DB.sh --styles &
