@@ -1,12 +1,7 @@
 #!/bin/bash
-__opt="${1:-}"
-theme_file_2_source="${2:-}"
+theme_file_2_source="${1:-}"
 home_config_path="$HOME/.config"
 _temp_theme_dir="/tmp/$USER/temp_theme_dir"
-
-remove_temp_theme_file(){
-	[ -f "${theme_file_2_source}" ] && rm -f "${theme_file_2_source}"
-}
 
 interpolate_colors() {
   local color1="$1"
@@ -138,94 +133,90 @@ colors_sorter(){
 }
 
 create_temp_theme_file(){
-	if [ ! -f "${theme_file_2_source}" ];then
-		[ -d "${_temp_theme_dir}" ] && rm -rdf "${_temp_theme_dir}"
-		mkdir -p "${_temp_theme_dir}"
-		theme_name_from_gtk2="$(grep "gtk-theme-name=" $home_config_path/gtk-2.0/gtkrc-2.0 | cut -d '=' -f2 | tr -d '"')"
-		cd "/usr/share/my_stuff/Theme_Stuff/themes/$theme_name_from_gtk2" || ( echo "failed to cd to /usr/share/my_stuff/Theme_Stuff/themes/$theme_name_from_gtk2" && exit 1 )
+	[ -d "${_temp_theme_dir}" ] && rm -rdf "${_temp_theme_dir}"
+	mkdir -p "${_temp_theme_dir}"
+	theme_name_from_gtk2="$(grep "gtk-theme-name=" $home_config_path/gtk-2.0/gtkrc-2.0 | cut -d '=' -f2 | tr -d '"')"
+	cd "/usr/share/my_stuff/Theme_Stuff/themes/$theme_name_from_gtk2" || ( echo "failed to cd to /usr/share/my_stuff/Theme_Stuff/themes/$theme_name_from_gtk2" && exit 1 )
 		
-		if [ -f "openbox-3/themerc" ] && [ ! -d "gtk-2.0" ];then
-			cp -r "openbox-3/themerc" "${_temp_theme_dir}"
-			file_2_sed="themerc"
-			grep_mode="colors"
-		elif [ -f "gtk-2.0/colors.rc" ];then
-			cp -r "gtk-2.0/colors.rc" "${_temp_theme_dir}"
-			file_2_sed="colors.rc"
-			grep_mode="scheme"
-		elif [ -f "gtk-2.0/colors-dark.rc" ];then
-			cp -r "gtk-2.0/colors-dark.rc" "${_temp_theme_dir}"
-			file_2_sed="colors-dark.rc"
-			grep_mode="scheme"
-		elif [ -f "gtk-2.0/gtkrc" ];then
-			cp -r "gtk-2.0/gtkrc" "${_temp_theme_dir}"
-			file_2_sed="gtkrc"
-			grep_mode="scheme"
-		fi
-		
-		cd "${_temp_theme_dir}"
-		
-		if [ "$grep_mode" = "scheme" ];then
-			if grep -q "gtk_color_scheme" "${file_2_sed}";then
-				if [ -z "$(grep "gtk_color_scheme" "${file_2_sed}" | sed 's/\t//g;s/ //g;s/gtk_color_scheme=//g' )" ];then
-					sed -i 's/\t//g;s/ //g' "${file_2_sed}"
-					sed -i '/gtk-color-scheme=/ { N; s/\n//; }' "${file_2_sed}"
-				fi
-				grep "gtk_color_scheme" "${file_2_sed}" > temp_theme
-				sed 's/\t//g;s/ //g;s/gtk_color_scheme=//g;s/\(.*"\).*/\1/;s/"//g;s/\\n/\n/g' temp_theme > "${file_2_sed}"
-			elif grep -q "gtk-color-scheme" "${file_2_sed}";then
-				if [ -z "$(grep "gtk-color-scheme" "${file_2_sed}" | sed 's/\t//g;s/ //g;s/gtk-color-scheme=//g' )" ];then
-					sed -i 's/\t//g;s/ //g' "${file_2_sed}"
-					sed -i '/gtk-color-scheme=/ { N; s/\n//; }' "${file_2_sed}"
-				fi
-				grep "gtk-color-scheme" "${file_2_sed}" > temp_theme
-				sed 's/\t//g;s/ //g;s/gtk-color-scheme=//g;s/\(.*"\).*/\1/;s/"//g;s/\\n/\n/g' temp_theme > "${file_2_sed}"
+	if [ -f "openbox-3/themerc" ] && [ ! -d "gtk-2.0" ];then
+		cp -r "openbox-3/themerc" "${_temp_theme_dir}"
+		file_2_sed="themerc"
+		grep_mode="colors"
+	elif [ -f "gtk-2.0/colors.rc" ];then
+		cp -r "gtk-2.0/colors.rc" "${_temp_theme_dir}"
+		file_2_sed="colors.rc"
+		grep_mode="scheme"
+	elif [ -f "gtk-2.0/colors-dark.rc" ];then
+		cp -r "gtk-2.0/colors-dark.rc" "${_temp_theme_dir}"
+		file_2_sed="colors-dark.rc"
+		grep_mode="scheme"
+	elif [ -f "gtk-2.0/gtkrc" ];then
+		cp -r "gtk-2.0/gtkrc" "${_temp_theme_dir}"
+		file_2_sed="gtkrc"
+		grep_mode="scheme"
+	fi
+	
+	cd "${_temp_theme_dir}"
+	
+	if [ "$grep_mode" = "scheme" ];then
+		if grep -q "gtk_color_scheme" "${file_2_sed}";then
+			if [ -z "$(grep "gtk_color_scheme" "${file_2_sed}" | sed 's/\t//g;s/ //g;s/gtk_color_scheme=//g' )" ];then
+				sed -i 's/\t//g;s/ //g' "${file_2_sed}"
+				sed -i '/gtk-color-scheme=/ { N; s/\n//; }' "${file_2_sed}"
 			fi
-			sed -i "/base_color/ s/$/_base_color/" "$file_2_sed"
-		elif [ "$grep_mode" = "colors" ];then
-			grep "\.color" "${file_2_sed}" > temp_theme
-			sed 's/\t//g;s/ //g;s/.color//g;s/\(.*"\).*/\1/;s/"//g;s/\\n/\n/g' temp_theme > "${file_2_sed}"
-			sed -i "/osd.bg/ s/$/_base_color/" "$file_2_sed"
+			grep "gtk_color_scheme" "${file_2_sed}" > temp_theme
+			sed 's/\t//g;s/ //g;s/gtk_color_scheme=//g;s/\(.*"\).*/\1/;s/"//g;s/\\n/\n/g' temp_theme > "${file_2_sed}"
+		elif grep -q "gtk-color-scheme" "${file_2_sed}";then
+			if [ -z "$(grep "gtk-color-scheme" "${file_2_sed}" | sed 's/\t//g;s/ //g;s/gtk-color-scheme=//g' )" ];then
+				sed -i 's/\t//g;s/ //g' "${file_2_sed}"
+				sed -i '/gtk-color-scheme=/ { N; s/\n//; }' "${file_2_sed}"
+			fi
+			grep "gtk-color-scheme" "${file_2_sed}" > temp_theme
+			sed 's/\t//g;s/ //g;s/gtk-color-scheme=//g;s/\(.*"\).*/\1/;s/"//g;s/\\n/\n/g' temp_theme > "${file_2_sed}"
 		fi
-				
-		awk -F: '{print tolower($2)}' "${file_2_sed}" | sort -u > temp_theme
-		value_of_base_color="$(grep '_base_color' temp_theme | sed 's/_base_color//g')"
-		sed -i "/$value_of_base_color/d;/^$/d" temp_theme
-		expand_colors temp_theme  > temp_theme_expanded
-		echo "$value_of_base_color" > "$file_2_sed"
-		cat temp_theme_expanded >> "$file_2_sed"
-		colors_sorter "$file_2_sed" > temp_theme_sorted
-		total_lines=$(wc -l < "temp_theme_sorted")
-		line_number=$(grep -n "$value_of_base_color" "temp_theme_sorted" | cut -d: -f1)
-		threshold=$((total_lines / 2))
-		sed -i "/$value_of_base_color/d;/^$/d" temp_theme_sorted
-		if [ "$line_number" -ge "$threshold" ]; then
-			tac temp_theme_sorted > "${file_2_sed}"
-		fi
-		
-		echo "$value_of_base_color" > temp_theme
-		cat "${file_2_sed}" >> temp_theme
-		: > "${file_2_sed}"
-		
-		N=1
-		while IFS= read -r line
-		do
-    		if [ -n "$line" ]; then
-        		echo "color${N}=\"$line\"" >> final_temp_file
-        		N=$((N + 1))
-    		else
-        		break
-    		fi
-		done < temp_theme
+		sed -i "/base_color/ s/$/_base_color/" "$file_2_sed"
+	elif [ "$grep_mode" = "colors" ];then
+		grep "\.color" "${file_2_sed}" > temp_theme
+		sed 's/\t//g;s/ //g;s/.color//g;s/\(.*"\).*/\1/;s/"//g;s/\\n/\n/g' temp_theme > "${file_2_sed}"
+		sed -i "/osd.bg/ s/$/_base_color/" "$file_2_sed"
+	fi
+			
+	awk -F: '{print tolower($2)}' "${file_2_sed}" | sort -u > temp_theme
+	value_of_base_color="$(grep '_base_color' temp_theme | sed 's/_base_color//g')"
+	sed -i "/$value_of_base_color/d;/^$/d" temp_theme
+	expand_colors temp_theme  > temp_theme_expanded
+	echo "$value_of_base_color" > "$file_2_sed"
+	cat temp_theme_expanded >> "$file_2_sed"
+	colors_sorter "$file_2_sed" > temp_theme_sorted
+	total_lines=$(wc -l < "temp_theme_sorted")
+	line_number=$(grep -n "$value_of_base_color" "temp_theme_sorted" | cut -d: -f1)
+	threshold=$((total_lines / 2))
+	sed -i "/$value_of_base_color/d;/^$/d" temp_theme_sorted
+	if [ "$line_number" -ge "$threshold" ]; then
+		tac temp_theme_sorted > "${file_2_sed}"
+	fi
+	
+	echo "$value_of_base_color" > temp_theme
+	cat "${file_2_sed}" >> temp_theme
+	: > "${file_2_sed}"
+	
+	N=1
+	while IFS= read -r line
+	do
+    	if [ -n "$line" ]; then
+       		echo "color${N}=\"$line\"" >> final_temp_file
+       		N=$((N + 1))
+    	else
+       		break
+    	fi
+	done < temp_theme
 
-		if mv final_temp_file "${theme_file_2_source}";then
-			rm -rdf "${_temp_theme_dir}"
-		else
-			echo "[ERROR] $0: failed to mv final_temp_file to ${theme_file_2_source}"
-		fi
+	if mv final_temp_file "${theme_file_2_source}";then
+		rm -rdf "${_temp_theme_dir}"
+	else
+		echo "[ERROR] $0: failed to mv final_temp_file to ${theme_file_2_source}"
 	fi
 }
-
-case "$1" in
-	--create) create_temp_theme_file;;
-	--clean) remove_temp_theme_file;;
-esac
+if [ ! -f "${theme_file_2_source}" ];then
+	create_temp_theme_file
+fi

@@ -11,15 +11,11 @@ if [ -z "${style_name}" ];then
 	exit 1
 fi
 
-theme_file_name="theme_file_2_source"
+theme_file_name="${style_name}_2_source"
 theme_file_2_source="/tmp/$USER/$theme_file_name"
 
-if [ "$__opt" = "--clean" ];then
-	theme_color_creater --clean "${theme_file_2_source}"
-fi
-
 if [ ! -f "$theme_file_2_source" ];then
-	theme_color_creater --create "$theme_file_2_source"
+	theme_color_creater "$theme_file_2_source"
 fi
 
 . "/usr/share/my_stuff/lib/common/WM"
@@ -43,6 +39,7 @@ fi
 
 kitty_themeing(){
 	blob_kitty_theme_path="${path_to_style}/config/kitty"
+	mkdir -p "$blob_kitty_theme_path/themes"
 	echo "background_opacity 0.8" > "${blob_kitty_theme_path}/theme.conf"
 	echo "# color scheme" >> "${blob_kitty_theme_path}/theme.conf"
 	echo "include ./themes/${style_name}.conf" >> "${blob_kitty_theme_path}/theme.conf"
@@ -89,8 +86,9 @@ kitty_themeing(){
 }
 
 openbox_themeing(){
-	blob_openbox_theme_path="${path_to_style}/config/openbox/theme"
-	tee "$blob_openbox_theme_path/rctheme" <<- EOF >/dev/null 2>&1
+	blob_openbox_theme_path="${path_to_style}/openboxrctheme"
+	mkdir -p "$path_to_style"
+	tee "$blob_openbox_theme_path" <<- EOF >/dev/null 2>&1
 	bottom=10
 	top=0
 	right=10
@@ -105,6 +103,7 @@ openbox_themeing(){
 alacritty_themeing(){
 	blob_alacritty_theme_path="${path_to_style}/config/alacritty"
 	cd "$blob_alacritty_theme_path"
+	mkdir -p "$home_alacritty_theme_path/colorschemes"
 	tee "$home_alacritty_theme_path/colorschemes/${style_name}" <<- EOF >/dev/null 2>&1
 	# Default colors
 	[colors.primary]
@@ -138,11 +137,12 @@ alacritty_themeing(){
 	cyan = "$color4"
 	white = "$color13"
 	EOF
-	ln -sf "colorschemes/${style_name}" "colors.yml"
+	ln -sf "colorschemes/${style_name}.yml" "colors.yml"
 }
 
 geany_themeing(){
 	blob_geany_theme_path="${path_to_style}/config/geany"
+	mkdir -p "$blob_geany_theme_path/colorschemes"
 	echo "${style_name}.conf" > "${blob_geany_theme_path}/theme.conf"
 	tee "$blob_geany_theme_path/colorschemes/${style_name}.conf" <<- EOF >/dev/null 2>&1
 	[theme_info]
@@ -359,8 +359,9 @@ jgmenu_themeing(){
 		[ -z "$icon_theme" ] && icon_theme="Material-Solarized-Suru++"
 		[ -z "$menu_border" ] && menu_border=0
 	else
-		#get theme var value from themerc_file
+		mkdir -p "${path_to_style}"
 		themerc_file="/usr/share/my_stuff/Theme_Stuff/themes/$theme/openbox-3/themerc"
+		tee "${path_to_style}/jgmenu_theme" <<- EOF >/dev/null 2>&1
 		color_menu_bg="$color2"
 		color_menu_border="$color1"
 		color_norm_bg="$color1"
@@ -381,6 +382,8 @@ jgmenu_themeing(){
 		icon_size=0
 		icon_theme="Material-Solarized-Suru++"
 		menu_border=0
+		EOF
+		. "${path_to_style}/jgmenu_theme"
 	fi
 
 	#create jgmenu theme file

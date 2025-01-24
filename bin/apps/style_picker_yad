@@ -116,7 +116,7 @@ saveStyle(){
 	mkdir -p "$OBPATH/theme"
 	mkdir -p "$CONFIG_DIR/config/openbox/theme"
 	
-	[ -f "${OBPATH}/theme/rctheme" ] &&  . "${OBPATH}/theme/rctheme"
+	[ -f "$OBPATH/theme/rctheme" ] &&  . "$OBPATH/theme/rctheme"
 	
 	theme_font_name=($(grep '<name>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -2))
 	
@@ -136,16 +136,16 @@ saveStyle(){
 	[[ "${titleLayout_tmp}" = "&titleLayout_var;" ]] && titleLayout_tmp="${titleLayout}"
 	
 	if [[ "${theme_font_name[0]}" = "&theme_var;" ]];then
-		cp "$OBPATH/theme/rctheme" "$CONFIG_DIR/config/openbox/theme"
+		cp "$OBPATH/theme/rctheme" "$CONFIG_DIR/openboxrctheme"
 	else
-		echo "bottom=${bottom_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "top=${top_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "right=${right_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "left=${left_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "size=${size_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "font=${font_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "theme=${theme_font_name[0]}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
-		echo "titleLayout=${titleLayout_tmp}" >> "$CONFIG_DIR/config/openbox/theme/rctheme"
+		echo "bottom=${bottom_tmp}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "top=${top_tmp}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "right=${right_tmp}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "left=${left_tmp}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "size=${size_tmp}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "font=${font_tmp}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "theme=${theme_font_name[0]}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "titleLayout=${titleLayout_tmp}" >> "$CONFIG_DIR/openboxrctheme"
 	fi
 
     # getpolybar
