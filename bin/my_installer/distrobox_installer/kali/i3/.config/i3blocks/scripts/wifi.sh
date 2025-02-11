@@ -22,7 +22,7 @@ get_bat() {
     esac
 }
 
-if [[ $SSID ]]; then
+if [[ $SSID ]];then
     get_bat
 else
     echo "$WS_N"

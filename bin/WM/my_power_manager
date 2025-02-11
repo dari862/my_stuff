@@ -19,7 +19,7 @@ my_power_managers_session(){
 
 my_power_managers_gui(){
 
-	if ! pidof my_power_manager_daemon >/dev/null 2>&1; then
+	if ! pidof my_power_manager_daemon >/dev/null 2>&1;then
 			my_power_managers_session
 	fi
 	my_power_manager_ini_location="$ini_dir_/$ini_file_"
@@ -110,7 +110,7 @@ my_power_manager_daemon(){
 	
 	set_brightness_on_idle()
 	{
-	if [ "$only_one_display" = "true" ] ; then
+	if [ "$only_one_display" = "true" ];then
 		this_is_n_activate_display=$(xrandr -q | grep " connected" | awk '{print $1;}')
 		xrandr --output $this_is_n_activate_display --brightness 0.5
 	else
@@ -128,7 +128,7 @@ my_power_manager_daemon(){
   	minval=$1
   	for i in $*
   	do
-    	if [ "$i" -le "$minval" ] && [ "$i" -gt 0 ] ; then
+    	if [ "$i" -le "$minval" ] && [ "$i" -gt 0 ];then
       	minval=$i
     	fi
   	done
@@ -137,7 +137,7 @@ my_power_manager_daemon(){
 	idle=false
 	max_n=$(xrandr -q | grep "connected" | wc | awk '{print $1;}')
 	n=1
-	if [ "$max_n" -eq 1 ] ; then
+	if [ "$max_n" -eq 1 ];then
 		only_one_display="true"
 	fi
 	
@@ -170,7 +170,7 @@ my_power_manager_daemon(){
 	
 	min_time_is=$minval
 	
-	if [ "$min_time_is" -lt "$idleAfter" ] ; then
+	if [ "$min_time_is" -lt "$idleAfter" ];then
 		difference_time=$((idleAfter-min_time_is))
 	else
 		difference_time=0
@@ -183,27 +183,27 @@ my_power_manager_daemon(){
   	[ "$time_to_sleep" -le 0 ] && time_to_sleep=0
   	
   	
-  	if [ "$turnoff_moniter_time" -gt 0 ] && [ "$turnoff_moniter_time" -ge "$idleTime" ]; then
+  	if [ "$turnoff_moniter_time" -gt 0 ] && [ "$turnoff_moniter_time" -ge "$idleTime" ];then
 			my_session_manager --no-confirm moniter_off
   	fi
   	
-  	if [ "$logout_time" -gt 0 ] && [ "$logout_time" -le "$idleTime" ] ; then
+  	if [ "$logout_time" -gt 0 ] && [ "$logout_time" -le "$idleTime" ];then
 			my_session_manager --no-confirm logout
   	fi 
   	
-  	if [ "$suspend_time" -gt 0 ] && [ "$suspend_time" -le "$idleTime" ] ; then
+  	if [ "$suspend_time" -gt 0 ] && [ "$suspend_time" -le "$idleTime" ];then
 			my_session_manager --no-confirm suspend
   	fi
   	
-  	if [ "$hibernate_time" -gt 0 ] && [ "$hibernate_time" -le "$idleTime" ] ; then
+  	if [ "$hibernate_time" -gt 0 ] && [ "$hibernate_time" -le "$idleTime" ];then
 			my_session_manager --no-confirm hibernate
   	fi
   	
-  	if [ "$poweroff_time" -gt 0 ] && [ "$poweroff_time" -le "$idleTime" ] ; then
+  	if [ "$poweroff_time" -gt 0 ] && [ "$poweroff_time" -le "$idleTime" ];then
 			my_session_manager --no-confirm poweroff
   	fi
 	
-  	if [ "$idleAfter" -gt 0 ] && [ "$idle" = false ] && [ "$idleTimeMillis" -gt "$idleAfterMillis" ] ; then
+  	if [ "$idleAfter" -gt 0 ] && [ "$idle" = false ] && [ "$idleTimeMillis" -gt "$idleAfterMillis" ];then
     	[ "$brightness_level" -ne 0 ] && set_brightness_on_idle
 		[ "$lock_screen_on_idle" = "true" ] && my_session_manager --no-confirm lock
     	idle=true
@@ -211,7 +211,7 @@ my_power_manager_daemon(){
   	
   	[ "$idle" = "false" ] && sleep "$time_to_sleep"
 	
-  	if [ "$idle" = true ] ; then
+  	if [ "$idle" = true ];then
     	while [ "$idleTimeMillis" -gt "$idleAfterMillis" ]
     	do
     		sleep $min_time_is

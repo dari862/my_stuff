@@ -21,7 +21,7 @@ cleanup() {
 }
 
 main() {
-	if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+	if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ];then
 		lf "$@"
 	else
 		[ -d "${XDG_CACHE_HOME}/lf" ] || mkdir -p "${XDG_CACHE_HOME}/lf"

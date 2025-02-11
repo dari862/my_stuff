@@ -2,11 +2,11 @@ usr_autostart="$usr_confdir/openbox/autostart"
 usr_envfile="$usr_confdir/openbox/environment"
 default_autostart="${OBPATH_SKEL}"
 # include my_stuff/bin/openbox in PATH
-if [ -d "/usr/share/my_stuff/bin/openbox" ] ; then
+if [ -d "/usr/share/my_stuff/bin/openbox" ];then
    	PATH="/usr/share/my_stuff/bin/openbox:$PATH"
 fi
 	
-if [ -d "/usr/share/my_stuff/bin/openbox/pipemenu" ] ; then
+if [ -d "/usr/share/my_stuff/bin/openbox/pipemenu" ];then
    	PATH="/usr/share/my_stuff/bin/openbox/pipemenu:$PATH"
 fi
 # Clean up after GDM (GDM sets the number of desktops to one).

@@ -40,7 +40,7 @@ jgmenuEnd() {
 
 _jgmenuSetHeader() {
     tag="$1"
-    if [ "$tag" != "root" ] && [ -z "$(echo "$menu_content" | grep "^tag($tag)")" ]; then
+    if [ "$tag" != "root" ] && [ -z "$(echo "$menu_content" | grep "^tag($tag)")" ];then
         menu_content="$menu_content^tag($tag)\nBack,^back()\n"
     fi
 }
@@ -77,7 +77,7 @@ menulabel() {
 
 menuSeparator() {
     label="${1-}"
-    if [ "$label" ]; then
+    if [ "$label" ];then
         echo "        <separator label=\"$(OBlabelEscape "$label")\"/>"
     else
         echo '        <separator/>'

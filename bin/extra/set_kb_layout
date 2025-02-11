@@ -3,7 +3,7 @@
 
 set -e
 
-if ! command -v setxkbmap >/dev/null; then
+if ! command -v setxkbmap >/dev/null;then
 	exit 1
 fi
 

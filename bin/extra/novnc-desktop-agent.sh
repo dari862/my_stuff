@@ -99,7 +99,7 @@ renew_credential() {
 # -----------------------------------------------------------------------------
 start_websockify() {
      websockify --heartbeat=30 $PORT 127.0.0.1:$VNCPORT 2>&1 | while IFS= read -r output; do
-        if [ -n "$(echo $output | egrep 'connecting to')" ]; then
+        if [ -n "$(echo $output | egrep 'connecting to')" ];then
             ip=$(echo $output | cut -d ' ' -f1)
             yad --title="" --escape-ok --fixed --borders=20 \
                 --text-align=center --timeout=5 --no-buttons \
@@ -122,17 +122,17 @@ share_desktop() {
 	x11vnc -display :0 -localhost -autoport 5900 -noipv6 -nolookup \
        	-once -loop -usepw -shared -noxdamage -nodpms \
        	-tag VNC-$PGID 2>&1 | while IFS= read -r output; do
-    	if echo "$output" | egrep -q '^PORT='; then
+    	if echo "$output" | egrep -q '^PORT=';then
         	VNCPORT=$(echo "$output" | cut -d '=' -f2)
 	
         	# restart websockify if the port is changed
-        	if [ "$oldport" != "$VNCPORT" ]; then
+        	if [ "$oldport" != "$VNCPORT" ];then
             	pkill -U "$USER_ID" -f "websockify .*$PORT" || true
             	start_websockify &
             	oldport="$VNCPORT"
         	fi
     	# open the permanent splash window if it's not opened before
-    	elif echo "$output" | egrep -q 'client_set_net:' && [ "$splashed" = false ]; then
+    	elif echo "$output" | egrep -q 'client_set_net:' && [ "$splashed" = false ];then
         	pkill -U "$USER_ID" -f " YAD-$PGID" || true
         	(yad --title="$TITLE" --splash --no-escape --borders=20 \
             	--buttons-layout=edge --button=gtk-close:0 \

@@ -60,7 +60,7 @@ chown -Rh $_TOR_USER:$_TOR_USER /var/lib/tor /etc/tor /var/log/tor
 say "Create ${start_tor_chroot_script_name} for controlling chroot..."
 my-superuser tee "$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name" <<- EOF > /dev/null
 #!/bin/sh
-if ! /usr/bin/mountpoint -q "$TOR_CHROOT_DIR/proc"; then
+if ! /usr/bin/mountpoint -q "$TOR_CHROOT_DIR/proc";then
 	/usr/bin/mount --bind "/proc" "$TOR_CHROOT_DIR/proc"
 fi
 /usr/sbin/chroot $TOR_CHROOT_DIR /bin/sh -c "su - $_TOR_USER -c '/usr/bin/start-service.sh'" 

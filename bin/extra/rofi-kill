@@ -19,11 +19,11 @@ main() {
 
     # Nested 'if' statements.  The outer 'if' statement is what to do
     # when we select one of the 'selected' options listed in rofi.
-    if [ -n "$selected" ]; then
+    if [ -n "$selected" ];then
         # Piping No/Yes into rofi as a safety measure, in case you
         answer="$(printf "No\nYes" | ${rofi_command} -p "Kill $selected?" "$@")"
 
-        if [ "$answer" = "Yes" ]; then
+        if [ "$answer" = "Yes" ];then
             # This echo command prints everything before the first space.
 	    # Luke Smith has a video on why this is most efficient in this case
 	    # An alternative way to do it would be with awk or cut, both are less 

@@ -80,7 +80,7 @@ setup_options() {
 
     # Format for marked files.
     # Use affixes provided by the user or use defaults, if necessary.
-    if [[ $FFF_MARK_FORMAT == *%f* ]]; then
+    if [[ $FFF_MARK_FORMAT == *%f* ]];then
         mark_pre=${FFF_MARK_FORMAT/'%f'*}
         mark_post=${FFF_MARK_FORMAT/*'%f'}
     else
@@ -198,7 +198,7 @@ read_dir() {
     [[ $PWD == / ]] && PWD=
 
     for item in "$PWD"/*; do
-        if [[ -d $item ]]; then
+        if [[ -d $item ]];then
             dirs+=("$item")
 
             # Find the position of the child directory in the
@@ -231,47 +231,47 @@ print_line() {
     local suffix
 
     # If the dir item doesn't exist, end here.
-    if [[ -z ${list[$1]} ]]; then
+    if [[ -z ${list[$1]} ]];then
         return
 
     # Directory.
-    elif [[ -d ${list[$1]} ]]; then
+    elif [[ -d ${list[$1]} ]];then
         format+=\\e[${di:-1;3${FFF_COL1:-2}}m
         suffix+=/
 
     # Block special file.
-    elif [[ -b ${list[$1]} ]]; then
+    elif [[ -b ${list[$1]} ]];then
         format+=\\e[${bd:-40;33;01}m
 
     # Character special file.
-    elif [[ -c ${list[$1]} ]]; then
+    elif [[ -c ${list[$1]} ]];then
         format+=\\e[${cd:-40;33;01}m
 
     # Executable file.
-    elif [[ -x ${list[$1]} ]]; then
+    elif [[ -x ${list[$1]} ]];then
         format+=\\e[${ex:-01;32}m
 
     # Symbolic Link (broken).
-    elif [[ -h ${list[$1]} && ! -e ${list[$1]} ]]; then
+    elif [[ -h ${list[$1]} && ! -e ${list[$1]} ]];then
         format+=\\e[${mi:-01;31;7}m
 
     # Symbolic Link.
-    elif [[ -h ${list[$1]} ]]; then
+    elif [[ -h ${list[$1]} ]];then
         format+=\\e[${ln:-01;36}m
 
     # Fifo file.
-    elif [[ -p ${list[$1]} ]]; then
+    elif [[ -p ${list[$1]} ]];then
         format+=\\e[${pi:-40;33}m
 
     # Socket file.
-    elif [[ -S ${list[$1]} ]]; then
+    elif [[ -S ${list[$1]} ]];then
         format+=\\e[${so:-01;35}m
 
     # Color files that end in a pattern as defined in LS_COLORS.
     # 'BASH_REMATCH' is an array that stores each REGEX match.
     elif [[ $FFF_LS_COLORS == 1 &&
             $ls_patterns &&
-            $file_name =~ ($ls_patterns)$ ]]; then
+            $file_name =~ ($ls_patterns)$ ]];then
         match=${BASH_REMATCH[0]}
         file_ext=ls_${match//[^a-zA-Z0-9=\\;]/_}
         format+=\\e[${!file_ext:-${fi:-37}}m
@@ -281,7 +281,7 @@ print_line() {
     # standard before checking if it's a variable.
     elif [[ $FFF_LS_COLORS == 1 &&
             $file_ext != "$file_name" &&
-            $file_ext =~ ^[a-zA-Z0-9_]*$ ]]; then
+            $file_ext =~ ^[a-zA-Z0-9_]*$ ]];then
         file_ext=ls_${file_ext}
         format+=\\e[${!file_ext:-${fi:-37}}m
 
@@ -325,13 +325,13 @@ draw_dir() {
     }
 
     # If current dir is near the top of the list, keep scroll position.
-    if ((list_total < max_items || scroll < max_items/2)); then
+    if ((list_total < max_items || scroll < max_items/2));then
         ((scroll_start=0))
         ((scroll_end=max_items))
         ((scroll_new_pos=scroll+1))
 
     # If current dir is near the end of the list, keep scroll position.
-    elif ((list_total - scroll < max_items/2)); then
+    elif ((list_total - scroll < max_items/2));then
         ((scroll_start=list_total-max_items+1))
         ((scroll_new_pos=max_items-(list_total-scroll)))
         ((scroll_end=list_total+1))
@@ -389,7 +389,7 @@ draw_img() {
     }
 
     # Get terminal window size in pixels and set it to WIDTH and HEIGHT.
-    if [[ $win_info_cmd == xdotool ]]; then
+    if [[ $win_info_cmd == xdotool ]];then
         IFS=$'\n' read -d "" -ra win_info \
             < <(xdotool getactivewindow getwindowgeometry --shell)
 
@@ -470,8 +470,8 @@ mark() {
     [[ ${list[0]} == empty && -z ${list[1]} ]] &&
         return
 
-    if [[ $1 == all ]]; then
-        if ((${#marked_files[@]} != ${#list[@]})); then
+    if [[ $1 == all ]];then
+        if ((${#marked_files[@]} != ${#list[@]}));then
             marked_files=("${list[@]}")
             mark_dir=$PWD
         else
@@ -480,7 +480,7 @@ mark() {
 
         redraw
     else
-        if [[ ${marked_files[$1]} == "${list[$1]}" ]]; then
+        if [[ ${marked_files[$1]} == "${list[$1]}" ]];then
             unset 'marked_files[scroll]'
 
         else
@@ -519,7 +519,7 @@ trash() {
     [[ $cmd_reply != y ]] &&
         return
 
-    if [[ $FFF_TRASH_CMD ]]; then
+    if [[ $FFF_TRASH_CMD ]];then
         # Pass all but the last argument to the user's
         # custom script. command is used to prevent this function
         # from conflicting with commands named "trash".
@@ -528,7 +528,7 @@ trash() {
     else
         cd "$FFF_TRASH" || cmd_line "error: Can't cd to trash directory."
 
-        if cp -alf "$@" >/dev/null 2>&1; then
+        if cp -alf "$@" >/dev/null 2>&1;then
             rm -r "${@:1:$#-1}"
         else
             mv -f "$@"
@@ -585,13 +585,13 @@ bulk_rename() {
 
 open() {
     # Open directories and files.
-    if [[ -d $1/ ]]; then
+    if [[ -d $1/ ]];then
         search=
         search_end_early=
         cd "${1:-/}" ||:
         redraw full
 
-    elif [[ -f $1 ]]; then
+    elif [[ -f $1 ]];then
         # Figure out what kind of file we're working with.
         get_mime_type "$1"
 
@@ -774,11 +774,11 @@ key() {
         ${FFF_KEY_PARENT4:=$'\b'}|\
         ${FFF_KEY_PARENT5:=$'\eOD'})
             # If a search was done, clear the results and open the current dir.
-            if ((search == 1 && search_end_early != 1)); then
+            if ((search == 1 && search_end_early != 1));then
                 open "$PWD"
 
             # If '$PWD' is '/', do nothing.
-            elif [[ $PWD && $PWD != / ]]; then
+            elif [[ $PWD && $PWD != / ]];then
                 find_previous=1
                 open "${PWD%/*}"
             fi
@@ -814,7 +814,7 @@ key() {
 
                 print_line "$((scroll+1))"
 
-                if ((y < 2)); then
+                if ((y < 2));then
                     printf '\e[L'
                 else
                     printf '\e[A'
@@ -857,7 +857,7 @@ key() {
             cmd_line "/" "search"
 
             # If the search came up empty, redraw the current dir.
-            if [[ -z ${list[*]} ]]; then
+            if [[ -z ${list[*]} ]];then
                 list=("${cur_list[@]}")
                 ((list_total=${#list[@]}-1))
                 redraw
@@ -937,10 +937,10 @@ key() {
             cmd_line "rename ${list[scroll]##*/}: "
 
             [[ $cmd_reply ]] &&
-                if [[ -e $cmd_reply ]]; then
+                if [[ -e $cmd_reply ]];then
                     cmd_line "warn: '$cmd_reply' already exists."
 
-                elif [[ -w ${list[scroll]} ]]; then
+                elif [[ -w ${list[scroll]} ]];then
                     mv "${list[scroll]}" "${PWD}/${cmd_reply}"
                     redraw full
 
@@ -954,10 +954,10 @@ key() {
             cmd_line "mkdir: " "dirs"
 
             [[ $cmd_reply ]] &&
-                if [[ -e $cmd_reply ]]; then
+                if [[ -e $cmd_reply ]];then
                     cmd_line "warn: '$cmd_reply' already exists."
 
-                elif [[ -w $PWD ]]; then
+                elif [[ -w $PWD ]];then
                     mkdir -p "${PWD}/${cmd_reply}"
                     redraw full
 
@@ -971,10 +971,10 @@ key() {
             cmd_line "mkfile: "
 
             [[ $cmd_reply ]] &&
-                if [[ -e $cmd_reply ]]; then
+                if [[ -e $cmd_reply ]];then
                     cmd_line "warn: '$cmd_reply' already exists."
 
-                elif [[ -w $PWD ]]; then
+                elif [[ -w $PWD ]];then
                     : > "$cmd_reply"
                     redraw full
 
@@ -997,7 +997,7 @@ key() {
         # Toggle executable flag.
         ${FFF_KEY_EXECUTABLE:=X})
             [[ -f ${list[scroll]} && -w ${list[scroll]} ]] && {
-                if [[ -x ${list[scroll]} ]]; then
+                if [[ -x ${list[scroll]} ]];then
                     chmod -x "${list[scroll]}"
                     status_line "Unset executable."
                 else

@@ -29,7 +29,7 @@ create_db_from_dirs() {
     	dir_name=$(basename "$d")
 	
     	# If the corresponding file already exists in the db_path, remove it
-    	if [ -f "${db_path}/$dir_name" ]; then
+    	if [ -f "${db_path}/$dir_name" ];then
       		rm "${db_path}/$dir_name"
     	fi
 	
@@ -38,7 +38,7 @@ create_db_from_dirs() {
 	
     	# Iterate over the files in the subdirectory (ignoring directories)
     	for app in "$d"/*; do
-      		if [ -f "$app" ] && ! is_installed "$(basename "$app")"; then
+      		if [ -f "$app" ] && ! is_installed "$(basename "$app")";then
         		echo "$(basename "$app")" >> "$db_path/$dir_name"
       		fi
     	done
@@ -54,20 +54,20 @@ create_db_from_dirs() {
 # Create the Tweeks database
 create_tweeks_db() {
   # Check if _TWEEKS_LIBDIR is valid and not empty
-  if [ -z "$(ls -A "${_TWEEKS_LIBDIR}")" ]; then
+  if [ -z "$(ls -A "${_TWEEKS_LIBDIR}")" ];then
     rm -rdf "${_TWEEKS_LIBDIR}"
   fi
   
-  if [ ! -d "${_TWEEKS_LIBDIR}" ]; then
+  if [ ! -d "${_TWEEKS_LIBDIR}" ];then
     mkdir -p "${_TWEEKS_LIBDIR}"
   fi
   
   # Loop over files in _TWEEKS_LIBDIR
   for tweek in "${_TWEEKS_LIBDIR}"/*; do
     # Skip if it's not a file (can be a subdirectory or something else)
-    if [ -f "$tweek" ]; then
+    if [ -f "$tweek" ];then
       # Check if the tweek is not enabled
-      if ! ${tweek} --is-enable; then
+      if ! ${tweek} --is-enable;then
         echo "$(basename "$tweek")" >> "${tweeks_db_path}"
       fi
     fi
@@ -85,9 +85,9 @@ create_distrobox_deploy_db() {
   cd "${_DISTROBOX_LIBDIR}"
   list_of_deploys=$(find . -maxdepth 1 -type f -exec basename {} \;)
 
-  if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ]; then
+  if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
     for deploy in $list_of_deploys; do
-      if ! distrobox list | grep -q " ${deploy} "; then
+      if ! distrobox list | grep -q " ${deploy} ";then
         echo "$deploy" >> "${distrobox_deploy_db_path}"
       fi
     done
@@ -103,9 +103,9 @@ create_containers_deploy_db() {
   cd "${_CONTAINERS_LIBDIR}"
   list_of_containers=$(find . -maxdepth 1 -type f -exec basename {} \;)
 
-  if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ]; then
+  if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ];then
     for container in $list_of_containers; do
-      if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ]; then
+      if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ];then
         echo "$container" >> "${containers_deploy_db_path}"
       fi
     done
@@ -119,9 +119,9 @@ create_containers_deploy_db() {
 # Create chroots deploy database
 create_chroots_deploy_db() {
   list_of_chroots=$(find "${_CHROOTS_LIBDIR}" -maxdepth 1 -type f -exec basename {} \;)
-  if [ -d "${ROOT_CHROOT_DIR}" ]; then
+  if [ -d "${ROOT_CHROOT_DIR}" ];then
     for chroot in $list_of_chroots; do
-      if [ ! -f "${_CHROOTS_INSTALLED_LIBDIR}/${chroot}" ]; then
+      if [ ! -f "${_CHROOTS_INSTALLED_LIBDIR}/${chroot}" ];then
         echo "$chroot" >> "${chroots_deploy_db_path}"
       fi
     done
@@ -135,18 +135,18 @@ create_chroots_deploy_db() {
 # Create the FULL ENVIRONMENT database
 create_full_environment_db() {
   # Check if _FULL_ENVIRONMENT_LIBDIR is not valid or empty
-  if [ -z "$(ls -A "${_FULL_ENVIRONMENT_LIBDIR}")" ]; then
+  if [ -z "$(ls -A "${_FULL_ENVIRONMENT_LIBDIR}")" ];then
     rm -rdf "${_FULL_ENVIRONMENT_LIBDIR}"
   fi
   
-  if [ ! -d "${_FULL_ENVIRONMENT_LIBDIR}" ]; then
+  if [ ! -d "${_FULL_ENVIRONMENT_LIBDIR}" ];then
     mkdir -p "${_FULL_ENVIRONMENT_LIBDIR}"
   fi
   
   # Loop over files in _FULL_ENVIRONMENT_LIBDIR
   for FE in "${_FULL_ENVIRONMENT_LIBDIR}"/*; do
     # Skip if it's not a file (can be a subdirectory or something else)
-    if [ -f "$FE" ]; then
+    if [ -f "$FE" ];then
       echo "$(basename "$FE")" >> "${full_environment_db_path}"
     fi
   done
@@ -157,7 +157,7 @@ create_styles_db() {
 	. "/usr/share/my_stuff/lib/common/panel"
 	. "/usr/share/my_stuff/lib/common/openbox"
 
-	if [ "$_panel_name_" = 'polybar' ]; then
+	if [ "$_panel_name_" = 'polybar' ];then
 		dir="/usr/share/my_stuff/system_files/blob/polybar"
 	else
 		dir="/usr/share/my_stuff/system_files/blob/tint2"

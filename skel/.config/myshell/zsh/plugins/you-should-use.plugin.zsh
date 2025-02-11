@@ -2,7 +2,7 @@
 
 export YSU_VERSION='1.7.4'
 
-if ! type "tput" > /dev/null; then
+if ! type "tput" > /dev/null;then
     printf "WARNING: tput command not found on your PATH.\n"
     printf "zsh-you-should-use will fallback to uncoloured messages\n"
 else
@@ -31,7 +31,7 @@ function check_alias_usage() {
 
     local current=0
     local total=$(wc -l < "$HISTFILE")
-    if [[ $total -gt $limit ]]; then
+    if [[ $total -gt $limit ]];then
         total=$limit
     fi
 
@@ -45,7 +45,7 @@ function check_alias_usage() {
             # We only care about the first word because that's all aliases work with
             # (this does not count global and git aliases)
             local word=${entry[(w)1]}
-            if [[ -n ${usage[$word]} ]]; then
+            if [[ -n ${usage[$word]} ]];then
                 local prev=$usage[$word]
                 let "prev = prev + 1 "
                 usage[$word]=$prev
@@ -72,9 +72,9 @@ function _write_ysu_buffer() {
 
     # Maintain historical behaviour by default
     local position="${YSU_MESSAGE_POSITION:-before}"
-    if [[ "$position" = "before" ]]; then
+    if [[ "$position" = "before" ]];then
         _flush_ysu_buffer
-    elif [[ "$position" != "after" ]]; then
+    elif [[ "$position" != "after" ]];then
         (>&2 printf "${RED}${BOLD}Unknown value for YSU_MESSAGE_POSITION '$position'. ")
         (>&2 printf "Expected value 'before' or 'after'${NONE}\n")
         _flush_ysu_buffer
@@ -114,7 +114,7 @@ You should use: ${PURPLE}\"%alias\"${NONE}"
 
 # Prevent command from running if hardcore mode enabled
 function _check_ysu_hardcore() {
-    if [[ "$YSU_HARDCORE" = 1 ]]; then
+    if [[ "$YSU_HARDCORE" = 1 ]];then
         _write_ysu_buffer "${BOLD}${RED}You Should Use hardcore mode enabled. Use your aliases!${NONE}\n"
         kill -s INT $$
     fi
@@ -126,29 +126,29 @@ function _check_git_aliases() {
     local expanded="$2"
 
     # sudo will use another user's profile and so aliases would not apply
-    if [[ "$typed" = "sudo "* ]]; then
+    if [[ "$typed" = "sudo "* ]];then
         return
     fi
 
-    if [[ "$typed" = "git "* ]]; then
+    if [[ "$typed" = "git "* ]];then
         local found=false
         git config --get-regexp "^alias\..+$" | sort | while read key value; do
             key="${key#alias.}"
 
             # if for some reason, read does not split correctly, we
             # detect that and manually split the key and value
-            if [[ -z "$value" ]]; then
+            if [[ -z "$value" ]];then
                 value="${key#* }"
                 key="${key%% *}"
             fi
 
-            if [[ "$expanded" = "git $value" || "$expanded" = "git $value "* ]]; then
+            if [[ "$expanded" = "git $value" || "$expanded" = "git $value "* ]];then
                 ysu_message "git alias" "$value" "git $key"
                 found=true
             fi
         done
 
-        if $found; then
+        if $found;then
             _check_ysu_hardcore
         fi
     fi
@@ -166,7 +166,7 @@ function _check_global_aliases() {
     local entry
 
     # sudo will use another user's profile and so aliases would not apply
-    if [[ "$typed" = "sudo "* ]]; then
+    if [[ "$typed" = "sudo "* ]];then
         return
     fi
 
@@ -177,20 +177,20 @@ function _check_global_aliases() {
         value="${(Q)tokens[2]}"
 
         # Skip ignored global aliases
-        if [[ ${YSU_IGNORED_GLOBAL_ALIASES[(r)$key]} == "$key" ]]; then
+        if [[ ${YSU_IGNORED_GLOBAL_ALIASES[(r)$key]} == "$key" ]];then
             continue
         fi
 
         if [[ "$typed" = *" $value "* || \
               "$typed" = *" $value" || \
               "$typed" = "$value "* || \
-              "$typed" = "$value" ]]; then
+              "$typed" = "$value" ]];then
             ysu_message "global alias" "$value" "$key"
             found=true
         fi
     done
 
-    if $found; then
+    if $found;then
         _check_ysu_hardcore
     fi
 }
@@ -208,7 +208,7 @@ function _check_aliases() {
     local value
 
     # sudo will use another user's profile and so aliases would not apply
-    if [[ "$typed" = "sudo "* ]]; then
+    if [[ "$typed" = "sudo "* ]];then
         return
     fi
 
@@ -217,27 +217,27 @@ function _check_aliases() {
         value="${aliases[$key]}"
 
         # Skip ignored aliases
-        if [[ ${YSU_IGNORED_ALIASES[(r)$key]} == "$key" ]]; then
+        if [[ ${YSU_IGNORED_ALIASES[(r)$key]} == "$key" ]];then
             continue
         fi
 
         if [[ "$typed" = "$value" || \
-              "$typed" = "$value "* ]]; then
+              "$typed" = "$value "* ]];then
 
         # if the alias longer or the same length as its command
         # we assume that it is there to cater for typos.
         # If not, then the alias would not save any time
         # for the user and so doesn't hold much value anyway
-        if [[ "${#value}" -gt "${#key}" ]]; then
+        if [[ "${#value}" -gt "${#key}" ]];then
 
             found_aliases+="$key"
 
             # Match aliases to longest portion of command
-            if [[ "${#value}" -gt "${#best_match_value}" ]]; then
+            if [[ "${#value}" -gt "${#best_match_value}" ]];then
                 best_match="$key"
                 best_match_value="$value"
             # on equal length, choose the shortest alias
-            elif [[ "${#value}" -eq "${#best_match}" && ${#key} -lt "${#best_match}" ]]; then
+            elif [[ "${#value}" -eq "${#best_match}" && ${#key} -lt "${#best_match}" ]];then
                 best_match="$key"
                 best_match_value="$value"
             fi
@@ -246,23 +246,23 @@ function _check_aliases() {
     done
 
     # Print result matches based on current mode
-    if [[ "$YSU_MODE" = "ALL" ]]; then
+    if [[ "$YSU_MODE" = "ALL" ]];then
         for key in ${(@ok)found_aliases}; do
             value="${aliases[$key]}"
             ysu_message "alias" "$value" "$key"
         done
 
-    elif [[ (-z "$YSU_MODE" || "$YSU_MODE" = "BESTMATCH") && -n "$best_match" ]]; then
+    elif [[ (-z "$YSU_MODE" || "$YSU_MODE" = "BESTMATCH") && -n "$best_match" ]];then
         # make sure that the best matched alias has not already
         # been typed by the user
         value="${aliases[$best_match]}"
-        if [[ "$typed" = "$best_match" || "$typed" = "$best_match "* ]]; then
+        if [[ "$typed" = "$best_match" || "$typed" = "$best_match "* ]];then
             return
         fi
         ysu_message "alias" "$value" "$best_match"
     fi
 
-    if [[ -n "$found_aliases" ]]; then
+    if [[ -n "$found_aliases" ]];then
         _check_ysu_hardcore
     fi
 }

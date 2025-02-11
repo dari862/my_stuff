@@ -10,11 +10,11 @@ maximum_entries=15
 #######################################################################
 
 # look for recently-used.xbel
-if [ "$XDG_DATA_HOME" ] && [ -r "${XDG_DATA_HOME}/recently-used.xbel" ]; then
+if [ "$XDG_DATA_HOME" ] && [ -r "${XDG_DATA_HOME}/recently-used.xbel" ];then
     file_path="${XDG_DATA_HOME}/recently-used.xbel"
-elif [ -r "${HOME}/.local/share/recently-used.xbel" ]; then
+elif [ -r "${HOME}/.local/share/recently-used.xbel" ];then
     file_path="${HOME}/.local/share/recently-used.xbel"
-elif [ -r "${HOME}/.recently-used.xbel" ]; then
+elif [ -r "${HOME}/.recently-used.xbel" ];then
     file_path="${HOME}/.recently-used.xbel"
 else
     echo '<openbox_pipe_menu>

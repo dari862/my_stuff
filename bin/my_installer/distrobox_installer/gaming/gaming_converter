@@ -57,15 +57,15 @@ yay -q --noprogressbar -Syu git vim base-devel noto-fonts xdg-user-dirs fuse lib
 	
 echog "Installing audio and driver packages."
 
-if [ "$GPU" = "amd" ]; then
+if [ "$GPU" = "amd" ];then
 	echo '	yay -q --noprogressbar -Syu libva-mesa-driver vulkan-radeon lib32-vulkan-radeon lib32-libva-mesa-driver --noconfirm' >> "${phase_file_4}"
-elif [ "$GPU" = "nvidia" ]; then
+elif [ "$GPU" = "nvidia" ];then
    	echo '	echog "Using host system driver mounts, not installing nvidia drivers."' >> "${phase_file_4}"
-   	if [ "$MULTI_GPU" = "1" ]; then
+   	if [ "$MULTI_GPU" = "1" ];then
      		echo '	echog "Installing prime-run , games on your dedicated GPU."' >> "${phase_file_4}"
      		echo '	yay -q --noprogressbar -Syu nvidia-prime --noconfirm --assume-installed nvidia-utils' >> "${phase_file_4}"
    	fi
-elif [ "$GPU" = "intel" ]; then
+elif [ "$GPU" = "intel" ];then
    	yay -q --noprogressbar -Syu libva-mesa-driver vulkan-intel lib32-vulkan-intel intel-media-driver lib32-libva-intel-driver libva-intel-driver --noconfirm
    	# Thanks marioeatsdirt for tip!
    	echog "Installing older vulkan-intel driver as newest one (24.0 at the moment of writing) doesnt work on Intel."
@@ -76,9 +76,9 @@ elif [ "$GPU" = "intel" ]; then
    	sudo sed -i "s/.*IgnorePkg.*/IgnorePkg = vulkan-intel lib32-vulkan-intel/g" /etc/pacman.conf
 fi
 
-if [ "$AUDIO_SYSTEM" = "pipewire" ]; then
+if [ "$AUDIO_SYSTEM" = "pipewire" ];then
    	echo '	yay -q --noprogressbar -Syu lib32-pipewire pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber --noconfirm' >> "${phase_file_4}"
-elif [ "$AUDIO_SYSTEM" = "pulseaudio" ]; then
+elif [ "$AUDIO_SYSTEM" = "pulseaudio" ];then
    	echo '	yay -q --noprogressbar -Syu pulseaudio pulseaudio-alsa --noconfirm' >> "${phase_file_4}"
 fi
 echog "Installing base packages and Steam."

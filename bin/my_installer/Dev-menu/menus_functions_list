@@ -9,7 +9,7 @@ run_confirmtion(){
 	message="${1:-}"
 	choice=(yes no)
 	choice=$(printf '%s\n' "${choice[@]}" | shellect "$message")
-	if [ "$choice" = "no" ]; then
+	if [ "$choice" = "no" ];then
 		return 1
 	fi
 }
@@ -17,7 +17,7 @@ run_confirmtion(){
 font_size_menu(){
 	choice=(7 8 9 10 11 12 13 14 "<< Back")
 	choice=$(printf '%s\n' "${choice[@]}" | shellect "Choose your terminal font size" | tr '[:upper:]' '[:lower:]')
-	if [[ $choice =~ ^[0-9]+$ ]]; then
+	if [[ $choice =~ ^[0-9]+$ ]];then
 		sed -i "s/^size = .*$/size = $choice/g" ~/.config/alacritty/font-size.toml || :
 		Font_size_menu
 	else
@@ -35,7 +35,7 @@ update_menu(){
 		"<< Back       "
 	)
 	CHOICE=$(printf '%s\n' "${CHOICES[@]}" | shellect  "Update manually-managed applications" | tr '[:upper:]' '[:lower:]')
-	if [[ "$CHOICE" == "<< Back"* ]] || [[ -z "$CHOICE" ]]; then
+	if [[ "$CHOICE" == "<< Back"* ]] || [[ -z "$CHOICE" ]];then
 		# Don't update anything
 		echo ""
 	else
@@ -88,14 +88,14 @@ install_menu(){
 	
 	CHOICE=$(printf '%s\n' "${CHOICES[@]}" | shellect "Install application" | tr '[:upper:]' '[:lower:]')
 	
-	if [[ "$CHOICE" == "<< back"* ]] || [[ -z "$CHOICE" ]]; then
+	if [[ "$CHOICE" == "<< back"* ]] || [[ -z "$CHOICE" ]];then
 		# Don't install anything
 		echo ""
-	elif [[ "$CHOICE" == "dev database"* ]]; then
+	elif [[ "$CHOICE" == "dev database"* ]];then
 		select_dev_storage_menu && echo "Install completed!" && sleep 3
-	elif [[ "$CHOICE" == "dev language"* ]]; then
+	elif [[ "$CHOICE" == "dev language"* ]];then
 		select_dev_language_menu && echo "Install completed!" && sleep 3
-	elif [[ "$CHOICE" == "> all"* ]]; then
+	elif [[ "$CHOICE" == "> all"* ]];then
 		for package in ${!packages[*]};do
 			package="${packages[${package}]}"
 			INSTALLER=$(echo "$packages" | awk -F '   ' '{print $1}' | tr '[:upper:]' '[:lower:]')
@@ -114,9 +114,9 @@ select_dev_storage_menu(){
 	AVAILABLE_DBS=("MySQL" "Redis" "PostgreSQL")
 	AVAILABLE_DBS+=("<< Back")
 	dbs=$(printf '%s\n' "${AVAILABLE_DBS[@]}" | shellect "Select databases (runs in Docker)")
-	if [[ "$dbs" == "<< Back"* ]] || [[ -z "$dbs" ]]; then
+	if [[ "$dbs" == "<< Back"* ]] || [[ -z "$dbs" ]];then
 		echo ""
-	elif [[ -n "$dbs" ]]; then
+	elif [[ -n "$dbs" ]];then
 		for db in $dbs; do
 			case $db in
 			MySQL)
@@ -139,9 +139,9 @@ select_dev_language_menu(){
 	AVAILABLE_LANGUAGES+=("<< Back")
 	languages=$(printf '%s\n' "${AVAILABLE_LANGUAGES[@]}" | shellect "Select programming languages")
 
-	if [[ "$languages" == "<< Back"* ]] || [[ -z "$languages" ]]; then
+	if [[ "$languages" == "<< Back"* ]] || [[ -z "$languages" ]];then
 		echo ""
-	elif [[ -n "$languages" ]]; then
+	elif [[ -n "$languages" ]];then
 		for language in $languages; do
 			case $language in
 			Ruby)

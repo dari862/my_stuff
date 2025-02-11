@@ -6,13 +6,13 @@
 
 MPV_PROFILE=my-pseudo-gui
 
-if ! hash mpv; then
+if ! hash mpv;then
     echo "$0: mpv binary is missing. Please issue 'my-superuser apt-get install mpv'." >&2
     exit 1
 fi
 
 run_video_using_mpv(){
-	if (( $# > 0 )); then
+	if (( $# > 0 ));then
     	for ((i=1 ; i <= $# ; i++))
     	do
         	[[ ${!i} = - ]] && break # using stdin
@@ -29,9 +29,9 @@ run_video_using_mpv(){
 	
     	# Use the MIME type of the first file passed to us to determine the
     	# playback profile.
-	#    if [[ -s "$URI" && "$(file --mime-type --brief "$URI")" =~ ^audio/ ]]; then
+	#    if [[ -s "$URI" && "$(file --mime-type --brief "$URI")" =~ ^audio/ ]];then
     	# file now reports eg mp4 files as mime-type video, use mpv itself to check instead:
-    	if [ -s "$URI" ] && [ "$(mpv --term-playing-msg='${=vid:no}' --msg-level=cplayer=no --quiet --vo=null --ao=null --frames=1 --no-cache --no-config -- "$URI")" = no ]; then
+    	if [ -s "$URI" ] && [ "$(mpv --term-playing-msg='${=vid:no}' --msg-level=cplayer=no --quiet --vo=null --ao=null --frames=1 --no-cache --no-config -- "$URI")" = no ];then
         	MPV_PROFILE=audio-only
     	else
         	case "$URI" in

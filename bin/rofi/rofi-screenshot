@@ -11,19 +11,19 @@ prompt='Screenshot'
 mesg="Directory :: `xdg-user-dir PICTURES`/Screenshots"
 
 # Options
-layout="$(cat ${RASI} | grep 'USE_ICON' | cut -d'=' -f2)"
-if [ "$layout" = 'NO' ]; then
-	shot_now=" Capture Desktop"
-	shot_area=" Capture Area"
-	shot_win=" Capture Window"
-	shot_after_5sec=" Capture in 5s"
-	shot_after_10sec=" Capture in 10s"
-else
+layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+if [ "$layout" = 'YES' ];then
 	shot_now=""
 	shot_area=""
 	shot_win=""
 	shot_after_5sec=""
 	shot_after_10sec=""
+else
+	shot_now=" Capture Desktop"
+	shot_area=" Capture Area"
+	shot_win=" Capture Window"
+	shot_after_5sec=" Capture in 5s"
+	shot_after_10sec=" Capture in 10s"
 fi
 
 # Rofi CMD

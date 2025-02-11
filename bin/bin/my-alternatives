@@ -33,7 +33,7 @@ link_package() {
   target_path="$2"
   package_path="$(command -v "$package")"
 
-  if [ -z "$package_path" ]; then
+  if [ -z "$package_path" ];then
     echo "Error: Package '$package' not found." >&2
     return 1
   fi
@@ -62,7 +62,7 @@ install_alternatives() {
   echo "Installing default alternatives..."
 
   # Ensure alternatives directory exists
-  if [ ! -d "$my_alternatives_path" ]; then
+  if [ ! -d "$my_alternatives_path" ];then
     my-superuser mkdir -p "$my_alternatives_path"
   fi
 
@@ -72,7 +72,7 @@ install_alternatives() {
 
     # Try to find and link the first valid package for the alternative
     for package in $alt_packages; do
-      if package_exists "$package"; then
+      if package_exists "$package";then
       	link_package "$package" "${my_alternatives_path}/$alternative_name"
         break
       fi
@@ -81,7 +81,7 @@ install_alternatives() {
 
   # Handle superuser package
   for package in $SUPERUSERS; do
-  	if package_exists "$package"; then
+  	if package_exists "$package";then
     	link_package "$package" "$my_superuser_path"
       	break
     fi
@@ -90,7 +90,7 @@ install_alternatives() {
 
 # Remove all alternatives or a specific one
 remove_alternatives() {
-  if [ -z "$alt_package" ]; then
+  if [ -z "$alt_package" ];then
     # Remove all alternatives
     for alternative_name in $MYALTS; do
       my-superuser rm -f "${my_alternatives_path}/$alternative_name"
@@ -98,7 +98,7 @@ remove_alternatives() {
     echo "All alternatives removed."
   else
     # Remove a specific alternative
-    if ! echo "$MYALTS" | grep -wq "$alt_package"; then
+    if ! echo "$MYALTS" | grep -wq "$alt_package";then
       echo "Error: Invalid alternative '$alt_package'." >&2
       exit 1
     fi
@@ -109,7 +109,7 @@ remove_alternatives() {
 
 # Set a specific alternative
 set_alternatives() {
-  if [ -z "$alt_package" ]; then
+  if [ -z "$alt_package" ];then
     echo "Which My Stuff alternative would you like to change?"
     echo "================================="
     count=1
@@ -123,7 +123,7 @@ set_alternatives() {
     alt_package=$(echo $MYALTS | cut -d " " -f $alt_package_number )
   fi
 
-  if ! echo "$MYALTS" | grep -wq "$alt_package"; then
+  if ! echo "$MYALTS" | grep -wq "$alt_package";then
     echo "Error: Invalid alternative '$alt_package'." >&2
     exit 1
   fi
@@ -132,14 +132,14 @@ set_alternatives() {
     eval alt_packages=\$$alt_packages_var_name
     
   # Prompt user to select a package  
-  if [ -z "$selected_package" ]; then
+  if [ -z "$selected_package" ];then
     echo "Which package do you want to set for $alt_package?"
     echo "================================="
     
     existing_alt_packages=""
     count=1
     for package in $alt_packages; do
-    	if package_exists "$package"; then
+    	if package_exists "$package";then
       		echo "$count - $package"
       		count=$((count + 1))
       		existing_alt_packages="$existing_alt_packages $package"
@@ -150,12 +150,12 @@ set_alternatives() {
     selected_package=$(echo $alt_packages | cut -d " " -f $picked_package_number )
   fi
 
-  if ! echo "$existing_alt_packages" | grep -q "$selected_package"; then
+  if ! echo "$existing_alt_packages" | grep -q "$selected_package";then
     echo "Error: Invalid package '$selected_package'." >&2
     exit 1
   fi
 
-  if link_package "$selected_package" "${my_alternatives_path}/$alt_package"; then
+  if link_package "$selected_package" "${my_alternatives_path}/$alt_package";then
     echo "$alt_package alternative set successfully to $selected_package."
   else
     echo "Failed to set $alt_package alternative." >&2
@@ -167,12 +167,12 @@ set_alternatives() {
 list_alternatives() {
   for alternative_name in $MYALTS; do
     link=$(readlink "${my_alternatives_path}/$alternative_name")
-    if [ -n "$link" ]; then
+    if [ -n "$link" ];then
       printf "%-22.22s uses %s\n" "$alternative_name" "$link"
       alt_packages_var_name="$(echo "$alternative_name" | sed -e 's/^my-//' -e 's/-//' | tr '[:lower:]' '[:upper:]')S"
       eval alt_packages=\$$alt_packages_var_name
       for package in $alt_packages; do
-      	if package_exists "$package"; then
+      	if package_exists "$package";then
        		which "$package" | xargs printf "    %s\n"
        	fi
       done

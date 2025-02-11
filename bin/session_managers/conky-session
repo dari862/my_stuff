@@ -12,7 +12,7 @@ conkys_path="$HOME/.config/conky"
 conky_theme_file="${conkys_path}/conky-sessionfile"
 ConkyDEFAULT=".config/conky/openbox-conky.conf"
 
-if [ ! -f "$conky_theme_file" ] ; then
+if [ ! -f "$conky_theme_file" ];then
     echo "$0: Failed to locate ${conky_theme_file}, generating default..." >&2
     echo "$ConkyDEFAULT" > "$conky_theme_file"
 fi

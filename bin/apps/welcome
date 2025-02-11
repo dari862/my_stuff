@@ -98,7 +98,7 @@ esac
 output=$(yad --form --button=gtk-ok --center --undecorated --fixed --borders=30 --window-icon=nautilus --text="$text" --field="$field:CHK" --separator=""  --image=debian-logo)
 
 # Delete simbolic link if not show next time is checked
-if [ "$output" = "FALSE" ]; then
+if [ "$output" = "FALSE" ];then
 	rm ~/.config/autostartscripts/welcome.sh >/dev/null 2>&1
 fi
 

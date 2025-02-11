@@ -126,18 +126,18 @@ update_interval = 1,
 };
 
 conky.text = [[
-${voffset 4}${offset 60}${font Noto Sans:Bold:size=12}${time %H:%M}${font}
-${offset 70}${time %a, %-d %B}
-${voffset 12}${offset 60}${font Noto Sans:Bold:size=12}${if_running mpd}\
+${voffset 4}${offset 120}${font Noto Sans:Bold:size=12}${time %H:%M}${font}
+${offset 110}${time %a, %-d %B}
+${voffset 12}${offset 120}${font Noto Sans:Bold:size=12}${if_running mpd}\
 ${mpd_title}${else}MPD${endif}${font}
-${offset 70}${if_running mpd}${mpd_artist}${else}Is not playing${endif}
-${voffset 12}${offset 60}${font Noto Sans:Bold:size=12} You have \
+${offset 110}${if_running mpd}${mpd_artist}${else}Is not playing${endif}
+${voffset 4}${offset 120}${font Noto Sans:Bold:size=12} You have \
 ${execi 600 /usr/share/my_stuff/bin/conky/email}${font}
-${offset 70}Unread Email
-${voffset 12}${offset 60}${font Noto Sans:Bold:size=12}${fs_free} Free${font}
-${offset 70}from ${fs_size} fs size
-${image ~/.config/conky/cliff/res/clock.png -p 0,0}
-${image ~/.config/conky/cliff/res/music.png -p 0,50}
-${image ~/.config/conky/cliff/res/email.png -p 0,100}
-${image ~/.config/conky/cliff/res/disk.png -p 0,150}
+${offset 110}Unread Email
+${voffset 12}${offset 120}${font Noto Sans:Bold:size=12}${fs_free} Free${font}
+${offset 110}from ${fs_size} fs size
+${image ~/.config/conky/cliff/res/clock.png -p 50,0}
+${image ~/.config/conky/cliff/res/music.png -p 50,50}
+${image ~/.config/conky/cliff/res/email.png -p 50,100}
+${image ~/.config/conky/cliff/res/disk.png -p 50,150}
 ]];

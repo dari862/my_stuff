@@ -32,11 +32,11 @@ change_timezone() {
          ${rofi_command} -p "Select time zone ('ESC' to Exit):")"
 	clear
   
-	if [ -z "${res}" ]; then
+	if [ -z "${res}" ];then
 		exit 0
 	fi
 	
-	if [ -n "${res}" ]; then
+	if [ -n "${res}" ];then
 		TIMEZONE="${res}"
 		
 		my-fix --time-zone "${TIMEZONE}" >/dev/null 2>&1
@@ -52,11 +52,11 @@ change_locale() {
          ${rofi_command} -p "Select locale ('ESC' to Exit):")"
   clear
 
-	if [ -z "${res}" ]; then
+	if [ -z "${res}" ];then
 		exit 0
 	fi
 
-  if [ -n "${res}" ]; then
+  if [ -n "${res}" ];then
     LOCALE="$(echo "${res}" | cut -d" " -f1)"
     CHARSET="$(echo "${res}" | cut -d" " -f2)"
     sed -i "/^#\ \?${LOCALE} ${CHARSET}/s/^#\ \?//" /etc/locale.gen

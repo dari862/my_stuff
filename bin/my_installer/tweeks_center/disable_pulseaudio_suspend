@@ -3,10 +3,10 @@
 pulseconfig="/etc/pulse/default.pa"
 
 if [ "$1" = "--is-enable" ];then
-	if [ ! -f ${pulseconfig} ]; then
+	if [ ! -f ${pulseconfig} ];then
 		exit 0
 	else
-		if grep -q "#load-module module-suspend-on-idle" "${pulseconfig}"; then
+		if grep -q "#load-module module-suspend-on-idle" "${pulseconfig}";then
 			exit 0
 		fi
 		exit 1

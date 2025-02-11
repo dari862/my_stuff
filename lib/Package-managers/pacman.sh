@@ -1,4 +1,4 @@
-if command -v yay >/dev/null 2>&1; then
+if command -v yay >/dev/null 2>&1;then
 	Package_installer_(){
 		yay --noconfirm -S "$@"
 	}
@@ -20,7 +20,7 @@ if command -v yay >/dev/null 2>&1; then
 			dpkg -l | grep -e "$i"
 		done
 	}
-elif command -v paru >/dev/null 2>&1; then
+elif command -v paru >/dev/null 2>&1;then
 	Package_installer_(){
 		paru --noconfirm -S "$@"
 	}

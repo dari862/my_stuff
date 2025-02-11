@@ -13,38 +13,38 @@
 # export running directory variables for use later
 export YADSHOT_PATH="$(readlink -f $0)"
 export RUNNING_DIR="$(dirname ${YADSHOT_PATH})"
-if [ -f "/usr/share/my_stuff/images/yadshot.svg" ]; then
+if [ -f "/usr/share/my_stuff/images/yadshot.svg" ];then
     export ICON_PATH="/usr/share/my_stuff/images/yadshot.svg"
 else
     export ICON_PATH="gtk-fullscreen"
 fi
 # check for dependencies
-if ! type import >/dev/null 2>&1 && [ ! -f "./ImageMagick" ] && ! type ffmpeg >/dev/null 2>&1 && ! type maim >/dev/null 2>&1; then
+if ! type import >/dev/null 2>&1 && [ ! -f "./ImageMagick" ] && ! type ffmpeg >/dev/null 2>&1 && ! type maim >/dev/null 2>&1;then
     MISSING_DEPS="TRUE"
     echo "$(tput setaf 1)imagemagick or ffmpeg or maim not installed!$(tput sgr0)"
 fi
-if ! type yad >/dev/null 2>&1; then
+if ! type yad >/dev/null 2>&1;then
     MISSING_DEPS="TRUE"
     echo "$(tput setaf 1)yad is not installed!$(tput sgr0)"
 fi
-if [ "$MISSING_DEPS" = "TRUE" ]; then
+if [ "$MISSING_DEPS" = "TRUE" ];then
     echo "$(tput setaf 1)Missing one or more packages required to run; exiting...$(tput sgr0)"
     exit 1
 fi
-if ! type xclip >/dev/null 2>&1; then
+if ! type xclip >/dev/null 2>&1;then
 	export Xclip_installed=TRUE
 fi
-if ! type slop >/dev/null 2>&1; then
+if ! type slop >/dev/null 2>&1;then
 	export Slop_installed=TRUE
 fi
 # set default variables
 SELECTION="TRUE"
-if [ "$Xclip_installed" = "TRUE" ]; then
+if [ "$Xclip_installed" = "TRUE" ];then
     COPYONCAP="TRUE"
 else
 	COPYONCAP="FALSE"
 fi
-if [ "$Slop_installed" = "TRUE" ]; then
+if [ "$Slop_installed" = "TRUE" ];then
     DECORATIONS="TRUE"
 else
 	DECORATIONS="FALSE"
@@ -61,7 +61,7 @@ else
 	. ~/.config/yadshot/yadshot.conf
 fi
 # create ~/Pictures if it does not exist
-if [ ! -d "$HOME/Pictures" ]; then
+if [ ! -d "$HOME/Pictures" ];then
     mkdir -p "$HOME"/Pictures
 fi
 # capture screenshot.
@@ -97,11 +97,11 @@ export -f yadshotcapture
 function displayss() {
 	SS_NAME="${1-}"
     . ~/.config/yadshot/yadshot.conf
-    if [ ! -f "/tmp/$USER/$SS_NAME" ]; then
+    if [ ! -f "/tmp/$USER/$SS_NAME" ];then
         echo "Failed to capture screenshot!" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=10 --text-info --wrap --title="yadshot" --button=gtk-ok
         exit 1
     fi
-    if [ "$COPYONCAP" = "TRUE" ]; then
+    if [ "$COPYONCAP" = "TRUE" ];then
         xclip -selection clipboard -t image/png -i < /tmp/$USER/"$SS_NAME"
     fi
     WSCREEN_RES=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f2 -d" " | awk '{print $1 * .75}' | cut -f1 -d'.')
@@ -112,14 +112,14 @@ function displayss() {
     HSIZEYAD=$(($HSIZE+75))
     yad_opts=()
     yad_opts+=(--window-icon="$ICON_PATH" --center --picture)
-    if [ "$WSCREEN_RES" -le "$WSIZE" ] || [ "$HSCREEN_RES" -le "$HSIZE" ]; then
+    if [ "$WSCREEN_RES" -le "$WSIZE" ] || [ "$HSCREEN_RES" -le "$HSIZE" ];then
     	yad_opts+=(--size=fit --width=$WSCREEN_RES --height=$HSCREEN_RES)
     else
     	yad_opts+=(--size=orig --width=$WSIZEYAD --height=$HSIZEYAD)
     fi
     yad_opts+=(--no-escape --filename="/tmp/$USER/$SS_NAME" --image-on-top --buttons-layout="edge" --title="yadshot" --separator="," --borders="10"
                --button="Close"\!gtk-cancel:1 --button="Main Menu"\!gtk-home:2)
-	if [ "$Xclip_installed" = "TRUE" ]; then
+	if [ "$Xclip_installed" = "TRUE" ];then
     	yad_opts+=(--button="Copy to Clipboard"\!gtk-paste:3)
     fi
     yad_opts+=(--button="Upload to Filebin"\!gtk-go-up:4 --button=gtk-save:5 --button="New Screenshot"\!gtk-new:0)
@@ -144,7 +144,7 @@ function displayss() {
     		echo -n "" | xclip -i -selection clipboard
     		files-uploader --filebiner up -f "$FILE"
     		FILE_URL="$(xclip -o -selection clipboard)"
-    		if [[ -z "$FILE_URL" ]]; then
+    		if [[ -z "$FILE_URL" ]];then
         		echo 'error uploading file!\n'
         		FAILED=1
         		yad --window-icon="$ICON_PATH" --center --error --title="yadshot" --text="Failed to upload '$FILE'!"
@@ -184,7 +184,7 @@ function yadshotpaste() {
     files-uploader --filebiner up -f /tmp/$USER/yadshotpaste.txt
     PASTE_URL="$(xclip -o -selection clipboard)"
     rm -f /tmp/$USER/yadshotpaste.txt
-    if [[ -z "$PASTE_URL" ]]; then
+    if [[ -z "$PASTE_URL" ]];then
         echo "Failed to upload paste!"| yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --title="yadshot" --button=gtk-ok
         exit 1
     else
@@ -201,7 +201,7 @@ function yadshotfileselect() {
     		echo -n "" | xclip -i -selection clipboard
     		files-uploader --filebiner up -f "$FILE"
     		FILE_URL="$(xclip -o -selection clipboard)"
-    		if [[ -z "$FILE_URL" ]]; then
+    		if [[ -z "$FILE_URL" ]];then
         		echo 'error uploading file!\n'
         		FAILED=1
         		yad --window-icon="$ICON_PATH" --center --error --title="yadshot" --text="Failed to upload '$FILE'!"
@@ -238,7 +238,7 @@ function upload_list() {
 export -f upload_list
 # function for launching color picker from tray
 yadcolorpicker(){
-	if type grabc > /dev/null 2>&1; then
+	if type grabc > /dev/null 2>&1;then
 		COLOR_SELECTION="$(yad --window-icon="$ICON_PATH" --center --title="yadshot" --color --init-color="$(grabc | head -n 1)" --mode=hex)"
 	else
 		COLOR_SELECTION="$(yad --window-icon="$ICON_PATH" --center --title="yadshot" --color --mode=hex)"
@@ -287,11 +287,11 @@ function yadshotsettings() {
     . ~/.config/yadshot/yadshot.conf
     yad_opts=()
 	yad_opts+=(--window-icon="$ICON_PATH" --center --title="yadshot" --height=200 --columns=1 --form --no-escape --item-separator="," --separator="," --borders="10" --field="Capture selection":CHK "$SELECTION" ) 
-	if [ "$Slop_installed" = "TRUE" ]; then
+	if [ "$Slop_installed" = "TRUE" ];then
     	yad_opts+=(--field="Capture decorations":CHK "$DECORATIONS")
 	fi
 	
-	if [ "$Xclip_installed" = "TRUE" ]; then
+	if [ "$Xclip_installed" = "TRUE" ];then
     	yad_opts+=(--field="Copy screenshot to clipboard on capture":CHK "$COPYONCAP")
 	fi
 	

@@ -74,7 +74,7 @@ export QT_QPA_PLATFORMTHEME=gtk2
 export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
 export MOZ_USE_XINPUT2="1"              # Mozilla smooth scrolling/touchpads.
 
-if [ ! -d "$GNUPGHOME" ]; then
+if [ ! -d "$GNUPGHOME" ];then
 	[ -d "$HOME/.gnupg" ] && mv "$HOME/.gnupg" "$GNUPGHOME"
 	mkdir -p $GNUPGHOME
 	chmod 700 $GNUPGHOME
@@ -86,7 +86,7 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin:/usr/games:/usr/local/games
 PATH="$HOME/.local/bin:$PATH"
 
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
+if [ -d "$HOME/bin" ];then
     PATH="$HOME/bin:$PATH"
 fi
 
@@ -96,7 +96,7 @@ fi
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
 export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"s
 # Manage multiple versions of Python using pyenv
-if [ -d "$HOME/.pyenv" ] ; then
+if [ -d "$HOME/.pyenv" ];then
     export PYENV_ROOT="$HOME/.pyenv"
     command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"

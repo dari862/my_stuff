@@ -86,7 +86,7 @@ main(){
 }
 
 
-if [ -z "${__is_there_arg_}" ]; then
+if [ -z "${__is_there_arg_}" ];then
 	__run_rofi;
 elif echo "$__is_there_arg_" | grep -q "beepmein";then
 	__arg2_="$2"

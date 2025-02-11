@@ -78,7 +78,7 @@ VERBOSE=false
 PARSED_OPTIONS=$(getopt -n "$0"  -o hrs:vVd:a: --long "help,reset,set:,verbose,vv,version,decelerate:,accelerate:"  -- "$@")
 
 #Bad arguments, something has gone wrong with the getopt command.
-if [ "$?" -ne 0 ]; then
+if [ "$?" -ne 0 ];then
   exit 1
 fi
 
@@ -176,24 +176,24 @@ while true; do
 
     -d|--decelerate)
       #decelerate speed if argument -d i set
-      if [ -n "$2" ]; then
+      if [ -n "$2" ];then
         echo "Speed decellerated for $2"
         CURRENTSPEED=$(($CURRENTSPEED * $((100-$2)) /100))
       fi
       shift 2;;
 
     -a|--accelerate)
-      if [ -n "$2" ]; then
+      if [ -n "$2" ];then
         echo "Speed accellerated for $2"
         CURRENTSPEED=$(($CURRENTSPEED * $((100+$2)) /100))
-        if [ $CURRENTSPEED -lt 3 ]; then
+        if [ $CURRENTSPEED -lt 3 ];then
           CURRENTSPEED=$(($CURRENTSPEED+1))
         fi
       fi
       shift 2;;
 
     -s|--set)
-      if [ -n "$2" ]; then
+      if [ -n "$2" ];then
         echo "Speed set to $2%"
         CURRENTSPEED=$2
       else
@@ -227,7 +227,7 @@ while true; do
 done
 
 if [ "$current_mouse_acceleration" != "$mouse_acceleration" ];then
-	if [ "$mouse_acceleration" ]; then
+	if [ "$mouse_acceleration" ];then
 		echo "Enabling mouse acceleration."
 		sed -i 's/mouse_acceleration=.*/mouse_acceleration=true/g' "$HOME_mouse_speed_conf"
 	else
@@ -242,11 +242,11 @@ if [ "$mouse_acceleration" = "false" ];then
 	exit
 fi
 
-if [ "$CURRENTSPEED" -gt 100 ]; then
+if [ "$CURRENTSPEED" -gt 100 ];then
     echo "SPEED max is 100%"
     sed -i 's/CURRENTSPEED=.*/CURRENTSPEED=100/g' "$HOME_mouse_speed_conf"
 fi
-if [ "$CURRENTSPEED" -lt 1 ]; then 
+if [ "$CURRENTSPEED" -lt 1 ];then 
     echo "SPEED min is 1%"
     sed -i 's/CURRENTSPEED=.*/CURRENTSPEED=1/g' "$HOME_mouse_speed_conf"
 fi
@@ -264,8 +264,8 @@ sed -i 's/CURRENTSPEED=.*/CURRENTSPEED=$CURRENTSPEED/g' "$HOME_mouse_speed_conf"
      
 #set touchpad
 TP=$(xinput --list --short | grep -i $TOUCHPAD_STRING | cut -f 1 | cut -d" " -f 5- | sed 's/\s\+$//g')
-if [ "$TP" ]; then
-  if [ "$VERBOSE" = true ]; then
+if [ "$TP" ];then
+  if [ "$VERBOSE" = true ];then
     echo setting speed for $TP
     echo was before:
     xinput --list-props "$TP"|grep Accel
@@ -274,38 +274,38 @@ if [ "$TP" ]; then
   xinput --set-prop "$TP" "Device Accel Constant Deceleration" $TOUCHPAD_DECELERATION
   xinput --set-prop "$TP" "Device Accel Velocity Scaling" $TOUCHPAD_SCALING
   )
-  if [ "$VERBOSE" = true ]; then
+  if [ "$VERBOSE" = true ];then
     echo touchpad now set to:
     xinput --list-props "$TP"|grep Accel
   fi
-elif [ "$VERBOSE" = true ]; then
+elif [ "$VERBOSE" = true ];then
   echo 'Touchpad device "'$TOUCHPAD_STRING'" not in xinput --list'
   echo call '"'$0 -help'"' for help
   echo
 fi
 
 #set mouse
-if [ "$MOUSE" ]; then
+if [ "$MOUSE" ];then
  echo "$MOUSE"|while read -r M; do
   echo setting mouse-speed for '"'$M'"'
   ( $VERBOSE && set -x
   xinput --set-prop "pointer:$M" "Device Accel Constant Deceleration" $MOUSE_DECELERATION
   xinput --set-prop "pointer:$M" "Device Accel Velocity Scaling" $MOUSE_SCALING
   )
-  if [ "$VERBOSE" = true ]; then
+  if [ "$VERBOSE" = true ];then
     echo mouse now set to:
     xinput --list-props "$M"|grep Accel
   fi
  done
-elif [ "$VERBOSE" = true ]; then
+elif [ "$VERBOSE" = true ];then
   echo 'Mouse device not found in xinput --list'
   echo "If you have a mouse installed that wasn't found,"
   echo "call "'"'$0 --help'"'" for help"
 fi
 
-if [ "$palm_detectin_on" ]; then
-	if [ "$TP" ]; then
-  		if [ "$VERBOSE" = true ]; then
+if [ "$palm_detectin_on" ];then
+	if [ "$TP" ];then
+  		if [ "$VERBOSE" = true ];then
     		echo was before:
     		xinput --list-props "$TP"|grep Palm
   		fi
@@ -313,11 +313,11 @@ if [ "$palm_detectin_on" ]; then
   		xinput --set-prop "$TP" "Synaptics Palm Detection" 1
   		xinput --set-prop "$TP" "Synaptics Palm Dimensions" 5, 5
   		)
-  		if [ "$VERBOSE" = true ]; then
+  		if [ "$VERBOSE" = true ];then
     		echo touchpad now set to:
     		xinput --list-props "$TP"|grep Palm
   		fi
-	elif [ "$VERBOSE" = true ]; then
+	elif [ "$VERBOSE" = true ];then
   		echo 'Touchpad device "'$TOUCHPAD_STRING'" not in xinput --list'
   		echo call '"'$0 -help'"' for help
   		echo

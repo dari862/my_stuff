@@ -6,7 +6,7 @@
 . "/usr/share/my_stuff/lib/common/polybar"
 . "/usr/share/my_stuff/lib/common/panel"
 _panel_name_="$(cat ${_panel_name_path_})"
-if [ "$_panel_name_" = 'polybar' ]; then
+if [ "$_panel_name_" = 'polybar' ];then
 	rices_path="/usr/share/my_stuff/system_files/blob/polybar"
 else
 	rices_path="/usr/share/my_stuff/system_files/blob/tint2"

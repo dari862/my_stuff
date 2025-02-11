@@ -10,7 +10,7 @@ nmconf="/etc/NetworkManager/NetworkManager.conf"
 say "Networking applications installed."
 
 say "Setting up MAC address randomization in Network Manager."
-if ! test "$(grep "mac-address=random" ${nmconf})"; then
+if ! test "$(grep "mac-address=random" ${nmconf})";then
 	my-superuser sh -c "echo "" >> ${nmconf}"
 	my-superuser sh -c "echo '# Enabling built-in MAC Address randomization' >> ${nmconf}"
 	my-superuser sh -c "echo '[connection-mac-randomization]' >> ${nmconf}"

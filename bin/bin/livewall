@@ -50,7 +50,7 @@ noprocess_videos="No videos."
 [ ! -d "${video_dir}" ] && mkdir -p "${video_dir}"
 
 checkprocess_video_exists_in_dir(){
-    if ! ls -d ${video_dir}/* 2>/dev/null >/dev/null; then
+    if ! ls -d ${video_dir}/* 2>/dev/null >/dev/null;then
         echo ${noprocess_videos}
         exit 1
     fi
@@ -63,7 +63,7 @@ handle_ctrl_c(){
 quit_loop(){
 	setbg -r
 	pid_2_kill=$(pgrep -f '/bin/sh.*livewall.*' | grep -v "^$$$")
-	if [ -n "$pid_2_kill" ]; then
+	if [ -n "$pid_2_kill" ];then
 		kill -9 $pid_2_kill 2>/dev/null
 	fi
 }
@@ -81,7 +81,7 @@ check_if_positive_integer(){
 convertprocess_video_to_live_wallpaper(){
 	[ -z "$video_path" ] && { echo "${Report_Video}"; exit 1; }
 	mime_type=$(file -b --mime-type "$video_path" | cut -d"/" -f1)
-	if [ "$mime_type" != "video" ]; then
+	if [ "$mime_type" != "video" ];then
     	echo "$Invalid_format"
     	exit 1
 	fi
@@ -98,7 +98,7 @@ convertprocess_video_to_live_wallpaper(){
 	esac
 	a=1     
 	for i in "$video_dir"/*/; do
-		if [ -d "$video_dir/$a" ]; then
+		if [ -d "$video_dir/$a" ];then
 			a=$((a + 1))
 		fi
 	done
@@ -135,7 +135,7 @@ setup_autorun(){
 			:
 		fi
 	elif check_if_positive_integer "$video_number" "setup_autorun";then
-		if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ]; then
+		if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ];then
         	echo "${Use_numbers} '${0##*/} --list-videos'."
         	echo "${Use_numbers_from} $(ls -d1 ${video_dir}/* | wc -l)"
         	exit 1
@@ -166,7 +166,7 @@ runprocess_video_by_the_number(){
 	video_number="$option2"
 	check_if_positive_integer "$video_number" "runprocess_video_by_the_number"
     checkprocess_video_exists_in_dir
-    if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ]; then
+    if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ];then
         echo "${Use_numbers} '${0##*/} --list-videos'."
         echo "${Use_numbers_from} $(ls -d1 ${video_dir}/* | wc -l)"
         exit 1
@@ -185,7 +185,7 @@ run_autorun(){
 list_videos(){
     checkprocess_video_exists_in_dir
     video_numbers="$(cd ${video_dir} && ls)"
-    if [ -z "$video_numbers" ]; then
+    if [ -z "$video_numbers" ];then
         exit
     fi
     for i in ${video_numbers}; do

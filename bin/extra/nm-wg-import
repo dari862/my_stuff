@@ -22,7 +22,7 @@ show_warning() {
 }
 
 # Script requires nm-cli, so check that the Network Manager service is running.
-if ! service_manager is-active NetworkManager; then
+if ! service_manager is-active NetworkManager;then
   show_info "Enabling Network Manager systemd service."
   service_manager enable NetworkManager
 fi
@@ -47,13 +47,13 @@ check_wg_config() {
     # Check if the connection matches our required conditions
     if echo "$conn_data" | grep -q "ipv6.addresses.*$ipv6addr" && \
        echo "$conn_data" | grep -q "ipv4.addresses.*$ipv4addr" && \
-       echo "$conn_data" | grep -q "connection.interface-name.*$name"; then
+       echo "$conn_data" | grep -q "connection.interface-name.*$name";then
       found=true
       break
     fi
   done
 
-  if [ "$found" = true ]; then
+  if [ "$found" = true ];then
     show_warning "WARNING: matching configuration for ${in@Q} already exists." >&2
     return 1  # Return non-zero to indicate the config already exists
   else
@@ -127,21 +127,21 @@ while [ $# -ge 1 ]; do
 done
 
 # Check if the INPUT variable is set
-if [ -z "$INPUT" ]; then
+if [ -z "$INPUT" ];then
   show_error "ERROR: no input given. Exiting."
   exit 3
 fi
 
 # Check if the file exists
-if [ ! -f "$INPUT" ]; then
+if [ ! -f "$INPUT" ];then
   show_error "ERROR: input ${INPUT@Q} does not exist. Exiting."
   exit 3
 fi
 
 # Check and import the WireGuard config
-if check_wg_config "$INPUT"; then
+if check_wg_config "$INPUT";then
   import_wg_config "$INPUT"
-  if [ -n "$NAME" ]; then
+  if [ -n "$NAME" ];then
     rename_wg_iface "$INPUT" "$NAME"
   fi
 fi

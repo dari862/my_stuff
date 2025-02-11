@@ -2,9 +2,9 @@
 
 CONFIG="$HOME/.config/kitty/kitty.conf"
 
-if [ "$1" = "--float" ]; then
+if [ "$1" = "--float" ];then
 	kitty --class 'kitty-float' --config "$CONFIG"
-elif [ "$1" = "--full" ]; then
+elif [ "$1" = "--full" ];then
 	kitty --class 'kitty-fullscreen' --config "$CONFIG" \
 		  --start-as fullscreen \
 		  --override 'window_padding_width=30' \

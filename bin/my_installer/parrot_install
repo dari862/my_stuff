@@ -4,7 +4,7 @@ set -e
 # Initialize app_is_ with the arguments passed
 app_is_="$@"
 
-if [ -z "$app_is_" ]; then
+if [ -z "$app_is_" ];then
     NORMAL="\033[m"
     MENU="\033[36m" # Blue
     NUMBER="\033[33m" # Yellow
@@ -34,7 +34,7 @@ if [ -z "$app_is_" ]; then
         printf "\n${ENTER_LINE}Please enter a menu option or ${RED_TEXT}type exit to exit. ${NORMAL}\n"
         printf "Input Your Choice: "
         read  i
-        if [ "$i" = "exit" ]; then
+        if [ "$i" = "exit" ];then
             exit
         fi
 
@@ -43,7 +43,7 @@ if [ -z "$app_is_" ]; then
 		
 		COUNTER=$((COUNTER + 1))
         # Check if the input is valid and within the range of apps_list_
-        if [ "$i" -le "$apps_list_length" ] && [ "$i" -ge 1 ]; then
+        if [ "$i" -le "$apps_list_length" ] && [ "$i" -ge 1 ];then
             app_is_=$(echo "$apps_list_" | cut -d ' ' -f "$i")
             break
         else

@@ -2,9 +2,9 @@
 set -e
 target_path="/usr/share/my_stuff/system_files/bin/popup_terminal"
 popup_terminal_create_path="/usr/share/my_stuff/bin/must_create_script/popup_terminal"
-if command -v terminator > /dev/null 2>&1; then
+if command -v terminator > /dev/null 2>&1;then
 	my-superuser ln -sf "${popup_terminal_create_path}/terminator" "${target_path}"
-elif command -v alacritty > /dev/null 2>&1; then
+elif command -v alacritty > /dev/null 2>&1;then
 	my-superuser ln -sf "${popup_terminal_create_path}/alacritty" "${target_path}"	
 else
 	my-superuser ln -sf "${popup_terminal_create_path}/kitty" "${target_path}"

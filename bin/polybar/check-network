@@ -26,9 +26,9 @@ ID="$(ip route | awk '/default/ { print $5 }')"
 if [ "$Style" != "hack" ]
 then
     while true; do       
-		if echo "$ID" | grep "^e"; then
+		if echo "$ID" | grep "^e";then
             echo "$ethernet_connected" ; sleep 25
-        elif echo "$ID" | grep "^w"; then
+        elif echo "$ID" | grep "^w";then
             echo "$wireless_connected" ; sleep 25
         else
             echo "$disconnected" ; sleep 0.5
@@ -42,9 +42,9 @@ then
     done
 else
     while true; do
-        if echo "$ID" | grep "^e"; then
+        if echo "$ID" | grep "^e";then
             echo "$connected Online" ; sleep 25
-        elif echo "$ID" | grep "^w"; then
+        elif echo "$ID" | grep "^w";then
             echo "$connected Online" ; sleep 25
         else
             echo "$disconnected Offline" ; sleep 5

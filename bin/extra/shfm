@@ -290,12 +290,12 @@ main() {
             ;;
 
             l?|C2|"$esc") # ARROW RIGHT
-                if [ -d "$cur" ] && cd -- "$cur" >/dev/null 2>&1; then
+                if [ -d "$cur" ] && cd -- "$cur" >/dev/null 2>&1;then
                     set -- *
                     y=1 y2=1 cur=$1 ltype=
                     redraw "$@"
 
-                elif [ -e "$cur" ]; then
+                elif [ -e "$cur" ];then
                     cmd_run "${SHFM_OPENER:="${EDITOR:=vi}"}" "$cur"
                     redraw "$@"
                 fi

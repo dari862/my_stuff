@@ -7,38 +7,38 @@
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
 	# Dir and Files
-	if ! . "/usr/share/my_stuff/lib/common/panel" 2> /dev/null; then
+	if ! . "/usr/share/my_stuff/lib/common/panel" 2> /dev/null;then
 		echo "Error: Failed to locate panel in /usr/share/my_stuff/lib/common" >&2
 		exit 1
 	fi
 	
 	# Create file if it doesn't exist
-	if [ ! -e "$_panel_name_path_" ]; then
+	if [ ! -e "$_panel_name_path_" ];then
 		touch ${_panel_name_path_}
 	fi
 	
 	# Check which bar is running
-	if pidof polybar >/dev/null 2>&1; then
+	if pidof polybar >/dev/null 2>&1;then
 		BAR='polybar'
-	elif pidof tint2 >/dev/null 2>&1; then
+	elif pidof tint2 >/dev/null 2>&1;then
 		BAR='tint2'
-	elif pidof xfce4-panel >/dev/null 2>&1; then
+	elif pidof xfce4-panel >/dev/null 2>&1;then
 		BAR='xfce4-panel'
 	fi
 	
-	if command -v polybar >/dev/null 2>&1; then
+	if command -v polybar >/dev/null 2>&1;then
 		polybar_installed=true
 	else
 		polybar_installed=false
 	fi
 	
-	if command -v tint2 >/dev/null 2>&1; then
+	if command -v tint2 >/dev/null 2>&1;then
 		tint2_installed=true
 	else
 		tint2_installed=false
 	fi
 	
-	if command -v xfce4-panel >/dev/null 2>&1; then
+	if command -v xfce4-panel >/dev/null 2>&1;then
 		xfce4_installed=true
 	else
 		xfce4_installed=false
@@ -49,27 +49,27 @@
 		menuStart
 		menuSeparator "Current Bar : $BAR"
 		
-		if [ "$BAR" != 'polybar' ] && [ "$polybar_installed" = true ] ; then
+		if [ "$BAR" != 'polybar' ] && [ "$polybar_installed" = true ];then
 		menuItem "Use Polybar as your statusbar" "panel_changer polybar"
 		fi
 		
-		if [ "$BAR" != 'tint2' ] && [ "$tint2_installed" = true ] ; then
+		if [ "$BAR" != 'tint2' ] && [ "$tint2_installed" = true ];then
 		menuItem "Use Tint2 as your panel/taskbar" "panel_changer tint2"
 		fi
 		
-		if [ "$BAR" != 'xfce4-panel' ] && [ "$xfce4_installed" = true ] ; then
+		if [ "$BAR" != 'xfce4-panel' ] && [ "$xfce4_installed" = true ];then
 		menuItem "Use xfce4-panel as your panel/taskbar" "panel_changer xfce4-panel"
 		fi
 		
-		if [ "$polybar_installed" = false ] ; then
+		if [ "$polybar_installed" = false ];then
 			menuItem 'Install Polybar' "popup_terminal --install polybar"
 		fi
 		
-		if [ "$tint2_installed" = false ] ; then
+		if [ "$tint2_installed" = false ];then
 			menuItem 'Install Tint2' "popup_terminal --install tint2"
 		fi
 		
-		if [ "$xfce4_installed" = false ] ; then
+		if [ "$xfce4_installed" = false ];then
 			menuItem 'Install xfce4-panel' "popup_terminal --install xfce4-panel"
 		fi	
 		menuEnd

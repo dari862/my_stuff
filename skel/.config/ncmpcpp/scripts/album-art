@@ -37,7 +37,7 @@ main() {
 kill_previous_instances() {
     script_name=$(basename "$0")
     for pid in $(pidof -x "$script_name"); do
-        if [ "$pid" != $$ ]; then
+        if [ "$pid" != $$ ];then
             kill -15 "$pid"
         fi 
     done
@@ -47,7 +47,7 @@ find_cover_image() {
 
     # First we check if the audio file has an embedded album art
     ext="$(mpc --format %file% current | sed 's/^.*\.//')"
-    if [ "$ext" = "flac" ]; then
+    if [ "$ext" = "flac" ];then
         # since FFMPEG cannot export embedded FLAC art we use metaflac
         metaflac --export-picture-to=/tmp/$USER/mpd_cover.jpg \
             "$(mpc --format "$music_library"/%file% current)" &&
@@ -66,12 +66,12 @@ find_cover_image() {
     found_covers="$(find "$album_dir" -type d -exec find {} -maxdepth 1 -type f \
     -iregex ".*/.*\(${album}\|cover\|folder\|artwork\|front\).*[.]\\(jpe?g\|png\|gif\|bmp\)" \; )"
     cover_path="$(echo "$found_covers" | head -n1)"
-    if [ -n "$cover_path" ]; then
+    if [ -n "$cover_path" ];then
         return
     fi
 
     # If we still failed to find a cover image, we use the fallback
-    if [ -z "$cover_path" ]; then
+    if [ -z "$cover_path" ];then
         cover_path="$HOME/.ncmpcpp/scripts/music.png"
     fi
 }
@@ -106,7 +106,7 @@ compute_geometry() {
     unset LINES COLUMNS # Required in order for tput to work in a script
     term_lines=$(tput lines)
     term_cols=$(tput cols)
-    if [ -z "$font_height" ] || [ -z "$font_height" ]; then
+    if [ -z "$font_height" ] || [ -z "$font_height" ];then
         guess_font_size
     fi
 
@@ -117,7 +117,7 @@ compute_geometry() {
     ueber_width=$(( ueber_height * font_height / font_width ))
     ueber_left=$(( term_cols - ueber_width - padding_right ))
 
-    if [ "$left_aligned" = "true" ]; then
+    if [ "$left_aligned" = "true" ];then
         compute_geometry_left_aligned
     else
         compute_geometry_right_aligned
@@ -130,34 +130,34 @@ compute_geometry_left_aligned() {
     ueber_left=$padding_left
     max_width_chars=$(( term_cols * max_width / 100 ))
     if [ "$max_width" != 0 ] &&
-        [ $(( ueber_width + padding_right + padding_left )) -gt "$max_width_chars" ]; then
+        [ $(( ueber_width + padding_right + padding_left )) -gt "$max_width_chars" ];then
         ueber_width=$(( max_width_chars - padding_left - padding_right ))
     fi
 }
 
 compute_geometry_right_aligned() {
-    if [ "$reserved_cols_in_percent" = "true" ]; then
+    if [ "$reserved_cols_in_percent" = "true" ];then
         ueber_left_percent=$(printf "%.0f\n" $(calc "$ueber_left" / "$term_cols" '*' 100))
-        if [ "$ueber_left_percent" -lt "$reserved_playlist_cols" ]; then
+        if [ "$ueber_left_percent" -lt "$reserved_playlist_cols" ];then
             ueber_left=$(( term_cols * reserved_playlist_cols / 100  ))
             ueber_width=$(( term_cols - ueber_left - padding_right ))
         fi
     else
-        if [ "$ueber_left" -lt "$reserved_playlist_cols" ]; then
+        if [ "$ueber_left" -lt "$reserved_playlist_cols" ];then
             ueber_left=$reserved_playlist_cols
             ueber_width=$(( term_cols - ueber_left - padding_right ))
         fi
 
     fi
 
-    if [ "$max_width" != 0 ] && [ "$ueber_width" -gt "$max_width" ]; then
+    if [ "$max_width" != 0 ] && [ "$ueber_width" -gt "$max_width" ];then
         ueber_width=$max_width
         ueber_left=$(( term_cols - ueber_width - padding_right ))
     fi
 }
 
 apply_force_square_setting() {
-    if [ $force_square = "true" ]; then
+    if [ $force_square = "true" ];then
         ueber_height=$(( ueber_width * font_width / font_height ))
         case "$square_alignment" in
             center)
@@ -218,7 +218,7 @@ END
     term_height=$(awk '{print $2}' /tmp/$USER/ncmpcpp_geometry.txt)
     rm "/tmp/$USER/ncmpcpp_geometry.txt"
 
-    if ! is_font_size_successfully_computed; then
+    if ! is_font_size_successfully_computed;then
         echo "Failed to guess font size, try setting it in `basename $0` settings"
     fi
 }

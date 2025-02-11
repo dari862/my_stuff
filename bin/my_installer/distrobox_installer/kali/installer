@@ -9,7 +9,7 @@ if [ "$CONTAINER_RT" = "podman" ];then
 	__format='--format docker'
 fi
 mode=""
-if [ "$mode" = "root" ]; then
+if [ "$mode" = "root" ];then
         root_command="--root"
 else
         root_command=""

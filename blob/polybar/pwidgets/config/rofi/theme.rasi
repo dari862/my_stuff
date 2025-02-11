@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : pwidgets
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #FFFFFFFF;
+    background-alt: #E0E0E0FF;
+    foreground:     #70788BFF;
+    selected:       #5999E3FF;
+    active:         #10A778FF;
+    urgent:         #C30771FF;
+}

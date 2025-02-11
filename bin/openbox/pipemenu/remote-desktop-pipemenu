@@ -5,7 +5,7 @@
 menuStart
 
 # Viewer
-if type 'xtightvncviewer' >/dev/null 2>&1; then
+if type 'xtightvncviewer' >/dev/null 2>&1;then
 	menuItem 'Viewer' 'vncviewer'
 else
 	menuItem 'Install Viewer' "popup_terminal --install xtightvncviewer"
@@ -14,8 +14,8 @@ fi
 menuSeparator
 
 # Server
-if [ -x /usr/lib/vino/vino-server ]; then
-	if pidof -s vino-server > /dev/null; then
+if [ -x /usr/lib/vino/vino-server ];then
+	if pidof -s vino-server > /dev/null;then
 		menuItem 'Stop VNC Server' 'killall vino-server'
 	else
 		menuItem 'Start VNC Server' '/usr/lib/vino/vino-server'

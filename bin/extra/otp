@@ -31,7 +31,7 @@ case $choice in
 		info="$(zbarimg -q "$temp")"
 		info="${info#QR-Code:}"
 
-		if echo "$info" | pass otp insert "$otp"; then
+		if echo "$info" | pass otp insert "$otp";then
 			while true ; do
 				export name="$(echo | $rofi_command -p "Give this One Time Password a one-word name:")"
 				echo "$name" | grep -q -- "^[A-z0-9-]\+$" && break

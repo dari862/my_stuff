@@ -8,9 +8,7 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import                          "colors.rasi"
-@import "theme.rasi"
-@import                          "font.rasi"
+@import                          "theme.rasi"
 
 /*
 USE_ICON=YES
@@ -19,19 +17,19 @@ USE_ICON=YES
 /*****----- Main Window -----*****/
 window {
     transparency:                "real";
-    location:                    center;
-    anchor:                      center;
+    location:                    southeast;
+    anchor:                      southeast;
     fullscreen:                  false;
-    width:                       300px;
-    x-offset:                    0px;
-    y-offset:                    0px;
+    width:                       280px;
+    x-offset:                    -10px;
+    y-offset:                    -48px;
     margin:                      0px;
     padding:                     0px;
     border:                      0px solid;
-    border-radius:               10px;
-    border-color:                @SEL;
+    border-radius:               0px;
+    border-color:                @selected;
     cursor:                      "default";
-    background-color:            @BG;
+    background-color:            @background;
 }
 
 /*****----- Main Box -----*****/
@@ -39,9 +37,9 @@ mainbox {
     enabled:                     true;
     spacing:                     10px;
     margin:                      0px;
-    padding:                     30px;
+    padding:                     20px;
     background-color:            transparent;
-    children:                    [ "message", "listview" ];
+    children:                    [ "inputbar", "listview", "message" ];
 }
 
 /*****----- Inputbar -----*****/
@@ -51,9 +49,9 @@ inputbar {
     padding:                     0px;
     border:                      0px;
     border-radius:               0px;
-    border-color:                @SEL;
+    border-color:                @selected;
     background-color:            transparent;
-    text-color:                  @FG;
+    text-color:                  @foreground;
     children:                    [ "textbox-prompt-colon", "prompt"];
 }
 
@@ -61,29 +59,29 @@ textbox-prompt-colon {
     enabled:                     true;
     expand:                      false;
     str:                         "";
-    padding:                     10px 14px;
-    border-radius:               100%;
-    background-color:            @SEL1;
-    text-color:                  @BG;
+    padding:                     5px 0px;
+    border-radius:               0px;
+    background-color:            @background;
+    text-color:                  @foreground;
 }
 prompt {
     enabled:                     true;
-    padding:                     10px;
-    border-radius:               20px;
-    background-color:            @SEL;
-    text-color:                  @BG;
+    padding:                     5px 0px;
+    border-radius:               0px;
+    background-color:            @background;
+    text-color:                  @foreground;
 }
 
 /*****----- Message -----*****/
 message {
     enabled:                     true;
     margin:                      0px;
-    padding:                     10px;
+    padding:                     15px;
     border:                      0px solid;
-    border-radius:               8px;
-    border-color:                @SEL;
-    background-color:            @BGA;
-    text-color:                  @FG;
+    border-radius:               0%;
+    border-color:                @selected;
+    background-color:            @background-alt;
+    text-color:                  @foreground;
 }
 textbox {
     background-color:            inherit;
@@ -109,16 +107,16 @@ listview {
 /*****----- Elements -----*****/
 element {
     enabled:                     true;
-    padding:                     5px 10px;
+    padding:                     30px 10px;
     border:                      0px solid;
-    border-radius:               8px;
-    border-color:                @SEL;
+    border-radius:               0%;
+    border-color:                @selected;
     background-color:            transparent;
-    text-color:                  @FG;
+    text-color:                  @foreground;
     cursor:                      pointer;
 }
 element-text {
-    font:                        "feather 20";
+    font:                        "feather 28";
     background-color:            transparent;
     text-color:                  inherit;
     cursor:                      inherit;
@@ -128,22 +126,22 @@ element-text {
 
 element normal.normal,
 element alternate.normal {
-    background-color:            var(BGA);
-    text-color:                  var(FG);
+    background-color:            var(background);
+    text-color:                  var(foreground);
 }
 element normal.urgent,
 element alternate.urgent,
 element selected.active {
-    background-color:            var(UGT);
-    text-color:                  var(BG);
+    background-color:            var(urgent);
+    text-color:                  var(background);
 }
 element normal.active,
 element alternate.active,
 element selected.urgent {
-    background-color:            var(SEL1);
-    text-color:                  var(BG);
+    background-color:            var(active);
+    text-color:                  var(background);
 }
 element selected.normal {
-    background-color:            var(SEL);
-    text-color:                  var(BG);
+    background-color:            var(selected);
+    text-color:                  var(background);
 }

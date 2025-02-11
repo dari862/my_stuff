@@ -10,7 +10,7 @@ case $(uname -m) in
 esac
 
 # Check if the system is macOS
-if [ $(uname -s) = "Darwin" ]; then
+if [ $(uname -s) = "Darwin" ];then
 	OS="mac"
 else
 	OS="linux"

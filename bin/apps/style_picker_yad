@@ -12,7 +12,7 @@ GLOBALBLOBPATH="/usr/share/my_stuff/system_files/blob"
 BLOBPATH="$HOME/.config"
 CURSESSION="$WM_config_dir/tint2_style"
 
-if [ "$_panel_name_" = 'polybar' ]; then
+if [ "$_panel_name_" = 'polybar' ];then
 	CONFIGPATH="${BLOBPATH}/blob/polybar"
 else
 	CONFIGPATH="${BLOBPATH}/blob/tint2"
@@ -97,61 +97,42 @@ saveStyle(){
     cp "$GTK3x" "${GTK3x_conf_dir}"
     
 	# getTint
-    tint2_sessionfile_file="$CONFIG_DIR/config/tint2/tint2-sessionfile"
-    mkdir -p "$CONFIG_DIR/config/tint2"
-    pgrep -a tint2 | while read pid cmd;do
-    	if [[ "${cmd%% *}" = tint2 ]];then
-    		TPATH=$(echo "$cmd" | awk '{print $NF}')
-    		echo "$TPATH" >> "$tint2_sessionfile_file"
-    	fi
-    done
-    sed -i "s|$HOME||g" "${tint2_sessionfile_file}" 
-    sed -i '/^$/d' "${tint2_sessionfile_file}"
-    while IFS="" read -r theme
-	do
-		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/tint2" >/dev/null 2>&1
-	done < ${tint2_sessionfile_file}
-	
-	# getOBtheme
-	mkdir -p "$OBPATH/theme"
-	mkdir -p "$CONFIG_DIR/config/openbox/theme"
-	
-	[ -f "$OBPATH/theme/rctheme" ] &&  . "$OBPATH/theme/rctheme"
-	
-	theme_font_name=($(grep '<name>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -2))
-	
-	font_tmp=${theme_font_name[1]}
-	[[ "${font_tmp}" = "&font_var;" ]] && font_tmp="${font}"
-	bottom_tmp=$(grep '<bottom>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
-	[[ "${bottom_tmp}" = "&bottom_var;" ]] && bottom_tmp="${bottom}"
-	top_tmp=$(grep '<top>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
-	[[ "${top_tmp}" = "&top_var;" ]] && top_tmp="${top}"
-	right_tmp=$(grep '<right>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
-	[[ "${right_tmp}" = "&right_var;" ]] && right_tmp="${right}"
-	left_tmp=$(grep '<left>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
-	[[ "${left_tmp}" = "&left_var;" ]] && left_tmp="${left}"
-	size_tmp=$(grep '<size>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/' | head -1)
-	[[ "${size_tmp}" = "&size_var;" ]] && size_tmp="${size}"
-	titleLayout_tmp=$(grep '<titleLayout>' $RCFILE | sed -e 's/.*>\(.*\)<\/.*/\1/')
-	[[ "${titleLayout_tmp}" = "&titleLayout_var;" ]] && titleLayout_tmp="${titleLayout}"
-	
-	if [[ "${theme_font_name[0]}" = "&theme_var;" ]];then
-		cp "$OBPATH/theme/rctheme" "$CONFIG_DIR/openboxrctheme"
-	else
-		echo "bottom=${bottom_tmp}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "top=${top_tmp}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "right=${right_tmp}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "left=${left_tmp}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "size=${size_tmp}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "font=${font_tmp}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "theme=${theme_font_name[0]}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "titleLayout=${titleLayout_tmp}" >> "$CONFIG_DIR/openboxrctheme"
+    if pgrep -a tint2 >/dev/null 2>&1;then
+    	tint2_sessionfile_file="$CONFIG_DIR/config/tint2/tint2-sessionfile"
+    	mkdir -p "$CONFIG_DIR/config/tint2"
+    	pgrep -a tint2 | while read pid cmd;do
+    		if [[ "${cmd%% *}" = tint2 ]];then
+    			TPATH=$(echo "$cmd" | awk '{print $NF}')
+    			echo "$TPATH" >> "$tint2_sessionfile_file"
+    		fi
+    	done
+    	
+    	sed -i "s|$HOME||g" "${tint2_sessionfile_file}" 
+    	sed -i '/^$/d' "${tint2_sessionfile_file}"    
+    	
+    	while IFS="" read -r theme
+		do
+			cp -r "${HOME}${theme}" "$CONFIG_DIR/config/tint2" >/dev/null 2>&1
+		done < ${tint2_sessionfile_file}
+	elif pgrep -a polybar >/dev/null 2>&1;then
+		mkdir -p "$CONFIG_DIR/config/$WM_config_name"
+    	cp "$WM_config_dir/Polybar_style" "$CONFIG_DIR/config/$WM_config_name"
+    	cp "$WM_config_dir/Rofi_style" "$CONFIG_DIR/config/$WM_config_name"
 	fi
-
-    # getpolybar
-    mkdir -p "$CONFIG_DIR/config/$WM_config_name"
-    cp "$WM_config_dir/Polybar_style" "$CONFIG_DIR/config/$WM_config_name"
-    cp "$WM_config_dir/Rofi_style" "$CONFIG_DIR/config/$WM_config_name"
+	# getOBtheme
+	if pgrep -a openbox >/dev/null 2>&1;then
+		while IFS= read -r line; do
+  			eval "$line"
+		done < <(grep "\!ENTITY" "$RCFILE" | grep _var | sed 's/<!ENTITY//g;s/>//g;s/ //g;s/_var/_var=/g')
+		echo "bottom=${bottom_var}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "top=${top_var}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "right=${right_var}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "left=${left_var}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "font=${font_var}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "size=${size_var}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "theme=${theme_var}" >> "$CONFIG_DIR/openboxrctheme"
+		echo "titleLayout=${titleLayout_var}" >> "$CONFIG_DIR/openboxrctheme"
+	fi
 	############ end of get
 }
 
@@ -163,9 +144,6 @@ Launch_YAD_(){
 	CONFIGDIR=""
 	NUMDIRS=0
 	### CONFIGS VARIABLES
-	LDMDIR="/usr/share/lightdm/lightdm-gtk-greeter.conf.d"
-	LDM="lightdm-gtk-greeter.conf"
-	LDMnew="$(cd $LDMDIR && ls 50_*.conf | head -1)"
 	XFILE="$HOME/.Xresources"
 	BKP_SFX=".$(date +"%Y%m%d-%H%M%S").blob~"
 	### END CONFIGS VARIABLES
@@ -343,7 +321,7 @@ Launch_YAD_(){
 	getScreenshot(){
     	pid=""
     	TMPSCREENSHOT=$(mktemp --tmpdir blob.XXXX)
-    	SCREENSHOT="$CONFIGPATH/$ANS"
+    	SCREENSHOT_PATH="$CONFIGPATH/$ANS"
     	CURRDTOP=$(xprop -root _NET_CURRENT_DESKTOP | tail -c -2) # desktop number
     	MONS=$(xrandr -q | grep -c " connected")    # number of monitors
     	# Set mouse position, for appearance of root-menu
@@ -390,9 +368,9 @@ Launch_YAD_(){
     	xdotool key --delay 20 Right && sleep 0.3
 	
     	# take screenshot and make thumbnail @9% fullsize
-    	ac-shots --no-view --no-notify --no-copy --thumb 9 --path "$SCREENSHOT.jpg"
-    	THUMB=$(find $CONFIGPATH -maxdepth 1 -type f -name "*-thumb.jpg" 2>/dev/null)
-    	mv $THUMB $CONFIGDIR
+    	ac-shots --no-view --no-notify --no-copy --thumb 9 --path "${SCREENSHOT_PATH}" --name "${ANS}.jpg"
+    	mv "${SCREENSHOT_PATH}"/"${ANS}.jpg" "${SCREENSHOT_PATH}"/preview.jpg
+    	(cd "${SCREENSHOT_PATH}" && cd .. && ln -sf "${ANS}"/preview.jpg .)
 	
     	# close root menu
     	xdotool mousemove_relative --sync --polar 0 10 click 3
@@ -418,29 +396,7 @@ Launch_YAD_(){
     	
     	[ -f "$TMPSCREENSHOT" ] && rm -f "$TMPSCREENSHOT"
 	}
-	
-	restoreLightdmGreeter(){
-    	[[ -r "$1/$LDM" ]] || {
-        	return 1
-    	}
-    	apps_as_root --yad true
-    	ret="$?"
-		if [ "$ret" = 0 ];then
-			. "$1/$LDM"
-			my-superuser sed -i "s|background = .*|background = ${greeter_background}|g" "$LDMDIR/$LDMnew"
-			my-superuser sed -i "s/theme-name = .*/theme-name = ${greeter_theme_name}/g" "$LDMDIR/$LDMnew"
-			my-superuser sed -i "s/icon-theme-name = .*/icon-theme-name = ${greeter_icon_theme_name}/g" "$LDMDIR/$LDMnew"
-			my-superuser sed -i "s/font-name = .*/font-name = ${greeter_font_name}/g" "$LDMDIR/$LDMnew"
-			my-superuser sed -i "s/position = .*/position = ${greeter_position}/g" "$LDMDIR/$LDMnew"
-			
- 			$DIALOG --text="\n  LightdmGreeter File Restored."
- 		elif [ "$ret" = 1 ];then
-			restoreLightdmGreeter
-		elif [ "$ret" = 2 ];then
-			:
-		fi
-	}
-	
+
 	ViewRestoreDialog(){  #   Display saved theme collections
     	getSet          # get name of latest set BLOB config
     	if (( $NUMDIRS == 0 ));then   # no saved configs; go back to Intro dialog
@@ -566,7 +522,9 @@ Launch_YAD_(){
         	esac
     	done
 		style_changer "$(cat $CURSESSION)"
-    	restoreLightdmGreeter "$FPATH"
+		if . "$FPATH/lightdm-gtk-greeter.conf";then
+    		setLightdmGreeter "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position"
+    	fi
     	restoreSettings   
 	}
 	

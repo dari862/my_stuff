@@ -12,7 +12,7 @@ ask_question(){
 check_command() {
   state=true
   for package in "${@}"; do
-    if ! command -v "${package}" >/dev/null; then
+    if ! command -v "${package}" >/dev/null;then
       echo "MISSING: ${package} not installed."
       state=false
     fi
@@ -64,15 +64,15 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-if [ -z "$NAME" ]; then
+if [ -z "$NAME" ];then
   NAME=$(ask_question "What is the name of the series?")
 fi
 
-if [ -z "$URL" ]; then
+if [ -z "$URL" ];then
   URL=$(ask_question "What is the URL?")
 fi
 
-if [ -z "$RESOLUTION" ]; then
+if [ -z "$RESOLUTION" ];then
   RESOLUTION=720
 fi
 
@@ -91,10 +91,10 @@ case "${RESOLUTION}" in
     ;;
 esac
 
-if [ -z "${VIDEODIR}" ]; then
-  if [ -n "${mediadir}" ] && [ -d "${mediadir}" ]; then
+if [ -z "${VIDEODIR}" ];then
+  if [ -n "${mediadir}" ] && [ -d "${mediadir}" ];then
     VIDEODIR="${mediadir}/Web Series"
-  elif [ -n "${videodir}" ] && [ -d "${videodir}" ]; then
+  elif [ -n "${videodir}" ] && [ -d "${videodir}" ];then
     VIDEODIR="${videodir}"
   else
     VIDEODIR="$(pwd)"
@@ -105,7 +105,7 @@ fi
 mkdir -p "${VIDEODIR}/${NAME}"
 cd "${VIDEODIR}/${NAME}"
 
-if [ -z "$START" ]; then
+if [ -z "$START" ];then
   "${YTDL}" "${URL}" \
     --write-sub \
     --embed-subs \

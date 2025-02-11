@@ -94,10 +94,10 @@ cmd shred ${{
 	case "$REPLY" in
 		[yYsS])
 			for f in $fx; do
-				if [ -f "$f" ]; then
+				if [ -f "$f" ];then
 					shred -u -n 3 "$f" >/dev/null 2>&1 &
 					# TODO: Put a maximum number of jobs
-				elif [ -d "$f" ]; then
+				elif [ -d "$f" ];then
 					rshred -fdu "$f"
 				fi
 			done
@@ -155,9 +155,9 @@ cmd broot ${{
 	# selected path with :print-path or :pp. You may
 	# want to configure broot keybindings
 	selected="$(broot)"
-	if [ -d "$selected" ]; then
+	if [ -d "$selected" ];then
 		lf -remote "send ${id} cd \"${selected}\""
-	elif [ -e "$selected" ]; then
+	elif [ -e "$selected" ];then
 		lf -remote "send ${id} select \"${selected}\""
 	else
 		>&2 printf "Could not select %s\n" "${selected}"
@@ -172,7 +172,7 @@ cmd paste_link %{{
 	set -- $(cat ~/.local/share/lf/files)
 	mode="$1"
 	shift
-	if [ $# -lt 1 ]; then
+	if [ $# -lt 1 ];then
 		lf -remote "send $id echo no files to link"
 		exit 1
 	fi
@@ -220,9 +220,9 @@ cmd gsh_i ${{
 		--preview "lsd --color always --icon always --tree --depth 2 --group-dirs first {+2} 2>/dev/null" \
 		| awk '{print substr($0, index($0,$2))}'
 	)
-	if [ -d "$selected" ]; then
+	if [ -d "$selected" ];then
 		lf -remote "send ${id} cd \"${selected}\""
-	elif [ -e "$selected" ]; then
+	elif [ -e "$selected" ];then
 		lf -remote "send ${id} select \"${selected}\""
 	else
 		>&2 printf "Could not select %s\n" "${selected}"

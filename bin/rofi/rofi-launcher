@@ -11,5 +11,4 @@ RASI="$rofi_style_dir/launcher.rasi"
 # Run
 rofi \
     -show drun \
-	-kb-cancel Alt-F1 \
 	-theme ${RASI}

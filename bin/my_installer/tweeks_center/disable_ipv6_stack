@@ -3,7 +3,7 @@
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
 
 if [ "$1" = "--is-enable" ];then
-	if grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1'; then
+	if grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then
 		exit 0
 	else
 		exit 1

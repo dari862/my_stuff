@@ -134,35 +134,35 @@ fi
 
 if [ "$polybar_STYLE" = "blocks" ]
 then
-	if  [ "$1" = "--default" ]; then
+	if  [ "$1" = "--default" ];then
 		BG="#2f343f"
 		BGA="#C4C7C5"
 		FGA="#C4C7C5"
 		FG="#1C1E20"
 		AC="#B4BC67"
 		change_color
-	elif  [ "$1" = "--nord" ]; then
+	elif  [ "$1" = "--nord" ];then
 		BG="#3B4252"
 		BGA="#4C566A"
 		FGA="#E5E9F0"
 		FG="#ECEFF4"
 		AC="#A3BE8C"
 		change_color
-	elif  [ "$1" = "--gruvbox" ]; then
+	elif  [ "$1" = "--gruvbox" ];then
 		BG="#282828"
 		BGA="#EBDBB2"
 		FGA="#EBDBB2"
 		FG="#282828"
 		AC="#CC241D"
 		change_color
-	elif  [ "$1" = "--adapta" ]; then
+	elif  [ "$1" = "--adapta" ];then
 		BG="#243035"
 		BGA="#38444A"
 		FGA="#FDF6E3"
 		FG="#FFFFFF"
 		AC="#4DD0E1"
 		change_color
-	elif  [ "$1" = "--cherry" ]; then
+	elif  [ "$1" = "--cherry" ];then
 		BG="#1F1626"
 		BGA="#423949"
 		FGA="#FFFFFF"
@@ -178,52 +178,52 @@ then
 
 elif [ "$polybar_STYLE" = "cuts" ]
 then
-	if  [ "$1" = "--mode1" ]; then
+	if  [ "$1" = "--mode1" ];then
 		BG="0a0a0a"
 		FG="f5f5f5"
 		AC="#fdd835"
 		change_color
-	elif  [ "$1" = "--mode2" ]; then
+	elif  [ "$1" = "--mode2" ];then
 		BG="263238"
 		FG="DFDFDF"
 		AC="#00BCD4"
 		change_color
-	elif  [ "$1" = "--mode3" ]; then
+	elif  [ "$1" = "--mode3" ];then
 		BG="112526"
 		FG="C4AAA5"
 		AC="#EE7313"
 		change_color
-	elif  [ "$1" = "--mode4" ]; then
+	elif  [ "$1" = "--mode4" ];then
 		BG="461320"
 		FG="f5f5f5"
 		AC="#fdd835"
 		change_color
-	elif  [ "$1" = "--mode5" ]; then
+	elif  [ "$1" = "--mode5" ];then
 		BG="092F1C"
 		FG="f5f5f5"
 		AC="#fdd835"
 		change_color
-	elif  [ "$1" = "--mode6" ]; then
+	elif  [ "$1" = "--mode6" ];then
 		BG="003C3C"
 		FG="CFCFCF"
 		AC="#00acc1"
 		change_color
-	elif  [ "$1" = "--mode7" ]; then
+	elif  [ "$1" = "--mode7" ];then
 		BG="3C3836"
 		FG="EBDBB2"
 		AC="#FB4934"
 		change_color
-	elif  [ "$1" = "--mode8" ]; then
+	elif  [ "$1" = "--mode8" ];then
 		BG="2E3440"
 		FG="D8DEE9"
 		AC="#BF616A"
 		change_color
-	elif  [ "$1" = "--mode9" ]; then
+	elif  [ "$1" = "--mode9" ];then
 		BG="002b36"
 		FG="839496"
 		AC="#b58900"
 		change_color
-	elif  [ "$1" = "--mode10" ]; then
+	elif  [ "$1" = "--mode10" ];then
 		BG="1F1626"
 		FG="FFFFFF"
 		AC="#FFD16F"
@@ -237,7 +237,7 @@ then
 	fi
 elif [ "$polybar_STYLE" = "forest" ] || [ "$polybar_STYLE" = "forest_large" ]
 then
-	if  [ "$1" = "--default" ]; then
+	if  [ "$1" = "--default" ];then
 		BG="#212B30"
 		FG="#C4C7C5"
 		BGA="#263035"
@@ -245,7 +245,7 @@ then
 		AC="#EC407A"
 		SE="#4DD0E1"
 		change_color
-	elif  [ "$1" = "--nord" ]; then
+	elif  [ "$1" = "--nord" ];then
 		BG="#3B4252"
 		FG="#E5E9F0"
 		BGA="#454C5C"
@@ -253,7 +253,7 @@ then
 		AC="#BF616A"
 		SE="#88C0D0"
 		change_color
-	elif  [ "$1" = "--gruvbox" ]; then
+	elif  [ "$1" = "--gruvbox" ];then
 		BG="#282828"
 		FG="#EBDBB2"
 		BGA="#313131"
@@ -261,7 +261,7 @@ then
 		AC="#FB4934"
 		SE="#8EC07C"
 		change_color
-	elif  [ "$1" = "--dark" ]; then
+	elif  [ "$1" = "--dark" ];then
 		BG="#141C21"
 		FG="#93A1A1"
 		BGA="#1E262B"
@@ -269,7 +269,7 @@ then
 		AC="#D12F2C"
 		SE="#33C5BA"
 		change_color
-	elif  [ "$1" = "--cherry" ]; then
+	elif  [ "$1" = "--cherry" ];then
 		BG="#1F1626"
 		FG="#FFFFFF"
 		BGA="#292030"
@@ -285,43 +285,43 @@ then
 	fi
 elif [ "$polybar_STYLE" = "pwidgets" ]
 then
-	if  [ "$1" = "--default" ]; then
+	if  [ "$1" = "--default" ];then
 		BG="212B30"
 		FG="C4C7C5"
 		RFG="C4C7C5"
 		AC="51B4FF"
 		change_color
-	elif  [ "$1" = "--nord" ]; then
+	elif  [ "$1" = "--nord" ];then
 		BG="3B4252"
 		FG="E5E9F0"
 		RFG="E5E9F0"
 		AC="A3BE8C"
 		change_color
-	elif  [ "$1" = "--gruvbox" ]; then
+	elif  [ "$1" = "--gruvbox" ];then
 		BG="282828"
 		FG="EBDBB2"
 		RFG="EBDBB2"
 		AC="FB4934"
 		change_color
-	elif  [ "$1" = "--dark" ]; then
+	elif  [ "$1" = "--dark" ];then
 		BG="141C21"
 		FG="f5f5f5"
 		RFG="f5f5f5"
 		AC="FFE744"
 		change_color
-	elif  [ "$1" = "--cherry" ]; then
+	elif  [ "$1" = "--cherry" ];then
 		BG="1F1626"
 		FG="FFFFFF"
 		RFG="FFFFFF"
 		AC="D94084"
 		change_color
-	elif  [ "$1" = "--white" ]; then
+	elif  [ "$1" = "--white" ];then
 		BG="FFFFFF"
 		FG="FFFFFF"
 		RFG="454545"
 		AC="1565C0"
 		change_color
-	elif  [ "$1" = "--black" ]; then
+	elif  [ "$1" = "--black" ];then
 		BG="0a0a0a"
 		FG="0a0a0a"
 		RFG="a0a0a0"
@@ -339,7 +339,7 @@ then
 	new_style="${1-}"
 	style_name="panels/${new_style}"
 	bg="panels_${new_style}.jpg"
-	if  [ -f "/usr/share/my_stuff/my_wallpapers/${bg}" ]; then
+	if  [ -f "/usr/share/my_stuff/my_wallpapers/${bg}" ];then
 		change_panel
 	else
 		cat <<- _EOF_

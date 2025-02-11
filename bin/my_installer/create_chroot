@@ -64,7 +64,7 @@ chroot_creater(){
 		base_chroot_creater
 		say "Mounting necessary filesystems for chroot..."
 		for fs in /proc /sys /dev /dev/pts /run; do
-			if ! mountpoint -q "$CHROOT_DIR$fs"; then
+			if ! mountpoint -q "$CHROOT_DIR$fs";then
     			my-superuser mount --bind "$fs" "$CHROOT_DIR$fs" || failed_to_run "Failed to mount $fs"
     		fi
 		done

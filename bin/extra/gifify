@@ -9,7 +9,7 @@ check_4_dependencies_if_installed bc ffmpeg ffprobe sed || exit 1
 show_error() {
   local red=$'\033[0;91m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
   else
     echo -e "${red}${*}${nc}" 1>&2
@@ -19,7 +19,7 @@ show_error() {
 show_header() {
   local cyan=$'\033[0;96m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${cyan}${*:2}${nc}"
   else
     echo -e "${cyan}${*}${nc}"
@@ -29,7 +29,7 @@ show_header() {
 show_warning() {
   local yellow=$'\033[0;93m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${yellow}${*:2}${nc}"
   else
     echo -e "${yellow}${*}${nc}"
@@ -63,7 +63,7 @@ function scan_input {
   VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
   WIDTH="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
   HEIGHT="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
-  if ! [[ -v DIMENSIONS ]]; then
+  if ! [[ -v DIMENSIONS ]];then
     DIMENSIONS=("${WIDTH}x${HEIGHT}")
   fi
   ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
@@ -81,20 +81,20 @@ function make_image_subs {
   local cmd
 
   # compute the width and height for the image
-  if [[ "${dim}" = native ]]; then
+  if [[ "${dim}" = native ]];then
     width="${WIDTH}"
     height="${HEIGHT}"
     scale=
   else
     width="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
     height="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
-    if [ -z "${width}" ] && [ -n "${height}" ]; then
+    if [ -z "${width}" ] && [ -n "${height}" ];then
       scale=",scale=-1:${height}:flags=lanczos"
       width="$(printf %.0f "$(echo "${height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
-    elif [ -n "${width}" ] && [ -z "${height}" ]; then
+    elif [ -n "${width}" ] && [ -z "${height}" ];then
       scale=",scale=${width}:-1:flags=lanczos"
       height="$(printf %.0f "$(echo "${width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
-    elif [ -n "${width}" ] && [ -n "${height}" ]; then
+    elif [ -n "${width}" ] && [ -n "${height}" ];then
       scale=",scale=${width}:${height}:flags=lanczos"
     else
       width="${WIDTH}"
@@ -111,9 +111,9 @@ function make_image_subs {
 
   # -t and -to are mutually exclusive, so set duration over end stamp
   # (mirrors ffmpeg default behavior)
-  if [[ -v LENGTH ]]; then
+  if [[ -v LENGTH ]];then
     cmd="${cmd} -t ${LENGTH}"
-  elif [[ -v END ]]; then
+  elif [[ -v END ]];then
     cmd="${cmd} -to ${END}"
   fi
 
@@ -155,20 +155,20 @@ function make_image {
   local cmd
 
   # compute the width and height for the image
-  if [[ "${dim}" = native ]]; then
+  if [[ "${dim}" = native ]];then
     width="${WIDTH}"
     height="${HEIGHT}"
     scale=
   else
     width="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
     height="$(echo "${dim}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
-    if [ -z "${width}" ] && [ -n "${height}" ]; then
+    if [ -z "${width}" ] && [ -n "${height}" ];then
       scale=",scale=-1:${height}"
       width="$(printf %.0f "$(echo "${height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
-    elif [ -n "${width}" ] && [ -z "${height}" ]; then
+    elif [ -n "${width}" ] && [ -z "${height}" ];then
       scale=",scale=${width}:-1"
       height="$(printf %.0f "$(echo "${width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
-    elif [ -n "${width}" ] && [ -n "${height}" ]; then
+    elif [ -n "${width}" ] && [ -n "${height}" ];then
       scale=",scale=${width}:${height}"
     else
       width="${WIDTH}"
@@ -185,9 +185,9 @@ function make_image {
 
   # -t and -to are mutually exclusive, so set duration over end stamp (mirrors
   # ffmpeg default behavior)
-  if [[ -v LENGTH ]]; then
+  if [[ -v LENGTH ]];then
     cmd="${cmd} -t ${LENGTH}"
-  elif [[ -v END ]]; then
+  elif [[ -v END ]];then
     cmd="${cmd} -to ${END}"
   fi
   cmd="${cmd} -i file:${in@Q} -an -sn"
@@ -291,14 +291,14 @@ done
 #
 
 # Check if variables are set before running ffmpeg.
-if ! [[ -v IN ]] || ! [[ -v OUT ]]; then
+if ! [[ -v IN ]] || ! [[ -v OUT ]];then
   show_error "Try again. Usage:"
   print_usage
   exit 3
 fi
 
 # If duration is unset, go to the end of the video...
-if ! [[ -v LENGTH ]] && ! [[ -v END ]]; then
+if ! [[ -v LENGTH ]] && ! [[ -v END ]];then
   LENGTH="$(echo "${DURATION} - ${START}" | bc -l)"
 fi
 

@@ -16,7 +16,7 @@ file="Capture_${time}.mp4"
 # notify
 notify_user() {
 	notify_cmd="dunstify -u low -h string:x-dunst-stack-tag:obscreenrecord -i ${icons_dir}/video.png"
-	if [ -e "$dir/$file" ]; then
+	if [ -e "$dir/$file" ];then
 		${notify_cmd} "Saved in $dir"
 	else
 		${notify_cmd} "Video Deleted."
@@ -35,7 +35,7 @@ countdown() {
 rec_screen() {
 	countdown 3
 	sleep 1
-	if [ "$1" = "noaudio" ]; then
+	if [ "$1" = "noaudio" ];then
 		ffmpeg -hide_banner -loglevel error -video_size "${screen}" -framerate 25 -f x11grab -i :0.0+0,0 "${dir}/${file}"
 	else
 		ffmpeg -hide_banner -loglevel error -video_size "${screen}" -framerate 25 -f x11grab -i :0.0+0,0 -f pulse -ac 2 -i default "${dir}/${file}"
@@ -53,7 +53,7 @@ rec_area() {
 	H="$4"
 	countdown 3
 	sleep 1
-	if [ "$1" = "noaudio" ]; then
+	if [ "$1" = "noaudio" ];then
 		ffmpeg -hide_banner -loglevel error -video_size "${W}x${H}" -framerate 25 -f x11grab -i :0.0+${X},${Y} "${dir}/${file}"
 	else
 		ffmpeg -hide_banner -loglevel error -video_size "${W}x${H}" -framerate 25 -f x11grab -i :0.0+${X},${Y} -f pulse -ac 2 -i default "${dir}/${file}"
@@ -62,7 +62,7 @@ rec_area() {
 }
 
 # Ensure the directory exists
-if [ ! -d "$dir" ]; then
+if [ ! -d "$dir" ];then
 	mkdir -p "$dir"
 fi
 

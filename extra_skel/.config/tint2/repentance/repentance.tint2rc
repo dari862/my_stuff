@@ -214,7 +214,7 @@ separator_padding = 0 8
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = now-playing -i
+execp_command = /usr/share/my_stuff/bin/not_add_2_path/tint2/now-playing -i
 execp_interval = 4
 execp_has_icon = 0
 execp_cache_icon = 1

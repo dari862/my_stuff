@@ -23,4 +23,7 @@ case $opt in
 		--volume-controller) volume_controller ;;
 		--powermenu) my_session_manager --yad ;;
 		--beepmein) beepmein_gui --standalone ;;
+		--next-music) mpc next ;;
+		--prev-music) mpc prev ;;
+		--toggle-music) mpc toggle ;;
 esac

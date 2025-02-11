@@ -5,26 +5,26 @@ get_status() {
 	BAT_PREC=$(acpi -b | cut -d',' -f2 | tr -d ' ',\%)
 	BAT_STAT=$(acpi -b | cut -d',' -f1 | cut -d':' -f2 | tr -d ' ')
 
-	if echo "$BAT_STAT" | grep -q "Full"; then
+	if echo "$BAT_STAT" | grep -q "Full";then
 		icon=''
-	elif echo "$BAT_STAT" | grep -q "Charging"; then
+	elif echo "$BAT_STAT" | grep -q "Charging";then
 		icon=''
 	else
-		if [ "$BAT_PREC" -ge "0" ] && [ "$BAT_PREC" -le "20" ]; then
+		if [ "$BAT_PREC" -ge "0" ] && [ "$BAT_PREC" -le "20" ];then
 			icon=''
-		elif [ "$BAT_PREC" -ge "20" ] && [ "$BAT_PREC" -le "40" ]; then
+		elif [ "$BAT_PREC" -ge "20" ] && [ "$BAT_PREC" -le "40" ];then
 			icon=''
-		elif [ "$BAT_PREC" -ge "40" ] && [ "$BAT_PREC" -le "60" ]; then
+		elif [ "$BAT_PREC" -ge "40" ] && [ "$BAT_PREC" -le "60" ];then
 			icon=''
-		elif [ "$BAT_PREC" -ge "60" ] && [ "$BAT_PREC" -le "80" ]; then
+		elif [ "$BAT_PREC" -ge "60" ] && [ "$BAT_PREC" -le "80" ];then
 			icon=''
-		elif [ "$BAT_PREC" -ge "80" ] && [ "$BAT_PREC" -le "100" ]; then
+		elif [ "$BAT_PREC" -ge "80" ] && [ "$BAT_PREC" -le "100" ];then
 			icon=''
 		fi
 	fi
 	
 	# Get status
-	if echo "$BAT_STAT" | grep -q "Full"; then
+	if echo "$BAT_STAT" | grep -q "Full";then
 		echo "$icon Full"
 	else
 		echo "$icon ${BAT_PREC}%"

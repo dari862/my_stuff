@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : lithium_light_vertical
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #BCC7CDFF;
+    background-alt: #BCC7CDFF;
+    foreground:     #000000FF;
+    selected:       #CA666BFF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

@@ -8,9 +8,7 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import                          "colors.rasi"
 @import "theme.rasi"
-@import                          "font.rasi"
 
 /*
 USE_ICON=YES
@@ -128,22 +126,22 @@ element-text {
 
 element normal.normal,
 element alternate.normal {
-    background-color:            var(BGA);
-    text-color:                  var(FG);
+    background-color:            @BGA;
+    text-color:                  @FG;
 }
 element normal.urgent,
 element alternate.urgent,
 element selected.active {
-    background-color:            var(UGT);
-    text-color:                  var(BG);
+    background-color:            @UGT;
+    text-color:                  @BG;
 }
 element normal.active,
 element alternate.active,
 element selected.urgent {
-    background-color:            var(SEL1);
-    text-color:                  var(BG);
+    background-color:            @SEL1;
+    text-color:                  @BG;
 }
 element selected.normal {
-    background-color:            var(SEL);
-    text-color:                  var(BG);
+    background-color:            @SEL;
+    text-color:                  @BG;
 }

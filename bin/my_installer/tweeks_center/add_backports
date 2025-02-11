@@ -2,7 +2,7 @@
 mirror="http://deb.debian.org/debian/"
 mirror_security="http://security.debian.org/debian-security"
 dist=$(lsb_release -cs)
-if [ "n/a" = "$dist" ] ; then
+if [ "n/a" = "$dist" ];then
     dist=testing
 fi
 deb_lines_backports=$(egrep "^(deb|deb-src) (${mirror}|${mirror_security})" /etc/apt/sources.list | grep -v ${dist}-backports)

@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-cd "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/mullvad/"
+cd "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/${container_name}/"
 
 __format=""
 
@@ -9,7 +9,7 @@ if [ "$(basename $(realpath $(which CONTAINER_RT)))" = "podman" ];then
 fi
 
 CONTAINER_RT build -t mullvad . ${__format} --no-cache
-CONTAINER_RT run --rm -it -p 4433:4433 -d mullvad
+run_containers --install ${container_name}
 
-say "container contain all nessery packages for mullvad ."
+say "container contain all nessery packages for ${container_name} ."
 say

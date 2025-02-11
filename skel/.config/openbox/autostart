@@ -30,7 +30,7 @@ fi
 [ -f ~/.Xmodmap ] && xmodmap ~/.Xmodmap &							
 
 # Touchpad settings
-if [ -f /sys/module/battery/initstate ] || [ -d /proc/acpi/battery/BAT0 ]; then
+if [ -f /sys/module/battery/initstate ] || [ -d /proc/acpi/battery/BAT0 ];then
 	# Configure touchpad
 	synclient VertEdgeScroll=1 HorizEdgeScroll=1 TapButton1=1 2>/dev/null	
 	# Disable touchpad while typing

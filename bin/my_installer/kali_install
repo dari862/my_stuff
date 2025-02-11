@@ -38,12 +38,12 @@ if [ -z "${app_is_}" ];then
 		read -p 'Input Your Choice: ' i
 		[ "$i" = "exit" ] && exit
 		index=i-1
-		if (($i <= ${apps_list_length} )) && (( $i >= 1 )); then 
+		if (($i <= ${apps_list_length} )) && (( $i >= 1 ));then 
 			app_is_="${apps_list_[$index]}"
 		else
 			app_is_=""
 		fi
-		if [ -n "$app_is_" ]; then 
+		if [ -n "$app_is_" ];then 
 			break
 		else
 			echo -e "\nInvalid Choice! Try again. $((3-$COUNTER)) chances left..)"

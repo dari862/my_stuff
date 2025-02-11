@@ -3,7 +3,7 @@ set -e
 
 app_is_="${@}"
 dist=$(lsb_release -cs)
-if [ "n/a" = "$dist" ] ; then
+if [ "n/a" = "$dist" ];then
     dist=testing
 fi
 

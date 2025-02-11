@@ -122,7 +122,7 @@ setup() {
 }
 
 # Test if .local/share exists and wether to offer setup process
-if [ ! -d "$DIR" ]; then
+if [ ! -d "$DIR" ];then
     echo -e "No ${LRED}$DIR${NC} directory, make it? ${LGREEN}Y${NC}/${LRED}N${NC}"
     # shellcheck disable=SC2162
     read RESPONSE
@@ -243,7 +243,7 @@ $([ ${#QUESTION} -lt 59 ] && printf "%$(((59 - ${#QUESTION}) / 2))s")$QUESTION"
 
 # Creating new entries in the log for the average score generation
 add_usage_entry() {
-    if [ ! "$COUNTER" = 0 ]; then
+    if [ ! "$COUNTER" = 0 ];then
         # Create a New Entry
         TIME_STAMP=$(date +"%Y%m%d %H:%M:%S")
         printf -v ENTRY "TimeStamp: %s Deck: %s cardsReviewed: %s" "$TIME_STAMP" "$CURRENT_DECK" "$COUNTER"
@@ -299,7 +299,7 @@ ${LGREY}Select a number to continue, or${NC} ${LRED}Q${NC} ${LGREY}to quit...${N
 
     COUNTER="$((COUNTER + 1))" # Increment count for card review count increment
 
-    if [ "${q[3]}" = 0 ]; then
+    if [ "${q[3]}" = 0 ];then
         NEW_ITEM_SCORE=0
         case "$DIFFICULTY_SCORE" in
         [123]) NEW_ITEM_SCORE=0 ;; #HARD DIFFICULTY & NORMAL
@@ -308,7 +308,7 @@ ${LGREY}Select a number to continue, or${NC} ${LRED}Q${NC} ${LGREY}to quit...${N
         *) NEW_ITEM_SCORE=0 ;; #INVALID
         esac
 
-    elif [ "${q[3]}" = 1 ]; then
+    elif [ "${q[3]}" = 1 ];then
         case "$DIFFICULTY_SCORE" in
         1) NEW_ITEM_SCORE=0 ;; #HARD
         2) NEW_ITEM_SCORE=0 ;; #DIFFICULT

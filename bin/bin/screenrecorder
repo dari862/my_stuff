@@ -8,7 +8,7 @@ file="Capture_${time}.mp4"
 
 # notify
 notify_user () {
-	if [ -e "$dir/$file" ]; then
+	if [ -e "$dir/$file" ];then
 		dunstify -u low --replace=699 -i /usr/share/my_stuff/icons/dunst/video.png "Saved in $dir"
 	else
 		dunstify -u low --replace=699 -i /usr/share/my_stuff/icons/dunst/video.png "Video Deleted."
@@ -26,7 +26,7 @@ countdown () {
 # capture
 rec_screen() {
 	countdown '3'
-	if [ "$1" = "noaudio" ]; then
+	if [ "$1" = "noaudio" ];then
 		ffmpeg -video_size ${screen} -framerate 25 -f x11grab -i :0.0+0,0 ${dir}/${file}
 	else
 		ffmpeg -video_size ${screen} -framerate 25 -f x11grab -i :0.0+0,0 -f pulse -ac 2 -i default ${dir}/${file}
@@ -45,7 +45,7 @@ rec_area() {
 		ID="${ID}"
 	done
 	countdown '3'
-	if [ "$1" = "noaudio" ]; then
+	if [ "$1" = "noaudio" ];then
 		ffmpeg -video_size ${W}x${H} -framerate 25 -f x11grab -i :0.0+${X},${Y} ${dir}/${file}
 	else
 		ffmpeg -video_size ${W}x${H} -framerate 25 -f x11grab -i :0.0+${X},${Y} -f pulse -ac 2 -i default ${dir}/${file}
@@ -53,17 +53,17 @@ rec_area() {
 	notify_user
 }
 
-if [ ! -d "$dir" ]; then
+if [ ! -d "$dir" ];then
 	mkdir -p "$dir"
 fi
 
-if [ "$1" = "--screen" ]; then
+if [ "$1" = "--screen" ];then
 	rec_screen
-elif [ "$1" = "--area" ]; then
+elif [ "$1" = "--area" ];then
 	rec_area
-elif [ "$1" = "--screen-na" ]; then
+elif [ "$1" = "--screen-na" ];then
 	rec_screen noaudio
-elif [ "$1" = "--area-na" ]; then
+elif [ "$1" = "--area-na" ];then
 	rec_area noaudio
 else
 	echo "Available Options : --screen   --screen-na   --area   --area-na"

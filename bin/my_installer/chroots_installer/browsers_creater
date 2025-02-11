@@ -39,7 +39,7 @@ end_of_chroot_creater(){
 		create_default_chroot_browser
 	fi
 	
-	if [ "$make_chroot_browser_default_browser" = true ]; then
+	if [ "$make_chroot_browser_default_browser" = true ];then
      	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}" "$my_www_browser_path"
     fi
     

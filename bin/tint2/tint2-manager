@@ -109,7 +109,7 @@ getRunning(){
             echo "$0: pgrep parsing failed: command is not 'tint2'" >&2
             continue
         }
-        if (( ${#command[@]} > 1 )); then
+        if (( ${#command[@]} > 1 ));then
             TPATH=${command[-1]} # tint2 takes no options other than -c, which is optional
             [[ $TPATH = /* ]] || TPATH="$HOME/$TPATH" # assume path is relative to $HOME
         else
@@ -141,7 +141,7 @@ findTints(){
         [[ $file = *~ ]] && continue # ignore backups
         grep -q "panel_monitor" "$file" || continue # not a tint2rc file
         name=${file#$TINT2PATH/}
-        if isRunning "$file"; then
+        if isRunning "$file";then
             check='TRUE'
         else
             check='FALSE'
@@ -161,7 +161,7 @@ loadDialog() {
         $APPLY --button='Apply+Close':2 $CLOSE \
         )
     retval=$?
-    if (( retval == 1 )); then # close button pressed
+    if (( retval == 1 ));then # close button pressed
         exit 0
     fi
     if [[ -z $choice ]];then  # No tint2s chosen

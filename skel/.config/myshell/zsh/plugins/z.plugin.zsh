@@ -1,4 +1,4 @@
-if [ -f "${My_shell_DIR}/shared_plugin/z.sh" ]; then 
+if [ -f "${My_shell_DIR}/shared_plugin/z.sh" ];then 
   _Z_CMD=j
   _Z_DATA="${My_shell_DIR}/shared_plugin/z_database"
   source "${My_shell_DIR}/shared_plugin/z.sh"

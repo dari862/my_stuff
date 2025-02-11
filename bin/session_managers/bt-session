@@ -5,9 +5,9 @@
 # If BT is not installed installl BT and open manager
 
 # NO BT INSTALLED
-if [ "$1" = "-I" ]; then
+if [ "$1" = "-I" ];then
     # INSTALL BT
-    if ! dpkg -l blueman >/dev/null 2>&1 || ! dpkg -l bluez 2>/dev/null | grep -q "^ii"; then
+    if ! dpkg -l blueman >/dev/null 2>&1 || ! dpkg -l bluez 2>/dev/null | grep -q "^ii";then
         # Install package
 		my-installer --install 'bluez'
 
@@ -41,7 +41,7 @@ if [ "$1" = "-I" ]; then
     fi
 
 # OPEN BT ADMIN
-elif service_manager is-active bluetooth.service && which blueman-manager >/dev/null 2>&1; then
+elif service_manager is-active bluetooth.service && which blueman-manager >/dev/null 2>&1;then
     blueman-manager
     exit
 

@@ -12,7 +12,7 @@ case "$ID" in
 	w*)
 		# Dependencies: `wireless_tools`
 		wifi=$(iwgetid | awk -F '"' '{ print $2 }')
-		if [ -n "$wifi" ]; then
+		if [ -n "$wifi" ];then
 			ESSID="$wifi"
 		fi
 		echo "Wi-Fi: $ESSID"

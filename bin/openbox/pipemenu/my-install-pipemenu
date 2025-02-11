@@ -82,7 +82,7 @@ obmenu_options(){
         tag=$1
         label=$2
         menu_content="$3"
-        if [ -n "${tag}" ] && [ -n "${label}" ]; then
+        if [ -n "${tag}" ] && [ -n "${label}" ];then
         	menuSubmenu "$tag" "$label"
         	for App in ${menu_content}; do
         		App_name=$(echo "${App}" | awk -F"_" '{print $1}')
@@ -121,7 +121,7 @@ obmenu_options(){
  #    menuEnd   
 }
 
-if [ "${1-}" = "--jgmenu" ]; then # pipemenu
+if [ "${1-}" = "--jgmenu" ];then # pipemenu
 	jgmenu_options
 else
 	obmenu_options

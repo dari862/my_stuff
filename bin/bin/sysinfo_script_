@@ -2,11 +2,11 @@
 opt="${1-}"
 case $opt in
 		--system) 
-		if hash btop 2>/dev/null; then
+		if hash btop 2>/dev/null;then
         		popup_terminal btop
-		elif hash bpytop 2>/dev/null; then
+		elif hash bpytop 2>/dev/null;then
         		popup_terminal bpytop
-		elif hash htop 2>/dev/null; then
+		elif hash htop 2>/dev/null;then
         		popup_terminal htop
 		fi
 		;;
@@ -16,7 +16,7 @@ case $opt in
 		;;
 		--hardware3) popup_terminal 'inxi -CAGD system info' 'inxi -CGAD ; read -n 1 -r -s'
 		;;
-		--autostart) popup_terminal 'if [ -f "/usr/lib/x86_64-linux-gnu/openbox-xdg-autostart" ]; then /usr/lib/x86_64-linux-gnu/openbox-xdg-autostart --list; else /usr/lib/i386-linux-gnu/openbox-xdg-autostart --list; fi; read'
+		--autostart) popup_terminal 'if [ -f "/usr/lib/x86_64-linux-gnu/openbox-xdg-autostart" ];then /usr/lib/x86_64-linux-gnu/openbox-xdg-autostart --list; else /usr/lib/i386-linux-gnu/openbox-xdg-autostart --list; fi; read'
 		;;
 		--memory) apps_as_root popup_terminal '/usr/share/my_stuff/bin/bin/ps_mem' 
 		;;
@@ -26,5 +26,5 @@ case $opt in
 		;;
 		--cpu) popup_terminal s-tui
 		;;
-		--wifi) popup_terminal 'if [ "$(iw dev)" ]; then nmcli device wifi rescan; while true; do nmcli dev wifi list; read; clear; done; else echo "No WIFI interfaces found!"; read; fi'
+		--wifi) popup_terminal 'if [ "$(iw dev)" ];then nmcli device wifi rescan; while true; do nmcli dev wifi list; read; clear; done; else echo "No WIFI interfaces found!"; read; fi'
 esac

@@ -73,7 +73,7 @@ is_connected() {
 	# Check if internet is connected. We are using api.deezer.com to test
 	# if the internet is connected because if api.deezer.com is down or 
 	# the internet is not connected this script will work as expected
-	if ping -q -c 1 -W 1 api.deezer.com >/dev/null; then
+	if ping -q -c 1 -W 1 api.deezer.com >/dev/null;then
 		connected=true
 	else
         [ ! "$SILENT" ] && echo "kunst: unable to check online for the album art"
@@ -127,7 +127,7 @@ update_cover() {
 		# Check if there is an album cover/art in the folder.
 		# Look at issue #9 for more details
         for CANDIDATE in "$DIR/cover.png" "$DIR/cover.jpg"; do
-            if [ -f "$CANDIDATE" ]; then
+            if [ -f "$CANDIDATE" ];then
                 STATUS=0
                 ARTLESS=false
                 convert "$CANDIDATE" $COVER >/dev/null 2>&1
@@ -143,7 +143,7 @@ update_cover() {
 	fi
 
 	# Resize the image to 250x250
-	if [ "$ARTLESS" = false ]; then
+	if [ "$ARTLESS" = false ];then
 		convert "$COVER" -resize "$SIZE" "$COVER" >/dev/null 2>&1
         [ ! "$SILENT" ] && echo "kunst: resized album art to $SIZE"
 	fi
@@ -190,7 +190,7 @@ main() {
             printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
         fi
 
-		if [ "$FIRST_RUN" = true ]; then
+		if [ "$FIRST_RUN" = true ];then
 			FIRST_RUN=false
 
 			# Display the album art using sxiv

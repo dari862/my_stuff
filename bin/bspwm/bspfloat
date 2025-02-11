@@ -7,7 +7,7 @@ bspc subscribe node_add | while IFS= read -r msg ; do
    desk_id=$(echo "$msg" | awk '{print $3}')
    wid=$(echo "$msg" | awk '{print $5}')
    
-   if [ "$FLOATING_DESKTOP_ID" = "$desk_id" ]; then
+   if [ "$FLOATING_DESKTOP_ID" = "$desk_id" ];then
       bspc node "$wid" -t floating
    fi
 done

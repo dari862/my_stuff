@@ -28,7 +28,7 @@ fi
 
 download_failed_cleanup_() {
     	getw_pid=$(pidof $dl_tools)
-    	if [ -z "$(echo "$getw_pid" | tr -d '[:space:]')" ]; then
+    	if [ -z "$(echo "$getw_pid" | tr -d '[:space:]')" ];then
 			yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
 			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
         	if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
@@ -39,7 +39,7 @@ download_failed_cleanup_() {
         	"$pmkl" --signal -n 15 "$getw_pid"
         	yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
         	"$pmrm" -f /tmp/$USER/pmxkcd_current.json
-        	if [ -f "/tmp/$USER/pmxkcd_random.json" ]; then
+        	if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
             	"$pmrm" -f /tmp/$USER/pmxkcd_random.json
         	fi
        	pmxkcd_menu
@@ -48,23 +48,23 @@ download_failed_cleanup_() {
 pmxkcd_random (){
 	get_url_ "/tmp/$USER/pmxkcd_current.json" "http://xkcd.com/info.0.json"
 	RETVAL=$?
-	if [ "$RETVAL" -ne 0 ]; then
+	if [ "$RETVAL" -ne 0 ];then
 		yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Connection Failed" --text-align=center --text="\n\n\nFailed to connect to xkcd.com\n\nCheck internet connection status\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
 		"$pmrm" -f /tmp/$USER/pmxkcd_current.json
 		pmxkcd_menu
 	else
-		if [ ! -d "${pmxkcd_dir}" ]; then mkdir -p "${pmxkcd_dir}"; fi
+		if [ ! -d "${pmxkcd_dir}" ];then mkdir -p "${pmxkcd_dir}"; fi
 			comic_num=$(json_get_var num)
 			comic_rnd=$(shuf -i 1-"$comic_num" -n 1)
 			pmxkcd_img="${pmxkcd_dir}/${comic_rnd}"
-			if [ -f "$pmxkcd_img" ]; then
+			if [ -f "$pmxkcd_img" ];then
 			xdg-open "$pmxkcd_img"
 			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
 			pmxkcd_menu
 		else
 			get_url_ "/tmp/$USER/pmxkcd_random.json" "http://xkcd.com/$comic_rnd/info.0.json"
 			RETVAL=$?
-			if [ "$RETVAL" -ne 0 ]; then
+			if [ "$RETVAL" -ne 0 ];then
 				yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Connection Failed" --text-align=center --text="\n\n\nFailed to connect to xkcd.com\n\nCheck internet connection status\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
 				"$pmrm" -f /tmp/$USER/pmxkcd_current.json
 				"$pmrm" -f /tmp/$USER/pmxkcd_random.json
@@ -93,17 +93,17 @@ pmxkcd_random (){
 pmxkcd_current (){
 	get_url_ "/tmp/$USER/pmxkcd_current.json" "http://xkcd.com/info.0.json"
 	RETVAL=$?
-	if [ "$RETVAL" -ne 0 ]; then
+	if [ "$RETVAL" -ne 0 ];then
 		yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Connection Failed" --text-align=center --text="\n\n\nFailed to connect to xkcd.com\n\nCheck internet connection status\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
 		"$pmrm" -f /tmp/$USER/pmxkcd_current.json
 		pmxkcd_menu
 	else
-		if [ ! -d "${pmxkcd_dir}" ]; then mkdir -p "${pmxkcd_dir}"; fi
+		if [ ! -d "${pmxkcd_dir}" ];then mkdir -p "${pmxkcd_dir}"; fi
 			comic_num=$(json_get_var num)
 			comic_ttl=$(json_get_var title)
 			comic_url=$(json_get_var img)
 			pmxkcd_img="${pmxkcd_dir}/${comic_num}"
-			if [ -f "$pmxkcd_img" ]; then
+			if [ -f "$pmxkcd_img" ];then
 				xdg-open "$pmxkcd_img"
 				"$pmrm" -f /tmp/$USER/pmxkcd_current.json
 				pmxkcd_menu

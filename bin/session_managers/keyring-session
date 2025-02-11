@@ -10,11 +10,11 @@
 polkit_gnome_path="/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1"
 xfce_polkit_path="/usr/lib/xfce-polkit/xfce-polkit"
 
-	if [ -f "${polkit_gnome_path}" ]; then
+	if [ -f "${polkit_gnome_path}" ];then
   		# GNOME PolicyKit authentication
 		keyring_name="polkit-gnome-authentication-agent-1"
 		keyring_path="/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1"
-	elif [ -f "${xfce_polkit_path}" ]; then
+	elif [ -f "${xfce_polkit_path}" ];then
 		## polkit agent
 		keyring_name="xfce-polkit"
 		keyring_path="/usr/lib/xfce-polkit/xfce-polkit"

@@ -43,7 +43,7 @@ done
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
 # Get $USER images directory
-if type xdg-user-dir >/dev/null 2>&1; then
+if type xdg-user-dir >/dev/null 2>&1;then
     IMGDIR=$(xdg-user-dir PICTURES)
 else
     IMGDIR="$HOME/Pictures"
@@ -151,7 +151,7 @@ jgmenu_options(){
 	jgmenuEnd
 }	
 
-if [ "${1-}" = "--jgmenu" ]; then # pipemenu
+if [ "${1-}" = "--jgmenu" ];then # pipemenu
 	jgmenu_options
 else
 	obmenu_options

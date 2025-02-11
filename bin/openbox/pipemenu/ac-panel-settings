@@ -6,7 +6,7 @@
 . "/usr/share/my_stuff/lib/common/panel"
 . "/usr/share/my_stuff/lib/common/polybar"
 
-if [ "$_panel_name_" = "polybar" ]; then
+if [ "$_panel_name_" = "polybar" ];then
 	menuStart "PolybarMenu" "Polybar"
 	menuItem 'Open Your polybar Folder' "my-file-manager ~/.config/polybar/"
 	menuItem 'How to configure Polybar?' 'my-www-browser "https://github.com/polybar/polybar/wiki" "https://wiki.archlinux.org/title/Polybar"'
@@ -26,14 +26,14 @@ if [ "$_panel_name_" = "polybar" ]; then
 			count=$(($count+1))
 		done
 	menuSubmenuEnd
-elif [ "$_panel_name_" = "xfce4-panel" ]; then
+elif [ "$_panel_name_" = "xfce4-panel" ];then
 	menuStart "Xfce4PanelMenu" "xfce4-panel"
 	menuItem 'GUI Xfce4-Panel Config Tool' "xfce4-panel -p"
 	menuItem 'Open Your Xfce4-Panel Folder' "my-file-manager ~/.config/xfce4/"
 	menuItem 'How to configure xfce4-panel?' 'my-www-browser "https://docs.xfce.org/xfce/xfce4-panel/start"'
 	menuItem 'Restart' "xfce4-panel-session restart"
 	menuItem 'Stop' "xfce4-panel-session stop"
-elif [ "$_panel_name_" = "tint2" ]; then
+elif [ "$_panel_name_" = "tint2" ];then
 	HELP='    tint2-pipemenu an Openbox Pipe Menu for tint2 manipulation
     	It should normally be called from an openbox menu.
 	
@@ -94,7 +94,7 @@ elif [ "$_panel_name_" = "tint2" ]; then
             	pgrep -x 'tint2' -u "$USER" | while read -r pid; do
                 	mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
                 	[[ ${command[0]} = 'tint2' ]]  || { echo "$0: pgrep parsing failed: command is not 'tint2'" >&2; continue;}
-                	if (( ${#command[@]} > 1 )); then
+                	if (( ${#command[@]} > 1 ));then
                     	TPATH=${command[-1]} # tint2 takes no options other than -c, which is optional
                     	[[ $TPATH = /* ]] || TPATH="$HOME/$TPATH" # assume path is relative to $HOME
                     	TINT2=${TPATH#${TINT2PATH}/}

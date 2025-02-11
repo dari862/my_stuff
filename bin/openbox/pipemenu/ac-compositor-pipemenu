@@ -14,31 +14,31 @@ check_fading=$(cat $dir/picom.conf | grep 'fading =' | head -n1 | cut -d'=' -f2 
 check_blur=$(cat $dir/picom.conf | grep 'method =' | head -n1 | cut -d'=' -f2 | tr -d ';,[:blank:],"')
 
 menuStart
-if ! pidof picom >/dev/null 2>&1; then
+if ! pidof picom >/dev/null 2>&1;then
 	menuItem 'Enable Compositor' "ac-compositor --start"
 else
 	menuSeparator 'Backend'
-	if [ "$check_backend" != "glx" ]; then
+	if [ "$check_backend" != "glx" ];then
 		menuItem 'Use glx backend' "ac-compositor --use-glx"
 	else
 		menuItem 'Use xrender backend' "ac-compositor --use-xrender"
 	fi
 	menuSeparator 'Corners'
-	if [ "$check_corners" != "0" ]; then
+	if [ "$check_corners" != "0" ];then
 		menuItem 'Change Corner Radius' "ac-compositor --corner-radius"
 		menuItem 'Disable Rounded Corners' "ac-compositor --disable-corners"
 	else
 		menuItem 'Enable Rounded Corners' "ac-compositor --corner-radius"
 	fi
 	menuSeparator 'Border'
-	if [ "$check_border" != "0" ]; then
+	if [ "$check_border" != "0" ];then
 		menuItem 'Change Border Size' "ac-compositor --border-size"
 		menuItem 'Disable Borders' "ac-compositor --disable-borders"
 	else
 		menuItem 'Enable Borders' "ac-compositor --border-size"
 	fi
 	menuSeparator 'Shadow'
-	if [ "$check_shadow" = "true" ]; then
+	if [ "$check_shadow" = "true" ];then
 		menuItem 'Modify Shadow Settings' "ac-compositor --update-shadows"
 		menuItem 'Reset Shadow Settings' "ac-compositor --reset-shadows"
 		menuItem 'Disable Client Shadows' "ac-compositor --disable-shadows"
@@ -46,7 +46,7 @@ else
 		menuItem 'Enable Client Shadows' "ac-compositor --enable-shadows"
 	fi
 	menuSeparator 'Fading'
-	if [ "$check_fading" = "true" ]; then
+	if [ "$check_fading" = "true" ];then
 		menuItem 'Modify Fading Settings' "ac-compositor --update-fading"
 		menuItem 'Reset Fading Settings' "ac-compositor --reset-fading"
 		menuItem 'Disable Fading' "ac-compositor --disable-fading"
@@ -54,7 +54,7 @@ else
 		menuItem 'Enable Fading' "ac-compositor --enable-fading"
 	fi
 	menuSeparator 'Blur'
-	if [ "$check_blur" != "dual_kawase" ]; then
+	if [ "$check_blur" != "dual_kawase" ];then
 		menuItem 'Enable Blur Effect' "ac-compositor --enable-blur"
 	else
 		menuItem 'Set Blur Strength' "ac-compositor --update-blur"

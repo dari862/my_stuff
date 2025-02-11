@@ -49,7 +49,7 @@ case $Control in
 				last_song=""
 				[ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
 
-				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ]; then
+				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ];then
 					ffmpeg -i "$mpddir/$(mpc current -f %file%)" "${Cover}" -y >/dev/null 2>&1 || cp $bkpCover $Cover
 					echo "$current_song" > "$LAST_SONG_FILE"
 				fi
@@ -128,9 +128,9 @@ case $Control in
 				last_song=""
 				[ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
 
-				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ]; then
+				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ];then
 					albumart="$(playerctl --player="$Control" metadata mpris:artUrl | sed -e 's/open.spotify.com/i.scdn.co/g')"
-					if playerctl --player="$Control" metadata mpris:artUrl; then
+					if playerctl --player="$Control" metadata mpris:artUrl;then
 						getURL 'download2' "$albumart" "$Cover"
 					else
 						cp $bkpCover $Cover

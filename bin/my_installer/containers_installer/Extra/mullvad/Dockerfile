@@ -24,8 +24,8 @@ RUN apt-get update
 RUN apt-get install -y mullvad-browser
 
 # install audio
-#RUN apt-get install -y alsa-utils
-#RUN useradd -m -g audio -s /bin/sh appuser
+RUN apt-get install -y pulseaudio
+RUN useradd -m -g audio -s /bin/sh appuser
 
 
 COPY app/. /app

@@ -33,6 +33,6 @@ show_rofi_menu() {
 
 # Select and apply the layout
 selected=$(show_rofi_menu)
-if [[ -n "$selected" && -n "${LAYOUTS[$selected]}" ]]; then
+if [[ -n "$selected" && -n "${LAYOUTS[$selected]}" ]];then
     setxkbmap "${LAYOUTS[$selected]}"
 fi

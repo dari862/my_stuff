@@ -9,7 +9,7 @@
 _panel_name_="$(cat ${_panel_name_path_})"
 BLOBPATH="$HOME/.config/blob"
 
-if [ "$_panel_name_" = 'polybar' ]; then
+if [ "$_panel_name_" = 'polybar' ];then
 	CONFIGPATH="${BLOBPATH}/polybar"
 	default_style="default"
 else

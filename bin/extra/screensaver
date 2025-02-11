@@ -81,9 +81,9 @@ Let_it_Rain_screensaver_(){
   	done
  	
   	for ((idx = 0; idx < num_rains * NUM_RAIN_METADATA; idx += NUM_RAIN_METADATA)); do
-    	if ((100 * RANDOM / 32768 < FALLING_ODD)); then
+    	if ((100 * RANDOM / 32768 < FALLING_ODD));then
       	# Falling
-      	if ((++rains[idx + 1] > TERM_HEIGHT)); then
+      	if ((++rains[idx + 1] > TERM_HEIGHT));then
         	# Out of screen, bye sweet <3
         	rains=("${rains[@]:0:idx}"
                	"${rains[@]:idx+NUM_RAIN_METADATA:num_rains*NUM_RAIN_METADATA}")
@@ -120,7 +120,7 @@ Let_it_Rain_screensaver_(){
       	;;
   	esac
  	
-  	if ((num_rains < MAX_RAINS)) && ((100 * RANDOM / 32768 < NEW_RAIN_ODD)); then
+  	if ((num_rains < MAX_RAINS)) && ((100 * RANDOM / 32768 < NEW_RAIN_ODD));then
     	# Need new |, 1-based
     	RAIN="${RAINS[NRAINS * RANDOM / 32768]}"
     	COLOR="${COLORS[NCOLORS * RANDOM / 32768]}"

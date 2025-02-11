@@ -122,7 +122,7 @@ tty_menu(){
 }
 
 confirmation_dialog(){
-	if [ "$layout" = "TRUE" ]; then
+	if [ "$layout" = "YES" ];then
 		yes=''
 		no=''
 	else
@@ -146,7 +146,7 @@ rofi_menu(){
 	uptime=$(uptime -p | sed -e 's/up //g')
 	
 	## Buttons
-	if [ "$layout" = "TRUE" ]; then
+	if [ "$layout" = "YES" ];then
 		shutdown=""
 		reboot=""
 		lock=""
@@ -228,16 +228,16 @@ fi
 if on_graphical_session;then
 	if [ -z "$opt_" ];then
 		show_menu="rofi"
-	elif  [ "$opt_" = "--rofi" ]; then	
+	elif  [ "$opt_" = "--rofi" ];then	
 		show_menu="rofi"
-	elif  [ "$opt_" = "--yad" ]; then		
+	elif  [ "$opt_" = "--yad" ];then		
 		show_menu="yad"
 		confirm_it=false
-	elif  [ "$opt_" = "--tty" ]; then		
+	elif  [ "$opt_" = "--tty" ];then		
 		show_menu="tty"
 		confirm_it=false
 	fi
-elif on_terminal; then
+elif on_terminal;then
 	if  [ "$opt_" = "--tty" ] || [ -z "$opt_" ];then
 		show_menu="tty"
 		confirm_it=false
@@ -247,12 +247,12 @@ else
 	exit 1
 fi
 
-if  [ "$show_menu" = "rofi" ]; then	
-	layout="$(grep BUTTON "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+if  [ "$show_menu" = "rofi" ];then
+	layout="$(grep 'USE_ICON' "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 	rofi_menu
-elif  [ "$show_menu" = "yad" ]; then		
+elif  [ "$show_menu" = "yad" ];then		
 	yad_menu
-elif  [ "$show_menu" = "tty" ]; then		
+elif  [ "$show_menu" = "tty" ];then		
 	tty_menu
 fi
 
@@ -260,7 +260,7 @@ case "$opt_" in
 	logout) _logout;;
 	suspend) _suspend;;
 	reboot) extra_stuff reboot;;
-	poweroff) extra_stuff poweroff;;
+	shutdown) extra_stuff poweroff;;
 	lock) _lock;;
 	hibernate) extra_stuff hibernate;;
 	hybrid-Sleep) extra_stuff hybrid-sleep;;

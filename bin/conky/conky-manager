@@ -132,7 +132,7 @@ findConkys(){
         [[ -f $file ]] || continue
         [[ $file =~ ${CPATH_REGEX}$ ]] || continue # ignore other than conky config files
         name=${file#$CONKYPATH/}
-        if isRunning "$file"; then
+        if isRunning "$file";then
             check='TRUE'
         else
             check='FALSE'
@@ -160,15 +160,15 @@ loadDialog() {
 
     :> "$SESSIONFILE"    # Create/overwrite empty session file
 
-    if type conky-session >/dev/null 2>&1 ; then # conky-session comes in the same package as conky-manager
+    if type conky-session >/dev/null 2>&1 ;then # conky-session comes in the same package as conky-manager
         # Find the chosen conkys, add them to SESSIONFILE, then load it.
         while read -r path
         do
             [[ -n $path ]] || continue
-            if isSticky "$path"; then
+            if isSticky "$path";then
                 echo "${path#$HOME/}" >> "$SESSIONFILE" # put HOME-relative paths in sessionfile for better compatibility with BLOB
             else
-                if desktop=$( chooseDesktop "$path" ); then
+                if desktop=$( chooseDesktop "$path" );then
                     echo "D[${desktop}] ${path#$HOME/}" >> "$SESSIONFILE"
                 else
                     echo "${path#$HOME/}" >> "$SESSIONFILE"

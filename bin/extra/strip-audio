@@ -6,7 +6,7 @@ check_4_dependencies_if_installed ffmpeg find xargs || exit 1
 show_error() {
   local red=$'\033[0;91m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
   else
     echo -e "${red}${*}${nc}" 1>&2
@@ -16,7 +16,7 @@ show_error() {
 show_header() {
   local cyan=$'\033[0;96m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${cyan}${*:2}${nc}"
   else
     echo -e "${cyan}${*}${nc}"
@@ -67,7 +67,7 @@ export -f do_strip_mp3
 
 show_header "Stripping ${*@Q}..."
 
-if [ $# -eq 0 ]; then
+if [ $# -eq 0 ];then
   show_error "ERROR: No path(s) provided. Exiting."
   exit 3
 fi

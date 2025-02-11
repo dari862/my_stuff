@@ -63,7 +63,7 @@ update () {
 	Package_list_ | $__my_superuser tee -a updates_file > /dev/null 2>&1
 
 	# No updates
-	if [ ! -s "$updates_file" ]; then
+	if [ ! -s "$updates_file" ];then
 		msg "NO PENDING UPDATES"
 	# Pending updates
 	else
@@ -92,7 +92,7 @@ interactive_upgrade() {
 	
 	Packages_upgrade_
 	
-	if ! [ $? -eq 0 ]; then 
+	if ! [ $? -eq 0 ];then 
 		read pause 
 		exit 1
 	fi
@@ -113,14 +113,14 @@ send_notifcation_msg () {
 	then
 	    get_total_updates
 	    # notify user of updates
-	    if hash notify-send >/dev/null 2>&1; then
-			if [ "$UPDATES" -gt 50 ]; then
+	    if hash notify-send >/dev/null 2>&1;then
+			if [ "$UPDATES" -gt 50 ];then
 		    	notify-send -u critical -i $NOTIFY_ICON \
 				"You really need to update!!" "$UPDATES New packages"
-			elif [ "$UPDATES" -gt 25 ]; then
+			elif [ "$UPDATES" -gt 25 ];then
 		    	notify-send -u normal -i $NOTIFY_ICON \
 				"You should update soon" "$UPDATES New packages"
-			elif [ "$UPDATES" -gt 2 ]; then
+			elif [ "$UPDATES" -gt 2 ];then
 		    	notify-send -u low -i $NOTIFY_ICON \
 				"$UPDATES New packages"
 			fi
@@ -167,7 +167,7 @@ uninstall (){
 
 list_update(){
 	# No updates
-	if [ ! -s "$updates_file" ]; then
+	if [ ! -s "$updates_file" ];then
 		msg "NO PENDING UPDATES"
 	# Pending updates
 	else

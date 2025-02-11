@@ -11,7 +11,7 @@ esac
 
 iatest=$(expr index "$-" i)
 
-if [ -f "/usr/share/my_stuff/bin/bin/pfetch" ]; then
+if [ -f "/usr/share/my_stuff/bin/bin/pfetch" ];then
 	pfetch
 fi
 
@@ -32,11 +32,11 @@ COLOR_SCHEME=dark # dark/light
 
 # -------------------------------   Prompt  -----------------------------------
 # set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ];then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-if builtin test -f $BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme; then
+if builtin test -f $BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme;then
   		source $BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme
 else
     	echo "BASH theme '$BASH_THEME' not found"
@@ -44,7 +44,7 @@ fi
 
 # --------------------------------- SETTINGS ----------------------------------
 # Source global definitions
-if [ -f /etc/bashrc ]; then
+if [ -f /etc/bashrc ];then
 	. /etc/bashrc
 fi
 
@@ -60,7 +60,7 @@ fi
 shopt -s globstar
 
 # Disable the bell
-if [[ "$iatest" -gt 0 ]]; then bind "set bell-style visible"; fi
+if [[ "$iatest" -gt 0 ]];then bind "set bell-style visible"; fi
 
 # Expand the history size
 export HISTFILESIZE=10000
@@ -92,27 +92,27 @@ PROMPT_COMMAND='history -a'
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-if [ -f "${BASHDOTDIR}"/aliases ]; then
+if [ -f "${BASHDOTDIR}"/aliases ];then
     source ${BASHDOTDIR}/aliases
 fi
 
-if [ -f "${BASHDOTDIR}"/functions ]; then
+if [ -f "${BASHDOTDIR}"/functions ];then
     source ${BASHDOTDIR}/functions
 fi
 
-if [ -f "$My_shell_DIR"/aliases.sh ]; then
+if [ -f "$My_shell_DIR"/aliases.sh ];then
     source $My_shell_DIR/aliases.sh
 fi
 
-if [ -f "$My_shell_DIR"/aliases-if-command.sh ]; then
+if [ -f "$My_shell_DIR"/aliases-if-command.sh ];then
     source $My_shell_DIR/aliases-if-command.sh
 fi
 
-if [ -f "$My_shell_DIR"/misc.sh ]; then
+if [ -f "$My_shell_DIR"/misc.sh ];then
     source $My_shell_DIR/misc.sh
 fi
 
-if [ -f "$My_shell_DIR"/functions.sh ]; then
+if [ -f "$My_shell_DIR"/functions.sh ];then
     source $My_shell_DIR/functions.sh
 fi
 
@@ -126,7 +126,7 @@ else
 fi
 
 for bashplugin in ${bashplugins[@]}; do
-	if builtin test -f $BASHDOTDIR/plugins/${bashplugin}.plugin.bash; then
+	if builtin test -f $BASHDOTDIR/plugins/${bashplugin}.plugin.bash;then
   		source $BASHDOTDIR/plugins/${bashplugin}.plugin.bash
   	else
     		echo "plugin '$bashplugin' not found"

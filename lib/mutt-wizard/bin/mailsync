@@ -88,7 +88,7 @@ allaccounts="$(grep -hs "^\(Channel\|account\)" "$MBSYNCRC" "$MPOPRC")"
 # Get accounts to sync. All if no argument. Prefix with `error` if non-existent.
 IFS='
 '
-if [ -z "$1" ]; then
+if [ -z "$1" ];then
 	tosync="$allaccounts"
 else
 	tosync="$(for arg in "$@"; do for availacc in $allaccounts; do

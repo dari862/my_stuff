@@ -47,7 +47,7 @@ twoscreen() { # If multi-monitor is selected and there are two screens.
     fi
     # Mirror displays using native resolution of external display and a scaled
     # version for the internal display
-    if [ "$mirror" = "yes" ]; then
+    if [ "$mirror" = "yes" ];then
     	if [ "$detection_mode" != "auto" ]
 		then
         	external=$(echo "$screens" | ${rofi_command_simple} -p "Optimize resolution for:")

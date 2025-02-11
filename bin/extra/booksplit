@@ -27,7 +27,7 @@ while read -r x;
 do
     end="$(echo "$x" | cut -d'	' -f1)"
     file="$escbook/$(printf "%.2d" "$track")-$esctitle.$ext"
-    if [ -n "$start" ]; then
+    if [ -n "$start" ];then
 	cmd="$cmd -metadata artist=\"$author\" -metadata title=\"$title\" -metadata album=\"$booktitle\" -metadata year=\"$year\" -metadata track=\"$track\" -metadata total=\"$total\" -ss \"$start\" -to \"$end\" -vn -c:a copy \"$file\" "
     fi
     title="$(echo "$x" | cut -d'	' -f2-)"

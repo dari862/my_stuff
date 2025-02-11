@@ -10,6 +10,10 @@ else
 fi
 
 if [ ! -f "${WM_config_dir}/rofi_picked" ];then
+	# Start compositor
+	picom-session start &
+	
+	# pickers
 	panel_picker
 	style_setter
 	touch "${WM_config_dir}/rofi_picked"

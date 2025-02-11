@@ -5,10 +5,11 @@
 # Load current theme
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/rofi"
-if echo "$ROFI_STYLE" | grep -q "panels/" ;then
+. "/usr/share/my_stuff/lib/common/polybar"
+if echo "$polybar_STYLE" | grep -q "panels/" ;then
 	ROFI_STYLE_NAME="panels"
 else
-	ROFI_STYLE_NAME="$(echo "$ROFI_STYLE" | cut -d'/' -f2-)"
+	ROFI_STYLE_NAME="$(echo "$polybar_STYLE" | cut -d'/' -f2-)"
 fi
 wall_dir="/usr/share/my_stuff/my_wallpapers"
 temp_dir="/tmp/$USER/walls/$ROFI_STYLE_NAME"
@@ -31,7 +32,7 @@ for imagen in $list_all_wall; do
     current_md5=$(md5sum "$imagen" | cut -d' ' -f1)
 
     # Comprobar si el archivo de caché existe y si el contenido ha cambiado
-    if [ ! -f "$cache_file" ] || [ ! -f "$md5_file" ] || [ "$current_md5" != "$(cat "$md5_file")" ]; then
+    if [ ! -f "$cache_file" ] || [ ! -f "$md5_file" ] || [ "$current_md5" != "$(cat "$md5_file")" ];then
         convert "$imagen" -resize 500x500^ -gravity center -extent 500x500 "$cache_file"
         echo "$current_md5" > "$md5_file"
     fi

@@ -33,12 +33,12 @@ done
 
 # Pipemenu
 menuStart
-if [ -d "$CUPS_CHROOT_DIR" ]; then
-	if command -v "$CUPS_GUI" > /dev/null 2>&1 ; then
+if [ -d "$CUPS_CHROOT_DIR" ];then
+	if command -v "$CUPS_GUI" > /dev/null 2>&1 ;then
 		menuItem 'Configure Printers' "$CUPS_GUI"
 	fi
 	
-	if ss -tuln | grep -q :631; then
+	if ss -tuln | grep -q :631;then
 		menuItem 'open cups admin page' "my-www-browser http://localhost:631"
 	else
 		menuItem 'enable cups admin page' "popup_terminal \"echo 'CUPS is installed but not running' && read -p 'Press enter to try to start CUPS' && $ENABLE_CUPS\""

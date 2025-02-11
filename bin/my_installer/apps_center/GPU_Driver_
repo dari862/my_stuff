@@ -8,13 +8,13 @@ if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
 	say 'do you want to install opensource nvidia-kernel?' 'Y' && _kernel_open_dkms_="cuda"
 fi
 
-if [ -f /etc/os-release ]; then
+if [ -f /etc/os-release ];then
     # freedesktop.org and systemd
     . /etc/os-release
     version_="$(echo "${VERSION_ID}" | sed 's/.//g')"
     distro_name_="$ID"
     distro_name_and_ver_=$ID$version_
-elif [ -f /etc/lsb-release ]; then
+elif [ -f /etc/lsb-release ];then
     # For some versions of Debian/Ubuntu without lsb_release command
     . /etc/lsb-release
     distro_name_="$DISTRIB_ID"
@@ -38,7 +38,7 @@ if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
 	say 'Updating sources...' 1
 	Package_update_ 
 	
-	if [ $? -eq 1 ]; then
+	if [ $? -eq 1 ];then
 		say "There was a problem make your linux ${app_name}." 
 		break
 	fi

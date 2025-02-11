@@ -20,21 +20,21 @@ if [ "$frmday" != "today" ] && [ "$frmday" != "tomorrow" ];then
     exit 1
 fi
 
-if echo "$frmtime" | grep -qE '^([01][0-9]|2[0-3]):([0-5][0-9])$'; then
+if echo "$frmtime" | grep -qE '^([01][0-9]|2[0-3]):([0-5][0-9])$';then
     yad --error --title="Invalid Time" --text="Error: Invalid time format. Please enter time in 24-hour format (HH:MM)."
     exit 1
 fi
 
 foo="$frmday $frmtime"
 
-if ! date -d "$foo" >/dev/null 2>&1; then
+if ! date -d "$foo" >/dev/null 2>&1;then
     yad --error --title="Invalid Date" --text="Error: Invalid date or time. Please check the entered values."
     exit 1
 fi
 
 timestamp=$(date +%s -d "$foo")
 current_timestamp=$(date +%s)
-if [ "$timestamp" -le "$current_timestamp" ]; then
+if [ "$timestamp" -le "$current_timestamp" ];then
     yad --error --title="Invalid Time" --text="Error: The selected time is in the past. Please choose a future time."
     exit 1
 fi

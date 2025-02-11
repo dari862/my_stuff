@@ -46,7 +46,7 @@ third_depth=""
 # Read each line from the input file
 while IFS= read -r line; do
     # Check if the line starts with a "#"
-    if echo "$line" | grep -q "^#" >/dev/null 2>&1; then
+    if echo "$line" | grep -q "^#" >/dev/null 2>&1;then
     	stored_line="$line"
         # Count the number of '#' to determine the depth
         stored_depth=$(echo "$stored_line" | grep -o "#" | wc -l)

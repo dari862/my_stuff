@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
-if command -v mise >/dev/null 2>&1; then
+if command -v mise >/dev/null 2>&1;then
 	# shellcheck disable=SC1090
 	# Exit if the 'mise' command can not be found
-	if ! (( $+commands[mise] )); then
+	if ! (( $+commands[mise] ));then
     	echo "WARNING: 'mise' command not found"
     	return
 	fi
@@ -22,7 +22,7 @@ if command -v mise >/dev/null 2>&1; then
 	
 	# If the completion file does not exist yet, then we need to autoload
 	# and bind it to `mise`. Otherwise, compinit will have already done that.
-	if [[ ! -f "$COMPLETIONS_DIR/_mise" ]]; then
+	if [[ ! -f "$COMPLETIONS_DIR/_mise" ]];then
     	typeset -g -A _comps
     	autoload -Uz _mise
     	_comps[mise]=_mise

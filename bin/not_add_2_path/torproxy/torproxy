@@ -91,7 +91,7 @@ stop_iptables(){
 
 start_nftables() {
     # Save the current nftables ruleset
-    if ! nft list ruleset > "$RULES" 2>/dev/null; then
+    if ! nft list ruleset > "$RULES" 2>/dev/null;then
         echo "Failed to create $RULES (or no existing ruleset)."
     fi
     chmod 700 "$RULES"
@@ -161,7 +161,7 @@ stop_nftables() {
     nft flush ruleset
 
     # Attempt to load the previously saved ruleset
-    if nft -f "$RULES"; then
+    if nft -f "$RULES";then
         rm -f "$RULES"
         echo "Previous nftables rules restored."
     else
@@ -174,7 +174,7 @@ start_tor(){
 	# Most of this is from
 	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
 	# destinations you don't want routed through Tor
-	if test -f "$RULES"; then
+	if test -f "$RULES";then
 		echo "$RULES exists. Either delete it, or stop tor-router first."
 		exit 1
 	else
@@ -186,7 +186,7 @@ start_tor(){
 }
 
 stop_tor(){
-	if test -f "$RULES"; then
+	if test -f "$RULES";then
 		[ "$is_nftables_installed" = true ] && stop_nftables && start_ufw
 		[ "$is_iptables_installed" = true ] && stop_iptables && start_ufw
 	else

@@ -7,7 +7,7 @@
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
 menuStart
-	if pidof ffmpeg >/dev/null 2>&1; then
+	if pidof ffmpeg >/dev/null 2>&1;then
 		menuItem 'Stop Screen Recorder' "pkill ffmpeg"
 		menuSeparator
 	fi

@@ -195,7 +195,7 @@ separator_padding = 0 0
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = cpu -i
+execp_command = /usr/share/my_stuff/bin/not_add_2_path/tint2/cpu -i
 execp_interval = 2
 execp_has_icon = 0
 execp_cache_icon = 1
@@ -239,14 +239,14 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 3
 execp = new
-execp_command = now-playing -i
+execp_command = /usr/share/my_stuff/bin/not_add_2_path/tint2/now-playing -i
 execp_interval = 4
 execp_has_icon = 0
 execp_cache_icon = 1
 execp_continuous = 0
 execp_markup = 1
-execp_lclick_command = mpc toggle
-execp_rclick_command = mpc next
+execp_lclick_command = distro_scripts --toggle-music
+execp_rclick_command = distro_scripts --next-music
 execp_mclick_command = 
 execp_uwheel_command = 
 execp_dwheel_command = 

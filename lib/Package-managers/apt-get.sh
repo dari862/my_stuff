@@ -1,4 +1,4 @@
-if command -v nala >/dev/null 2>&1; then
+if command -v nala >/dev/null 2>&1;then
 	Package_installer_(){
 		my-superuser nala install -y "$@"
 	}
@@ -33,7 +33,7 @@ else
 	}
 	Package_update_(){
 		# If no update today exec update
-		if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ]; then
+		if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ];then
 			# REPOSITORY UPDATE-NOTIFICATION
 			say "Updating package repositoriy..."
 			my-superuser apt-get update

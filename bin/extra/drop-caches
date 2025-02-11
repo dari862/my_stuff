@@ -4,11 +4,11 @@
 # clear system cache
 set -eu
 
-if [ -e /proc/sys/vm/drop_caches ]; then
+if [ -e /proc/sys/vm/drop_caches ];then
   sync
   my-superuser bash -c "echo 3 > /proc/sys/vm/drop_caches"
   echo "Done!"
-elif ( ! command -v purge > /dev/null ) && echo "${OSTYPE}" | grep -q "darwin" /dev/null 2>&1; then
+elif ( ! command -v purge > /dev/null ) && echo "${OSTYPE}" | grep -q "darwin" /dev/null 2>&1;then
   sync
   my-superuser purge
 else

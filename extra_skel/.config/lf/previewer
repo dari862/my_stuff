@@ -38,7 +38,7 @@ image() {
 }
 
 ifub() {
-	if [ "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
+	if [ "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ];then
 		command -V ueberzug >/dev/null 2>&1
 	fi
 }
@@ -137,7 +137,7 @@ mime_preview() {
 	(*opendocument*,0) # .odt, .ods
 		CCt='	' \
 		bytes=$(du -sb "$1") bytes="${bytes%%"$CCt"*}"
-		if [ "$bytes" -lt 150000 ]; then
+		if [ "$bytes" -lt 150000 ];then
 			odt2txt "$1"
 		else
 			printf "file too big too preview quickly\n"

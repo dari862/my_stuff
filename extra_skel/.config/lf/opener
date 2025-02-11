@@ -94,7 +94,7 @@ cmd open ${{
 		*.tbz2 | *.tar.gz | *.tgz | *.tar.lzma | \
 		*.tar.xz | *.txz | *.zip | *.rar | *.iso)
 			mntdir="$f-archivemount"
-			if ! [ -d "$mntdir" ]; then
+			if ! [ -d "$mntdir" ];then
 				mkdir -- "$mntdir"
 				archivemount "$f" "$mntdir"
 				printf -- "%s\n" "$mntdir" >> "/tmp/$USER/__lf_archivemount_$id"

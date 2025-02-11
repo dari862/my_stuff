@@ -70,14 +70,14 @@ EOF
 }
 
 # help
-if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]] || [[ $# -eq 0 ]]; then
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]] || [[ $# -eq 0 ]];then
     help; exit
 fi
 
 # superecho
 superecho () {
     local msg="$1"
-    if [[ -t 0 ]] ; then
+    if [[ -t 0 ]];then
         echo "$msg"
     else
         notify-send -t 3500 "$msg"
@@ -118,7 +118,7 @@ beep () {
 blink () {
     # find primary connected or else 1st connected monitor
     monitor="$(xrandr -q | grep -w "connected" | grep "primary" | cut -f1 -d ' ')"
-    if [[ -z "$monitor" ]]; then # no primary AND connected found, lets try 1st connected
+    if [[ -z "$monitor" ]];then # no primary AND connected found, lets try 1st connected
         monitor="$(xrandr -q | grep -w "connected" | cut -f1 -d ' ')"
     fi
     [[ -z "$monitor" ]] && { >&2 echo "No monitors found error" ; exit 1; }
@@ -204,7 +204,7 @@ test () {
 # validate 'at' time syntax by generating fake job
 validate () {
 tmpjob="$(at "$1" <<<"test" 2>&1 | grep ^job | cut -f2 -d ' ')"
-if [[ -n "$tmpjob" ]]; then
+if [[ -n "$tmpjob" ]];then
     # job was generated ok
     atrm "$tmpjob"
 else
@@ -214,12 +214,12 @@ fi
 }
 
 # test
-if [[ "$1" == "--test" ]]; then
+if [[ "$1" == "--test" ]];then
     test; exit
 fi
 
 # list all 'at' jobs, last non-empty line only
-if [[ "$1" == "-l" ]] || [[ "$1" == "--list" ]]; then
+if [[ "$1" == "-l" ]] || [[ "$1" == "--list" ]];then
     atq | sort -r | while read -r job rest ; do
         echo -n "$job $rest | "
         at -c "$job" | tac | grep -vm 1 '^[[:space:]]*$'
@@ -228,8 +228,8 @@ if [[ "$1" == "-l" ]] || [[ "$1" == "--list" ]]; then
 fi
 
 # --set-alarm (via softlink)
-if [[ "$1" == "--set-alarm" ]]; then
-    if [[ -z "$2" ]]; then
+if [[ "$1" == "--set-alarm" ]];then
+    if [[ -z "$2" ]];then
         alarmpath="$(yad --on-top --center --title="Select alarm sample path" --file)"
     else
         alarmpath="$(readlink -f -- "$2")" # must be absolute path
@@ -240,8 +240,8 @@ if [[ "$1" == "--set-alarm" ]]; then
     exit
 fi
 # --set-remind (via softlink)
-if [[ "$1" == "--set-remind" ]]; then
-    if [[ -z "$2" ]]; then
+if [[ "$1" == "--set-remind" ]];then
+    if [[ -z "$2" ]];then
         remindpath="$(yad --on-top --center --title="Select reminder sample path" --file)"
     else
         remindpath="$(readlink -f -- "$2")" # must be absolute path
@@ -253,16 +253,16 @@ if [[ "$1" == "--set-remind" ]]; then
 fi
 
 # main
-if [[ "$1" != "--reaction" ]] ; then
-    if [[ "$1" == "--nr" ]] ; then       # --nr must be first
+if [[ "$1" != "--reaction" ]];then
+    if [[ "$1" == "--nr" ]];then       # --nr must be first
         # chop off first argument
         noreason="true" && shift
-    elif [[ "$1" == "--reason" ]]; then
+    elif [[ "$1" == "--reason" ]];then
         reason="$2"
         noreason="true" # inhibit reason popup
         shift 2
     fi
-    if [[ "${!#}" == "--alarm" ]] ; then # --alarm must be last
+    if [[ "${!#}" == "--alarm" ]];then # --alarm must be last
         # chop off last argument
         alarm="--alarm" && set -- "${@:1:$(($#-1))}"
         testAlarmPath
@@ -270,7 +270,7 @@ if [[ "$1" != "--reaction" ]] ; then
     # input
     attime="$*" #concat
     # special case for minutes
-    if [[ $attime == ?(-)+([0-9]) ]] ; then # is integer
+    if [[ $attime == ?(-)+([0-9]) ]];then # is integer
         attime="now + $attime minutes"
         # lets add delay in seconds, since 'at' is only about minutes,
         # making this shortcut the only to seconds precise format.
@@ -281,7 +281,7 @@ if [[ "$1" != "--reaction" ]] ; then
     validate "$attime" || { >&2 superecho "at time format error." ; beep "2"; exit 1; } # beep two times for error
 
     # user input reason
-    if [[ $noreason != true ]]; then
+    if [[ $noreason != true ]];then
         read -rp "reason? " reason || reason="$(yad --on-top --center --title="beepmein" --width=300 --separator="" --form --field="reason?")"
     fi
     [[ -z "$reason" ]] && reason="beep beep beep"
@@ -296,7 +296,7 @@ if [[ "$1" != "--reaction" ]] ; then
 else
     # reaction
     shift
-    if [ "$1" == "--alarm" ]; then
+    if [ "$1" == "--alarm" ];then
         shift
         notify-send "$1" &
         blink 3 0.2 >/dev/null 2>&1 &

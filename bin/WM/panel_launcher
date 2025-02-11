@@ -4,7 +4,7 @@
 
 _panel_name_="$(cat ${_panel_name_path_})"
 		
-if [ "$_panel_name_" = "polybar" ]; then 
+if [ "$_panel_name_" = "polybar" ];then 
 	# Start volume control
 	audio-session stop
 	
@@ -15,7 +15,7 @@ if [ "$_panel_name_" = "polybar" ]; then
 	xfsettingsd-session stop
 	
 	kill_process.sh cbatticon
-elif [ "$_panel_name_" =  "tint2" ]; then
+elif [ "$_panel_name_" =  "tint2" ];then
 	# Start clipboard-manager
 	clipboard-manager-session stop
 
@@ -46,14 +46,14 @@ picom-session start &
 ## Launch Plank
 #plank-session
 		
-if [ "$_panel_name_" = "polybar" ]; then 
+if [ "$_panel_name_" = "polybar" ];then 
 	# Enable power management
 	power-manager-session start &
 	
 	# Start polybar
 	polybar_workspace_fixer
    	polybar-session restart &
-elif [ "$_panel_name_" =  "tint2" ]; then
+elif [ "$_panel_name_" =  "tint2" ];then
 	# Start volume control
 	audio-session start &
 
@@ -62,7 +62,7 @@ elif [ "$_panel_name_" =  "tint2" ]; then
 	
 	# panel - taskbar, system tray, battery, clock
 	tint2-session restart &
-elif [ "$_panel_name_" =  "xfce4-panel" ]; then
+elif [ "$_panel_name_" =  "xfce4-panel" ];then
    	# Lauch xsettingsd daemon
 	xfsettingsd-session start &
 

@@ -113,7 +113,7 @@ HEADLINE_STATUS_END=']'
 # Info styles (ANSI SGR codes)
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
 HEADLINE_STYLE_JOINT=$light_black
-if [ $IS_SSH = 0 ]; then
+if [ $IS_SSH = 0 ];then
   HEADLINE_STYLE_USER=$bold$magenta
 else
   HEADLINE_STYLE_USER=$bold$red
@@ -162,7 +162,7 @@ autoload -U add-zsh-hook
 _HEADLINE_LINE_OUTPUT='' # separator line
 _HEADLINE_INFO_OUTPUT='' # text line
 _HEADLINE_DO_SEP='false' # whether to show divider this time
-if [ $IS_SSH = 0 ]; then
+if [ $IS_SSH = 0 ];then
   _HEADLINE_DO_SEP='true' # assume it's not a fresh window
 fi
 
@@ -172,7 +172,7 @@ headline_prompt_len() {
   emulate -L zsh
   local -i COLUMNS=${2:-COLUMNS}
   local -i x y=${#1} m
-  if (( y )); then
+  if (( y ));then
     while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
     x=y
     (( y *= 2 ))
@@ -197,7 +197,7 @@ headline_git_branch() {
   local ref
   ref=$(headline_git symbolic-ref --quiet HEAD 2> /dev/null)
   local ret=$?
-  if [[ $ret == 0 ]]; then
+  if [[ $ret == 0 ]];then
     echo ${ref#refs/heads/} # remove "refs/heads/" to get branch
   else # not on a branch
     [[ $ret == 128 ]] && return  # not a git repo
@@ -219,16 +219,16 @@ headline_git_status() {
   # REF: https://git-scm.com/docs/git-status
   local raw lines
   raw="$(headline_git status --porcelain -b 2> /dev/null)"
-  if [[ $? == 128 ]]; then
+  if [[ $? == 128 ]];then
     return 1 # catastrophic failure, abort
   fi
   lines=(${(@f)raw})
 
   # Process tracking line
-  if [[ ${lines[1]} =~ "^## [^ ]+ \[(.*)\]" ]]; then
+  if [[ ${lines[1]} =~ "^## [^ ]+ \[(.*)\]" ]];then
     local items=("${(@s/,/)match}")
     for item in $items; do
-      if [[ $item =~ "(behind|ahead|diverged) ([0-9]+)?" ]]; then
+      if [[ $item =~ "(behind|ahead|diverged) ([0-9]+)?" ]];then
         case $match[1] in
           'behind') totals[BEHIND]=$match[2];;
           'ahead') totals[AHEAD]=$match[2];;
@@ -242,24 +242,24 @@ headline_git_status() {
   for line in $lines; do
     local c1="${line:0:1}"
     local c2="${line:1:1}"
-    if [[ '##' == "$c1$c2" || '!!' == "$c1$c2" ]]; then
+    if [[ '##' == "$c1$c2" || '!!' == "$c1$c2" ]];then
       continue
-    elif [[ 'U' == $c1 || 'U' == $c2 || 'DD' == "$c1$c2" || 'AA' == "$c1$c2" ]]; then
+    elif [[ 'U' == $c1 || 'U' == $c2 || 'DD' == "$c1$c2" || 'AA' == "$c1$c2" ]];then
       totals[CONFLICTS]=$(( ${totals[CONFLICTS]} + 1 ))
-    elif [[ '??' == "$c1$c2" ]]; then
+    elif [[ '??' == "$c1$c2" ]];then
       totals[UNTRACKED]=$(( ${totals[UNTRACKED]} + 1 ))
-    elif [[ $c1 != ' ' ]]; then
+    elif [[ $c1 != ' ' ]];then
       totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
-      if [[ $c2 != ' ' ]]; then
+      if [[ $c2 != ' ' ]];then
         totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
       fi
-    elif [[ $c2 != ' ' ]]; then
+    elif [[ $c2 != ' ' ]];then
       totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
     fi
   done
 
   # Check for stashes
-  if $(headline_git rev-parse --verify refs/stash >/dev/null 2>&1); then
+  if $(headline_git rev-parse --verify refs/stash >/dev/null 2>&1);then
     totals[STASHED]=$(headline_git rev-list --walk-reflogs --count refs/stash 2> /dev/null)
   fi
 
@@ -267,12 +267,12 @@ headline_git_status() {
   local prefix status_str
   status_str=''
   for key in $order; do
-    if (( ${totals[$key]} > 0 )); then
-      if (( ${#HEADLINE_STATUS_TO_STATUS} && ${#status_str} )); then # not first iteration
+    if (( ${totals[$key]} > 0 ));then
+      if (( ${#HEADLINE_STATUS_TO_STATUS} && ${#status_str} ));then # not first iteration
         status_str="$status_str%{$reset$HEADLINE_STYLE_JOINT%}$HEADLINE_STATUS_TO_STATUS%{$reset$HEADLINE_STYLE_STATUS%}"
       fi
       eval prefix="\$HEADLINE_GIT_${key}"
-      if [[ $HEADLINE_DO_GIT_STATUS_COUNTS == 'true' ]]; then
+      if [[ $HEADLINE_DO_GIT_STATUS_COUNTS == 'true' ]];then
         status_str="$status_str${totals[$key]}$prefix"
       else
         status_str="$status_str$prefix"
@@ -281,7 +281,7 @@ headline_git_status() {
   done
 
   # Return
-  if (( ${#status_str} )); then
+  if (( ${#status_str} ));then
     print $status_str
   else
     print $HEADLINE_GIT_CLEAN
@@ -294,7 +294,7 @@ headline_git_status() {
 add-zsh-hook preexec headline_preexec
 headline_preexec() {
   # TODO better way of knowing the prompt is at the top of the terminal
-  if [[ $2 == 'clear' ]]; then
+  if [[ $2 == 'clear' ]];then
     _HEADLINE_DO_SEP='false'
   fi
 }
@@ -311,9 +311,9 @@ headline_precmd() {
   [[ $HEADLINE_DO_GIT_STATUS == 'true' ]] && status_str=$(headline_git_status)
 
   # Trimming
-  if (( $COLUMNS < 35 && ${#path_str} )); then
+  if (( $COLUMNS < 35 && ${#path_str} ));then
     user_str=''; host_str=''
-  elif (( $COLUMNS < 55 )); then
+  elif (( $COLUMNS < 55 ));then
     user_str="${user_str:0:1}"
     host_str="${host_str:0:1}"
   fi
@@ -330,34 +330,34 @@ headline_precmd() {
 
   # Prompt construction
   local git_len len
-  if (( ${#status_str} )); then
+  if (( ${#status_str} ));then
     _headline_part JOINT "$HEADLINE_STATUS_END" right
     _headline_part STATUS "$HEADLINE_STATUS_PREFIX$status_str" right
     _headline_part JOINT "$HEADLINE_BRANCH_TO_STATUS" right
   fi
-  if (( ${#branch_str} )); then
+  if (( ${#branch_str} ));then
     _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX$branch_str" right
   fi
   git_len=$_HEADLINE_LEN_SUM
-  if (( ${#user_str} )); then
+  if (( ${#user_str} ));then
     _headline_part JOINT "$HEADLINE_USER_BEGIN" left
     _headline_part USER "$HEADLINE_USER_PREFIX$user_str" left
   fi
-  if (( ${#host_str} )); then
-    if (( ${#_HEADLINE_INFO_LEFT} )); then
+  if (( ${#host_str} ));then
+    if (( ${#_HEADLINE_INFO_LEFT} ));then
       _headline_part JOINT "$HEADLINE_USER_TO_HOST" left
     fi
     _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str" left
   fi
-  if (( ${#path_str} )); then
-    if (( ${#_HEADLINE_INFO_LEFT} )); then
+  if (( ${#path_str} ));then
+    if (( ${#_HEADLINE_INFO_LEFT} ));then
       _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
     fi
     len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? ${#HEADLINE_PATH_TO_BRANCH} + ${#HEADLINE_PATH_PREFIX} : 0 ) ))
     _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<...<$path_str%<<" left
   fi
   len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_TO_PAD} - ${#HEADLINE_PAD_TO_BRANCH} ))
-  if (( $git_len && $COLUMNS - $_HEADLINE_LEN_SUM <= ${#HEADLINE_PATH_TO_BRANCH} )); then
+  if (( $git_len && $COLUMNS - $_HEADLINE_LEN_SUM <= ${#HEADLINE_PATH_TO_BRANCH} ));then
     _headline_part JOINT "$HEADLINE_PATH_TO_BRANCH" left
   else
     _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
@@ -367,14 +367,14 @@ headline_precmd() {
 
   # Separator line
   _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$reset"
-  if [[ $HEADLINE_LINE_MODE == 'on' || ($HEADLINE_LINE_MODE == 'auto' && $_HEADLINE_DO_SEP == 'true' ) ]]; then
+  if [[ $HEADLINE_LINE_MODE == 'on' || ($HEADLINE_LINE_MODE == 'auto' && $_HEADLINE_DO_SEP == 'true' ) ]];then
     print -rP $_HEADLINE_LINE_OUTPUT
   fi
   _HEADLINE_DO_SEP='true'
 
   # Information line
   _HEADLINE_INFO_OUTPUT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO_RIGHT$reset"
-  if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
+  if [[ $HEADLINE_INFO_MODE == 'precmd' ]];then
     print -rP $_HEADLINE_INFO_OUTPUT
   fi
 }
@@ -388,7 +388,7 @@ _headline_part() { # (name, content, side)
   _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
   _HEADLINE_LINE="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_LINE_CHAR:)}"
-  if [[ $3 == 'right' ]]; then
+  if [[ $3 == 'right' ]];then
     _HEADLINE_INFO_RIGHT="$_HEADLINE_INFO$_HEADLINE_INFO_RIGHT"
     _HEADLINE_LINE_RIGHT="$_HEADLINE_LINE$_HEADLINE_LINE_RIGHT"
   else
@@ -402,7 +402,7 @@ headline_output() {
   print -rP $_HEADLINE_INFO_OUTPUT
   print -rP $HEADLINE_PROMPT
 }
-if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
+if [[ $HEADLINE_INFO_MODE == 'precmd' ]];then
   PROMPT=$HEADLINE_PROMPT # line and info printed by precmd
 else
   PROMPT='$(headline_output)' # only line printed by precmd

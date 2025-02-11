@@ -21,7 +21,7 @@ create_VM_() {
 	# Get the release and edition to download, if necessary
 	if [ -z "$os" ];then 
 		exit 100
-	elif [ "$(echo "$choices" | wc -l)" = 1 ]; then
+	elif [ "$(echo "$choices" | wc -l)" = 1 ];then
 		get_releases_ || exit 101
 		popup_terminal "Downloading $os $release $edition" "echo -e '\\nTrying to download $os $release $edition \\n'; quickget "$os" "$release" "$edition""
 	else

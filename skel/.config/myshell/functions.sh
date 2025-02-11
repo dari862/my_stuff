@@ -4,7 +4,7 @@ compress() { tar -czf "${1%/}.tar.gz" "${1%/}"; }
 # Extracts any archive(s) (if unp isn't installed)
 extract() {
 	for archive in "$@"; do
-		if [ -f "$archive" ]; then
+		if [ -f "$archive" ];then
 			case $archive in
 			*.tar.bz2) tar xvjf $archive ;;
 			*.tar.gz) tar xvzf $archive ;;
@@ -77,7 +77,7 @@ cpp() {
 
 # Copy and go to the directory
 cpg() {
-	if [ -d "$2" ]; then
+	if [ -d "$2" ];then
 		cp "$1" "$2" && cd "$2"
 	else
 		cp "$1" "$2"
@@ -86,7 +86,7 @@ cpg() {
 
 # Move and go to the directory
 mvg() {
-	if [ -d "$2" ]; then
+	if [ -d "$2" ];then
 		mv "$1" "$2" && cd "$2"
 	else
 		mv "$1" "$2"
@@ -107,7 +107,7 @@ up() {
 		d=$d/..
 	done
 	d=$(echo $d | sed 's/^\///')
-	if [ -z "$d" ]; then
+	if [ -z "$d" ];then
 		d=..
 	fi
 	cd $d
@@ -116,7 +116,7 @@ up() {
 # Automatically do an ls after each cd, z, or zoxide
 cd ()
 {
-	if [ -n "$1" ]; then
+	if [ -n "$1" ];then
 		builtin cd "$@" && ls
 	else
 		builtin cd ~ && ls
@@ -133,7 +133,7 @@ alias whatismyip="whatsmyip"
 function whatsmyip ()
 {
 	# Internal IP Lookup.
-	if [ -e /sbin/ip ]; then
+	if [ -e /sbin/ip ];then
 		echo -n "Internal IP: "
 		/sbin/ip addr show wlan0 | grep "inet " | awk -F: '{print $1}' | awk '{print $2}'
 	else
@@ -148,7 +148,7 @@ function whatsmyip ()
 
 # View Apache logs
 apachelog() {
-	if [ -f /etc/httpd/conf/httpd.conf ]; then
+	if [ -f /etc/httpd/conf/httpd.conf ];then
 		cd /var/log/httpd && ls -xAh && multitail --no-repeat -c -s 2 /var/log/httpd/*_log
 	else
 		cd /var/log/apache2 && ls -xAh && multitail --no-repeat -c -s 2 /var/log/apache2/*.log
@@ -157,9 +157,9 @@ apachelog() {
 
 # Edit the Apache configuration
 apacheconfig() {
-	if [ -f /etc/httpd/conf/httpd.conf ]; then
+	if [ -f /etc/httpd/conf/httpd.conf ];then
 		my-superuser $CLI_EDITER /etc/httpd/conf/httpd.conf
-	elif [ -f /etc/apache2/apache2.conf ]; then
+	elif [ -f /etc/apache2/apache2.conf ];then
 		my-superuser $CLI_EDITER /etc/apache2/apache2.conf
 	else
 		echo "Error: Apache config file could not be found."
@@ -170,15 +170,15 @@ apacheconfig() {
 
 # Edit the PHP configuration file
 phpconfig() {
-	if [ -f /etc/php.ini ]; then
+	if [ -f /etc/php.ini ];then
 		my-superuser $CLI_EDITER /etc/php.ini
-	elif [ -f /etc/php/php.ini ]; then
+	elif [ -f /etc/php/php.ini ];then
 		my-superuser $CLI_EDITER /etc/php/php.ini
-	elif [ -f /etc/php5/php.ini ]; then
+	elif [ -f /etc/php5/php.ini ];then
 		my-superuser $CLI_EDITER /etc/php5/php.ini
-	elif [ -f /usr/bin/php5/bin/php.ini ]; then
+	elif [ -f /usr/bin/php5/bin/php.ini ];then
 		my-superuser $CLI_EDITER /usr/bin/php5/bin/php.ini
-	elif [ -f /etc/php5/apache2/php.ini ]; then
+	elif [ -f /etc/php5/apache2/php.ini ];then
 		my-superuser $CLI_EDITER /etc/php5/apache2/php.ini
 	else
 		echo "Error: php.ini file could not be found."
@@ -189,17 +189,17 @@ phpconfig() {
 
 # Edit the MySQL configuration file
 mysqlconfig() {
-	if [ -f /etc/my.cnf ]; then
+	if [ -f /etc/my.cnf ];then
 		my-superuser $CLI_EDITER /etc/my.cnf
-	elif [ -f /etc/mysql/my.cnf ]; then
+	elif [ -f /etc/mysql/my.cnf ];then
 		my-superuser $CLI_EDITER /etc/mysql/my.cnf
-	elif [ -f /usr/local/etc/my.cnf ]; then
+	elif [ -f /usr/local/etc/my.cnf ];then
 		my-superuser $CLI_EDITER /usr/local/etc/my.cnf
-	elif [ -f /usr/bin/mysql/my.cnf ]; then
+	elif [ -f /usr/bin/mysql/my.cnf ];then
 		my-superuser $CLI_EDITER /usr/bin/mysql/my.cnf
-	elif [ -f ~/my.cnf ]; then
+	elif [ -f ~/my.cnf ];then
 		$CLI_EDITER ~/my.cnf
-	elif [ -f ~/.my.cnf ]; then
+	elif [ -f ~/.my.cnf ];then
 		$CLI_EDITER ~/.my.cnf
 	else
 		echo "Error: my.cnf file could not be found."

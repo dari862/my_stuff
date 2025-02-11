@@ -31,7 +31,7 @@ alias mbsync='mbsync -c "$mbsyncrc"'
 
 # mbsync now requires "Far/Near" rather than "Master/Slave", but Ubuntu/Debian
 # have the older version.
-if command -V apt-get >/dev/null 2>&1; then
+if command -V apt-get >/dev/null 2>&1;then
 	master="Master"
 	slave="Slave"
 else
@@ -123,7 +123,7 @@ EOF
 }
 
 delete() {
-	if [ -z "${fulladdr+x}" ]; then
+	if [ -z "${fulladdr+x}" ];then
 		echo "Select the account you would like to delete (by number):"
 		list || exit 1
 		read -r input
@@ -173,9 +173,9 @@ askinfo() {
 	[ -z "$passprefix" ] && passprefix=""
 	hostname="${fulladdr#*@}"
 	login="${login:-$fulladdr}"
-	if [ -n "${password+x}" ] && [ ! -f "$PASSWORD_STORE_DIR/$passprefix$fulladdr.gpg" ]; then
+	if [ -n "${password+x}" ] && [ ! -f "$PASSWORD_STORE_DIR/$passprefix$fulladdr.gpg" ];then
 		insertpass
-	elif [ ! -f "$PASSWORD_STORE_DIR/$passprefix$fulladdr.gpg" ]; then
+	elif [ ! -f "$PASSWORD_STORE_DIR/$passprefix$fulladdr.gpg" ];then
 		getpass
     fi
 }
@@ -205,7 +205,7 @@ getpass() { while :; do
 done; }
 
 getboxes() {
-	if [ -n "${force+x}" ]; then
+	if [ -n "${force+x}" ];then
 		mailboxes="$(printf "INBOX\\nDrafts\\nJunk\\nTrash\\nSent\\nArchive")"
 	else
 		if command -v curl >/dev/null 2>&1;then
@@ -246,7 +246,7 @@ prepnotmuch() {
 togglecron() {
 	cron="$(mktemp)"
 	crontab -l >"$cron"
-	if grep -q mailsync "$cron"; then
+	if grep -q mailsync "$cron";then
 		echo "Removing automatic mailsync..."
 		sed -ibu /mailsync/d "$cron"
 		rm -f "$cron"bu
@@ -258,7 +258,7 @@ togglecron() {
 	rm -f "$cron"
 }
 
-setact() { if [ -n "${action+x}" ] && [ "$action" != "$1" ]; then
+setact() { if [ -n "${action+x}" ] && [ "$action" != "$1" ];then
 	echo "Running $1 with $action..."
 	echo "Incompatible options given. Only one action may be specified per run."
 	exit 1

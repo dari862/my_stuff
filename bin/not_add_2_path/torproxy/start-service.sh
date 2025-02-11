@@ -58,7 +58,7 @@ newnym() {
 	authcookie_file=/etc/tor/run/control.authcookie
     printf 'AUTHENTICATE "'"$(cat $authcookie_file)"'"\nSIGNAL NEWNYM\nQUIT' |
                 nc 127.0.0.1 ${__ControlPort}
-    if ps -ef | egrep -v 'grep|start-service.sh' | grep -q tor; then 
+    if ps -ef | egrep -v 'grep|start-service.sh' | grep -q tor;then 
     	exit 0
     fi
 }
@@ -103,7 +103,7 @@ The 'command' (if provided and valid) will be run instead of torproxy
 }
 
 start_service(){
-	if ps -ef | egrep -v 'grep|start-service.sh' | grep -q tor; then
+	if ps -ef | egrep -v 'grep|start-service.sh' | grep -q tor;then
     	echo "Service already running, killing service."
     	killall -9 tor >/dev/null 2>&1
     fi
@@ -144,7 +144,7 @@ for env in $(printenv | grep '^TOR_'); do
     val="\"${env##*=}\""
     echo "$name" | grep -q '_' && continue
     echo "$val" | grep -Eq '^\"([0-9]+|false|true)\"$' && val="$(echo "$val" | sed 's|"||g')"
-    if grep -q "^$name" /etc/tor/torrc; then
+    if grep -q "^$name" /etc/tor/torrc;then
         sed -i "/^$name/s| .*| $val|" /etc/tor/torrc
     else
         echo "$name $val" >>/etc/tor/torrc
@@ -154,9 +154,9 @@ done
 chown -Rh ${_TOR_USER}. /etc/tor /var/lib/tor /var/log/tor 2>&1 |
             grep -iv 'Read-only' || :
 
-if [ $# -ge 1 ] && [ -x "$(which $1 2>&-)" ]; then
+if [ $# -ge 1 ] && [ -x "$(which $1 2>&-)" ];then
     exec "$@"
-elif [ $# -ge 1 ]; then
+elif [ $# -ge 1 ];then
     echo "ERROR: command not found: $1"
     exit 13
 else

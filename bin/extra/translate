@@ -30,7 +30,7 @@ main() {
   lang_map="/tmp/$USER/$translate_service"
   
   # Fetch or update language map if needed
-  if [ ! -f "$lang_map" ] || [ "$(stat -c %y "$lang_map" | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ]; then
+  if [ ! -f "$lang_map" ] || [ "$(stat -c %y "$lang_map" | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ];then
     case "$translate_service" in
       "libretranslate")
         url="$libretranslate_url/languages"
@@ -77,10 +77,10 @@ main() {
   esac
 
   # Perform the translation using curl or wget
-  if [ "$translation_method" = "POST" ]; then
-    if command -v curl >/dev/null 2>&1; then
+  if [ "$translation_method" = "POST" ];then
+    if command -v curl >/dev/null 2>&1;then
       translation=$(curl -X "$translation_method" -Ss "$translate_url")
-    elif command -v wget >/dev/null 2>&1; then
+    elif command -v wget >/dev/null 2>&1;then
       translation=$(wget --quiet --method="$translation_method" --output-document=- "$translate_url")
     else
       echo "Neither curl nor wget is available. Unable to fetch translation." >&2

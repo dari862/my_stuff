@@ -85,7 +85,7 @@ border_color_pressed = #d8d8d8 30
 
 #-------------------------------------
 # Panel
-panel_items = TSEE:E
+panel_items = TSEE:C
 panel_size = 100% 30
 panel_margin = 0 0
 panel_padding = 0 0 0
@@ -181,14 +181,14 @@ launcher_tooltip = 1
 
 #-------------------------------------
 # Clock
-time1_format = %a, %d %B @ %H:%M
+time1_format =   %a %d // %H:%M
 time2_format = 
-time1_font = Roboto 10
+time1_font = Noto Sans 8
 time1_timezone = 
 time2_timezone = 
 clock_font_color = #ffffff 100
-clock_padding = 4 4
-clock_background_id = 3
+clock_padding = 4 0
+clock_background_id = 5
 clock_tooltip = 
 clock_tooltip_timezone = 
 clock_lclick_command = distro_scripts --calendar
@@ -231,14 +231,14 @@ separator_padding = 0 6
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = now-playing -i
+execp_command = /usr/share/my_stuff/bin/not_add_2_path/tint2/now-playing -i
 execp_interval = 4
 execp_has_icon = 0
 execp_cache_icon = 1
 execp_continuous = 0
 execp_markup = 1
-execp_lclick_command = mpc toggle
-execp_rclick_command = mpc next
+execp_lclick_command = distro_scripts --toggle-music
+execp_rclick_command = distro_scripts --next-music
 execp_mclick_command = 
 execp_uwheel_command = 
 execp_dwheel_command = 
@@ -275,7 +275,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 3
 execp = new
-execp_command = clock
+execp_command = 
 execp_interval = 30
 execp_has_icon = 0
 execp_cache_icon = 1

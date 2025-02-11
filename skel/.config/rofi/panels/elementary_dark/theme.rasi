@@ -1,7 +1,11 @@
-/* Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 */
-
-/* Theme-Scheme */
+/* Color-Scheme,Theme-Scheme, and Text Font */
 
 * {
+  al:   #00000000;
+  bg:   #3E4148FF;
+  bga:  #363A3FFF;
+  fg:   #F5F5F5FF;
+  ac:   #00000066;
     	icon-theme: "Zafiro";
+    font:				 	"Iosevka 10";
 }

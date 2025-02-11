@@ -114,7 +114,7 @@
                 <item label="Hide/show icons in menu" icon="&icons;/menu-icons.png">
                     <action name="Execute">
                         <command>
-							bash -c 'if grep -q icon_hide=\" &openboxconfig;/menu.xml; then sed -i "s/icon_hide=\"/icon=\"/g" &openboxconfig;/menu.xml; else sed -i "s/icon=\"/icon_hide=\"/g" &openboxconfig;/menu.xml; fi'
+							bash -c 'if grep -q icon_hide=\" &openboxconfig;/menu.xml;then sed -i "s/icon_hide=\"/icon=\"/g" &openboxconfig;/menu.xml; else sed -i "s/icon=\"/icon_hide=\"/g" &openboxconfig;/menu.xml; fi'
                         </command>
                     </action>
                     <action name="Reconfigure"/>

@@ -19,7 +19,6 @@ configuration {
 	sidebar-mode: 					false;
 }
 
-@import "colors.rasi"
 @import "theme.rasi"
 
 window {

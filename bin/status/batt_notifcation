@@ -34,7 +34,7 @@ run_options() {
 
 run_options "$@"
 
-if [ $INFO -eq 1 ]; then
+if [ $INFO -eq 1 ];then
     upower -i "$BAT"
 else
     upower -i "$BAT" | \

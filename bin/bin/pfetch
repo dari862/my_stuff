@@ -229,16 +229,16 @@ get_os() {
             # This applies only to distributions which follow the standard
             # by shipping unmodified identification files and packages
             # from their respective upstreams.
-            if has lsb_release; then
+            if has lsb_release;then
                 distro=$(lsb_release -sd)
 
             # Android detection works by checking for the existence of
             # the follow two directories. I don't think there's a simpler
             # method than this.
-            elif [ -d /system/app ] && [ -d /system/priv-app ]; then
+            elif [ -d /system/app ] && [ -d /system/priv-app ];then
                 distro="Android $(getprop ro.build.version.release)"
 
-            elif [ -f /etc/os-release ]; then
+            elif [ -f /etc/os-release ];then
                 # This used to be a simple '. /etc/os-release' but I believe
                 # this is insecure as we blindly executed whatever was in the
                 # file. This parser instead simply handles 'key=val', treating
@@ -278,7 +278,7 @@ get_os() {
             #
             # If the kernel version string ends in "-Microsoft",
             # we're very likely running under Windows 10 in WSL1.
-            if [ "$WSLENV" ]; then
+            if [ "$WSLENV" ];then
                 distro="${distro}${WSLENV+ on Windows 10 [WSL2]}"
 
             # Check to see if Linux is running in Windows 10 under
@@ -288,7 +288,7 @@ get_os() {
             # This checks to see if '$WSLENV' is defined. This
             # appends the Windows 10 string even if '$WSLENV' is
             # empty. We only need to check that is has been _exported_.
-            elif [ -z "${kernel%%*-Microsoft}" ]; then
+            elif [ -z "${kernel%%*-Microsoft}" ];then
                 distro="$distro on Windows 10 [WSL1]"
             fi
         ;;

@@ -23,7 +23,7 @@ no arg will run --imgur as default.
 where_to_script_path="/usr/share/my_stuff/bin/not_add_2_path"
 
 # Get $USER images directory
-if type xdg-user-dir >/dev/null 2>&1; then
+if type xdg-user-dir >/dev/null 2>&1;then
     IMGDIR=$(xdg-user-dir PICTURES)
 else
     IMGDIR="$HOME/Pictures"

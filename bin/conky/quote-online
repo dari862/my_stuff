@@ -23,7 +23,7 @@ i=1
 color='\e[0;32m'
 NC='\e[0m'
 
-if getURL '2term' http://google.com > /dev/null; then
+if getURL '2term' http://google.com > /dev/null;then
     while [ "$i" -lt 5 ]
     do
         getquote 

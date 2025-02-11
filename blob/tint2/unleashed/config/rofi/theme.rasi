@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : unleashed
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #2B313DFF;
+    background-alt: #2B313DFF;
+    foreground:     #343945FF;
+    selected:       #FFFFFFFF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

@@ -79,7 +79,7 @@ done
 
 mv $HOME/.lesshst $HOME/.cache/lesshst > /dev/null 2>&1 || :
 
-if command -v xfconf-query >/dev/null ; then
+if command -v xfconf-query >/dev/null ;then
 	xfconf-query -c xfwm4 -np /general/theme -t 'string' -s Adwaita
 fi
 

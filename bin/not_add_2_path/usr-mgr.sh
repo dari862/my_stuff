@@ -69,16 +69,16 @@ logthis() {
 }
 
 isRoot() {
-    if [ "$(id -u)" -ne 0 ]; then
+    if [ "$(id -u)" -ne 0 ];then
         Error "You must be root user to continue"
         exit 1
     fi
     RID=$(id -u root 2>/dev/null)
-    if [ $? -ne 0 ]; then
+    if [ $? -ne 0 ];then
         Error "User root no found. You should create it to continue"
         exit 1
     fi
-    if [ $RID -ne 0 ]; then
+    if [ $RID -ne 0 ];then
         Error "User root UID not equals 0. User root must have UID 0"
         exit 1
     fi
@@ -87,19 +87,19 @@ isRoot() {
 # Checks supporting distros
 checkDistro() {
     # Checking distro
-    if [ -e /etc/centos-release ]; then
+    if [ -e /etc/centos-release ];then
         DISTRO=$(cat /etc/redhat-release | awk '{print $1,$4}')
         RPM=1
-    elif [ -e /etc/fedora-release ]; then
+    elif [ -e /etc/fedora-release ];then
         DISTRO=$(cat /etc/fedora-release | awk '{print ($1,$3~/^[0-9]/?$3:$4)}')
         RPM=2
-    elif [ -e /etc/os-release ]; then
+    elif [ -e /etc/os-release ];then
         DISTRO=$(lsb_release -d | awk -F"\t" '{print $2}')
         RPM=0
         DEB=1
     fi
 
-    if [ "$DISTRO_UNAME" = 'Linux' ]; then
+    if [ "$DISTRO_UNAME" = 'Linux' ];then
         _LINUX=1
         Warn "Server info" "${SERVER_NAME} ${SERVER_IP} (${DISTRO}"
     else
@@ -127,7 +127,7 @@ confirm() {
 }
 
 check_bkp_folder() {
-    if [ ! -d "$BACKUPS" ]; then
+    if [ ! -d "$BACKUPS" ];then
         mkdir -p $BACKUPS
     fi
 }
@@ -144,14 +144,14 @@ create_user() {
     printf "Enter user name: "
     read user
 
-    if id -u "$user" >/dev/null 2>&1; then
+    if id -u "$user" >/dev/null 2>&1;then
         Error "Error" "User $user exists. Try to set another user name."
     else
         Info "Info" "User $user will be create.."
 
         pass=$(gen_pass)
         
-        if confirm "Promote user to admin? (y/n or enter for n)"; then
+        if confirm "Promote user to admin? (y/n or enter for n)";then
             useradd -m -s /bin/bash -G wheel ${user}
             echo "%$user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$user
         else
@@ -191,7 +191,7 @@ reset_password() {
         if id $user > /dev/null 2>&1 
         then
             
-            if confirm "Generate password automatically? (y/n or enter for n)"; then
+            if confirm "Generate password automatically? (y/n or enter for n)";then
                 pass=$(gen_pass)
                 echo "$user:$pass" | chpasswd
                 Info "Info" "Password changed. Name: $user. Password: $pass"
@@ -254,7 +254,7 @@ unlock_user() {
 
                 locked=$(cat /etc/shadow | grep $user | grep !)
 
-                if [ -z $locked ]; then
+                if [ -z $locked ];then
                     Info "Info" "User $user not locked"
                 else
                     passwd -u $user
@@ -318,7 +318,7 @@ generate_ssh_key() {
             if id $user > /dev/null 2>&1
             then
                 sshf="/home/$user/.ssh"
-                if [ ! -d "$sshf" ]; then
+                if [ ! -d "$sshf" ];then
                     mkdir -p $sshf
                     chown $user:$user $sshf
                     chmod 700 $sshf
@@ -354,9 +354,9 @@ delete_user() {
             if id $user > /dev/null 2>&1
             then
                 
-                if confirm "Completely delete user (y/n or press enter for n)"; then
+                if confirm "Completely delete user (y/n or press enter for n)";then
                     userdel -r -f $user
-                    if [ -f /etc/sudoers.d/$user ]; then
+                    if [ -f /etc/sudoers.d/$user ];then
                         rm -rf /etc/sudoers.d/$user
                     fi
                     

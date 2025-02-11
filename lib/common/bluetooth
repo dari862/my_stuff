@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ ! -d /sys/class/bluetooth ]; then
+if [ ! -d /sys/class/bluetooth ];then
 	echo # No Bluetooth interface
 	exit 0
 fi

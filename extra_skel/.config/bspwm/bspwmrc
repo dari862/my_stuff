@@ -125,7 +125,7 @@ bspc rule -a Wrapper-2.0 state=floating border=off focus=on
 # Lauch keybindings daemon
 sxhkd &
 
-if command -v urxvtc >/dev/null 2>&1; then
+if command -v urxvtc >/dev/null 2>&1;then
 	#urxvtc
 	(sleep 0.50; urxvtc) &
 fi

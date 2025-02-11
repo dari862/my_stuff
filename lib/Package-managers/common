@@ -15,14 +15,14 @@ connectiontest() {
     attempts=${1:-0}
     while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
         say "$TEXT_CHECKING"
-        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null; then
+        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null;then
             say "$TEXT_OK" 1
             return 0
         fi
         say "$TEXT_FAILED"
-        if [ "$i" -eq $((attempts - 1)) ]; then # if last attempt
+        if [ "$i" -eq $((attempts - 1)) ];then # if last attempt
             return 1
-        elif prompt "$TEXT_ASK_RETRY" Q; then # if user wants to quit
+        elif prompt "$TEXT_ASK_RETRY" Q;then # if user wants to quit
             say "$TEXT_ABORT" 2
             [ "$attempts" -eq 0 ] && exit 1 || return 1
         fi
@@ -35,7 +35,7 @@ connectiontest() {
 say() {
     width=$(tput cols 2>/dev/tty)
     echo "$1" | fold -s -w $((width - 3)) | sed 's/^/  /' # wraps text nicely and adds two leading spaces
-    if [ "${2}" = 'pause' ]; then
+    if [ "${2}" = 'pause' ];then
         stty -icanon -echo time 0 min 1
 		head -c1 >/dev/null
 		stty icanon echo
@@ -50,25 +50,25 @@ prompt() {
     prompt=""
     default=""
 
-    if [ "${2:-}" ] && [ "${2}" = "Q" ]; then
+    if [ "${2:-}" ] && [ "${2}" = "Q" ];then
         while true; do
             printf "$1 "
         	stty -icanon -echo time 0 min 1
 			answer="$(head -c1)"
 			stty icanon echo
             echo
-            if [ "$answer" = "Q" ] || [ "$answer" = "q" ]; then
+            if [ "$answer" = "Q" ] || [ "$answer" = "q" ];then
                 return 0
-            elif [ -z "$answer" ]; then
+            elif [ -z "$answer" ];then
                 return 1
             fi
         done
     fi
 
-    if [ -z "${2:-}" ] || [ "${2}" = "Y" ]; then
+    if [ -z "${2:-}" ] || [ "${2}" = "Y" ];then
         prompt='Y/n'
         default='Y'
-    elif [ "${2}" = "N" ]; then
+    elif [ "${2}" = "N" ];then
         prompt='y/N'
         default='N'
     fi
@@ -97,7 +97,7 @@ keep_superuser() {
 }
 
 end_superuser() {
-    if command -v doas >/dev/null 2>&1; then
+    if command -v doas >/dev/null 2>&1;then
         doas -L
     fi
 }
@@ -132,7 +132,7 @@ copy_from_extra_skel() {
     __dirname=$(dirname "$__copythis")
     __copythere=""
 
-    if [ "$__dirname" != "." ]; then
+    if [ "$__dirname" != "." ];then
         __copythere="$__dirname"
     fi
 
@@ -146,7 +146,7 @@ copy_from_extra_skel() {
     done
 }
 
-if command -v git >/dev/null 2>&1; then
+if command -v git >/dev/null 2>&1;then
     clone_repo() {
         getthis="${1:-}"
         getto="${2:-}"
@@ -159,7 +159,7 @@ if command -v git >/dev/null 2>&1; then
         echo "git clone ${getthis}"
         my-superuser git clone --depth=1 "${getthis}" "${getto}"
     }
-elif command -v svn >/dev/null 2>&1; then
+elif command -v svn >/dev/null 2>&1;then
     clone_repo() {
         getthis="${1:-}"
         getto="${2:-}"

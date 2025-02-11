@@ -13,18 +13,18 @@ if [ -z "$ans" ];then
 		do
   		read -r ans
 		
-  		if [ -z "$ans" ]; then
+  		if [ -z "$ans" ];then
     		printf "File Name: "
   		fi
 	done
 fi
 file=$scripts_folder_/$ans
 
-if [ ! -d "$scripts_folder_" ]; then
+if [ ! -d "$scripts_folder_" ];then
 	mkdir -p $scripts_folder_
 fi
 
-if [ -e "$scripts_folder_/$ans" ]; then
+if [ -e "$scripts_folder_/$ans" ];then
 	$CLI_EDITER "$file"
 else
 	echo "#!/bin/sh" >> "$file"

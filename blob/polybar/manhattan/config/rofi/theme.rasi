@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : manhattan
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #20252BFF;
+    background-alt: #282A36FF;
+    foreground:     #77C1DEFF;
+    selected:       #DA86BAFF;
+    active:         #50FA7BFF;
+    urgent:         #FF5555FF;
+}

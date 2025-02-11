@@ -56,7 +56,7 @@ jgmenu_options(){
 #    menuEnd
 }
 
-if [ "${1-}" = "--jgmenu" ]; then # pipemenu
+if [ "${1-}" = "--jgmenu" ];then # pipemenu
 	jgmenu_options
 else
 	obmenu_options

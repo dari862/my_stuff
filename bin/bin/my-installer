@@ -113,6 +113,7 @@ install_container_software(){
 			else
 				my-superuser ln -sf "$(my-superuser which $container_software)" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
 				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_containers" "/usr/share/my_stuff/system_files/bin"
+				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/run_containers" "/usr/share/my_stuff/system_files/bin"
 				my-superuser rm -f '/usr/share/my_stuff/system_files/Container_Group'
 			fi
 		fi
@@ -125,7 +126,7 @@ __run_(){
 	[ ! -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' 'pause' && exit 1
 
 	while true; do # do it until the package is successfully installed or user wants to exit
-		if [ "$TRYAGAIN" ]; then # previous try failed
+		if [ "$TRYAGAIN" ];then # previous try failed
 			say
 			say "There was a problem installing ${file_name_}."
 			say

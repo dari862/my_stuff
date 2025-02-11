@@ -1,0 +1,3 @@
+#!/bin/sh
+set -e
+CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d ${container_name}

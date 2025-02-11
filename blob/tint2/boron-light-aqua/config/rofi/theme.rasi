@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : boron-light-aqua
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #E5D7D4FF;
+    background-alt: #E5D7D4FF;
+    foreground:     #222222FF;
+    selected:       #55A0B1FF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

@@ -39,7 +39,7 @@ tmp_outputs_connected_file="/tmp/$USER/outputs_connected"
 xrandr -q | grep "connected" | while read -r line; do
     output="${line%% *}"
 
-    if [[ "$line" == *"disconnected"* ]]; then
+    if [[ "$line" == *"disconnected"* ]];then
     	echo "$output" >> "${tmp_outputs_disconnected_file}"
     else
     	echo "$output" >> "${tmp_outputs_connected_file}"
@@ -59,7 +59,7 @@ mk_position_controls() {
 	for position in left-of right-of above below same-as; do
 		echo "<menu id=\"--$position\" label=\"$position\">"
 			for other in ${outputs_connected}; do
-				if [[ "${output}" != "$other" ]]; then
+				if [[ "${output}" != "$other" ]];then
 					echo "<item label=\"$other\">"
 					echo "<action name=\"execute\">"
 					echo "<command>xrandr --output ${output} --$position $other</command>"
@@ -106,7 +106,7 @@ get_rc_menu() {
 # Retrieve connected outputs and their states
 get_xrandr_info() {
     xrandr -q | while read -r line; do
-        if [[ "$line" == *"connected"* ]]; then
+        if [[ "$line" == *"connected"* ]];then
             echo "$line"
         fi
     done
@@ -135,7 +135,7 @@ while IFS= read -r output_info; do
 		
 		echo "</menu>"
 		
-		if [ $words_in_outputs_connected -gt 1 ]; then
+		if [ $words_in_outputs_connected -gt 1 ];then
 			echo "<separator />"
 			mk_position_controls "$output"
 		fi

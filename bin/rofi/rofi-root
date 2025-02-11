@@ -6,16 +6,25 @@
 
 rofi_command="rofi -theme $rofi_style_dir/runner.rasi"
 # Apps
-terminal=" Terminal"
-files=" File-Manager"
-editor=" Text-Editor"
-clifm=" LF"
-vim=" CLI Editor"
+layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+if [ "$layout" = 'YES' ];then
+	terminal=""
+	files=""
+	editor=""
+	clifm=""
+	vim=""
+else
+	terminal=" Terminal"
+	files=" File-Manager"
+	editor=" Text-Editor"
+	clifm=" LF"
+	vim=" CLI Editor"
+fi
 # Variable passed to rofi
 options="$terminal\n$files\n$editor\n$clifm\n$vim"
 
 # Functions
-chosen="$(printf "$options" | $rofi_command -p "Run apps as root" -dmenu -selected-row 0)"
+chosen="$(printf "$options" | $rofi_command -dmenu -selected-row 0)"
 case $chosen in
     $terminal)
         app_2_run_as_root="my-terminal-emulator"

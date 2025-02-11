@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 torproxy_script_name="torproxy"
-container_name="torproxy"
 extra_dir="/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/${container_name}"
 temp_dir="$(mktemp -d /tmp/$USER/DockerFile_XXXXXXXXXXXXXXXX)"
 chmod 700 "${temp_dir}"
@@ -30,7 +29,7 @@ CONTAINER_RT build -t torproxy . ${__format} --no-cache \
 	--build-arg __UUID="${__UUID}" \
 	--build-arg _TOR_USER="${_TOR_USER}"
 
-CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy
+run_containers --install ${container_name}
 
 say "ln ${torproxy_script_name} script which rerouter all your trafic to ${container_name} container to bin dir..."
 my-superuser cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy_container" "/usr/share/my_stuff/system_files/bin" || failed_to_run "Failed to ln /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy to /usr/share/my_stuff/system_files/bin"

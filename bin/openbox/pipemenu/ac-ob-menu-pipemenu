@@ -11,7 +11,7 @@ namespace="http://openbox.org/3.4/rc"
 jgmenu_exist=false
 menu_style="openbox"
 
-if command -v jgmenu >/dev/null 2>&1; then
+if command -v jgmenu >/dev/null 2>&1;then
 	jgmenu_exist=true
 	grep -q "<!-- never remove this line menu style are :jgmenu -->" "${BACKUP_OB_RC_FILE}" && menu_style="jgmenu"
 fi

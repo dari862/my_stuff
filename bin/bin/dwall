@@ -65,28 +65,28 @@ Prerequisite() {
 	## Choose wallpaper setter						  
 	case "$OSTYPE" in
 		linux*)	
-				if [ -n "$SWAYSOCK" ]; then
+				if [ -n "$SWAYSOCK" ];then
 					SETTER="eval ogurictl output '*' --image"
-				elif [[ "$DESKTOP_SESSION" =~ ^(MATE|Mate|mate)$ ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ ^(MATE|Mate|mate)$ ]];then
 					SETTER="gsettings set org.mate.background picture-filename"
-				elif [[ "$DESKTOP_SESSION" =~ ^(Xfce Session|xfce session|XFCE|xfce|Xubuntu|xubuntu)$ ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ ^(Xfce Session|xfce session|XFCE|xfce|Xubuntu|xubuntu)$ ]];then
 					check_4_dependencies_if_installed xrandr
 					SCREEN="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $1}' | tr -d \:)"
 					MONITOR="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $2}' | tr -d \*+)"
 					SETTER="xfconf-query --channel xfce4-desktop --property /backdrop/screen$SCREEN/monitor$MONITOR/workspace0/last-image --set"
-				elif [[ "$DESKTOP_SESSION" =~ ^(LXDE|Lxde|lxde)$ ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ ^(LXDE|Lxde|lxde)$ ]];then
 					SETTER="pcmanfm --set-wallpaper"
-				elif [[ "$DESKTOP_SESSION" =~ ^(cinnamon|Cinnamon)$ ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ ^(cinnamon|Cinnamon)$ ]];then
 					SETTER=set_cinnamon
-				elif [[ "$DESKTOP_SESSION" =~ ^(/usr/share/xsessions/plasma|NEON|Neon|neon|PLASMA|Plasma|plasma|KDE|Kde|kde)$ ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ ^(/usr/share/xsessions/plasma|NEON|Neon|neon|PLASMA|Plasma|plasma|KDE|Kde|kde)$ ]];then
 					SETTER=set_kde
-				elif [[ "$DESKTOP_SESSION" =~ GNOME|Ubuntu|Pop|Deepin ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ GNOME|Ubuntu|Pop|Deepin ]];then
 					SETTER=set_gnome
-				elif [[ "$DESKTOP_SESSION" =~ Pantheon ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ Pantheon ]];then
 					SETTER=set_pantheon
-				elif [[ "$DESKTOP_SESSION" =~ sway ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ sway ]];then
 					SETTER="swaybg -i"
-				elif [[ "$DESKTOP_SESSION" =~ ^(PANTHEON|Pantheon|pantheon|GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg|UBUNTU|Ubuntu|ubuntu|DEEPIN|Deepin|deepin|POP|Pop|pop)$ ]]; then
+				elif [[ "$DESKTOP_SESSION" =~ ^(PANTHEON|Pantheon|pantheon|GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg|UBUNTU|Ubuntu|ubuntu|DEEPIN|Deepin|deepin|POP|Pop|pop)$ ]];then
 					SETTER="gsettings set org.gnome.desktop.background picture-uri"
 				elif type -p "feh" >/dev/null 2>&1;then
 					SETTER="feh --bg-fill"
@@ -163,9 +163,9 @@ get_img() {
 	image="$DIR/$STYLE/$1"
 
 	# get image format
-	if [[ -f "${image}.png" ]]; then
+	if [[ -f "${image}.png" ]];then
 		FORMAT="png"
-	elif [[ -f "${image}.jpg" ]]; then
+	elif [[ -f "${image}.jpg" ]];then
 		FORMAT="jpg"
 	else
 		echo -e ${RED}"[!] Invalid image file, Exiting..."
@@ -182,7 +182,7 @@ pywal_backend() {
 ## Determine light/dark scheme based on GNOME night light or daytime
 pywal_light() {
 	[[ $WALSCHEME == 'light' ]] && return 0
-	if [[ $WALSCHEME == 'auto' ]]; then
+	if [[ $WALSCHEME == 'auto' ]];then
 		[[ $DESKTOP_SESSION =~ ^(GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg)$ && $(gsettings get org.gnome.desktop.interface gtk-theme) != *"dark"* ]] && return 0
 		(( $HOUR > 6 && $HOUR < 18 )) && return 0
 	fi
@@ -191,13 +191,13 @@ pywal_light() {
 ## Set wallpaper with pywal
 pywal_set() {
 	get_img "$1"
-	if ! pywal_backend "$2"; then
+	if ! pywal_backend "$2";then
 		echo -e ${RED}"[!] $2 is not a valid pywal backend. Check valid backends with `wal --backend`. Exiting..."
 		exit_1
 	fi
-	if [[ -x `command -v wal` ]]; then
+	if [[ -x `command -v wal` ]];then
 		local walcmd=(wal --backend "$2" -i "$image.$FORMAT" -n)
-		if pywal_light; then
+		if pywal_light;then
 			walcmd+=(-l)
 		fi
 		"${walcmd[@]}"
@@ -231,12 +231,12 @@ set_wallpaper() {
 	get_img "$1"
 
 	# set wallpaper with setter
-	if [[ -n "$FORMAT" ]]; then
+	if [[ -n "$FORMAT" ]];then
 		$SETTER "$image.$FORMAT"
 	fi
 
 	# make/update dwall cache file
-	if [[ ! -f "$cfile" ]]; then
+	if [[ ! -f "$cfile" ]];then
 		touch "$cfile"
 		echo "$image.$FORMAT" > "$cfile"
 	else
@@ -246,7 +246,7 @@ set_wallpaper() {
 
 ## Check valid style
 check_style() {
-	if [[ "$(ls $DIR/$1 2>/dev/null)" ]]; then
+	if [[ "$(ls $DIR/$1 2>/dev/null)" ]];then
 		echo -e ${BLUE}"[*] Using style : ${MAGENTA}$1"
 		reset_color
 	else
@@ -259,7 +259,7 @@ check_style() {
 Convert_current_folder_2_Dywall_now() {
 	number_of_files="$(\ls -1 | wc -l || echo 'no files')"
 	
-	if [ "$number_of_files" == 1 ] || [ "$number_of_files" -gt 23 ]; then
+	if [ "$number_of_files" == 1 ] || [ "$number_of_files" -gt 23 ];then
 		echo "there are $number_of_files in this folder: $folder_2_convert_2_Dywall"
 		return 1
 	fi
@@ -267,32 +267,32 @@ Convert_current_folder_2_Dywall_now() {
 	fullname="$(\ls | tail -1)"
 	extension="${fullname##*.}"
 		
-	if [ "$number_of_files" -lt 9 ]; then
+	if [ "$number_of_files" -lt 9 ];then
 		first_file="$(\ls | head -1)"
 		last_file="${fullname}"
 		mv ${last_file} 9999
 		mv ${first_file} 0_0_0
-		if [ "$number_of_files" == 3 ]; then
+		if [ "$number_of_files" == 3 ];then
 			mv `\ls | head -2 | tail -1` 13.${extension}
-		elif [ "$number_of_files" == 4 ]; then
+		elif [ "$number_of_files" == 4 ];then
 			mv `\ls | head -2 | tail -1` 13.${extension}
 			mv `\ls | head -3 | tail -1` 17.${extension}
-		elif [ "$number_of_files" == 5 ]; then
+		elif [ "$number_of_files" == 5 ];then
 			mv `\ls | head -2 | tail -1` 7.${extension}
 			mv `\ls | head -3 | tail -1` 13.${extension}
 			mv `\ls | head -4 | tail -1` 17.${extension}
-		elif [ "$number_of_files" == 6 ]; then
+		elif [ "$number_of_files" == 6 ];then
 			mv `\ls | head -2 | tail -1` 7.${extension}
 			mv `\ls | head -3 | tail -1` 13.${extension}
 			mv `\ls | head -4 | tail -1` 17.${extension}
 			mv `\ls | head -5 | tail -1` 19.${extension}
-		elif [ "$number_of_files" == 7 ]; then
+		elif [ "$number_of_files" == 7 ];then
 			mv `\ls | head -2 | tail -1` 7.${extension}
 			mv `\ls | head -3 | tail -1` 13.${extension}
 			mv `\ls | head -4 | tail -1` 17.${extension}
 			mv `\ls | head -5 | tail -1` 19.${extension}
 			mv `\ls | head -6 | tail -1` 21.${extension}
-		elif [ "$number_of_files" == 8 ]; then
+		elif [ "$number_of_files" == 8 ];then
 			mv `\ls | head -2 | tail -1` 7.${extension}
 			mv `\ls | head -3 | tail -1` 13.${extension}
 			mv `\ls | head -4 | tail -1` 17.${extension}
@@ -317,7 +317,7 @@ Create_links_for_folders_now(){
 	for filename_L in ${folders_2_create_links_for[@]}; do
 		while [ "$newName_L" -lt 24 ]
 		do
-			if [ -f "${newName_L}.${extension_L}" ] || [ "$newName_L" -gt 24 ]; then
+			if [ -f "${newName_L}.${extension_L}" ] || [ "$newName_L" -gt 24 ];then
 				break
 			fi
 				ln -s "$filename_L" "${newName_L}.${extension_L}"
@@ -330,7 +330,7 @@ Create_links_for_folders_now(){
 ## Install script
 install_now_() {
 	# Path
-	if [ -f ${dwall_script} ]; then 
+	if [ -f ${dwall_script} ];then 
 		echo -e ${GREEN}"[*] Already exsist. Execute 'dwall' to Run."${WHITE} 
 		reset_color
 		exit 0
@@ -340,7 +340,7 @@ install_now_() {
 	## Make dirs
 	mkdir_dw() {
 		echo -e ${ORANGE}"[*] Installing Dynamic Wallpaper..."${WHITE}
-		if [[ -d $DIR ]]; then
+		if [[ -d $DIR ]];then
 			# delete old directory
 			my-superuser rm -rf $DIR
 			# create new directory
@@ -478,7 +478,7 @@ Download_wallpapers_now(){
 		echo "skipping Download..."
 	fi
 	
-	if [ ! -d /tmp/$USER/Linux_Dynamic_Wallpapers ] && [ ! -d /tmp/$USER/dynamic-wallpaper ]; then
+	if [ ! -d /tmp/$USER/Linux_Dynamic_Wallpapers ] && [ ! -d /tmp/$USER/dynamic-wallpaper ];then
 		exit_0
 	fi
 	
@@ -495,14 +495,14 @@ uninstall_now_() {
 	## Delete files
 	rmdir_dw() {
 		echo -e ${ORANGE}"[*] Uninstalling Dynamic Wallpaper..."${WHITE}
-		if [[ -d $DIR ]]; then
+		if [[ -d $DIR ]];then
 			# delete dwall directory
 			my-superuser rm -rf $DIR
 		fi
 	}
 
 	del_files() {
-		if [[ -f ${dwall_script} ]]; then
+		if [[ -f ${dwall_script} ]];then
 			my-superuser rm ${dwall_script}
 		fi
 		echo -e ${GREEN}"[*] Uninstalled Successfully."${WHITE}
@@ -524,10 +524,10 @@ main() {
 	# get current hour
 	num=$(($HOUR/1))
 	# set wallpaper accordingly
-	if [[ -n "$PYWAL" ]]; then
+	if [[ -n "$PYWAL" ]];then
 		_walbackend=${WALBACKEND:-wal}
 		{ pywal_set "$num" "$_walbackend"; reset_color; exit 0; }
-	elif [[ -n "$OUTPUT" ]]; then
+	elif [[ -n "$OUTPUT" ]];then
 		{ file_set "$num"; reset_color; exit 0; }
 	else
 		{ set_wallpaper "$num"; reset_color; exit 0; }
@@ -535,7 +535,7 @@ main() {
 	
 	reset_color
 	
-	if [ "$create_crontab_" == true ]; then
+	if [ "$create_crontab_" == true ];then
 		create_crontab_now
 	fi
 	exit 0
@@ -602,8 +602,8 @@ while getopts ":dolachiugys:pb:c:z:" opt; do
 	esac
 done
 
-if [[ "$do_you_want_2_convert_folder_2_Dywall" == true ]]; then
-	if [ ! -d $folder_2_convert_2_Dywall ]; then
+if [[ "$do_you_want_2_convert_folder_2_Dywall" == true ]];then
+	if [ ! -d $folder_2_convert_2_Dywall ];then
 		echo "directory does not exsist"
 		exit_1
 	else
@@ -613,34 +613,34 @@ if [[ "$do_you_want_2_convert_folder_2_Dywall" == true ]]; then
 	exit_0
 fi
 
-if [[ "$Set_installation_" == true ]]; then
+if [[ "$Set_installation_" == true ]];then
 	install_now_
 	exit_0
 fi
 
-if [[ "$Set_uninstall_" == true ]]; then
+if [[ "$Set_uninstall_" == true ]];then
 	uninstall_now_
 	exit_0
 fi
 
-if [[ "$Download_wallpapers_" == true ]] || [[ ! -d "$DIR" ]]; then
+if [[ "$Download_wallpapers_" == true ]] || [[ ! -d "$DIR" ]];then
 	Download_wallpapers_now
 fi
 
-if [[ "$create_crontab_" == true ]]; then
-	if [[ "$STYLE" ]]; then
+if [[ "$create_crontab_" == true ]];then
+	if [[ "$STYLE" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-s $STYLE")
 	fi
 	
-	if [[ "$WALBACKEND" ]]; then
+	if [[ "$WALBACKEND" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-b $WALBACKEND")
-	elif [[ "$PYWAL" == true ]]; then
+	elif [[ "$PYWAL" == true ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-p")
 	fi
 	
-	if [[ "$WALSCHEME" == "light" ]]; then
+	if [[ "$WALSCHEME" == "light" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-l")
-	elif [[ "$WALSCHEME" == "auto" ]]; then
+	elif [[ "$WALSCHEME" == "auto" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-a")
 	fi		
 	exit_1
@@ -648,7 +648,7 @@ fi
 
 ## Run
 Prerequisite
-if [[ "$STYLE" ]]; then
+if [[ "$STYLE" ]];then
 	check_style "$STYLE"
 	main	
 else

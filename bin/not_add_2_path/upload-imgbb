@@ -216,7 +216,7 @@ function getimage(){
         DELAY=0
         SCREENSHOT_COMMAND="${SCREENSHOT_COMMAND} --delay 1 "   # need a pause so YAD dialog can leave the scene
     fi
-    if [[ -z "$1" ]]; then
+    if [[ -z "$1" ]];then
         # new filename with date
         img_file="$(date +"${FILE_NAME}.${FILE_FORMAT}")"
         img_file="${FILE_DIR}/${img_file}" && export img_file
@@ -227,7 +227,7 @@ function getimage(){
     fi
 
     # check if file exists
-    if ! [[ -f "${img_file}" ]]; then
+    if ! [[ -f "${img_file}" ]];then
         message="\n\tfile '${img_file}' doesn't exist!\n\n\tExiting script...\n"
         echo -e "${message}"
         yad_error "${message}"
@@ -256,7 +256,7 @@ function delete_local(){    # delete local screenshot; don't delete if '--file' 
         yad_question "--image=dialog-question" "${message}"
         ret="$?"
 
-        if (( ret == 0 )); then
+        if (( ret == 0 ));then
             if gio trash "${img_file}" >/dev/null;then # send to 'Wastebasket'
                 gio trash "${thumbnail}"
             else
@@ -293,7 +293,7 @@ function take_screenshot() {
         fi
     fi
     shot_err="$( (${CMD_SCREENSHOT} >&2) 2>&1)" #takes a screenshot
-    if (( $? != 0 )); then
+    if (( $? != 0 ));then
         message="
         Failed to take screenshot of
         $1
@@ -361,7 +361,7 @@ set -x # needed so progress bar shows
 set +x
         resize_err=$(cat "${temp_file}")  # used by calling function
 
-        if (( $? != 0 )); then
+        if (( $? != 0 ));then
             message="\n\tFailed to resize image\n\t${img_name}:\n\n\tError: ${resize_err}\n"
             echo -e "${message}"
             yad_error "${message}"
@@ -414,13 +414,13 @@ function get_client_api_key(){
         || ! [[ ${CLIENT_API_KEY} =~ ^[a-fA-F0-9]+$ ]];then
         err_msg="Client API key is wrong!"
     fi
-    if [[ ${err_msg} ]]; then
+    if [[ ${err_msg} ]];then
         dlg_msg="\n${err_msg}\n\nTry again or Exit script?\n"
         dlg_err=$(${DIALOG} --text="${dlg_msg}" \
         --undecorated \
         --image="dialog-question" --button="Exit:1" ${OK}) 2>/dev/null
         ans=$?
-        if (( ans == 0 )); then
+        if (( ans == 0 ));then
             get_client_api_key
         else
             exit
@@ -437,7 +437,7 @@ function get_client_api_key(){
 
 function run_browser(){     # run browser with API url, or user's account
     local api_call="$1"     # function called from button in dialog
-    if [[ ${api_call} = "addclient" ]]; then        # get client API key
+    if [[ ${api_call} = "addclient" ]];then        # get client API key
         my-www-browser --new-window "${API_URL}" &
     else
         my-www-browser --new-window "${api_call}" &  # open image url
@@ -570,10 +570,10 @@ function main(){
 
     [[ -z "${IMG_VIEWER}" ]] && IMG_VIEWER="my-www-browser"
 
-    if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null; then
+    if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null;then
         echo "Error: Failed to source yad-includes in /usr/share/my_stuff/lib/common" >&2
         exit 1
-    elif ! . "${SETTINGS_FILE}" 2> /dev/null; then
+    elif ! . "${SETTINGS_FILE}" 2> /dev/null;then
         echo "Error: Failed to source ${SETTINGS_FILE} in ${USR_CFG_DIR}/" >&2
         exit 1
     fi
@@ -639,7 +639,7 @@ function main(){
 
     # Show 'Delete' button until image has been deleted
     while true;do
-        if getURL 'head' "${del_url}" | grep "HTTP/1.1 200 OK" >/dev/null; then # page exists
+        if getURL 'head' "${del_url}" | grep "HTTP/1.1 200 OK" >/dev/null;then # page exists
             ret=$(${DIALOG} --image-on-top --image="${thumb_tempfile}" "${TITLE}" \
                 --width=680 ${T}"${TEXT}" --text-align=left \
                 --form \
@@ -648,7 +648,7 @@ function main(){
                 --button="Show Image":"/bin/bash -c 'show_image'" \
                 ${DELETE} ${CLOSE} ) 2>/dev/null
             ret="$?"
-            if (( ret == 2 )); then # block loop until image deletion is confirmed by user
+            if (( ret == 2 ));then # block loop until image deletion is confirmed by user
                 curr_desktop=$(xdotool get_desktop) # get Desktop index, so we can return to it
 
                 # Open user's imgbb webpage with uploaded screenshot

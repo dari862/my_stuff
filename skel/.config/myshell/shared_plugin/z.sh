@@ -53,14 +53,14 @@ _z() {
     }
 
     # add entries
-    if [ "$1" = "--add" ]; then
+    if [ "$1" = "--add" ];then
         shift
 
         # $HOME and / aren't worth matching
         [ "$*" = "$HOME" -o "$*" = '/' ] && return
 
         # don't track excluded directory trees
-        if [ ${#_Z_EXCLUDE_DIRS[@]} -gt 0 ]; then
+        if [ ${#_Z_EXCLUDE_DIRS[@]} -gt 0 ];then
             local exclude
             for exclude in "${_Z_EXCLUDE_DIRS[@]}"; do
                 case "$*" in "$exclude"*) return;; esac
@@ -94,7 +94,7 @@ _z() {
             }
         ' 2>/dev/null >| "$tempfile"
         # do our best to avoid clobbering the datafile in a race condition.
-        if [ $? -ne 0 -a -f "$datafile" ]; then
+        if [ $? -ne 0 -a -f "$datafile" ];then
             \env rm -f "$tempfile"
         else
             [ "$_Z_OWNER" ] && chown $_Z_OWNER:"$(id -ng $_Z_OWNER)" "$tempfile"
@@ -102,7 +102,7 @@ _z() {
         fi
 
     # tab completion
-    elif [ "$1" = "--complete" -a -s "$datafile" ]; then
+    elif [ "$1" = "--complete" -a -s "$datafile" ];then
         _z_dirs | \awk -v q="$2" -F"|" '
             BEGIN {
                 q = substr(q, 3)
@@ -214,9 +214,9 @@ _z() {
             }
         ')"
 
-        if [ "$?" -eq 0 ]; then
-          if [ "$cd" ]; then
-            if [ "$echo" ]; then echo "$cd"; else builtin cd "$cd"; fi
+        if [ "$?" -eq 0 ];then
+          if [ "$cd" ];then
+            if [ "$echo" ];then echo "$cd"; else builtin cd "$cd"; fi
           fi
         else
           return $?
@@ -228,11 +228,11 @@ alias ${_Z_CMD:-z}='_z 2>&1'
 
 [ "$_Z_NO_RESOLVE_SYMLINKS" ] || _Z_RESOLVE_SYMLINKS="-P"
 
-if type compctl >/dev/null 2>&1; then
+if type compctl >/dev/null 2>&1;then
     # zsh
     [ "$_Z_NO_PROMPT_COMMAND" ] || {
         # populate directory list, avoid clobbering any other precmds.
-        if [ "$_Z_NO_RESOLVE_SYMLINKS" ]; then
+        if [ "$_Z_NO_RESOLVE_SYMLINKS" ];then
             _z_precmd() {
                 (_z --add "${PWD:a}" &)
                 : $RANDOM
@@ -254,7 +254,7 @@ if type compctl >/dev/null 2>&1; then
         reply=(${(f)"$(_z --complete "$compl")"})
     }
     compctl -U -K _z_zsh_tab_completion _z
-elif type complete >/dev/null 2>&1; then
+elif type complete >/dev/null 2>&1;then
     # bash
     # tab completion
     complete -o filenames -C '_z --complete "$COMP_LINE"' ${_Z_CMD:-z}

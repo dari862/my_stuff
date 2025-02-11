@@ -92,11 +92,11 @@ Shows_the_current_moon_phase(){
 #############################################################################
 
 main(){
-	if [ -z "${place}" ] ; then
+	if [ -z "${place}" ];then
 		Location_Picker
 	fi
 	
-	if [ -z "$Weather_OPT_" ] ; then
+	if [ -z "$Weather_OPT_" ];then
 		Weather_OPT_="$(printf "%s" "${Weather_OPT_List}" | ${rofi_command} -sep "|" -p '' | awk '{ print $1 }')"
 	fi
 	

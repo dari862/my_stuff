@@ -6,7 +6,7 @@ check_4_dependencies_if_installed ffmpeg ffprobe sed || exit 1
 show_error() {
   local red=$'\033[0;91m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
   else
     echo -e "${red}${*}${nc}" 1>&2
@@ -16,7 +16,7 @@ show_error() {
 show_info() {
   local green=$'\033[0;92m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${green}${*:2}${nc}"
   else
     echo -e "${green}${*}${nc}"
@@ -26,7 +26,7 @@ show_info() {
 show_warning() {
   local yellow=$'\033[0;93m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${yellow}${*:2}${nc}"
   else
     echo -e "${yellow}${*}${nc}"
@@ -63,7 +63,7 @@ function parse_streams {
 
     case "${codec_type}" in
       video)
-        if [[ "${codec_name}" =~ png|jpg|jpeg ]]; then
+        if [[ "${codec_name}" =~ png|jpg|jpeg ]];then
           STREAMS+=("cover")
           COUNTERS+=("${c_counter}")
           c_counter=$((c_counter + 1))
@@ -91,13 +91,13 @@ function parse_streams {
       *) ;;
     esac
 
-    if [ -n "${title}" ]; then
+    if [ -n "${title}" ];then
       TITLES+=("$(strip_titles "${title}")")
     else
       TITLES+=("")
     fi
 
-    if [ -n "${lang}" ]; then
+    if [ -n "${lang}" ];then
       LANGUAGES+=("$(strip_titles "${lang}")")
     else
       LANGUAGES+=("")
@@ -126,18 +126,18 @@ function strip_generic {
     case "${codec_type}" in
       video) ;;
       audio)
-        if [[ -n "${lang}" ]]; then
+        if [[ -n "${lang}" ]];then
           cmd="${cmd} -metadata:s:a:${counter} language=${lang}"
         fi
-        if [[ -n "${title}" ]]; then
+        if [[ -n "${title}" ]];then
           cmd="${cmd} -metadata:s:a:${counter} handler=${title}"
         fi
         ;;
       subtitle)
-        if [[ -n "${lang}" ]]; then
+        if [[ -n "${lang}" ]];then
           cmd="${cmd} -metadata:s:s:${counter} language=${lang}"
         fi
-        if [[ -n "${title}" ]]; then
+        if [[ -n "${title}" ]];then
           cmd="${cmd} -metadata:s:s:${counter} handler=${title}"
         fi
         ;;
@@ -163,7 +163,7 @@ function strip_generic {
 
   show_info "${cmd}" >&2
   eval "${cmd}"
-  if ${KEEP}; then
+  if ${KEEP};then
     mv "${IN}" "${BACKUP}"
     mv "${TMP}" "${IN}"
   else
@@ -180,7 +180,7 @@ function strip_matroska {
   local lang
   local counter
 
-  if ${KEEP}; then
+  if ${KEEP};then
     cp "${IN}" "${BACKUP}"
   fi
 
@@ -195,21 +195,21 @@ function strip_matroska {
     counter="${COUNTERS[${idx}]}"
     case "${codec_type}" in
       video)
-        if [[ -n "${title}" ]]; then
+        if [[ -n "${title}" ]];then
           mkvpropedit -e track:v$((counter + 1)) --set name="${title}" "${IN}"
         else
           mkvpropedit -e track:v$((counter + 1)) --delete name "${IN}"
         fi
         ;;
       audio)
-        if [[ -n "${title}" ]]; then
+        if [[ -n "${title}" ]];then
           mkvpropedit -e track:a$((counter + 1)) --set name="${title}" "${IN}"
         else
           mkvpropedit -e track:a$((counter + 1)) --delete name "${IN}"
         fi
         ;;
       subtitle)
-        if [[ -n "${title}" ]]; then
+        if [[ -n "${title}" ]];then
           mkvpropedit -e track:s$((counter + 1)) --set name="${title}" "${IN}"
         else
           mkvpropedit -e track:s$((counter + 1)) --delete name "${IN}"
@@ -221,14 +221,14 @@ function strip_matroska {
 }
 
 function strip_image {
-  if ${KEEP}; then
+  if ${KEEP};then
     cp "${IN}" "${BACKUP}"
   fi
 
-  if command -v magick > /dev/null; then
+  if command -v magick > /dev/null;then
     magick "${IN}" -strip "${TMP}"
     mv "${TMP}" "${IN}"
-  elif command -v convert > /dev/null; then
+  elif command -v convert > /dev/null;then
     convert "${IN}" -strip "${TMP}"
     mv "${TMP}" "${IN}"
   else
@@ -274,20 +274,20 @@ while [ "${#}" -ge 1 ]; do
   esac
 done
 
-if ! [ "${#}" -eq 1 ]; then
+if ! [ "${#}" -eq 1 ];then
   show_error "ERROR: invalid # of inputs. Exitng."
   exit 3
 fi
 
 # Force UTF-8 locale, if possible.
 LANG="$(locale -a | grep "utf-\?8" | head -n 1)"
-if [ -n "${LANG}" ]; then
+if [ -n "${LANG}" ];then
   export LC_ALL="${LANG}"
 else
   show_warning "Failed to force UTF-8 locale."
 fi
 
-if ! [ -f "${IN}" ]; then
+if ! [ -f "${IN}" ];then
   show_error "ERROR: file ${IN@Q} does not exist. Exiting."
   exit 3
 fi
@@ -295,18 +295,18 @@ fi
 parse_streams
 
 TYPE="$(file -bi "${IN}")"
-if [[ "${TYPE}" =~ matroska|webm ]]; then
-  if command -v mkvpropedit > /dev/null; then
+if [[ "${TYPE}" =~ matroska|webm ]];then
+  if command -v mkvpropedit > /dev/null;then
     strip_matroska
   else
     show_warning "WARNING: mkvtoolnix-cli not found. Defaulting to ffmpeg."
     strip_generic "mkv"
   fi
-elif [[ "${TYPE}" =~ mp4|m4a|m4v|quicktime ]]; then
+elif [[ "${TYPE}" =~ mp4|m4a|m4v|quicktime ]];then
   strip_generic "mp4"
-elif [[ "${TYPE}" =~ x-msvideo ]]; then
+elif [[ "${TYPE}" =~ x-msvideo ]];then
   strip_generic "avi"
-elif [[ "${TYPE}" =~ image/jpeg ]]; then
+elif [[ "${TYPE}" =~ image/jpeg ]];then
   strip_image
 else
   show_error "ERROR: file type ${TYPE@Q} unsupported. Exiting."

@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : yeti-lith
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #292C31FF;
+    background-alt: #292C31FF;
+    foreground:     #89919CFF;
+    selected:       #414A53FF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

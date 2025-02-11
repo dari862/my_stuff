@@ -5,17 +5,17 @@
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/openbox"
 
-if hash btop 2>/dev/null; then
+if hash btop 2>/dev/null;then
         BTOP="btop"
-elif hash bpytop 2>/dev/null; then
+elif hash bpytop 2>/dev/null;then
         BTOP="bpytop"
-elif hash htop 2>/dev/null; then
+elif hash htop 2>/dev/null;then
         BTOP="htop"
 fi
 
-if hash pfetch 2>/dev/null; then
+if hash pfetch 2>/dev/null;then
         fetch_app="pfetch"
-elif hash neofetch 2>/dev/null; then
+elif hash neofetch 2>/dev/null;then
         fetch_app="neofetch"
 fi
 
@@ -316,23 +316,23 @@ trap "rm -f $res1 $res3 $res4 $res5 $res6 $res7 $res8 $res9 $res10 $res11 $res12
 OSNAME=$(lsb_release -d | awk '{print $2}')
 OSVERSION=$(lsb_release -r | awk '{print $2}')
 #OSCODE=$(lsb_release -c | awk '{print $2}')
-if [ -f /etc/os-release ] ; then
+if [ -f /etc/os-release ];then
 	OSCODE=$(grep "^ID=" /etc/os-release |cut -d '=' -f2)
 fi
-if [ -f /etc/lsb-release ] ; then
+if [ -f /etc/lsb-release ];then
 	OSCODE=$(grep CODENAME /etc/lsb-release |cut -d '=' -f2)
 fi
  # system uptime
 UPT=$(uptime -p | sed -e 's/^up //' -e 's/ day/d/' -e 's/ hour/h/' -e 's/ minute/m/' -e 's/s//g')
 
 # install date
-if [ -f /var/log/pacman.log ]; then
+if [ -f /var/log/pacman.log ];then
         INST=$(sed 1q /var/log/pacman.log | awk '{print $1}' | sed -e 's/T.*//' -e 's/\[//')
 		#INST=$(echo "$INST" | tr '-' ' ')
 
 fi
 
-if [ -f /var/log/apt/term.log ]; then
+if [ -f /var/log/apt/term.log ];then
         INST="$(stat /var/log/apt/term.log | grep Modify: | awk -F" " '{print $2}')"
 fi
 # Days ago
@@ -347,7 +347,7 @@ else
 DAGO=""
 fi
 
-if hash pacman 2>/dev/null; then
+if hash pacman 2>/dev/null;then
         PKGS=$(pacman -Qq 2>/dev/null | wc -l)
 else
         PKGS=$(dpkg --list 2>/dev/null | wc -l)
@@ -367,7 +367,7 @@ INTRO_TXT=$(cat <<EOF
 \n
 EOF
 )
-if hash pamac-manager 2>/dev/null; then
+if hash pamac-manager 2>/dev/null;then
         gui_package_manager="pamac-manager"
         gui_package_manager_update="pamac-manager --updates"
 else

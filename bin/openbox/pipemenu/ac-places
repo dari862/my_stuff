@@ -8,11 +8,11 @@
 readonly default_open_cmd=exo-open
 
 open_file() {
-    if hash "$default_open_cmd" >/dev/null 2>&1; then
+    if hash "$default_open_cmd" >/dev/null 2>&1;then
         exec "$default_open_cmd" "$1"
-    elif hash my-text-editor >/dev/null 2>&1; then
+    elif hash my-text-editor >/dev/null 2>&1;then
         exec "my-text-editor" "$1"
-    elif hash popup_terminal >/dev/null 2>&1; then
+    elif hash popup_terminal >/dev/null 2>&1;then
         (popup_terminal --editor "$1") >/dev/null 2>&1 &
     else
         echo "$0 : failed to open $2" ; exit 1
@@ -55,7 +55,7 @@ case $1 in
     --recent)
         shift
         output='<openbox_pipe_menu>'
-        if [[ "$(command -v ac-recent-files)" ]]; then
+        if [[ "$(command -v ac-recent-files)" ]];then
             output="$output
   <separator label=\"Recently opened...\"/>
   <menu execute=\"ac-recent-files\" id=\"recent\" label=\"files\"/>"
@@ -112,7 +112,7 @@ for i in $path/* $extra_entries; do
 
     # NOTE1: If you want directories and files listed together
     # change directories_menu="$directories_menu to: files_menu="$files_menu
-    if [[ -d $i ]]; then
+    if [[ -d $i ]];then
         directories_menu="$directories_menu
   <menu id=\"$pathe_apos/$shortnamee_apos\" label=\"$shortnamee_label\" execute=\"&apos;$0&apos; &apos;$pathe_apos/$shortnamee_apos&apos;\"/>"
     else

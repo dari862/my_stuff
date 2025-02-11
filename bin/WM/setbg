@@ -4,6 +4,8 @@ op__="$1"
 op2__="$2"
 color_="$3"
 
+wallpapers_dir="/usr/share/my_stuff/my_wallpapers"
+
 old_bg_()
 {
 	# This script does the following:
@@ -34,7 +36,7 @@ old_bg_()
 	esac
 	
 	# If pywal is installed, use it.
-	if command -v wal >/dev/null 2>&1 ; then
+	if command -v wal >/dev/null 2>&1 ;then
 		wal -n -i "$(readlink -f $bgloc)" -o "${XDG_CONFIG_HOME:-$HOME/.config}/wal/postrun" >/dev/null 2>&1
 	# If pywal is removed, return config files to normal.
 	else
@@ -47,9 +49,9 @@ old_bg_()
 
 restore(){
 	sleep 0.5
-	if livewall --run-live-autorun-enabled; then
+	if livewall --run-live-autorun-enabled;then
 		( livewall --run-live ) &
-	elif command -v xwallpaper >/dev/null ; then
+	elif command -v xwallpaper >/dev/null ;then
 		( sleep 2 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" ) &
 	else
 		( sleep 1 && nitrogen --restore ) &
@@ -57,12 +59,22 @@ restore(){
 }
 
 style_wall(){
-	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -type f -name "${op2__}_*" | sort | head -n 1)"
+	op2__="$(find ${wallpapers_dir}/ -type f -name "${op2__}_*" | sort | head -n 1)"
 	save_wall
 }
 
 random_wall(){
-	op2__="$(find /usr/share/my_stuff/my_wallpapers/ -type f -name "${op2__}_*" | shuf -n 1)"
+	__Style_name="${op2__}"
+	op2__="$(find ${wallpapers_dir}/ -type f -name "${__Style_name}_*" | shuf -n 1)"
+	N=6
+	random_wall_animation () {
+		N=6
+		ls "${wallpapers_dir}/${__Style_name}_"* | sort -R | tail -$N | while read file; do
+			xwallpaper --stretch $file
+			sleep 0.1
+		done
+	}
+	random_wall_animation
 	save_wall
 }
 
@@ -72,7 +84,7 @@ save_and_restore(){
 }
 
 save_wall(){
-	if command -v xwallpaper >/dev/null ; then
+	if command -v xwallpaper >/dev/null ;then
 		mkdir -p "$HOME/.config/nitrogen"
 		tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
 		[xin_-1]
@@ -80,7 +92,7 @@ save_wall(){
 		mode=5
 		bgcolor=#000000
 		EOF
-	else
+	elif command -v nitrogen >/dev/null ;then
 		nitrogen --save --set-zoom-fill $color_ $op2__
 		sleep 1
 	fi

@@ -11,7 +11,7 @@ ask_question(){
 check_command() {
   state=true
   for package in "${@}"; do
-    if ! command -v "${package}" >/dev/null; then
+    if ! command -v "${package}" >/dev/null;then
       echo "MISSING: ${package} not installed."
       state=false
     fi
@@ -57,19 +57,19 @@ while [ $# -ge 1 ]; do
   esac
 done
 
-if [ -z "$TITLE" ]; then
+if [ -z "$TITLE" ];then
     TITLE=$(ask_question "What is the title?")
 fi
 
-if [ -z "$ARTIST" ]; then
+if [ -z "$ARTIST" ];then
     ARTIST=$(ask_question "Who is the artist?")
 fi
 
-if [ -z "$URL" ]; then
+if [ -z "$URL" ];then
     URL=$(ask_question "What is the URL?")
 fi
 
-if [ -z "$FORMAT" ]; then
+if [ -z "$FORMAT" ];then
     FORMAT="mp3"
 fi
 

@@ -18,7 +18,7 @@ my-superuser chroot "$CUPS_CHROOT_DIR" bash -c "
 say "Creating script to run $_CUPS_NAME from the host..."
 my-superuser tee "$CHROOT_SCRIPT_PATH/${ENABLE_CUPS}" > /dev/null <<- EOF
 #!/bin/sh
-if ! /usr/bin/mountpoint -q "$CUPS_CHROOT_DIR/proc"; then
+if ! /usr/bin/mountpoint -q "$CUPS_CHROOT_DIR/proc";then
 	/usr/bin/mount --bind "/proc" "$CUPS_CHROOT_DIR/proc"
 fi
 /usr/sbin/chroot "$CUPS_CHROOT_DIR" su - root -c "cupsd"
@@ -27,7 +27,7 @@ my-superuser chmod 755 "$CHROOT_SCRIPT_PATH/${ENABLE_CUPS}" || failed_to_run "Fa
 
 my-superuser tee "$CHROOT_SCRIPT_PATH/${CUPS_GUI}" > /dev/null <<- EOF
 #!/bin/sh
-if ! /usr/bin/mountpoint -q "$CUPS_CHROOT_DIR/proc"; then
+if ! /usr/bin/mountpoint -q "$CUPS_CHROOT_DIR/proc";then
 	/usr/bin/mount --bind "/proc" "$CUPS_CHROOT_DIR/proc"
 fi
 /usr/sbin/chroot "$CUPS_CHROOT_DIR" su - $CHROOT_USER -c "export DISPLAY=:0.0 && system-config-printer"

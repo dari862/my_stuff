@@ -24,7 +24,7 @@ if ! my-superuser doas -C /etc/doas.conf;then
 fi
 
 my-superuser tee -a /etc/bash.bashrc <<- EOF >/dev/null 
-if [ -x /usr/bin/doas ]; then
+if [ -x /usr/bin/doas ];then
 	complete -F _command doas
 fi
 EOF

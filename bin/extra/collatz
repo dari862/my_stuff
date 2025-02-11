@@ -18,7 +18,7 @@ Max_N=$N
 while [ $N -gt 1 ]; do
 	((stopping_time++))
 	echo -n "$N->"
-	if [ $((N%2)) -eq 0 ]; then
+	if [ $((N%2)) -eq 0 ];then
 		let N=$N/2
 	else
 		let N=3*$N+1

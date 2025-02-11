@@ -1,13 +1,13 @@
 #!/bin/sh
 app_name="Gaming Essential"
-if [ -f /etc/os-release ]; then
+if [ -f /etc/os-release ];then
     # freedesktop.org and systemd
     . /etc/os-release
     version_="$(echo "${VERSION_ID}" | sed 's/.//g')"
     distro_name_="$ID"
     distro_name_and_ver_="${ID}_${version_}"
     version_codename="${VERSION_CODENAME}"
-elif [ -f /etc/lsb-release ]; then
+elif [ -f /etc/lsb-release ];then
     # For some versions of Debian/Ubuntu without lsb_release command
     . /etc/lsb-release
     distro_name_="$DISTRIB_ID"

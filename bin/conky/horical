@@ -12,11 +12,11 @@ e1=$((year % 400))
 e2=$((year % 100))
 e3=$((year % 4))
 
-if [ "$e1" -eq 0 ]; then
+if [ "$e1" -eq 0 ];then
     leap=1
-elif [ "$e2" -eq 0 ]; then
+elif [ "$e2" -eq 0 ];then
     leap=0
-elif [ "$e3" -eq 0 ]; then
+elif [ "$e3" -eq 0 ];then
     leap=1
 else
     leap=0
@@ -24,18 +24,18 @@ fi
 
 # Determine the number of days in the current month
 month=$(date +%-m)
-if [ "$leap" -eq 0 ]; then
-    if [ "$month" -eq 2 ]; then
+if [ "$leap" -eq 0 ];then
+    if [ "$month" -eq 2 ];then
         days_in_month=28
-    elif [ "$month" -eq 11 ] || [ "$month" -eq 4 ] || [ "$month" -eq 6 ] || [ "$month" -eq 9 ]; then
+    elif [ "$month" -eq 11 ] || [ "$month" -eq 4 ] || [ "$month" -eq 6 ] || [ "$month" -eq 9 ];then
         days_in_month=30
     else
         days_in_month=31
     fi
 else
-    if [ "$month" -eq 2 ]; then
+    if [ "$month" -eq 2 ];then
         days_in_month=29
-    elif [ "$month" -eq 11 ] || [ "$month" -eq 4 ] || [ "$month" -eq 6 ] || [ "$month" -eq 9 ]; then
+    elif [ "$month" -eq 11 ] || [ "$month" -eq 4 ] || [ "$month" -eq 6 ] || [ "$month" -eq 9 ];then
         days_in_month=30
     else
         days_in_month=31
@@ -44,9 +44,9 @@ fi
 
 # Build the line showing previous days in the month
 i=1
-if [ "$TODAY" -ne 1 ]; then
+if [ "$TODAY" -ne 1 ];then
     while [ "$i" -lt "$TODAY" ]; do
-        if [ "$i" -lt 10 ]; then
+        if [ "$i" -lt 10 ];then
             OVER="$OVER 0$i"
         else
             OVER="$OVER $i"
@@ -57,9 +57,9 @@ fi
 
 # Build the line showing remaining days in the month
 i=$((TODAY + 1))
-if [ "$TODAY" -ne "$days_in_month" ]; then
+if [ "$TODAY" -ne "$days_in_month" ];then
     while [ "$i" -lt "$days_in_month" ]; do
-        if [ "$i" -lt 10 ]; then
+        if [ "$i" -lt 10 ];then
             REST="$REST 0$i"
         else
             REST="$REST $i"
@@ -74,7 +74,7 @@ day_of_week=$(date +%u)
 day_of_month=$(date +%e)
 f=$((day_of_month % 7))
 
-if [ "$day_of_week" -lt "$f" ]; then
+if [ "$day_of_week" -lt "$f" ];then
     y=$((day_of_week + 8 - f))
 else
     y=$((day_of_week - f + 1))
@@ -92,7 +92,7 @@ while [ "$days_in_month" -gt 0 ]; do
     esac
     days_in_month=$((days_in_month - 1))
     y=$((y + 1))
-    if [ "$y" -eq 8 ]; then
+    if [ "$y" -eq 8 ];then
         y=1
     fi
 done

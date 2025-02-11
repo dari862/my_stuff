@@ -15,7 +15,7 @@
 #
 # Depends on:
 #   Arch repositories: rofi, bluez-utils (contains bluetoothctl)
-if [ ! -d /sys/class/bluetooth ]; then
+if [ ! -d /sys/class/bluetooth ];then
 	echo # No Bluetooth interface
 	exit 0
 elif ! command -v bluetoothctl >/dev/null ;then
@@ -28,7 +28,7 @@ _mac="${2-}"
 
 # Checks if bluetooth controller is powered on
 power_on() {
-    if bluetoothctl show | grep -q "Powered: yes"; then
+    if bluetoothctl show | grep -q "Powered: yes";then
         return 0
     else
         return 1
@@ -37,11 +37,11 @@ power_on() {
 
 # Toggles power state
 toggle_power() {
-    if power_on; then
+    if power_on;then
         bluetoothctl power off
         show_menu
     else
-        if rfkill list bluetooth | grep -q 'blocked: yes'; then
+        if rfkill list bluetooth | grep -q 'blocked: yes';then
             rfkill unblock bluetooth && sleep 3
         fi
         bluetoothctl power on
@@ -51,7 +51,7 @@ toggle_power() {
 
 # Checks if controller is scanning for new devices
 scan_on() {
-    if bluetoothctl show | grep -q "Discovering: yes"; then
+    if bluetoothctl show | grep -q "Discovering: yes";then
         echo "Scan: on"
         return 0
     else
@@ -62,7 +62,7 @@ scan_on() {
 
 # Toggles scanning state
 toggle_scan() {
-    if scan_on; then
+    if scan_on;then
         kill $(pgrep -f "bluetoothctl scan on")
         bluetoothctl scan off
         show_menu
@@ -76,7 +76,7 @@ toggle_scan() {
 
 # Checks if controller is able to pair to devices
 pairable_on() {
-    if bluetoothctl show | grep -q "Pairable: yes"; then
+    if bluetoothctl show | grep -q "Pairable: yes";then
         echo "Pairable: on"
         return 0
     else
@@ -87,7 +87,7 @@ pairable_on() {
 
 # Toggles pairable state
 toggle_pairable() {
-    if pairable_on; then
+    if pairable_on;then
         bluetoothctl pairable off
         show_menu
     else
@@ -98,7 +98,7 @@ toggle_pairable() {
 
 # Checks if controller is discoverable by other devices
 discoverable_on() {
-    if bluetoothctl show | grep -q "Discoverable: yes"; then
+    if bluetoothctl show | grep -q "Discoverable: yes";then
         echo "Discoverable: on"
         return 0
     else
@@ -109,7 +109,7 @@ discoverable_on() {
 
 # Toggles discoverable state
 toggle_discoverable() {
-    if discoverable_on; then
+    if discoverable_on;then
         bluetoothctl discoverable off
         show_menu
     else
@@ -121,7 +121,7 @@ toggle_discoverable() {
 # Checks if a device is connected
 device_connected() {
     device_info=$(bluetoothctl info "${_mac}")
-    if echo "$device_info" | grep -q "Connected: yes"; then
+    if echo "$device_info" | grep -q "Connected: yes";then
         return 0
     else
         return 1
@@ -130,7 +130,7 @@ device_connected() {
 
 # Toggles device connection
 toggle_connection() {
-    if device_connected "${_mac}"; then
+    if device_connected "${_mac}";then
         bluetoothctl disconnect "${_mac}"
         device_menu "$device"
     else
@@ -142,7 +142,7 @@ toggle_connection() {
 # Checks if a device is paired
 device_paired() {
     device_info=$(bluetoothctl info "${_mac}")
-    if echo "$device_info" | grep -q "Paired: yes"; then
+    if echo "$device_info" | grep -q "Paired: yes";then
         echo "Paired: yes"
         return 0
     else
@@ -153,7 +153,7 @@ device_paired() {
 
 # Toggles device paired state
 toggle_paired() {
-    if device_paired "${_mac}"; then
+    if device_paired "${_mac}";then
         bluetoothctl remove "${_mac}"
         device_menu "$device"
     else
@@ -165,7 +165,7 @@ toggle_paired() {
 # Checks if a device is trusted
 device_trusted() {
     device_info=$(bluetoothctl info "${_mac}")
-    if echo "$device_info" | grep -q "Trusted: yes"; then
+    if echo "$device_info" | grep -q "Trusted: yes";then
         echo "Trusted: yes"
         return 0
     else
@@ -176,7 +176,7 @@ device_trusted() {
 
 # Toggles device connection
 toggle_trust() {
-    if device_trusted "${_mac}"; then
+    if device_trusted "${_mac}";then
         bluetoothctl untrust "${_mac}"
         device_menu "$device"
     else
@@ -188,13 +188,13 @@ toggle_trust() {
 # Prints a short string with the current bluetooth status
 # Useful for status bars like polybar, etc.
 print_status() {
-    if power_on; then
+    if power_on;then
         printf ''
 
         paired_devices_cmd="devices Paired"
         # Check if an outdated version of bluetoothctl is used to preserve backwards compatibility
         bluetooth_version=$(bluetoothctl version | cut -d ' ' -f 2)
-        if awk "BEGIN {if ($bluetooth_version < 5.65) exit 0}"; then
+        if awk "BEGIN {if ($bluetooth_version < 5.65) exit 0}";then
             paired_devices_cmd="paired-devices"
         fi
 		paired_devices=""
@@ -204,10 +204,10 @@ print_status() {
         counter=0
 
         for device in ${paired_devices}; do
-            if device_connected "$device"; then
+            if device_connected "$device";then
                 device_alias=$(bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-)
 
-                if [ $counter -gt 0 ]; then
+                if [ $counter -gt 0 ];then
                     printf ", %s" "$device_alias"
                 else
                     printf " %s" "$device_alias"

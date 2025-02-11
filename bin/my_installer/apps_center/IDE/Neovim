@@ -10,7 +10,7 @@ app_name="nvim"
 
 extra_apps_="cmake ripgrep fd-find python3-venv luarocks golang-go shellcheck"
 # Determine if Wayland or Xorg is being used
-if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+if [ "$XDG_SESSION_TYPE" = "wayland" ];then
 	extra_apps_="$extra_apps_ wl-clipboard"
 else
 	extra_apps_="$extra_apps_ xclip"

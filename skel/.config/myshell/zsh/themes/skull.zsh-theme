@@ -1,5 +1,5 @@
 function dir_icon {
-  if [[ "$PWD" == "$HOME" ]]; then
+  if [[ "$PWD" == "$HOME" ]];then
     echo "%B%F{cyan}%f%b"
   else
     echo "%B%F{cyan}%f%b"

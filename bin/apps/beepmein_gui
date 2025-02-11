@@ -63,14 +63,14 @@ now="$(date +%s)"
 timeToEvent() {
    	# job Event time
   	event="$1"
-   	if [[ "$event" ]]; then
+   	if [[ "$event" ]];then
 
        	event="$(date -d "$event" +%s)"
        	diff=$(( event - now ))
 
        	# And show as HH:MM:SS, only if less than 24 hours
        	# 24 hours is 86400 seconds
-       	if (( diff < 86400 )); then
+       	if (( diff < 86400 ));then
            	date -u -d @${diff} +%T
        	fi
    	fi
@@ -79,13 +79,13 @@ export -f timeToEvent
 
 check_queue_(){
 	lines="$(atq | wc -l)"
-	if (( lines > 0 )) ; then
+	if (( lines > 0 )) ;then
 		if [ "$jgmenu_exist" ];then
 			echo "^sep(Click to remove from queue:)"
 		fi
     	# This is the actual line by line loop
     	atq | sort -r | while read -r job nameday month day clock year queue _ ; do
-        	if [[ "$queue" == "=" ]]; then
+        	if [[ "$queue" == "=" ]];then
             	time_till_alarm="now"
         	else
             	# get diff

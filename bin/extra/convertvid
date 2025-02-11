@@ -6,7 +6,7 @@ check_4_dependencies_if_installed bc ffmpeg ffprobe sed || exit 1
 show_error() {
   local red=$'\033[0;91m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
   else
     echo -e "${red}${*}${nc}" 1>&2
@@ -16,7 +16,7 @@ show_error() {
 show_info() {
   local green=$'\033[0;92m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${green}${*:2}${nc}"
   else
     echo -e "${green}${*}${nc}"
@@ -26,7 +26,7 @@ show_info() {
 show_warning() {
   local yellow=$'\033[0;93m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${yellow}${*:2}${nc}"
   else
     echo -e "${yellow}${*}${nc}"
@@ -36,7 +36,7 @@ show_warning() {
 show_header() {
   local cyan=$'\033[0;96m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${cyan}${*:2}${nc}"
   else
     echo -e "${cyan}${*}${nc}"
@@ -46,7 +46,7 @@ show_header() {
 show_listitem() {
   local white=$'\033[0;97m'
   local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]]; then
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
     echo "${1:--e}" "${white}${*:2}${nc}"
   else
     echo -e "${white}${*}${nc}"
@@ -77,11 +77,11 @@ function set_audio_bitrate {
 
   abitrate="$((A_BITRATE_PER_STREAM * n_streams))"
 
-  if [[ "${in_abitrate}" = 0 ]]; then
+  if [[ "${in_abitrate}" = 0 ]];then
     echo "${abitrate}k"
-  elif [[ "${in_abitrate}" = "N/A" ]]; then
+  elif [[ "${in_abitrate}" = "N/A" ]];then
     echo "${abitrate}k"
-  elif [[ "${abitrate}" -gt "${in_abitrate}" ]]; then
+  elif [[ "${abitrate}" -gt "${in_abitrate}" ]];then
     echo "${in_abitrate}k"
   else
     echo "${abitrate}k"
@@ -97,16 +97,16 @@ function convert_codec {
   cmd="ffmpeg${PROBESIZE:+ -probesize ${PROBESIZE}}"
   cmd="${cmd}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
   cmd="${cmd} -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
-  if [[ "${NO_DEFAULT_SUBS}" = true ]]; then
+  if [[ "${NO_DEFAULT_SUBS}" = true ]];then
     cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
   fi
 
-  if ! [[ "${VSTREAM_ID}" = "-1" ]]; then
+  if ! [[ "${VSTREAM_ID}" = "-1" ]];then
     cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
 
-    if "${CROP}"; then
+    if "${CROP}";then
       local _tmp
-      if _tmp="$(compute_crop_filter "${in}")"; then
+      if _tmp="$(compute_crop_filter "${in}")";then
         cmd="${cmd} -vf '${_tmp}')'"
       else
         show_warning "WARNING: No croppable regions detected."
@@ -114,7 +114,7 @@ function convert_codec {
     fi
 
     # set video codec
-    if [ -n "${VSTREAM_ID}" ]; then
+    if [ -n "${VSTREAM_ID}" ];then
       case "${OUT_VCODEC}" in
         h264 | x264 | libx264 | h.264 | x.264)
           cmd="${cmd} -c:v:${VSTREAM_ID} libx264 -x264-params crf=${CRF} -preset slow"
@@ -132,7 +132,7 @@ function convert_codec {
       esac
     else
       for idx in $(seq 0 $((${#IN_VSTREAM_CODEC_NAME[@]} - 1))); do
-        if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
+        if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]];then
           case "${OUT_VCODEC}" in
             h264 | x264 | libx264 | h.264 | x.264)
               cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
@@ -155,39 +155,39 @@ function convert_codec {
     fi
   fi
 
-  if ! [[ "${ASTREAM_ID}" = "-1" ]]; then
+  if ! [[ "${ASTREAM_ID}" = "-1" ]];then
     cmd="${cmd} -map 0:a:${ASTREAM_ID:-?}"
 
     # set audio codec
     case "${OUT_ACODEC}" in
       libfdk_aac | aac)
         # this only works for ffmpeg manually compiled with libfdk_aac
-        if [[ -v OUT_ABITRATE ]]; then
+        if [[ -v OUT_ABITRATE ]];then
           cmd="${cmd} -c:a libfdk_aac -b:a ${OUT_ABITRATE}"
         else
           cmd="${cmd} -c:a libfdk_aac -vbr 5"
         fi
         ;;
       libmp3lame | mp3lame | mp3)
-        if [[ -v OUT_ABITRATE ]]; then
+        if [[ -v OUT_ABITRATE ]];then
           cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
         else
           cmd="${cmd} -c:a libmp3lame -b:a 320k"
         fi
         ;;
       libopus | opus)
-        if [[ -v OUT_ABITRATE ]]; then
+        if [[ -v OUT_ABITRATE ]];then
           cmd="${cmd} -c:a libopus -b:a ${OUT_ABITRATE}"
         else
           # set computed bitrates individually for each channel because input
           # channels can have different bitrates and channel layouts
           cmd="${cmd} -c:a libopus"
-          if [ -n "${ASTREAM_ID}" ]; then
+          if [ -n "${ASTREAM_ID}" ];then
             cmd="${cmd} -b:a:0 $(set_audio_bitrate \
                                   "${in}" \
                                   "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
                                   "${IN_ASTREAM_BITRATE[${ASTREAM_ID}]}")"
-            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]]; then
+            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]];then
               show_warning "WARNING: converting layout from 5.1(side) to 5.1."
               cmd="${cmd} -channel_layout:a:0 5.1"
             fi
@@ -197,7 +197,7 @@ function convert_codec {
                                           "${in}" \
                                           "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
                                           "${IN_ASTREAM_BITRATE[$idx]}")"
-              if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]]; then
+              if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]];then
                 show_warning "WARNING: converting layout from 5.1(side) to 5.1."
                 cmd="${cmd} -channel_layout:a:${idx} 5.1"
               fi
@@ -216,12 +216,12 @@ function convert_codec {
   fi
 
   # specify frame size if different from the input
-  if [[ -v IN_DIMENSIONS ]]; then
-    if ! [[ "${IN_DIMENSIONS}" = "${OUT_DIMENSIONS}" ]]; then
+  if [[ -v IN_DIMENSIONS ]];then
+    if ! [[ "${IN_DIMENSIONS}" = "${OUT_DIMENSIONS}" ]];then
       # only add the size parameter if the output width/height are not larger
       # that the corresponding input values
       if [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f1)" -lt "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f1)" ]] ||
-         [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]]; then
+         [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]];then
         show_warning \
           "WARNING: Dimensions ${OUT_DIMENSIONS@Q} exceed input ${IN_DIMENSIONS@Q}."
       else
@@ -234,9 +234,9 @@ function convert_codec {
   case "${OUT_CONTAINER}" in
     mp4)
       # convert subtitle format to mov_text for mp4 output
-      if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]]; then
+      if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]];then
         cmd="${cmd} -map 0:s:? -c:s copy"
-      elif [[ "${IN_SCODEC}" = 94213 ]]; then
+      elif [[ "${IN_SCODEC}" = 94213 ]];then
         cmd="${cmd} -map 0:s:? -c:s mov_text"
       else
         cmd="${cmd} -map 0:s:? -c:s copy"
@@ -297,7 +297,7 @@ function convert_codec {
       out="${NAME}.wav"
       ;;
     opus)
-      if [ "${#IN_VSTREAM_CODEC_NAME[@]}" -eq 0 ] || [ "${VSTREAM_ID}" -eq -1 ]; then
+      if [ "${#IN_VSTREAM_CODEC_NAME[@]}" -eq 0 ] || [ "${VSTREAM_ID}" -eq -1 ];then
         cmd="${cmd} -f opus"
         out="${NAME}.opus"
       else
@@ -313,7 +313,7 @@ function convert_codec {
       ;;
   esac
 
-  if [[ -n "${EXTRA}" ]]; then
+  if [[ -n "${EXTRA}" ]];then
     cmd="${cmd} ${EXTRA}"
   fi
 
@@ -343,7 +343,7 @@ function scan_input {
   format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
   case "${format_name}" in
     matroska,webm | matroska | mkv | webm)
-      if [[ "${EXTENSION,,}" = webm ]]; then
+      if [[ "${EXTENSION,,}" = webm ]];then
         IN_CONTAINER=webm
       else
         IN_CONTAINER=mkv
@@ -373,7 +373,7 @@ function scan_input {
       ;;
   esac
 
-  if ! [[ -v OUT_CONTAINER ]]; then
+  if ! [[ -v OUT_CONTAINER ]];then
     case "${IN_CONTAINER}" in
       matroska,webm | webm)
         OUT_CONTAINER=matroska
@@ -418,7 +418,7 @@ function scan_input {
 
   # use first video stream to get display properties
   for idx in $(seq 0 $((${#IN_VSTREAM_CODEC_NAME[@]} - 1))); do
-    if [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]]; then
+    if [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]];then
       continue
     else
       ASPECTRATIO="${IN_VSTREAM_DISPLAY_ASPECT_RATIO[${idx}]}"
@@ -442,15 +442,15 @@ function check_compat {
     *) ;;
   esac
 
-  if [[ -v VSTREAM_ID ]]; then
-    if [[ "${VSTREAM_ID}" -ge "${#IN_VSTREAM_CODEC_NAME[@]}" ]]; then
+  if [[ -v VSTREAM_ID ]];then
+    if [[ "${VSTREAM_ID}" -ge "${#IN_VSTREAM_CODEC_NAME[@]}" ]];then
       show_error "ERROR: ${VSTREAM_ID@Q} exceeds number of video streams in input. Exiting."
       exit 3
     fi
   fi
 
-  if [[ -v ASTREAM_ID ]]; then
-    if [[ "${ASTREAM_ID}" -ge "${#IN_ASTREAM_CHANNEL_COUNT[@]}" ]]; then
+  if [[ -v ASTREAM_ID ]];then
+    if [[ "${ASTREAM_ID}" -ge "${#IN_ASTREAM_CHANNEL_COUNT[@]}" ]];then
       show_error "ERROR: ${ASTREAM_ID@Q} exceeds number of audio streams in input. Exiting."
       exit 3
     fi
@@ -552,15 +552,15 @@ function fill_dimensions {
   local out_width
   local out_height
 
-  if [[ -v IN_DIMENSIONS ]]; then
-    if ! [[ -v OUT_DIMENSIONS ]]; then
+  if [[ -v IN_DIMENSIONS ]];then
+    if ! [[ -v OUT_DIMENSIONS ]];then
       OUT_DIMENSIONS="${IN_DIMENSIONS}"
     else
       out_width="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
       out_height="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
-      if [ -z "${out_width}" ] && [ -n "${out_height}" ]; then
+      if [ -z "${out_width}" ] && [ -n "${out_height}" ];then
         out_width="$(printf %.0f "$(echo "${out_height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
-      elif [ -n "${out_width}" ] && [ -z "${out_height}" ]; then
+      elif [ -n "${out_width}" ] && [ -z "${out_height}" ];then
         out_height="$(printf %.0f "$(echo "${out_width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
       fi
       OUT_DIMENSIONS="${out_width}x${out_height}"
@@ -572,7 +572,7 @@ function compute_crop_filter {
   local cropfilter
   cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | tail -n 3 | head -1 | cut -d" " -f15)"
   if [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]] &&
-     [[ "$(echo "${cropfilter}" | cut -d":" -f4)" -eq 0 ]]; then
+     [[ "$(echo "${cropfilter}" | cut -d":" -f4)" -eq 0 ]];then
     return 1
   else
     echo "${cropfilter}"
@@ -665,12 +665,12 @@ done
 # Main
 #
 
-if ! [[ -v IN ]]; then
+if ! [[ -v IN ]];then
   show_error "ERROR: Input file not given."
   exit 3
 fi
 
-if ! [[ -f "${IN}" ]]; then
+if ! [[ -f "${IN}" ]];then
   show_error "ERROR: Input file not found."
   exit 3
 fi
@@ -691,10 +691,10 @@ mv "${IN}" "${BACKUP}"
 sync
 
 # set traps
-if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]]; then
+if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]];then
   trap 'mv -f "${BACKUP}" "${IN}"; exit' INT TERM ERR
 else
-  if [[ "${OUT_CONTAINER}" = "matroska" ]]; then
+  if [[ "${OUT_CONTAINER}" = "matroska" ]];then
     trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.mkv"; exit' INT TERM ERR
   else
     trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.${OUT_CONTAINER}"; exit' INT TERM ERR

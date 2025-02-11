@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : liness
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #2A3342FF;
+    background-alt: #2A3342FF;
+    foreground:     #FFFFFFFF;
+    selected:       #BE6672FF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

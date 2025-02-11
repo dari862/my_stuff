@@ -8,7 +8,7 @@ for file (
   /usr/local/Homebrew/Library/Taps/homebrew/homebrew-command-not-found/handler.sh
   /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-command-not-found/handler.sh
 ); do
-  if [[ -r "$file" ]]; then
+  if [[ -r "$file" ]];then
     source "$file"
     unset file
     return 0
@@ -20,12 +20,12 @@ unset file
 ## Platforms with manual command_not_found_handler() setup
 
 # Debian and derivatives: https://launchpad.net/ubuntu/+source/command-not-found
-if [[ -x /usr/lib/command-not-found || -x /usr/share/command-not-found/command-not-found ]]; then
+if [[ -x /usr/lib/command-not-found || -x /usr/share/command-not-found/command-not-found ]];then
   command_not_found_handler() {
-    if [[ -x /usr/lib/command-not-found ]]; then
+    if [[ -x /usr/lib/command-not-found ]];then
       /usr/lib/command-not-found -- "$1"
       return $?
-    elif [[ -x /usr/share/command-not-found/command-not-found ]]; then
+    elif [[ -x /usr/share/command-not-found/command-not-found ]];then
       /usr/share/command-not-found/command-not-found -- "$1"
       return $?
     else
@@ -36,9 +36,9 @@ if [[ -x /usr/lib/command-not-found || -x /usr/share/command-not-found/command-n
 fi
 
 # Fedora: https://fedoraproject.org/wiki/Features/PackageKitCommandNotFound
-if [[ -x /usr/libexec/pk-command-not-found ]]; then
+if [[ -x /usr/libexec/pk-command-not-found ]];then
   command_not_found_handler() {
-    if [[ -S /var/run/dbus/system_bus_socket && -x /usr/libexec/packagekitd ]]; then
+    if [[ -S /var/run/dbus/system_bus_socket && -x /usr/libexec/packagekitd ]];then
       /usr/libexec/pk-command-not-found "$@"
       return $?
     fi
@@ -49,21 +49,21 @@ if [[ -x /usr/libexec/pk-command-not-found ]]; then
 fi
 
 # NixOS: https://github.com/NixOS/nixpkgs/tree/master/nixos/modules/programs/command-not-found
-if [[ -x /run/current-system/sw/bin/command-not-found ]]; then
+if [[ -x /run/current-system/sw/bin/command-not-found ]];then
   command_not_found_handler() {
     /run/current-system/sw/bin/command-not-found "$@"
   }
 fi
 
 # Termux: https://github.com/termux/command-not-found
-if [[ -x /data/data/com.termux/files/usr/libexec/termux/command-not-found ]]; then
+if [[ -x /data/data/com.termux/files/usr/libexec/termux/command-not-found ]];then
   command_not_found_handler() {
     /data/data/com.termux/files/usr/libexec/termux/command-not-found "$1"
   }
 fi
 
 # SUSE and derivates: https://www.unix.com/man-page/suse/1/command-not-found/
-if [[ -x /usr/bin/command-not-found ]]; then
+if [[ -x /usr/bin/command-not-found ]];then
   command_not_found_handler() {
     /usr/bin/command-not-found "$1"
   }

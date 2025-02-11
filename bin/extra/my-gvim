@@ -25,7 +25,7 @@ case $GVIM in
 "")
     ERROR="gvim is missing or not installed."
     RX="Install vim-gnome, vim-gtk, or vim-athena."
-    if [ "$DISPLAY" ] ; then
+    if [ "$DISPLAY" ];then
         TEXT="<big>$ERROR</big>\n\n$RX"
         yad --image=dialog-info --button=OK --title="${SELF##*/}" --text="$TEXT" --width=400 --borders=20 --center
     else

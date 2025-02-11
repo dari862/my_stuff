@@ -6,7 +6,7 @@ OPENAI_KEY=$(cat "${API_path}/${OPENAI}" 2>/dev/null || :)
 # Error handler function
 handle_error() {
     response="$1"
-    if echo "$response" | jq -e '.error' >/dev/null; then
+    if echo "$response" | jq -e '.error' >/dev/null;then
         error_type=$(echo "$response" | jq -r '.error.type')
         error_message=$(echo "$response" | jq -r '.error.message')
         printf "Error: $error_type\nMessage: $error_message"
@@ -207,19 +207,19 @@ while [ -n "$1" ]; do
 done
 
 # Check if the OpenAI API key is set
-if [ -z "$OPENAI_KEY" ]; then
+if [ -z "$OPENAI_KEY" ];then
     echo "You need to set your OpenAI API key to ${API_path}/${OPENAI}"
     exit 1
 fi
 
 # Set defaults if no prompt is provided
-if [ -z "$prompt" ] && [ -z "$CHAT_INIT_PROMPT" ]; then
+if [ -z "$prompt" ] && [ -z "$CHAT_INIT_PROMPT" ];then
     echo "No prompt provided. Exiting."
     exit 1
 fi
 
 # Create temporary file for multi-line prompts
-if [ "$MULTI_LINE_PROMPT" = true ]; then
+if [ "$MULTI_LINE_PROMPT" = true ];then
     tmpfile=$(mktemp)
     trap 'rm -f "$tmpfile"' EXIT
     while IFS= read -r line; do
@@ -229,23 +229,23 @@ if [ "$MULTI_LINE_PROMPT" = true ]; then
 fi
 
 # Use context for chat if enabled
-if [ "$CONTEXT" = true ] && [ -z "$CHAT_INIT_PROMPT" ]; then
+if [ "$CONTEXT" = true ] && [ -z "$CHAT_INIT_PROMPT" ];then
     CHAT_INIT_PROMPT="$SYSTEM_PROMPT"
 fi
 
 # Request logic
-if echo "$prompt" | grep -q 'image:'; then
+if echo "$prompt" | grep -q 'image:';then
     # Image request
     image_response=$(request_to_image "$prompt")
     handle_error "$image_response"
     echo "$image_response" | jq -r '.data[0].url'
 else
     # Chat or completions request
-    if [ "$CONTEXT" = true ]; then
+    if [ "$CONTEXT" = true ];then
         # Handle chat history
         chat_history_file="${API_path}/chat_history.json"
         message="{\"role\": \"user\", \"content\": \"$prompt\"}"
-        if [ -s "$chat_history_file" ]; then
+        if [ -s "$chat_history_file" ];then
             chat_history=$(cat "$chat_history_file")
             response=$(request_to_chat "$message")
         else

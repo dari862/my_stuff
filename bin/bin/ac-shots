@@ -11,11 +11,11 @@ __no_copy=false
 __no_view=false
 
 # Check if a screenshot package is installed
-if command -v ffmpeg >/dev/null 2>&1; then
+if command -v ffmpeg >/dev/null 2>&1;then
 	package_screenshot="ffmpeg"
-elif command -v imagemagick >/dev/null 2>&1; then
+elif command -v imagemagick >/dev/null 2>&1;then
 	package_screenshot="ImageMagick"
-elif command -v maim >/dev/null 2>&1; then
+elif command -v maim >/dev/null 2>&1;then
 	package_screenshot="maim"
 else
 	echo "$0: ffmpeg, ImageMagick, or maim not installed"
@@ -23,15 +23,9 @@ else
 fi
 
 # Define screenshot file path and name
-time=$(date +%Y-%m-%d-%H-%M-%S)
-geometry=$(xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current')
-dir="$(xdg-user-dir PICTURES)/screenshots"
-file="Screenshot_${time}_${geometry}"
-extension="png"
-IMAGE_FILE="${dir}/${file}.${extension}"
+__dir="$(xdg-user-dir PICTURES)/Screenshots"
 
-File_path_and_name=""
-File_extension=""
+__file=""
 
 # help
 for arg in "$@"; do
@@ -60,15 +54,15 @@ for arg in "$@"; do
 			;;
 		--delay|-d)
 			__delay="$2"
-			shift
 			;;
 		--thumb)
 			__size="$2"
-			shift
 			;;
 		--path)
-			__path="$2"
-			shift
+			__dir="$2"
+			;;
+		--name)
+			__file="$2"
 			;;
 		--no-view)
 			__no_view=true
@@ -83,21 +77,36 @@ for arg in "$@"; do
 			_help
 			;;
 	esac
+	shift
 done
+extension="png"
+if [ -z "${__file}" ];then
+	__time=$(date +%Y-%m-%d-%H-%M-%S)
+	__geometry=$(xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current')
+	__file="Screenshot_${__time}_${__geometry}"
+else
+	if echo "$__file" | grep -q '\.'; then
+    	extension=$(echo "$__file" | sed 's/.*\.\(.*\)/\1/')
+    	__file=$(echo "$__file" | sed 's/\(.*\)\..*/\1/')
+	fi
+fi
+
+IMAGE_FILE="${__dir}/${__file}.${extension}"
+IMAGE_THUMB="${__dir}/${__file}-thumb.${extension}"
 
 # Set screenshot command based on the selected package
-if [ "$package_screenshot" = "ImageMagick" ] || [ "$package_screenshot" = "ffmpeg" ]; then
-	if [ "$__DECORATIONS" = true ]; then
+if [ "$package_screenshot" = "ImageMagick" ] || [ "$package_screenshot" = "ffmpeg" ];then
+	if [ "$__DECORATIONS" = true ];then
 		DEC_ARG="-c"
 	else
 		DEC_ARG="-nc"
 	fi
 
-	if [ "$package_screenshot" = "ffmpeg" ]; then
-		if [ "$__full" = true ]; then
+	if [ "$package_screenshot" = "ffmpeg" ];then
+		if [ "$__full" = true ];then
 			W=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f2 -d" ")
 			H=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f4 -d" ")
-		elif [ "$__area" = true ]; then	
+		elif [ "$__area" = true ];then	
 			MAXW=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f2 -d" ")
 			MAXH=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f4 -d" ")
 			output=$(slop --nokeyboard $DEC_ARG 0,119,255,0.34 -f "%x %y %w %h %g %i")
@@ -117,10 +126,10 @@ if [ "$package_screenshot" = "ImageMagick" ] || [ "$package_screenshot" = "ffmpe
 			H=$(xrandr | grep 'current' | cut -f2 -d"," | sed 's:current ::g' | cut -f4 -d" ")
 		fi
 		__cmd="ffmpeg -f x11grab -s ${W}x${H} -i :0.0+${X},${Y} -vframes 1"
-	elif [ "$package_screenshot" = "ImageMagick" ]; then
-		if [ "$__full" = true ]; then
+	elif [ "$package_screenshot" = "ImageMagick" ];then
+		if [ "$__full" = true ];then
 			SEL_ARG=""
-		elif [ "$__area" = true ]; then
+		elif [ "$__area" = true ];then
 			slop --nokeyboard $DEC_ARG 0,119,255,0.34 -f "%g" | while IFS= read -r G; do
   				echo "G=$G"
 			done
@@ -128,18 +137,18 @@ if [ "$package_screenshot" = "ImageMagick" ] || [ "$package_screenshot" = "ffmpe
 		else
 			SEL_ARG=""
 		fi
-		if [ -f "./ImageMagick" ]; then
+		if [ -f "./ImageMagick" ];then
 			__cmd="./ImageMagick import -window root"
 		else
 			__cmd="import -window root $SEL_ARG"
 		fi
 	fi
-elif [ "$package_screenshot" = "maim" ]; then
-	if [ "$__win" = true ]; then
+elif [ "$package_screenshot" = "maim" ];then
+	if [ "$__win" = true ];then
 		__cmd="maim -u -i \$(xdotool getactivewindow)"
-	elif [ "$__area" = true ]; then
+	elif [ "$__area" = true ];then
 		__cmd="maim -u -s -b 2 -c 0.35,0.55,0.85,0.25 -l"
-	elif [ "$__full" = true ]; then
+	elif [ "$__full" = true ];then
 		__cmd="maim -u"
 	else
 		__cmd="maim -u"
@@ -162,8 +171,8 @@ countdown() {
 #########################################
 
 # Add delay if specified
-if [ -n "$__delay" ]; then
-	if [ "$__no_notify" = false ]; then
+if [ -n "$__delay" ];then
+	if [ "$__no_notify" = false ];then
 		countdown "$__delay"
 	else
 		sleep "$__delay"
@@ -172,39 +181,21 @@ if [ -n "$__delay" ]; then
 fi
 
 # Ensure the screenshots directory exists
-if [ ! -d "$dir" ]; then
-	mkdir -p "$dir"
-fi
+[ ! -d "${__dir}" ] &&	mkdir -p "${__dir}"
 
-# Determine image file path based on user input or default
-if [ -n "$__path" ]; then
-	IMAGE_FILE="$__path"
-	if echo "$IMAGE_FILE" | grep -q '\.'; then
-		File_path_and_name="${IMAGE_FILE%.*}"
-		File_extension="${IMAGE_FILE##*.}"
-	else
-		File_path_and_name="${IMAGE_FILE}/${file}"
-		File_extension="$extension"
-		IMAGE_FILE="${File_path_and_name}.${File_extension}"
-	fi
-	[ -n "$__size" ] && IMAGE_THUMB="${File_path_and_name}-thumb.${File_extension}"
-	$__cmd "$IMAGE_FILE" 1>/dev/null 2>"${error_log}"
-else
-	[ -n "$__size" ] && IMAGE_THUMB="${dir}/${file}-thumb.${extension}"
-	$__cmd "$IMAGE_FILE" 1>/dev/null 2>"${error_log}"
-fi
+$__cmd "$IMAGE_FILE" 1>/dev/null 2>"${error_log}"
 
 # Copy screenshot to clipboard if not disabled
-if [ "$__no_copy" = false ]; then
+if [ "$__no_copy" = false ];then
 	xclip -selection clipboard -t image/png -i "$IMAGE_FILE"
 fi
 
 # Send notification if not disabled
-if [ "$__no_notify" = false ]; then
+if [ "$__no_notify" = false ];then
 	notify_cmd_shot="dunstify -u low -h string:x-dunst-stack-tag:obscreenshot -i ${icons_dir}/picture.png"
 	${notify_cmd_shot} "Copied to clipboard."
 	paplay /usr/share/sounds/freedesktop/stereo/screen-capture.oga >/dev/null 2>&1 &
-	if [ -e "$IMAGE_FILE" ]; then
+	if [ -e "$IMAGE_FILE" ];then
 		${notify_cmd_shot} "Screenshot Saved."
 	else
 		${notify_cmd_shot} "Screenshot Deleted."
@@ -212,12 +203,12 @@ if [ "$__no_notify" = false ]; then
 fi
 
 # View the image if not disabled
-if [ "$__no_view" = false ]; then
+if [ "$__no_view" = false ];then
 	my-image-viewer "$IMAGE_FILE"
 fi
 
 # Resize image for thumbnail if requested
-if [ -n "$__size" ]; then
+if [ -n "$__size" ];then
 	convert "$IMAGE_FILE" -resize "$__size%" "$IMAGE_THUMB"
 fi
 

@@ -106,8 +106,8 @@ get_values() {
 	saved_WM_name="$(cat $WM_name_file_path)"
 	
 	#varibale TemperaturePath are set at the end
-	TemperaturePath="$(for i in /sys/class/hwmon/hwmon*/temp*_input; do name_file="$(dirname "$i")/name"; if [ -f "$name_file" ]; then name=$(cat "$name_file"); else name=""; fi; label_file="${i%_*}_label"; if [ -f "$label_file" ]; then label=$(cat "$label_file"); else label="$(basename "${i%_*}")"; fi; echo "$name: $label $(readlink -f "$i")"; done | grep "coretemp" | grep "temp1" | awk '{print $5}')"
-	if [ -z "$TemperaturePath" ]; then
+	TemperaturePath="$(for i in /sys/class/hwmon/hwmon*/temp*_input; do name_file="$(dirname "$i")/name"; if [ -f "$name_file" ];then name=$(cat "$name_file"); else name=""; fi; label_file="${i%_*}_label"; if [ -f "$label_file" ];then label=$(cat "$label_file"); else label="$(basename "${i%_*}")"; fi; echo "$name: $label $(readlink -f "$i")"; done | grep "coretemp" | grep "temp1" | awk '{print $5}')"
+	if [ -z "$TemperaturePath" ];then
  		TemperaturePath="$HOME/.config/polybar/noTemperature"
  		echo "noTemp" > "$TemperaturePath"
  	fi
@@ -116,7 +116,7 @@ get_values() {
 # Fix backlight and network modules
 fix_modules() {
 	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
-		if [ -z "$CARD" ]; then
+		if [ -z "$CARD" ];then
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
 			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
 			find $polybar_dir/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
@@ -133,7 +133,7 @@ fix_modules() {
 		find $polybar_dir/panels -type f -exec sed -i 's/ AC_only / battery /g' {} +
 	fi
 	
-	if echo "$INTERFACE" | grep -q "^e"; then
+	if echo "$INTERFACE" | grep -q "^e";then
 		find $polybar_dir -type f -name config.ini -exec sed -i 's/ network / ethernet /g' {} +
 		find $polybar_dir/pwidgets -type f -exec sed -i 's/ network / ethernet /g' {} +
 		find $polybar_dir/panels -type f -exec sed -i 's/ network / ethernet /g' {} +
@@ -161,7 +161,7 @@ remove_modules() {
  	find $polybar_dir -type f -exec sed -i 's/ bluetooth/ no_bluetooth/g' {} +
  	find $polybar_dir -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
- 	if [ -z "$VPN_INTERFACE" ]; then
+ 	if [ -z "$VPN_INTERFACE" ];then
  		find $polybar_dir -type f -name config.ini -exec sed -i 's/ vpn_m/ no_vpn_m/g' {} +
  	else
  		find $polybar_dir -type f -name config.ini -exec sed -i 's/ no_vpn_m/ vpn_m/g' {} +

@@ -138,7 +138,7 @@ create_xbindkeysrc_tmp_file(){
 		xbindkey_comment="${1-}"
 		xbindkey_command="${2-}"
 		xbindkey_shortcut="${3-}"
-		if [ -n "$xbindkey_shortcut" ]; then
+		if [ -n "$xbindkey_shortcut" ];then
         	cat >> "${temp_xbindkeysrc_file_path}" << EOF
 # ${xbindkey_comment}
 "${xbindkey_command}"
@@ -171,232 +171,232 @@ EOF
 }
 
 create_alacritty_tmp_file(){
-    if [ -n "$Copy1" ]; then
+    if [ -n "$Copy1" ];then
     	echo "mouse_bindings:" > "$temp_alacritty_file_path"
         echo "  - { mouse: ${Copy1}action: Copy }" >> "$temp_alacritty_file_path"
     fi
 	echo "key_bindings:" >> "$temp_alacritty_file_path"
 	echo "# (Windows, Linux, and BSD only)" >> "$temp_alacritty_file_path"
 
-    if [ -n "$Paste" ]; then
+    if [ -n "$Paste" ];then
         echo "  - { key: ${Paste}action: Paste            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Print" ]; then
+    if [ -n "$Print" ];then
         echo "  - { key: ${Print}action: Paste            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$gc" ]; then
+    if [ -n "$gc" ];then
         echo "  - { key: ${gc}chars: \"gc\"              }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Copy2" ]; then
+    if [ -n "$Copy2" ];then
         echo "  - { key: ${Copy2}action: Copy             }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ResetFontSize" ]; then
+    if [ -n "$ResetFontSize" ];then
         echo "  - { key: ${ResetFontSize}action: ResetFontSize    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$IncreaseFontSize1" ]; then
+    if [ -n "$IncreaseFontSize1" ];then
         echo "  - { key: ${IncreaseFontSize1}action: IncreaseFontSize }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$IncreaseFontSize2" ]; then
+    if [ -n "$IncreaseFontSize2" ];then
         echo "  - { key: ${IncreaseFontSize2}action: IncreaseFontSize }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$DecreaseFontSize" ]; then
+    if [ -n "$DecreaseFontSize" ];then
         echo "  - { key: ${DecreaseFontSize}action: DecreaseFontSize }" >> "$temp_alacritty_file_path"
     fi
 
    echo "# Vi Mode" >> "$temp_alacritty_file_path"
 
-    if [ -n "$ScrollToBottom1" ]; then
+    if [ -n "$ScrollToBottom1" ];then
         echo "  - { key: ${ScrollToBottom1}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ToggleViMode1" ]; then
+    if [ -n "$ToggleViMode1" ];then
         echo "  - { key: ${ToggleViMode1}action: ToggleViMode            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollToBottom2" ]; then
+    if [ -n "$ScrollToBottom2" ];then
         echo "  - { key: ${ScrollToBottom2}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ToggleViMode2" ]; then
+    if [ -n "$ToggleViMode2" ];then
         echo "  - { key: ${ToggleViMode2}mode: Vi, action: ToggleViMode            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollToBottom3" ]; then
+    if [ -n "$ScrollToBottom3" ];then
         echo "  - { key: ${ScrollToBottom3}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ToggleViMode3" ]; then
+    if [ -n "$ToggleViMode3" ];then
         echo "  - { key: ${ToggleViMode3}mode: Vi, action: ToggleViMode            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ClearSelection1" ]; then
+    if [ -n "$ClearSelection1" ];then
         echo "  - { key: ${ClearSelection1}mode: Vi, action: ClearSelection          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollLineUp" ]; then
+    if [ -n "$ScrollLineUp" ];then
         echo "  - { key: ${ScrollLineUp}mode: Vi, action: ScrollLineUp            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollLineDown" ]; then
+    if [ -n "$ScrollLineDown" ];then
         echo "  - { key: ${ScrollLineDown}mode: Vi, action: ScrollLineDown          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollToTop" ]; then
+    if [ -n "$ScrollToTop" ];then
         echo "  - { key: ${ScrollToTop}mode: Vi, action: ScrollToTop             }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollToBottom4" ]; then
+    if [ -n "$ScrollToBottom4" ];then
         echo "  - { key: ${ScrollToBottom4}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollPageUp" ]; then
+    if [ -n "$ScrollPageUp" ];then
         echo "  - { key: ${ScrollPageUp}mode: Vi, action: ScrollPageUp            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollPageDown" ]; then
+    if [ -n "$ScrollPageDown" ];then
         echo "  - { key: ${ScrollPageDown}mode: Vi, action: ScrollPageDown          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollHalfPageUp" ]; then
+    if [ -n "$ScrollHalfPageUp" ];then
         echo "  - { key: ${ScrollHalfPageUp}mode: Vi, action: ScrollHalfPageUp        }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ScrollHalfPageDown" ]; then
+    if [ -n "$ScrollHalfPageDown" ];then
         echo "  - { key: ${ScrollHalfPageDown}mode: Vi, action: ScrollHalfPageDown      }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Copy3" ]; then
+    if [ -n "$Copy3" ];then
         echo "  - { key: ${Copy3}mode: Vi, action: Copy                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ClearSelection2" ]; then
+    if [ -n "$ClearSelection2" ];then
         echo "  - { key: ${ClearSelection2}mode: Vi, action: ClearSelection          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ToggleNormalSelection" ]; then
+    if [ -n "$ToggleNormalSelection" ];then
         echo "  - { key: ${ToggleNormalSelection}mode: Vi, action: ToggleNormalSelection   }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ToggleLineSelection" ]; then
+    if [ -n "$ToggleLineSelection" ];then
         echo "  - { key: ${ToggleLineSelection}mode: Vi, action: ToggleLineSelection     }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ToggleBlockSelection" ]; then
+    if [ -n "$ToggleBlockSelection" ];then
         echo "  - { key: ${ToggleBlockSelection}mode: Vi, action: ToggleBlockSelection    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$ToggleSemanticSelection" ]; then
+    if [ -n "$ToggleSemanticSelection" ];then
         echo "  - { key: ${ToggleSemanticSelection}mode: Vi, action: ToggleSemanticSelection }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Open" ]; then
+    if [ -n "$Open" ];then
         echo "  - { key: ${Open}mode: Vi, action: Open                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Up1" ]; then
+    if [ -n "$Up1" ];then
         echo "  - { key: ${Up1}mode: Vi, action: Up                      }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Down1" ]; then
+    if [ -n "$Down1" ];then
         echo "  - { key: ${Down1}mode: Vi, action: Down                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Left1" ]; then
+    if [ -n "$Left1" ];then
         echo "  - { key: ${Left1}mode: Vi, action: Left                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Right1" ]; then
+    if [ -n "$Right1" ];then
         echo "  - { key: ${Right1}mode: Vi, action: Right                   }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Up2" ]; then
+    if [ -n "$Up2" ];then
         echo "  - { key: ${Up2}mode: Vi, action: Up                      }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Down2" ]; then
+    if [ -n "$Down2" ];then
         echo "  - { key: ${Down2}mode: Vi, action: Down                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Left2" ]; then
+    if [ -n "$Left2" ];then
         echo "  - { key: ${Left2}mode: Vi, action: Left                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Right2" ]; then
+    if [ -n "$Right2" ];then
         echo "  - { key: ${Right2}mode: Vi, action: Right                   }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$First" ]; then
+    if [ -n "$First" ];then
         echo "  - { key: ${First}mode: Vi, action: First                   }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Last" ]; then
+    if [ -n "$Last" ];then
         echo "  - { key: ${Last}mode: Vi, action: Last                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$FirstOccupied" ]; then
+    if [ -n "$FirstOccupied" ];then
         echo "  - { key: ${FirstOccupied}mode: Vi, action: FirstOccupied           }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$High" ]; then
+    if [ -n "$High" ];then
         echo "  - { key: ${High}mode: Vi, action: High                    }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Middle" ]; then
+    if [ -n "$Middle" ];then
         echo "  - { key: ${Middle}mode: Vi, action: Middle                  }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Low" ]; then
+    if [ -n "$Low" ];then
         echo "  - { key: ${Low}mode: Vi, action: Low                     }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$SemanticLeft" ]; then
+    if [ -n "$SemanticLeft" ];then
         echo "  - { key: ${SemanticLeft}mode: Vi, action: SemanticLeft            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$SemanticRight" ]; then
+    if [ -n "$SemanticRight" ];then
         echo "  - { key: ${SemanticRight}mode: Vi, action: SemanticRight           }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$SemanticRightEnd" ]; then
+    if [ -n "$SemanticRightEnd" ];then
         echo "  - { key: ${SemanticRightEnd}mode: Vi, action: SemanticRightEnd        }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$WordLeft" ]; then
+    if [ -n "$WordLeft" ];then
         echo "  - { key: ${WordLeft}mode: Vi, action: WordLeft                }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$WordRight" ]; then
+    if [ -n "$WordRight" ];then
         echo "  - { key: ${WordRight}mode: Vi, action: WordRight               }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$WordRightEnd" ]; then
+    if [ -n "$WordRightEnd" ];then
         echo "  - { key: ${WordRightEnd}mode: Vi, action: WordRightEnd            }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$Bracket" ]; then
+    if [ -n "$Bracket" ];then
         echo "  - { key: ${Bracket}mode: Vi, action: Bracket                 }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$SearchForward" ]; then
+    if [ -n "$SearchForward" ];then
         echo "  - { key: ${SearchForward}mode: Vi, action: SearchForward           }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$SearchBackward" ]; then
+    if [ -n "$SearchBackward" ];then
         echo "  - { key: ${SearchBackward}mode: Vi, action: SearchBackward          }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$SearchNext" ]; then
+    if [ -n "$SearchNext" ];then
         echo "  - { key: ${SearchNext}mode: Vi, action: SearchNext              }" >> "$temp_alacritty_file_path"
     fi
 
-    if [ -n "$SearchPrevious" ]; then
+    if [ -n "$SearchPrevious" ];then
         echo "  - { key: ${SearchPrevious}mode: Vi, action: SearchPrevious          }" >> "$temp_alacritty_file_path"
     fi
 
@@ -407,92 +407,92 @@ create_alacritty_tmp_file(){
 
 create_conky_tmp_file(){
 	: > $temp_conky_bl_file_path
-    if [ -n "$Launcher" ]; then
+    if [ -n "$Launcher" ];then
         echo "${Launcher}\${alignr} Run Dialog" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$Network_Menu" ]; then
+    if [ -n "$Network_Menu" ];then
         echo "${Network_Menu}\${alignr} Alt Menu" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$Main_Menu" ]; then
+    if [ -n "$Main_Menu" ];then
         echo "${Main_Menu}\${alignr} Main Menu" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$Client_Menu" ]; then
+    if [ -n "$Client_Menu" ];then
         echo "${Client_Menu}\${alignr} Client Menu" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$conky_Terminal" ]; then
+    if [ -n "$conky_Terminal" ];then
         echo "${conky_Terminal}\${alignr} Terminal" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$conky_File_Manager" ]; then
+    if [ -n "$conky_File_Manager" ];then
         echo "${conky_File_Manager}\${alignr} File Manager" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$conky_Editor" ]; then
+    if [ -n "$conky_Editor" ];then
         echo "${conky_Editor}\${alignr} Editor" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$conky_Media_Player" ]; then
+    if [ -n "$conky_Media_Player" ];then
         echo "${conky_Media_Player}\${alignr} Media Player" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$conky_Web_Browser" ]; then
+    if [ -n "$conky_Web_Browser" ];then
         echo "${conky_Web_Browser}\${alignr} Web Browser" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$Task_Manager" ]; then
+    if [ -n "$Task_Manager" ];then
         echo "${Task_Manager}\${alignr} Task Manager" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$conky_Lock_Screen" ]; then
+    if [ -n "$conky_Lock_Screen" ];then
         echo "${conky_Lock_Screen}\${alignr} Lock Screen" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$Volume_Control" ]; then
+    if [ -n "$Volume_Control" ];then
         echo "${Volume_Control}\${alignr} Volume Control" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$conky_Logout" ]; then
+    if [ -n "$conky_Logout" ];then
         echo "${conky_Logout}\${alignr} Logout" >> "$temp_conky_bl_file_path"
     fi
-    if [ -n "$Screenshot" ]; then
+    if [ -n "$Screenshot" ];then
         echo "${Screenshot}\${alignr} Screenshot" >> "$temp_conky_bl_file_path"
     fi
 	echo "" >> "$temp_conky_bl_file_path"
 	
 	: > $temp_conky_bl_with_window_file_path
 	
-    if [ -n "$Launcher" ]; then
+    if [ -n "$Launcher" ];then
         echo "${Launcher}\${alignr} Run Dialog" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Network_Menu" ]; then
+    if [ -n "$Network_Menu" ];then
         echo "${Network_Menu}\${alignr} Alt Menu" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Main_Menu" ]; then
+    if [ -n "$Main_Menu" ];then
         echo "${Main_Menu}\${alignr} Main Menu" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Client_Menu" ]; then
+    if [ -n "$Client_Menu" ];then
         echo "${Client_Menu}\${alignr} Client Menu" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_Terminal" ]; then
+    if [ -n "$conky_Terminal" ];then
         echo "${conky_Terminal}\${alignr} Terminal" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_File_Manager" ]; then
+    if [ -n "$conky_File_Manager" ];then
         echo "${conky_File_Manager}\${alignr} File Manager" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_Editor" ]; then
+    if [ -n "$conky_Editor" ];then
         echo "${conky_Editor}\${alignr} Editor" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_Media_Player" ]; then
+    if [ -n "$conky_Media_Player" ];then
         echo "${conky_Media_Player}\${alignr} Media Player" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_Web_Browser" ]; then
+    if [ -n "$conky_Web_Browser" ];then
         echo "${conky_Web_Browser}\${alignr} Web Browser" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Task_Manager" ]; then
+    if [ -n "$Task_Manager" ];then
         echo "${Task_Manager}\${alignr} Task Manager" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_Lock_Screen" ]; then
+    if [ -n "$conky_Lock_Screen" ];then
         echo "${conky_Lock_Screen}\${alignr} Lock Screen" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Volume_Control" ]; then
+    if [ -n "$Volume_Control" ];then
         echo "${Volume_Control}\${alignr} Volume Control" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_Logout" ]; then
+    if [ -n "$conky_Logout" ];then
         echo "${conky_Logout}\${alignr} Logout" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Screenshot" ]; then
+    if [ -n "$Screenshot" ];then
         echo "${Screenshot}\${alignr} Screenshot" >> "$temp_conky_bl_with_window_file_path"
     fi
 
@@ -500,22 +500,22 @@ create_conky_tmp_file(){
     echo "W I N D O W S" >> "$temp_conky_bl_with_window_file_path"
     echo "\${hr}" >> "$temp_conky_bl_with_window_file_path"
 
-    if [ -n "$Switch" ]; then
+    if [ -n "$Switch" ];then
         echo "${Switch}\${alignr}Switch" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$conky_Close" ]; then
+    if [ -n "$conky_Close" ];then
         echo "${conky_Close}\${alignr}Close" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Minimize" ]; then
+    if [ -n "$Minimize" ];then
         echo "${Minimize}\${alignr}Minimize" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Toggle_Maximize" ]; then
+    if [ -n "$Toggle_Maximize" ];then
         echo "${Toggle_Maximize}\${alignr}Toggle Maximize" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Tile_half_screen" ]; then
+    if [ -n "$Tile_half_screen" ];then
         echo "${Tile_half_screen}\${alignr}Tile half-screen" >> "$temp_conky_bl_with_window_file_path"
     fi
-    if [ -n "$Tile_quarter_screen" ]; then
+    if [ -n "$Tile_quarter_screen" ];then
         echo "${Tile_quarter_screen}     \${alignr}Tile quarter-screen" >> "$temp_conky_bl_with_window_file_path"
     fi
 
@@ -523,19 +523,19 @@ create_conky_tmp_file(){
     echo "A P P S    S H O R T C U T S" >> "$temp_conky_op_file_path"
     echo "\${hr}" >> "$temp_conky_op_file_path"
 
-    if [ -n "$Launcher" ]; then
+    if [ -n "$Launcher" ];then
         echo "${Launcher}\${alignr}Launcher" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$conky_Terminal" ]; then
+    if [ -n "$conky_Terminal" ];then
         echo "${conky_Terminal}\${alignr}Terminal" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$conky_File_Manager" ]; then
+    if [ -n "$conky_File_Manager" ];then
         echo "${conky_File_Manager}\${alignr}File Manager" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$conky_Web_Browser" ]; then
+    if [ -n "$conky_Web_Browser" ];then
         echo "${conky_Web_Browser}\${alignr}Web Browser" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$conky_Editor" ]; then
+    if [ -n "$conky_Editor" ];then
         echo "${conky_Editor}\${alignr}Editor" >> "$temp_conky_op_file_path"
     fi
 
@@ -543,28 +543,28 @@ create_conky_tmp_file(){
     echo "D E S K T O P    S H O R T C U T S" >> "$temp_conky_op_file_path"
     echo "\${hr}" >> "$temp_conky_op_file_path"
 
-    if [ -n "$Snap_window1" ]; then
+    if [ -n "$Snap_window1" ];then
         echo "${Snap_window1}\${alignr}Snap window" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$Snap_window2" ]; then
+    if [ -n "$Snap_window2" ];then
         echo "${Snap_window2}\${alignr}Snap window" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$Resize_window" ]; then
+    if [ -n "$Resize_window" ];then
         echo "${Resize_window}\${alignr}Resize window" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$Expand_window" ]; then
+    if [ -n "$Expand_window" ];then
         echo "${Expand_window}\${alignr}Expand window" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$Kill_window" ]; then
+    if [ -n "$Kill_window" ];then
         echo "${Kill_window}\${alignr}Kill window" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$conky_Lock_Screen" ]; then
+    if [ -n "$conky_Lock_Screen" ];then
         echo "${conky_Lock_Screen}\${alignr}Lock Screen" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$conky_Logout" ]; then
+    if [ -n "$conky_Logout" ];then
         echo "${conky_Logout}\${alignr}Logout" >> "$temp_conky_op_file_path"
     fi
-    if [ -n "$Kill_X" ]; then
+    if [ -n "$Kill_X" ];then
         echo "${Kill_X}\${alignr}Kill X" >> "$temp_conky_op_file_path"
     fi
 
@@ -588,11 +588,11 @@ create_kitty_tmp_file(){
 	append_kitty_keybind() {
     	kitty_keybind="$1"
     	kitty_command="$2"
-    	if [ -n "$kitty_keybind" ]; then
+    	if [ -n "$kitty_keybind" ];then
         	echo "map $kitty_keybind		$kitty_command" >> "$temp_kittyrc_file_path"
     	fi
 	}
-	if [ -n "$kitty_keybind" ]; then
+	if [ -n "$kitty_keybind" ];then
 		echo "kitty_mod ${kitty_mod}" >> "$temp_kittyrc_file_path"
 	else
 		echo "kitty_mod ctrl+shift" >> "$temp_kittyrc_file_path"
@@ -698,227 +698,227 @@ create_kitty_tmp_file(){
 
 create_mpv_tmp_file(){
 	: > $temp_mpv_file_path
-    if [ -n "$chapter_1" ]; then
+    if [ -n "$chapter_1" ];then
         echo "${chapter_1}                  add             chapter         -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$chapter_eq1" ]; then
+    if [ -n "$chapter_eq1" ];then
         echo "${chapter_eq1}                  add             chapter         1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$switch_audio" ]; then
+    if [ -n "$switch_audio" ];then
         echo "${switch_audio}                  switch_audio" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$balance__01" ]; then
+    if [ -n "$balance__01" ];then
         echo "${balance__01}                  add             balance         -0.1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$balance_01" ]; then
+    if [ -n "$balance_01" ];then
         echo "${balance_01}                  add             balance         0.1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$ao_volume_1_1" ]; then
+    if [ -n "$ao_volume_1_1" ];then
         echo "${ao_volume_1_1}                  add             ao-volume       1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$audio_delay_0010" ]; then
+    if [ -n "$audio_delay_0010" ];then
         echo "${audio_delay_0010}                  add             audio-delay     0.010" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$audio_delay__0010" ]; then
+    if [ -n "$audio_delay__0010" ];then
         echo "${audio_delay__0010}                  add             audio-delay     -0.010" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$frame_step" ]; then
+    if [ -n "$frame_step" ];then
         echo "${frame_step}                  frame_step" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$ao_volume__1_1" ]; then
+    if [ -n "$ao_volume__1_1" ];then
         echo "${ao_volume__1_1}                  add             ao-volume       -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$ao_volume_1_2" ]; then
+    if [ -n "$ao_volume_1_2" ];then
         echo "${ao_volume_1_2}                  add             ao-volume       1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$contrast__1" ]; then
+    if [ -n "$contrast__1" ];then
         echo "${contrast__1}                  add             contrast        -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$contrast_1" ]; then
+    if [ -n "$contrast_1" ];then
         echo "${contrast_1}                  add             contrast        1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$brightness__1" ]; then
+    if [ -n "$brightness__1" ];then
         echo "${brightness__1}                  add             brightness      -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$brightness_1" ]; then
+    if [ -n "$brightness_1" ];then
         echo "${brightness_1}                  add             brightness      1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$hue__1" ]; then
+    if [ -n "$hue__1" ];then
         echo "${hue__1}                  add             hue             -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$hue_1" ]; then
+    if [ -n "$hue_1" ];then
         echo "${hue_1}                  add             hue             1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$saturation__1" ]; then
+    if [ -n "$saturation__1" ];then
         echo "${saturation__1}                  add             saturation      -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$saturation_1" ]; then
+    if [ -n "$saturation_1" ];then
         echo "${saturation_1}                  add             saturation      1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$ao_volume__1_2" ]; then
+    if [ -n "$ao_volume__1_2" ];then
         echo "${ao_volume__1_2}                  add             ao-volume       -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$speed_10" ]; then
+    if [ -n "$speed_10" ];then
         echo "${speed_10}                 set             speed           1.0" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$no_osd_cycle_deinterlace" ]; then
+    if [ -n "$no_osd_cycle_deinterlace" ];then
         echo "${no_osd_cycle_deinterlace}                  no-osd          cycle           deinterlace" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek__60" ]; then
+    if [ -n "$seek__60" ];then
         echo "${seek__60}               seek            -60" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$mpv_quit" ]; then
+    if [ -n "$mpv_quit" ];then
         echo "${mpv_quit}                quit" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$show_text" ]; then
+    if [ -n "$show_text" ];then
         echo "${show_text}                  show_text       \"\${filename}\"" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$mpv_pause1" ]; then
+    if [ -n "$mpv_pause1" ];then
         echo "${mpv_pause1}  cycle           pause" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek__10_1" ]; then
+    if [ -n "$seek__10_1" ];then
         echo "${seek__10_1}               seek            -10" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek__10_2" ]; then
+    if [ -n "$seek__10_2" ];then
         echo "${seek__10_2}         seek            -10" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek_10_1" ]; then
+    if [ -n "$seek_10_1" ];then
         echo "${seek_10_1}         seek            10" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek__600" ]; then
+    if [ -n "$seek__600" ];then
         echo "${seek__600}              seek            -600" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek_600" ]; then
+    if [ -n "$seek_600" ];then
         echo "${seek_600}               seek            600" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek_10_2" ]; then
+    if [ -n "$seek_10_2" ];then
         echo "${seek_10_2}              seek            10" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$mpv_pause2" ]; then
+    if [ -n "$mpv_pause2" ];then
         echo "${mpv_pause2}              cycle           pause" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$playlist_prev" ]; then
+    if [ -n "$playlist_prev" ];then
         echo "${playlist_prev}          playlist_prev" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$ontop" ]; then
+    if [ -n "$ontop" ];then
         echo "${ontop}                  cycle           ontop" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$playlist_next" ]; then
+    if [ -n "$playlist_next" ];then
         echo "${playlist_next}                playlist_next" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$seek_60" ]; then
+    if [ -n "$seek_60" ];then
         echo "${seek_60}                 seek            60" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_delay_1" ]; then
+    if [ -n "$sub_delay_1" ];then
         echo "${sub_delay_1}                  add             sub-delay       1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_delay__1" ]; then
+    if [ -n "$sub_delay__1" ];then
         echo "${sub_delay__1}                  add             sub-delay       -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$speed_09091" ]; then
+    if [ -n "$speed_09091" ];then
         echo "${speed_09091}                  multiply        speed           0.9091" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$speed_11" ]; then
+    if [ -n "$speed_11" ];then
         echo "${speed_11}                  multiply        speed           1.1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$framedrop" ]; then
+    if [ -n "$framedrop" ];then
         echo "${framedrop}                  cycle           framedrop" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$panscan_02" ]; then
+    if [ -n "$panscan_02" ];then
         echo "${panscan_02}                  add             panscan         0.2" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$fullscreen" ]; then
+    if [ -n "$fullscreen" ];then
         echo "${fullscreen}                  cycle           fullscreen" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$mute" ]; then
+    if [ -n "$mute" ];then
         echo "${mute}                  cycle           mute" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$show_progress" ]; then
+    if [ -n "$show_progress" ];then
         echo "${show_progress}                  show_progress" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_pos__1" ]; then
+    if [ -n "$sub_pos__1" ];then
         echo "${sub_pos__1}                  add             sub-pos         -1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$screenshot" ]; then
+    if [ -n "$screenshot" ];then
         echo "${screenshot}                  screenshot" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_pos_1" ]; then
+    if [ -n "$sub_pos_1" ];then
         echo "${sub_pos_1}                  add             sub-pos         1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_scale_01" ]; then
+    if [ -n "$sub_scale_01" ];then
         echo "${sub_scale_01}                  add             sub-scale       0.1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$panscan__02" ]; then
+    if [ -n "$panscan__02" ];then
         echo "${panscan__02}                  add             panscan         -0.2" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_delay_01" ]; then
+    if [ -n "$sub_delay_01" ];then
         echo "${sub_delay_01}                  add             sub-delay       0.1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_delay__01" ]; then
+    if [ -n "$sub_delay__01" ];then
         echo "${sub_delay__01}                  add             sub-delay       -0.1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$sub_scale__01" ]; then
+    if [ -n "$sub_scale__01" ];then
         echo "${sub_scale__01}                  add             sub-scale       -0.1" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$speed_05" ]; then
+    if [ -n "$speed_05" ];then
         echo "${speed_05}                  multiply        speed           0.5" >> "$temp_mpv_file_path"
     fi
 
-    if [ -n "$speed_20" ]; then
+    if [ -n "$speed_20" ];then
         echo "${speed_20}                  multiply        speed           2.0" >> "$temp_mpv_file_path"
     fi
 
@@ -939,7 +939,7 @@ sed_all_back "${zshrc_file_path}"
 
 create_bashrc_tmp_file(){
 	: > $temp_bashrc_file_path
-    if [ -n "$commnad_zi" ]; then
+    if [ -n "$commnad_zi" ];then
     	echo "# below line make bash when pressing ctrl+f runs commnad zi ." >> "$temp_bashrc_file_path"
         echo "bind '\"${commnad_zi}\":\"zi\n\"'" >> "$temp_bashrc_file_path"
     fi
@@ -950,105 +950,105 @@ create_bashrc_tmp_file(){
 create_inputrc_tmp_file(){
 	: > $temp_inputrc_bindkey_file_path
 	
-    if [ -n "$backward_kill_line" ]; then
+    if [ -n "$backward_kill_line" ];then
         echo "\"${backward_kill_line}\": backward-kill-line" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$overwrite_mode" ]; then
+    if [ -n "$overwrite_mode" ];then
         echo "\"${overwrite_mode}\": overwrite-mode" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$delete_char" ]; then
+    if [ -n "$delete_char" ];then
         echo "\"${delete_char}\": delete-char" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$zshrc_beginning_of_line1" ]; then
+    if [ -n "$zshrc_beginning_of_line1" ];then
         echo "\"${zshrc_beginning_of_line1}\": beginning-of-line" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$zshrc_beginning_of_line2" ]; then
+    if [ -n "$zshrc_beginning_of_line2" ];then
         echo "\"${zshrc_beginning_of_line2}\": beginning-of-line" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$end_of_line1" ]; then
+    if [ -n "$end_of_line1" ];then
         echo "\"${end_of_line1}\": end-of-line" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$end_of_line2" ]; then
+    if [ -n "$end_of_line2" ];then
         echo "\"${end_of_line2}\": end-of-line" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$forward_word" ]; then
+    if [ -n "$forward_word" ];then
         echo "\"${forward_word}\": forward-word" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$backward_word" ]; then
+    if [ -n "$backward_word" ];then
         echo "\"${backward_word}\": backward-word" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$kill_word" ]; then
+    if [ -n "$kill_word" ];then
         echo "\"${kill_word}\": kill-word" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$beginning_of_buffer_or_history" ]; then
+    if [ -n "$beginning_of_buffer_or_history" ];then
         echo "\"${beginning_of_buffer_or_history}\": beginning-of-buffer-or-history" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$end_of_buffer_or_history" ]; then
+    if [ -n "$end_of_buffer_or_history" ];then
         echo "\"${end_of_buffer_or_history}\": end-of-buffer-or-history" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$undo" ]; then
+    if [ -n "$undo" ];then
         echo "\"${undo}\": undo" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$magic_space" ]; then
+    if [ -n "$magic_space" ];then
         echo "\"${magic_space}\": magic-space" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$history_search_backward" ]; then
+    if [ -n "$history_search_backward" ];then
         echo "\"${history_search_backward}\": history-search-backward" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$history_search_forward" ]; then
+    if [ -n "$history_search_forward" ];then
         echo "\"${history_search_forward}\": history-search-forward" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$forward_char" ]; then
+    if [ -n "$forward_char" ];then
         echo "\"${forward_char}\": forward-char" >> "$temp_inputrc_bindkey_file_path"
     fi
 
-    if [ -n "$backward_char" ]; then
+    if [ -n "$backward_char" ];then
         echo "\"${backward_char}\": backward-char" >> "$temp_inputrc_bindkey_file_path"
     fi
 
     : > "$temp_inputrc_show_mode_file_path"
 
-    if [ -n "$vi_ins_mode_string" ]; then
+    if [ -n "$vi_ins_mode_string" ];then
         echo "set vi-ins-mode-string ${vi_ins_mode_string}" >> "$temp_inputrc_show_mode_file_path"
     fi
 
-    if [ -n "$vi_cmd_mode_string" ]; then
+    if [ -n "$vi_cmd_mode_string" ];then
         echo "set vi-cmd-mode-string ${vi_cmd_mode_string}" >> "$temp_inputrc_show_mode_file_path"
     fi
 
     : > "$temp_inputrc_vi_command_file_path"
 
-    if [ -n "$clear_screen1" ]; then
+    if [ -n "$clear_screen1" ];then
         echo "${clear_screen1}: clear-screen" >> "$temp_inputrc_vi_command_file_path"
     fi
 
-    if [ -n "$inputrc_beginning_of_line1" ]; then
+    if [ -n "$inputrc_beginning_of_line1" ];then
         echo "${inputrc_beginning_of_line1}: beginning-of-line" >> "$temp_inputrc_vi_command_file_path"
     fi
 
      : > "$temp_inputrc_vi_insert_file_path"
 
-    if [ -n "$clear_screen2" ]; then
+    if [ -n "$clear_screen2" ];then
         echo "${clear_screen2}: clear-screen" >> "$temp_inputrc_vi_insert_file_path"
     fi
 
-    if [ -n "$inputrc_beginning_of_line2" ]; then
+    if [ -n "$inputrc_beginning_of_line2" ];then
         echo "${inputrc_beginning_of_line2}: beginning-of-line" >> "$temp_inputrc_vi_insert_file_path"
     fi
 	sed -i -e "/## ------ auto edited by shortcuts script bindkey ------ ##/,/## ------ end of auto edited by shortcuts script bindkey ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script bindkey ------ ##/e cat ${temp_inputrc_bindkey_file_path}" "${inputrc_file_path}"
@@ -1219,7 +1219,7 @@ create_openboxrc_tmp_file() {
 EOF
 	elif [ "$action_var" = "GoToDesktop" ] ;then
     	Execute_var="$3"
-    	if [ "$Execute_var" -eq 0 ] 2>/dev/null || [ "$Execute_var" -gt 0 ] 2>/dev/null; then
+    	if [ "$Execute_var" -eq 0 ] 2>/dev/null || [ "$Execute_var" -gt 0 ] 2>/dev/null;then
 			cat <<EOF
    	<keybind key="$key_var">
      	<action name="GoToDesktop"><to>$Execute_var</to></action>
@@ -1333,7 +1333,7 @@ EOF
 	fi
   }
   {
-    if [ -n "$chainQuitKey" ]; then
+    if [ -n "$chainQuitKey" ];then
       echo "<!--  chainQuitKey -->"
       echo "    <chainQuitKey>$chainQuitKey</chainQuitKey>"
       echo
@@ -1488,7 +1488,7 @@ create_sxhkd_tmp_file(){
         sxhkd_var_name="$1"
         sxhkd_command_line="$2"
         sxhkd_comment="$3"
-        if [ -n "$sxhkd_var_name" ]; then
+        if [ -n "$sxhkd_var_name" ];then
             [ -n "$sxhkd_comment" ] && echo "# ${sxhkd_comment}" >> "$temp_sxhkd_file_path"
             echo "${sxhkd_var_name}" >> "$temp_sxhkd_file_path"
             echo "	${sxhkd_command_line}" >> "$temp_sxhkd_file_path"
@@ -1569,7 +1569,7 @@ create_sxhkd_tmp_file(){
 	append_sxhkd "$focus_the_next_previous_desktop_in_the_current_monitor" 'bspc desktop -f {prev,next}.local' "focus the next/previous desktop in the current monitor"
 	append_sxhkd "$focus_the_last_node_desktop" 'bspc {node,desktop} -f last' "focus the last node/desktop"
 	
-	if [ -n "$focus_the_older_or_newer_node_in_the_focus_history" ]; then
+	if [ -n "$focus_the_older_or_newer_node_in_the_focus_history" ];then
 echo "# focus the older or newer node in the focus history
 ${focus_the_older_or_newer_node_in_the_focus_history}
 	bspc wm -h off; sed_it_to_backslashes
@@ -1577,7 +1577,7 @@ ${focus_the_older_or_newer_node_in_the_focus_history}
 	bspc wm -h on
 " >> "${temp_sxhkd_file_path}"
 	fi
-	if [ -n "$focus_or_send_to_the_given_desktop" ]; then
+	if [ -n "$focus_or_send_to_the_given_desktop" ];then
 echo "# focus or send to the given desktop
 ${focus_or_send_to_the_given_desktop}
 	bspc {desktop -f,node -d} '^{1-9,10}'
@@ -1714,7 +1714,7 @@ create_x11_tmp_file(){
 	append_x11_keybind() {
        x11_command="$1"
        x11_keybind="$2"
-        if [ -n "$x11_command" ]; then
+        if [ -n "$x11_command" ];then
             echo "URxvt.keysym.${x11_command}:		${x11_keybind}" >> "$temp_x11_file_path"
         fi
     }
@@ -1735,7 +1735,7 @@ create_zathura_tmp_file(){
 	append_zathura_keybind() {
        zathura_keybind="$1"
        zathura_command="$2"
-        if [ -n "$zathura_keybind" ]; then
+        if [ -n "$zathura_keybind" ];then
             echo "map ${zathura_keybind} ${zathura_command}" >> "$temp_zathura_file_path"
         fi
     }

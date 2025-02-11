@@ -13,7 +13,7 @@ weather_script_config_path="${script_config_path}/weather"
 [ ! -f "$weather_script_config_path" ] && cp -r "/usr/share/my_stuff/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
 . "$weather_script_config_path"
 
-if [ -z "$place" ]; then
+if [ -z "$place" ];then
 	. "/usr/share/my_stuff/bin/not_add_2_path/weather/country_list"
    	# Geolocate IP:
    	place=$(get_scripts --location)
@@ -43,7 +43,7 @@ connectiontest() {
     i=0
     attempts=${1:-0}
     while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
-        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null 2>&1; then
+        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null 2>&1;then
             return 0
         fi
         i=$((i + 1))

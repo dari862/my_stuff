@@ -33,17 +33,17 @@ while [ ${#} -ge 1 ]; do
   case "${1}" in
     -i | --ip)
       # If IP address given as xxx.xxx.xxx.xxx:
-      if [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ]; then
+      if [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ];then
         IP="${2}"
       # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
-      elif [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ]; then
+      elif [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ];then
         IP="$(echo "${2}" | cut -d"/" -f1)"
         MASK="$(echo "${2}" | cut -d"/" -f2)"
       fi
       shift 2
       ;;
     -m | --mask)
-      if [ "$2" -ge 0 ] && [ "$2" -le 32 ]; then
+      if [ "$2" -ge 0 ] && [ "$2" -le 32 ];then
         MASK="${2}"
       fi
       shift 2
@@ -64,7 +64,7 @@ while [ ${#} -ge 1 ]; do
 done
 
 # Exit if no ip address supplied.
-if [ -z "$IP" ]; then
+if [ -z "$IP" ];then
   show_error "Give me the IP address."
   exit 3
 fi

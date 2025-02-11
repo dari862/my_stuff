@@ -59,13 +59,13 @@ error_dialog() {
 show_information() {
     vendor="$(glxinfo_vendor)"
 
-    if [ "$(glxinfo_accelerated)" = "yes" ]; then
+    if [ "$(glxinfo_accelerated)" = "yes" ];then
         accelerated="TRUE"
     else
         accelerated="FALSE"
     fi
 
-    if [ "$(glxinfo_unfied_memory)" = "yes" ]; then
+    if [ "$(glxinfo_unfied_memory)" = "yes" ];then
         unified="TRUE"
     else
         unified="FALSE"
@@ -184,14 +184,14 @@ run_yad_gui_(){
 }
 
 # Check if the user has YAD
-if ! exists "yad"; then
+if ! exists "yad";then
     echo ":: unable to find 'yad', make sure YAD is installed" > /dev/stderr
     echo ":: more information at '${YAD_URL}'" > /dev/stderr
     exit 1
 fi
 
 # Check if the user has glxinfo
-if ! exists "glxinfo"; then
+if ! exists "glxinfo";then
     error_dialog "missing glxinfo" "Looks like there's no glxinfo command\n\nnormally is part of 'mesa-utils' or 'mesa-demos' package\n\ncheck out '${GLXINFO_URL}'"
     exit 1
 fi

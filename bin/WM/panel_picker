@@ -38,18 +38,18 @@ then
 	_picked_panel_="tint2"
 fi
 
-if [ "$count" -gt 1 ]; then
+if [ "$count" -gt 1 ];then
 	_picked_panel_="$(echo "${polybar_in_rofi}${spliter1}${xfce4_in_rofi}${spliter2}${tint2_in_rofi}" | \
 	rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$rofi_style_dir"/runner.rasi)"
 fi
 
 cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
 
-if [ "$_picked_panel_" = "tint2" ]; then
+if [ "$_picked_panel_" = "tint2" ];then
 	if command -v jgmenu >/dev/null 2>&1;then
 		which_MENU="$(echo "jgmenu|obmenu" | \
 		rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$rofi_style_dir"/runner.rasi)"
-		if [ "$which_MENU" = "jgmenu" ]; then
+		if [ "$which_MENU" = "jgmenu" ];then
 			ac-ob-menu jgmenu
 		fi
 	fi

@@ -1,5 +1,5 @@
 #!/bin/zsh
-if [ -f "/usr/share/my_stuff/bin/bin/pfetch" ]; then
+if [ -f "/usr/share/my_stuff/bin/bin/pfetch" ];then
 	pfetch
 fi
 
@@ -7,7 +7,7 @@ fi
 ZSH_THEME="headline"
 
 # ---------- SSH Theme ----------
-if [[ -n $SSH_CONNECTION ]]; then
+if [[ -n $SSH_CONNECTION ]];then
   ZSH_THEME="SSH"
 else
   ZSH_THEME="$ZSH_THEME"
@@ -24,7 +24,7 @@ xterm*|rxvt*|Eterm|aterm|kterm|gnome*|alacritty)
 	;;
 esac
 
-if builtin test -f $ZDOTDIR/themes/${ZSH_THEME}.zsh-theme; then
+if builtin test -f $ZDOTDIR/themes/${ZSH_THEME}.zsh-theme;then
 	source $ZDOTDIR/themes/${ZSH_THEME}.zsh-theme
 else
 	echo "plugin '$zplugin' not found"
@@ -129,11 +129,11 @@ else
 	zplugin+=(z)
 fi
 for zplugin ($zplugins); do
-	if builtin test -f $ZDOTDIR/plugins/${zplugin}.plugin.zsh; then
+	if builtin test -f $ZDOTDIR/plugins/${zplugin}.plugin.zsh;then
   		source $ZDOTDIR/plugins/${zplugin}.plugin.zsh
-	elif builtin test -f $ZDOTDIR/plugins/${zplugin}.zsh; then
+	elif builtin test -f $ZDOTDIR/plugins/${zplugin}.zsh;then
   		source $ZDOTDIR/plugins/${zplugin}.zsh
-  	elif builtin test -f /usr/share/${zplugin}/${zplugin}.zsh; then
+  	elif builtin test -f /usr/share/${zplugin}/${zplugin}.zsh;then
   		source /usr/share/${zplugin}/${zplugin}.zsh
   	else
     	echo "plugin '$zplugin' not found"
@@ -141,27 +141,27 @@ for zplugin ($zplugins); do
 done
 
 # ------------------------------- source files ---------------------------------
-if [ -f $ZDOTDIR/zsh-only-aliases.sh ]; then
+if [ -f $ZDOTDIR/zsh-only-aliases.sh ];then
     source $ZDOTDIR/zsh-only-aliases.sh
 fi
 
-if [ -f $ZDOTDIR/functions.sh ]; then
+if [ -f $ZDOTDIR/functions.sh ];then
     source $ZDOTDIR/functions.sh
 fi
 
-if [ -f $My_shell_DIR/aliases.sh ]; then
+if [ -f $My_shell_DIR/aliases.sh ];then
     source $My_shell_DIR/aliases.sh
 fi
 
-if [ -f $My_shell_DIR/aliases-if-command.sh ]; then
+if [ -f $My_shell_DIR/aliases-if-command.sh ];then
     source $My_shell_DIR/aliases-if-command.sh
 fi
 
-if [ -f $My_shell_DIR/misc.sh ]; then
+if [ -f $My_shell_DIR/misc.sh ];then
     source $My_shell_DIR/misc.sh
 fi
 
-if [ -f $My_shell_DIR/functions.sh ]; then
+if [ -f $My_shell_DIR/functions.sh ];then
     source $My_shell_DIR/functions.sh
 fi
 # ------------------------------------------------------------------------------

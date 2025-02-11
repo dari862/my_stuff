@@ -1,421 +1,60 @@
 #!/bin/bash
-__opt="${1:-}"
-style_name="${2:-}"
-if [ -z "${__opt}" ];then
-	echo "__opt = ${__opt} no option."
-	exit 1
-fi
-
-if [ -z "${style_name}" ];then
-	echo "style_name = ${style_name} , does not exist."
-	exit 1
-fi
+STYLEPATH="${1-}"
+style="${2-}"
 
 theme_file_name="${style_name}_2_source"
 theme_file_2_source="/tmp/$USER/$theme_file_name"
+theme_it=""
 
-if [ ! -f "$theme_file_2_source" ];then
-	theme_color_creater "$theme_file_2_source"
+show_em(){
+	echo "[ERROR] $0 : $1"
+}
+
+theme_color_it(){
+	theme_it="$@"
+	if [ ! -f "$theme_file_2_source" ];then
+		/usr/share/my_stuff/bin/WM/system_default_colors_scripts/palette_creator "$theme_file_2_source"
+	fi
+	for app in ${theme_it};do
+		/usr/share/my_stuff/bin/WM/system_default_colors_scripts/theme_color_creater "$app" "${style}" "${theme_file_2_source}" || show_em "failed to run system_default_colors $app"
+	done
+}
+
+if command -v openbox >/dev/null 2>&1;then
+	if [ ! -f "$STYLEPATH/openboxrctheme" ];then
+		theme_it="$theme_it openbox"
+	fi
 fi
 
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
-	
-home_config_path="$HOME/.config"
-_panel_name_="$(cat ${_panel_name_path_})"
-BLOBPATH="$home_config_path/blob"
-
-if [ "$_panel_name_" = 'polybar' ]; then
-	PANELPATH="${BLOBPATH}/polybar"
-else
-	PANELPATH="${BLOBPATH}/tint2"
-fi	
-
-path_to_style="${PANELPATH}/${style_name}"
-
-if ! . "${theme_file_2_source}";then
-	echo "[ERROR] $0: failed to source ${theme_file_2_source}"
+if [ ! -f "$STYLEPATH/config/dunst/theme.dunstrc" ];then
+	theme_it="$theme_it dunst"
 fi
 
-kitty_themeing(){
-	blob_kitty_theme_path="${path_to_style}/config/kitty"
-	mkdir -p "$blob_kitty_theme_path/themes"
-	echo "background_opacity 0.8" > "${blob_kitty_theme_path}/theme.conf"
-	echo "# color scheme" >> "${blob_kitty_theme_path}/theme.conf"
-	echo "include ./themes/${style_name}.conf" >> "${blob_kitty_theme_path}/theme.conf"
-	tee "$blob_kitty_theme_path/themes/${style_name}.conf" <<- EOF >/dev/null 2>&1
-	foreground            $color9
-	background            $color1
-	selection_foreground  $color13
-	selection_background  $color5
-	url_color             $color6
-	cursor                $color8
-	
-	# black
-	color0   $color1
-	color8   $color2
-	
-	# red
-	color1   $color11
-	color9   $color11
-	
-	# green
-	color2   $color8
-	color10  $color8
-	
-	# yellow
-	color3   $color12
-	color11  $color12
-	
-	# blue
-	color4   $color6
-	color12  $color6
-	
-	# magenta
-	color5   $color7
-	color13  $color7
-	
-	# cyan
-	color6   $color4
-	color14  $color4
-	
-	# white
-	color7   $color9
-	color15  $color13
-	EOF
-}
-
-openbox_themeing(){
-	blob_openbox_theme_path="${path_to_style}/openboxrctheme"
-	mkdir -p "$path_to_style"
-	tee "$blob_openbox_theme_path" <<- EOF >/dev/null 2>&1
-	bottom=10
-	top=0
-	right=10
-	left=10
-	font=JetBrainsMono
-	size=9
-	theme=$theme_name_from_gtk2
-	titleLayout=MLC
-	EOF
-}
-
-alacritty_themeing(){
-	blob_alacritty_theme_path="${path_to_style}/config/alacritty"
-	cd "$blob_alacritty_theme_path"
-	mkdir -p "$home_alacritty_theme_path/colorschemes"
-	tee "$home_alacritty_theme_path/colorschemes/${style_name}" <<- EOF >/dev/null 2>&1
-	# Default colors
-	[colors.primary]
-	background = "$color1"
-	foreground = "$color9"
-	
-	# Cursor colors
-	[colors.cursor]
-	text = "$color1"
-	cursor = "$color8"
-	
-	# Normal colors
-	[colors.normal]
-	black = "$color2"
-	red = "$color11"
-	green = "$color8"
-	yellow = "$color12"
-	blue = "$color6"
-	magenta = "$color7"
-	cyan = "$color4"
-	white = "$color9"
-	
-	# Bright colors
-	[colors.bright]
-	black = "$color3"
-	red = "$color11"
-	green = "$color8"
-	yellow = "$color12"
-	blue = "$color6"
-	magenta = "$color7"
-	cyan = "$color4"
-	white = "$color13"
-	EOF
-	ln -sf "colorschemes/${style_name}.yml" "colors.yml"
-}
-
-geany_themeing(){
-	blob_geany_theme_path="${path_to_style}/config/geany"
-	mkdir -p "$blob_geany_theme_path/colorschemes"
-	echo "${style_name}.conf" > "${blob_geany_theme_path}/theme.conf"
-	tee "$blob_geany_theme_path/colorschemes/${style_name}.conf" <<- EOF >/dev/null 2>&1
-	[theme_info]
-	name=${style_name}
-	description=theme created by system_default_colors
-	
-	[named_colors]
-	bg_color=$color1
-	fg_color=$color9
-	cl_color=$color2
-	red_color=$color11
-	green_color=$color8
-	purple_color=$color7
-	cyan_color=$color4
-	pink_color=$color11
-	blue_color=$color6
-	orange_color=$color12
-	yellow_color=$color12
-	white_color=$color13
-	comment_color=$color5
-	
-	[named_styles]
-	default=fg_color;bg_color
-	error=red_color
-	
-	
-	# Editor styles
-	#-------------------------------------------------------------------------------
-	
-	selection=bg_color;purple_color;true;true
-	current_line=;cl_color;true
-	brace_good=bg_color;blue_color;true;true
-	brace_bad=bg_color;blue_color;true;true
-	margin_line_number=white_color;cl_color
-	margin_folding=white_color;cl_color
-	fold_symbol_highlight=purple_color
-	indent_guide=white_color
-	caret=white_color;white_color;false;
-	marker_line=fg_color;purple_color
-	marker_search=marker_line
-	marker_mark=white_color;red_color
-	call_tips=0x839496;0x002b36
-	white_space=indent_guide
-	
-	
-	# Programming languages
-	#-------------------------------------------------------------------------------
-	
-	comment=comment_color
-	comment_doc=comment
-	comment_line=comment
-	comment_line_doc=comment_doc
-	comment_doc_keyword=comment_doc,bold
-	comment_doc_keyword_error=comment_doc,italic
-	
-	number=purple_color
-	number_1=number
-	number_2=number_1
-	
-	type=pink_color;;true;false
-	class=type
-	function=green_color
-	parameter=function
-	
-	keyword=blue_color;;true;false
-	keyword_1=keyword
-	keyword_2=keyword
-	keyword_3=keyword_1
-	keyword_4=keyword_1
-	
-	identifier=default
-	identifier_1=identifier
-	identifier_2=identifier
-	identifier_3=identifier_1
-	identifier_4=identifier_1
-	
-	string=yellow_color
-	string_1=string
-	string_2=string_1
-	string_3=default
-	string_4=default
-	string_eol=0xdc322f
-	character=string_1
-	backtick=string_2
-	here_doc=string_2
-	
-	scalar=orange_color
-	label=default,bold
-	preprocessor=0xcb4b16
-	regex=purple_color
-	operator=pink_color
-	decorator=string_1,bold
-	other=default
-	
-	
-	# Markup-type languages
-	#-------------------------------------------------------------------------------
-	
-	tag=type
-	tag_unknown=tag,bold
-	tag_end=tag,bold
-	attribute=keyword_1
-	attribute_unknown=attribute,bold
-	value=string_1
-	entity=default
-	
-	
-	# Diff
-	#-------------------------------------------------------------------------------
-	
-	line_added=0x859900
-	line_removed=0xdc322f
-	line_changed=0x268bd2
-	EOF
-}
-
-dunst_themeing(){
-	blob_dunstrc_theme_path="${path_to_style}/config/dunst"
-	mkdir -p "$blob_dunstrc_theme_path"
-	dunst_font="JetBrains Mono"
-	frame_color="$color2"
-	background_urgency_low="$color1"
-	foreground_urgency_low="$color9"
-	frame_color_urgency_low="$color2"
-	background_urgency_normal="$color3"
-	foreground_urgency_normal="$color8"
-	frame_color_urgency_normal="$color6"
-	background_urgency_critical="$color11"
-	foreground_urgency_critical="$color13"
-	frame_color_urgency_critical="$color7"
-	tee "$blob_dunstrc_theme_path/theme.dunstrc" <<- EOF >/dev/null 2>&1
-	# Defines color of the frame around the notification window.
-	frame_color = "${frame_color}"
-	
-	# Define a color for the separator.
-	# possible values are:
-	#  * auto: dunst tries to find a color fitting to the background;
-	#  * foreground: use the same color as the foreground;
-	#  * frame: use the same color as the frame;
-	#  * anything else will be interpreted as a X color.
-	separator_color = auto
-	
-	
-	# The transparency of the window.  Range: [0; 100].
-	# This option will only work if a compositing window manager is
-	# present (e.g. xcompmgr, compiz, etc.).
-	transparency = 0
-	
-	# Position the notification in the top right corner
-	origin = top-right
-	
-	# Offset from the origin
-	offset = 10x44
-	
-	# Defines width in pixels of frame around the notification window.
-	# Set to 0 to disable.
-	frame_width = 0
-	
-	### Text ###
-	
-	font = ${dunst_font} 9
-	
-	# The format of the message.  Possible variables are:
-	#   %a  appname
-	#   %s  summary
-	#   %b  body
-	#   %i  iconname (including its path)
-	#   %I  iconname (without its path)
-	#   %p  progress value if set ([  0%] to [100%]) or nothing
-	#   %n  progress value if set without any extra characters
-	#   %%  Literal %
-	format = "<b>%a</b>\n%s\n%b"
-	
-	# IMPORTANT: colors have to be defined in quotation marks.
-	# Otherwise the "#" and following would be interpreted as a comment.
-	[urgency_low]
-	timeout = 2
-	background = "${background_urgency_low}"
-	foreground = "${foreground_urgency_low}"
-	frame_color = "${frame_color_urgency_low}"
-	
-	[urgency_normal]
-	timeout = 5
-	background = "${background_urgency_normal}"
-	foreground = "${foreground_urgency_normal}"
-	frame_color = "${frame_color_urgency_normal}"
-	
-	[urgency_critical]
-	timeout = 0
-	background = "${background_urgency_critical}"
-	foreground = "${foreground_urgency_critical}"
-	frame_color = "${frame_color_urgency_critical}"
-	EOF
-}
-
-jgmenu_themeing(){
-	jgmenurc_file="$home_config_path/jgmenu/jgmenurc"
-	
-	if [ ! -f "$jgmenurc_file" ];then
-		show_em "failed to locate $jgmenurc_file"
-		return
+if command -v jgmenu >/dev/null 2>&1;then
+	if [ ! -f "$STYLEPATH/jgmenu_theme" ];then
+		theme_it="$theme_it jgmenu"
 	fi
-	
-	if [ -f "${path_to_style}/jgmenu_theme" ];then
-		. "${path_to_style}/jgmenu_theme"
-		# set value of empty var if exist
-		[ -z "$stay_alive" ] && stay_alive=1
-		[ -z "$menu_padding_right" ] && menu_padding_right=0
-		[ -z "$menu_padding_bottom" ] && menu_padding_bottom=0
-		[ -z "$menu_padding_left" ] && menu_padding_left=0
-		[ -z "$menu_radius" ] && menu_radius=1
-		[ -z "$sep_halign" ] && sep_halign=right
-		[ -z "$icon_size" ] && icon_size=0
-		[ -z "$icon_theme" ] && icon_theme="Material-Solarized-Suru++"
-		[ -z "$menu_border" ] && menu_border=0
-	else
-		mkdir -p "${path_to_style}"
-		themerc_file="/usr/share/my_stuff/Theme_Stuff/themes/$theme/openbox-3/themerc"
-		tee "${path_to_style}/jgmenu_theme" <<- EOF >/dev/null 2>&1
-		color_menu_bg="$color2"
-		color_menu_border="$color1"
-		color_norm_bg="$color1"
-		color_norm_fg="$color9"
-		color_sel_bg="$color7"
-		color_sel_fg="$color13"
-		color_sel_border="$color7"
-		color_title_bg="$color4"
-		color_title_fg="$color13"
-		color_title_border="$color4"
-		color_sep_fg="$color1"
-		stay_alive=1
-		menu_padding_right=0
-		menu_padding_bottom=0
-		menu_padding_left=0
-		menu_radius=1
-		sep_halign=right
-		icon_size=0
-		icon_theme="Material-Solarized-Suru++"
-		menu_border=0
-		EOF
-		. "${path_to_style}/jgmenu_theme"
+fi
+
+if command -v geany >/dev/null 2>&1;then
+	if [ ! -f "$HOME/.config/geany/colorschemes/${style}.conf" ];then
+		theme_it="$theme_it geany"
 	fi
+fi
 
-	#create jgmenu theme file
-	sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
-	sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
-	sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border/g" "$jgmenurc_file"
-	sed -i "s/color_norm_bg .*/color_norm_bg       = $color_norm_bg/g" "$jgmenurc_file"
-	sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg/g" "$jgmenurc_file"
-	sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg/g" "$jgmenurc_file"
-	sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg/g" "$jgmenurc_file"
-	sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border/g" "$jgmenurc_file"
-	sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg/g" "$jgmenurc_file"
-	sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg/g" "$jgmenurc_file"
-	sed -i "s/color_title_border .*/color_title_border  = $color_title_border/g" "$jgmenurc_file"
-	sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg/g" "$jgmenurc_file"
-	sed -i "s/stay_alive .*/stay_alive        = $stay_alive/g" "$jgmenurc_file"
-	sed -i "s/menu_padding_right .*/menu_padding_right        = $menu_padding_right/g" "$jgmenurc_file"
-	sed -i "s/menu_padding_bottom .*/menu_padding_bottom        = $menu_padding_bottom/g" "$jgmenurc_file"
-	sed -i "s/menu_padding_left .*/menu_padding_left        = $menu_padding_left/g" "$jgmenurc_file"
-	sed -i "s/menu_radius .*/menu_radius        = $menu_radius/g" "$jgmenurc_file"
-	sed -i "s/sep_halign .*/sep_halign        = $sep_halign/g" "$jgmenurc_file"
-	sed -i "s/icon_size .*/icon_size        = $icon_size/g" "$jgmenurc_file"
-	sed -i "s/icon_theme .*/icon_theme        = $icon_theme/g" "$jgmenurc_file"
-	sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
-}
+if command -v kitty >/dev/null 2>&1;then
+	if [ ! -f "$HOME/.config/kitty/themes/${style}.conf" ];then
+		theme_it="$theme_it kitty"
+	fi
+fi
 
-case "$__opt" in
-	"kitty") kitty_themeing ;;
-	"openbox") openbox_themeing ;;
-	"alacritty") alacritty_themeing ;;
-	"geany") geany_themeing ;;
-	"jgmenu") jgmenu_themeing ;;
-	"dunst") dunst_themeing ;;
-	"remove_temp") dunst_themeing ;;
-esac
+if command -v alacritty >/dev/null 2>&1;then
+	if [ ! -f "$HOME/.config/alacritty/colorschemes/${style}.yml" ];then
+		theme_it="$theme_it alacritty"
+	fi
+fi
+
+if [ -n "$theme_it" ];then
+	theme_color_it
+fi
+	

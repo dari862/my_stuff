@@ -14,7 +14,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # These functions can be used in user scripts too, by first sourcing this file, eg:
-# if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null; then
+# if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null;then
 #     echo $"Error: Failed to locate yad-includes in /usr/share/my_stuff/lib/common" >&2
 #     exit 1
 # fi

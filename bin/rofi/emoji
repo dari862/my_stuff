@@ -13,7 +13,7 @@ chosen=$(cut -d ';' -f1 /usr/share/my_stuff/lib/emoji/* | rofi -dmenu -i -l 30 -
 
 # If you run this command with an argument, it will automatically insert the
 # character. Otherwise, show a message that the emoji has been copied.
-if [ -n "$1" ]; then
+if [ -n "$1" ];then
 	xdotool type "$chosen"
 else
 	printf "%s" "$chosen" | xclip -selection clipboard

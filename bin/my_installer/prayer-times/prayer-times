@@ -11,7 +11,7 @@ if [ "$_option" = "daemon" ];then
 fi
 if [ "$_option" = "athan" ];then
 	athan_pid="$(pgrep -f "mpv.*${athan_file_name}")"
-	if [[ -z "$athan_pid" ]]; then
+	if [[ -z "$athan_pid" ]];then
   		mpv --no-audio-display --volume=100 "$athan_file_path"
 	else
   		kill -1 "$athan_pid"
@@ -58,7 +58,7 @@ date=(
 )
 
 nameof() {
-  if [[ "$print_lang" != "en" ]]; then
+  if [[ "$print_lang" != "en" ]];then
     local array_name="prayers_$print_lang"
     eval "echo -n \${${array_name}[$1]}"
   else
@@ -68,13 +68,13 @@ nameof() {
 
 check() {
   local available_month
-  if [[ -r $prayers_json ]]; then
+  if [[ -r $prayers_json ]];then
     available_month=$(jq -r ".data[0].date.gregorian.month.number" "$prayers_json")
   else
     local fetch_prayers=1
   fi
 
-  if [[ "$fetch_prayers" || "$available_month" != "${date[month]}" ]]; then
+  if [[ "$fetch_prayers" || "$available_month" != "${date[month]}" ]];then
     echo "-- fetching current month prayer calendar (${date[month]}-${date[year]})"
     # Documentation: https://aladhan.com/prayer-times-api#GetCalendar
     getURL 'download2' "https://api.aladhan.com/v1/calendar/${date[year]}/${date[month]}?latitude=$lat&longitude=$long&method=$method" "$prayers_json"
@@ -84,7 +84,7 @@ check() {
 add-jobs() {
   # WARNING: THIS SCRIPTS REMOVES ALL JOBS IN QUEUE "P" SCHEDULED USING AT (ADJUST ACCORDINGLY)
   echo "-- removing all jobs in queue 'p'"
-  if [[ "$(at -q p -l | wc -l)" != "0" ]]; then
+  if [[ "$(at -q p -l | wc -l)" != "0" ]];then
     for i in $(at -q p -l | awk '{ print $1 }'); do
       atrm "$i"
     done
@@ -92,7 +92,7 @@ add-jobs() {
 
   for prayer in "${prayers[@]}"; do
     echo "-- creating at job for $prayer prayer"
-    if [[ "$notify" == "mako" ]]; then
+    if [[ "$notify" == "mako" ]];then
       printf 'notify-send -t 30000 --icon="clock-applet-symbolic" "Prayer Times" "It is time for %s prayer 🕌"' "$prayer" | at -q p "$(timeof "$prayer" '%H:%M %F')"
     else
       printf '[ "$(dunstify --icon="clock-applet-symbolic" --action="Reply,reply" "Prayer Times" "Time for %s prayer 🕌" -t 30000)" = "2" ] && %s' "$prayer" "$0 athan" | at -q p "$(timeof "$prayer" '%H:%M %F')"
@@ -108,7 +108,7 @@ timeof() {
 hijri() {
   case "$1" in
   weekday)
-    if [[ "$print_lang" == "ar" ]]; then
+    if [[ "$print_lang" == "ar" ]];then
       echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.weekday.ar" "$prayers_json")"
     else
       echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.weekday.en" "$prayers_json")"
@@ -118,7 +118,7 @@ hijri() {
     echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.day" "$prayers_json")"
     ;;
   month)
-    if [[ "$print_lang" == "ar" ]]; then
+    if [[ "$print_lang" == "ar" ]];then
       echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.month.ar" "$prayers_json")"
     else
       echo -n "$(jq -r ".data[${date[day_idx]}].date.hijri.month.en" "$prayers_json")"
@@ -150,7 +150,7 @@ settimes() {
   local curr_idx=4
   for i in {4..0}; do
     local prayer_key="${prayers[$i],,}"
-    if [[ "${epochtimes[now]}" -ge "${epochtimes[$prayer_key]}" ]]; then
+    if [[ "${epochtimes[now]}" -ge "${epochtimes[$prayer_key]}" ]];then
       [[ "$i" -lt "4" ]] && curr_idx=$i && nxt_idx=$((i + 1))
       break
     fi
@@ -160,7 +160,7 @@ settimes() {
   epochtimes[next]="${epochtimes[$next_key]}"
   currentprayer="${prayers[$curr_idx]}"
   nextprayer="${prayers[$nxt_idx]}"
-  if [[ "$nxt_idx" == "1" && "${date[weekday]}" == "Fri" ]]; then
+  if [[ "$nxt_idx" == "1" && "${date[weekday]}" == "Fri" ]];then
     nextprayer="Jumuaa"
   fi
 }
@@ -175,7 +175,7 @@ timeto() {
 
 print() {
   local format="📅 %s،%s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n%-12s%-10s\n"
-  if [[ "$print_lang" == "ar" ]]; then
+  if [[ "$print_lang" == "ar" ]];then
     format="📅 %s،%s\n%s%11s\n%s%10s\n%s%11s\n%s%11s\n%s%10s\n%s%10s\n"
   fi
 
@@ -243,8 +243,8 @@ yad-toggle() {
   local yad_pid
   yad_pid=$(pgrep -f 'yad.*Prayers')
 
-  if [[ -z "$yad_pid" ]]; then
-    if [[ "$print_lang" == "ar" ]]; then
+  if [[ -z "$yad_pid" ]];then
+    if [[ "$print_lang" == "ar" ]];then
       yad-ar
     else
       yad-en
@@ -319,12 +319,12 @@ waybar)
   waybar-status
   ;;
 timeto)
-  if [[ -n "$2" ]]; then
-    if [[ "$2" == "next" ]]; then
+  if [[ -n "$2" ]];then
+    if [[ "$2" == "next" ]];then
       valid=1
     else
       for p in "${prayers[@]}"; do
-        if [[ "${2^}" == "$p" ]]; then
+        if [[ "${2^}" == "$p" ]];then
           valid=1
           break
         fi
@@ -332,7 +332,7 @@ timeto)
     fi
   fi
 
-  if [[ -z "$valid" ]]; then
+  if [[ -z "$valid" ]];then
     IFS='|'
     echo "Usage: $(basename "$0") timeto (next|${prayers[*],,})"
     exit 1

@@ -50,11 +50,11 @@ function _auto_notify_message() {
     title="$(_auto_notify_format "$title" "$command" "$elapsed" "$exit_code")"
     body="$(_auto_notify_format "$text" "$command" "$elapsed" "$exit_code")"
 
-    if [[ "$platform" == "Linux" ]]; then
+    if [[ "$platform" == "Linux" ]];then
         local urgency="normal"
         local transient="--hint=int:transient:1"
         local icon=${AUTO_NOTIFY_ICON_SUCCESS:-""}
-        if [[ "$exit_code" != "0" ]]; then
+        if [[ "$exit_code" != "0" ]];then
             urgency="critical"
             transient=""
             icon=${AUTO_NOTIFY_ICON_FAILURE:-""}
@@ -62,12 +62,12 @@ function _auto_notify_message() {
 
         local arguments=("$title" "$body" "--app-name=zsh" "$transient" "--urgency=$urgency" "--expire-time=$AUTO_NOTIFY_EXPIRE_TIME")
 
-	if [[ -n "$icon" ]]; then
+	if [[ -n "$icon" ]];then
             arguments+=("--icon=$icon")
 	fi
         notify-send ${arguments[@]}
 
-    elif [[ "$platform" == "Darwin" ]]; then
+    elif [[ "$platform" == "Darwin" ]];then
         osascript \
           -e 'on run argv' \
           -e 'display notification (item 1 of argv) with title (item 2 of argv)' \
@@ -88,13 +88,13 @@ function _is_auto_notify_ignored() {
     target_command="$(echo "$target_command" | sed -e 's/^ *//')"
 
     # If the command is being run over SSH, then ignore it
-    if [[ -n ${SSH_CLIENT-} || -n ${SSH_TTY-} || -n ${SSH_CONNECTION-} ]]; then
+    if [[ -n ${SSH_CLIENT-} || -n ${SSH_TTY-} || -n ${SSH_CONNECTION-} ]];then
         print "yes"
         return
     fi
 
     # Remove sudo prefix from command if detected
-    if [[ "$target_command" == "sudo "* ]]; then
+    if [[ "$target_command" == "sudo "* ]];then
         target_command="${target_command/sudo /}"
     fi
 
@@ -103,9 +103,9 @@ function _is_auto_notify_ignored() {
     # Otherwise - the alternative (default) approach is used where the
     # AUTO_NOTIFY_IGNORE blacklist is used to ignore commands
 
-    if [[ -n "$AUTO_NOTIFY_WHITELIST" ]]; then
+    if [[ -n "$AUTO_NOTIFY_WHITELIST" ]];then
         for allowed in $AUTO_NOTIFY_WHITELIST; do
-            if [[ "$target_command" == "$allowed"* ]]; then
+            if [[ "$target_command" == "$allowed"* ]];then
                 print "no"
                 return
             fi
@@ -113,7 +113,7 @@ function _is_auto_notify_ignored() {
         print "yes"
     else
         for ignore in $AUTO_NOTIFY_IGNORE; do
-            if [[ "$target_command" == "$ignore"* ]]; then
+            if [[ "$target_command" == "$ignore"* ]];then
                 print "yes"
                 return
             fi
@@ -126,15 +126,15 @@ function _auto_notify_send() {
     # Immediately store the exit code before it goes away
     local exit_code="$?"
 
-    if [[ -z "$AUTO_COMMAND" && -z "$AUTO_COMMAND_START" ]]; then
+    if [[ -z "$AUTO_COMMAND" && -z "$AUTO_COMMAND_START" ]];then
         return
     fi
 
-    if [[ "$(_is_auto_notify_ignored "$AUTO_COMMAND_FULL")" == "no" ]]; then
+    if [[ "$(_is_auto_notify_ignored "$AUTO_COMMAND_FULL")" == "no" ]];then
         local current="$(date +"%s")"
         let "elapsed = current - AUTO_COMMAND_START"
 
-        if [[ $elapsed -gt $AUTO_NOTIFY_THRESHOLD ]]; then
+        if [[ $elapsed -gt $AUTO_NOTIFY_THRESHOLD ]];then
             _auto_notify_message "$AUTO_COMMAND" "$elapsed" "$exit_code"
         fi
     fi
@@ -177,7 +177,7 @@ _auto_notify_reset_tracking
 
 
 platform="$(uname)"
-if [[ "$platform" == "Linux" ]] && ! type notify-send > /dev/null; then
+if [[ "$platform" == "Linux" ]] && ! type notify-send > /dev/null;then
     printf "'notify-send' must be installed for zsh-auto-notify to work\n"
     printf "Please install it with your relevant package manager\n"
 else

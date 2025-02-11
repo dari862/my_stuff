@@ -1,5 +1,5 @@
 # include my_stuff/bin/bspwm in PATH
-if [ -d "/usr/share/my_stuff/bin/bspwm" ] ; then
+if [ -d "/usr/share/my_stuff/bin/bspwm" ];then
    	PATH="/usr/share/my_stuff/bin/bspwm:$PATH"
 fi
 

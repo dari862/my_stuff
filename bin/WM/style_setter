@@ -17,7 +17,7 @@ CONFIG_PATH="$HOME/.config"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
 
-if [ "$_panel_name_" = 'polybar' ]; then
+if [ "$_panel_name_" = 'polybar' ];then
 	CONFIGPATH="${BLOBPATH}/polybar"
 else
 	CONFIGPATH="${BLOBPATH}/tint2"
@@ -56,39 +56,10 @@ if [ ! -d "${BLOBPATH}" ];then
 	find "${BLOBPATH}/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} + || show_em "failed to change MmdmdmdmdmdmdmdmdmM to $USER"
 fi
 
-if command -v openbox >/dev/null 2>&1;then
-	if [ ! -f "$STYLEPATH/openboxrctheme" ]; then
-		system_default_colors "openbox" "${style}" || show_em "failed to run system_default_colors openbox"
-	fi
-fi
-
-if [ ! -f "$STYLEPATH/config/dunst/theme.dunstrc" ]; then
-	system_default_colors "dunst" "${style}" || show_em "failed to run system_default_colors dunst"
-fi
-
-if command -v jgmenu >/dev/null 2>&1;then
-	if [ ! -f "$STYLEPATH/jgmenu_theme" ]; then
-		system_default_colors "jgmenu" "${style}" || show_em "failed to run system_default_colors jgmenu"
-	fi
-fi
+system_default_colors "$STYLEPATH" "${style}"
 
 if command -v geany >/dev/null 2>&1;then
-	if [ ! -f "$HOME/.config/geany/colorschemes/${style}.conf" ]; then
-		system_default_colors "geany" "${style}" || show_em "failed to run system_default_colors geany"
-	fi
 	theme_geany || show_em "failed to run theme_geany"
-fi
-
-if command -v kitty >/dev/null 2>&1;then
-	if [ ! -f "$HOME/.config/kitty/themes/${style}.conf" ]; then
-		system_default_colors "kitty" "${style}" || show_em "failed to run system_default_colors kitty"
-	fi
-fi
-
-if command -v alacritty >/dev/null 2>&1;then
-	if [ ! -L "$HOME/.config/alacritty/colorschemes/${style}.yml" ]; then
-		system_default_colors "alacritty" "${style}" || show_em "failed to run system_default_colors alacritty"
-	fi
 fi
 
 cp -r "${STYLEPATH}/config"/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
@@ -100,7 +71,7 @@ fi
 dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
 Set_Style_ || show_em "failed to run Set_Style_"
 
-if [ "$_panel_name_" = 'polybar' ]; then
+if [ "$_panel_name_" = 'polybar' ];then
 	polybar_launch_creater
 fi
 

@@ -15,7 +15,7 @@ lfcd() {
 	# and delete them when exiting lf
 	# TODO: if last dir inside mounted archive, do not umount-remove
 	_lfcd_archivemount_dir="/tmp/$USER/__lf_archivemount_$(cat "$_lfcd_pid")"
-	if [ -f "$_lfcd_archivemount_dir" ]; then
+	if [ -f "$_lfcd_archivemount_dir" ];then
 		while IFS= read -r _line; do
 			umount -- "$_line"
 			rmdir -- "$_line"
@@ -24,9 +24,9 @@ lfcd() {
 	fi
 
 	# cd to last directory in lf
-	if [ -f "$_lfcd_lastdirpath" ]; then
+	if [ -f "$_lfcd_lastdirpath" ];then
 		_lfcd_lastdir="$(cat "$_lfcd_lastdirpath")"
-		if [ -d "$_lfcd_lastdir" ] && [ "$_lfcd_lastdir" != "$PWD" ]; then
+		if [ -d "$_lfcd_lastdir" ] && [ "$_lfcd_lastdir" != "$PWD" ];then
 			cd -- "$_lfcd_lastdir"
 		fi
 	fi

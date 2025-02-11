@@ -391,12 +391,12 @@ fill_color(){
 }
 
 check_theme(){
-	if [[ $(cat ${OBPATH}/rc.xml | grep "myobtheme") ]]; then
+	if [[ $(cat ${OBPATH}/rc.xml | grep "myobtheme") ]];then
 		notify-send "Done. now you can try your theme :)"
 		openbox --reconfigure
-	elif [[ $(find /usr/lib -type d -name lxappearance | xargs ls -R | grep ob) ]]; then
+	elif [[ $(find /usr/lib -type d -name lxappearance | xargs ls -R | grep ob) ]];then
 		lxappearance >/dev/null 2>&1
-	elif [[ $(which obconf) ]]; then
+	elif [[ $(which obconf) ]];then
 		obconf >/dev/null 2>&1
 	fi
 }
@@ -428,15 +428,15 @@ help(){
 	EOF
 }
 
-if [[ "$(echo "$@" | grep '\--wal')" && "$(echo "$@" | grep '\--wb')" ]]; then
+if [[ "$(echo "$@" | grep '\--wal')" && "$(echo "$@" | grep '\--wb')" ]];then
 	file=$HOME/.cache/wal/colors.Xresources
 	wb
-elif [[ "$(echo "$@" | grep '\--wb')" ]]; then
+elif [[ "$(echo "$@" | grep '\--wb')" ]];then
 	wb
-elif [[ "$(echo "$@" | grep '\--wal')" ]]; then
+elif [[ "$(echo "$@" | grep '\--wal')" ]];then
 	file=$HOME/.cache/wal/colors.Xresources
 	nrml
-elif [[ "$(echo "$@" | grep '\--help')" ]]; then
+elif [[ "$(echo "$@" | grep '\--help')" ]];then
 	help
 else
 	nrml

@@ -14,7 +14,7 @@ prefix="$HOME/.local/distrobox"
 tmp_folder=""
 
 mode=""
-if [ "$mode" = "root" ]; then
+if [ "$mode" = "root" ];then
         root_command="--root"
 else
         root_command=""

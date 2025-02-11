@@ -10,7 +10,7 @@ if [ -f "$__config_path" ];then
 	source <(sed '/^# /d;/^#!/d;s/#//g' "$__config_path")
 else
 	__tlp_="tlp"
-	if command -v $__tlp_ >/dev/null 2>&1; then
+	if command -v $__tlp_ >/dev/null 2>&1;then
 		yad --form --width="200" --height="100" --field="$__tlp_ not found : apt install $__tlp_:LBL" >/dev/null 2>&1
 	else
 		yad --form --width="200" --height="100" --field="$__config_path does not exist:LBL" >/dev/null 2>&1

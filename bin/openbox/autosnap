@@ -34,7 +34,7 @@ current_x="${out[0]}"
 current_y="${out[1]}"
 
 # Calculate current monitor and relative position to this monitor
-if [ "$num_screens" -gt 1 ] && [ "$current_x" -gt "${screen_right[2]}" ]; then
+if [ "$num_screens" -gt 1 ] && [ "$current_x" -gt "${screen_right[2]}" ];then
 	current_screen=(${screen_right[*]})
 	current_x=$(($current_x-${screen_right[2]}))
 else 
@@ -42,14 +42,14 @@ else
 fi
 
 # Check zone-position
-if [ "$current_y" -lt "$((${current_screen[1]}*1/3))" ]; then # IN-TOP
+if [ "$current_y" -lt "$((${current_screen[1]}*1/3))" ];then # IN-TOP
 	var_key="top"
-elif [ "$current_y" -gt "$((${current_screen[1]}*2/3))" ]; then # IN-BOTTOM
+elif [ "$current_y" -gt "$((${current_screen[1]}*2/3))" ];then # IN-BOTTOM
 	var_key="bottom"
 fi
-if [ "$current_x" -lt "$((${current_screen[0]}*1/3))" ]; then # IN-LEFT
+if [ "$current_x" -lt "$((${current_screen[0]}*1/3))" ];then # IN-LEFT
 	var_key="${var_key}left"
-elif [ "$current_x" -gt "$((${current_screen[0]}*2/3))" ]; then # IN-RIGHT
+elif [ "$current_x" -gt "$((${current_screen[0]}*2/3))" ];then # IN-RIGHT
 	var_key="${var_key}right"
 fi
 [ ! "$var_key" ] && var_key="center"

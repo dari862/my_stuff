@@ -14,7 +14,7 @@ prefix="$HOME/.local/distrobox"
 tmp_folder=""
 
 # Required on xorg setups
-if [ -z "$WAYLAND_DISPLAY" ]; then
+if [ -z "$WAYLAND_DISPLAY" ];then
 	xhost "+si:localuser:$USER" || failed_to_run "Couldn't use xhost, please install it and re-run installation"
 fi
 
@@ -37,10 +37,10 @@ esac
 
 MULTI_GPU="$(lspci | grep -ic vga)"
 
-if [ -n "$(pgrep pipewire)" ]; then
+if [ -n "$(pgrep pipewire)" ];then
 	AUDIO_SYSTEM="pipewire"
 	echo "Do note that pulseaudio won't work with automatic microphone routing as it requires pipewire."
-elif [ -n "$(pgrep pulseaudio)" ]; then
+elif [ -n "$(pgrep pulseaudio)" ];then
 	AUDIO_SYSTEM="pulseaudio"
 else
 	failed_to_run "Unsupported audio system ($AUDIO_SYSTEM): you may have issues with audio!"

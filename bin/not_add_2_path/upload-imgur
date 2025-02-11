@@ -83,11 +83,11 @@ if command -v curl >/dev/null 2>&1;then
   		data=$4
 		with_or_without_album_id=$5
   		# Check if the method is 'POST' and handle file upload
-  		if [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "with_album_id" ]; then
+  		if [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "with_album_id" ];then
     		curl -sH "${auth}" -F image=@"${IMG_FILE}" -F title="${IMG_TITLE}" -F album="${ALBUM_ID}" "$url"
-  		elif [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "without_album_id" ]; then
+  		elif [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "without_album_id" ];then
     		curl -sH "${auth}" -F image=@"${IMG_FILE}" -F title="${IMG_TITLE}" "$url"
-  		elif [ "$method" = "Refresh_access_token" ]; then
+  		elif [ "$method" = "Refresh_access_token" ];then
   			curl --compressed -fsSL --stderr - -F "client_id=${ID}" -F "client_secret=${CLIENT_SECRET}" -F "grant_type=refresh_token" -F "refresh_token=${REFRESH_TOKEN}" "${TOKEN_URL}"
   		else
     		curl -s --location --request "$method" "$url" --header "${auth}" --data "$data"
@@ -102,11 +102,11 @@ elif command -v wget >/dev/null 2>&1;then
    		data=$4
    		with_or_without_album_id=$5
    		# Check if the method is 'POST' and handle file upload
-   		if [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "with_album_id" ]; then
+   		if [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "with_album_id" ];then
      		wget --quiet --header="${auth}" --post-file="${IMG_FILE}" --post-data="title=${IMG_TITLE}&album=${ALBUM_ID}" "$url"
-   		elif [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "without_album_id" ]; then
+   		elif [ "$method" = "POST" ] && [ "$with_or_without_album_id" = "without_album_id" ];then
      		wget --quiet --header="${auth}" --post-file="${IMG_FILE}" --post-data="title=${IMG_TITLE}" "$url"
-   		elif [ "$method" = "Refresh_access_token" ]; then
+   		elif [ "$method" = "Refresh_access_token" ];then
      		wget --quiet --compressed --post-data="client_id=${ID}&client_secret=${CLIENT_SECRET}&grant_type=refresh_token&refresh_token=${REFRESH_TOKEN}" "$TOKEN_URL" -O - 
    		else
      		wget --quiet --method="$method" --header="${auth}" --body-data="$data" "$url"
@@ -164,7 +164,7 @@ function getargs(){
                             shift
                             ;;
             --file)         FNAME="$2"
-                            if ! [[ -f "${FNAME}" ]]; then
+                            if ! [[ -f "${FNAME}" ]];then
                                 MSG="\n\tFile\"'${FNAME}\" doesn't exist!\n\n\tExiting script...\n"
                                 echo -e "${MSG}"
                                 yad_error "${MSG}"
@@ -278,7 +278,7 @@ function getimage(){
         fi
     fi
 
-    if [[ -z "$1" ]] 2>/dev/null; then
+    if [[ -z "$1" ]] 2>/dev/null;then
         if [[ ${AUTH_MODE} = "L" ]];then
             yad_question "--image=dialog-question" "${MSG}"
             RET="$?"
@@ -318,7 +318,7 @@ Do you want to upload anonymously to Imgur?
     fi
 
     # check if file exists
-    if ! [[ -f "${IMG_FILE}" ]] 2>/dev/null; then
+    if ! [[ -f "${IMG_FILE}" ]] 2>/dev/null;then
         MSG="\n\tfile\"'${IMG_FILE}\" doesn't exist!\n\n\tExiting script...\n"
         echo -e "${MSG}"
         yad_error "${MSG}"
@@ -377,7 +377,7 @@ function delete_img() {         # delete uploaded screenshot from Imgur
     fi
     api_call "${CMD}" " Deleting file ${IMG_LINK} "
 
-    if [[ $(jq -r .success <<< ${RESPONSE}) == "true" ]]; then
+    if [[ $(jq -r .success <<< ${RESPONSE}) == "true" ]];then
         MSG="\nUploaded image successfully deleted.\n\ndelete hash: $1\n"
         KEEP_BB=0                   # Flag for notification text and to
         notify_msg "${MSG}"         # clear clipboard.
@@ -396,7 +396,7 @@ function delete_local(){        # delete local screenshot or image file
         MSG="\n\tConfirm moving local uploaded file to 'Trash'?\n\n\t${IMG_FILE}\n"
         yad_question "--image=dialog-question" "${MSG}"
         RET="$?"
-        if (( RET == 0 )); then
+        if (( RET == 0 ));then
             if type "/usr/bin/gio" > /dev/null;then # send to 'Wastebasket'
                 gio trash "${IMG_FILE}"
             else
@@ -417,7 +417,7 @@ function delete_local(){        # delete local screenshot or image file
 function take_screenshot() {
     CMD_SCREENSHOT="${SCREENSHOT_COMMAND}--thumb 15 --path ${1}" # also take thumbnail for dialogue
     SHOT_ERR="$(${CMD_SCREENSHOT} >/dev/null 2>&1)" #takes a screenshot
-    if (( $? != 0 )); then
+    if (( $? != 0 ));then
         MSG="\n\tFailed to take screenshot of\n\t\"$1\":\n\tError: \"${SHOT_ERR}\"\n"
         echo -e "${MSG}"
         yad_error "${MSG}"
@@ -462,7 +462,7 @@ function api_call(){
 ### Adapted from https://github.com/jomo/imgur-screenshot ##############
 
 function check_oauth2_client_secrets() {
-    if [[ -z "${CLIENT_ID}" ]] || [[ -z "${CLIENT_SECRET}" ]]; then
+    if [[ -z "${CLIENT_ID}" ]] || [[ -z "${CLIENT_SECRET}" ]];then
         MSG='
             Your CLIENT_ID and CLIENT_SECRET are not set.
 
@@ -507,7 +507,7 @@ function get_oauth2_client_secrets(){
     if [[ -z "${C_ID}" ]] || (( ${#C_SECRET} != 40 )) || ! [[ ${C_SECRET} =~ ^[a-fA-F0-9]+$ ]];then
         ERR_MSG_2="Client Secret is wrong!"
     fi
-    if [[ ${ERR_MSG_1} ]] || [[ ${ERR_MSG_2} ]]; then
+    if [[ ${ERR_MSG_1} ]] || [[ ${ERR_MSG_2} ]];then
         DLG_MSG="
                 ${ERR_MSG_1}
                 ${ERR_MSG_2}
@@ -517,7 +517,7 @@ function get_oauth2_client_secrets(){
         ERR_DLG=$(${DIALOG} --text="${DLG_MSG}" --undecorated \
         --image="dialog-question" --button="Exit:1" ${OK})
         ANS=$?
-        if (( ANS == 0 )); then
+        if (( ANS == 0 ));then
             get_oauth2_client_secrets
         else
             exit
@@ -550,17 +550,17 @@ function load_access_token() {
         AUTH_MODE="L"
     fi
     # check for saved ACCESS_TOKEN and its expiration date
-    if [[ -f "${CREDENTIALS_FILE}" ]] 2>/dev/null; then
+    if [[ -f "${CREDENTIALS_FILE}" ]] 2>/dev/null;then
         source "${CREDENTIALS_FILE}"
     else
         acquire_access_token "${CLIENT_ID}"
         save_access_token
     fi
-    if [[ -n "${REFRESH_TOKEN}" ]] 2>/dev/null; then    # token already set
+    if [[ -n "${REFRESH_TOKEN}" ]] 2>/dev/null;then    # token already set
         CURRENT_TIME="$(date +%s)"
         PREEMPTIVE_REFRESH_TIME="600" # 10 minutes
         EXPIRED=$((CURRENT_TIME > (TOKEN_EXPIRE_TIME - PREEMPTIVE_REFRESH_TIME)))
-        if [[ ${EXPIRED} == "1" ]]; then      # token expired
+        if [[ ${EXPIRED} == "1" ]];then      # token expired
             refresh_access_token
         fi
     else
@@ -601,7 +601,7 @@ function acquire_access_token() {
     ANS="$?"
     [[ ${ANS} == 1 ]] && exit 0
     URL="${RET:0:-1}"   # cut 'pipe' char from end of string
-    if ! [[ ${URL} =~ "access_token=" ]] 2>/dev/null; then
+    if ! [[ ${URL} =~ "access_token=" ]] 2>/dev/null;then
         MSG="\n\tERROR: That URL doesn't look right, please start script again\n"
         yad_error "${MSG}"
         exit 1
@@ -622,7 +622,7 @@ function acquire_access_token() {
                             ;;
         esac
     done
-    if [[ -z "${ACCESS_TOKEN}" ]] || [[ -z "${REFRESH_TOKEN}" ]] || [[ -z "${TOKEN_EXPIRE_TIME}" ]]; then
+    if [[ -z "${ACCESS_TOKEN}" ]] || [[ -z "${REFRESH_TOKEN}" ]] || [[ -z "${TOKEN_EXPIRE_TIME}" ]];then
         MSG="\n\tERROR: Failed parsing the URL.\n\n\tDid you copy the full URL?\n"
         yad_error "${MSG}"
         exit 1
@@ -651,12 +651,12 @@ function refresh_access_token() {
     TOKEN_URL="https://api.imgur.com/oauth2/token"
     # exchange the refresh token for ACCESS_TOKEN and REFRESH_TOKEN
     RESPONSE="$(imgur_request "Refresh_access_token")"
-    if (( ${?} == 0 )); then       # $curl_or_wget failed
+    if (( ${?} == 0 ));then       # $curl_or_wget failed
         handle_upload_error "${RESPONSE}" "${TOKEN_URL}"
         exit 1
     fi
 
-    if ! jq -re .access_token >/dev/null <<<"${RESPONSE}"; then
+    if ! jq -re .access_token >/dev/null <<<"${RESPONSE}";then
         # server did not send access_token
         echo -e "\nError: Something is wrong with your credentials:"
         echo "${RESPONSE}"
@@ -684,7 +684,7 @@ function check_image(){
 function get_user(){    # get user name for notifications
     local RESPONSE USERNAME
     RESPONSE="$(imgur_request "" "https://api.imgur.com/3/account/me" "Authorization: Bearer ${ACCESS_TOKEN}")"
-    if (( $? == 0 )) && [[ $(jq -r .success <<<"${RESPONSE}") = "true" ]]; then
+    if (( $? == 0 )) && [[ $(jq -r .success <<<"${RESPONSE}") = "true" ]];then
         USERNAME="$(jq -r .data.url <<<"${RESPONSE}")"
     fi
     # sed: add user name to 'imgur.conf'
@@ -697,7 +697,7 @@ function fetch_account_info() {
     local RESPONSE USERNAME
     RESPONSE="$(imgur_request "" "https://api.imgur.com/3/account/me" "Authorization: Bearer ${ACCESS_TOKEN}")"
 
-    if (( $? == 0 )) && [[ $(jq -r .success <<<"${RESPONSE}") = "true" ]]; then
+    if (( $? == 0 )) && [[ $(jq -r .success <<<"${RESPONSE}") = "true" ]];then
         USERNAME="$(jq -r .data.url <<<"${RESPONSE}")"
         if [[ $1 == "getuser" ]];then   # user name not set in imgur.conf
             USER_NAME="${USERNAME,,}"
@@ -732,7 +732,7 @@ function switch_to_browser(){   # switch to new browser tab
     for id in $(wmctrl -l | awk '{ print $1 }'); do
         # filter only windows demanding attention
         xprop -id $id | grep -q "_NET_WM_STATE_DEMANDS_ATTENTION"
-        if (( $? == 0 )); then
+        if (( $? == 0 ));then
             wmctrl -i -a $id
             exit 0
         fi
@@ -768,13 +768,13 @@ TEST=0                      # Flag to test if user has Imgur account
 export -f run_browser       # to be used as YAD button command
 export -f switch_to_browser # used by run_browser
 
-if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null; then
+if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null;then
     echo -e "\nError: Failed to source yad-includes in /usr/share/my_stuff/lib/common" >&2
     exit 1
-elif ! . "${SETTINGS_FILE}" 2> /dev/null; then
+elif ! . "${SETTINGS_FILE}" 2> /dev/null;then
     echo -e "\nError: Failed to source ${SETTINGS_FILE} in ${USR_CFG_DIR}/" >&2
     exit 1
-elif ! . "${CREDENTIALS_FILE}" 2> /dev/null; then
+elif ! . "${CREDENTIALS_FILE}" 2> /dev/null;then
     echo -e "\nWarning: Failed to source ${CREDENTIALS_FILE} in ${USR_CFG_DIR}/" >&2
     if ! [[ -z "${CLIENT_ID}" ]] && [[ ${AUTH_MODE} == "L" ]];then
         load_access_token "${CLIENT_ID}"

@@ -3,7 +3,7 @@
 # Get class of a wid
 get_class() {
 	id=$1
-  if [ -z "$id" ]; then
+  if [ -z "$id" ];then
     echo ""
   else
     xprop -id "$id" | sed -n \
@@ -34,7 +34,7 @@ swallow() {
 
 	swallowerid=$1
 	swallowingid=$(bspc query -N -n last)
-	if [ "$addedtodesktop" = "$lasttermdesktop" ] && check_swallowing_process "$swallowerid" "$swallowingid"; then
+	if [ "$addedtodesktop" = "$lasttermdesktop" ] && check_swallowing_process "$swallowerid" "$swallowingid";then
 		grep -q "^$(get_class "$swallowerid")$" ~/.config/bspwm/{noswallow, terminals} && return
 		grep -i "^$(get_class "$swallowingid")$" ~/.config/bspwm/terminals || return
 		echo "$swallowerid $swallowingid" >> /tmp/$USER/swallowids

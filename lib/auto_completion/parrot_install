@@ -10,13 +10,13 @@ _parrot_install()
 
     local command i
     for (( i=1; i < ${#words[@]}; i++ )); do
-        if [[ " ${COMMANDS[*]} " == *" ${words[i]} "* ]]; then
+        if [[ " ${COMMANDS[*]} " == *" ${words[i]} "* ]];then
             command=${words[i]}
             break
         fi
     done
     
-    if [[ "$cur" == .* || "$cur" == /* || "$cur" == ~* ]]; then
+    if [[ "$cur" == .* || "$cur" == /* || "$cur" == ~* ]];then
     	_filedir "deb"
     else
     	COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \

@@ -1,5 +1,5 @@
 	SINK="`pactl info | grep -P '^Default Sink: ' | sed 's/[^:]\+:\s\+//'`"
-	if [[ "$SINK" =~ DragonFly ]]; then
+	if [[ "$SINK" =~ DragonFly ]];then
   		INCR='24'
   		MIN_VOLUME=65050
   		MAX_VOLUME=65146
@@ -12,7 +12,7 @@
 	function volume() {
   		VOLUME="`pacmd dump | grep -P '^set-sink-volume.*\s+0x[1-9a-f][0-9a-f]*$'`"
   		echo "$VOLUME" | grep -qF "$SINK"
-  		if [[ $? -eq 0 ]]; then
+  		if [[ $? -eq 0 ]];then
     		VOLUME="`echo "$VOLUME" | grep -oP '0x[1-9a-f][0-9a-f]*$'`"
     		printf "%d\n" "$VOLUME"
   		else
@@ -31,11 +31,11 @@
 	# Get icons
 	get_icon() {
 		current="$(get_volume)"
-		if [[ ("$current" -ge "0") && ("$current" -le "50") ]]; then
+		if [[ ("$current" -ge "0") && ("$current" -le "50") ]];then
 			icon=""
-		elif [[ ("$current" -ge "50") && ("$current" -le "100") ]]; then
+		elif [[ ("$current" -ge "50") && ("$current" -le "100") ]];then
 			icon=""
-		elif [[ ("$current" -ge "100") && ("$current" -le "150") ]]; then
+		elif [[ ("$current" -ge "100") && ("$current" -le "150") ]];then
 			icon=""
 		fi
 	}
@@ -45,7 +45,7 @@
 		get_icon
 		MUTED="`pacmd dump | grep -P '^set-sink-mute.*\s+yes$'`"
     	echo "$MUTED" | grep -qF "$SINK"
-    	if [[ $? -eq 0 ]]; then
+    	if [[ $? -eq 0 ]];then
 			echo ' Mute'
 		else
 			echo "$icon $(get_volume)%"
@@ -55,7 +55,7 @@
 	# Increase Volume
 	inc_volume() {
 		pactl -- set-sink-volume "$SINK" "+$INCR"
-    	if [[ $VOLUME -gt $MAX_VOLUME ]]; then
+    	if [[ $VOLUME -gt $MAX_VOLUME ]];then
       	pactl -- set-sink-volume "$SINK" "$MAX_VOLUME"
     	fi
 	}
@@ -63,7 +63,7 @@
 	# Decrease Volume
 	dec_volume() {
 		pactl -- set-sink-volume "$SINK" "-$INCR"
-    	if [[ $VOLUME -lt $MIN_VOLUME ]]; then
+    	if [[ $VOLUME -lt $MIN_VOLUME ]];then
       	pactl -- set-sink-volume "$SINK" "$MIN_VOLUME"
     	fi
 	}
@@ -72,7 +72,7 @@
 	toggle_mute() {
 		MUTED="`pacmd dump | grep -P '^set-sink-mute.*\s+yes$'`"
     	echo "$MUTED" | grep -qF "$SINK"
-    	if [[ $? -eq 0 ]]; then
+    	if [[ $? -eq 0 ]];then
       		pactl -- set-sink-mute "$SINK" 0
     	else
       		pactl -- set-sink-mute "$SINK" 1
@@ -83,7 +83,7 @@
 	toggle_mic() {
 		MUTED="`pacmd dump | grep -P '^set-source-mute.*\s+yes$'`"
     	echo "$MUTED" | grep -qF "$SINK"
-    	if [[ $? -eq 0 ]]; then
+    	if [[ $? -eq 0 ]];then
       	pactl -- set-source-mute "$SINK" 0
     	else
       	pactl -- set-source-mute "$SINK" 1

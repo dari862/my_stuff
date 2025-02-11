@@ -59,7 +59,7 @@ pangoEscape() {
 findTints() {
     LISTTINT=""
     find "$TINT2PATH" -type f ! -name '*~' | while IFS= read -r file; do
-        if ! grep -q "panel_monitor" "$file"; then
+        if ! grep -q "panel_monitor" "$file";then
             continue
         fi
         name=$(echo "$file" | sed "s|^$TINT2PATH/||")
@@ -91,7 +91,7 @@ choice=$( $DLGDEC $WINICON --list --title="$TITLE" \
     --column="Select:CHK" --column="Tint2 Name:TEXT" --column="path:HD" "${LISTTINT}" \
     --print-column=3 $OK $CANCEL )
 
-if [ $? -eq 1 ]; then # cancel button pressed
+if [ $? -eq 1 ];then # cancel button pressed
     exit 0
 else
     echo "$choice" | while IFS= read -r path

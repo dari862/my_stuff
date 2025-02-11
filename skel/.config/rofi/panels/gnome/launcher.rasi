@@ -7,7 +7,6 @@
  *
  */
 
-@import "theme.rasi"
 
 configuration {
 	font:							"Iosevka Nerd Font 10";
@@ -20,6 +19,8 @@ configuration {
 	sidebar-mode: 					false;
 }
 
+@import "theme.rasi"
+
 * {
   al:   #00000000;
   bg:   #0000004C;
@@ -30,7 +31,7 @@ configuration {
 
 window {
     transparency:                   "real";
-    background-color:               @bg;
+    background-color:               @bg_launcher;
     text-color:                     @fg;
 	border:							0px;
 	border-color:					@ac;
@@ -114,7 +115,7 @@ element-text {
 }
 
 element selected {
-    background-color:               @bg;
+    background-color:               @bg_launcher;
     text-color:                     @fg;
 	border:							1px;
     border-radius:                  4px;

@@ -2,7 +2,7 @@
 # if this line exist script will be part of hub script.
 # Depends on:
 #   repositories: rofi, bluez-utils (contains bluetoothctl)
-if [ ! -d /sys/class/bluetooth ]; then
+if [ ! -d /sys/class/bluetooth ];then
 	echo # No Bluetooth interface
 	exit 0
 fi
@@ -27,7 +27,7 @@ device_menu() {
     mac=$(echo "$device" | cut -d ' ' -f 2)
 
     # Build options
-    if device_connected "$mac"; then
+    if device_connected "$mac";then
         connected="Connected: yes"
     else
         connected="Connected: no"
@@ -62,7 +62,7 @@ device_menu() {
 # Opens a rofi menu with current bluetooth status and options to connect
 show_menu() {
     # Get menu options
-    if bluetooth.sh power_on; then
+    if bluetooth.sh power_on;then
         power="Power: on"
 
         # Human-readable names of devices, one per line
@@ -104,7 +104,7 @@ show_menu() {
         *)
             device=$(bluetoothctl devices | grep "$chosen")
             # Open a submenu if a device is selected
-            if [ "$device" ]; then device_menu "$device"; fi
+            if [ "$device" ];then device_menu "$device"; fi
             ;;
     esac
 }

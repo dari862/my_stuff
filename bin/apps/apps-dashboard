@@ -4,7 +4,7 @@
 
 # The dashboard displays installed applications into a yad-based window. 
 apps_dashboard_tmp="/tmp/$USER/apps-dashboard"
-if [ -d "$apps_dashboard_tmp" ]; then
+if [ -d "$apps_dashboard_tmp" ];then
     rm -rf "$apps_dashboard_tmp"
 fi
 
@@ -18,7 +18,7 @@ for app in $remove_noDisplay_apps; do
 done
 
 for app in $apps_list; do
-    if [ -f "$app" ]; then
+    if [ -f "$app" ];then
         cp -a "$app" "$apps_dashboard_tmp/"
     fi
 done

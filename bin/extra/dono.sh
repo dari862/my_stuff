@@ -43,7 +43,7 @@ END
             )
 	
 	note_location="$notes_folder/$file.md"
-	if [ "$title" != "" ]; then
+	if [ "$title" != "" ];then
 		echo "$template" > "$note_location"	
 		edit_note "$note_location"
 	fi

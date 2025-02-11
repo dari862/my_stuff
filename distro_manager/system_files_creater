@@ -94,155 +94,155 @@ my-superuser touch "${__distro_path}"/system_files/skel/.config/mpd/database
 my-superuser mkdir -p "${__distro_path}"/system_files/skel/.local/share/bash_history
 
 show_im "copy extra skell that we need to copy to system_files/skel ."
-if command -v geany >/dev/null ; then
+if command -v geany >/dev/null ;then
 	show_im "copy geany skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/geany" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v lf >/dev/null ; then
+if command -v lf >/dev/null ;then
 	show_im "copy lf skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/lf" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v nsxiv >/dev/null || command -v sxiv >/dev/null ; then
+if command -v nsxiv >/dev/null || command -v sxiv >/dev/null ;then
 	show_im "copy nsxiv skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/nsxiv" "${__distro_path}/system_files/skel/.config"
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/sxiv" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v viewnior >/dev/null ; then
+if command -v viewnior >/dev/null ;then
 	show_im "copy viewnior skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/viewnior" "${__distro_path}/system_files/skel/.config"
 fi
 
-if command -v terminator >/dev/null ; then
+if command -v terminator >/dev/null ;then
 	show_im "copy terminator skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/terminator" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v pcmanfm >/dev/null ; then
+if command -v pcmanfm >/dev/null ;then
 	show_im "copy pcmanfm skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/pcmanfm" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v thunar >/dev/null ; then
+if command -v thunar >/dev/null ;then
 	show_im "copy gigolo skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/Thunar" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v gigolo >/dev/null ; then
+if command -v gigolo >/dev/null ;then
 	show_im "copy gigolo skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/gigolo" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v plank >/dev/null ; then
+if command -v plank >/dev/null ;then
 	show_im "copy plank skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/plank" "${__distro_path}/system_files/skel/.config" 
 	my-superuser cp -r "${__distro_path}/extra_skel/.local/share/plank" "${__distro_path}/system_files/skel/.local/share/" 
 fi
 
-if command -v xbindkey >/dev/null ; then
+if command -v xbindkey >/dev/null ;then
 	show_im "copy xbindkey skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.xbindkeysrc" "${__distro_path}/system_files/skel" 
 fi
 
-if command -v clipit >/dev/null ; then
+if command -v clipit >/dev/null ;then
 	show_im "copy clipit skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/clipit" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v jgmenu >/dev/null ; then
+if command -v jgmenu >/dev/null ;then
 	show_im "copy jgmenu skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/jgmenu" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v greenclip >/dev/null ; then
+if command -v greenclip >/dev/null ;then
 	show_im "copy greenclip skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/greenclip.toml" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v zathura >/dev/null ; then
+if command -v zathura >/dev/null ;then
 	show_im "copy zathura skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/zathura" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v tint2 >/dev/null ; then
+if command -v tint2 >/dev/null ;then
 	show_im "copy tint2 skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/tint2" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v xfce4-panel >/dev/null ; then
+if command -v xfce4-panel >/dev/null ;then
 	show_im "copy xfce4-panel skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/xfce4" "${__distro_path}/system_files/skel/.config"
 	my-superuser cp -r "${__distro_path}/extra_skel/.local/share/xfce4" "${__distro_path}/system_files/skel/.local/share/"
 fi
 
-if command -v lxterminal >/dev/null ; then
+if command -v lxterminal >/dev/null ;then
 	show_im "copy lxterminal skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/lxterminal" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v alacritty >/dev/null ; then
+if command -v alacritty >/dev/null ;then
 	show_im "copy alacritty skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/alacritty" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v bspwm >/dev/null ; then
+if command -v bspwm >/dev/null ;then
 	show_im "copy bspwm skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/bspwm" "${__distro_path}/system_files/skel/.config" 
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/sxhkd" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v polybar >/dev/null ; then
+if command -v polybar >/dev/null ;then
 	show_im "copy polybar skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/polybar" "${__distro_path}/system_files/skel/.config"
 	
-	if [ -d "${__distro_path}/bin/polybar" ] ; then
+	if [ -d "${__distro_path}/bin/polybar" ];then
 		my-superuser ln -sf "${__distro_path}"/bin/polybar/* "${__distro_path}"/system_files/bin
 	fi
 fi
 
-if command -v polybar >/dev/null ; then
+if command -v polybar >/dev/null ;then
 	show_im "copy polybar skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/polybar" "${__distro_path}/system_files/skel/.config"
 	
-	if [ -d "${__distro_path}/bin/polybar" ] ; then
+	if [ -d "${__distro_path}/bin/polybar" ];then
 		my-superuser ln -sf "${__distro_path}"/bin/polybar/* "${__distro_path}"/system_files/bin
 	fi
 fi
 
 show_im "LN bin files to system_files/bin ."
 
-if [ -d "${__distro_path}/bin/bin" ] ; then
+if [ -d "${__distro_path}/bin/bin" ];then
 	show_im "bin bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/bin/* "${__distro_path}"/system_files/bin
 fi
 
-if [ -d "${__distro_path}/bin/WM" ] ; then
+if [ -d "${__distro_path}/bin/WM" ];then
 	show_im "bin WM files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/WM/* "${__distro_path}"/system_files/bin
 	my-superuser rm -f "${__distro_path}"/system_files/bin/create_DB.sh "${__distro_path}"/system_files/bin/pre_launch_wm "${__distro_path}"/system_files/bin/post_launch_wm 
 	
 fi
 
-if [ -d "${__distro_path}/bin/extra" ] ; then
+if [ -d "${__distro_path}/bin/extra" ];then
 	show_im "exra bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/extra/* "${__distro_path}"/system_files/bin
 fi
 
-if [ -d "${__distro_path}/bin/apps" ] ; then
+if [ -d "${__distro_path}/bin/apps" ];then
 	show_im "apps bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/apps/* "${__distro_path}"/system_files/bin
 	! command -v systemctl >/dev/null 2>&1 && my-superuser rm -f "${__distro_path}"/system_files/bin/yautostart
 	! command -v systemctl >/dev/null 2>&1 && my-superuser rm -f ${__distro_path}/system_files/bin/errcheck
 fi
 
-if [ -d "${__distro_path}/bin/rofi" ] ; then
+if [ -d "${__distro_path}/bin/rofi" ];then
 	show_im "rofi bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/rofi/* "${__distro_path}"/system_files/bin
 fi
 
-if [ -d "${__distro_path}/bin/session_managers" ] ; then
+if [ -d "${__distro_path}/bin/session_managers" ];then
 	show_im "session_managers bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/session_managers/* "${__distro_path}"/system_files/bin
 fi
@@ -256,7 +256,7 @@ if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
 	my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/yadtlp.desktop "${__distro_path}"/system_files/applications
 	my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/yadtlp.desktop /usr/share/applications
 	my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/toggletouch "${__distro_path}"/system_files/bin
-	if [ -d "${__distro_path}/bin/laptop" ] ; then
+	if [ -d "${__distro_path}/bin/laptop" ];then
 		show_im "laptop bin files to system_files/bin ."
 		my-superuser ln -sf "${__distro_path}"/bin/laptop/* "${__distro_path}"/system_files/bin
 	fi

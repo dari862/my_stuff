@@ -7,16 +7,16 @@
 # CREATED: 2020.04.09
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
-if command -v clipmanager >/dev/null 2>&1; then
+if command -v clipmanager >/dev/null 2>&1;then
 	clipboard_manager_name="clipmanager"
 	clipboard_manager_command="clipmanager"
-elif command -v diodon >/dev/null 2>&1; then
+elif command -v diodon >/dev/null 2>&1;then
 	clipboard_manager_name="diodon"
 	clipboard_manager_command="exec diodon"
-elif command -v xfce4-clipman >/dev/null 2>&1; then
+elif command -v xfce4-clipman >/dev/null 2>&1;then
 	clipboard_manager_name="xfce4-clipman"
 	clipboard_manager_command="xfce4-clipman"
-elif command -v greenclip >/dev/null 2>&1; then
+elif command -v greenclip >/dev/null 2>&1;then
 	clipboard_manager_name="greenclip"
 	clipboard_manager_command="greenclip daemon"
 fi
