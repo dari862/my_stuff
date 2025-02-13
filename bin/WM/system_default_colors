@@ -2,21 +2,89 @@
 STYLEPATH="${1-}"
 style="${2-}"
 
-theme_file_name="${style_name}_2_source"
-theme_file_2_source="/tmp/$USER/$theme_file_name"
+theme_color_creater_output_folder="/tmp/$USER/theme_color_creater_output"
+
 theme_it=""
 
 show_em(){
 	echo "[ERROR] $0 : $1"
 }
 
+move_it(){
+	__opt="${1:-}"
+	if [ -z "${__opt}" ];then
+		echo "__opt = ${__opt} no option."
+		exit 1
+	fi
+	
+	case "$__opt" in
+		"kitty")
+			blob_kitty_theme_path="${STYLEPATH}/config/kitty"
+			mkdir -p "$blob_kitty_theme_path/themes"
+			echo "background_opacity 0.8" > "${blob_kitty_theme_path}/theme.conf"
+			echo "# color scheme" >> "${blob_kitty_theme_path}/theme.conf"
+			echo "include ./themes/${style}.conf" >> "${blob_kitty_theme_path}/theme.conf"
+			mv "${theme_color_creater_output_folder}/colors-kitty.conf" "$blob_kitty_theme_path/themes/${style}.conf"
+		;;
+		"openbox")
+			blob_openbox_theme_path="${STYLEPATH}/openboxrctheme"
+			mkdir -p "$STYLEPATH"
+			mv "${theme_color_creater_output_folder}/colors.openboxrc" "${STYLEPATH}/openboxrctheme"
+		;;
+		"alacritty")
+			blob_alacritty_theme_path="${STYLEPATH}/config/alacritty"
+			mkdir -p "$blob_alacritty_theme_path/colorschemes"
+			mv "${theme_color_creater_output_folder}/colors-alacritty.yml" "$blob_alacritty_theme_path/colorschemes/${style}.yml"
+			( cd "$blob_alacritty_theme_path" && ln -sf "colorschemes/${style}.yml" "colors.yml" )
+		;;
+		"geany")
+			blob_geany_theme_path="${STYLEPATH}/config/geany"
+			mkdir -p "$blob_geany_theme_path/colorschemes"
+			echo "${style}.conf" > "${blob_geany_theme_path}/theme.conf"
+			mv "${theme_color_creater_output_folder}/colors-geany.conf" "$blob_geany_theme_path/colorschemes/${style}.conf"
+		;;
+		"jgmenu")
+			mv "${theme_color_creater_output_folder}/colors-jgmenu.conf" "${STYLEPATH}/jgmenu_theme"
+			. "${STYLEPATH}/jgmenu_theme"
+			jgmenurc_file="$HOME/.config/jgmenu/jgmenurc"
+			#create jgmenu theme file
+			sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
+			sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
+			sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border/g" "$jgmenurc_file"
+			sed -i "s/color_norm_bg .*/color_norm_bg       = $color_norm_bg/g" "$jgmenurc_file"
+			sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg/g" "$jgmenurc_file"
+			sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg/g" "$jgmenurc_file"
+			sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg/g" "$jgmenurc_file"
+			sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border/g" "$jgmenurc_file"
+			sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg/g" "$jgmenurc_file"
+			sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg/g" "$jgmenurc_file"
+			sed -i "s/color_title_border .*/color_title_border  = $color_title_border/g" "$jgmenurc_file"
+			sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg/g" "$jgmenurc_file"
+			sed -i "s/stay_alive .*/stay_alive        = $stay_alive/g" "$jgmenurc_file"
+			sed -i "s/menu_padding_right .*/menu_padding_right        = $menu_padding_right/g" "$jgmenurc_file"
+			sed -i "s/menu_padding_bottom .*/menu_padding_bottom        = $menu_padding_bottom/g" "$jgmenurc_file"
+			sed -i "s/menu_padding_left .*/menu_padding_left        = $menu_padding_left/g" "$jgmenurc_file"
+			sed -i "s/menu_radius .*/menu_radius        = $menu_radius/g" "$jgmenurc_file"
+			sed -i "s/sep_halign .*/sep_halign        = $sep_halign/g" "$jgmenurc_file"
+			sed -i "s/icon_size .*/icon_size        = $icon_size/g" "$jgmenurc_file"
+			sed -i "s/icon_theme .*/icon_theme        = $icon_theme/g" "$jgmenurc_file"
+			sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
+		;;
+		"dunst") 
+			blob_dunstrc_theme_path="${STYLEPATH}/config/dunst"
+			mkdir -p "$blob_dunstrc_theme_path"
+			mv "${theme_color_creater_output_folder}/colors-dunstrc.conf" "$blob_dunstrc_theme_path/theme.dunstrc"
+		;;
+	esac
+	
+}
+
 theme_color_it(){
 	theme_it="$@"
-	if [ ! -f "$theme_file_2_source" ];then
-		/usr/share/my_stuff/bin/WM/system_default_colors_scripts/palette_creator "$theme_file_2_source"
-	fi
+	/usr/share/my_stuff/bin/WM/system_default_colors_scripts/theme_color_creater "${style}" "$theme_color_creater_output_folder" || show_em "failed to run system_default_colors"
+	
 	for app in ${theme_it};do
-		/usr/share/my_stuff/bin/WM/system_default_colors_scripts/theme_color_creater "$app" "${style}" "${theme_file_2_source}" || show_em "failed to run system_default_colors $app"
+		move_it "$app"
 	done
 }
 

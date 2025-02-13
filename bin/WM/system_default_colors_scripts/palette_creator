@@ -1,7 +1,7 @@
 #!/bin/bash
 theme_file_2_source="${1:-}"
 home_config_path="$HOME/.config"
-_temp_theme_dir="/tmp/$USER/temp_theme_dir"
+_temp_theme_dir="/tmp/$USER/${theme_file_2_source}/temp_theme_dir"
 
 interpolate_colors() {
   local color1="$1"

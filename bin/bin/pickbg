@@ -20,7 +20,7 @@ if command -v nitrogen >/dev/null 2>&1;then
 	fi
 	nitrogen
 else
-	image_file=$(yad --file-selection --title="Select an Image" --filter="Images | *.png *.jpg *.jpeg *.gif *.bmp" --filename="/usr/share/my_stuff/my_wallpapers/")
+	image_file=$(yad --file-selection --title="Select an Image" --filter="Images | *.png *.jpg *.jpeg *.gif *.bmp" --filename="/usr/share/my_stuff/my_wallpapers/" --add-preview --large-preview)
 	if [ -n "$image_file" ];then
     	setbg -R "$image_file"
 	fi

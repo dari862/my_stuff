@@ -58,14 +58,14 @@ fi
 
 system_default_colors "$STYLEPATH" "${style}"
 
-if command -v geany >/dev/null 2>&1;then
-	theme_geany || show_em "failed to run theme_geany"
-fi
-
 cp -r "${STYLEPATH}/config"/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
 
 if [ -d "${STYLEPATH}/cache" ];then
 	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
+fi
+
+if command -v geany >/dev/null 2>&1;then
+	theme_geany || show_em "failed to run theme_geany"
 fi
 
 dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
