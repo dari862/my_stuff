@@ -9,7 +9,7 @@ SCRIPT_DIR="$(dirname "$(readlink -m "${0}")")"
 background_path="${SCRIPT_DIR}/common/background.jpg"
 custom_background_path="${SCRIPT_DIR}/background.jpg"
 logoicon="$(lsb_release -i | cut -d ' ' -f 2 | cut -d '	' -f 2)"
-screen="$(xrandr | grep '\*' | awk '{print $1}' | head -n1 | awk -Fx '{print $1}')"
+screen="$(xrandr | grep '\*' | awk '{print $1}' | head -n1 | awk -Fx '{print $1}' || echo "1920")"
 if [ "${screen}" -le '1920' ];then
 	screen="1080p"
 elif [ "${screen}" -le '2560' ];then
