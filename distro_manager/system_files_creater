@@ -187,10 +187,10 @@ if command -v cava >/dev/null ;then
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/cava" "${__distro_path}/system_files/skel/.config" 
 fi
 
-#if command -v cmus >/dev/null ;then
-#	show_im "copy cava skell file to system_files/skel ."
-#	my-superuser cp -r "${__distro_path}/extra_skel/.config/cmus" "${__distro_path}/system_files/skel/.config" 
-#fi
+if command -v cmus >/dev/null ;then
+	show_im "copy cava skell file to system_files/skel ."
+	my-superuser cp -r "${__distro_path}/extra_skel/.config/cmus" "${__distro_path}/system_files/skel/.config" 
+fi
 
 if command -v alacritty >/dev/null ;then
 	show_im "copy alacritty skell file to system_files/skel ."
