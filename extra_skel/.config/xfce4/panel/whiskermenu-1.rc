@@ -1,7 +1,7 @@
 favorites=my-www-browser.desktop,my-file-manager.desktop,my-terminal-emulator.desktop,my-text-editor.desktop
 recent=
 button-title=\ Applications
-button-icon=/usr/share/my_stuff/system_files/Distro/xfce-menucraft.svg
+button-icon=/usr/share/my_stuff/Distro_Specific/icons/xfce-menucraft.svg
 button-single-row=false
 show-button-title=true
 show-button-icon=true

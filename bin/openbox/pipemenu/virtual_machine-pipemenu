@@ -3,13 +3,9 @@
 
 # Pipemenu
 menuStart
-if type -v virt-manager >/dev/null 2>&1;then
-	menuItem 'virtual_machine' 'virt-manager &'
-elif type -v virtualbox >/dev/null 2>&1;then
-	menuItem 'virtual_machine' 'virtualbox &'
-elif type -v vmplayer >/dev/null 2>&1;then
-	menuItem 'virtual_machine' 'vmplayer &'
+if type -v virtual_machine >/dev/null 2>&1;then
+	menuItem 'virtual_machine' 'virtual_machine'
 else
-	menuItem 'install virtual_machine' 'popup_terminal --install virtual_machine'
+	menuItem 'Install any Hypervisors' ':'
 fi
 menuEnd

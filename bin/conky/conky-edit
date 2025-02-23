@@ -45,7 +45,7 @@ Multiple conkys can be chosen.
 ### DIALOG VARIABLES
 DLGDEC="yad --center  --borders=20 --width=400 --height=500 "
 TITLE="My Stuff Conky Edit"
-WINICON="--window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"
+WINICON="--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
 OK="--button=OK:0"
 CANCEL="--button=gtk-cancel:1"
 

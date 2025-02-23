@@ -9,7 +9,7 @@ if [ "$__opt" = "--edit" ] || [ "$__opt" = "-e" ];then
 	my-text-editor "$HOME/.config/keybinds/keybinds.conf"
 elif [ "$__opt" = "--gui" ] || [ "$__opt" = "-g" ];then
 	. "/usr/share/my_stuff/lib/common/openbox"
-	yad --text-info --title="Keybinds" --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg\
+	yad --text-info --title="Keybinds" --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg\
     --filename="${script_config_path}/openbox_keybinds" --width=700 --height=700\
     --fontname=Monospace --button=gtk-close
     exit
@@ -90,6 +90,10 @@ fi
 
 if [ -f "${sxhkd_file_path}" ];then
 	create_sxhkd_tmp_file
+fi
+
+if command -v rofi > /dev/null 2>&1;then
+	create_sxhkd_tmp_file "rofi"
 fi
 
 if [ -f "${Thunar_file_path}" ];then

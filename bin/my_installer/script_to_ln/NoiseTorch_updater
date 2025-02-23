@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+download_url="$(getURL '2term' 'https://api.github.com/repos/noisetorch/NoiseTorch/releases/latest' \
+	| grep '"browser_download_url"' \
+	| grep '.tgz' \
+	| cut -f2,3 -d':' \
+	| tr -d '"' \
+	| head -1)" 
+getURL 'download2' "${download_url}" "/tmp/$USER/NoiseTorch.tgz"
+tar -C /tmp/$USER/NoiseTorch -h -xzf /tmp/$USER/NoiseTorch.tgz
+cd /tmp/$USER/NoiseTorch/.local
+my-superuser chown -R root:root "/tmp/$USER/NoiseTorch"
+my-superuser cp -r bin/noisetorch /usr/share/my_stuff/system_files/bin/
+my-superuser cp -r share/applications/noisetorch.desktop /usr/share/my_stuff/system_files/applications
+my-superuser mkdir -p /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps
+my-superuser cp -r share/icons/hicolor/256x256/apps/noisetorch.png /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps
+my-superuser ln -sf /usr/share/my_stuff/system_files/applications/noisetorch.desktop /usr/share/applications
+my-superuser ln -sf /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps/noisetorch.png /usr/share/icons/hicolor/256x256/apps
+my-superuser gtk-update-icon-cache
+my-superuser setcap 'CAP_SYS_RESOURCE=+ep' /usr/share/my_stuff/system_files/bin/noisetorch

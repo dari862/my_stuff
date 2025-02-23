@@ -182,6 +182,16 @@ if command -v lxterminal >/dev/null ;then
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/lxterminal" "${__distro_path}/system_files/skel/.config" 
 fi
 
+if command -v cava >/dev/null ;then
+	show_im "copy cava skell file to system_files/skel ."
+	my-superuser cp -r "${__distro_path}/extra_skel/.config/cava" "${__distro_path}/system_files/skel/.config" 
+fi
+
+#if command -v cmus >/dev/null ;then
+#	show_im "copy cava skell file to system_files/skel ."
+#	my-superuser cp -r "${__distro_path}/extra_skel/.config/cmus" "${__distro_path}/system_files/skel/.config" 
+#fi
+
 if command -v alacritty >/dev/null ;then
 	show_im "copy alacritty skell file to system_files/skel ."
 	my-superuser cp -r "${__distro_path}/extra_skel/.config/alacritty" "${__distro_path}/system_files/skel/.config" 
@@ -216,6 +226,11 @@ show_im "LN bin files to system_files/bin ."
 if [ -d "${__distro_path}/bin/bin" ];then
 	show_im "bin bin files to system_files/bin ."
 	my-superuser ln -sf "${__distro_path}"/bin/bin/* "${__distro_path}"/system_files/bin
+fi
+
+if [ -d "${__distro_path}/Distro_Specific/bin" ];then
+	show_im "bin Distro_Specific files to system_files/bin ."
+	my-superuser ln -sf "${__distro_path}"/Distro_Specific/bin/* "${__distro_path}"/system_files/bin
 fi
 
 if [ -d "${__distro_path}/bin/WM" ];then
@@ -276,7 +291,7 @@ my-superuser "${__distro_path}"/bin/openbox/pipemenu/gui-apps-pipemenu --create
 ##################################################################################
 
 show_im "Running script for create_DB.sh --all"
-my-superuser ${__distro_path}/bin/WM/create_DB.sh --all
+my-superuser ${__distro_path}/bin/WM/create_DB.sh --all || show_em "failed to run create_DB.sh"
 
 show_im "Running must_create_script."
 for script_dir in "${__distro_path}"/bin/must_create_script/*;do

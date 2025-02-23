@@ -2,29 +2,18 @@
 #===================================================================================
 # UPDATE NOTIFICATION
 # FILE: update_notification
-# DESCRIPTION: Checks apt updates and show it to user in tint2 taskbar
+# DESCRIPTION: Checks updates and show it to user in tint2 taskbar
 #===================================================================================
 # CONFIG
 __arg="${1-}"
 script_name="$(basename $0)"
 
-if [ "$(id -u)" -eq 0 ];then
-	__my_superuser=""
-else
-	__my_superuser="my-superuser"
-fi
+. "/usr/share/my_stuff/lib/apps/update-notification.conf"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager"
 
-if [ ! -f "/usr/share/my_stuff/system_files/update-notification.conf" ] ;then
-	$__my_superuser cp -r "/usr/share/my_stuff/lib/apps/update-notification.conf" "/usr/share/my_stuff/system_files/update-notification.conf"
-fi
-
-. "/usr/share/my_stuff/system_files/update-notification.conf"
-. "/usr/share/my_stuff/system_files/Package-manager"
-
-get_total_updates() { UPDATES=$(cat "$updates_file" | wc -l); }
 print_total_updates() { cat "$updates_file" | wc -l; }
 
-__my_superuser_() { $__my_superuser true; }
+__my_superuser_() { my-superuser true; }
 
 #=== FUNCTIONs ==================================================================
 # NAME: Massage system
@@ -51,7 +40,7 @@ warning() {
 
 #=== FUNCTION ==================================================================
 # NAME: update
-# DESCRIPTION: make apt update and and check new packages updates and save the list in $updates_file
+# DESCRIPTION: make update and and check new packages updates and save the list in $updates_file
 #===============================================================================
 update () {
 	__my_superuser_
@@ -59,8 +48,8 @@ update () {
 	Package_update_
 	
 	plain "Checking updates and saving in $updates_file..."
-	printf "" | $__my_superuser tee "$updates_file" > /dev/null 2>&1
-	Package_list_ | $__my_superuser tee -a updates_file > /dev/null 2>&1
+	printf "" | my-superuser tee "$updates_file" > /dev/null 2>&1
+	Package_list_ | my-superuser tee -a "$updates_file" > /dev/null 2>&1
 
 	# No updates
 	if [ ! -s "$updates_file" ];then
@@ -75,7 +64,7 @@ update () {
 
 #=== FUNCTION ==================================================================
 # NAME: update
-# DESCRIPTION: make apt upgrade interactive
+# DESCRIPTION: make upgrade interactive
 #===============================================================================
 interactive_upgrade() {
 	update
@@ -97,7 +86,7 @@ interactive_upgrade() {
 		exit 1
 	fi
 
-	printf "" > "$updates_file"
+	printf "" | my-superuser tee "$updates_file" > /dev/null 2>&1
 	printf ""
 	printf "Update complete!"
 	read pause
@@ -109,9 +98,8 @@ interactive_upgrade() {
 # DESCRIPTION: shot text for display in systray
 #===============================================================================
 send_notifcation_msg () {
-	if [ -s "$updates_file" ]
-	then
-	    get_total_updates
+	if [ -s "$updates_file" ];then
+	    UPDATES=$(print_total_updates)
 	    # notify user of updates
 	    if hash notify-send >/dev/null 2>&1;then
 			if [ "$UPDATES" -gt 50 ];then
@@ -134,14 +122,21 @@ send_notifcation_msg () {
 # NAME: install
 # DESCRIPTION: install the script
 #===============================================================================
-install_it () {
-	__my_superuser_
+install_it () {	
+	if [ "$(id -u)" -eq 0 ];then
+		__my_superuser=""
+	else
+		__my_superuser="my-superuser"
+		__my_superuser_
+	fi
+	
 	if [ ! -f "/usr/share/my_stuff/system_files/bin/update-notification" ] ;then
 		$__my_superuser ln -sf "/usr/share/my_stuff/bin/bin/update-notification" "/usr/share/my_stuff/system_files/bin"
 	fi
+	
 	$__my_superuser ln -sf "$script_full_path" "/etc/cron.$cron_when"	
-	if [ ! -f "$updates_file" ]
-	then 
+	
+	if [ ! -f "$updates_file" ];then 
 		$__my_superuser touch "$updates_file"
 		$__my_superuser chmod a+w "$updates_file"
 	fi
@@ -156,12 +151,12 @@ install_it () {
 uninstall (){
 	__my_superuser_
 	printf "Deleting symblink /etc/cron.$cron_when/${script_name}..."
-	[ -f "/etc/cron.monthly/${script_name}" ] && $__my_superuser rm "/etc/cron.monthly/${script_name}"
-	[ -f "/etc/cron.weekly/${script_name}" ] && $__my_superuser rm "/etc/cron.weekly/${script_name}"
-	[ -f "/etc/cron.daily/${script_name}" ] && $__my_superuser rm "/etc/cron.daily/${script_name}"
-	[ -f "/etc/cron.hourly/${script_name}" ] && $__my_superuser rm "/etc/cron.hourly/${script_name}"
+	[ -f "/etc/cron.monthly/${script_name}" ] && my-superuser rm "/etc/cron.monthly/${script_name}"
+	[ -f "/etc/cron.weekly/${script_name}" ] && my-superuser rm "/etc/cron.weekly/${script_name}"
+	[ -f "/etc/cron.daily/${script_name}" ] && my-superuser rm "/etc/cron.daily/${script_name}"
+	[ -f "/etc/cron.hourly/${script_name}" ] && my-superuser rm "/etc/cron.hourly/${script_name}"
 	printf "Deleting $updates_file..."
-	$__my_superuser rm "$updates_file"
+	my-superuser rm "$updates_file"
 	exit 
 }
 
@@ -183,12 +178,12 @@ list_update(){
 # DESCRIPTION: Show command help
 #===============================================================================
 help() {
-	printf 'Checks apt updates and show it to user in dunst taskbar
+	printf 'Checks updates and show it to user in dunst taskbar
 Usage: ${script_name} -[huc]
    \e[1m-h\e[0m\tShow command help
    \e[1m-i\e[0m\tStart interactive upgrade
    \e[1m-n\e[0m\tOutput message for dunst
-   \e[1m-u\e[0m\tMake apt update and check for new packages updates
+   \e[1m-u\e[0m\tMake update and check for new packages updates
    \e[1m-I\e[0m\tInstall the script (copy and link to cron.$cron_when)
    \e[1m-U\e[0m\tUninstall
 	'

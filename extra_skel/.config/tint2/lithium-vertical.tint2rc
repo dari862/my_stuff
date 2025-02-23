@@ -271,7 +271,7 @@ tooltip_font = Sans normal 10
 
 # Show Root Menu (BL-flame icon)
 button = new
-button_icon = /usr/share/my_stuff/system_files/Distro/linux.svg
+button_icon = /usr/share/my_stuff/Distro_Specific/icons/linux.svg
 button_text =
 button_tooltip = Main Menu
 button_lclick_command = distro_scripts --launcher

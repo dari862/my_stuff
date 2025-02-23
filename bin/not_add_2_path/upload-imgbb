@@ -92,7 +92,7 @@ done
 CLIENT_API_KEY="$(cat "${API_path}/${imgbb}" 2>/dev/null || :)"
 
 #### YAD ###
-DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"
+DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
 TITLE="--title=Image BBCode"
 T="--text="
 DELETE="--button=Delete:2"

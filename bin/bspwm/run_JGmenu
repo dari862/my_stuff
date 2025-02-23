@@ -1,2 +1,3 @@
 #!/bin/sh
-/usr/share/my_stuff/bin/not_add_2_path/JGmenu_runner
+bspc query -D -d 'focused.!occupied' \
+	    && jgmenu_run >/dev/null 2>&1

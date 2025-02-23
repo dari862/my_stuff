@@ -57,14 +57,14 @@ Tint2 Wiki: FAQ,my-www-browser "https://gitlab.com/o9000/tint2/wikis/FAQ"
 Tint2 Wiki: Configuration,my-www-browser "https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md"
 Tint2 Forum Thread,my-www-browser "https://forums.bunsenlabs.org/viewtopic.php?id=254"
 Tint2 man page,popup_terminal --man tint2
-Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
+Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
 
 ^tag(ConkyWWW)
 Back,^back()
 Conky Wiki,my-www-browser "https://github.com/brndnmtthws/conky/wiki"
 Conky Archive,my-www-browser "https://web.archive.org/web/20160325091248/https://crunchbang.org/forums/viewtopic.php?pid=371424"
 Conky man pages,popup_terminal --man conky
-Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
+Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
 
 ^tag(ThemesWWW)
 Back,^back()
@@ -74,9 +74,9 @@ gnome-look.org,my-www-browser "http://gnome-look.org/"
 
 ^tag(BLhelp)
 Back,^back()
-How to Edit Menu,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title="How to Edit the Menu" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-menu.txt" --width=900 --height=700 --fontname=Monospace
-About BLOB,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title="About BLOB" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-blob.txt" --width=900 --height=700 --fontname=Monospace
-Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
-About My Stuff Autostart,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title="About My Stuff Autostart" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-blautostart.txt" --width=900 --height=700 --fontname=Monospace
-About My Stuff Alternatives,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title="About My Stuff Alternatives" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-alternatives.txt" --width=900 --height=700 --fontname=Monospace
+How to Edit Menu,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="How to Edit the Menu" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-menu.txt" --width=900 --height=700 --fontname=Monospace
+About BLOB,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About BLOB" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-blob.txt" --width=900 --height=700 --fontname=Monospace
+Conky &amp; Tint2 Manager Help,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace
+About My Stuff Autostart,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Autostart" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-blautostart.txt" --width=900 --height=700 --fontname=Monospace
+About My Stuff Alternatives,yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Alternatives" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-alternatives.txt" --width=900 --height=700 --fontname=Monospace
 

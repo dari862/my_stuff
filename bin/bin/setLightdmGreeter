@@ -18,7 +18,7 @@ restoreLightdmGreeter(){
 		my-superuser sed -i "s/font-name = .*/font-name = ${greeter_font_name}/g" "$LDMF"
 		my-superuser sed -i "s/position = .*/position = ${greeter_position}/g" "$LDMF"
 		
- 		yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text="\n  LightdmGreeter File Restored."
+ 		yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text="\n  LightdmGreeter File Restored."
  	elif [ "$ret" = 1 ];then
 		restoreLightdmGreeter
 	elif [ "$ret" = 2 ];then

@@ -99,9 +99,7 @@ reminderSample="$config/remind" # shorter sample
 trap 'kill $(jobs -p) >/dev/null 2>&1' EXIT
 
 # required
-command -v at >/dev/null 2>&1 || { >&2 echo "I need at: my-superuser apt install --no-install-recommends at" ; exit 1; }
-command -v speaker-test >/dev/null 2>&1 || { >&2 echo "I need speaker-test from alsa-utils (for reminder sound)." ; exit 1; }
-command -v notify-send >/dev/null 2>&1 || { >&2 echo "I need notify-send." ; exit 1; }
+check_4_dependencies_if_installed at speaker-test notify-send || exit 1
 
 # reminder sound, needs speaker-test (alsa-utils)
 beep () {

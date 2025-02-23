@@ -13,19 +13,8 @@ if [ "$_panel_name_" = "polybar" ];then
 	menuItem 'Restart' "polybar-session restart"
 	menuItem 'Stop' "polybar-session stop"
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
-		. "/usr/share/my_stuff/lib/common/DB"
-		count=1
-		[ ! -f "${styles_db_path}" ] && /usr/share/my_stuff/bin/WM/create_DB.sh --styles
-		# Styles
-		styles="$(cat "${styles_db_path}")"
-		menuSeparator "| Simple |"
-		for style in ${styles}; do
-			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
-			better_style_name=$(echo "$style" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
-			menuItem "${count}. ${better_style_name}" "polybar_picker $style"
-			count=$(($count+1))
-		done
-	menuSubmenuEnd
+		[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/not_add_2_path/create-style-pipemenu
+		cat "${style_pipemenu_file}"
 elif [ "$_panel_name_" = "xfce4-panel" ];then
 	menuStart "Xfce4PanelMenu" "xfce4-panel"
 	menuItem 'GUI Xfce4-Panel Config Tool' "xfce4-panel -p"
@@ -113,7 +102,7 @@ elif [ "$_panel_name_" = "tint2" ];then
 	checkHelpfile(){
     	DLG="yad --text-info --center --borders=20 \
     	--title='My Stuff Conky and Tint2 Manager Help' \
-    	--window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg \
+    	--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg \
     	--filename=$HELPFILE --fontname=Monospace \
     	--width=650 --height=700 \
     	--button=OK:0"

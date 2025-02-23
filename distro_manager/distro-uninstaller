@@ -2,7 +2,7 @@
 is_it_zero_byte=false
 
 . "/usr/share/my_stuff/system_files/var_for_distro_uninstaller"
-. "/usr/share/my_stuff/system_files/Package-manager"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager"
 for backup in icons themes fonts;do
 	my-superuser find /usr/share/${backup} -depth -maxdepth 1 -type l -delete
 	my-superuser mv /usr/share/my_stuff/system_files/backup/${backup} /usr/share/${backup}

@@ -742,7 +742,7 @@ function switch_to_browser(){   # switch to new browser tab
 ######## End OAuth Functions ###########################################
 
 ######## YAD ###########################################################
-DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --fixed"
+DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --fixed"
 TITLE="--title=Image BBCode"
 T="--text="
 DELETE="--button=Delete:2"

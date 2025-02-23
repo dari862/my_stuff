@@ -34,7 +34,7 @@ PASSWORD="$(tr -dc 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567
 
 say 'Remove sudo ...' 1
 my-superuser su root -c "
-	. \"/usr/share/my_stuff/system_files/Package-manager\"
+	. \"/usr/share/my_stuff/Distro_Specific/Package-manager\"
 	echo \"root:${PASSWORD}\" | chpasswd
 	Package_remove_ sudo
 	passwd -l root

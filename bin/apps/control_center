@@ -465,7 +465,7 @@ yad --plug=$KEY --tabnum=8 --borders=0 --text="$SYSTEM_DESC" --columns=2 --align
 > $res8 &
 # HELP
 yad --plug=$KEY --tabnum=9 \
---image=/usr/share/icons/hicolor/128x128/apps//usr/share/my_stuff/system_files/Distro/linux.svg --text-justify=center --uri-handler=my-text-editor --text="$HELP_TXT" \
+--image=/usr/share/icons/hicolor/128x128/apps//usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-justify=center --uri-handler=my-text-editor --text="$HELP_TXT" \
 --form --columns="4" \
 --field="www:FBTN" "my-text-editor https://maboxlinux.org" \
 --field="forum:FBTN" "my-text-editor https://forum.maboxlinux.org" \

@@ -40,11 +40,11 @@ case $chosen in
         ;;
     $clifm)
         app_2_run_as_root="popup_terminal"
-		Extra_Arg="-e lf"
+		Extra_Arg="lf"
         ;;
     $vim)
         app_2_run_as_root="popup_terminal"
-        Extra_Arg="-e $(which $CLI_EDITER)"
+        Extra_Arg="$(which $CLI_EDITER)"
         ;;
 esac
 

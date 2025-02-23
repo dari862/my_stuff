@@ -4,7 +4,7 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/polybar"
-. "/usr/share/my_stuff/system_files/disto_icons"
+. "/usr/share/my_stuff/Distro_Specific/disto_icon"
 
 CARD=""
 BATTERY=""

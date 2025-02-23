@@ -47,12 +47,12 @@ old_bg_()
 	xwallpaper --zoom "$bgloc"
 }
 
-restore(){
+__restore(){
 	sleep 0.5
 	if livewall --run-live-autorun-enabled;then
 		( livewall --run-live ) &
 	elif command -v xwallpaper >/dev/null ;then
-		( sleep 2 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2)" ) &
+		( sleep 2 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2 || :)" ) &
 	else
 		( sleep 1 && nitrogen --restore ) &
 	fi
@@ -80,10 +80,28 @@ random_wall(){
 
 save_and_restore(){
 	save_wall
-	restore
+	__restore
 }
 
 save_wall(){
+	if [ ! -f "$HOME/.config/nitrogen/nitrogen.cfg" ];then
+		mkdir -p "$HOME/.config/nitrogen"
+		tee "$HOME/.config/nitrogen/nitrogen.cfg" <<- EOF > /dev/null
+		[geometry]
+		posx=654
+		posy=174
+		sizex=508
+		sizey=500
+		
+		[nitrogen]
+		view=icon
+		recurse=true
+		sort=alpha
+		icon_caps=false
+		dirs=
+		EOF
+		sed -i "s|dirs=.*|dirs=${wallpapers_dir};|g" "$HOME/.config/nitrogen/nitrogen.cfg"
+	fi
 	if command -v xwallpaper >/dev/null ;then
 		mkdir -p "$HOME/.config/nitrogen"
 		tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
@@ -101,7 +119,7 @@ save_wall(){
 main()
 {
 	case $op__ in
-		-r) restore ;;
+		-r) __restore ;;
 		-o) old_bg_ $op2__ ;;
 		-s) save_wall ;;
 		-S) style_wall ;;

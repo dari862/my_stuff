@@ -38,7 +38,7 @@ saveStyle(){
 	CONKYPATH="$HOME/.config/conky"
 	CONKYSESSION="$CONKYPATH/conky-sessionfile"
 	TINTSESSION="$HOME/.config/tint2/tint2-sessionfile"
-	POLYBAR_AND_ROFI="$HOME/.config/$WM_config_name"
+	POLYBAR_AND_ROFI="$HOME/$WM_config_dir_name"
 	GTK2="$HOME/.config/gtk-2.0"
 	GTK3="$HOME/.config/gtk-3.0"
 	GTK3x="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-notifyd.xml"
@@ -115,9 +115,9 @@ saveStyle(){
 			cp -r "${HOME}${theme}" "$CONFIG_DIR/config/tint2" >/dev/null 2>&1
 		done < ${tint2_sessionfile_file}
 	elif pgrep -a polybar >/dev/null 2>&1;then
-		mkdir -p "$CONFIG_DIR/config/$WM_config_name"
-    	cp "$WM_config_dir/Polybar_style" "$CONFIG_DIR/config/$WM_config_name"
-    	cp "$WM_config_dir/Rofi_style" "$CONFIG_DIR/config/$WM_config_name"
+		mkdir -p "$CONFIG_DIR/$WM_config_blob_dir_name"
+    	cp "$WM_config_dir/Polybar_style" "$CONFIG_DIR/$WM_config_blob_dir_name"
+    	cp "$WM_config_dir/Rofi_style" "$CONFIG_DIR/$WM_config_blob_dir_name"
 	fi
 	# getOBtheme
 	if pgrep -a openbox >/dev/null 2>&1;then
@@ -149,9 +149,9 @@ Launch_YAD_(){
 	### END CONFIGS VARIABLES
 	
 	### DIALOG VARIABLES
-	DIALOG="yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"
-	DIALOGDEC="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"
-	yadWarning="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --title Alert  --button='Ok:1' --button='Cancel:0' --text"
+	DIALOG="yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+	DIALOGDEC="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+	yadWarning="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --title Alert  --button='Ok:1' --button='Cancel:0' --text"
 	TITLE="BLOB Config Manager"
 	CANCEL="--button=Cancel:1"
 	EXIT="--button=Quit:1"

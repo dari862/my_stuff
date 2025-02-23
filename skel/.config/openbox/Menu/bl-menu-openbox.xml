@@ -262,7 +262,7 @@
         <item label="About My Stuff Alternativess">
             <action name="Execute">
                 <command>
-                    yad --button='OK':0 --center --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --text-info --title='About My Stuff Alternatives' --filename='/usr/share/my_stuff/lib/docs/helpfiles/helpfile-alternatives.txt' --width=900 --height=700 --fontname=Monospace
+                    yad --button='OK':0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title='About My Stuff Alternatives' --filename='/usr/share/my_stuff/lib/docs/helpfiles/helpfile-alternatives.txt' --width=900 --height=700 --fontname=Monospace
                 </command>
             </action>
         </item>

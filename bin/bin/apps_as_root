@@ -55,7 +55,7 @@ else
 		my-superuser ${command_2_run}
 		return 0
 	else
-		yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg --title Alert --text="\n  password was incorrect."
+		yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --title Alert --text="\n  password was incorrect."
 		return 1
 	fi
 fi

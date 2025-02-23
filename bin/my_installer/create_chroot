@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/system_files/Package-manager"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager"
 . "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
 
 chroot_name="${1-}"

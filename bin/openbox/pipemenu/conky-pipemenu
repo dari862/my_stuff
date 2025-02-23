@@ -87,7 +87,7 @@ loadMove(){
 checkHelpfile(){
     DLG="yad --text-info --center --borders=20 \
     --title='My Stuff Conky and Tint2 Manager Help' \
-    --window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg \
+    --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg \
     --filename=$HELPFILE --fontname=Monospace \
     --width=650 --height=700 \
     --button=OK:0"

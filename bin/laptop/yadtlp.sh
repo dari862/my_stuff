@@ -6,15 +6,12 @@ __tlp_version_="$(tlp-stat -s | head -1)"
 
 . "/usr/share/my_stuff/lib/languages/tlp/yadtlp_configdescriptions"
 
+check_4_dependencies_if_installed tlp || exit 1
+
 if [ -f "$__config_path" ];then
 	source <(sed '/^# /d;/^#!/d;s/#//g' "$__config_path")
 else
-	__tlp_="tlp"
-	if command -v $__tlp_ >/dev/null 2>&1;then
-		yad --form --width="200" --height="100" --field="$__tlp_ not found : apt install $__tlp_:LBL" >/dev/null 2>&1
-	else
-		yad --form --width="200" --height="100" --field="$__config_path does not exist:LBL" >/dev/null 2>&1
-	fi
+	yad --form --width="200" --height="100" --field="$__config_path does not exist:LBL" >/dev/null 2>&1
 	exit
 fi
 

@@ -19,8 +19,7 @@ xfce_polkit_path="/usr/lib/xfce-polkit/xfce-polkit"
 		keyring_name="xfce-polkit"
 		keyring_path="/usr/lib/xfce-polkit/xfce-polkit"
 	else
-		echo "${polkit_gnome_path} not found. apt install policykit-1-gnome"
-		echo "${xfce_polkit_path} not found."
+		echo "${polkit_gnome_path} not found. install policykit gnome or xfce-polkit"
 	fi
 
 #=== FUNCTION ======================================================================

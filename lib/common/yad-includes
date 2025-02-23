@@ -30,7 +30,7 @@
 # Unset options with 0, eg:
 # yad_common_args+=(--center=0)
 
-yad_common_args=('--window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg' '--center' '--borders=20')
+yad_common_args=('--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg' '--center' '--borders=20')
 yad_popup_args=('--undecorated' '--fixed' '--on-top')
 
 # Call these functions as shorthand for simple popups etc.

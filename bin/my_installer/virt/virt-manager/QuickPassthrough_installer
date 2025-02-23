@@ -1,6 +1,0 @@
-#!/bin/sh
-my_installer_ln_script "QuickPassthrough_updater" || failed_to_run "failed to run QuickPassthrough_updater ."
-say 
-say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
-say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
-say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."

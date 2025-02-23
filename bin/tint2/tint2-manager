@@ -84,7 +84,7 @@ done
 DLG="yad --center --undecorated --borders=20 "
 DLGDEC="yad --center --borders=20 "
 TITLE="My Stuff Tint2 Manager"
-WINICON="--window-icon=/usr/share/my_stuff/system_files/Distro/linux.svg"
+WINICON="--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
 OK="--button=OK:0"
 APPLY="--button=Apply:0"
 CANCEL="--button=gtk-cancel:1"

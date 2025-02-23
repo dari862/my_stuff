@@ -9,6 +9,7 @@ opt="${1-}"
 . "/usr/share/my_stuff/lib/common/DB"
 . "/usr/share/my_stuff/lib/common/openbox"
 . "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager"
 
 # Helper function to check if a command is installed
 is_installed() {
@@ -17,22 +18,26 @@ is_installed() {
 
 # Helper function to create a database from directories
 create_db_from_dirs() {
-  dir="$1"
-  db_path="$2"
-  remove_this="$3"	
-  # Ensure db_path exists
+  if [ -z "$1" ] || [ -z "$2" ];then
+  	exit 1
+  fi
+  
+  if [ -z "$3" ];then
+  	remove_this=""
+  else
+  	remove_this="! -name $3"
+  fi
+  
+  dirs="$(find $1 -mindepth 1 -maxdepth 1 -type d $remove_this)"
+  db_path="$2"	
+  # Ensure db_path exists and empty
+  [ -d "$db_path" ] && rm -rdf "$db_path"
   mkdir -p "$db_path"
-
   # Iterate over subdirectories in the specified directory
-	for d in "$dir"/*/; do
+	for d in $dirs; do
     	# Extract the base name of the directory (e.g., last part of the path)
     	dir_name=$(basename "$d")
-	
-    	# If the corresponding file already exists in the db_path, remove it
-    	if [ -f "${db_path}/$dir_name" ];then
-      		rm "${db_path}/$dir_name"
-    	fi
-	
+    	
     	# Create the db file for the directory
     	touch "${db_path}/$dir_name"
 	
@@ -42,17 +47,12 @@ create_db_from_dirs() {
         		echo "$(basename "$app")" >> "$db_path/$dir_name"
       		fi
     	done
-    	[ ! -s "$db_path/$dir_name" ] && rm -f "$db_path/$dir_name"
 	done
-	if [ -n "$remove_this" ];then
-		for d in $remove_this; do
-			rm -rdf "${db_path}/$d"
-		done
-	fi
 }
 
 # Create the Tweeks database
 create_tweeks_db() {
+  say "create DB for tweeks."
   # Check if _TWEEKS_LIBDIR is valid and not empty
   if [ -z "$(ls -A "${_TWEEKS_LIBDIR}")" ];then
     rm -rdf "${_TWEEKS_LIBDIR}"
@@ -76,12 +76,15 @@ create_tweeks_db() {
 
 # Create apps and gaming database
 create_apps_db_and_gaming_db() {
-  create_db_from_dirs "${_APPS_LIBDIR}" "${apps_db_path}" "Gaming"
-  create_db_from_dirs "${_APPS_LIBDIR}/Gaming" "${gaming_db_path}"
+  say "create DB for apps."
+  create_db_from_dirs "${_APPS_LIBDIR} ${_APPS_EXTRA_LIBDIR}" "${apps_db_path}" "Gaming"
+  say "create DB for gaming."
+  create_db_from_dirs "${_APPS_EXTRA_LIBDIR}/Gaming" "${gaming_db_path}"
 }
 
 # Create distrobox deploy database
 create_distrobox_deploy_db() {
+  say "create DB for distrobox."
   cd "${_DISTROBOX_LIBDIR}"
   list_of_deploys=$(find . -maxdepth 1 -type f -exec basename {} \;)
 
@@ -100,6 +103,7 @@ create_distrobox_deploy_db() {
 
 # Create containers deploy database
 create_containers_deploy_db() {
+  say "create DB for containers."
   cd "${_CONTAINERS_LIBDIR}"
   list_of_containers=$(find . -maxdepth 1 -type f -exec basename {} \;)
 
@@ -118,6 +122,7 @@ create_containers_deploy_db() {
 
 # Create chroots deploy database
 create_chroots_deploy_db() {
+  say "create DB for chroots."
   list_of_chroots=$(find "${_CHROOTS_LIBDIR}" -maxdepth 1 -type f -exec basename {} \;)
   if [ -d "${ROOT_CHROOT_DIR}" ];then
     for chroot in $list_of_chroots; do
@@ -134,6 +139,7 @@ create_chroots_deploy_db() {
 
 # Create the FULL ENVIRONMENT database
 create_full_environment_db() {
+  say "create DB for full_environment."
   # Check if _FULL_ENVIRONMENT_LIBDIR is not valid or empty
   if [ -z "$(ls -A "${_FULL_ENVIRONMENT_LIBDIR}")" ];then
     rm -rdf "${_FULL_ENVIRONMENT_LIBDIR}"
@@ -150,20 +156,6 @@ create_full_environment_db() {
       echo "$(basename "$FE")" >> "${full_environment_db_path}"
     fi
   done
-}
-
-# Create styles database
-create_styles_db() {
-	. "/usr/share/my_stuff/lib/common/panel"
-	. "/usr/share/my_stuff/lib/common/openbox"
-
-	if [ "$_panel_name_" = 'polybar' ];then
-		dir="/usr/share/my_stuff/system_files/blob/polybar"
-	else
-		dir="/usr/share/my_stuff/system_files/blob/tint2"
-	fi
-
-	find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name "default" -exec basename {} \; | sort > "$styles_db_path"
 }
 
 # Create all databases except the styles database
@@ -186,7 +178,6 @@ case "$opt" in
   --deploy) create_distrobox_deploy_db ;;
   --containers) create_containers_deploy_db ;;
   --chroots) create_chroots_deploy_db ;;
-  --styles) create_styles_db ;;
   --all) create_all_db_except_style_db ;;
   *) echo "Invalid option"; exit 1 ;;
 esac

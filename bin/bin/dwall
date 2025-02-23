@@ -61,7 +61,7 @@ trap exit_on_signal_SIGTERM SIGTERM
 
 ## Prerequisite
 Prerequisite() { 
-    check_4_dependencies_if_installed crontab
+    check_4_dependencies_if_installed crontab || exit 1
 	## Choose wallpaper setter						  
 	case "$OSTYPE" in
 		linux*)	
@@ -70,7 +70,7 @@ Prerequisite() {
 				elif [[ "$DESKTOP_SESSION" =~ ^(MATE|Mate|mate)$ ]];then
 					SETTER="gsettings set org.mate.background picture-filename"
 				elif [[ "$DESKTOP_SESSION" =~ ^(Xfce Session|xfce session|XFCE|xfce|Xubuntu|xubuntu)$ ]];then
-					check_4_dependencies_if_installed xrandr
+					check_4_dependencies_if_installed xrandr || exit 1
 					SCREEN="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $1}' | tr -d \:)"
 					MONITOR="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $2}' | tr -d \*+)"
 					SETTER="xfconf-query --channel xfce4-desktop --property /backdrop/screen$SCREEN/monitor$MONITOR/workspace0/last-image --set"
@@ -91,7 +91,7 @@ Prerequisite() {
 				elif type -p "feh" >/dev/null 2>&1;then
 					SETTER="feh --bg-fill"
 				else 
-					check_4_dependencies_if_installed xwallpaper
+					check_4_dependencies_if_installed xwallpaper || exit 1
 					SETTER="xwallpaper --stretch"
 				fi
 				;;
@@ -384,8 +384,8 @@ YES_OR_NO()
 }
 
 Download_wallpapers_now(){
-	. "/usr/share/my_stuff/system_files/Package-manager"
-	check_4_dependencies_if_installed git
+	. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+	check_4_dependencies_if_installed git || exit 1
 	mkdir -p /tmp/$USER/dynamic_wallpapers
 	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"
 	echo "size wallpaper is 150 MB"

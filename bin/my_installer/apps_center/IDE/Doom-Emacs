@@ -29,8 +29,8 @@ if [ ! -f "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/doom_d
 	my-superuser chmod +x "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/doom_daemon"
 fi
 
-my-superuser ln -sf /usr/share/my_stuff/bin/my_installer/Doom-Emacs/doom-session /usr/share/my_stuff/system_files/bin
-my-superuser cp -r /usr/share/my_stuff/bin/my_installer/Doom-Emacs/emacsclient.desktop /usr/share/my_stuff/system_files/applications
+my-superuser ln -sf ${_APPS_LIBDIR}/IDE/Doom-Emacs_Extra/doom-session /usr/share/my_stuff/system_files/bin
+my-superuser cp -r ${_APPS_LIBDIR}/IDE/Doom-Emacs_Extra/emacsclient.desktop /usr/share/my_stuff/system_files/applications
 my-superuser ln -sf /usr/share/my_stuff/system_files/applications/emacsclient.desktop /usr/share/applications
 
 for d in /home/*; do

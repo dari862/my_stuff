@@ -66,10 +66,6 @@ jgmenu_options(){
 			[ -n "$apps_in_dir" ] && generate_installmenu_jgmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
 		done
 	fi
-	
-	if [ ! -f "/usr/share/my_stuff/system_files/Cyber_ready" ];then
-		jgmenuItem "Cybersecurity Apps" "${installation_script_name} --install Cyber_"
-	fi
     jgmenuEnd
 #    menuEnd
 }
@@ -113,9 +109,6 @@ obmenu_options(){
 			[ -n "$apps_in_dir" ] && generate_installmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
 		done
 		menuSubmenuEnd
-	fi
-	if [ ! -f "/usr/share/my_stuff/system_files/Cyber_ready" ];then
-		menuItem "Cybersecurity Apps" "${installation_script_name} --install Cyber_"
 	fi
     menuEnd
  #    menuEnd   

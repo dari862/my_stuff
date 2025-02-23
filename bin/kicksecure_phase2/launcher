@@ -1,4 +1,0 @@
-#!/bin/sh
-set -e
-
-popup_terminal /usr/share/my_stuff/bin/kicksecure_phase2/script

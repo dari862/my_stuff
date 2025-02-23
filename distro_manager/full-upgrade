@@ -10,7 +10,7 @@ fi
 
 Custom_distro_path="/usr/share/my_stuff"
 
-. "${Custom_distro_path}/system_files/Package-manager"
+. "${Custom_distro_path}/Distro_Specific/Package-manager"
 x_session_picker_path="${Custom_distro_path}/system_files/bin/xsessions/openbox"
 
 usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g')"

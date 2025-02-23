@@ -1,0 +1,12 @@
+/* Color-Scheme,Theme-Scheme, and Text Font */
+
+* {
+    background:     {background};
+    background-alt: {background};
+    foreground:     {foreground};
+    selected:       {color2};
+    active:         {color1};
+    urgent:         {color3};
+    icon-theme: "Zafiro";
+    font:				 	"Iosevka 10";
+}

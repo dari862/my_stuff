@@ -1,5 +1,0 @@
-#!/bin/sh
-
-app_name="thunderbird"
-say 'Installing thunderbird...' 1
-Package_installer_ ${app_name} || continue

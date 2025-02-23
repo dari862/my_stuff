@@ -11,12 +11,14 @@ list_update(){
 
 print_total_updates(){
 	style="${__arg}"
+	
 	if [ "$style" = "forest" ] || [ "$style" = "forest_large" ];then
     	BAR_ICON=""
     else
     	BAR_ICON=""
 	fi
-	. "/usr/share/my_stuff/system_files/update-notification.conf"
+	
+	. "/usr/share/my_stuff/lib/apps/update-notification.conf"
 	
 	UPDATES=$(cat "$updates_file" | wc -l)
 	

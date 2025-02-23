@@ -30,7 +30,7 @@ do
 	"d")#delete image
 		[ "$(printf "No\\nYes" | dmenu -i -p "Really delete $file?")" = "Yes" ] && rm "$file" && notify-send "$file deleted." ;;
 	"g")#install gimp
-		check_4_dependencies_if_installed gimp && setsid -f gimp "$file" ;;
+		(check_4_dependencies_if_installed gimp || exit 1) && setsid -f gimp "$file" ;;
 	"i")#notify-send notify image information
 		notify-send "File information" "$(mediainfo "$file" | sed "s/[ ]\+:/:/g;s/: /: <b>/;s/$/<\/b>/" | grep "<b>")" ;;
         esac

@@ -1,0 +1,48 @@
+colors:
+  #  Default colors
+  primary:
+    background: '0x100f0d'
+    foreground: '0xdfd9cd'
+
+    dim_foreground:    '0x9c978f'
+    bright_foreground: '0x537A84'
+    dim_background:    '0x9c978f' #  not sure
+    bright_background: '0x100f0d' #  not sure
+
+  #  Cursor colors
+  #  cursor:
+    #  text:   '0xdfd9cd'
+    #  cursor: '0x100f0d'
+
+  #  Normal colors
+  normal:
+    black:   '0x100f0d'
+    red:     '0xE99551'
+    green:   '0xC8A763'
+    yellow:  '0x24768B'
+    blue:    '0x537A84'
+    magenta: '0x299299'
+    cyan:    '0x539EA8'
+    white:   '0xdfd9cd'
+
+  #  Bright colors
+  bright:
+    black:   '0x9c978f'
+    red:     '0xE99551'
+    green:   '0xC8A763'
+    yellow:  '0x24768B'
+    blue:    '0x537A84'
+    magenta: '0x299299'
+    cyan:    '0x539EA8'
+    white:   '0xdfd9cd'
+
+  #  Dim colors
+  dim:
+    black:   '0x100f0d'
+    red:     '0xE99551'
+    green:   '0xC8A763'
+    yellow:  '0x24768B'
+    blue:    '0x537A84'
+    magenta: '0x299299'
+    cyan:    '0x539EA8'
+    white:   '0xdfd9cd'

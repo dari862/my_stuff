@@ -1,6 +1,0 @@
-#!/bin/sh
-prayer-times sync
-while true;do
-	sleep 28800 # sleep 8h
-	prayer-times sync
-done
