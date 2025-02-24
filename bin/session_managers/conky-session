@@ -9,14 +9,8 @@
 #===================================================================================
 
 conkys_path="$HOME/.config/conky"
-conky_theme_file="${conkys_path}/conky-sessionfile"
-ConkyDEFAULT=".config/conky/openbox-conky.conf"
-
-if [ ! -f "$conky_theme_file" ];then
-    echo "$0: Failed to locate ${conky_theme_file}, generating default..." >&2
-    echo "$ConkyDEFAULT" > "$conky_theme_file"
-fi
-
+. "${Distro_config_file}"
+conky_sessionfile="$(echo $conky_sessionfile | sed "s|;||g")"
 #=== FUNCTION ======================================================================
 # NAME: stop
 # DESCRIPTION: stop all conky process
@@ -32,11 +26,11 @@ stop() {
 #===================================================================================
 start() {
 	sleep 3
-	while IFS="" read -r theme || [ -n "$theme" ]
+	for theme in $conky_sessionfile
 	do
 		(conky -c $HOME/$theme >/dev/null 2>&1) &
   		sleep 0.5
-	done < ${conky_theme_file}
+	done
 }
 
 

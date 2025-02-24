@@ -10,13 +10,7 @@
 
 config_dir="$HOME/.config"
 tint2_config="${config_dir}/tint2"
-tint2_sessionfile_="${tint2_config}/tint2-sessionfile"
-DEFAULTTINT2="/.config/tint2/default.tint2rc"
-
-if [ ! -f "$tint2_sessionfile_" ];then
-	echo "$0: There is no session file: ${tint2_sessionfile_}, generating now..." >&2
-	echo "${DEFAULTTINT2}" > "$tint2_sessionfile_"
-fi
+. "${Distro_config_file}"
 
 #=== FUNCTION ======================================================================
 # NAME: stop
@@ -26,17 +20,16 @@ stop() {
 	kill_process.sh tint2
 }
 
-
 #=== FUNCTION ======================================================================
 # NAME: start
 # DESCRIPTION: start tint2
 #===================================================================================
 start() {
-	while IFS="" read -r theme || [ -n "$theme" ]
+	for theme in $tint2_sessionfile
 	do
 		(tint2 -c "$HOME$theme" >/dev/null 2>&1) &
 		sleep 0.5
-	done < ${tint2_sessionfile_}
+	done
 }
 
 # EXEC ACTION ACCORDING $1

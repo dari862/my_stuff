@@ -3,7 +3,6 @@
 
 ## Rofi #############################################
 . "/usr/share/my_stuff/lib/common/WM"
-. "${Distro_config_file}"
 
 opt_="${1-}"
 opt2_="${2-}"
@@ -248,6 +247,7 @@ else
 fi
 
 if  [ "$show_menu" = "rofi" ];then
+	. "${Distro_config_file}"
 	layout="$(grep 'USE_ICON' "$HOME/.config/rofi/$ROFI_STYLE"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 	rofi_menu
 elif  [ "$show_menu" = "yad" ];then		
