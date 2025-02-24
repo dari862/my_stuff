@@ -3,10 +3,8 @@
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/openbox"
-. "/usr/share/my_stuff/lib/common/rofi"
-. "/usr/share/my_stuff/lib/common/panel"
-	
-_panel_name_="$(cat ${_panel_name_path_})"
+. "${Distro_config_file}"
+
 BLOBPATH="$HOME/.config/blob"
 
 if [ "$_panel_name_" = 'polybar' ];then
@@ -19,7 +17,7 @@ fi
 
 list_styles="$(cd "$CONFIGPATH" && ls -d * 2>/dev/null)"
 Picked_Style="$(echo "$list_styles" | rofi -no-config -no-lazy-grab -dmenu -i -p '' \
-	-theme "$rofi_style_dir"/launcher.rasi )"
+	-theme "$HOME/.config/rofi/$ROFI_STYLE"/launcher.rasi )"
 	
 [ -z "$Picked_Style" ] && Picked_Style="${default_style}"
 	

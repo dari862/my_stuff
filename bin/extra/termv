@@ -4,7 +4,8 @@ set -euo pipefail
 check_4_dependencies_if_installed mpv fzf jq gawk || exit 1
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
+
 if command -v curl >/dev/null 2>&1;then
 	get_data_from_url(){
 		curl -s "${1}" --etag-compare "${2}" --etag-save "${3}" -o "${4}" -H "accept-encoding:gzip" --compressed

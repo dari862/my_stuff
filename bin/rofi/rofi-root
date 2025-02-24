@@ -2,9 +2,8 @@
 # if this line exist script will be part of hub script.
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
-rofi_command="rofi -theme $rofi_style_dir/runner.rasi"
 # Apps
 layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 if [ "$layout" = 'YES' ];then
@@ -24,7 +23,7 @@ fi
 options="$terminal\n$files\n$editor\n$clifm\n$vim"
 
 # Functions
-chosen="$(printf "$options" | $rofi_command -dmenu -selected-row 0)"
+chosen="$(printf "$options" | rofi -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
 case $chosen in
     $terminal)
         app_2_run_as_root="my-terminal-emulator"

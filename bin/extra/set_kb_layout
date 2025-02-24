@@ -8,7 +8,8 @@ if ! command -v setxkbmap >/dev/null;then
 fi
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
+
 . /etc/default/keyboard
 kb="$XKBLAYOUT"
 
@@ -28,7 +29,7 @@ if [ -z "$(grep us "${kb_layout_ini_path}/${kb_layout_name}" 2>/dev/null|| :)" ]
 fi
 
 add_kb_layout(){
-	kb_choice="$(awk '/! layout/{flag=1; next} /! variant/{flag=0} flag {print $2, "- " $1}' /usr/share/X11/xkb/rules/base.lst | ${rofi_command} -p "" )"
+	kb_choice="$(awk '/! layout/{flag=1; next} /! variant/{flag=0} flag {print $2, "- " $1}' /usr/share/X11/xkb/rules/base.lst | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "" )"
 	kb="$(echo "$kb_choice" | awk '{print $3}')"
 	
 	if [ -n "$kb" ] && [ "$(grep "$kb" "${kb_layout_ini_path}/${kb_layout_name}")" != "$kb" ];then
@@ -47,7 +48,7 @@ change_kb_layout(){
 	
 _help(){
 	Chosen_OPT=""
-	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | ${rofi_command} -p '')"
+	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
 	opt__="$(echo $Chosen_OPT | awk '{ print $1 }')"
 	main
 }

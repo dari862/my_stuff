@@ -7,7 +7,7 @@ set -eu
 
 # Importing common libraries
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 cp2cb() {
   case "$XDG_SESSION_TYPE" in
@@ -49,14 +49,14 @@ main() {
   fi
 
   # Get "from" and "to" language codes via rofi
-  from_name=$(sort "$lang_map" | ${rofi_command} -p 'Translate from:' || exit 1)
+  from_name=$(sort "$lang_map" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Translate from:' || exit 1)
   from_code=$(echo "$from_name" | awk '{print $1}')
 
-  to_name=$(sort "$lang_map" | ${rofi_command} -p 'Translate to:' || exit 1)
+  to_name=$(sort "$lang_map" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Translate to:' || exit 1)
   to_code=$(echo "$to_name" | awk '{print $1}')
 
   # Get text to translate and URL encode it
-  query=$(${rofi_command} -p "Translate (${from_code} -> ${to_code}):")
+  query=$(rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Translate (${from_code} -> ${to_code}):")
   query=$(encode "$query")
   query="${query}%0A"  # URL encode newline
 

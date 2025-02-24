@@ -2,7 +2,7 @@
 set -eu
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 picked_cfg="${1-}"
 database="${script_config_path}/confedit-list"
@@ -10,7 +10,7 @@ database="${script_config_path}/confedit-list"
 [ ! -f "$database" ] && cp -r "/usr/share/my_stuff/skel/.config/scriptconfig/confedit-list" "$database"
 
 if [ -z "$picked_cfg" ];then
-	picked_cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' "$database" | column -s '##' -t | $rofi_command -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
+	picked_cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' "$database" | column -s '##' -t | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
 	picked_cfg_expanded=$(eval echo "$picked_cfg")
 fi
 

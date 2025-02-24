@@ -14,10 +14,7 @@ if [ "$OPT__" != "auto"  ]
 then
 	detection_mode="manual"
 	. "/usr/share/my_stuff/lib/common/WM"
-	. "/usr/share/my_stuff/lib/common/rofi"
-	
-	rofi_command_simple="rofi -no-config -no-lazy-grab -dmenu -i -theme "$rofi_style_dir"/runner.rasi"
-	rofi_command_simpler="rofi -no-config -no-lazy-grab -theme "$rofi_style_dir"/runner.rasi"
+	. "${Distro_config_file}"
 	
 fi
 scale_value=$(cat $HOME/.config/autorandr/scale)
@@ -43,14 +40,14 @@ screens=$(echo "$allposs" | awk '/ connected/ {print $1}')
 twoscreen() { # If multi-monitor is selected and there are two screens.
 	if [ "$detection_mode" != "auto" ]
 	then
-    	mirror=$(printf "no\\nyes" | ${rofi_command_simple} -p "Mirror displays?")
+    	mirror=$(printf "no\\nyes" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Mirror displays?")
     fi
     # Mirror displays using native resolution of external display and a scaled
     # version for the internal display
     if [ "$mirror" = "yes" ];then
     	if [ "$detection_mode" != "auto" ]
 		then
-        	external=$(echo "$screens" | ${rofi_command_simple} -p "Optimize resolution for:")
+        	external=$(echo "$screens" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Optimize resolution for:")
         fi
         	internal=$(echo "$screens" | grep -v "$external")
 		
@@ -71,9 +68,9 @@ twoscreen() { # If multi-monitor is selected and there are two screens.
         
     else
 
-        primary=$(echo "$screens" | ${rofi_command_simple} -p "Select primary display:")
+        primary=$(echo "$screens" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select primary display:")
         secondary=$(echo "$screens" | grep -v "$primary")
-        direction=$(printf "left\\nright" | ${rofi_command_simple} -p "What side of $primary should $secondary be on?")
+        direction=$(printf "left\\nright" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "What side of $primary should $secondary be on?")
         _xrandr_command=$( printf "xrandr --output "$primary" --auto --scale ${scale_value}x${scale_value} --output "$secondary" --"$direction"-of "$primary" --auto --scale ${scale_value}x${scale_value}")
     fi
 }
@@ -81,10 +78,10 @@ twoscreen() { # If multi-monitor is selected and there are two screens.
 morescreen() { # If multi-monitor is selected and there are more than two screens.
 	if [ "$detection_mode" != "auto" ]
 	then
-		primary=$(echo "$screens" | ${rofi_command_simple} -p "Select primary display:")
-		secondary=$(echo "$screens" | grep -v "$primary" | ${rofi_command_simple} -p "Select secondary display:")
-		direction=$(printf "left\\nright" | ${rofi_command_simple} -p "What side of $primary should $secondary be on?")
-		tertiary=$(echo "$screens" | grep -v "$primary" | grep -v "$secondary" | ${rofi_command_simple} -p "Select third display:")
+		primary=$(echo "$screens" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select primary display:")
+		secondary=$(echo "$screens" | grep -v "$primary" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select secondary display:")
+		direction=$(printf "left\\nright" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "What side of $primary should $secondary be on?")
+		tertiary=$(echo "$screens" | grep -v "$primary" | grep -v "$secondary" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select third display:")
 	fi
 	_xrandr_command=$( printf "xrandr --output "$primary" --auto --output "$secondary" --"$direction"-of "$primary" --auto --output "$tertiary" --"$(printf "left\\nright" | grep -v "$direction")"-of "$primary" --auto")
 }
@@ -129,7 +126,7 @@ manual_pick_settings(){
 		{ onescreen "$screens"; postrun; notify-send "💻 Only one screen detected." "Using it in its optimal settings...";  exit ;}
 	
 	# Get user choice including multi-monitor and manual selection:
-	chosen=$(printf "%s\\nmulti-monitor\\nmanual selection" "$screens" | ${rofi_command_simple} -p "Select display arangement:") &&
+	chosen=$(printf "%s\\nmulti-monitor\\nmanual selection" "$screens" | rofi -no-config -no-lazy-grab -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select display arangement:") &&
 	case "$chosen" in
 		"manual selection") arandr ; exit ;;
 		"multi-monitor") multimon ;;

@@ -6,7 +6,7 @@ extra_apps_="libnm-dev"
 
 ###################################################################
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
+
 say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue

@@ -1,14 +1,14 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 version_number="4.9.0"
 check_4_dependencies_if_installed sed grep || exit 1
 # UI
 
 external_menu() {
-    rofi "$1" -sort -dmenu -i -width 1500 -p "$2" -theme "$rofi_style_dir"/runner.rasi
+    rofi "$1" -sort -dmenu -i -width 1500 -p "$2" -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi
 }
 
 launcher() {

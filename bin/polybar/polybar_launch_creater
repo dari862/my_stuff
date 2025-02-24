@@ -1,87 +1,87 @@
 #!/bin/sh
 ## Files and Directories
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/polybar"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
+
 polybar_launcher_path="$HOME/.local/bin/polybar_launch"
 
-if [ ! -s "${rofi_style_name_path}" ] || ( [ "$_panel_name_" = "polybar" ] && [ ! -s "${polybar_style_name_path}" ] );then
+if [ -z "$ROFI_STYLE" ] || ( [ "$_panel_name_" = "polybar" ] && [ -z "$polybar_STYLE" ] );then
 	style_picker_rofi
 fi
 
-if [ ! -f "$SFILE" ];then
+if [ ! -f "$HOME/.config/polybar/$polybar_STYLE/system.ini" ];then
 	polybar_fixer
 fi
 
 create_pwidgets_launcher(){
 	echo '#!/bin/sh' > "${polybar_launcher_path}"
-	echo "polybar_style_dir=\"${polybar_style_dir}\"" >> "${polybar_launcher_path}"
+	echo "polybar_style_dir=\"$HOME/.config/polybar/$polybar_STYLE\"" >> "${polybar_launcher_path}"
 	tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
 	pwidgets_mode="main"
 	case "$pwidgets_mode" in
 		main)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/main.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/main.ini" &
-				MONITOR=$mon polybar -q top -c "${polybar_style_dir}/main.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
+				MONITOR=$mon polybar -q top -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
 			done
 			;;
 		apps)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/apps.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/apps.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/apps.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/apps.ini" &
 			done
 			;;
 		system)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/system.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/system.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/system.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/system.ini" &
 			done
 			;;
 		mpd)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/mpd.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/mpd.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/mpd.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/mpd.ini" &
 			done
 			;;
 		ws)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/workspace.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/workspace.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/workspace.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/workspace.ini" &
 			done
 			;;
 		cpu)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/cpu.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/cpu.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/cpu.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/cpu.ini" &
 			done
 		;;
 		memory)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/memory.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/memory.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/memory.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/memory.ini" &
 			done
 			;;
 		Filesystem)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/fs.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/fs.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/fs.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/fs.ini" &
 			done
 			;;
 		*)
 			MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 			for mon in ${MONITORS}; do
-				MONITOR=$mon polybar -q primary -c "${polybar_style_dir}/main.ini" &
-				MONITOR=$mon polybar -q secondary -c "${polybar_style_dir}/main.ini" &
-				MONITOR=$mon polybar -q top -c "${polybar_style_dir}/main.ini" &
+				MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
+				MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
+				MONITOR=$mon polybar -q top -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
 			done
 			;;
 	esac
@@ -93,40 +93,40 @@ tee "${polybar_launcher_path}" <<- 'EOF' > /dev/null
 MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 for mon in ${MONITORS}; do
 EOF
-echo "polybar_style_dir=\"${polybar_style_dir}\"" >> "${polybar_launcher_path}"
+echo "polybar_style_dir=\"$HOME/.config/polybar/$polybar_STYLE\"" >> "${polybar_launcher_path}"
 case "$polybar_STYLE" in
 	pwidgets)
 		create_pwidgets_launcher
 		;;
 	hack|cuts|hack_large)
-		echo '	MONITOR=$mon polybar -q top -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
-		echo '	MONITOR=$mon polybar -q bottom -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+		echo '	MONITOR=$mon polybar -q top -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &' >> "${polybar_launcher_path}"
+		echo '	MONITOR=$mon polybar -q bottom -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &' >> "${polybar_launcher_path}"
 		;;
 	cynthia|melissa)
 		tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
-			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar1 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar2 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
 		EOF
 		;;
 	karla)
 		tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
-			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar1 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar2 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar3 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
 		EOF
 		;;
 	pamela|andrea)
 		tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
-			MONITOR=$mon polybar -q bar1 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar2 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar3 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar4 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar5 -c "${polybar_style_dir}/config.ini" &
-			MONITOR=$mon polybar -q bar6 -c "${polybar_style_dir}/config.ini" &
+			MONITOR=$mon polybar -q bar1 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar2 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar3 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar4 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar5 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
+			MONITOR=$mon polybar -q bar6 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
 		EOF
 		;;
 	*)
-		echo '	MONITOR=$mon polybar -q main -c "${polybar_style_dir}/config.ini" &' >> "${polybar_launcher_path}"
+		echo '	MONITOR=$mon polybar -q main -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &' >> "${polybar_launcher_path}"
 		;;
 esac
 

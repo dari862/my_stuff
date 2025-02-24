@@ -1,8 +1,8 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/common/pipemenu"
-. "/usr/share/my_stuff/lib/common/panel"
 . "/usr/share/my_stuff/lib/common/openbox"
 . "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
 
 if [ "$_panel_name_" = 'polybar' ];then
 	dir="/usr/share/my_stuff/system_files/blob/polybar"

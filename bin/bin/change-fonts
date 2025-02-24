@@ -7,15 +7,11 @@
 
 # Variables and functions
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
 . "/usr/share/my_stuff/lib/common/openbox"
+. "${Distro_config_file}"
 
 	# Dir
 	pdir="$HOME/.config/polybar"
-	if ! . "/usr/share/my_stuff/lib/common/rofi" 2> /dev/null;then
-		echo "Error: Failed to locate rofi in /usr/share/my_stuff/lib/common" >&2
-		exit 1
-	fi
 	tdir="$HOME/.config/alacritty"
 	odir="${OBPATH}/rc.xml"
 	ddir="$HOME/.config/dunst"
@@ -40,8 +36,8 @@
 	
 	font_rofi () {
 		if [ "$FONT" ];then
-			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "${rofi_style_dir}"/font.rasi
-			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "$rofi_style_dir/askpass.rasi" "$rofi_style_dir/confirm.rasi"
+			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "$HOME/.config/rofi/$ROFI_STYLE"/font.rasi
+			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "$HOME/.config/rofi/$ROFI_STYLE/askpass.rasi" "$HOME/.config/rofi/$ROFI_STYLE/confirm.rasi"
 		else
 			exit 0
 		fi

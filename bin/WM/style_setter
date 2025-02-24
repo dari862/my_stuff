@@ -15,10 +15,7 @@ else
 fi
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/openbox"
-. "/usr/share/my_stuff/lib/common/rofi"
-. "/usr/share/my_stuff/lib/common/panel"
-	
-_panel_name_="$(cat ${_panel_name_path_})"
+. "${Distro_config_file}"
 
 show_em(){
 	echo "[ERROR] $0 : $1"

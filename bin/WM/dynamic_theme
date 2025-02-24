@@ -14,7 +14,7 @@ else
 fi
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
+. "${Distro_config_file}"
 
 style="dynamic"
 BLOBPATH="$HOME/.config/blob"

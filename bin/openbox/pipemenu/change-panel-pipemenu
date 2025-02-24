@@ -3,20 +3,8 @@
 
 # Variables and functions
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
-	# Dir and Files
-	if ! . "/usr/share/my_stuff/lib/common/panel" 2> /dev/null;then
-		echo "Error: Failed to locate panel in /usr/share/my_stuff/lib/common" >&2
-		exit 1
-	fi
-	
-	# Create file if it doesn't exist
-	if [ ! -e "$_panel_name_path_" ];then
-		touch ${_panel_name_path_}
-	fi
-	
 	# Check which bar is running
 	if pidof polybar >/dev/null 2>&1;then
 		BAR='polybar'

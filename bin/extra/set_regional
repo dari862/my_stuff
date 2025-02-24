@@ -4,7 +4,7 @@
 set -eu
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 opt__="${1-h}"
 
@@ -29,7 +29,7 @@ change_timezone() {
 	done
 	zoneinfolist=$(echo "${zoneinfo}" | sed 's/ /\n/g' )
 	res="$(printf "${zoneinfolist}" | \
-         ${rofi_command} -p "Select time zone ('ESC' to Exit):")"
+         rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select time zone ('ESC' to Exit):")"
 	clear
   
 	if [ -z "${res}" ];then
@@ -49,7 +49,7 @@ change_locale() {
   res=""
   
   res="$(sed -n "s,^#\?\ \?\([[:alnum:]\.@_\-]\+\)\ \([[:alnum:]\-]\+\)\ *$,\1 \2,p" /etc/locale.gen | \
-         ${rofi_command} -p "Select locale ('ESC' to Exit):")"
+         rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select locale ('ESC' to Exit):")"
   clear
 
 	if [ -z "${res}" ];then
@@ -71,7 +71,7 @@ change_locale() {
 
 help(){
 	Chosen_OPT=""
-	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | ${rofi_command} -p '')"
+	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
 	opt__="$(echo $Chosen_OPT | awk '{ print $1 }')"
 	main
 }

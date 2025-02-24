@@ -1,10 +1,11 @@
 #!/bin/sh
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
+
 rofi -dmenu\
    	-password\
    	-i\
    	-no-fixed-num-lines\
    	-p "User Password: "\
-   	-theme "$rofi_style_dir"/askpass.rasi
+   	-theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi

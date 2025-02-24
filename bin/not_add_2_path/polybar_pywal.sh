@@ -1,10 +1,9 @@
 #!/bin/bash
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/polybar"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
-PFILE="$polybar_style_dir/colors.ini"
+PFILE="$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 
 # Get colors
 pywal_get() {
@@ -17,90 +16,90 @@ change_color() {
 	if [ "$polybar_STYLE" = "shapes" ] || [ "$polybar_STYLE" = "colorblocks" ] || [ "$polybar_STYLE" = "shades" ]
 	then
 		# polybar
-		sed -i -e "s/background = #.*/background = $BG/g" "$PFILE"
-		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$PFILE"
-		sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$PFILE"
-		sed -i -e "s/shade1 = #.*/shade1 = $SH1/g" "$PFILE"
-		sed -i -e "s/shade2 = #.*/shade2 = $SH2/g" "$PFILE"
-		sed -i -e "s/shade3 = #.*/shade3 = $SH3/g" "$PFILE"
-		sed -i -e "s/shade4 = #.*/shade4 = $SH4/g" "$PFILE"
-		sed -i -e "s/shade5 = #.*/shade5 = $SH5/g" "$PFILE"
-		sed -i -e "s/shade6 = #.*/shade6 = $SH6/g" "$PFILE"
-		sed -i -e "s/shade7 = #.*/shade7 = $SH7/g" "$PFILE"
-		sed -i -e "s/shade8 = #.*/shade8 = $SH8/g" "$PFILE"
+		sed -i -e "s/background = #.*/background = $BG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade1 = #.*/shade1 = $SH1/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade2 = #.*/shade2 = $SH2/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade3 = #.*/shade3 = $SH3/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade4 = #.*/shade4 = $SH4/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade5 = #.*/shade5 = $SH5/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade6 = #.*/shade6 = $SH6/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade7 = #.*/shade7 = $SH7/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/shade8 = #.*/shade8 = $SH8/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 	elif [ "$polybar_STYLE" = "pwidgets" ];then
-		sed -i -e "s/bg = #.*/bg = ${BG}/g" "$PFILE"
-		sed -i -e "s/fg = #.*/fg = ${FG}/g" "$PFILE"
-		sed -i -e "s/fga = #.*/fga = ${RFG}/g" "$PFILE"
-		sed -i -e "s/ac = #.*/ac = ${AC}/g" "$PFILE"
+		sed -i -e "s/bg = #.*/bg = ${BG}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/fg = #.*/fg = ${FG}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/fga = #.*/fga = ${RFG}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/ac = #.*/ac = ${AC}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 	elif [ "$polybar_STYLE" = "docky" ] || [ "$polybar_STYLE" = "material" ];then
-		sed -i -e "s/background = #.*/background = $BG/g" "$PFILE"
-		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$PFILE"
-		sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$PFILE"
-		sed -i -e "s/module-fg = #.*/module-fg = $MF/g" "$PFILE"
-		sed -i -e "s/primary = #.*/primary = $AC/g" "$PFILE"
-		sed -i -e "s/secondary = #.*/secondary = $SC/g" "$PFILE"
-		sed -i -e "s/alternate = #.*/alternate = $AL/g" "$PFILE"
+		sed -i -e "s/background = #.*/background = $BG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/module-fg = #.*/module-fg = $MF/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/primary = #.*/primary = $AC/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/secondary = #.*/secondary = $SC/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/alternate = #.*/alternate = $AL/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 	elif [ "$polybar_STYLE" = "cuts" ];then
-		sed -i -e "s/background = #.*/background = ${BG}/g" "$PFILE"
-		sed -i -e "s/background-alt = #.*/background-alt = #8C${BG:1}/g" "$PFILE"
-		sed -i -e "s/foreground = #.*/foreground = ${FG}/g" "$PFILE"
-		sed -i -e "s/foreground-alt = #.*/foreground-alt = #33${FG:1}/g" "$PFILE"
-		sed -i -e "s/primary = #.*/primary = $AC/g" "$PFILE"
+		sed -i -e "s/background = #.*/background = ${BG}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/background-alt = #.*/background-alt = #8C${BG:1}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground = #.*/foreground = ${FG}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground-alt = #.*/foreground-alt = #33${FG:1}/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/primary = #.*/primary = $AC/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 	elif [ "$polybar_STYLE" = "hack" ] || [ "$polybar_STYLE" = "hack_large" ];then
-		sed -i -e "s/background = #.*/background = $BG/g" "$PFILE"
-		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$PFILE"
-		sed -i -e "s/primary = #.*/primary = $AC/g" "$PFILE"
+		sed -i -e "s/background = #.*/background = $BG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/primary = #.*/primary = $AC/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 	elif [ "$polybar_STYLE" = "grayblocks" ] || [ "$polybar_STYLE" = "blocks" ];then
-		sed -i -e "s/background = #.*/background = $BG/g" "$PFILE"
-		sed -i -e "s/background-alt = #.*/background-alt = $BGA/g" "$PFILE"
-		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$PFILE"
-		sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$PFILE"
-		sed -i -e "s/primary = #.*/primary = $AC/g" "$PFILE"
-		sed -i -e 's/red = #.*/red = #B71C1C/g' $PFILE
-		sed -i -e 's/yellow = #.*/yellow = #F57F17/g' $PFILE
+		sed -i -e "s/background = #.*/background = $BG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/background-alt = #.*/background-alt = $BGA/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/primary = #.*/primary = $AC/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e 's/red = #.*/red = #B71C1C/g' $HOME/.config/polybar/$polybar_STYLE/colors.ini
+		sed -i -e 's/yellow = #.*/yellow = #F57F17/g' $HOME/.config/polybar/$polybar_STYLE/colors.ini
 	elif [ "$polybar_STYLE" = "forest" ] || [ "$polybar_STYLE" = "forest_large" ];then
-		sed -i -e "s/background = #.*/background = $BG/g" "$PFILE"
-		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$PFILE"
-		sed -i -e "s/sep = #.*/sep = $AC/g" "$PFILE"
+		sed -i -e "s/background = #.*/background = $BG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/foreground = #.*/foreground = $FG/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
+		sed -i -e "s/sep = #.*/sep = $AC/g" "$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 	fi
 	
 	# rofi
-	sed -i -e "s/al:.*/al:    #00000000;/g" "$rofi_style_dir"/colors.rasi
-	sed -i -e "s/bg:.*/bg:    ${BG}FF;/g" "$rofi_style_dir"/colors.rasi
-	sed -i -e "s/ac:.*/ac:   ${AC}FF;/g" "$rofi_style_dir"/colors.rasi
-	sed -i -e "s/fg:.*/fg:    ${FG}FF;/g" "$rofi_style_dir"/colors.rasi
+	sed -i -e "s/al:.*/al:    #00000000;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+	sed -i -e "s/bg:.*/bg:    ${BG}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+	sed -i -e "s/ac:.*/ac:   ${AC}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+	sed -i -e "s/fg:.*/fg:    ${FG}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	if [ "$polybar_STYLE" = "shapes" ] || [ "$polybar_STYLE" = "shades" ];then
-		sed -i -e "s/bg1:.*/bg1:   ${SH2}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/bg2:.*/bg2:   ${SH3}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/bg3:.*/bg3:   ${SH4}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/bg4:.*/bg4:   ${SH5}FF;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/bg1:.*/bg1:   ${SH2}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/bg2:.*/bg2:   ${SH3}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/bg3:.*/bg3:   ${SH4}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/bg4:.*/bg4:   ${SH5}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "colorblocks" ];then
-		sed -i -e "s/bg1:.*/bg1:   ${SH8}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/bg2:.*/bg2:   ${SH7}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/bg3:.*/bg3:   ${SH6}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/fg:.*/fg:    ${FGA}FF;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/bg1:.*/bg1:   ${SH8}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/bg2:.*/bg2:   ${SH7}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/bg3:.*/bg3:   ${SH6}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/fg:.*/fg:    ${FGA}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "pwidgets" ];then
-		sed -i -e "s/fg:.*/fg:   ${RFG}FF;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/fg:.*/fg:   ${RFG}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "docky" ] || [ "$polybar_STYLE" = "material" ];then
-		sed -i -e "s/bga:.*/bga:   ${AC}33;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/bar:.*/bar:    ${MF}FF;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/bga:.*/bga:   ${AC}33;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/bar:.*/bar:    ${MF}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "cuts" ];then
-		sed -i -e "s/bg:.*/bg:   ${BG}BF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/bga:.*/bga:  ${BG}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/se:.*/se:   ${AC}1A;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/bg:.*/bg:   ${BG}BF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/bga:.*/bga:  ${BG}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/se:.*/se:   ${AC}1A;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "hack" ] || [ "$polybar_STYLE" = "hack_large" ];then
-		sed -i -e "s/se:.*/se:   ${AC}26;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/se:.*/se:   ${AC}26;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "grayblocks" ];then
-		sed -i -e "s/bga:.*/bga:  ${BGA}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/fga:.*/fga:  ${FGA}FF;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/bga:.*/bga:  ${BGA}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/fga:.*/fga:  ${FGA}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "blocks" ];then
-		sed -i -e "s/bga:.*/bga:  ${BGA}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/fga:.*/fga:  ${FGA}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/se:.*/se:   ${AC}40;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/bga:.*/bga:  ${BGA}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/fga:.*/fga:  ${FGA}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/se:.*/se:   ${AC}40;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	elif [ "$polybar_STYLE" = "forest" ] || [ "$polybar_STYLE" = "forest_large" ];then
-		sed -i -e "s/bga:.*/bga:  ${BGA}FF;/g" "$rofi_style_dir"/colors.rasi
-		sed -i -e "s/se:.*/se:   ${AC}FF;/g" "$rofi_style_dir"/colors.rasi
+		sed -i -e "s/bga:.*/bga:  ${BGA}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
+		sed -i -e "s/se:.*/se:   ${AC}FF;/g" "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi
 	fi
 	
 	polybar-msg cmd restart

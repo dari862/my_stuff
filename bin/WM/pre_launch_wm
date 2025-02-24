@@ -9,7 +9,14 @@ else
 	echo "$0: ERROR failed to create /tmp/$USER"
 fi
 
-if [ ! -f "${WM_config_dir}/rofi_picked" ];then
+if [ ! -f "${Distro_config_file}" ];then
+	cat <<- EOF > "${Distro_config_file}"
+	_panel_name_="polybar"
+	ROFI_STYLE="default"
+	polybar_STYLE="default"
+	conky_sessionfile=".config/conky/openbox-conky.conf"
+	tint2_sessionfile="/.config/tint2/default.tint2rc"
+	EOF
 	# Start compositor
 	picom-session start &
 	

@@ -6,7 +6,8 @@ ini_dir_="$HOME/.config/my_power_manager"
 
 my_power_managers_session(){
 	. "/usr/share/my_stuff/lib/common/WM"
-	. "/usr/share/my_stuff/lib/common/panel"
+	. "${Distro_config_file}"
+	
 	stop_my_power_managers
 	
 	my_power_manager_daemon &

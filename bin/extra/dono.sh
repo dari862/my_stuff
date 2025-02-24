@@ -3,7 +3,8 @@
 
 set -e
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
+
 opt="${1-h}"
 
 HELP_List="1 Note_manager
@@ -56,7 +57,7 @@ edit_note() {
 
 delete_note() {
     note=$1
-    action=$(echo -e "Yes\nNo" | ${rofi_command} -p "Are you sure you want to delete $note? ")
+    action=$(echo -e "Yes\nNo" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Are you sure you want to delete $note? ")
 
     case $action in
         "Yes")
@@ -73,7 +74,7 @@ note_context() {
     note_location="$notes_folder/$note"
     if [ -f "$note_location" ]
     then
-    	action=$(echo -e "Edit\nDelete" | ${rofi_command} -p "$note > ")
+    	action=$(echo -e "Edit\nDelete" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "$note > ")
     	case $action in
 			"Edit")
             	edit_note "$note_location"
@@ -90,7 +91,7 @@ note_context() {
 new_note() {
 	if [ "$note_option" = "New" ]
 	then
-		title=$(echo -e "Cancel" | ${rofi_command} -p "Input title: ")
+		title=$(echo -e "Cancel" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Input title: ")
     	case "$title" in
         	"Cancel")
             	Note_manager
@@ -114,7 +115,7 @@ Note_manager()
 	if [ "$all_notes" ];then
 		first_menu="New\n${all_notes}"
 	fi
-	note_option=$(echo -e "$first_menu"  | ${rofi_command} -p "Note: ")
+	note_option=$(echo -e "$first_menu"  | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Note: ")
 	case $note_option in
 		"New")
 			new_note
@@ -147,24 +148,24 @@ Todo_Creater() {
   while :
   do
   	# Picking our options.
-  	choice=$(printf 'Copy note\nNew note\nDelete note\nQuit' | ${rofi_command} -p 'Notes:' "$@")
+  	choice=$(printf 'Copy note\nNew note\nDelete note\nQuit' | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Notes:' "$@")
 	
   	# Choose what we should do with our choice.
   	case "$choice" in
     	'Copy note')
       	# shellcheck disable=SC2154
-      	note_pick=$(${rofi_command} -p 'Copy:' "$@" < "${todo_file}")
+      	note_pick=$(rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Copy:' "$@" < "${todo_file}")
       	[ -n "${note_pick}" ] && echo "${note_pick}" | cp2cb 
       	;;
     	'New note')
-      	note_new=$(echo "" | ${rofi_command} -p 'Enter new note:' "$@")
+      	note_new=$(echo "" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Enter new note:' "$@")
       	# Making sure the input is not empty and not already exist in todo_file.
       	# The sed command should prevent grep from taking certain characters as a regex input.
       	[ -n "$note_new" ] && ! grep -q "^$(echo "${note_new}" | sed -e 's/\[/\\[/g;s/\]/\\]/g')\$" "${todo_file}" &&
       	echo "  ${note_new}" >> "${todo_file}" 
       	;;
     	'Delete note')
-      	note_del=$(${rofi_command} -p 'Delete:' "$@" < "${todo_file}")
+      	note_del=$(rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Delete:' "$@" < "${todo_file}")
       	# grep should always returns 0 regardless what happens.
       	grep -v "^$(echo "${note_del}" | sed -e 's/\[/\\[/g;s/\]/\\]/g')\$" "${todo_file}" > "/tmp/$USER/dmnote" || true
       	[ -n "${note_del}" ] && cp -f "/tmp/$USER/dmnote" "${todo_file}"
@@ -181,7 +182,7 @@ Todo_list()
 	[ ! -f "${todo_file}" ] && Todo_Creater
 	while :
 	do
-		choice=$(cat "${todo_file}" | ${rofi_command} -p 'To Do:' "$@")
+		choice=$(cat "${todo_file}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'To Do:' "$@")
 		line_number="$(grep -Fxn "$choice" "${todo_file}" | cut -f1 -d:)"
 		if [ "$(echo $choice | grep "$done_symbol")" ]
 		then
@@ -200,7 +201,7 @@ Todo_list()
 
 help()
 {
-	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | ${rofi_command} -p '')"
+	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
 	opt="$(echo $Chosen_OPT | awk '{ print $1 }')"
 	main
 }

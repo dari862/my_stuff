@@ -3,7 +3,7 @@
 
 ## Rofi #############################################
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 opt_="${1-}"
 opt2_="${2-}"
@@ -130,7 +130,7 @@ confirmation_dialog(){
 		no=' No'
 	fi
 	
-	ans="$(printf "$yes\n$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$rofi_style_dir"/confirm.rasi)"
+	ans="$(printf "$yes\n$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi)"
 	
 	if [ "$ans" = "$yes" ];then
 		return
@@ -141,7 +141,7 @@ confirmation_dialog(){
 
 rofi_menu(){
 	opt_=""
-	rofi_command="rofi -theme ${rofi_style_dir}/powermenu.rasi"
+	rofi_command="rofi -theme $HOME/.config/rofi/$ROFI_STYLE/powermenu.rasi"
 	
 	uptime=$(uptime -p | sed -e 's/up //g')
 	
@@ -248,7 +248,7 @@ else
 fi
 
 if  [ "$show_menu" = "rofi" ];then
-	layout="$(grep 'USE_ICON' "${rofi_style_dir}"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+	layout="$(grep 'USE_ICON' "$HOME/.config/rofi/$ROFI_STYLE"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 	rofi_menu
 elif  [ "$show_menu" = "yad" ];then		
 	yad_menu

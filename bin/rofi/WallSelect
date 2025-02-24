@@ -4,8 +4,8 @@
 # Set some variables
 # Load current theme
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
-. "/usr/share/my_stuff/lib/common/polybar"
+. "${Distro_config_file}"
+
 if echo "$polybar_STYLE" | grep -q "panels/" ;then
 	ROFI_STYLE_NAME="panels"
 else

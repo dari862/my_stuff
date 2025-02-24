@@ -3,7 +3,6 @@
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/polybar"
 . "/usr/share/my_stuff/Distro_Specific/disto_icon"
 
 CARD=""
@@ -14,7 +13,7 @@ TemperaturePath=""
 
 ## create system.ini file
 create_system_file_ini() {
-	tee $SFILE <<- EOF > /dev/null
+	tee $HOME/.config/polybar/system.ini <<- EOF > /dev/null
 	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 	;;
 	;; System Variables (Edit according to your system)
@@ -117,26 +116,26 @@ get_values() {
 fix_modules() {
 	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 		if [ -z "$CARD" ];then
-			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
-			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
-			find $polybar_dir/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
-			find $polybar_dir/panels -type f -exec sed -i 's/ bna / backlight /g' {} +
+			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
+			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
+			find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
+			find $HOME/.config/polybar/panels -type f -exec sed -i 's/ bna / backlight /g' {} +
 		elif echo "$CARD" | grep -q "intel_";then
-			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna / brightness /g' {} +
-			find $polybar_dir -type f -name config.ini -exec sed -i 's/ bna-bar / brightness-bar /g' {} +
-			find $polybar_dir/pwidgets -type f -exec sed -i 's/ bna / brightness /g' {} +
-			find $polybar_dir/panels -type f -exec sed -i 's/ bna / brightness /g' {} +
+			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna / brightness /g' {} +
+			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna-bar / brightness-bar /g' {} +
+			find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna / brightness /g' {} +
+			find $HOME/.config/polybar/panels -type f -exec sed -i 's/ bna / brightness /g' {} +
 		fi
 		
-		find $polybar_dir -type f -name config.ini -exec sed -i 's/ AC_only / battery /g' {} +
-		find $polybar_dir/pwidgets -type f -exec sed -i 's/ AC_only / battery /g' {} +
-		find $polybar_dir/panels -type f -exec sed -i 's/ AC_only / battery /g' {} +
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ AC_only / battery /g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ AC_only / battery /g' {} +
+		find $HOME/.config/polybar/panels -type f -exec sed -i 's/ AC_only / battery /g' {} +
 	fi
 	
 	if echo "$INTERFACE" | grep -q "^e";then
-		find $polybar_dir -type f -name config.ini -exec sed -i 's/ network / ethernet /g' {} +
-		find $polybar_dir/pwidgets -type f -exec sed -i 's/ network / ethernet /g' {} +
-		find $polybar_dir/panels -type f -exec sed -i 's/ network / ethernet /g' {} +
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ network / ethernet /g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ network / ethernet /g' {} +
+		find $HOME/.config/polybar/panels -type f -exec sed -i 's/ network / ethernet /g' {} +
 	fi
 }
 
@@ -154,17 +153,17 @@ remove_modules() {
 	fi
 
 	if [ "$polybar_ver" -ge "370" ];then
-		find $polybar_dir -type f -exec sed -i 's/ notray_m/ tray_m/g' {} +
-		#find $polybar_dir -type f -exec sed -i 's/label-active/label-focused/g' {} +
+		find $HOME/.config/polybar -type f -exec sed -i 's/ notray_m/ tray_m/g' {} +
+		#find $HOME/.config/polybar -type f -exec sed -i 's/label-active/label-focused/g' {} +
  	fi
 
- 	find $polybar_dir -type f -exec sed -i 's/ bluetooth/ no_bluetooth/g' {} +
- 	find $polybar_dir -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
+ 	find $HOME/.config/polybar -type f -exec sed -i 's/ bluetooth/ no_bluetooth/g' {} +
+ 	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
  	if [ -z "$VPN_INTERFACE" ];then
- 		find $polybar_dir -type f -name config.ini -exec sed -i 's/ vpn_m/ no_vpn_m/g' {} +
+ 		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ vpn_m/ no_vpn_m/g' {} +
  	else
- 		find $polybar_dir -type f -name config.ini -exec sed -i 's/ no_vpn_m/ vpn_m/g' {} +
+ 		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ no_vpn_m/ vpn_m/g' {} +
  	fi
 }
 

@@ -1,5 +1,0 @@
-polybar_style_name_path="${WM_config_dir}/Polybar_style"
-polybar_STYLE="$(cat ${polybar_style_name_path} 2>/dev/null || echo old)"
-polybar_dir="$HOME/.config/polybar"
-polybar_style_dir="$polybar_dir/$polybar_STYLE"
-SFILE="$polybar_dir/system.ini"

@@ -1,11 +1,11 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 rofi_command_is="rofi -no-config -no-lazy-grab  -dmenu -i -p ''"
 # Launch Rofi
 if [ "$ROFI_STYLE" = "blocks" ]
 then
-	MENU="$(echo " Default| Nord| Gruvbox| Adapta| Cherry" | $rofi_command_is -sep '|' -theme "$rofi_style_dir/styles.rasi")"
+	MENU="$(echo " Default| Nord| Gruvbox| Adapta| Cherry" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
 				case "$MENU" in
 					*Default) style-switcher.sh --default ;;
 					*Nord) style-switcher.sh --nord ;;
@@ -15,7 +15,7 @@ then
 				esac
 elif [ "$ROFI_STYLE" = "forest" ] || [ "$ROFI_STYLE" = "forest_large" ]
 then
-	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry" | $rofi_command_is -sep '|' -theme "$rofi_style_dir/styles.rasi")"
+	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
 				case "$MENU" in
 					*Default) style-switcher.sh --default ;;
 					*Nord) style-switcher.sh --nord ;;
@@ -25,7 +25,7 @@ then
 				esac
 elif [ "$ROFI_STYLE" = "cuts" ]
 then
-	MENU="$(echo " Black| Adapta| Dark| Red| Green| Teal| Gruvbox| Nord| Solarized| Cherry" | $rofi_command_is -sep '|' -theme "$rofi_style_dir/styles.rasi")"
+	MENU="$(echo " Black| Adapta| Dark| Red| Green| Teal| Gruvbox| Nord| Solarized| Cherry" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
 				case "$MENU" in
 					*Black) style-switcher.sh --mode1 ;;
 					*Adapta) style-switcher.sh --mode2 ;;
@@ -40,7 +40,7 @@ then
 				esac
 elif [ "$ROFI_STYLE" = "pwidgets" ]
 then
-	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry| White| Black" | $rofi_command_is -sep '|' -theme "$rofi_style_dir/styles.rasi")"
+	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry| White| Black" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
 				case "$MENU" in
 					*Default) style-switcher.sh --default ;;
 					*Nord) style-switcher.sh --nord ;;
@@ -54,15 +54,15 @@ elif [ "$ROFI_STYLE" = "shapes" ]
 then
 	# Replace Glyphs
 	change_style() {
-		sed -i -e "s/gleft = .*/gleft = $1/g" "$rofi_style_dir"/glyphs.ini
-		sed -i -e "s/gright = .*/gright = $2/g" "$rofi_style_dir"/glyphs.ini
+		sed -i -e "s/gleft = .*/gleft = $1/g" "$HOME/.config/rofi/$ROFI_STYLE"/glyphs.ini
+		sed -i -e "s/gright = .*/gright = $2/g" "$HOME/.config/rofi/$ROFI_STYLE"/glyphs.ini
 
 		polybar-msg cmd restart
 	}
 
 
 	# Launch Rofi
-	MENU="$(echo "♥ Style-1|♥ Style-2|♥ Style-3|♥ Style-4|♥ Style-5|♥ Style-6|♥ Style-7|♥ Style-8|♥ Style-9|♥ Style-10|♥ Style-11|♥ Style-12" | $rofi_command_is -sep '|' -theme "$rofi_style_dir/styles.rasi")"
+	MENU="$(echo "♥ Style-1|♥ Style-2|♥ Style-3|♥ Style-4|♥ Style-5|♥ Style-6|♥ Style-7|♥ Style-8|♥ Style-9|♥ Style-10|♥ Style-11|♥ Style-12" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
 				case "$MENU" in
 					## Light Colors
 					*Style-1) change_style   ;;
@@ -80,7 +80,7 @@ then
 				esac
 elif echo "$ROFI_STYLE" |  grep -q "panels/";then
 	# Launch Rofi
-	MENU="$(echo " Budgie| Deepin| Elementary| Elementary_Dark| Gnome| KDE| KDE_Dark| Liri| Mint| Ubuntu_gnome| Ubuntu_unity| Xubuntu| Zorin" | $rofi_command_is -sep '|' -theme "$rofi_style_dir/styles.rasi")"
+	MENU="$(echo " Budgie| Deepin| Elementary| Elementary_Dark| Gnome| KDE| KDE_Dark| Liri| Mint| Ubuntu_gnome| Ubuntu_unity| Xubuntu| Zorin" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
 				case "$MENU" in
 					*Budgie) style-switcher.sh budgie ;;
 					*Deepin) style-switcher.sh deepin ;;

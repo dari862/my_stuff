@@ -3,10 +3,8 @@
 # if this line exist script will be part of gui scripts.new_name=Style_Manager
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
 . "/usr/share/my_stuff/lib/common/openbox"
-
-_panel_name_="$(cat ${_panel_name_path_})"
+. "${Distro_config_file}"
 
 GLOBALBLOBPATH="/usr/share/my_stuff/system_files/blob"
 BLOBPATH="$HOME/.config"

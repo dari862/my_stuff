@@ -4,7 +4,7 @@ weather_script_config_path="$HOME/.config/scriptconfig/weather"
 Weather_OPT_="${1-}"
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 . "$weather_script_config_path"
 
 #############################################################################
@@ -15,7 +15,7 @@ Weather_OPT_List="1 Show Weather Doppler |2 Show Weather Forecast Full |3 Show W
 #############################################################################
 Location_Picker(){ 
 	. "/usr/share/my_stuff/bin/not_add_2_path/weather/country_list"
-	chosen="$(printf "%s" "$country_list" | ${rofi_command} -sep "|" -p "Select a radar to use as default:")"
+	chosen="$(printf "%s" "$country_list" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -sep "|" -p "Select a radar to use as default:")"
 	
 	# Set continent code and radar code.
 	continentcode=$(printf "%s" "$chosen" | cut -d':' -f1 | tr "[:lower:]" "[:upper:]")
@@ -97,7 +97,7 @@ main(){
 	fi
 	
 	if [ -z "$Weather_OPT_" ];then
-		Weather_OPT_="$(printf "%s" "${Weather_OPT_List}" | ${rofi_command} -sep "|" -p '' | awk '{ print $1 }')"
+		Weather_OPT_="$(printf "%s" "${Weather_OPT_List}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -sep "|" -p '' | awk '{ print $1 }')"
 	fi
 	
 	case "$Weather_OPT_" in

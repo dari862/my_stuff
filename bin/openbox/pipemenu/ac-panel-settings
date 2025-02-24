@@ -3,8 +3,7 @@
 ## Commands Executed By Openbox Powermenu
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/pipemenu"
-. "/usr/share/my_stuff/lib/common/panel"
-. "/usr/share/my_stuff/lib/common/polybar"
+. "${Distro_config_file}"
 
 if [ "$_panel_name_" = "polybar" ];then
 	menuStart "PolybarMenu" "Polybar"
@@ -13,8 +12,8 @@ if [ "$_panel_name_" = "polybar" ];then
 	menuItem 'Restart' "polybar-session restart"
 	menuItem 'Stop' "polybar-session stop"
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
-		[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/not_add_2_path/create-style-pipemenu
-		cat "${style_pipemenu_file}"
+	[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/not_add_2_path/create-style-pipemenu
+	cat "${style_pipemenu_file}"
 elif [ "$_panel_name_" = "xfce4-panel" ];then
 	menuStart "Xfce4PanelMenu" "xfce4-panel"
 	menuItem 'GUI Xfce4-Panel Config Tool' "xfce4-panel -p"

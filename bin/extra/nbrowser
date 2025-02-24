@@ -8,7 +8,7 @@
 # shellcheck disable=SC2190,SC2086,SC1091
 
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 NBROWSER_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nbrowser"
 NBROWSER_DEFAULT_SEARCH=${NBROWSER_DEFAULT_SEARCH:-duckduckgo}
@@ -42,20 +42,20 @@ has() {
 }
 
 _pemx() {
-	${rofi_command_simpler} -e "error: $1"
+	rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -e "error: $1"
 	exit 1
 }
 
 _notify(){
-	${rofi_command_simpler} -e "$@"
+	rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -e "$@"
 }
 
 _choose(){
-	${rofi_command_simpler} -dmenu -i -p 'Select Item ' -theme-str 'window {width: 95%;}' -l 10 -no-click-to-exit -filter "${@:-}"
+	rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -i -p 'Select Item ' -theme-str 'window {width: 95%;}' -l 10 -no-click-to-exit -filter "${@:-}"
 }
 
 _input(){
-	${rofi_command_simpler} -l 0 -width 50 -p "${@:-input}" -dmenu
+	rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -l 0 -width 50 -p "${@:-input}" -dmenu
 }
 
 listfiles(){
@@ -156,7 +156,7 @@ if ! has _gemini_handler ;then
 fi
 
 open_a_browser(){
-	selected_browser=$(printf "%s\n" "${installed_browsers[@]}" | awk 'BEGIN { RS="\n"; FS="	:	" } { print $1 "\t : " $2 }'| column -t -s $'\t' | ${rofi_command_simpler} -dmenu -p 'nbrowser' -i -format "i s" -l "$((browser_count-1))")
+	selected_browser=$(printf "%s\n" "${installed_browsers[@]}" | awk 'BEGIN { RS="\n"; FS="	:	" } { print $1 "\t : " $2 }'| column -t -s $'\t' | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'nbrowser' -i -format "i s" -l "$((browser_count-1))")
 
 	[ -z "${selected_browser}" ] && exit 0
 
@@ -172,7 +172,7 @@ open_a_browser(){
 }
 
 open_video_with(){
-	selected_action=$(printf '%s\n' "Play" "Download" "Open in Browser" | ${rofi_command_simpler} -dmenu -p 'Open Video with' -mesg "${@//&/&amp;}" -i -l 3)
+	selected_action=$(printf '%s\n' "Play" "Download" "Open in Browser" | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'Open Video with' -mesg "${@//&/&amp;}" -i -l 3)
 
 	case "$selected_action" in
 		"Play")
@@ -204,7 +204,7 @@ open_video_with(){
 }
 
 open_picture_with(){
-	selected_action=$(printf '%s\n' "View" "Edit with Gimp" "Open in Browser" | ${rofi_command_simpler} -dmenu -p 'Open Picture with' -mesg "${@//&/&amp;}" -i -l 3)
+	selected_action=$(printf '%s\n' "View" "Edit with Gimp" "Open in Browser" | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'Open Picture with' -mesg "${@//&/&amp;}" -i -l 3)
 
 	case "$selected_action" in
 		"View")
@@ -238,7 +238,7 @@ open_in_browser(){
 		COPY_TO_CLIPBOARD_OPTION=false
 	fi
 
-	selected_browser=$(printf "%s\n" "${installed_browsers[@]}" | awk 'BEGIN { RS="\n"; FS="	:	" } { print $1 "\t : " $2 }'| column -t -s $'\t' | ${rofi_command_simpler} -dmenu -p 'Open URL with' -mesg "${@//&/&amp;}" -i -l "$browser_count" )
+	selected_browser=$(printf "%s\n" "${installed_browsers[@]}" | awk 'BEGIN { RS="\n"; FS="	:	" } { print $1 "\t : " $2 }'| column -t -s $'\t' | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'Open URL with' -mesg "${@//&/&amp;}" -i -l "$browser_count" )
 
 	[ -z "${selected_browser}" ] && exit 0
 
@@ -251,7 +251,7 @@ open_in_browser(){
 			elif [[ "${selected_browser/?}" == "p" ]];then
 				open_video_with "$*"
 			else
-				ubang=$(listfiles ubangs | ${rofi_command_simpler} -dmenu -p 'ubangs' -i -mesg "ubangs '${selected_browser/?}' not found!")
+				ubang=$(listfiles ubangs | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'ubangs' -i -mesg "ubangs '${selected_browser/?}' not found!")
 				[ -z "${ubang}" ] && exit
 				source "${NBROWSER_CONFIG_DIR}/ubangs/${ubang}"
 				has nbrowser_ubang || _pemx "couldn't find nbrowser_ubang() function in ${NBROWSER_CONFIG_DIR}/ubangs/${ubang}"
@@ -335,7 +335,7 @@ main(){
 			local bang="${1/?}"
 			shift
 			if [ ! -f "${NBROWSER_CONFIG_DIR}/bangs/${bang}" ];then
-				bang=$(listfiles bangs | ${rofi_command_simpler} -dmenu -p 'bangs' -i -mesg "bang '${bang}' not found!")
+				bang=$(listfiles bangs | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'bangs' -i -mesg "bang '${bang}' not found!")
 			fi
 			[ -z "${bang}" ] && exit
 			source "${NBROWSER_CONFIG_DIR}/bangs/${bang}"
@@ -365,14 +365,14 @@ main(){
 					ENGINESLIST="$(listfiles engines)"
 					ENGINESLIST+=" ${!ENGINES[@]}"
 					ENGINESLIST+=" $(jq -r ".[]|.t" "$NBROWSER_CONFIG_DIR/engines.json")"
-					engine=$(printf "%s\n" ${ENGINESLIST} | awk '!a[$0]++' | ${rofi_command_simpler} -dmenu -p 'engines' -i -mesg "engine '${engine}' not found!")
+					engine=$(printf "%s\n" ${ENGINESLIST} | awk '!a[$0]++' | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'engines' -i -mesg "engine '${engine}' not found!")
 					[ -z "$engine" ] && exit
 					main "?"$engine $searchquery
 				fi
 			else
 				ENGINESLIST="$(listfiles engines)"
 				ENGINESLIST+=" ${!ENGINES[@]}"
-				engine=$(printf "%s\n" ${ENGINESLIST} | awk '!a[$0]++' | ${rofi_command_simpler} -dmenu -p 'engines' -i -mesg "engine '${engine}' not found!")
+				engine=$(printf "%s\n" ${ENGINESLIST} | awk '!a[$0]++' | rofi -no-config -no-lazy-grab -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -p 'engines' -i -mesg "engine '${engine}' not found!")
 				[ -z "$engine" ] && exit
 				main "?"$engine $searchquery
 			fi

@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/rofi"
 
 opt="${1-h}"
 opt2="${2-}"
@@ -29,8 +28,7 @@ get_ips() {
 	notify-send "IP (in clipboard)" " ${opt2}: ${_ip}"
 }
 
-help()
-{
+help(){
 echo "1 htop
 2 notify-send  about storage
 3 notify-send CPU hogs
@@ -39,8 +37,7 @@ echo "1 htop
 6 edit script"
 }
 
-main()
-{
+main(){
 	case $opt in
 		e) sysinfo_script_ --process & ;;
 		m) free -m | sed -n 's/^Mem:\s\+[0-9]\+\s\+\([0-9]\+\)\s.\+/\1/p' ;;

@@ -1,8 +1,6 @@
 #!/bin/bash
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
-
-_panel_name_="$(cat ${_panel_name_path_})"
+. "${Distro_config_file}"
 		
 if [ "$_panel_name_" = "polybar" ];then 
 	# Start volume control

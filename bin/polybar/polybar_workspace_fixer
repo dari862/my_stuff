@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/polybar"
+. "${Distro_config_file}"
+
 run_change_module_=false
 
 workspace_name="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2 | tr -d '0-9')"
@@ -11,26 +12,26 @@ fi
 current_WM_name="$(cat "$WM_name_file_path")"
 
 change_module_(){
-	find "${polybar_dir}" -type f -name config.ini -exec sed -i "s/[^ \t]*NameWorkspace[^ \t]*/$1/g" {} +
-	sed -i "s/[^ \t]*NameWorkspace[^ \t]*/$1/g" "${polybar_dir}/pwidgets/workspace.ini"
-	sed -i "s/workspace_name =.*/workspace_name = \"$workspace_name\"/g" "$SFILE"
-	sed -i "s/saved_WM_name =.*/saved_WM_name = \"$current_WM_name\"/g" "$SFILE"
+	find "$HOME/.config/polybar" -type f -name config.ini -exec sed -i "s/[^ \t]*NameWorkspace[^ \t]*/$1/g" {} +
+	sed -i "s/[^ \t]*NameWorkspace[^ \t]*/$1/g" "$HOME/.config/polybar/pwidgets/workspace.ini"
+	sed -i "s/workspace_name =.*/workspace_name = \"$workspace_name\"/g" "$HOME/.config/polybar/system.ini"
+	sed -i "s/saved_WM_name =.*/saved_WM_name = \"$current_WM_name\"/g" "$HOME/.config/polybar/system.ini"
 }
 
 change_module_internal_(){
 	_internal_name="${1-}"
 	if [ "$_internal_name" = "bspwm" ];then
-		if grep -rq "internal/xworkspaces" "${polybar_dir}";then
-			find "${polybar_dir}" -type f -name modules.ini -exec sed -i "s|internal/xworkspaces|internal/bspwm|g" {} +
+		if grep -rq "internal/xworkspaces" "$HOME/.config/polybar";then
+			find "$HOME/.config/polybar" -type f -name modules.ini -exec sed -i "s|internal/xworkspaces|internal/bspwm|g" {} +
 		fi
 	elif [ "$_internal_name" = "xworkspaces" ];then
-		if grep -rq "internal/bspwm" "${polybar_dir}";then
-			find "${polybar_dir}" -type f -name modules.ini -exec sed -i "s|internal/bspwm|internal/xworkspaces|g" {} +
+		if grep -rq "internal/bspwm" "$HOME/.config/polybar";then
+			find "$HOME/.config/polybar" -type f -name modules.ini -exec sed -i "s|internal/bspwm|internal/xworkspaces|g" {} +
 		fi
 	fi	
 }
 
-if ! cat "$SFILE" | grep -q "$workspace_name" || ! cat "$SFILE" | grep -q "$current_WM_name";then
+if ! cat "$HOME/.config/polybar/system.ini" | grep -q "$workspace_name" || ! cat "$HOME/.config/polybar/system.ini" | grep -q "$current_WM_name";then
 	run_change_module_=true
 fi
 

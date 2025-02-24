@@ -1,8 +1,7 @@
 #!/bin/sh
 # Color files
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/polybar"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 style_name=""
 
@@ -10,14 +9,14 @@ if [ "$polybar_STYLE" = "blocks" ]
 then
 change_color() {
 	# polybar
-	sed -i -e "s/background = #.*/background = $BG/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/background-alt = #.*/background-alt = $BGA/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/foreground = #.*/foreground = $FG/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/primary = #.*/primary = $AC/g" "$polybar_style_dir"/colors.ini
+	sed -i -e "s/background = #.*/background = $BG/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/background-alt = #.*/background-alt = $BGA/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/foreground = #.*/foreground = $FG/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/foreground-alt = #.*/foreground-alt = $FGA/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/primary = #.*/primary = $AC/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
 	
 	# rofi
-	tee "$rofi_style_dir"/colors.rasi <<- EOF > /dev/null
+	tee "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi <<- EOF > /dev/null
 	/* colors */
 
 	* {
@@ -38,14 +37,14 @@ elif [ "$polybar_STYLE" = "cuts" ]
 then
 change_color() {
 	# polybar
-	sed -i -e "s/background = #.*/background = #${BG}/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/background-alt = #.*/background-alt = #8C${BG}/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/foreground = #.*/foreground = #${FG}/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/foreground-alt = #.*/foreground-alt = #33${FG}/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/primary = #.*/primary = $AC/g" "$polybar_style_dir"/colors.ini
+	sed -i -e "s/background = #.*/background = #${BG}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/background-alt = #.*/background-alt = #8C${BG}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/foreground = #.*/foreground = #${FG}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/foreground-alt = #.*/foreground-alt = #33${FG}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/primary = #.*/primary = $AC/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
 	
 	# rofi
-	tee "$rofi_style_dir"/colors.rasi <<- EOF > /dev/null
+	tee "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi <<- EOF > /dev/null
 	/* colors */
 
 	* {
@@ -65,12 +64,12 @@ then
 # Change colors
 change_color() {
 	# polybar
-	sed -i -e "s/background = #.*/background = $BG/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/foreground = #.*/foreground = $FG/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/sep = #.*/sep = $SEP/g" "$polybar_style_dir"/colors.ini
+	sed -i -e "s/background = #.*/background = $BG/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/foreground = #.*/foreground = $FG/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/sep = #.*/sep = $SEP/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
 	
 	# rofi
-	tee "$rofi_style_dir"/colors.rasi <<- EOF > /dev/null
+	tee "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi <<- EOF > /dev/null
 	/* colors */
 
 	* {
@@ -91,13 +90,13 @@ then
 # Change colors
 change_color() {
 	# polybar
-	sed -i -e "s/bg = #.*/bg = #FF${BG}/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/fg = #.*/fg = #FF${FG}/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/fga = #.*/fga = #FF${RFG}/g" "$polybar_style_dir"/colors.ini
-	sed -i -e "s/ac = #.*/ac = #FF${AC}/g" "$polybar_style_dir"/colors.ini
+	sed -i -e "s/bg = #.*/bg = #FF${BG}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/fg = #.*/fg = #FF${FG}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/fga = #.*/fga = #FF${RFG}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
+	sed -i -e "s/ac = #.*/ac = #FF${AC}/g" "$HOME/.config/polybar/$polybar_STYLE"/colors.ini
 	
 	# rofi
-	tee "$rofi_style_dir"/colors.rasi <<- EOF > /dev/null
+	tee "$HOME/.config/rofi/$ROFI_STYLE"/colors.rasi <<- EOF > /dev/null
 	/* colors */
 
 	* {
@@ -116,10 +115,10 @@ elif echo "$polybar_STYLE" | grep -q "panels"
 then
 	change_panel() {
 		# Change Polybar style
-		echo "$style_name" > "$polybar_style_name_path"
+		sed -i "s/polybar_STYLE=.*/polybar_STYLE=$style_name/g" "${Distro_config_file}"
 		
 		# Change rofi style
-		echo "$style_name" > "$rofi_style_name_path"
+		sed -i "s/ROFI_STYLE=.*/ROFI_STYLE=$style_name/g" "${Distro_config_file}"
 		
 		# Change wallpaper
 		setbg -R /usr/share/my_stuff/my_wallpapers/"$bg"

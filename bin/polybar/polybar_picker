@@ -5,13 +5,12 @@
 
 ## Files and Directories
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/polybar"
-. "/usr/share/my_stuff/lib/common/rofi"
+. "${Distro_config_file}"
 
 if [ "$@" ]
 then
-	echo "$@" > "${polybar_style_name_path}"
-	echo "$@" > "${rofi_style_name_path}"
+	sed -i "s/polybar_STYLE=.*/polybar_STYLE=$@/g" "${Distro_config_file}"
+	sed -i "s/ROFI_STYLE=.*/ROFI_STYLE=$@/g" "${Distro_config_file}"
 fi
 
 polybar-session restart

@@ -5,7 +5,7 @@ extra_apps_="xfce4-settings xfce4-clipman xfce4-whiskermenu-plugin"
 
 ###################################################################
 . "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/panel"
+
 Package_installer_ ${app_name} || continue
 
 if [ -n "${extra_apps_}" ];then
@@ -14,7 +14,6 @@ if [ -n "${extra_apps_}" ];then
 	clear
 fi
 copy_from_extra_skel ".config/xfce4" || continue
-say "log out then log in for changes to be applyed."
 
 say 'Copy Files from  extra_blob...' 1
 cd "/usr/share/my_stuff/extra_blob/polybar" || continue
@@ -26,3 +25,5 @@ cd "/usr/share/my_stuff/extra_blob/tint2" || continue
 for theme in *;do
 	my-superuser cp -r "${theme}/config/xfce4" "/usr/share/my_stuff/system_files/blob/tint2/${theme}/config"  || continue
 done
+
+say "log out then log in for changes to be applyed."
