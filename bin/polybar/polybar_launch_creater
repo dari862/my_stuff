@@ -15,7 +15,7 @@ fi
 
 create_pwidgets_launcher(){
 	echo '#!/bin/sh' > "${polybar_launcher_path}"
-	echo "polybar_style_dir=\"$HOME/.config/polybar/$polybar_STYLE\"" >> "${polybar_launcher_path}"
+	echo "polybar_STYLE=\"$polybar_STYLE\"" >> "${polybar_launcher_path}"
 	tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
 	pwidgets_mode="main"
 	case "$pwidgets_mode" in
