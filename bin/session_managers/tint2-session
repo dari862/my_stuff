@@ -10,6 +10,7 @@
 
 config_dir="$HOME/.config"
 tint2_config="${config_dir}/tint2"
+. "/usr/share/my_stuff/lib/common/WM"
 . "${Distro_config_file}"
 
 #=== FUNCTION ======================================================================

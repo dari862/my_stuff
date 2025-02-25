@@ -93,7 +93,7 @@ tee "${polybar_launcher_path}" <<- 'EOF' > /dev/null
 MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 for mon in ${MONITORS}; do
 EOF
-echo "polybar_style_dir=\"$HOME/.config/polybar/$polybar_STYLE\"" >> "${polybar_launcher_path}"
+echo "polybar_STYLE=\"$polybar_STYLE\"" >> "${polybar_launcher_path}"
 case "$polybar_STYLE" in
 	pwidgets)
 		create_pwidgets_launcher
