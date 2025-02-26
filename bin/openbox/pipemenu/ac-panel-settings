@@ -6,14 +6,15 @@
 . "${Distro_config_file}"
 
 if [ "$_panel_name_" = "polybar" ];then
+	[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/not_add_2_path/create-style-pipemenu
 	menuStart "PolybarMenu" "Polybar"
 	menuItem 'Open Your polybar Folder' "my-file-manager ~/.config/polybar/"
 	menuItem 'How to configure Polybar?' 'my-www-browser "https://github.com/polybar/polybar/wiki" "https://wiki.archlinux.org/title/Polybar"'
 	menuItem 'Restart' "polybar-session restart"
 	menuItem 'Stop' "polybar-session stop"
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
-	[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/not_add_2_path/create-style-pipemenu
 	cat "${style_pipemenu_file}"
+	menuSubmenuEnd
 elif [ "$_panel_name_" = "xfce4-panel" ];then
 	menuStart "Xfce4PanelMenu" "xfce4-panel"
 	menuItem 'GUI Xfce4-Panel Config Tool' "xfce4-panel -p"

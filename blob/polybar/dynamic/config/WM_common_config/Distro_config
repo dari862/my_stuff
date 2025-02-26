@@ -1,5 +1,5 @@
 _panel_name_="polybar"
-ROFI_STYLE="default"
+ROFI_STYLE="cyber"
 polybar_STYLE="dynamic"
 conky_sessionfile=".config/conky/openbox-conky.conf"
-tint2_sessionfile="/.config/tint2/dynamic.tint2rc"
+tint2_sessionfile="/.config/tint2/default.tint2rc"

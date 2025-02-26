@@ -1,7 +1,6 @@
-## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
-##
 ## Configuration for tint2 panel.
-
+#-------------------------------------
+# Gradients
 #-------------------------------------
 # Backgrounds
 # Background 1: Panel, Tooltip
@@ -17,7 +16,7 @@ border_color_hover = #dfd9cd 0
 background_color_pressed = #100f0d 0
 border_color_pressed = #dfd9cd 0
 
-# Background 2: Battery, Button, Default task, Executor, Inactive desktop name, Normal task, Systray
+# Background 2: Battery, Button, Default task, Executor, Inactive desktop name, Launcher, Normal task, Systray
 rounded = 10
 border_width = 0
 border_sides = TBLR
@@ -71,7 +70,7 @@ border_color_pressed = #dfd9cd 0
 
 #-------------------------------------
 # Panel
-panel_items = PTSEEEEEC
+panel_items = PETSEEEEEC
 panel_size = 100% 38
 panel_margin = 0 0
 panel_padding = 6 6 6
@@ -214,6 +213,30 @@ ac_disconnected_cmd = dunstify -u low -h string:x-dunst-stack-tag:tint2 'Charger
 #-------------------------------------
 # Executor 1
 execp = new
+execp_command = echo ""
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Dynamic Theme
+execp_lclick_command = dynamic_theme
+execp_rclick_command = dynamic_theme
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = JetBrainsMono Nerd Font 10
+execp_font_color = #dfd9cd 100
+execp_padding = 10 0
+execp_background_id = 2
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 2
+execp = new
 execp_command = distro_scripts --volumect
 execp_interval = 0
 execp_has_icon = 0
@@ -236,7 +259,7 @@ execp_icon_w = 0
 execp_icon_h = 0
 
 #-------------------------------------
-# Executor 2
+# Executor 3
 execp = new
 execp_command = distro_scripts --brightness
 execp_interval = 0
@@ -260,7 +283,7 @@ execp_icon_w = 0
 execp_icon_h = 0
 
 #-------------------------------------
-# Executor 3
+# Executor 4
 execp = new
 execp_command = distro_scripts --bluetooth
 execp_interval = 1
@@ -284,7 +307,7 @@ execp_icon_w = 0
 execp_icon_h = 0
 
 #-------------------------------------
-# Executor 4
+# Executor 5
 execp = new
 execp_command = get_scripts --network
 execp_interval = 1
@@ -308,7 +331,7 @@ execp_icon_w = 0
 execp_icon_h = 0
 
 #-------------------------------------
-# Executor 5
+# Executor 6
 execp = new
 execp_command = get_scripts --battery
 execp_interval = 10
@@ -357,3 +380,4 @@ tooltip_padding = 10 10
 tooltip_background_id = 1
 tooltip_font_color = #dfd9cd 100
 tooltip_font = JetBrainsMono Nerd Font 10
+

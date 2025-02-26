@@ -5,7 +5,7 @@
 . "${Distro_config_file}"
 
 # Change colors
-if [ "$polybar_STYLE" = "colorblocks" ] || [ "$polybar_STYLE" = "shapes" ] || [ "$polybar_STYLE" = "shades" ]
+if [ "$polybar_STYLE" = "colorblocks" ] || [ "$polybar_STYLE" = "shades" ]
 then
 	change_color() {
 	# polybar

@@ -14,7 +14,6 @@ styles="$(find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name "default" ! -name 
 
 {
 count=1
-menuStart
 menuItem "Default" "style_changer default"
 menuItem "Dynamic" "style_changer dynamic"
 menuSeparator "| Simple |"
@@ -24,5 +23,4 @@ for style in ${styles}; do
 	menuItem "${count}. ${better_style_name}" "style_changer ${style}"
 	count=$(($count+1))
 done
-menuEnd
 } > "${style_pipemenu_file}"

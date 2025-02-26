@@ -7,7 +7,7 @@
 PFILE="$HOME/.config/polybar/$polybar_STYLE/colors.ini"
 
 # Change colors
-if [ "$polybar_STYLE" = "colorblocks" ] || [ "$polybar_STYLE" = "shapes" ] || [ "$polybar_STYLE" = "shades" ]
+if [ "$polybar_STYLE" = "colorblocks" ] || [ "$polybar_STYLE" = "shades" ]
 then
 	change_color() {
 		# polybar
@@ -16,10 +16,6 @@ then
 		then
 			sed -i -e "s/foreground = #.*/foreground = $FG/g" $HOME/.config/polybar/$polybar_STYLE/colors.ini
 			sed -i -e 's/foreground-alt = #.*/foreground-alt = #141C21/g' $HOME/.config/polybar/$polybar_STYLE/colors.ini
-		elif [ "$polybar_STYLE" = "shapes" ] 
-		then
-			sed -i -e 's/foreground = #.*/foreground = #FFFFFF/g' $HOME/.config/polybar/$polybar_STYLE/colors.ini
-			sed -i -e 's/foreground-alt = #.*/foreground-alt = #1F1F1F/g' $HOME/.config/polybar/$polybar_STYLE/colors.ini
 		elif [ "$polybar_STYLE" = "shades" ] 
 		then
 			sed -i -e 's/foreground = #.*/foreground = #FFFFFF/g' $HOME/.config/polybar/$polybar_STYLE/colors.ini

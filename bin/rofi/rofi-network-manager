@@ -230,6 +230,7 @@ main() {
 }
 
 # main
+. "${Distro_config_file}"
 . "${rofi_network_manager_config}/config.ini"
 if [ -f "${languages_lib_dir}/${LANGUAGE}.lang" ];then
 	. "${languages_lib_dir}/${LANGUAGE}.lang"

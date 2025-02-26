@@ -225,7 +225,6 @@ else
 fi
 
 if on_graphical_session;then
-	. "${Distro_config_file}"
 	if [ -z "$opt_" ];then
 		show_menu="rofi"
 	elif  [ "$opt_" = "--rofi" ];then	
@@ -248,12 +247,16 @@ else
 fi
 
 if  [ "$show_menu" = "rofi" ];then
+	. "${Distro_config_file}"
 	layout="$(grep 'USE_ICON' "$HOME/.config/rofi/$ROFI_STYLE"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 	rofi_menu
 elif  [ "$show_menu" = "yad" ];then		
 	yad_menu
 elif  [ "$show_menu" = "tty" ];then		
 	tty_menu
+elif  [ "$confirm_it" = "true" ];then		
+	. "${Distro_config_file}"
+	layout="$(grep 'USE_ICON' "$HOME/.config/rofi/$ROFI_STYLE"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 fi
 
 case "$opt_" in

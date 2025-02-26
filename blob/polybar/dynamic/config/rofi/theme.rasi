@@ -1,12 +1,15 @@
-/* Color-Scheme,Theme-Scheme, and Text Font */
+/**
+ *
+ * theme : dynamic
+ * 
+ * Colors
+ **/
 
 * {
-    background:     #100f0d;
-    background-alt: #100f0d;
-    foreground:     #dfd9cd;
-    selected:       #C8A763;
-    active:         #E99551;
-    urgent:         #24768B;
-    icon-theme: "Zafiro";
-    font:				 	"Iosevka 10";
+    background:     #1F1F1FFF;
+    background-alt: #1F1F1FFF;
+    foreground:     #FFFFFFFF;
+    selected:       #1564C0FF;
+    active:         #98C379FF;
+    urgent:         #E06C75FF;
 }

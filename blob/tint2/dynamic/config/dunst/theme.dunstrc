@@ -1,5 +1,5 @@
 # Defines color of the frame around the notification window.
-frame_color = "#dfd9cd"
+frame_color = "#FFFFFF"
 
 # Define a color for the separator.
 # possible values are:
@@ -19,15 +19,15 @@ transparency = 0
 origin = top-right
 
 # Offset from the origin
-offset = 10x44
+offset = 10x46
 
 # Defines width in pixels of frame around the notification window.
 # Set to 0 to disable.
-frame_width = 0
+frame_width = 6
 
 ### Text ###
 
-font = JetBrains Mono 9
+font = JetBrains Mono 10
 
 # The format of the message.  Possible variables are:
 #   %a  appname
@@ -44,18 +44,18 @@ format = "<b>%a</b>\n%s\n%b"
 # Otherwise the "#" and following would be interpreted as a comment.
 [urgency_low]
 timeout = 2
-background = "#100f0d"
-foreground = "#dfd9cd"
-frame_color = "#dfd9cd"
+background = "#FFFFFF"
+foreground = "#404040"
+frame_color = "#F5F5F5"
 
 [urgency_normal]
 timeout = 5
-background = "#100f0d"
-foreground = "#dfd9cd"
-frame_color = "#24768B"
+background = "#FFFFFF"
+foreground = "#404040"
+frame_color = "#F5F5F5"
 
 [urgency_critical]
 timeout = 0
-background = "#100f0d"
-foreground = "#dfd9cd"
-frame_color = "#E99551"
+background = "#FFFFFF"
+foreground = "#EC7875"
+frame_color = "#F5F5F5"

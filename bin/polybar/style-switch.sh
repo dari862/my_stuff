@@ -50,34 +50,6 @@ then
 					*White) style-switcher.sh --white ;;
 					*Black) style-switcher.sh --black ;;
 				esac
-elif [ "$ROFI_STYLE" = "shapes" ]
-then
-	# Replace Glyphs
-	change_style() {
-		sed -i -e "s/gleft = .*/gleft = $1/g" "$HOME/.config/rofi/$ROFI_STYLE"/glyphs.ini
-		sed -i -e "s/gright = .*/gright = $2/g" "$HOME/.config/rofi/$ROFI_STYLE"/glyphs.ini
-
-		polybar-msg cmd restart
-	}
-
-
-	# Launch Rofi
-	MENU="$(echo "♥ Style-1|♥ Style-2|♥ Style-3|♥ Style-4|♥ Style-5|♥ Style-6|♥ Style-7|♥ Style-8|♥ Style-9|♥ Style-10|♥ Style-11|♥ Style-12" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
-				case "$MENU" in
-					## Light Colors
-					*Style-1) change_style   ;;
-					*Style-2) change_style   ;;
-					*Style-3) change_style   ;;
-					*Style-4) change_style   ;;
-					*Style-5) change_style   ;;
-					*Style-6) change_style   ;;
-					*Style-7) change_style   ;;
-					*Style-8) change_style   ;;
-					*Style-9) change_style   ;;
-					*Style-10) change_style   ;;
-					*Style-11) change_style   ;;
-					*Style-12) change_style   ;;
-				esac
 elif echo "$ROFI_STYLE" |  grep -q "panels/";then
 	# Launch Rofi
 	MENU="$(echo " Budgie| Deepin| Elementary| Elementary_Dark| Gnome| KDE| KDE_Dark| Liri| Mint| Ubuntu_gnome| Ubuntu_unity| Xubuntu| Zorin" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"

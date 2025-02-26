@@ -1,48 +1,28 @@
+## Colors configuration
 colors:
-  #  Default colors
+  # Default colors
   primary:
-    background: '0x100f0d'
-    foreground: '0xdfd9cd'
+    background: '0x191D27'
+    foreground: '0xd8d8d8'
 
-    dim_foreground:    '0x9c978f'
-    bright_foreground: '0x537A84'
-    dim_background:    '0x9c978f' #  not sure
-    bright_background: '0x100f0d' #  not sure
-
-  #  Cursor colors
-  #  cursor:
-    #  text:   '0xdfd9cd'
-    #  cursor: '0x100f0d'
-
-  #  Normal colors
+  # Normal colors
   normal:
-    black:   '0x100f0d'
-    red:     '0xE99551'
-    green:   '0xC8A763'
-    yellow:  '0x24768B'
-    blue:    '0x537A84'
-    magenta: '0x299299'
-    cyan:    '0x539EA8'
-    white:   '0xdfd9cd'
+    black:   '0x27292D'
+    red:     '0xec7875'
+    green:   '0x61c766'
+    yellow:  '0xfdd835'
+    blue:    '0x42a5f5'
+    magenta: '0xba68c8'
+    cyan:    '0x4dd0e1'
+    white:   '0xd8d8d8'
 
-  #  Bright colors
+  # Bright colors
   bright:
-    black:   '0x9c978f'
-    red:     '0xE99551'
-    green:   '0xC8A763'
-    yellow:  '0x24768B'
-    blue:    '0x537A84'
-    magenta: '0x299299'
-    cyan:    '0x539EA8'
-    white:   '0xdfd9cd'
-
-  #  Dim colors
-  dim:
-    black:   '0x100f0d'
-    red:     '0xE99551'
-    green:   '0xC8A763'
-    yellow:  '0x24768B'
-    blue:    '0x537A84'
-    magenta: '0x299299'
-    cyan:    '0x539EA8'
-    white:   '0xdfd9cd'
+    black:   '0x3B3D41'
+    red:     '0xfb8784'
+    green:   '0x70d675'
+    yellow:  '0xffe744'
+    blue:    '0x51b4ff'
+    magenta: '0xc979d7'
+    cyan:    '0x5cdff0'
+    white:   '0xfdf6e3'
