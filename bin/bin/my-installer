@@ -231,23 +231,19 @@ show_help(){
     exit
 }
 
-if [ -d "${_APPS_EXTRA_LIBDIR}" ];then
-	_APPS_LIBDIR="${_APPS_LIBDIR} ${_APPS_EXTRA_LIBDIR}"
-else
-	_APPS_LIBDIR="${_APPS_LIBDIR}"
-fi
+_NEW_APPS_LIBDIR="${_APPS_LIBDIR} ${_APPS_EXTRA_LIBDIR}"
 			
 case $option in
 		--install|--game)
 			package_update=true
 			package_install=true
-			_files_path="${_APPS_LIBDIR}"
+			_files_path="${_NEW_APPS_LIBDIR}"
 		;;
 		--install-needed)
 			package_update=true
 			package_install=true
 			needed_app="--needed "
-			_files_path="${_APPS_LIBDIR}"
+			_files_path="${_NEW_APPS_LIBDIR}"
 		;;
 		--deploy)
 			package_update=true
@@ -261,12 +257,13 @@ case $option in
 			_files_path="${_CONTAINERS_LIBDIR}"
 		;;
 		--tweek) 
-			running_tweek=true 
-			_files_path="${_TWEEKS_LIBDIR}"
+			running_tweek=true
+			_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
 		;;
 		--fullenv) 
 			running_fullenv=true
 			_files_path="${_FULL_ENVIRONMENT_LIBDIR}"
+			_files_path="${_FULL_ENVIRONMENT_LIBDIR} ${_FULL_ENVIRONMENT_EXTRA_LIBDIR}"
 		;;
 		--chroot) 
 			running_chroot=true 
