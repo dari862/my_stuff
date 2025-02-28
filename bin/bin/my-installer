@@ -186,6 +186,8 @@ __run_(){
 			remove_from_db "${file_name_}" "chroots" || continue
 		elif [ "${running_fullenv}" = "true" ];then
 			remove_from_db "${file_name_}" "fullenv" || continue
+		elif [ "${running_tweek}" = "true" ];then
+			remove_from_db "${file_name_}" "tweeks" || continue
 		fi
 
 		end_superuser || continue

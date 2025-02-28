@@ -1,0 +1,433 @@
+#!/bin/sh
+
+# Variable explain:
+# $y: the current argument in the whole content
+# $yy: the current argument in the list
+# $pos: the current position on argument y
+# $y2: the current position on current screen position
+# $num: numbers of lines per argument
+# $fin: bottom for printable area, depends on num
+# $token: indicator for actions
+# Dimension is adjustable by $top & $bottom
+
+# Stolen from shfm
+esc() {
+    case $1 in
+        # vt100 (IL is vt102) (DECTCEM is vt520)
+	CUP)     printf '%s[%s;%sH' "$esc_c" "$2" "$3" ;;
+	    # cursor to LINES($2), COLUMNS($3)
+        CUU)     printf '%s[%sA'    "$esc_c" "$2"      ;;
+	    # cursor up
+        CUD)     printf '%s[%sB'    "$esc_c" "$2"      ;;
+	    # cursor down
+        CUR)     printf '%s[%sC'    "$esc_c" "$2"      ;;
+	    # cursor right
+	CUL)     printf '%s[%sD'    "$esc_c" "$2"      ;;
+	    # cursor left
+	DECAWM)  printf '%s[?7%s'   "$esc_c" "$2"      ;;
+	    # (h: set; l: unset) line wrap
+        DECRC)   printf '%s8'       "$esc_c"           ;;
+	    # cursor restore
+        DECSC)   printf '%s7'       "$esc_c"           ;;
+	    # cursor save
+        DECSTBM) printf '%s[%s;%sr' "$esc_c" "$2" "$3" ;;
+	    # scroll region
+	DECTCEM) printf '%s[?25%s'  "$esc_c" "$2"      ;;
+	    # (h: show; l: hide) cursor visible
+	ED[0-2]) printf '%s[%sJ'    "$esc_c" "${1#ED}" ;;
+	    # clear screen
+        EL[0-2]) printf '%s[%sK'    "$esc_c" "${1#EL}" ;;
+	    # clear line
+        IL)      printf '%s[%sL'    "$esc_c" "$2"      ;;
+	    # insert line
+	SGR)     printf '%s[%s;%sm' "$esc_c" "$2" "$3" ;;
+	    # colors ($2); attribute ($3)
+
+        # xterm (since 1988, supported widely)
+	screen_alt) printf '%s[?1049%s' "$esc_c" "$2" ;;
+	    # (h: to; l: back from) alternate buffer
+    esac
+}
+
+term_setup() {
+    bottom=$((LINES - 2))				# space for bottom status_line
+    top=3						# space for top status_line
+    fin=$(( bottom - (bottom - (top - 1)) % num ))	# bottom for content printed
+
+    stty=$(stty -g)
+    stty -icanon -echo
+    esc screen_alt h
+    esc DECAWM l
+    esc DECTCEM l
+    esc ED2
+    esc DECSTBM "$top" "$fin"
+}
+
+term_getsize() {
+    # false-positive, behavior intentional, globbing is disabled.
+    # shellcheck disable=2046
+    {
+        set -f -- $(stty size)
+        set +f
+    }
+
+    LINES=$1 COLUMNS=$2
+}
+
+term_reset() {
+    esc DECAWM h     >&2
+    esc DECTCEM h    >&2
+    esc ED2          >&2
+    esc DECSTBM      >&2
+    esc screen_alt l >&2
+    stty "$stty"
+}
+
+input_assign() {
+    offset=$1
+    length=$2
+
+    shift "$(( offset > 0 ? offset : 0 ))"; shift 2;
+
+    i=1
+    while [ "$i" -le "$length" ]; do
+	save_list="$save_list${ifs:=$nl}$1"
+	shift $(( $# > 0 ? 1 : 0 ))
+	i=$(( i + 1 ))
+    done
+
+    save_list="${save_list#${ifs:=$nl}}"
+    list=$save_list
+
+    unset i offset length save_list
+}
+
+
+redraw() {
+
+    pos=$(( num * y - num + top ))
+    end=$(( fin + 1 ))
+    width=$(( (end - top) / num ))
+
+    input_assign "$(( y >= width ? y - width : 0 ))" "$width" "$@"
+
+    IFS=${ifs:=$nl}
+    # shellcheck disable=2086
+    set -- $list
+    unset IFS
+
+    esc ED2
+
+    status_line "$last"
+    list_print "$@"
+
+    unset list
+}
+
+
+list_print() {
+    esc CUP "$top"
+
+    unset cur
+
+    i=1
+
+    for file do
+
+	case $(( num * i - num + top )) in
+	    "$y2") cur=$file; save_cur=$file ;;
+	    *) cur= ;;
+	esac
+
+	case $(( num * i - num + top - end )) in
+	    -*)
+		arg_format "$file"
+		esc CUD
+		i=$((i + 1))
+		;;
+	    0|*) break ;;
+	esac
+
+    done
+
+    esc CUP "$(( pos > y2 ? y2 : pos ))"
+
+    cur=$save_cur
+    unset save_cur
+}
+
+arg_print() {
+    shift "$1"
+    arg_format "$1"
+}
+
+
+arg_format() {
+    esc EL0
+
+    # overall display rule
+    case "$cur" in
+	'') esc CUR 5; esc SGR '' 2 ;;
+	*) esc CUR 2; esc SGR 35 1; printf '>'; esc SGR 33 1; esc CUR 2 ;;
+    esac
+
+    printf '%s\r' "$1"
+
+    esc SGR
+}
+
+
+term_move_up() {
+
+    y=$(( y - move )) yy=$(( yy - move ))
+    pos=$(( num * y - num + top ))
+
+    # Generate list for partial input
+    input_assign "$(( yy - 1 ))" "$(( move + 1 ))" "$@"
+    IFS=${ifs:=$nl}
+    # shellcheck disable=2086
+    set -- $list
+    unset IFS list cur
+
+    i=1
+    while [ "$i" -le "$move" ] ; do
+	arg_print "$(( move - i + 2 ))" "$@" # print the latter item first
+
+	case "$y2" in # adjust for upper bound
+	    "$top") [ "$num" -gt 1 ] && esc CUU $(( num - 1 )); esc IL "$num" ;;
+	    *) esc CUU "$(( num * 2 - 1 ))"; y2=$(( y2 > top ? y2 - num : top )) ;;
+	esac
+
+	i=$(( i + 1 ))
+    done
+
+    offset=$y
+    cur=$1
+    arg_format "$1"
+
+    # Restore cursor to match y2
+    [ "$num" -gt 1 ] && esc CUU "$(( num - 1 ))"
+
+    status_line "$last"
+
+    unset i offset
+}
+
+term_move_down() {
+
+    y=$(( y + move )) yy=$(( yy + move ))
+    pos=$(( num * y - num + top ))
+    y2=$(( y2 + num * move < fin - (num - 1) ? y2 + num * move : fin - (num - 1) ))
+
+    # Generate list for partial input
+    input_assign "$(( yy - move - 1 ))" "$(( move + 1 ))" "$@"
+    IFS=${ifs:=$nl}
+    # shellcheck disable=2086
+    set -- $list
+    unset IFS cur
+
+    i=1
+    while [ "$i" -le "$move" ] ; do
+	arg_format "$1"
+	shift 1
+	printf '\n'
+
+	i=$(( i + 1 ))
+    done
+
+    offset=$y
+    cur=$1
+    arg_format "$1"
+
+    [ "$num" -gt 1 ] && esc CUU "$(( num - 1 ))"
+
+    status_line "$last"
+
+    unset i offset
+}
+
+status_line () {
+    esc DECSC
+    esc CUP 1; esc EL2; printf '%s ' "($y/$1)"; printf '%s' "$msg"
+    [ -n "$ltype" ] && { esc CUP "$LINES"; esc EL2; printf '%s' "$ltype"; }
+    esc DECRC
+}
+
+key() {
+
+    loop=$(( loop + 1 ))
+
+    # Generate new list
+    case $(( y - move )) in
+        1) y=1; yy=1; input_assign "0" "$len" "$@" ;;
+        $(( last - move - 1 ))) y=$last; input_assign "$(( y - len ))" "$len" "$@" ;;
+        *)
+            case $(( y - len )) in
+                -*) input_assign "$(( yy > 1 ? y - yy : y - 1 ))" "$len" "$@" ;;
+                *) input_assign "$(( yy > 1 ? y - len : y - 1 ))" "$len" "$@" ;;
+            esac
+    esac
+
+    IFS=${ifs:=$nl}
+    # shellcheck disable=2086
+    set -- $list
+    unset IFS
+
+    while key=$(dd ibs=1 count=1 2>/dev/null); do
+
+        case $key${esc:=0} in
+            "$ctrl_u"?|~5) # Ctrl-u / PageUp
+                move=$(( width / 4 > 2 ? width / 4 : 2 ))
+                # Terminal condition
+                case $y in
+                    -*|0|1) continue ;;
+                esac
+                # Adjust move step
+                case $(( y - move - 1 )) in
+                    -*|0) move=$(( y - 1 )) ;;
+                esac
+                # Move or update list
+                case $(( yy - move )) in
+                    -*|0) yy=$(( y > len ? len : y )); return 0 ;;
+                    *) term_move_up "$@" ;;
+                esac
+                ;;
+
+            "$ctrl_f"?|~6) # Ctrl-f / PageDown
+                move=$(( width / 4 > 2 ? width / 4 : 2 ))
+                # Terminal condition
+                case $y in
+                    "$last") continue ;;
+                esac
+                # Adjust move step
+                case $(( y - last + move )) in
+                    [1-9]*) move=$(( last - y )) ;;
+                esac
+                # Move or update list
+                case $(( yy - len + move )) in
+                    -*|0) term_move_down "$@" ;;
+                    *) yy=1; return 0 ;;
+                esac
+                ;;
+            k?|A2|"$ctrl_p"?) # k / Arrow Up / Ctrl-p
+                move=1
+                # Terminal condition
+                case $y in
+                    -*|0|1) continue ;;
+                esac
+                # Move or update list
+                case $(( yy - move )) in
+                    -*|0) yy=$len; return 0 ;;
+                    *) term_move_up "$@" ;;
+                esac
+                ;;
+            j?|B2|"$ctrl_n"?) # j / Arrow Down / Ctrl-n
+                move=1
+                # Terminal condition
+                case $y in
+                    "$last") continue ;;
+                esac
+                # Move or update list
+                case $(( yy - len + move )) in
+                    -*|0) term_move_down "$@" ;;
+                    *) yy=1; return 0 ;;
+                esac
+                ;;
+
+            g?|H2|"$ctrl_a"?) # g / Home / Ctrl-a
+                # Terminal condition
+                case $y in
+                    1) continue ;;
+                esac
+                # Normal mode v.s. Search mode
+                IFS=${ifs:=$nl}
+                # shellcheck disable=2086
+                set -- $content
+                unset IFS
+                y=1 yy=1 y2=$top pos=$top
+                redraw "$@"
+                return 0
+                ;;
+            G?|F2|"$ctrl_e"?) # G / End / Ctrl-e
+                # Terminal condition
+                case $y in
+                    "$last") continue ;;
+                esac
+                # Normal mode v.s. Search mode
+                IFS=${ifs:=$nl}
+                # shellcheck disable=2086
+                set -- $content
+                unset IFS
+                y=$last yy=$len pos=$(( num * y - num + top ))
+                y2=$(( pos < fin - (num - 1) ? pos : fin - (num - 1) ))
+                redraw "$@"
+                return 0
+                ;;
+            l?|C2|"$esc") # l / Arrow Right / Esc
+                term_reset
+                return 1
+                ;;
+            "$esc_c"*) esc=1 ;;
+            '[1') esc=2 ;;
+            5?) esc=5 ;; # PageUp
+            6?) esc=6 ;; # PageDown
+            *) esc=0 ;;
+        esac
+    done
+}
+
+main() {
+
+    set -e
+
+    trap 'term_reset; exit 0' INT QUIT
+    trap 'term_getsize; term_setup; y=1; yy=1; y2=$top; pos=$top; redraw "$@"' WINCH
+
+    term_getsize
+    term_setup
+    y=1 yy=1 y2=$top pos=$top
+
+    IFS=${ifs:=$nl}
+    # shellcheck disable=2086
+    set -- $content
+    unset IFS
+    last=$#
+    len=$(( $# > 500 ? 500 : $# ))
+
+    input_assign "0" "$len" "$@"
+
+    IFS=${ifs:=$nl}
+    # shellcheck disable=2086
+    set -- $list
+    unset IFS
+
+    redraw "$@"
+
+    # shellcheck disable=2181
+    while key "$@"; do
+        IFS=${ifs:=$nl}
+        # shellcheck disable=2086
+        set -- $content
+        unset IFS
+    done
+}
+
+shellect(){
+	msg="${1:-}"
+	nl='
+	'
+	# special key setting
+	esc_c=$(printf '\033')
+	ctrl_f=$(printf '\006')
+	ctrl_u=$(printf '\025')
+	ctrl_n=$(printf '\016')
+	ctrl_p=$(printf '\020')
+	ctrl_a=$(printf '\001')
+	ctrl_e=$(printf '\005')
+	
+	content=$(cat -u -)
+	
+	num=${num:=1} # num=1 if unset
+	main <&2 >/dev/tty # why it works, I don't know.
+	printf '%s' "$cur" >&1
+}
