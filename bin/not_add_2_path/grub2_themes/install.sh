@@ -89,4 +89,8 @@ for option in "GRUB_TERMINAL" "GRUB_TERMINAL_OUTPUT"; do
 	fi
 done
 
-grub-mkconfig -o /boot/grub/grub.cfg
+if command -v grub2-mkconfig >/dev/null 2>&1;then
+	grub2-mkconfig -o /boot/grub/grub.cfg
+else
+	grub-mkconfig -o /boot/grub/grub.cfg
+fi
