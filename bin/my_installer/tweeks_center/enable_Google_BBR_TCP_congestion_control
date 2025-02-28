@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ "$1" = "--is-enable" ];then
-	if grep -q 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ];then
+	if grep -q 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf >/dev/null 2>&1 || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ];then
 		exit 0
 	else
 		exit 1

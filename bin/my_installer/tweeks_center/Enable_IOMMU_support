@@ -1,6 +1,6 @@
 #!/bin/sh
 if [ "$1" = "--is-enable" ];then
-	if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || $(cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then
+	if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then
 		exit 0
 	else
 		exit 1
@@ -23,7 +23,7 @@ yes_or_no(){
 
 check_IOMMU_support(){
 	echo "checking if IOMMU enabled"
-	if ls "/sys/kernel/iommu_groups/"* || ls "/sys/class/iommu/"* || $(cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then
+	if ls "/sys/kernel/iommu_groups/"* >/dev/null 2>&1 || ls "/sys/class/iommu/"* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then
 		echo "IOMMU enabled"
 	else
 		echo "IOMMU Disabled"

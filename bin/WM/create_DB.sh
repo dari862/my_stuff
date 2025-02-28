@@ -13,7 +13,7 @@ opt="${1-}"
 
 # Helper function to check if a command is installed
 is_installed() {
-  command -v "$1" >/dev/null 2>&1 || dpkg -s "$1" >/dev/null 2>&1
+	command -v "$1" >/dev/null 2>&1 || dpkg -s "$1" >/dev/null 2>&1
 }
 
 # Helper function to create a database from directories
@@ -36,27 +36,27 @@ create_db_from_dirs() {
 	mkdir -p "$db_path"
 	if [ -n "$dirs2" ];then
 		find "${dirs}" "${dirs2}" -mindepth 1 -maxdepth 1 -type d $remove_this | while read -r d;do
-    		dir_name=$(basename "$d")
-    		
-    		touch "${db_path}/$dir_name"
+			dir_name=$(basename "$d")
+			
+			touch "${db_path}/$dir_name"
 		
-    		find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
-    			if ! is_installed "$(basename "$app")";then
-        			echo "$(basename "$app")" >> "$db_path/$dir_name"
-      			fi
-    		done
+			find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
+				if ! is_installed "$(basename "$app")";then
+					echo "$(basename "$app")" >> "$db_path/$dir_name"
+				fi
+			done
 		done
 	else
 		find "${dirs}" -mindepth 1 -maxdepth 1 -type d $remove_this | while read -r d;do
-    		dir_name=$(basename "$d")
-    		
-    		touch "${db_path}/$dir_name"
+			dir_name=$(basename "$d")
+			
+			touch "${db_path}/$dir_name"
 		
-    		find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
-    			if ! is_installed "$(basename "$app")";then
-        			echo "$(basename "$app")" >> "$db_path/$dir_name"
-      			fi
-    		done
+			find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
+				if ! is_installed "$(basename "$app")";then
+					echo "$(basename "$app")" >> "$db_path/$dir_name"
+				fi
+			done
 		done
 	fi
 }
@@ -70,107 +70,107 @@ create_apps_db_and_gaming_db() {
 }
 
 create_tweeks_db() {
-  say "create DB for tweeks."
-  
-  [ -f "${tweeks_db_path}" ] && rm -rf "${tweeks_db_path}"
-  touch "${tweeks_db_path}"
+	say "create DB for tweeks."
+	
+	[ -f "${tweeks_db_path}" ] && rm -rf "${tweeks_db_path}"
+	touch "${tweeks_db_path}"
 
-  find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
+	find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
 	if ! ${tweek} --is-enable;then
 		echo "$(basename "$tweek")" >> "${tweeks_db_path}"
 	fi
-  done
+	done
 }
 
 create_full_environment_db() {
-  say "create DB for full_environment."
+	say "create DB for full_environment."
 
-  [ -f "${full_environment_db_path}" ] && rm -rf "${full_environment_db_path}"
-  touch "${full_environment_db_path}"
-  
-  find "${_FULL_ENVIRONMENT_LIBDIR}" "${_FULL_ENVIRONMENT_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r FE;do
-  	echo "$(basename "$FE")" >> "${full_environment_db_path}"
-  done
+	[ -f "${full_environment_db_path}" ] && rm -rf "${full_environment_db_path}"
+	touch "${full_environment_db_path}"
+	
+	find "${_FULL_ENVIRONMENT_LIBDIR}" "${_FULL_ENVIRONMENT_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r FE;do
+		echo "$(basename "$FE")" >> "${full_environment_db_path}"
+	done
 }
 
 # Create distrobox deploy database
 create_distrobox_deploy_db() {
-  say "create DB for distrobox."
-  list_of_deploys=$(find "${_DISTROBOX_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
+	say "create DB for distrobox."
+	list_of_deploys=$(find "${_DISTROBOX_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 
-  if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
-    for deploy in $list_of_deploys; do
-      if ! distrobox list | grep -q " ${deploy} ";then
-        echo "$deploy" >> "${distrobox_deploy_db_path}"
-      fi
-    done
-  else
-    for deploy in $list_of_deploys; do
-      echo "$deploy" >> "${distrobox_deploy_db_path}"
-    done
-  fi
+	if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+		for deploy in $list_of_deploys; do
+			if ! distrobox list | grep -q " ${deploy} ";then
+				echo "$deploy" >> "${distrobox_deploy_db_path}"
+			fi
+		done
+	else
+		for deploy in $list_of_deploys; do
+			echo "$deploy" >> "${distrobox_deploy_db_path}"
+		done
+	fi
 }
 
 # Create containers deploy database
 create_containers_deploy_db() {
-  say "create DB for containers."
-  list_of_containers=$(find "${_CONTAINERS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
+	say "create DB for containers."
+	list_of_containers=$(find "${_CONTAINERS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 
-  if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ];then
-    for container in $list_of_containers; do
-      if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ];then
-        echo "$container" >> "${containers_deploy_db_path}"
-      fi
-    done
-  else
-    for container in $list_of_containers; do
-      echo "$container" >> "${containers_deploy_db_path}"
-    done
-  fi
+	if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ];then
+		for container in $list_of_containers; do
+			if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ];then
+				echo "$container" >> "${containers_deploy_db_path}"
+			fi
+		done
+	else
+		for container in $list_of_containers; do
+			echo "$container" >> "${containers_deploy_db_path}"
+		done
+	fi
 }
 
 # Create chroots deploy database
 create_chroots_deploy_db() {
-  say "create DB for chroots."
-  list_of_chroots=$(find "${_CHROOTS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
-  if [ -d "${ROOT_CHROOT_DIR}" ];then
-    for chroot in $list_of_chroots; do
-      if [ ! -f "${_CHROOTS_INSTALLED_LIBDIR}/${chroot}" ];then
-        echo "$chroot" >> "${chroots_deploy_db_path}"
-      fi
-    done
-  else
-    for chroot in $list_of_chroots; do
-      echo "$chroot" >> "${chroots_deploy_db_path}"
-    done
-  fi
+	say "create DB for chroots."
+	list_of_chroots=$(find "${_CHROOTS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
+	if [ -d "${ROOT_CHROOT_DIR}" ];then
+		for chroot in $list_of_chroots; do
+			if [ ! -f "${_CHROOTS_INSTALLED_LIBDIR}/${chroot}" ];then
+				echo "$chroot" >> "${chroots_deploy_db_path}"
+			fi
+		done
+	else
+		for chroot in $list_of_chroots; do
+			echo "$chroot" >> "${chroots_deploy_db_path}"
+		done
+	fi
 }
 
 # Create all databases except the styles database
 create_all_db_except_style_db() {
-  mkdir -p "${db_dir}"
+	mkdir -p "${db_dir}"
 
-  [ ! -f "${tweeks_db_path}" ] && create_tweeks_db
-  [ ! -f "${full_environment_db_path}" ] && create_full_environment_db
-  [ ! -f "${apps_db_path}" ] && create_apps_db_and_gaming_db
-  [ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
-  [ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
-  [ ! -f "${chroots_deploy_db_path}" ] && create_chroots_deploy_db
+	[ ! -f "${tweeks_db_path}" ] && create_tweeks_db
+	[ ! -f "${full_environment_db_path}" ] && create_full_environment_db
+	[ ! -f "${apps_db_path}" ] && create_apps_db_and_gaming_db
+	[ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
+	[ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
+	[ ! -f "${chroots_deploy_db_path}" ] && create_chroots_deploy_db
 }
 
 remove_from_DB() {
-  :
+	:
 }
 
 # Case statement to trigger the appropriate function
 case "$opt" in
-  --tweeks) create_tweeks_db ;;
-  --fullenv) create_full_environment_db ;;
-  --apps) create_apps_db_and_gaming_db ;;
-  --deploy) create_distrobox_deploy_db ;;
-  --containers) create_containers_deploy_db ;;
-  --chroots) create_chroots_deploy_db ;;
-  --all) create_all_db_except_style_db ;;
-  --remove) remove_from_DB ;;
-  *) echo "Invalid option"; exit 1 ;;
+	--tweeks) create_tweeks_db ;;
+	--fullenv) create_full_environment_db ;;
+	--apps) create_apps_db_and_gaming_db ;;
+	--deploy) create_distrobox_deploy_db ;;
+	--containers) create_containers_deploy_db ;;
+	--chroots) create_chroots_deploy_db ;;
+	--all) create_all_db_except_style_db ;;
+	--remove) remove_from_DB ;;
+	*) echo "Invalid option"; exit 1 ;;
 esac

@@ -1,5 +1,7 @@
 #!/usr/bin/sh
 set -e
+. "/usr/share/my_stuff/Distro_Specific/disto_icon"
+
 if [ "$(id -u)" -ne 0 ];then
     echo "Script is not running as superuser."
     exit 1
@@ -8,7 +10,7 @@ THEME_DIR="/usr/share/grub/themes"
 SCRIPT_DIR="$(dirname "$(readlink -m "${0}")")"
 background_path="${SCRIPT_DIR}/common/background.jpg"
 custom_background_path="${SCRIPT_DIR}/background.jpg"
-logoicon="$(lsb_release -i | cut -d ' ' -f 2 | cut -d '	' -f 2)"
+logoicon="$distro_name"
 screen="$(xrandr | grep '\*' | awk '{print $1}' | head -n1 | awk -Fx '{print $1}')"
 if [ -z "${screen}" ] || [ "${screen}" -le '1920' ];then
 	screen="1080p"
