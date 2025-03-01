@@ -6,6 +6,7 @@ if [ "$(id -u)" -ne 0 ];then
     echo "Script is not running as superuser."
     exit 1
 fi
+
 THEME_DIR="/usr/share/grub/themes"
 SCRIPT_DIR="$(dirname "$(readlink -m "${0}")")"
 background_path="${SCRIPT_DIR}/common/background.jpg"
@@ -89,8 +90,16 @@ for option in "GRUB_TERMINAL" "GRUB_TERMINAL_OUTPUT"; do
 	fi
 done
 
-if command -v grub2-mkconfig >/dev/null 2>&1;then
-	grub2-mkconfig -o /boot/grub/grub.cfg
-else
+if command -v  update-grub >/dev/null 2>&1; then
+	update-grub
+elif command -v  grub-mkconfig >/dev/null 2>&1; then
 	grub-mkconfig -o /boot/grub/grub.cfg
+elif command -v  zypper >/dev/null 2>&1 || command -v  transactional-update >/dev/null 2>&1; then
+	grub2-mkconfig -o /boot/grub2/grub.cfg
+elif command -v  dnf >/dev/null 2>&1 || command -v  rpm-ostree >/dev/null 2>&1; then
+	if [ -f "/boot/grub2/grub.cfg" ]; then
+		grub2-mkconfig -o /boot/grub2/grub.cfg
+	elif [ -f "/boot/efi/EFI/fedora/grub.cfg" ]; then
+		grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+	fi
 fi

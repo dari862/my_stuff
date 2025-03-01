@@ -75,9 +75,10 @@ if [[ -n "$no_sensors" ]];then
   	_Sensors_tab_='--tab="Sensors"'
 fi
 
+. /etc/os-release
 # Main dialog
 TXT="<b>Hardware system information</b>\\n\\n"
-TXT+="\\tOS: $(lsb_release -ds) on $(hostname)\\n"
+TXT+="\\tOS: $PRETTY_NAME on $(hostname)\\n"
 TXT+="\\tKernel: $(uname -sr)\\n\\n"
 TXT+="\\tUptime: <i>$(uptime)</i>"
 

@@ -229,8 +229,9 @@ get_os() {
             # This applies only to distributions which follow the standard
             # by shipping unmodified identification files and packages
             # from their respective upstreams.
-            if has lsb_release;then
-                distro=$(lsb_release -sd)
+            if [ -f "/etc/os-release" ];then
+                . /etc/os-release
+                distro="$PRETTY_NAME"
 
             # Android detection works by checking for the existence of
             # the follow two directories. I don't think there's a simpler
@@ -239,29 +240,14 @@ get_os() {
                 distro="Android $(getprop ro.build.version.release)"
 
             elif [ -f /etc/os-release ];then
-                # This used to be a simple '. /etc/os-release' but I believe
-                # this is insecure as we blindly executed whatever was in the
-                # file. This parser instead simply handles 'key=val', treating
-                # the file contents as plain-text.
-                while IFS='=' read -r key val; do
-                    case $key in
-                        (PRETTY_NAME)
-                            distro=$val
-                        ;;
-                    esac
-                done < /etc/os-release
-
+                . /etc/os-release
+				distro="$PRETTY_NAME"
             else
                 # Special cases for (independent) distributions which
                 # don't follow any os-release/lsb standards whatsoever.
                 has crux && distro=$(crux)
                 has guix && distro='Guix System'
             fi
-
-            # 'os-release' and 'lsb_release' sometimes add quotes
-            # around the distribution name, strip them.
-            distro=${distro##[\"\']}
-            distro=${distro%%[\"\']}
 
             # Check to see if we're running Bedrock Linux which is
             # very unique. This simply checks to see if the user's

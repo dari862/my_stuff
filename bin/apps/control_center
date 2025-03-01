@@ -313,15 +313,11 @@ maindialog(){
 # cleanup
 trap "rm -f $res1 $res3 $res4 $res5 $res6 $res7 $res8 $res9 $res10 $res11 $res12 $out" EXIT
 
-OSNAME=$(lsb_release -d | awk '{print $2}')
-OSVERSION=$(lsb_release -r | awk '{print $2}')
-#OSCODE=$(lsb_release -c | awk '{print $2}')
-if [ -f /etc/os-release ];then
-	OSCODE=$(grep "^ID=" /etc/os-release |cut -d '=' -f2)
-fi
-if [ -f /etc/lsb-release ];then
-	OSCODE=$(grep CODENAME /etc/lsb-release |cut -d '=' -f2)
-fi
+. /etc/os-release
+OSNAME="$PRETTY_NAME"
+OSVERSION="$VERSION_ID"
+#OSCODE="$VERSION_CODENAME"
+OSCODE="$ID"
  # system uptime
 UPT=$(uptime -p | sed -e 's/^up //' -e 's/ day/d/' -e 's/ hour/h/' -e 's/ minute/m/' -e 's/s//g')
 

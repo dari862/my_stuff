@@ -94,7 +94,8 @@ checkDistro() {
         DISTRO=$(cat /etc/fedora-release | awk '{print ($1,$3~/^[0-9]/?$3:$4)}')
         RPM=2
     elif [ -e /etc/os-release ];then
-        DISTRO=$(lsb_release -d | awk -F"\t" '{print $2}')
+    	. /etc/os-release
+        DISTRO="$PRETTY_NAME"
         RPM=0
         DEB=1
     fi
