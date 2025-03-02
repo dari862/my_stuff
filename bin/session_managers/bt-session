@@ -9,7 +9,7 @@ if [ "$1" = "-I" ];then
     # INSTALL BT
     if ! dpkg -l blueman >/dev/null 2>&1 || ! dpkg -l bluez 2>/dev/null | grep -q "^ii";then
         # Install package
-		my-installer --install 'bluez'
+		my-installer --install bluetooth-packages
 
         # Adduser to bluetooth
 		clear

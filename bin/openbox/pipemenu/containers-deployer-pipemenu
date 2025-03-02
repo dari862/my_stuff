@@ -43,7 +43,7 @@ obmenu_options(){
 	menuStart "DeployFavouriteContainers" "Deploy containers using Distrobox and Containers softwares"
 	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
-			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU_Driver_"
+			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --game GPU_Driver_"
 		else
 			menuItem "Gaming Box" "${installation_script_name} --deploy gaming"
 		fi
@@ -77,7 +77,7 @@ obmenu_options(){
 jgmenu_options(){
     if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
-			jgmenuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU_Driver_"
+			jgmenuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --game GPU_Driver_"
 		else
 			jgmenuItem "Gaming Box" "${installation_script_name} --deploy gaming"
 		fi

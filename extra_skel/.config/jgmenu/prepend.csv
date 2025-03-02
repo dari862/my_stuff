@@ -23,7 +23,7 @@ Utilities,^checkout(bl-utilities),applications-utilities
 Places,^pipe(jgmenu_run ob --cmd="ac-places" --tag="ac-places"),folder
 Recent Files,^pipe(jgmenu_run ob --cmd="ac-recent-files -rl15" --tag="bl-recent-files-pipemenu")
 ^sep()
-Preferences,^checkout(bl-preferences),preferences-system
+Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat /usr/share/my_stuff/system_files/preferences_pipemenu/bl'" --tag="preferences-system")
 System,^checkout(bl-system),applications-system
 ^sep()
 Help &amp; Resources,^checkout(bl-help-menu),help-contents
@@ -44,62 +44,6 @@ BLOB Themes Manager,(style_picker_yad)
 SSH,^pipe(jgmenu_run ob --cmd="sshconfig-pipemenu" --tag="sshconfig-pipemenu")
 Remote Desktop,^pipe(jgmenu_run ob --cmd="remote-desktop-pipemenu" --tag="remote-desktop-pipemenu")
 App Finder,rofi-launcher
-
-^tag(bl-preferences)
-Back,^back()
-Change Panel,^pipe(jgmenu_run ob --cmd="change-panel-pipemenu" --tag="PanelPipeMenu")
-My Stuff,^checkout(bl-blConfig)
-Openbox,^checkout(bl-obConfig)
-jgmenu,^checkout(bl-jgmenuConfig)
-Compositor,^pipe(jgmenu_run ob --cmd="ac-compositor-pipemenu" --tag="ac-compositor-pipemenu")
-Conky,^pipe(jgmenu_run ob --cmd="conky-pipemenu" --tag="conky-pipemenu"),conky-manager
-Tint2,^pipe(jgmenu_run ob --cmd="ac-panel-settings" --tag="ac-panel-settings"),tint2
-Appearance,sh -c 'lxappearance; reload_gtk23',preferences-desktop-theme
-Reload GTK,reload_gtk23,preferences-desktop-theme
-Font configuration,my-text-editor ~/.config/fontconfig/fonts.conf,preferences-desktop-font
-Wallpaper,pickbg,preferences-desktop-wallpaper,wallpaper
-Notifications,notifications_config,notifyconf
-Power Management,power_manager_settings,power_manager_settings
-rofi,^checkout(roficonfig)
-Display,^checkout(bl-DisplaySettings)
-
-My Stuff Session,^tag(bl-blConfig)
-Back,^back()
-Edit autostart,my-text-editor ~/.config/openbox/autostart
-Edit environment,my-text-editor ~/.config/openbox/environment
-
-Openbox,^tag(bl-obConfig),openbox
-Back,^back()
-Menu Style,^pipe(jgmenu_run ob --cmd="ac-ob-menu-pipemenu" --tag="ac-ob-menu-pipemenu")
-Edit rc.xml,my-text-editor ~/.config/openbox/rc.xml
-^sep()
-WM Preferences,obconf --config-file ~/.config/openbox/rc.xml
-^sep()
-Reconfigure,openbox --reconfigure
-Restart,restart-openbox
-
-jgmenu,^tag(bl-jgmenuConfig)
-Back,^back()
-Edit Menu Content,my-text-editor ~/.config/jgmenu/prepend.csv
-Edit Menu Settings,my-text-editor ~/.config/jgmenu/jgmenurc
-^sep()
-Sync theme with OpenBox,jgmenu_run init --apply-obtheme
-Sync theme with GTK3,jgmenu_run init --apply-gtktheme
-^sep(Help)
-man page,popup_terminal --man jgmenu
-tutorial,popup_terminal --man jgmenututorial
-
-rofi,^tag(roficonfig)
-Back,^back()
-Edit Config File,rofi_editer
-^sep(Help)
-man page,popup_terminal --man rofi
-
-Display,^tag(bl-DisplaySettings)
-Back,^back()
-ARandR Screen Layout Editor,arandr
-^sep(Help)
-man xrandr,popup_terminal --man xrandr
 
 System,^tag(bl-system)
 Back,^back()

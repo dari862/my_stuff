@@ -62,11 +62,14 @@ create_db_from_dirs() {
 }
 
 # Create apps and gaming database
-create_apps_db_and_gaming_db() {
+create_apps_db() {
 	say "create DB for apps."
 	create_db_from_dirs "${_APPS_LIBDIR}" "${_APPS_EXTRA_LIBDIR}" "${apps_db_path}" "Gaming"
+}
+
+create_gaming_db() {
 	say "create DB for gaming."
-	create_db_from_dirs "${_APPS_EXTRA_LIBDIR}/Gaming" "" "${gaming_db_path}"
+	create_db_from_dirs "${_GAMING_EXTRA_LIBDIR}" "" "${gaming_db_path}"
 }
 
 create_tweeks_db() {
@@ -152,10 +155,12 @@ create_all_db_except_style_db() {
 
 	[ ! -f "${tweeks_db_path}" ] && create_tweeks_db
 	[ ! -f "${full_environment_db_path}" ] && create_full_environment_db
-	[ ! -f "${apps_db_path}" ] && create_apps_db_and_gaming_db
+	[ ! -d "${apps_db_path}" ] && create_apps_db
+	[ ! -d "${gaming_db_path}" ] && create_gaming_db
 	[ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
 	[ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
 	[ ! -f "${chroots_deploy_db_path}" ] && create_chroots_deploy_db
+	say "DBs creation completed"
 }
 
 remove_from_DB() {
@@ -166,7 +171,8 @@ remove_from_DB() {
 case "$opt" in
 	--tweeks) create_tweeks_db ;;
 	--fullenv) create_full_environment_db ;;
-	--apps) create_apps_db_and_gaming_db ;;
+	--apps) create_apps_db ;;
+	--games) create_gaming_db ;;
 	--deploy) create_distrobox_deploy_db ;;
 	--containers) create_containers_deploy_db ;;
 	--chroots) create_chroots_deploy_db ;;

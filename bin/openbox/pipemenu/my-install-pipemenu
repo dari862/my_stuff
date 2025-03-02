@@ -17,8 +17,6 @@ Options (usually passed from the menu):
 
 LIST_OF_APPS_SCRIPTS_="$(cd "${apps_db_path}" && ls 2>/dev/null)"
 
-picked_gaming_db_path="${gaming_db_path}"
-LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
 
 ########################################################################
 
@@ -55,17 +53,6 @@ jgmenu_options(){
 		apps_in_dir="$(cat "$dir" 2>/dev/null)"
 		[ -n "$apps_in_dir" ] && generate_installmenu_jgmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
 	done
-	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
-		jgmenuItem "GPU Driver (GamingMenu after install)" "${installation_script_name} --install GPU_Driver_"
-	else
-		cd "${picked_gaming_db_path}"
-		jgmenuSubmenu 'root' "GamingMenu" "Gaming"
-		for gd in ${LIST_OF_GAMES_SCRIPTS_};do
-			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
-			Gaming_in_dir="$(cat "$gd" 2>/dev/null)"
-			[ -n "$apps_in_dir" ] && generate_installmenu_jgmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
-		done
-	fi
     jgmenuEnd
 #    menuEnd
 }
@@ -94,22 +81,6 @@ obmenu_options(){
 		apps_in_dir="$(cat "$dir" 2>/dev/null)"
 		[ -n "$apps_in_dir" ] && generate_installmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
 	done
-	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
-		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
-			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU_Driver_"
-		else
-			menuItem "Gaming Essential (GamingMenu after install)" "${installation_script_name} --install Gaming_Essential_"
-		fi
-	else
-		cd "${picked_gaming_db_path}"
-		menuSubmenu "GamingMenu" "Gaming"
-		for gd in ${LIST_OF_GAMES_SCRIPTS_};do
-			Gaming_dir_name=$(echo "$gd" | sed 's/_/ /')
-			Gaming_in_dir="$(cat "$gd" 2>/dev/null)"
-			[ -n "$apps_in_dir" ] && generate_installmenu "$gd" "$Gaming_dir_name" "${Gaming_in_dir}"
-		done
-		menuSubmenuEnd
-	fi
     menuEnd
  #    menuEnd   
 }

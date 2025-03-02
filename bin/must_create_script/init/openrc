@@ -74,6 +74,8 @@ then
     if [ "${option}" = "list" ]
     then
         rc-update -v show
+    elif [ "${option}" = "cleanup" ];then
+		:
     else
         _usage
     fi
