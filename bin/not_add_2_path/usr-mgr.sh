@@ -88,21 +88,20 @@ isRoot() {
 checkDistro() {
     # Checking distro
     if [ -e /etc/centos-release ];then
-        DISTRO=$(cat /etc/redhat-release | awk '{print $1,$4}')
+        distro_desc=$(cat /etc/redhat-release | awk '{print $1,$4}')
         RPM=1
     elif [ -e /etc/fedora-release ];then
-        DISTRO=$(cat /etc/fedora-release | awk '{print ($1,$3~/^[0-9]/?$3:$4)}')
+        distro_desc=$(cat /etc/fedora-release | awk '{print ($1,$3~/^[0-9]/?$3:$4)}')
         RPM=2
-    elif [ -e /etc/os-release ];then
-    	. /etc/os-release
-        DISTRO="$PRETTY_NAME"
+    elif [ -e "/usr/share/my_stuff/system_files/os-release" ];then
+    	. "/usr/share/my_stuff/system_files/os-release"
         RPM=0
         DEB=1
     fi
 
     if [ "$DISTRO_UNAME" = 'Linux' ];then
         _LINUX=1
-        Warn "Server info" "${SERVER_NAME} ${SERVER_IP} (${DISTRO}"
+        Warn "Server info" "${SERVER_NAME} ${SERVER_IP} (${distro_desc}"
     else
         _LINUX=0
         Error "Error" "Your distribution is not supported (yet)"

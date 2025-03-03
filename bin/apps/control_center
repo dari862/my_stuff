@@ -313,12 +313,8 @@ maindialog(){
 # cleanup
 trap "rm -f $res1 $res3 $res4 $res5 $res6 $res7 $res8 $res9 $res10 $res11 $res12 $out" EXIT
 
-. /etc/os-release
-OSNAME="$PRETTY_NAME"
-OSVERSION="$VERSION_ID"
-#OSCODE="$VERSION_CODENAME"
-OSCODE="$ID"
- # system uptime
+. "/usr/share/my_stuff/os-release"
+# system uptime
 UPT=$(uptime -p | sed -e 's/^up //' -e 's/ day/d/' -e 's/ hour/h/' -e 's/ minute/m/' -e 's/s//g')
 
 # install date
@@ -355,7 +351,7 @@ KERN=$(uname -r | cut -d'-' -f1 | sed 's/linux//' | tr '[:upper:]' '[:lower:]')
 RESOLUTION=$(xdpyinfo | awk '/^ +dimensions/ {print $2}')
 
 INTRO_TXT=$(cat <<EOF
-\t<big> <i>$OSCODE</i> $OSVERSION</big>
+\t<big> <i>$distro_name</i> $VERSION_ID</big>
 \t<small><i>$MABOX_DESC</i></small>\n
 \t<small><tt>$INSTALLED </tt></small><b>$INST</b> <small>$DAGO</small>
 \t<small><tt>wm:            </tt></small><b>$XDG_SESSION_DESKTOP</b>

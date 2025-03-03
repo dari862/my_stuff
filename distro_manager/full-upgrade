@@ -114,8 +114,32 @@ Updating_opt(){
 }
 
 post_updating(){
+	create_new_os_release_file
 	print_purple "==> running system_files_creater."
 	my-superuser /usr/share/my_stuff/distro_manager/system_files_creater
+}
+
+create_new_os_release_file(){
+	print_purple "==> running create_new_os_release_file."
+	if [ -f /etc/os-release ];then
+		. /etc/os-release
+		version_="$(echo "${VERSION_ID}" | tr -d '.')"
+		distro_name="$ID"
+		distro_desc="$PRETTY_NAME"
+		distro_name_and_ver_="$ID$version_"
+		distro_name_and_ver_2="${ID}_${version_}"
+		version_codename="${VERSION_CODENAME}"
+		VERSION_ID="$VERSION_ID"
+	fi
+	my-superuser tee "/usr/share/my_stuff/os-release" <<- EOF > /dev/null 2>&1
+	version_="$version_"
+	distro_name="$distro_name"
+	distro_desc="$distro_desc"
+	distro_name_and_ver_="$distro_name_and_ver_"
+	distro_name_and_ver_2="$distro_name_and_ver_2"
+	version_codename="${version_codename}"
+	VERSION_ID="$VERSION_ID"
+	EOF
 }
 
 connectiontest

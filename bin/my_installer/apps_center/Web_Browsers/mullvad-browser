@@ -5,8 +5,8 @@ app_name="mullvad-browser"
 download_key "download" "https://repository.mullvad.net/deb/mullvad-keyring.asc" "/usr/share/keyrings/mullvad-keyring.asc"
 
 # Add the Mullvad repository server to apt
-. /etc/os-release
-echo "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=$( dpkg --print-architecture )] https://repository.mullvad.net/deb/stable $VERSION_CODENAME main" | my-superuser tee /etc/apt/sources.list.d/mullvad.list
+. "/usr/share/my_stuff/os-release"
+echo "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=$( dpkg --print-architecture )] https://repository.mullvad.net/deb/stable $version_codename main" | my-superuser tee /etc/apt/sources.list.d/mullvad.list
 
 say 'Updating sources...' 1
 Package_update_
