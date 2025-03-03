@@ -279,6 +279,11 @@ case $option in
 			running_tweek=true
 			_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
 		;;
+		--tweek-needed) 
+			running_tweek=true
+			needed_app="--needed "
+			_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
+		;;
 		--fullenv) 
 			running_fullenv=true
 			_files_path="${_FULL_ENVIRONMENT_LIBDIR}"
