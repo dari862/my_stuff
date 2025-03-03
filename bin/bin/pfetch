@@ -229,15 +229,28 @@ get_os() {
             # This applies only to distributions which follow the standard
             # by shipping unmodified identification files and packages
             # from their respective upstreams.
-            if [ -f "/usr/share/my_stuff/os-release" ];then
-                . "/usr/share/my_stuff/os-release"
-                distro_desc="$PRETTY_NAME"
+            if has lsb_release; then
+                distro_desc=$(lsb_release -sd)
 
             # Android detection works by checking for the existence of
             # the follow two directories. I don't think there's a simpler
             # method than this.
-            elif [ -d /system/app ] && [ -d /system/priv-app ];then
+            elif [ -d /system/app ] && [ -d /system/priv-app ]; then
                 distro_desc="Android $(getprop ro.build.version.release)"
+
+            elif [ -f /etc/os-release ]; then
+                # This used to be a simple '. /etc/os-release' but I believe
+                # this is insecure as we blindly executed whatever was in the
+                # file. This parser instead simply handles 'key=val', treating
+                # the file contents as plain-text.
+                while IFS='=' read -r key val; do
+                    case $key in
+                        (PRETTY_NAME)
+                            distro_desc=$val
+                        ;;
+                    esac
+                done < /etc/os-release
+
             else
                 # Special cases for (independent) distributions which
                 # don't follow any os-release/lsb standards whatsoever.
