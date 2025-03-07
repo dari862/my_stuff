@@ -1,5 +1,5 @@
 #!/bin/sh
-app_name="chromium"
+app_name="evince"
 
 say "Installing ${app_name}..." 1
 

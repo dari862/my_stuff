@@ -52,7 +52,7 @@ scripts_hub()
 execuite_scripts_()
 {
 	if [ -f "${full_script_path}" ];then
-		run_this_in_popup_="'ani-cli' 'sparky-usb-formatter' 'displayselect'"
+		run_this_in_popup_="'ani-cli' 'sparky-usb-formatter'"
 		
 		if echo "${run_this_in_popup_}" | grep -q "${script_name_}";then
 			run_it_in_popup_="" #run it in popup

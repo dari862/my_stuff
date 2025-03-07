@@ -29,11 +29,12 @@ fi
 #### START SETTINGS  #################################################################################
 
 # Exec first script screenlayout found
-if [ "$(ls -A ~/.screenlayout >/dev/null 2>&1)" ] 
-then
+if [ "$(ls -A ~/.screenlayout >/dev/null 2>&1)" ];then
 	"$(ls ~/.screenlayout/*.sh | head -1)"
+elif [ -f "$display_script" ];then
+	"$display_script"
 else
-	displayselect auto
+	displayselect auto "noninteractive"
 fi
 
 # Start keyring	

@@ -29,4 +29,3 @@ elif [ "${option}" = "cleanup" ];then
 else
 	echo "option are enable is-enable is-active disable start restart stop"
 fi
-
