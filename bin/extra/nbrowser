@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # if this line exist script will be part of hub script.
 
 # nbrowser v0.6

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 wal="${1:-}"
 theme_file_2_source="${2:-/tmp/$USER/theme_color_creater_output/colors.sh}"
 

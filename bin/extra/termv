@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 # check if necessary programs are installed
 check_4_dependencies_if_installed mpv fzf jq gawk || exit 1

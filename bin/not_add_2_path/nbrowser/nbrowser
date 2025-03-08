@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # nbrowser v0.9
 # Requires bash 4+
 # author : odnar-dev <https://github.com/odnar-dev>

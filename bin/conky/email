@@ -1,7 +1,20 @@
-#!/usr/bin/env python3
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/WM"
+. "${script_config_path}/email"
 
-import imaplib
-obj = imaplib.IMAP4_SSL('imap.gmail.com',993)
-obj.login('gmail@chucknoris.com','xxxxxxxx') # write your email and password
-obj.select()
-print(len(obj.search(None, 'UnSeen')[1][0].split()))
+# Get unread count using imapfilter
+unread_count=$(imapfilter -u "$USERNAME" -p "$PASSWORD" -s "$IMAP_SERVER" << EOF
+    lselect "$MAILBOX"
+    get "messages:unseen"
+EOF
+)
+
+# Extract the number (imapfilter output might have extra info)
+unread_count=$(echo "$unread_count" | grep -oE '[0-9]+' | head -n 1)
+
+# Default to 0 if no count found (to avoid errors in Conky)
+if [ -z "$unread_count" ]; then
+  unread_count=0
+fi
+
+echo "$unread_count"
