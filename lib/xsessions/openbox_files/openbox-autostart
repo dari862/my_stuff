@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Set a background color
-openbox_xdg_autostart_path="/usr/lib/x86_64-linux-gnu/openbox-xdg-autostart"
+openbox_xdg_autostart_path="/usr/share/my_stuff/lib/xsessions/openbox_files/openbox-xdg-autostart"
 BG=""
 if which hsetroot >/dev/null 2>/dev/null;then
   BG=hsetroot
@@ -10,7 +10,8 @@ elif which esetroot >/dev/null 2>/dev/null;then
 elif which xsetroot >/dev/null 2>/dev/null;then
   BG=xsetroot
 fi
-#test -z $BG || $BG -solid "#303030"
+test -z $BG || $BG -solid "#303030"
+
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/openbox"
 
@@ -34,9 +35,4 @@ fi
 # Run the XDG autostart stuff.  These are found in /etc/xdg/autostart and
 # in $HOME/.config/autostart.  This requires PyXDG to be installed.
 # See openbox-xdg-autostart --help for more details.
-if which xdg-autostart >/dev/null 2>/dev/null;then
-   CMD=xdg-autostart
-else
-   CMD=$openbox_xdg_autostart_path
-fi
-exec $CMD "$@"
+"$openbox_xdg_autostart_path" "$@"

@@ -1,14 +1,24 @@
 #!/bin/sh -e
-# Check if ~/.ssh/config exists, if not, create it
-if [ ! -f ~/.ssh/config ]; then
+
+ssh_config_dir="$HOME/.ssh/config"
+
+hostname=${HOSTNAME:-${hostname:-${HOST:-$(hostname)}}}
+
+# If the hostname is still not found, fallback to the contents of the
+# /etc/hostname file.
+[ "$hostname" ] || read -r hostname < /etc/hostname
+
+# Check if $ssh_config_dir exists, if not, create it
+if [ ! -f "$ssh_config_dir" ]; then
     mkdir -p "$HOME/.ssh"
-    touch "$HOME/.ssh/config"
-    chmod 600 "$HOME/.ssh/config"
+    touch "$ssh_config_dir"
+    chmod 600 "$ssh_config_dir"
 fi
-# Function to show available hosts from ~/.ssh/config
+
+# Function to show available hosts from $ssh_config_dir
 show_available_hosts() {
     printf "%b\n" "Available Systems:"
-    grep -E "^Host " "$HOME/.ssh/config" | awk '{print $2}'
+    grep -E "^Host " "$ssh_config_dir" | awk '{print $2}'
     printf "%b\n" "-------------------"
 }
 # Function to ask for host details
@@ -26,7 +36,7 @@ ask_for_host_details() {
         printf "%b\n" "    IdentityFile ~/.ssh/id_rsa"
         printf "%b\n" "    StrictHostKeyChecking no"
         printf "%b\n" "    UserKnownHostsFile=/dev/null"
-    } >> ~/.ssh/config
+    } >> "$ssh_config_dir"
     printf "%b\n" "Host $host_alias added successfully."
 }
 # Function to generate SSH key if not exists
@@ -134,7 +144,7 @@ move_directory_to_remote() {
 remove_system() {
     printf "%b\n" "Enter the alias of the host to remove: "
     read -r host_alias
-    sed -i "/^Host $host_alias/,+3d" ~/.ssh/config
+    sed -i "/^Host $host_alias/,+3d" "$ssh_config_dir"
     printf "%b\n" "Removed $host_alias from SSH configuration."
 }
 # Function to view SSH configuration
@@ -142,9 +152,9 @@ view_ssh_config() {
     printf "%b\n" "Enter the alias of the host to view (or press Enter to view all): "
     read -r  host_alias
     if [ -z "$host_alias" ]; then
-        cat ~/.ssh/config
+        cat "$ssh_config_dir"
     else
-        grep -A 3 "^Host $host_alias" ~/.ssh/config
+        grep -A 3 "^Host $host_alias" "$ssh_config_dir"
     fi
 }
 # Function to backup files from remote host

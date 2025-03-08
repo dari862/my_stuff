@@ -51,8 +51,7 @@ for d in /home/*; do
     	my-superuser rm -rdf "$d/.config"
 		my-superuser rm -rdf "$d/.bashrc"
 		my-superuser rm -rdf "$d/.Xresources"
-		my-superuser rm -rdf "$d/.xsessionrc"
-		
+	
 		my-superuser cp -rf /etc/skel/. $d || my-superuser cp -rf /etc/skel/. $d
 		
 		my-superuser wc -c "$d/.bashrc" | grep "^0" >/dev/null 2>&1 && is_it_zero_byte="true"

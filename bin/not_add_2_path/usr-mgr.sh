@@ -10,6 +10,11 @@ cd $SCRIPT_PATH || echo "[ERROR] $0 : failed to cd $SCRIPT_PATH" exit 1
 
 # Vars
 # ---------------------------------------------------\
+hostname=${HOSTNAME:-${hostname:-${HOST:-$(hostname)}}}
+# If the hostname is still not found, fallback to the contents of the
+# /etc/hostname file.
+[ "$hostname" ] || read -r hostname < /etc/hostname
+
 ME=$(basename "$0")
 BACKUPS="$SCRIPT_PATH/backups"
 SERVER_NAME="$hostname"

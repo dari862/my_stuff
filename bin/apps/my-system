@@ -3,6 +3,13 @@
 
 KEY=$RANDOM
 
+hostname=${HOSTNAME:-${hostname:-${HOST:-$(hostname)}}}
+
+# If the hostname is still not found, fallback to the contents of the
+# /etc/hostname file.
+[ "$hostname" ] || read -r hostname < /etc/hostname
+
+
 function show_mod_info {
   TXT="\\n<span face='Monospace'>$(modinfo $1 | sed 's/&/\&amp;/g;s/</\&lt;/g;s/>/\&gt;/g')</span>"
   yad --title="Module information" \

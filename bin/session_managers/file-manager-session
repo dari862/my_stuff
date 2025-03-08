@@ -30,7 +30,7 @@ stop() {
 # DESCRIPTION: load file-manager
 #===================================================================================
 start() {
-	pidof -q ${file_manager_command} || ${file_manager_command} &
+	pidof -q ${file_manager_real} || ${file_manager_command} &
 }
 
 
