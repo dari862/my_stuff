@@ -78,7 +78,7 @@ fi
 . "/usr/share/my_stuff/os-release"
 # Main dialog
 TXT="<b>Hardware system information</b>\\n\\n"
-TXT+="\\tOS: $distro_desc on $(hostname)\\n"
+TXT+="\\tOS: $distro_desc on $hostname\\n"
 TXT+="\\tKernel: $(uname -sr)\\n\\n"
 TXT+="\\tUptime: <i>$(uptime)</i>"
 

@@ -33,7 +33,7 @@ ask_for_host_details() {
 generate_ssh_key() {
     if [ ! -f ~/.ssh/id_rsa ]; then
         printf "%b\n" "SSH key not found, generating one..."
-        ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" -C "$(whoami)@$(hostname)"
+        ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" -C "$(whoami)@${hostname}"
     else
         printf "%b\n" "SSH key already exists."
     fi

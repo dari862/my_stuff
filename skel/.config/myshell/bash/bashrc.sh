@@ -16,8 +16,6 @@ if [ -f "/usr/share/my_stuff/bin/bin/pfetch" ];then
 fi
 
 # ------------------------------- variables -----------------------------------
-BASH_THEME="debian"
-
 bashplugins=(
 keychain
 bash_completion
@@ -34,6 +32,10 @@ COLOR_SCHEME=dark # dark/light
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ];then
     debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+if [[ -n $SSH_CONNECTION ]] || [[ -z $BASH_THEME ]];then
+  BASH_THEME="debian"
 fi
 
 if builtin test -f $BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme;then

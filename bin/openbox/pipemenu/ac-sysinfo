@@ -80,7 +80,7 @@ else
 	##-- MENU ------------------------
 	
 	menuStart
-	menuSeparator " $USER@$(hostname)  |   $(date +'%I:%M %p, %b %d %G')"
+	menuSeparator " $USER@$hostname  |   $(date +'%I:%M %p, %b %d %G')"
 	menuItem "  OS         :  $distro ∙ $os ∙ $machine" "$sysinfo_script_"
 	menuItem "  KERNEL     :  $kernel" "$sysinfo_script_"
 	menuItem "  CPU        : $cpu" "$sysinfo_script_"

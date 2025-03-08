@@ -12,8 +12,8 @@ cd $SCRIPT_PATH || echo "[ERROR] $0 : failed to cd $SCRIPT_PATH" exit 1
 # ---------------------------------------------------\
 ME=$(basename "$0")
 BACKUPS="$SCRIPT_PATH/backups"
-SERVER_NAME="$(hostname)"
-SERVER_IP="$(hostname -I | cut -d' ' -f1)"
+SERVER_NAME="$hostname"
+SERVER_IP="$(ip addr show $(ip route | grep default | awk '{print $5}') | grep "inet " | awk '{print $2}' | cut -d/ -f1)"
 LOG="$SCRIPT_PATH/actions.log"
 DISTRO_UNAME="$(uname)"
 

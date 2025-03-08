@@ -29,7 +29,7 @@ PGID=$$
 USER_ID="$(id -u)"
 RUNDIR="/var/run/user/$USER_ID"
 PIDFILE="$RUNDIR/vnc.$PGID"
-HOST=$(hostname -I | awk '{print $1}')
+HOST=$(ip addr show $(ip route | grep default | awk '{print $5}') | grep "inet " | awk '{print $2}' | cut -d/ -f1)
 PORT=6080
 SHARE_LINK="http://$NOVNC_SERVER/novnc/?host=$HOST&amp;port=$PORT"
 
