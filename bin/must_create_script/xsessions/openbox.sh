@@ -6,8 +6,8 @@ if [ -d "/usr/share/my_stuff/bin/openbox" ];then
    	PATH="/usr/share/my_stuff/bin/openbox:$PATH"
 fi
 	
-if [ -d "/usr/share/my_stuff/bin/openbox/pipemenu" ];then
-   	PATH="/usr/share/my_stuff/bin/openbox/pipemenu:$PATH"
+if [ -d "/usr/share/my_stuff/bin/pipemenu" ];then
+   	PATH="/usr/share/my_stuff/bin/pipemenu:$PATH"
 fi
 # Clean up after GDM (GDM sets the number of desktops to one).
 xprop -root -remove _NET_NUMBER_OF_DESKTOPS \

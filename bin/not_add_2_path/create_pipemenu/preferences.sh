@@ -1,8 +1,9 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/DB"
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
 
-preferences_pipemenu_dir="/usr/share/my_stuff/system_files/preferences_pipemenu"
-my-superuser mkdir -p "${preferences_pipemenu_dir}"
+mkdir -p "${pipemenu_output_dir}"
 
 create_exec_pipemenu(){
 	echo "<menu id=\"$1\" execute=\"$2\" label=\"$3\"/>"
@@ -10,12 +11,12 @@ create_exec_pipemenu(){
 
 {
 	menuStart
-	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu --openboxmenu" "My Stuff GUI Apps"
-	create_exec_pipemenu "InstallFavouritePackages" "my-install-pipemenu --openboxmenu" "Install Favourite Packages"
-	create_exec_pipemenu "InstallGamingPackages" "gaming-pipemenu --openboxmenu" "Install Gaming Packages"
-	create_exec_pipemenu "DeployFavouriteContainers" "containers-deployer-pipemenu --openboxmenu" "Deploy Distrobox and Containers"
-	create_exec_pipemenu "RunDebianTweeks" "my-tweeks-pipemenu --openboxmenu" "Run Debian Tweeks"
-	create_exec_pipemenu "InstallFullEnvironments" "full_environment-pipemenu --openboxmenu" "Install Full Environments"
+	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
+	create_exec_pipemenu "InstallFavouritePackages" "sh -c \"cat ${my_installer_pipemenu_file}\"" "Install Favourite Packages"
+	create_exec_pipemenu "InstallGamingPackages" "sh -c \"cat ${gaming_pipemenu_file}\"" "Install Gaming Packages"
+	create_exec_pipemenu "DeployFavouriteContainers" "sh -c \"cat ${containers_deployer_pipemenu_file}\"" "Deploy Distrobox and Containers"
+	create_exec_pipemenu "RunDebianTweeks" "sh -c \"cat ${my_tweeks_pipemenu_file}\"" "Run Debian Tweeks"
+	create_exec_pipemenu "InstallFullEnvironments" "sh -c \"cat ${full_environment_pipemenu_file}\"" "Install Full Environments"
 	create_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
 	menuSubmenu "preferences-openbox" "Openbox"
     	create_exec_pipemenu "ac-ob-menu-pipemenu" "ac-ob-menu-pipemenu" "Menu Style"
@@ -46,16 +47,16 @@ create_exec_pipemenu(){
     	menuItem "man xrandr" "popup_terminal --man xrandr"
 	menuSubmenuEnd
 	menuEnd
-} | my-superuser tee "${preferences_pipemenu_dir}/bl" >/dev/null 2>&1
+} | tee "${pipemenu_output_dir}/bl" >/dev/null 2>&1
 
 {
 	menuStart
-	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu --openboxmenu" "My Stuff GUI Apps"
-	create_exec_pipemenu "InstallFavouritePackages" "my-install-pipemenu --openboxmenu" "Install Favourite Packages"
-	create_exec_pipemenu "InstallGamingPackages" "gaming-pipemenu --openboxmenu" "Install Gaming Packages"
-	create_exec_pipemenu "DeployFavouriteContainers" "containers-deployer-pipemenu --openboxmenu" "Deploy Distrobox and Containers"
-	create_exec_pipemenu "RunDebianTweeks" "my-tweeks-pipemenu --openboxmenu" "Run Debian Tweeks"
-	create_exec_pipemenu "InstallFullEnvironments" "full_environment-pipemenu --openboxmenu" "Install Full Environments"
+	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
+	create_exec_pipemenu "InstallFavouritePackages" "sh -c \"cat ${my_installer_pipemenu_file}\"" "Install Favourite Packages"
+	create_exec_pipemenu "InstallGamingPackages" "sh -c \"cat ${gaming_pipemenu_file}\"" "Install Gaming Packages"
+	create_exec_pipemenu "DeployFavouriteContainers" "sh -c \"cat ${containers_deployer_pipemenu_file}\"" "Deploy Distrobox and Containers"
+	create_exec_pipemenu "RunDebianTweeks" "sh -c \"cat ${my_tweeks_pipemenu_file}\"" "Run Debian Tweeks"
+	create_exec_pipemenu "InstallFullEnvironments" "sh -c \"cat ${full_environment_pipemenu_file}\"" "Install Full Environments"
 	
 	menuSubmenu "obconfig" "Openbox"
     	create_exec_pipemenu "ac-ob-menu-pipemenu" "ac-ob-menu-pipemenu" "Menu Style"
@@ -87,17 +88,17 @@ create_exec_pipemenu(){
 	menuItem "Settings Manager" "settings_manager_"
 	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
-} | my-superuser tee "${preferences_pipemenu_dir}/ac" >/dev/null 2>&1
+} | tee "${pipemenu_output_dir}/ac" >/dev/null 2>&1
 
 {
 	menuStart
-	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu --openboxmenu" "My Stuff GUI Apps"
+	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
 	menuSeparator "Install Packages and Debian Tweeks"
-	create_exec_pipemenu "InstallFavouritePackages" "my-install-pipemenu --openboxmenu" "Install Favourite Packages"
-	create_exec_pipemenu "InstallGamingPackages" "gaming-pipemenu --openboxmenu" "Install Gaming Packages"
-	create_exec_pipemenu "DeployFavouriteContainers" "containers-deployer-pipemenu --openboxmenu" "Deploy Distrobox and Containers"
-	create_exec_pipemenu "RunDebianTweeks" "my-tweeks-pipemenu --openboxmenu" "Run Debian Tweeks"
-	create_exec_pipemenu "InstallFullEnvironments" "full_environment-pipemenu --openboxmenu" "Install Full Environments"
+	create_exec_pipemenu "InstallFavouritePackages" "sh -c \"cat ${my_installer_pipemenu_file}\"" "Install Favourite Packages"
+	create_exec_pipemenu "InstallGamingPackages" "sh -c \"cat ${gaming_pipemenu_file}\"" "Install Gaming Packages"
+	create_exec_pipemenu "DeployFavouriteContainers" "sh -c \"cat ${containers_deployer_pipemenu_file}\"" "Deploy Distrobox and Containers"
+	create_exec_pipemenu "RunDebianTweeks" "sh -c \"cat ${my_tweeks_pipemenu_file}\"" "Run Debian Tweeks"
+	create_exec_pipemenu "InstallFullEnvironments" "sh -c \"cat ${full_environment_pipemenu_file}\"" "Install Full Environments"
 	menuSeparator "GRAPHICAL PREFERENCES"
 	create_exec_pipemenu "XrandrPipeMenu" "ac-randr" "Display / Monitor"
 	create_exec_pipemenu "ScalePipeMenu" "ac-scale-randr" "Display / Monitor Scaling"
@@ -153,5 +154,5 @@ create_exec_pipemenu(){
 	menuItem "GParted Partition Manager" "gparted"
 	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
-} | my-superuser tee "${preferences_pipemenu_dir}/my" >/dev/null 2>&1
+} | tee "${pipemenu_output_dir}/my" >/dev/null 2>&1
 

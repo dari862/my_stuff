@@ -20,3 +20,10 @@ _DEPLOYED_CONTAINERS_LIBDIR="/usr/share/my_stuff/system_files/deployed_container
 ROOT_CHROOT_DIR="/usr/share/my_stuff/system_files/chroots"
 _CHROOTS_INSTALLED_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_installer/installed"
 INSTALLER_CHROOT_DIR="/usr/share/my_stuff/bin/my_installer/chroots_installer"
+
+pipemenu_output_dir="/usr/share/my_stuff/system_files/pipemenu"
+my_installer_pipemenu_file="${pipemenu_output_dir}/my_installer"
+gaming_pipemenu_file="${pipemenu_output_dir}/gaming"
+containers_deployer_pipemenu_file="${pipemenu_output_dir}/containers_deployer"
+my_tweeks_pipemenu_file="${pipemenu_output_dir}/my_tweeks"
+full_environment_pipemenu_file="${pipemenu_output_dir}/full_environment"

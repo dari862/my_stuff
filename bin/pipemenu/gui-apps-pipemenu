@@ -29,9 +29,6 @@ do
         echo "$HELP"
         exit 0
         ;;
-    -c|--create)
-    	create_gui_scripts_dir
-        ;;
     esac
 done
 

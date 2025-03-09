@@ -3,6 +3,7 @@ set -e
 . "/usr/share/my_stuff/lib/common/WM"
 __distro_path="/usr/share/my_stuff"
 _hub_script_dir="${__distro_path}/system_files/hub_script"
+pipemenu_creater="${__distro_path}/bin/not_add_2_path/create_pipemenu"
 
 PATH="${__distro_path}/bin/bin:$PATH"
 ##################################################################################
@@ -279,14 +280,14 @@ fi
 
 if [ -f "${__distro_path}"/system_files/fingerprint_exist ];then 
 	show_im "fingerprint bin files to system_files/bin ."
-	my-superuser ln -sf ${__distro_path}/bin/not_add_2_path/fingerprint_gui ${__distro_path}/system_files/bin
+	my-superuser ln -sf "${__distro_path}"/bin/not_add_2_path/fingerprint_gui "${__distro_path}"/system_files/bin
 fi
 
 show_im "prepares hub script dir"
 my-superuser "${__distro_path}"/bin/rofi/hub create
 
 show_im "prepares gui scripts dir"
-my-superuser "${__distro_path}"/bin/openbox/pipemenu/gui-apps-pipemenu --create	
+my-superuser "${pipemenu_creater}"/gui-apps-pipemenu
 
 ##################################################################################
 
@@ -294,7 +295,22 @@ show_im "Running script for create_DB.sh --all"
 my-superuser ${__distro_path}/bin/WM/create_DB.sh --all || show_em "failed to run create_DB.sh"
 
 show_im "Running script for creating preferences pipemenu."
-${__distro_path}/bin/not_add_2_path/create_pipemenu/preferences.sh || show_em "failed to run create_pipemenu/preferences.sh"
+my-superuser "${pipemenu_creater}"/preferences.sh || show_em "failed to run create_pipemenu/preferences.sh"
+
+show_im "Running script for creating full_environment pipemenu."
+my-superuser "${pipemenu_creater}"/full_environment-pipemenu.sh || show_em "failed to run create_pipemenu/full_environment-pipemenu.sh"
+
+show_im "Running script for creating preferences pipemenu."
+my-superuser "${pipemenu_creater}"/my-tweeks-pipemenu.sh || show_em "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
+
+show_im "Running script for creating install pipemenu."
+my-superuser "${pipemenu_creater}"/my-install-pipemenu.sh|| show_em "failed to run create_pipemenu/my-install-pipemenu.sh"
+
+show_im "Running script for creating gaming pipemenu."
+my-superuser "${pipemenu_creater}"/gaming-pipemenu.sh || show_em "failed to run create_pipemenu/gaming-pipemenu.sh"
+
+show_im "Running script for creating containers and others pipemenu."
+my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || show_em "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
 
 show_im "Running must_create_script."
 for script_dir in "${__distro_path}"/bin/must_create_script/*;do
