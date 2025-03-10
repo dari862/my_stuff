@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # openbox-xdg-autostart runs things based on the XDG autostart specification
 # Copyright (C) 2008       Dana Jansens

@@ -21,7 +21,7 @@ LIST_OF_APPS_SCRIPTS_="$(cd "${apps_db_path}" && ls 2>/dev/null)"
         	menuSubmenu "$tag" "$label"
         	for App in ${menu_content}; do
         		App_name=$(echo "${App}" | awk -F"_" '{print $1}')
-                menuItem "Install ${App_name}" "${installation_script_name} --game ${App}"
+                menuItem "Install ${App_name}" "${installation_script_name} --install ${App}"
         	done
         	menuSubmenuEnd
         fi

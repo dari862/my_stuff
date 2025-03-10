@@ -47,7 +47,7 @@
 		<separator/>
 		<menu icon="&icons;/recents.png" id="ac-recent" execute="ac-recent-files" label="Recent Files"/>
 		<separator/>
-		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/preferences_pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
 		<separator/>
 		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
 		<separator/>

@@ -8,7 +8,7 @@
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
 
-picom_path="$HOME/.config/picom.conf"
+picom_path="$HOME/.config/picom/picom.conf"
 
 #=== FUNCTION ======================================================================
 # NAME: stop

@@ -54,7 +54,7 @@
         </item>
         <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="obamenu" />		
         <separator/>
-        <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/preferences_pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
+        <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
 		<menu id="info" execute="ac-sysinfo --more" label="System info" icon="&icons;/stats.png"/>		
 		
         <menu id="help" label="Help" icon="&icons;/help.png">

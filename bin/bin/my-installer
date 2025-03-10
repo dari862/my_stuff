@@ -36,6 +36,8 @@ __logout=false
 
 pipemenu_creater="/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu"
 
+. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+
 logout_(){
 	say "${1:-}"
 	say "You need to logout for it to get ready."
@@ -107,7 +109,6 @@ install_container_software(){
 }
 
 __run_(){
-	. "/usr/share/my_stuff/Distro_Specific/Package-manager"
 	__file_location="$(find ${_files_path} -type f -name ${file_name_})"
 	[ ! -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' 'pause' && exit 1
 
@@ -268,7 +269,7 @@ case $option in
 			_files_path="${_GAMING_EXTRA_LIBDIR}"
 			if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 				if [ "$file_name_" != "GPU_Driver_" ] && [ "$file_name_" != "Gaming_Essential_" ];then
-					echo "install Gaming_Essential_ first."
+					say "install Gaming_Essential_ first." 'pause'
 					exit
 				fi
 			fi

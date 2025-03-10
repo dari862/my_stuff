@@ -65,7 +65,7 @@ case $SHELL in
   */csh|*/tcsh)
     # [t]cshrc is always sourced automatically.
     # Note that sourcing csh.login after .cshrc is non-standard.
-    xsess_tmp=$(mktemp /tmp/MmdmdmdmdmdmdmdmdmM/xsess-env-XXXXXX)
+    xsess_tmp=$(mktemp /tmp/${HOME}/xsess-env-XXXXXX)
     $SHELL -c "if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) so                                                                                                                                                                                 urce ~/.login; /bin/sh -c 'export -p' >! $xsess_tmp"
     . $xsess_tmp
     rm -f $xsess_tmp
@@ -73,7 +73,7 @@ case $SHELL in
   */fish)
     . ${HOME}/.config/myshell/profile.sh
 	. ${HOME}/.config/myshell/bash/bprofile.sh
-    xsess_tmp=$(mktemp /tmp/MmdmdmdmdmdmdmdmdmM/xsess-env-XXXXXX)
+    xsess_tmp=$(mktemp /tmp/${HOME}/xsess-env-XXXXXX)
     $SHELL --login -c "/bin/sh -c 'export -p' > $xsess_tmp"
     . $xsess_tmp
     rm -f $xsess_tmp

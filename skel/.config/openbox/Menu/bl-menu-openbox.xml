@@ -79,7 +79,7 @@
     <menu id="Places" execute="ac-places" label="Places"/>
     <menu id="RecentFiles" execute="ac-recent-files -rl15" label="Recent Files"/>
     <separator/>
-    <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/preferences_pipemenu/bl'" label="Preferences"/>
+    <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/bl'" label="Preferences"/>
     <menu id="applications-system" label="System">
         <item label="Quick System Info">
             <action name="Execute">
