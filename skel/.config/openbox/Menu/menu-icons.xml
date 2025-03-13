@@ -49,6 +49,7 @@
 		<separator/>
 		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
 		<separator/>
+		<menu icon="&icons;/help.png" id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
 		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
 		<separator/>
 		<separator/>

@@ -26,15 +26,13 @@ Recent Files,^pipe(jgmenu_run ob --cmd="ac-recent-files -rl15" --tag="bl-recent-
 Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat /usr/share/my_stuff/system_files/preferences_pipemenu/bl'" --tag="preferences-system")
 System,^checkout(bl-system),applications-system
 ^sep()
-Help &amp; Resources,^checkout(bl-help-menu),help-contents
+Help &amp; Resources,^pipe(jgmenu_run ob --cmd="help-menu-openbox" --tag="help-contents")
 Display Keybinds,^pipe(jgmenu_run ob --cmd="my_stuff-kb-pipemenu" --tag="my_stuff-kb-pipemenu")
 ^sep()
 Applications,^checkout(apps)
 ^sep()
 Lock Screen,my_session_manager lock,system-lock-screen
 Exit,my_session_manager --yad,system-shutdown
-
-. /usr/share/my_stuff/lib/docs/menu-includes/help-menu
 
 ^tag(bl-utilities)
 Back,^back()
@@ -58,8 +56,6 @@ Login Interface,lightdm-gtk-greeter-settings-pkexec,lightdm-settings
 GParted Partition Manager,apps_as_root gparted,gparted
 Set Default Browser,"""popup_terminal 'Select Default Browser' 'my-alternatives --set my-www-browser'""",web-browser
 Edit Debian Alternatives,galternatives,galternatives
-^sep()
-About My Stuff Alternatives,yad --button="OK":0 --center --text-info --title="About My Stuff Alternatives" --filename="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-alternatives.txt" --width=900 --height=700 --fontname=Monospace,About-my_stuff-Alternatives
 
 ^tag(apps)
 

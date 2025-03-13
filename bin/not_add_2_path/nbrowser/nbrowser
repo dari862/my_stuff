@@ -6,6 +6,18 @@
 # license: GPLv3 <https://gnu.org/licenses/gpl-3.0.html>
 # shellcheck disable=SC2190,SC2086,SC1091
 
+# Function to copy to clipboard with different tools depending on the display server
+case "$XDG_SESSION_TYPE" in
+	'x11') cp2cb() { xclip -selection clipboard; };;
+	'wayland') cp2cb() { wl-copy -n; };; 
+	*) err "Unknown display server";; 
+esac
+
+check_4_dependencies_if_installed rofi || exit 1
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
 NBROWSER_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nbrowser"
 NBROWSER_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/nbrowser"
 NBROWSER_DEFAULT_SEARCH=${NBROWSER_DEFAULT_SEARCH:-duckduckgo}
@@ -48,22 +60,22 @@ has() {
 }
 
 _pemx() {
-	rofi -e "error: $1"
+	rofi -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -e "error: $1"
 	exit 1
 }
 
 _notify(){
-	rofi -e "$@"
+	rofi -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -e "$@"
 }
 
 _choose(){
 	[ -z "${2}" ] || local ROFI_ADD_ARGS=${2:-}
-	rofi -dmenu -i -p 'Select Item ' -theme-str 'window {width: 95%;}' -l 10 -no-click-to-exit ${ROFI_ADD_ARGS:-} -filter "${1:-}"
+	rofi -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -dmenu -i -p 'Select Item ' -theme-str 'window {width: 95%;}' -l 10 -no-click-to-exit ${ROFI_ADD_ARGS:-} -filter "${1:-}"
 }
 
 _input(){
 	[ -z "${2}" ] || local ROFI_ADD_ARGS="-mesg \"${2//&/&amp;}\""
-	rofi -l 0 -width 50 -p "${1:-input}" -dmenu ${ROFI_ADD_ARGS:-}
+	rofi -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -l 0 -width 50 -p "${1:-input}" -dmenu ${ROFI_ADD_ARGS:-}
 }
 
 listfiles(){
@@ -73,11 +85,9 @@ listfiles(){
 	done
 }
 
-# check if necessary programs are installed
-if ! has 'rofi';then
-	notify-send "nbrowser: rofi is not installed in your system!"
-	exit 1
-fi
+_rofi(){
+	rofi -dmenu $@
+}
 
 # check for installed browsers
 ## keep the first place to special action
@@ -181,12 +191,12 @@ fi
 
 if ! has _copy_to_clipboard ;then
 	_copy_to_clipboard(){
-		printf '%s\n' "$@" | xclip -selection clipboard ;
+		printf '%s\n' "$@" | cp2cb ;
 	}
 fi
 
 open_a_browser(){
-	selected_browser=$(ls_browsers | rofi -dmenu -p 'nbrowser' -i -format "i s" -l "${#BROWSER_NAME[@]}")
+	selected_browser=$(ls_browsers | _rofi -p 'nbrowser' -i -format "i s" -l "${#BROWSER_NAME[@]}")
 
 	[ -z "${selected_browser}" ] && exit 0
 
@@ -202,7 +212,7 @@ open_a_browser(){
 }
 
 open_video_with(){
-	selected_action=$(printf '%s\n' "Play" "Download" "Open in Browser" | rofi -dmenu -p 'Open Video with' -mesg "${@//&/&amp;}" -i -l 3)
+	selected_action=$(printf '%s\n' "Play" "Download" "Open in Browser" | _rofi -p 'Open Video with' -mesg "${@//&/&amp;}" -i -l 3)
 
 	case "$selected_action" in
 		"Play")
@@ -220,9 +230,9 @@ open_video_with(){
 			if [ -n "${NBROWSER_DOWNLOADER}" ];then
 				{ setsid -f ${NBROWSER_DOWNLOADER} "$*" >/dev/null 2>&1 ; }
 			elif has 'yt-dlp';then
-				{ setsid -f "${TERMINAL:-st}" -e sh -c "yt-dlp $* || read" >/dev/null 2>&1 ; }
+				{ setsid -f "my-terminal-emulator" -e sh -c "yt-dlp $* || read" >/dev/null 2>&1 ; }
 			elif has 'youtube-dl';then
-				{ setsid -f "${TERMINAL:-st}" -e sh -c "youtube-dl $* || read" >/dev/null 2>&1 ; }
+				{ setsid -f "my-terminal-emulator" -e sh -c "youtube-dl $* || read" >/dev/null 2>&1 ; }
 			else
 				_pemx "youtube-dl is not installed in your system!"
 			fi
@@ -234,7 +244,7 @@ open_video_with(){
 }
 
 open_picture_with(){
-	selected_action=$(printf '%s\n' "View" "Edit with Gimp" "Open in Browser" | rofi -dmenu -p 'Open Picture with' -mesg "${@//&/&amp;}" -i -l 3)
+	selected_action=$(printf '%s\n' "View" "Edit with Gimp" "Open in Browser" | _rofi -p 'Open Picture with' -mesg "${@//&/&amp;}" -i -l 3)
 
 	case "$selected_action" in
 		"View")
@@ -285,7 +295,7 @@ open_in_browser(){
 		COPY_TO_CLIPBOARD_OPTION=false
 	fi
 
-	selected_browser=$(ls_browsers | rofi -dmenu -p 'Open URL with' -mesg "${@//&/&amp;}" -i -l "${#BROWSER_NAME[@]}" )
+	selected_browser=$(ls_browsers | _rofi -p 'Open URL with' -mesg "${@//&/&amp;}" -i -l "${#BROWSER_NAME[@]}" )
 
 	[ -z "${selected_browser}" ] && exit 0
 
@@ -298,7 +308,7 @@ open_in_browser(){
 			elif [[ "${selected_browser/?}" == "p" ]];then
 				open_video_with "$*"
 			else
-				ubang=$(listfiles ubangs | rofi -dmenu -p 'ubangs' -i -mesg "ubangs '${selected_browser/?}' not found!")
+				ubang=$(listfiles ubangs | _rofi -p 'ubangs' -i -mesg "ubangs '${selected_browser/?}' not found!")
 				[ -z "${ubang}" ] && exit
 				source "${NBROWSER_CONFIG_DIR}/ubangs/${ubang}"
 				has nbrowser_ubang || _pemx "couldn't find nbrowser_ubang() function in ${NBROWSER_CONFIG_DIR}/ubangs/${ubang}"
@@ -396,7 +406,7 @@ main(){
 		local bang="${BASH_REMATCH[1]}"
 		shift
 		if [ ! -f "${NBROWSER_CONFIG_DIR}/bangs/${bang}" ];then
-			bang=$(listfiles bangs | rofi -dmenu -p 'bangs' -i -mesg "bang '${bang:-$arg}' not found!")
+			bang=$(listfiles bangs | _rofi -p 'bangs' -i -mesg "bang '${bang:-$arg}' not found!")
 		fi
 		[ -z "${bang}" ] && exit
 		source "${NBROWSER_CONFIG_DIR}/bangs/${bang}"
@@ -444,7 +454,7 @@ main(){
 			local ENGINESLIST="$(listfiles engines)"
 			ENGINESLIST+=" ${!ENGINES[@]}"
 			[ -f "${NBROWSER_CONFIG_DIR}/engines.json" ] && ENGINESLIST+=" $(jq -r ".[]|.t" "$NBROWSER_CONFIG_DIR/engines.json")"
-			engine=$(printf "%s\n" ${ENGINESLIST} | awk '!a[$0]++' | rofi -dmenu -p 'engines' -i -mesg "engine '${engine}' not found!")
+			engine=$(printf "%s\n" ${ENGINESLIST} | awk '!a[$0]++' | _rofi -p 'engines' -i -mesg "engine '${engine}' not found!")
 			[ -z "${engine}" ] && return
 			main "?${engine}" "${searchQuery}"
 		fi

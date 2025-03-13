@@ -37,7 +37,8 @@
 		<separator/>
 		<menu id="ac-places" execute="ac-places --recent ~/" label="Places"/>
 		<menu id="ac-recent" execute="ac-recent-files" label="Recent Files"/>
-		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences"/>
+		<menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
 		<menu id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
 		<separator/>
 		<item label="Lock Screen">

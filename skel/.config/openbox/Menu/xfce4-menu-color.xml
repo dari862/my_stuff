@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE menu [
   <!ENTITY icons "/usr/share/my_stuff/icons">
-  <!ENTITY icons2 "/usr/share/my_stuff/icons/dunst">
   <!ENTITY openboxconfig "~/.config/openbox">
 ]>
 <openbox_menu xmlns="http://openbox.org/"
@@ -11,7 +10,7 @@
 
 
     <menu id="root-menu" label="Openbox 3">
-		<item label="Run Program" icon="&icons2;/search.png">
+		<item label="Run Program" icon="&icons;/search.png">
 			<action name="Execute">
 				<command>rofi-launcher</command>
 			</action>
@@ -19,7 +18,7 @@
 
 		<separator/>
 
-		<item label="Virtual Machine" icon="&icons2;/desktop.png">
+		<item label="Virtual Machine" icon="&icons;/desktop.png">
 			<action name="Execute">
 				<command>popup_terminal --install virtual_machine</command>
 			</action>
@@ -62,49 +61,8 @@
 	
 		<menu id="info" execute="ac-sysinfo --more" label="System info" icon="&icons;/stats.png"/>
 		
-        <menu id="help" label="Help" icon="&icons2;/brightness-20.png">
-        	<separator label="HELP AND TIPS" />
-	        <item label="Debian-Openbox Script GitHub">
-	            <action name="Execute">
-	                <command>
-	                    my-www-browser "https://github.com/leomarcov/debian-openbox#readme"
-	                </command>
-	            </action>
-	        </item>	
-	        <item label="Welcome tips">
-	            <action name="Execute">
-	                <command>
-	                    welcome
-	                </command>
-	            </action>
-	        </item>	
-
-		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
-			
-	        <separator label="DEBIAN HELP" />
-
-	        <item label="Debian Documentatcion">
-	            <action name="Execute">
-	                <command>
-	                    my-www-browser "https://www.debian.org/doc"
-	                </command>
-	            </action>
-	        </item>	
-	        <item label="Debian Handbook">
-	            <action name="Execute">
-	                <command>
-	                    my-www-browser "https://www.debian-handbook.info/browse/stable"
-	                </command>
-	            </action>
-	        </item>		
-	        <item label="Debian Reference">
-	            <action name="Execute">
-	                <command>
-	                    my-www-browser "https://www.debian.org/doc/manuals/debian-reference/"
-	                </command>
-	            </action>
-	        </item>				
-		</menu>
+        <menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources" icon="&icons;/help.png"/>
+		<menu id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds" icon="&icons;/keyboard.png"/>
 		
         <separator/>
 

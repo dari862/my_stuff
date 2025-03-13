@@ -23,7 +23,11 @@ else
 fi
 
 # Define screenshot file path and name
-__dir="$(xdg-user-dir PICTURES)/Screenshots"
+if command -v xdg-user-dir >/dev/null 2>&1;then
+	__dir="$(xdg-user-dir PICTURES)/Screenshots"
+else
+	__dir="$HOME/Pictures/Screenshots"
+fi
 
 __file=""
 

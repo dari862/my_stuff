@@ -20,6 +20,8 @@
 #
 ########################################################################
 
+check_4_dependencies_if_installed yad jq xprop wmctrl xdotool || exit 1
+
 USR_CFG_DIR="$HOME/.config/image-upload/imgur"
 CREDENTIALS_FILE="${USR_CFG_DIR}/credentials.conf"
 SETTINGS_FILE="${USR_CFG_DIR}/imgur.conf"
@@ -428,14 +430,14 @@ function take_screenshot() {
 function notify_msg(){      # for displaying notifications; add to or clear clipboard
     local MSG="$1"
     if (( KEEP_BB == 0 ));then  # uploaded file was deleted, clear clipboard
-        echo '' | xsel -i       # 'xsel -c' not working when clipboard manager in use :(
-        echo '' | xsel -ib
+        echo '' | xclip -selection primary
+        echo '' | xclip -selection clipboard
         if ! grep -qi "local" <<< "$MSG";then    # for 'delete_img' text
             MSG="${MSG}\n\nClipboard cleared of BBCode\n"   # for 'delete_local' text
         fi
     else
-        echo "${BB_THUMB_LINKED}" | xsel -i     # for middle-mouse paste
-        echo "${BB_THUMB_LINKED}" | xsel -ib    # for ctrl-V/Paste
+        echo "${BB_THUMB_LINKED}" | xclip -selection primary     # for middle-mouse paste
+        echo "${BB_THUMB_LINKED}" | xclip -selection clipboard   # for ctrl-V/Paste
     fi
     notify-send "$(echo -e ${MSG})"
 }
@@ -782,8 +784,6 @@ elif ! . "${CREDENTIALS_FILE}" 2> /dev/null;then
         load_access_token "${ANON_ID}"
     fi
 fi
-
-check_4_dependencies_if_installed yad xprop wmctrl xsel || exit 1
 
 getargs "${@}"                      # get script parameters
 

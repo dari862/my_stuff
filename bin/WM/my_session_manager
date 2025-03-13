@@ -129,7 +129,7 @@ confirmation_dialog(){
 		no=' No'
 	fi
 	
-	ans="$(printf "$yes\n$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi)"
+	ans="$(printf '%s\n' "$yes" "$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi)"
 	
 	if [ "$ans" = "$yes" ];then
 		return
@@ -158,11 +158,8 @@ rofi_menu(){
 		suspend=" Sleep"
 		logout=" Logout"
 	fi
-	
-	# Variable passed to rofi
-	options="$lock\n$suspend\n$logout\n$reboot\n$shutdown"
-	
-	chosen="$(echo "$options" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
+
+	chosen="$(printf '%s\n' "$lock" "$suspend" "$logout" "$reboot" "$shutdown" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
 	case "$chosen" in
     	"$shutdown")
 			opt_="shutdown"

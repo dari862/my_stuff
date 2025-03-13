@@ -31,7 +31,7 @@
 		<item label="Virtual Machine"><action name="Execute"><command>popup_terminal --install virtual_machine</command></action></item> 
 	    <separator/>
 		<menu id="app-menu" execute="obamenu" label="Applications"/>
-		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences"/>
 		<separator/>
 		<menu id="Exit" label="System">
 				<item label="Lock">

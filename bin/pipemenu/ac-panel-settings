@@ -50,7 +50,6 @@ elif [ "$_panel_name_" = "tint2" ];then
 	TINT2PATH="$HOME/.config/tint2"
 	TINT2DEFAULT="$TINT2PATH/tint2rc"
 	TMGR="style-manager --tint2manager"
-	HELPFILE="/usr/share/my_stuff/lib/docs/helpfiles/helpfile-conkytint2-manager.txt"
 	
 	loadChooser(){
     	if type $TMGR >/dev/null 2>&1;then  # style-manager --tint2manager script found
@@ -98,25 +97,11 @@ elif [ "$_panel_name_" = "tint2" ];then
         	fi
     	menuSubmenuEnd
 	}
-	
-	checkHelpfile(){
-    	DLG="yad --text-info --center --borders=20 \
-    	--title='My Stuff Conky and Tint2 Manager Help' \
-    	--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg \
-    	--filename=$HELPFILE --fontname=Monospace \
-    	--width=650 --height=700 \
-    	--button=OK:0"
-    	if [ -f "$HELPFILE" ];then
-        	menuItem "Tint2 Manager Help" "$DLG"
-    	fi
-	}
-	
+
 	menuStart "Tintmenu" "Tint2"
 	loadChooser
 	loadRestart
 	loadReload
 	loadEditSubmenu
-	menuSeparator
-	checkHelpfile
 fi
 menuEnd

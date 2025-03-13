@@ -26,10 +26,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ########################################################################
-#
-### REQUIRES:  yad, jq, xprop, wmctrl, xdotool, convert
-#
-########################################################################
+
+check_4_dependencies_if_installed yad jq xdotool convert || exit 1
 
 export API_URL="https://api.imgbb.com/"   # used by run_browser()
 export IMG_VIEWER   # used by show_image()
@@ -99,10 +97,6 @@ DELETE="--button=Delete:2"
 CLOSE="--button=gtk-close:1"
 CANCEL="--button=gtk-cancel:1"
 OK="--button=OK:0"
-
-### required programs ###
-declare -a APPS
-APPS=( "yad" "xprop" "wmctrl" "xdotool" "convert" )
 
 ### FUNCTIONS  #########################################################
 ### Get script args ###
@@ -179,29 +173,6 @@ function settings_conf(){
 		EOF
     fi
     source "${SETTINGS_FILE}"
-}
-# Check for availability of commands used in script.
-function declareDependencies(){     # adapted from includes_functions
-    # Usage: declareDependencies command [command...]
-    local missing_commands=()
-    i=
-    for i in "$@"
-    do
-        hash "$i" 2>/dev/null || missing_commands+=(" $i")
-    done
-
-    if [[ ${missing_commands[0]} ]];then
-        ERR_MSG="
-            This script requires the following commands:
-
-                ${missing_commands[*]}
-
-            Please install the packages containing the missing commands
-            and re-run the script.
-            "
-        yad_error "${ERR_MSG}"
-        exit
-    fi
 }
 
 ### File and Image functions ###
@@ -577,8 +548,6 @@ function main(){
         echo "Error: Failed to source ${SETTINGS_FILE} in ${USR_CFG_DIR}/" >&2
         exit 1
     fi
-
-    declareDependencies  "${APPS[@]}"    # see if system has the required commands installed
 
     getargs "${@}"
 
