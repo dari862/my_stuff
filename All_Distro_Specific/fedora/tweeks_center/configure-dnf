@@ -1,0 +1,13 @@
+#!/bin/sh -e
+if [ "$1" = "--is-enable" ];then
+	if grep -q "fastestmirror=True" /etc/dnf/dnf.conf && grep -q "defaultyes=True" /etc/dnf/dnf.conf && grep -q "max_parallel_downloads=10" /etc/dnf/dnf.conf;then
+		exit 0
+	else
+		exit 1
+	fi
+fi
+say "Configuring  DNF..."
+my-superuser sed -i '/^max_parallel_downloads=/c\max_parallel_downloads=10' /etc/dnf/dnf.conf || echo 'max_parallel_downloads=10' >> /etc/dnf/dnf.conf
+echo "fastestmirror=True" | my-superuser tee -a /etc/dnf/dnf.conf > /dev/null
+echo "defaultyes=True" | my-superuser tee -a /etc/dnf/dnf.conf > /dev/null            
+my-superuser "$PACKAGER" -y install dnf-plugins-core

@@ -40,6 +40,14 @@ blob_dunstrc_theme_path="${STYLEPATH}/config/dunst"
 mkdir -p "$blob_dunstrc_theme_path"
 cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "$blob_dunstrc_theme_path/theme.dunstrc"
 
+blob_gtk_theme_path="${STYLEPATH}/themes"
+mkdir -p "$blob_gtk_theme_path"
+cp -r "${theme_color_creater_output_folder}/gtk_themes"/* "$blob_gtk_theme_path"
+
+blob_gtk_icon_path="${STYLEPATH}/icons"
+mkdir -p "$blob_gtk_icon_path"
+cp -r "${theme_color_creater_output_folder}/icons"/* "$blob_gtk_icon_path"
+
 if [ "$_panel_name_" = 'polybar' ];then
 	[ ! -d "$HOME/.config/polybar/${style}" ] && cp -r "$HOME/.config/polybar/dynamic" "$HOME/.config/polybar/${style}" 
 	cp -r "${theme_color_creater_output_folder}/colors-polybar.conf" "$HOME/.config/polybar/${style}/colors.ini"

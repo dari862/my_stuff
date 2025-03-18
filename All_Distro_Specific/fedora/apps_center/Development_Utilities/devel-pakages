@@ -1,0 +1,12 @@
+#!/bin/sh -e
+devel_pakages='tar tree multitail tldr trash-cli unzip cmake make jq glibc-devel.i686 libgcc.i686'
+Package_update_
+
+if ! my-superuser dnf config-manager --enable powertools 2>/dev/null; then
+	my-superuser dnf config-manager --enable crb 2>/dev/null || true
+fi
+
+if ! my-superuser dnf -y group install "Development Tools" 2>/dev/null; then
+	my-superuser dnf -y group install development-tools
+fi
+Package_installer_ "$devel_pakages" "glibc-devel.i686 libgcc.i686"

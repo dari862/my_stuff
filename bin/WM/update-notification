@@ -9,7 +9,8 @@ __arg="${1-}"
 script_name="$(basename $0)"
 
 . "/usr/share/my_stuff/lib/apps/update-notification.conf"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 
 print_total_updates() { cat "$updates_file" | wc -l; }
 
@@ -49,7 +50,7 @@ update () {
 	
 	plain "Checking updates and saving in $updates_file..."
 	printf "" | my-superuser tee "$updates_file" > /dev/null 2>&1
-	Package_list_ | my-superuser tee -a "$updates_file" > /dev/null 2>&1
+	Upgradeable_Packages_count_ | my-superuser tee -a "$updates_file" > /dev/null 2>&1
 
 	# No updates
 	if [ ! -s "$updates_file" ];then

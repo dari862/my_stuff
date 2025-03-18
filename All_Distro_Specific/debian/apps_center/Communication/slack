@@ -1,0 +1,5 @@
+#!/bin/sh -e
+app_name="Slack"
+
+say 'Installing package via flatpak...' 1
+flatpak_install ${app_name} flathub com.slack.Slack || continue

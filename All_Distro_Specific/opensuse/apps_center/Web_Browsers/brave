@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+say 'Adding Repo...' 1
+import_key "https://brave-browser-rpm-release.s3.brave.com/brave-core.asc"
+enable_repo "https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo"
+
+say 'Updating Repo...' 1
+Package_update_
+
+say 'Installing package...' 1
+Package_installer_ brave-browser

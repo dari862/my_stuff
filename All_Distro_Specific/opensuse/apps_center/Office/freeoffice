@@ -1,0 +1,6 @@
+#!/bin/sh -e
+app_name="freeoffice"
+
+say "Installing ${app_name}..." 1
+enable_repo https://shop.softmaker.com/repo/rpm SoftMaker
+Package_installer_ softmaker-freeoffice-2024

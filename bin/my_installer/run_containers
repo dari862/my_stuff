@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+. "/usr/share/my_stuff/lib/common/common"
 containers_orginal_runner_path="/usr/share/my_stuff/bin/my_installer/containers_runner"
 containers_runner_path="/usr/share/my_stuff/system_files/containers_runner"
 if [ "${1-}" = "--install" ];then

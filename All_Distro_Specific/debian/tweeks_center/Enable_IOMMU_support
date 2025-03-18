@@ -1,0 +1,107 @@
+#!/bin/sh
+if [ "$1" = "--is-enable" ];then
+	if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then
+		exit 0
+	else
+		exit 1
+	fi
+fi
+
+cpu_are=""
+HVE=""
+virtualization_ready_file="/usr/share/my_stuff/system_files/virtualization_ready"
+
+yes_or_no(){
+	MSG="${1-}"
+	printf "%s (yes/no) (default: yes):" "${MSG}"
+	read -r yn
+	yn="$(printf "%s" "$yn" | tr '[:lower:]' '[:upper:]' )"
+	[ -z "$yn" ] && yn="Y"
+	[ "$yn" = "YES" ] && yn="Y"
+	[ "$yn" != "Y" ] && exit
+}
+
+check_IOMMU_support(){
+	echo "checking if IOMMU enabled"
+	if ls "/sys/kernel/iommu_groups/"* >/dev/null 2>&1 || ls "/sys/class/iommu/"* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then
+		echo "IOMMU enabled"
+	else
+		echo "IOMMU Disabled"
+		yes_or_no "Do you want to IOMMU? (yes/no) (default: yes)"
+		enable_IOMMU_support
+	fi
+}
+
+enable_IOMMU_support(){
+	if [ "$cpu_are" = "intel" ];then
+		if ! grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'intel_iommu=on';then
+			if grep -q 'GRUB_CMDLINE_LINUX=""' /etc/default/grub;then
+				my-superuser sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="intel_iommu=on"/' /etc/default/grub
+			else
+				my-superuser sed -i 's/GRUB_CMDLINE_LINUX=\"\(.*\)\"/GRUB_CMDLINE_LINUX=\"\1 intel_iommu=on\"/' /etc/default/grub
+			fi
+		fi
+	fi
+					
+	if ! grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'iommu=pt';then
+		if grep -q 'GRUB_CMDLINE_LINUX=""' /etc/default/grub;then
+			my-superuser sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="iommu=pt"/' /etc/default/grub
+		else
+			my-superuser sed -i 's/GRUB_CMDLINE_LINUX=\"\(.*\)\"/GRUB_CMDLINE_LINUX=\"\1 iommu=pt\"/' /etc/default/grub
+		fi
+	fi
+	echo "grub edited to enable IOMMU."
+	my-superuser update-grub
+}
+
+check_if_host_ready_for_virt(){
+	echo 'checking  if host is ready for virtualization .....'
+	cpu_type=$(lscpu | grep "Vendor ID:")
+	if echo "$cpu_type" | grep -iq intel;then
+		cpu_are=intel
+		HVE="VT-x"
+	elif echo "$cpu_type" | grep -iq amd;then
+		cpu_are=amd
+		HVE="AMD-V"
+	fi
+
+	if ! lscpu | grep Virtualization | grep -q "$HVE";then
+		echo "hardware virtualization extension is most likely disabled in the BIOS/UEFI. enable it."
+		failed_
+	fi
+	
+	if zgrep CONFIG_KVM /boot/config-$(uname -r) | grep -qvE "^#|=y|=m";then
+		echo "krenal doest not support virtualization"
+		failed_
+	fi
+	
+	check_IOMMU_support
+	my-superuser touch "${virtualization_ready_file}"
+	echo 'system is read for virtualization.'
+	echo "REBOOT MIGHT BE REQUIRED IF THE VM DOES NOT BOOT PROPERLY."
+}
+
+Reload_KVM_Kernel_Modules(){
+	printf "FUNCTION: Reload KVM Kernel Modules"
+	if [ $cpu_are = "amd" ];then
+    	my-superuser modprobe -r kvm_amd kvm
+    	my-superuser modprobe kvm 
+    	my-superuser modprobe kvm_amd nested=1 
+	elif [ $cpu_are = "intel" ];then
+  		my-superuser modprobe -r kvm_intel kvm
+    	my-superuser modprobe kvm
+    	my-superuser modprobe kvm_intel nested=1
+	fi
+	printf "Modprobe finished \n"
+}
+
+failed_(){
+	echo ' --- Installtion Failed --- ' 
+	echo '  Press any key to exit'
+	read -r
+	exit
+}  
+
+[ ! -f "${virtualization_ready_file}" ] && check_if_host_ready_for_virt
+
+Reload_KVM_Kernel_Modules

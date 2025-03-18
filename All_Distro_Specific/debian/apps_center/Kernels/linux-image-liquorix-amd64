@@ -1,0 +1,5 @@
+#!/bin/sh
+
+say 'Installing package...' 1
+	
+getURL '2term' 'https://liquorix.net/install-liquorix.sh' | my-superuser bash

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+app_name="quran"
+Title="Quran"
+###################################################################
+
+Disto_path="/usr/share/my_stuff"
+
+say "Downloading ${Title}..." 1
+say "Installing ${Title} updater and installer..." 1
+my_installer_ln_script "quran_updater" || failed_to_run "failed to run quran_file_updater."

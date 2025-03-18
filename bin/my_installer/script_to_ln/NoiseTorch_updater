@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+
 download_url="$(getURL '2term' 'https://api.github.com/repos/noisetorch/NoiseTorch/releases/latest' \
 	| grep '"browser_download_url"' \
 	| grep '.tgz' \

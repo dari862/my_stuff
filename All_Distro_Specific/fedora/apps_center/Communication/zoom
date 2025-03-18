@@ -1,0 +1,5 @@
+#!/bin/sh -e
+app_name="Zoom"
+
+say 'Installing package via flatpak...' 1
+flatpak_install ${app_name} us.zoom.Zoom

@@ -1,6 +1,7 @@
 #!/bin/sh
-
 app_name="alacritty"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
 
 say 'Installing package...' 1
 
@@ -12,3 +13,5 @@ cd "/usr/share/my_stuff/extra_blob/polybar" || continue
 for theme in *;do
 	my-superuser cp -r "${theme}/config/alacritty" "/usr/share/my_stuff/system_files/blob/polybar/${theme}/config" || continue
 done
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-terminal-emulator" "${app_name}"

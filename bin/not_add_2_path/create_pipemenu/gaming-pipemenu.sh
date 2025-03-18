@@ -30,7 +30,7 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
     menuStart
 	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
-			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --game GPU_Driver_"
+			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU"
 		else
 			menuItem "Gaming Essential (GamingMenu after install)" "${installation_script_name} --game Gaming_Essential_"
 		fi

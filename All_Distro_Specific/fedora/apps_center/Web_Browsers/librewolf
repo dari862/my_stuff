@@ -1,0 +1,12 @@
+#!/bin/sh -e
+app_name="librewolf"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
+
+say 'Adding Repo...' 1
+getURL '2term' 'https://rpm.librewolf.net/librewolf-repo.repo' | my-superuser tee /etc/yum.repos.d/librewolf.repo > /dev/null
+
+say 'Installing package...' 1
+Package_installer_ librewolf
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"

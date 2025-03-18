@@ -9,7 +9,9 @@ alt_package="${2-}"
 MYALTS="my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide"
 
 # Arrays of packages for each category (using variables instead of arrays)
-FILEMANAGERS="thunar caja dolphin nautilus pcmanfm spacefm xfe lf ranger"
+FILEMANAGERSCLI="lf ranger"
+FILEMANAGERSGUI="thunar caja dolphin nautilus pcmanfm spacefm xfe"
+FILEMANAGERS="$FILEMANAGERSGUI $FILEMANAGERSCLI"
 IMAGEVIEWERS="viewnior sxiv eog eom geeqie gpicview gthumb mirage"
 MEDIAPLAYERS="my-mpv vlc banshee dragonplayer celluloid gxine kaffeine parole smplayer totem"
 TEXTEDITORS="geany featherpad mousepad gedit jedit kate medit scite emacs"
@@ -57,6 +59,14 @@ usage() {
 	EOF
 }
 
+create_cli_filemanager(){
+	package="${1:-}"
+	[ -e "${my_alternatives_path}/my-file-manager" ] && my-superuser rm -rf "${my_alternatives_path}/my-file-manager"
+	echo '#!/bin/sh' | my-superuser tee "${my_alternatives_path}/my-file-manager"
+	echo "popup_terminal \"$package\"" | my-superuser tee -a "${my_alternatives_path}/my-file-manager"
+	my-superuser chmod +x "${my_alternatives_path}/my-file-manager"
+}
+
 # Install default alternatives
 install_alternatives() {
   echo "Installing default alternatives..."
@@ -85,6 +95,14 @@ install_alternatives() {
     	link_package "$package" "$my_superuser_path"
       	break
     fi
+  done
+  
+  myfilemanagerpackagename="$(basename $(realpath "${my_alternatives_path}/my-file-manager"))"
+  for package in $FILEMANAGERSCLI; do
+  	if [ "$package" = "$myfilemanagerpackagename" ];then
+		create_cli_filemanager "$package"
+		break
+  	fi
   done
 }
 
@@ -128,15 +146,14 @@ set_alternatives() {
     exit 1
   fi
 	
-	alt_packages_var_name="$(echo "$alt_package" | sed -e 's/^my-//' -e 's/-//' | tr '[:lower:]' '[:upper:]')S"
-    eval alt_packages=\$$alt_packages_var_name
-    
+alt_packages_var_name="$(echo "$alt_package" | sed -e 's/^my-//' -e 's/-//' | tr '[:lower:]' '[:upper:]')S"
+eval alt_packages=\$$alt_packages_var_name
+
+existing_alt_packages=""
   # Prompt user to select a package  
   if [ -z "$selected_package" ];then
     echo "Which package do you want to set for $alt_package?"
     echo "================================="
-    
-    existing_alt_packages=""
     count=1
     for package in $alt_packages; do
     	if package_exists "$package";then
@@ -148,6 +165,12 @@ set_alternatives() {
 	echo "Enter package number: "
     read -r picked_package_number
     selected_package=$(echo $alt_packages | cut -d " " -f $picked_package_number )
+  else
+    for package in $alt_packages; do
+    	if package_exists "$package";then
+      		existing_alt_packages="$existing_alt_packages $package"
+      	fi
+    done
   fi
 
   if ! echo "$existing_alt_packages" | grep -q "$selected_package";then

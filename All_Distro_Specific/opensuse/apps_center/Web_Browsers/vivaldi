@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+say 'Adding Repo...' 1
+my-superuser zypper ar https://repo.vivaldi.com/archive/vivaldi-suse.repo
+my-superuser zypper --non-interactive --gpg-auto-import-keys in vivaldi-stable
+
+say 'Installing package...' 1
+Package_installer_ vivaldi-stable

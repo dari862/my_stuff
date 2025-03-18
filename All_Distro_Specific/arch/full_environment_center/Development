@@ -1,0 +1,18 @@
+#!/bin/sh
+app_name="Development Environment"
+my-installer --tweek-needed "Enable_multilib" || continue
+
+say 'Installing package...' 1
+install_as_dependency httpie
+install_as_dependency docker
+install_as_dependency github-cli
+install_as_dependency devel-pakages
+install_as_dependency zellij
+install_as_dependency mise
+install_as_dependency google-chrome-stable
+my-superuser ln -sf "${_FULL_ENVIRONMENT_LIBDIR}/Dev-menu/Dev-menu" "/usr/share/my_stuff/system_files/bin"
+install_as_dependency lazydocker no_neovim
+install_as_dependency lazygit no_neovim
+install_as_dependency Neovim
+
+say "Dev-menu for installing/uninstalling Development tools."

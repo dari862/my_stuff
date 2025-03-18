@@ -1,0 +1,12 @@
+#!/bin/sh -e
+if [ "$1" = "--is-enable" ];then
+	if [ ! -e /etc/yum.repos.d/rpmfusion-free.repo ] || [ ! -e /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then
+		exit 0
+	else
+		exit 1
+	fi
+fi
+my-superuser "$PACKAGER" install "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm
+my-superuser "$PACKAGER" config-manager --enable fedora-cisco-openh264
+my-superuser "$PACKAGER" config-manager --set-enabled rpmfusion-nonfree-updates
+my-superuser "$PACKAGER" config-manager --set-enabled rpmfusion-free-updates

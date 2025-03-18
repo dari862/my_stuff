@@ -1,0 +1,22 @@
+#!/bin/sh
+app_name="dropbox"
+
+say 'Installing package...' 1
+Package_installer_ python3-gpg || Package_installer_ python3-gpgme || continue
+
+my-superuser mkdir -p /usr/share/my_stuff/system_files/downloaded/dropbox
+cd /usr/share/my_stuff/system_files/downloaded/dropbox
+getURL '2term' https://linux.dropboxstatic.com/packages/dropbox.py | my-superuser tee dropbox.py >/dev/null 2>&1 || continue
+my-superuser chmod +x dropbox.py || continue
+my-superuser ln -sf /usr/share/my_stuff/system_files/downloaded/dropbox/dropbox.py /usr/share/my_stuff/system_files/bin/dropbox || continue
+
+my-superuser mkdir -p /usr/share/my_stuff/system_files/updater
+my-superuser tee /usr/share/my_stuff/system_files/updater/dropbox_updater <<- 'EOF' > /dev/null
+#!/bin/sh
+nohup dropbox update >/dev/null 2>&1
+EOF
+my-superuser chmod +x "/usr/share/my_stuff/system_files/updater/dropbox_updater" || continue
+
+my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Storage/dropbox_Extra/dropbox.desktop /usr/share/applications/ || continue
+my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Storage/dropbox_Extra/dropbox.1.gz /usr/share/man/man1/dropbox.1.gz2 || continue
+/usr/share/my_stuff/system_files/updater/dropbox_updater || continue

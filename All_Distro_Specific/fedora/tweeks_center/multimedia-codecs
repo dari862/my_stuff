@@ -1,0 +1,9 @@
+#!/bin/sh -e
+if [ "$1" = "--is-enable" ];then
+	if [ -e /etc/yum.repos.d/rpmfusion-free.repo ] || [ -e /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then
+		exit 0
+	else
+		exit 1
+	fi
+fi
+my-superuser "$PACKAGER" swap ffmpeg-free ffmpeg --allowerasing -y

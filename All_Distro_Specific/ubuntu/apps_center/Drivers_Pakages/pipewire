@@ -1,0 +1,13 @@
+#!/bin/sh
+
+extra_apps_="gstreamer1.0-pipewire pipewire-alsa pipewire-jack pipewire-libcamera pipewire-pulse pipewire-v4l2"
+
+say 'Installing pipewire ...' 1
+
+Package_installer_ pipewire || continue
+
+if [ -n "${extra_apps_}" ];then
+	say 'Installing extra packages...' 1
+	Package_installer_ ${extra_apps_} || continue
+	clear
+fi

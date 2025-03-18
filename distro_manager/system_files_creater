@@ -294,24 +294,6 @@ my-superuser "${pipemenu_creater}"/gui-apps-pipemenu
 show_im "Running script for create_DB.sh --all"
 my-superuser ${__distro_path}/bin/WM/create_DB.sh --all || show_em "failed to run create_DB.sh"
 
-show_im "Running script for creating preferences pipemenu."
-my-superuser "${pipemenu_creater}"/preferences.sh || show_em "failed to run create_pipemenu/preferences.sh"
-
-show_im "Running script for creating full_environment pipemenu."
-my-superuser "${pipemenu_creater}"/full_environment-pipemenu.sh || show_em "failed to run create_pipemenu/full_environment-pipemenu.sh"
-
-show_im "Running script for creating preferences pipemenu."
-my-superuser "${pipemenu_creater}"/my-tweeks-pipemenu.sh || show_em "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
-
-show_im "Running script for creating install pipemenu."
-my-superuser "${pipemenu_creater}"/my-install-pipemenu.sh|| show_em "failed to run create_pipemenu/my-install-pipemenu.sh"
-
-show_im "Running script for creating gaming pipemenu."
-my-superuser "${pipemenu_creater}"/gaming-pipemenu.sh || show_em "failed to run create_pipemenu/gaming-pipemenu.sh"
-
-show_im "Running script for creating containers and others pipemenu."
-my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || show_em "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
-
 show_im "Running must_create_script."
 for script_dir in "${__distro_path}"/bin/must_create_script/*;do
 	show_im "running $(basename "$script_dir"). from must_create_script ."

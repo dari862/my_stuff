@@ -15,7 +15,7 @@ CHROOTS="$(cat "${chroots_deploy_db_path}")"
 	menuStart "DeployFavouriteContainers" "Deploy containers using Distrobox and Containers softwares"
 	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
 		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
-			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --game GPU_Driver_"
+			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU"
 		else
 			menuItem "Gaming Box" "${installation_script_name} --deploy gaming"
 		fi

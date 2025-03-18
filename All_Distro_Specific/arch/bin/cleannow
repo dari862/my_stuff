@@ -1,0 +1,8 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+. "/usr/share/my_stuff/Distro_Specific/info"
+echo "cleaning ${PACKAGER}"
+${PACKAGER} -Sc --noconfirm
+${PACKAGER} -Rns "$(pacman -Qtdq)" --noconfirm > /dev/null || true
+echo "${PACKAGER} cleaned."

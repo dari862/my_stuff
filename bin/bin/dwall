@@ -384,7 +384,7 @@ YES_OR_NO()
 }
 
 Download_wallpapers_now(){
-	. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+	. "/usr/share/my_stuff/lib/common/common"
 	check_4_dependencies_if_installed git || exit 1
 	mkdir -p /tmp/$USER/dynamic_wallpapers
 	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"

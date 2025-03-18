@@ -1,0 +1,80 @@
+#!/bin/sh
+app_name="prayer-times"
+
+###################################################################
+prayer_times_conf="/usr/share/my_stuff/system_files/skel/.config/scriptconfig/prayer-times.conf"
+method_=""
+say 'Installing prayer-times...' 1
+my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Islamic/prayer-times_Extra/prayer-times.sh  /usr/share/my_stuff/system_files/bin
+my-superuser cp -rf ${_APPS_EXTRA_LIBDIR}/Islamic/prayer-times_Extra/config/prayer-times/prayer-times.conf  /usr/share/my_stuff/system_files/skel/.config/scriptconfig
+my-superuser cp -rf ${_APPS_EXTRA_LIBDIR}/Islamic/prayer-times_Extra/config/autostartscripts/athan-daemon  /usr/share/my_stuff/system_files/skel/.config/autostartscripts
+
+location="$(cat /etc/timezone | awk -F/ '{print $2}')"
+reg_location="$(cat /etc/timezone | awk -F/ '{print $1}')"
+latlong=$(get_scripts --latlong)
+lat_=${latlong%,*}
+long_=${latlong#*,}
+
+if [ "${reg_location}" = "America" ];then
+	method_="2"
+else
+	if [ "${location}" = "Karachi" ];then
+		method_="1"
+	elif [ "${location}" = "Riyadh" ];then
+		method_="4"
+	elif [ "${location}" = "Egypt" ];then
+		method_="5"
+	elif [ "${location}" = "Tehran" ];then
+		method_="7"
+	elif [ "${location}" = "Kuwait" ];then
+		method_="9"
+	elif [ "${location}" = "Qatar" ];then
+		method_="10"
+	elif [ "${location}" = "Singapore" ];then
+		method_="11"
+	elif [ "${location}" = "Paris" ];then
+		method_="12"
+	elif [ "${location}" = "Turkey" ];then
+		method_="13"
+	elif [ "${location}" = "Moscow" ];then
+		method_="14"
+	elif [ "${location}" = "Dubai" ];then
+		method_="16"
+	elif [ "${location}" = "Kuala_Lumpur" ];then
+		method_="17"
+	elif [ "${location}" = "Tunis" ];then
+		method_="18"
+	elif [ "${location}" = "Algiers" ];then
+		method_="19"
+	elif [ "${location}" = "Jakarta" ];then
+		method_="20"
+	elif [ "${location}" = "Casablanca" ];then
+		method_="21"
+	elif [ "${location}" = "Lisbon" ];then
+		method_="22"
+	elif [ "${location}" = "Amman" ];then
+		method_="23"
+	fi
+fi
+my-superuser sed -i "s/lat=.*/lat=\"${lat_}\"/g" "${prayer_times_conf}"
+my-superuser sed -i "s/long=.*/long=\"${long_}\"/g" "${prayer_times_conf}"
+if [ -n "${method_}" ];then
+	my-superuser sed -i "s/method=.*/method=\"${method_}\"/g" "${prayer_times_conf}"
+fi
+
+if [ "${XDG_SESSION_TYPE}" = "wayland" ];then
+	my-superuser sed -i "s/notify=.*/notify='mako'/g" "${prayer_times_conf}"
+fi
+
+# Copy users config
+say "Setting configs to all users..."
+for d in /home/*/ /root/; do
+    [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes 
+    user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+    if [ -d "$d/.config/myshell" ];then
+		my-superuser cp -rf /usr/share/my_stuff/system_files/skel/.config/autostartscripts/athan-daemon "$d/.config/autostartscripts"
+		my-superuser cp -rf /usr/share/my_stuff/system_files/skel/.config/scriptconfig/prayer-times.conf "$d/.config/scriptconfig"
+		my-superuser chown -R $user_and_group "$d/.config/autostartscripts"
+		my-superuser chown -R $user_and_group "$d/.config/scriptconfig"
+	fi
+done

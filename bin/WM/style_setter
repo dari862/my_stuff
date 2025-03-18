@@ -71,6 +71,14 @@ if [ -d "${STYLEPATH}/cache" ];then
 	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
 fi
 
+if [ -d "${STYLEPATH}/themes" ];then
+	cp -r "${STYLEPATH}/themes $HOME/.themes" || show_em "failed to copy ${STYLEPATH}/themes to $HOME/.themes"
+fi
+
+if [ -d "${STYLEPATH}/icons" ];then
+	cp -r "${STYLEPATH}/icons $HOME/.icons" || show_em "failed to copy ${STYLEPATH}/icons to $HOME/.icons"
+fi
+
 if command -v geany >/dev/null 2>&1;then
 	theme_geany || show_em "failed to run theme_geany"
 fi

@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+say 'Downloading rpm file...' 1
+url=$(getURL '2term' 'https://api.github.com/repos/Alex313031/Thorium/releases/latest' | grep -oP '(?<=browser_download_url": ")[^"]*\.rpm')
+getURL 'download2' "$url" "/tmp/thorium-latest.rpm"
+my-superuser chown root:root "/tmp/thorium-latest.rpm"
+cd "/tmp"
+
+say 'Installing package...' 1
+Package_installer_ thorium-latest.rpm && my-superuser rm -rdf "/tmp/thorium-latest.rpm"

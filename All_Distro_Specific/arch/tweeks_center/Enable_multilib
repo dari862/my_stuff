@@ -1,0 +1,12 @@
+#!/bin/sh
+if [ "$1" = "--is-enable" ];then
+	if grep -q "^\s*\[multilib\]" /etc/pacman.conf; then
+		exit 0
+	else
+		exit 1
+	fi
+fi
+say 'Enabling multilib.'
+echo "[multilib]" | my-superuser tee -a /etc/pacman.conf
+echo "Include = /etc/pacman.d/mirrorlist" | my-superuser tee -a /etc/pacman.conf
+Package_update_

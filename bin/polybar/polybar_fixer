@@ -116,15 +116,7 @@ get_values() {
 fix_modules() {
 	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 		if [ -z "$CARD" ];then
-			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
-			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
-			find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
-			find $HOME/.config/polybar/panels -type f -exec sed -i 's/ bna / backlight /g' {} +
-		elif echo "$CARD" | grep -q "intel_";then
-			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna / brightness /g' {} +
-			find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna-bar / brightness-bar /g' {} +
-			find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna / brightness /g' {} +
-			find $HOME/.config/polybar/panels -type f -exec sed -i 's/ bna / brightness /g' {} +
+			find $HOME/.config/polybar -type f -exec sed -i 's|type = internal/backlight|type = internal/xbacklight|g' {} +
 		fi
 		
 		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ AC_only / battery /g' {} +

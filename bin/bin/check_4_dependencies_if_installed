@@ -1,7 +1,8 @@
 #!/bin/sh
 dependencies_not_installed=""
 not_installed_apps_are=""
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 
 on_terminal(){
 	if [ ! -t 1 ];then

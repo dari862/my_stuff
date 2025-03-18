@@ -1,0 +1,9 @@
+#!/bin/sh -e
+app_name="freeoffice.sh"
+
+say "Installing ${app_name}..." 1
+
+cd /tmp
+getURL 'download2' 'https://www.softmaker.net/down/softmaker-freeoffice-2024_1218-01_amd64.deb' "/tmp/freeoffice.deb"
+my-superuser chown root:root "/tmp/freeoffice.deb"
+Package_installer_ "/tmp/freeoffice.deb"

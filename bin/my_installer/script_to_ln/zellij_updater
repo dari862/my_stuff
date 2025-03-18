@@ -1,5 +1,4 @@
 #!/bin/sh
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
 distro_path="/usr/share/my_stuff/system_files"
 
 cd "/tmp/$USER"

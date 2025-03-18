@@ -1,0 +1,15 @@
+#!/bin/sh
+
+app_name="lxterminal"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+copy_from_extra_skel ".config/lxterminal"
+
+cd "/usr/share/my_stuff/extra_blob/"
+cd tint2
+for theme in *;do
+	my-superuser cp -r "${theme}/config/lxterminal" "/usr/share/my_stuff/system_files/blob/tint2/${theme}/config" 
+done

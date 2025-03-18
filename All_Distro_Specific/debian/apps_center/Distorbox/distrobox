@@ -1,0 +1,16 @@
+#!/bin/sh
+box_app_name="distrobox"
+box_app_location="$(find ${_APPS_LIBDIR}/ -name ${box_app_name})"
+must_create_file(){
+	my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Distorbox/DistroGUI/distrogui.desktop /usr/share/applications
+	my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Distorbox/DistroGUI/distrogui /usr/share/my_stuff/system_files/bin
+	my-superuser touch '/usr/share/my_stuff/system_files/Distrobox_ready'
+}
+
+if command -v $box_app_name >/dev/null 2>&1;then
+	must_create_file
+else
+	install_as_dependency "podman"
+	Package_installer_ ${box_app_name} || failed_to_run "failed to install ${box_app_name}"
+	must_create_file
+fi

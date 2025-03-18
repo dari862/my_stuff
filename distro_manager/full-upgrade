@@ -8,10 +8,9 @@ if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ];then
 	exit 0
 fi
 
-Custom_distro_path="/usr/share/my_stuff"
-
-. "${Custom_distro_path}/Distro_Specific/Package-manager"
-x_session_picker_path="${Custom_distro_path}/system_files/bin/xsessions/openbox"
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+x_session_picker_path="/usr/share/my_stuff/system_files/bin/xsessions/openbox"
 
 usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g')"
 usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g')"
@@ -66,7 +65,7 @@ __upgrade_current_repo_(){
 }
 
 update_packages(){
-	cd "${Custom_distro_path}/system_files/updater"
+	cd "/usr/share/my_stuff/system_files/updater"
 	updaters_list="$(ls)"
 	first_updater_file="$(echo "$updaters_list" | head -n 1)"
 	if [ -f "${updaters_list}" ];then
@@ -79,7 +78,7 @@ update_packages(){
 
 Updating_Distro(){
 	print_purple "==> checking Distro for update."
-	cd "${Custom_distro_path}"
+	cd "/usr/share/my_stuff"
 	
 	if $(git fetch >/dev/null 2>&1);then
 		print_GREEN "==> Distro is up to date." 
@@ -99,7 +98,7 @@ Updating_Distro(){
 }
 
 Updating_opt(){
-	cd "${Custom_distro_path}/opt/git/"
+	cd "/usr/share/my_stuff/opt/git/"
 	__git_dir_to_update_="$(ls)"
 	first__git_dir_to_update_file="$(echo "$__git_dir_to_update_" | head -n 1)"
 	if [ -d "${first__git_dir_to_update_file}" ];then
@@ -159,7 +158,7 @@ Package_remove_ || :
 __dpkg_configure
 print_GREEN "==> orphan packages removed "
 
-if [ -d "${Custom_distro_path}/system_files/updater" ];then
+if [ -d "/usr/share/my_stuff/system_files/updater" ];then
 	print_purple "==> updating packages(s)."
 	update_packages
 	print_GREEN "==> updating packages(s) completed. "
@@ -167,7 +166,7 @@ fi
 
 Updating_Distro
 
-if [ -d "${Custom_distro_path}/opt/git" ];then
+if [ -d "/usr/share/my_stuff/opt/git" ];then
 	print_purple "==> updating git repository(s)."
 	Updating_opt
 	print_GREEN "==> fully git repository(s) updated."

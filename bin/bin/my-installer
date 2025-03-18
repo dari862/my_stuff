@@ -36,7 +36,8 @@ __logout=false
 
 pipemenu_creater="/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu"
 
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 
 logout_(){
 	say "${1:-}"
@@ -183,7 +184,7 @@ __run_(){
 			remove_from_db "${file_name_}" "apps" || continue
 			my-superuser "${pipemenu_creater}"/my-install-pipemenu.sh || continue
 		elif [ "${game_install}" = "true" ];then
-			if [ "$file_name_" != "GPU_Driver_" ] && [ "$file_name_" != "Gaming_Essential_" ];then
+			if [ "$file_name_" != "Gaming_Essential_" ];then
 				remove_from_db "${file_name_}" "game" || continue
 				my-superuser "${pipemenu_creater}"/gaming-pipemenu.sh || continue
 			fi
@@ -268,7 +269,7 @@ case $option in
 			game_install=true
 			_files_path="${_GAMING_EXTRA_LIBDIR}"
 			if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
-				if [ "$file_name_" != "GPU_Driver_" ] && [ "$file_name_" != "Gaming_Essential_" ];then
+				if [ "$file_name_" != "Gaming_Essential_" ];then
 					say "install Gaming_Essential_ first." 'pause'
 					exit
 				fi

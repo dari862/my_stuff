@@ -1,0 +1,22 @@
+#!/bin/sh
+mirror="http://deb.debian.org/debian/"
+mirror_security="http://security.debian.org/debian-security"
+dist=$(lsb_release -cs)
+if [ "n/a" = "$dist" ];then
+    dist=testing
+fi
+deb_lines_backports=$(egrep -E "^(deb|deb-src) (${mirror}|${mirror_security})" /etc/apt/sources.list | grep -v ${dist}-backports)
+if [ "$1" = "--is-enable" ];then
+	if [ -z "$deb_lines_backports" ];then
+		exit 0
+	else
+		exit 1
+	fi
+fi
+
+for l in $deb_lines_backports; do
+	my-superuser sed -i "s\\^$l$\\$l ${dist}-backports\\" /etc/apt/sources.list
+done
+my-superuser apt-get update
+my-superuser ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install /usr/share/my_stuff/system_files/bin
+my-superuser ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install_auto_completion /usr/share/my_stuff/system_files/auto_completion/backports_install

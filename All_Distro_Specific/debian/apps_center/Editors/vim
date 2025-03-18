@@ -1,0 +1,49 @@
+#!/bin/sh
+
+app_name="vim"
+extra_apps_="nodejs"
+
+###################################################################
+Disto_path="/usr/share/my_stuff"
+RC_FILE_Path="${Disto_path}/lib/apps/vim"
+CONF_FILE_NAME="vimrc"
+
+say "Installing ${app_name} ..." 1
+
+Package_installer_ ${app_name} || continue
+say "Installing ${app_name} plugins for all users in /etc/vim/ ..."
+
+if [ -n "${extra_apps_}" ];then
+	say 'Installing extra packages...' 1
+	Package_installer_ ${extra_apps_} || continue
+	clear
+fi
+
+say "Adding plugins support to vim ..."
+my-superuser mkdir -vp "/etc/vim/autoload"
+getURL '2term' https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim | my-superuser tee /etc/vim/autoload/plug.vim >/dev/null 2>&1 || continue
+my-superuser mkdir -p "/etc/vim/plugged/"
+
+say "Adding plugins to /etc/vim/rc.local ..."
+if [ -s "/etc/vim/${CONF_FILE_NAME}.local" ];then
+	cat "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/${CONF_FILE_NAME}.local | my-superuser tee /etc/vim/${CONF_FILE_NAME}.local > /dev/null 2>&1 || continue
+else
+	my-superuser cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}.local" /etc/vim/ || continue
+fi
+my-superuser vim +'PlugInstall --sync' +qa  || continue # Download all plugins non-interactively
+
+
+# Copy users config
+say "Setting configs to all users..."
+for d in /home/*; do
+    user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+    if [ -d "$d/.config/myshell" ];then
+		my-superuser cp -v "${RC_FILE_Path}/${CONF_FILE_NAME}" "$d/.${CONF_FILE_NAME}" && my-superuser chown -R $user_and_group "$d/.${CONF_FILE_NAME}" || continue
+		my-superuser sed -i 's/export EDITOR=.*/export EDITOR=vim/g' "$d/.config/myshell/profile.sh" || continue
+		my-superuser chown -R $user_and_group "$d/.config/myshell/profile.sh" || continue
+	fi
+done
+
+my-superuser cp -r "${RC_FILE_Path}/${CONF_FILE_NAME}" "${Disto_path}/system_files/skel/.${CONF_FILE_NAME}" || continue
+my-superuser sed -i 's/export EDITOR=.*/export EDITOR=vim/g' "${Disto_path}/system_files/skel/.config/myshell/profile.sh" || continue
+

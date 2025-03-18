@@ -115,10 +115,10 @@ elif echo "$polybar_STYLE" | grep -q "panels"
 then
 	change_panel() {
 		# Change Polybar style
-		sed -i "s/polybar_STYLE=.*/polybar_STYLE=$style_name/g" "${Distro_config_file}"
+		sed -i "s|polybar_STYLE=.*|polybar_STYLE=$style_name|g" "${Distro_config_file}"
 		
 		# Change rofi style
-		sed -i "s/ROFI_STYLE=.*/ROFI_STYLE=$style_name/g" "${Distro_config_file}"
+		sed -i "s|ROFI_STYLE=.*|ROFI_STYLE=$style_name|g" "${Distro_config_file}"
 		
 		# Change wallpaper
 		setbg -R /usr/share/my_stuff/my_wallpapers/"$bg"

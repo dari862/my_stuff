@@ -1,0 +1,22 @@
+#!/bin/sh -e
+app_name="openssh"
+SSH_SERVICE="sshd"
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+say "Setting up SSH..."
+ln -sf "${_APPS_LIBDIR}/Remote_Tools/Extra/manage_ssh.sh" "/usr/share/my_stuff/system_files/bin" || continue
+service_manager "enable" "$SSH_SERVICE"
+LOCAL_IP=$(ip -4 addr show | awk '/inet / {print $2}' | tail -n 1)
+if service_manager "is-active" "$SSH_SERVICE"; then
+	say "SSH is up and running."
+else
+	say "Failed to start SSH."
+fi
+ 
+say "Configuring firewall..."
+if command -v ufw >/dev/null 2>&1; then
+	my-superuser ufw allow OpenSSH
+	my-superuser ufw enable
+fi

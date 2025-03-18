@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ "$1" = "--is-enable" ];then
+	if grep -qE " universe| multiverse" /etc/apt/sources.list;then
+		exit 0
+	else
+		exit 1
+	fi
+fi
+
+say "enable universe multiverse repo"
+
+Package_installer_ software-properties-common
+enable_repo universe
+enable_repo multiverse
+		
+Package_update_

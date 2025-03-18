@@ -1,11 +1,13 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/common/WM"
 . "${Distro_config_file}"
-rofi_command_is="rofi -no-config -no-lazy-grab  -dmenu -i -p ''"
+rofi_command() {
+	rofi -no-config -no-lazy-grab  -dmenu -i -p '' -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
+}
 # Launch Rofi
 if [ "$ROFI_STYLE" = "blocks" ]
 then
-	MENU="$(echo " Default| Nord| Gruvbox| Adapta| Cherry" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
+	MENU="$(echo " Default| Nord| Gruvbox| Adapta| Cherry" | rofi_command)"
 				case "$MENU" in
 					*Default) style-switcher.sh --default ;;
 					*Nord) style-switcher.sh --nord ;;
@@ -15,7 +17,7 @@ then
 				esac
 elif [ "$ROFI_STYLE" = "forest" ] || [ "$ROFI_STYLE" = "forest_large" ]
 then
-	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
+	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry" | rofi_command)"
 				case "$MENU" in
 					*Default) style-switcher.sh --default ;;
 					*Nord) style-switcher.sh --nord ;;
@@ -25,7 +27,7 @@ then
 				esac
 elif [ "$ROFI_STYLE" = "cuts" ]
 then
-	MENU="$(echo " Black| Adapta| Dark| Red| Green| Teal| Gruvbox| Nord| Solarized| Cherry" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
+	MENU="$(echo " Black| Adapta| Dark| Red| Green| Teal| Gruvbox| Nord| Solarized| Cherry" | rofi_command)"
 				case "$MENU" in
 					*Black) style-switcher.sh --mode1 ;;
 					*Adapta) style-switcher.sh --mode2 ;;
@@ -40,7 +42,7 @@ then
 				esac
 elif [ "$ROFI_STYLE" = "pwidgets" ]
 then
-	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry| White| Black" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
+	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry| White| Black" | rofi_command)"
 				case "$MENU" in
 					*Default) style-switcher.sh --default ;;
 					*Nord) style-switcher.sh --nord ;;
@@ -52,7 +54,7 @@ then
 				esac
 elif echo "$ROFI_STYLE" |  grep -q "panels/";then
 	# Launch Rofi
-	MENU="$(echo " Budgie| Deepin| Elementary| Elementary_Dark| Gnome| KDE| KDE_Dark| Liri| Mint| Ubuntu_gnome| Ubuntu_unity| Xubuntu| Zorin" | $rofi_command_is -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/styles.rasi")"
+	MENU="$(echo " Budgie| Deepin| Elementary| Elementary_Dark| Gnome| KDE| KDE_Dark| Liri| Mint| Ubuntu_gnome| Ubuntu_unity| Xubuntu| Zorin" | rofi_command)"
 				case "$MENU" in
 					*Budgie) style-switcher.sh budgie ;;
 					*Deepin) style-switcher.sh deepin ;;

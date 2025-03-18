@@ -1,5 +1,7 @@
 #!/bin/sh
 app_name="doas"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
 
 if ! cat /etc/group | grep sudo;then
 	my-superuser groupadd sudo >/dev/null 2>&1
@@ -9,19 +11,18 @@ say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue
 
-#temp
+if [ -f "/etc/doas.conf" ];then
+	my-superuser rm -rdf "/etc/doas.conf"
+fi
+
 Package_installer_ expect || continue
-# end to temp
 
 my-superuser ln -sf /usr/share/my_stuff/bin/doas/doasedit /usr/share/my_stuff/system_files/bin
 my-superuser cp -rp /usr/share/my_stuff/system_files/doas.conf /etc
 
 my-superuser adduser "$USER" sudo >/dev/null 2>&1 || :
 
-if ! my-superuser doas -C /etc/doas.conf;then
-	echo "config error"
-	exit 1
-fi
+my-superuser doas -C /etc/doas.conf || failed_to_run "failed to install doas not installed."
 
 my-superuser tee -a /etc/bash.bashrc <<- EOF >/dev/null 
 if [ -x /usr/bin/doas ];then
@@ -32,9 +33,10 @@ EOF
 export SUDO_FORCE_REMOVE=yes
 PASSWORD="$(tr -dc 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' < /dev/urandom | head -c 30 | base64)"
 
-say 'Remove sudo ...' 1
+say 'Removing sudo ...' 1
 my-superuser su root -c "
-	. \"/usr/share/my_stuff/Distro_Specific/Package-manager\"
+	. \"/usr/share/my_stuff/lib/common/common\"
+	. \"/usr/share/my_stuff/Distro_Specific/Package-manager.sh\"
 	echo \"root:${PASSWORD}\" | chpasswd
 	Package_remove_ sudo
 	passwd -l root
@@ -44,3 +46,5 @@ my-superuser su root -c "
 "
 unset SUDO_FORCE_REMOVE
 unset PASSWORD
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-superuser" "${app_name}"

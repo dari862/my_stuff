@@ -1,6 +1,7 @@
 #!/bin/sh
-
 app_name="terminator"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
 
 say 'Installing package...' 1
 
@@ -24,3 +25,6 @@ else
 	my-superuser sed -i '0,/[keybindings]/a xxxxxxxxxxxxxxxxxxxxx' "/root/.config/terminator/config"
 	my-superuser sed -i 's/xxxxxxxxxxxxxxxxxxxxx/  hide_window = F10/g' "/root/.config/terminator/config"
 fi
+
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-terminal-emulator" "${app_name}"

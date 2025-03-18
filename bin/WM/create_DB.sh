@@ -9,7 +9,8 @@ opt="${1-}"
 . "/usr/share/my_stuff/lib/common/DB"
 . "/usr/share/my_stuff/lib/common/openbox"
 . "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 
 # Helper function to check if a command is installed
 is_installed() {
@@ -155,17 +156,75 @@ create_all_db_except_style_db() {
 
 	[ ! -f "${tweeks_db_path}" ] && create_tweeks_db
 	[ ! -f "${full_environment_db_path}" ] && create_full_environment_db
-	[ ! -d "${apps_db_path}" ] && create_apps_db
+	[ ! -d "${apps_db_path}" ] && create_apps_db && check_4_envycontrol
 	[ ! -d "${gaming_db_path}" ] && create_gaming_db
 	[ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
 	[ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
 	[ ! -f "${chroots_deploy_db_path}" ] && create_chroots_deploy_db
+	create_pipemenu
 	say "DBs creation completed"
 }
 
 remove_from_DB() {
 	:
 }
+
+check_4_envycontrol() {
+	say "number of gpus = $number_of_gpus"
+	number_of_gpus=0
+	lspci_output=$(lspci | grep -i 'vga')
+		
+	if echo "$lspci_output" | grep -iq VMware;then
+		VMware_gpu_exist=true
+		number_of_gpus=$((number_of_gpus + 1))
+	else
+		if echo "$lspci_output" | grep -iq nvidia;then
+			nvidia_gpu_exist=true
+			number_of_gpus=$((number_of_gpus + 1))
+		fi
+		
+		if echo "$lspci_output" | grep -iq intel;then
+			intel_gpu_exist=true
+			number_of_gpus=$((number_of_gpus + 1))
+		fi
+		
+		if echo "$lspci_output" | grep -iq amd;then
+			amd_gpu_exist=true
+			number_of_gpus=$((number_of_gpus + 1))
+		fi
+	fi
+	
+	if [ "$number_of_gpus" -le 1 ] && grep -rq "envycontrol" "${db_dir}";then
+		say "number of gpus = $number_of_gpus removing envycontrol from DB."
+		find "${db_dir}" -type f -exec sed -i "/^envycontrol$/d" {} +
+	else
+		say "number of gpus = $number_of_gpus keeping envycontrol in DB."
+		
+	fi
+}
+
+create_pipemenu(){
+__distro_path="/usr/share/my_stuff"
+pipemenu_creater="${__distro_path}/bin/not_add_2_path/create_pipemenu"
+
+say "Running script for creating preferences pipemenu."
+"${pipemenu_creater}"/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+
+say "Running script for creating full_environment pipemenu."
+"${pipemenu_creater}"/full_environment-pipemenu.sh || failed_to_run "failed to run create_pipemenu/full_environment-pipemenu.sh"
+
+say "Running script for creating preferences pipemenu."
+"${pipemenu_creater}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
+
+say "Running script for creating install pipemenu."
+"${pipemenu_creater}"/my-install-pipemenu.sh|| failed_to_run "failed to run create_pipemenu/my-install-pipemenu.sh"
+
+say "Running script for creating gaming pipemenu."
+"${pipemenu_creater}"/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+
+say "Running script for creating containers and others pipemenu."
+"${pipemenu_creater}"/containers-deployer-pipemenu.sh || failed_to_run "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
+
 
 # Case statement to trigger the appropriate function
 case "$opt" in

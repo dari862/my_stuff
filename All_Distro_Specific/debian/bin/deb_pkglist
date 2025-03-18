@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+opt_="${1-}"
+_hostname="$(hostname)"
+
+print_purple() {
+	_msg_="${1-}"
+	printf "\033[1;35m${_msg_}\033[0m"
+}
+
+LIST="${HOME}/pkglist_${_hostname}"
+
+# Generate list
+if [ "$opt_" = "-l" ];then
+	print_purple "\n==> Show list of installed packages\n"
+	dpkg-query -l 
+else
+	print_purple "\n==> Generate list of installed packages\n"
+	dpkg-query -f '${binary:Package}\n' -W > "$LIST"
+	echo " List genrated at = ${LIST}"
+fi
+# To re-install packages from a list:
+# my-superuser xargs -a $LIST apt install

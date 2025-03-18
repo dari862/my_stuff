@@ -1,0 +1,59 @@
+#!/bin/sh
+set -e
+
+# Initialize app_is_ with the arguments passed
+app_is_="$@"
+
+if [ -z "$app_is_" ];then
+    NORMAL="\033[m"
+    MENU="\033[36m" # Blue
+    NUMBER="\033[33m" # Yellow
+    FGRED="\033[41m"
+    RED_TEXT="\033[31m"
+    ENTER_LINE="\033[33m"
+    
+    # Manually define the list of app selections, space-separated
+    apps_list_="parrot-pico parrot-interface parrot-tools parrot-interface parrot-interface-full parrot-tools-full parrot-interface-full parrot-interface parrot-mini"
+    
+    # Display the menu
+    printf "${MENU}\n\t**********************************************************${NORMAL}
+    \n\t-------------Welcome to Parrot OS Installer--------------
+    \n
+    \n\t${MENU}**${NUMBER} 1)${MENU} Install Core Only ${NORMAL}
+    \n\t${MENU}**${NUMBER} 2)${MENU} Install Standard Edition ${NORMAL}
+    \n\t${MENU}**${NUMBER} 3)${MENU} Install Full Edition ${NORMAL}
+    \n\t${MENU}**${NUMBER} 4)${MENU} Install Home Edition ${NORMAL}
+    \n\t${MENU}**${NUMBER} 5)${MENU} Install Embedded Edition ${NORMAL}
+    \n
+    \n\t${MENU}*********************************************************${NORMAL}\n"
+
+    COUNTER=0
+    apps_list_length=$(echo "$apps_list_" | wc -w)  # Get the number of items in the apps list
+
+    while [ "$COUNTER" -lt 4 ]; do
+        printf "\n${ENTER_LINE}Please enter a menu option or ${RED_TEXT}type exit to exit. ${NORMAL}\n"
+        printf "Input Your Choice: "
+        read  i
+        if [ "$i" = "exit" ];then
+            exit
+        fi
+
+        # Calculate index for selection (1-based input)
+        index=$((i - 1))
+		
+		COUNTER=$((COUNTER + 1))
+        # Check if the input is valid and within the range of apps_list_
+        if [ "$i" -le "$apps_list_length" ] && [ "$i" -ge 1 ];then
+            app_is_=$(echo "$apps_list_" | cut -d ' ' -f "$i")
+            break
+        else
+            printf "\nInvalid Choice! Try again. ($COUNTER) chances left...\n"
+        fi
+    done
+
+    # If no valid choice was made, exit
+    [ -z "$app_is_" ] && exit
+fi
+
+# Ensure 'my-superuser' command exists and is correct
+my-superuser apt-get install -t parrot "$app_is_"

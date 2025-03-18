@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/Distro_Specific/Package-manager"
+. "/usr/share/my_stuff/lib/common/common"
 if [ "${1-}" = "--upate" ];then
 	"/usr/share/my_stuff/bin/my_installer/update-containers.sh"
 	exit
