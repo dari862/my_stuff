@@ -71,12 +71,11 @@ if [ -d "${STYLEPATH}/cache" ];then
 	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
 fi
 
-if [ -d "${STYLEPATH}/themes" ];then
-	cp -r "${STYLEPATH}/themes $HOME/.themes" || show_em "failed to copy ${STYLEPATH}/themes to $HOME/.themes"
-fi
-
-if [ -d "${STYLEPATH}/icons" ];then
-	cp -r "${STYLEPATH}/icons $HOME/.icons" || show_em "failed to copy ${STYLEPATH}/icons to $HOME/.icons"
+if [ "${style}" = "dynamic" ];then
+	mkdir -p "$HOME/.themes"
+	mkdir -p "$HOME/.icons"
+	ln -sf "${BLOBPATH}/dynamic_theme/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${BLOBPATH}/themes to $HOME/.themes"
+	ln -sf "${BLOBPATH}/dynamic_theme/icons"/* "$HOME/.icons" || show_em "failed to create symplic link for contain of ${BLOBPATH}/icons to $HOME/.icons"
 fi
 
 if command -v geany >/dev/null 2>&1;then

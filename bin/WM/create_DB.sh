@@ -156,11 +156,12 @@ create_all_db_except_style_db() {
 
 	[ ! -f "${tweeks_db_path}" ] && create_tweeks_db
 	[ ! -f "${full_environment_db_path}" ] && create_full_environment_db
-	[ ! -d "${apps_db_path}" ] && create_apps_db && check_4_envycontrol
+	[ ! -d "${apps_db_path}" ] && create_apps_db
 	[ ! -d "${gaming_db_path}" ] && create_gaming_db
 	[ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
 	[ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
 	[ ! -f "${chroots_deploy_db_path}" ] && create_chroots_deploy_db
+	check_4_envycontrol
 	create_pipemenu
 	say "DBs creation completed"
 }
@@ -170,7 +171,6 @@ remove_from_DB() {
 }
 
 check_4_envycontrol() {
-	say "number of gpus = $number_of_gpus"
 	number_of_gpus=0
 	lspci_output=$(lspci | grep -i 'vga')
 		
@@ -204,27 +204,27 @@ check_4_envycontrol() {
 }
 
 create_pipemenu(){
-__distro_path="/usr/share/my_stuff"
-pipemenu_creater="${__distro_path}/bin/not_add_2_path/create_pipemenu"
-
-say "Running script for creating preferences pipemenu."
-"${pipemenu_creater}"/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
-
-say "Running script for creating full_environment pipemenu."
-"${pipemenu_creater}"/full_environment-pipemenu.sh || failed_to_run "failed to run create_pipemenu/full_environment-pipemenu.sh"
-
-say "Running script for creating preferences pipemenu."
-"${pipemenu_creater}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
-
-say "Running script for creating install pipemenu."
-"${pipemenu_creater}"/my-install-pipemenu.sh|| failed_to_run "failed to run create_pipemenu/my-install-pipemenu.sh"
-
-say "Running script for creating gaming pipemenu."
-"${pipemenu_creater}"/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
-
-say "Running script for creating containers and others pipemenu."
-"${pipemenu_creater}"/containers-deployer-pipemenu.sh || failed_to_run "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
-
+	__distro_path="/usr/share/my_stuff"
+	pipemenu_creater="${__distro_path}/bin/not_add_2_path/create_pipemenu"
+	
+	say "Running script for creating preferences pipemenu."
+	"${pipemenu_creater}"/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+	
+	say "Running script for creating full_environment pipemenu."
+	"${pipemenu_creater}"/full_environment-pipemenu.sh || failed_to_run "failed to run create_pipemenu/full_environment-pipemenu.sh"
+	
+	say "Running script for creating preferences pipemenu."
+	"${pipemenu_creater}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
+	
+	say "Running script for creating install pipemenu."
+	"${pipemenu_creater}"/my-install-pipemenu.sh|| failed_to_run "failed to run create_pipemenu/my-install-pipemenu.sh"
+	
+	say "Running script for creating gaming pipemenu."
+	"${pipemenu_creater}"/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+	
+	say "Running script for creating containers and others pipemenu."
+	"${pipemenu_creater}"/containers-deployer-pipemenu.sh || failed_to_run "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
+}
 
 # Case statement to trigger the appropriate function
 case "$opt" in

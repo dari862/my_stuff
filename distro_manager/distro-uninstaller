@@ -1,7 +1,7 @@
 #!/bin/sh
 is_it_zero_byte=false
 
-. "/usr/share/my_stuff/system_files/var_for_distro_uninstaller"
+. "/usr/share/my_stuff/never_remove/var_for_distro_uninstaller"
 . "/usr/share/my_stuff/lib/common/common"
 . "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 

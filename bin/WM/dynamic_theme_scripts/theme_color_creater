@@ -68,6 +68,9 @@ fi
 
 [ -z "$alpha" ] && alpha="100"
 
+active="$color0"
+inactive="$color7"
+
 background="$color0"
 foreground="$color7"
 background_rgb="$(convert_hex_to_rgb $background)"
@@ -150,108 +153,123 @@ color13_rgb0x="$(rgb0x_it $color13)"
 color14_rgb0x="$(rgb0x_it $color14)"
 color15_rgb0x="$(rgb0x_it $color15)"
 
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{alpha}/${alpha}/g" {} +
+sed_them(){
+	dir_to_sed="${1:-}"
 
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{wallpaper}|${wallpaper}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{background}/${background}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{foreground}/${foreground}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{cursor}/${foreground}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color0}/${color0}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color1}/${color1}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color2}/${color2}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color3}/${color3}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color4}/${color4}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color5}/${color5}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color6}/${color6}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color7}/${color7}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color8}/${color8}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color9}/${color9}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color10}/${color10}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color11}/${color11}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color12}/${color12}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color13}/${color13}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color14}/${color14}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color15}/${color15}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{style}/${style}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{alpha}/${alpha}/g" {} +
+	
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{active}|${active}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{inactive}/${inactive}/g" {} +
+	
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{wallpaper}|${wallpaper}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{background}/${background}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{foreground}/${foreground}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{cursor}/${foreground}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color0}/${color0}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color1}/${color1}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color2}/${color2}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color3}/${color3}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color4}/${color4}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color5}/${color5}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color6}/${color6}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color7}/${color7}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color8}/${color8}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color9}/${color9}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color10}/${color10}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color11}/${color11}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color12}/${color12}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color13}/${color13}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color14}/${color14}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color15}/${color15}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{style}/${style}/g" {} +
+	
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{background.rgb}/${background_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{foreground.rgb}/${foreground_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{cursor.rgb}/${foreground_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color0.rgb}/${color0_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color1.rgb}/${color1_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color2.rgb}/${color2_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color3.rgb}/${color3_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color4.rgb}/${color4_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color5.rgb}/${color5_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color6.rgb}/${color6_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color7.rgb}/${color7_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color8.rgb}/${color8_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color9.rgb}/${color9_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color10.rgb}/${color10_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color11.rgb}/${color11_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color12.rgb}/${color12_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color13.rgb}/${color13_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color14.rgb}/${color14_rgb}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color15.rgb}/${color15_rgb}/g" {} +
+	
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{background.strip}/${background_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{foreground.strip}/${foreground_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{cursor.strip}/${foreground_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color0.strip}/${color0_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color1.strip}/${color1_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color2.strip}/${color2_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color3.strip}/${color3_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color4.strip}/${color4_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color5.strip}/${color5_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color6.strip}/${color6_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color7.strip}/${color7_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color8.strip}/${color8_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color9.strip}/${color9_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color10.strip}/${color10_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color11.strip}/${color11_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color12.strip}/${color12_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color13.strip}/${color13_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color14.strip}/${color14_strip}/g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s/{color15.strip}/${color15_strip}/g" {} +
+	
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{background.xrgba}|${background_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{foreground.xrgba}|${foreground_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{cursor.xrgba}|${foreground_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color0.xrgba}|${color0_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color1.xrgba}|${color1_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color2.xrgba}|${color2_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color3.xrgba}|${color3_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color4.xrgba}|${color4_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color5.xrgba}|${color5_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color6.xrgba}|${color6_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color7.xrgba}|${color7_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color8.xrgba}|${color8_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color9.xrgba}|${color9_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color10.xrgba}|${color10_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color11.xrgba}|${color11_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color12.xrgba}|${color12_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color13.xrgba}|${color13_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color14.xrgba}|${color14_xrgba}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color15.xrgba}|${color15_xrgba}|g" {} +
+	
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{background.rgb0x}|${background_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{foreground.rgb0x}|${foreground_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{cursor.rgb0x}|${foreground_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color0.rgb0x}|${color0_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color1.rgb0x}|${color1_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color2.rgb0x}|${color2_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color3.rgb0x}|${color3_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color4.rgb0x}|${color4_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color5.rgb0x}|${color5_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color6.rgb0x}|${color6_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color7.rgb0x}|${color7_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color8.rgb0x}|${color8_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color9.rgb0x}|${color9_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color10.rgb0x}|${color10_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color11.rgb0x}|${color11_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color12.rgb0x}|${color12_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color13.rgb0x}|${color13_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color14.rgb0x}|${color14_rgb0x}|g" {} +
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{color15.rgb0x}|${color15_rgb0x}|g" {} +
+	
+	find "$dir_to_sed" -mindepth 1 -maxdepth 1 -type f -exec sed -i "s|{user_home}|${HOME}|g" {} +
+}
 
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{background.rgb}/${background_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{foreground.rgb}/${foreground_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{cursor.rgb}/${foreground_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color0.rgb}/${color0_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color1.rgb}/${color1_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color2.rgb}/${color2_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color3.rgb}/${color3_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color4.rgb}/${color4_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color5.rgb}/${color5_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color6.rgb}/${color6_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color7.rgb}/${color7_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color8.rgb}/${color8_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color9.rgb}/${color9_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color10.rgb}/${color10_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color11.rgb}/${color11_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color12.rgb}/${color12_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color13.rgb}/${color13_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color14.rgb}/${color14_rgb}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color15.rgb}/${color15_rgb}/g" {} +
+sed_them "$temp_theme_file_dir"
+sed_them "${temp_theme_file_dir}/gtk_theme"
+sed_them "${temp_theme_file_dir}/glava"
 
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{background.strip}/${background_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{foreground.strip}/${foreground_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{cursor.strip}/${foreground_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color0.strip}/${color0_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color1.strip}/${color1_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color2.strip}/${color2_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color3.strip}/${color3_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color4.strip}/${color4_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color5.strip}/${color5_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color6.strip}/${color6_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color7.strip}/${color7_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color8.strip}/${color8_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color9.strip}/${color9_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color10.strip}/${color10_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color11.strip}/${color11_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color12.strip}/${color12_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color13.strip}/${color13_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color14.strip}/${color14_strip}/g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s/{color15.strip}/${color15_strip}/g" {} +
-
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{background.xrgba}|${background_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{foreground.xrgba}|${foreground_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{cursor.xrgba}|${foreground_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color0.xrgba}|${color0_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color1.xrgba}|${color1_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color2.xrgba}|${color2_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color3.xrgba}|${color3_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color4.xrgba}|${color4_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color5.xrgba}|${color5_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color6.xrgba}|${color6_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color7.xrgba}|${color7_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color8.xrgba}|${color8_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color9.xrgba}|${color9_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color10.xrgba}|${color10_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color11.xrgba}|${color11_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color12.xrgba}|${color12_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color13.xrgba}|${color13_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color14.xrgba}|${color14_xrgba}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color15.xrgba}|${color15_xrgba}|g" {} +
-
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{background.rgb0x}|${background_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{foreground.rgb0x}|${foreground_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{cursor.rgb0x}|${foreground_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color0.rgb0x}|${color0_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color1.rgb0x}|${color1_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color2.rgb0x}|${color2_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color3.rgb0x}|${color3_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color4.rgb0x}|${color4_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color5.rgb0x}|${color5_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color6.rgb0x}|${color6_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color7.rgb0x}|${color7_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color8.rgb0x}|${color8_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color9.rgb0x}|${color9_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color10.rgb0x}|${color10_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color11.rgb0x}|${color11_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color12.rgb0x}|${color12_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color13.rgb0x}|${color13_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color14.rgb0x}|${color14_rgb0x}|g" {} +
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{color15.rgb0x}|${color15_rgb0x}|g" {} +
-
-find "$temp_theme_file_dir" -type f -exec sed -i "s|{user_home}|${HOME}|g" {} +
+find "${temp_theme_file_dir}/gtk-icons" -type f -exec sed -i "s/{background}/${background}/g" {} +
+find "${temp_theme_file_dir}/gtk-icons" -type f -exec sed -i "s/{foreground}/${foreground}/g" {} +
+find "${temp_theme_file_dir}/gtk-icons" -type f -exec sed -i "s/{color3}/${color3}/g" {} +

@@ -104,3 +104,6 @@ fi
 
 # Start graphical server on user's current tty if not already running.
 [ "$(tty)" = "/dev/tty1" ] && ! pidof -s Xorg >/dev/null 2>&1 && exec startx "$XINITRC"
+
+#enable PROMPT to INSTALL COMMAND_NOT_FOUND output
+export COMMAND_NOT_FOUND_INSTALL_PROMPT=1

@@ -1,26 +1,10 @@
 if command -v nala >/dev/null 2>&1;then
 	package_manger="nala"
-	Package_installer_(){
-		my-superuser nala install -y "$@"
-	}
 	Package_update_(){
 		my-superuser nala update
 	}
-	full_upgrade_(){
-		say 'Full upgrade your system...' 1
-		my-superuser nala -y upgrade
-	}
-	Packages_upgrade_(){
-		my-superuser apt-get -y upgrade
-	}
-	Package_remove_(){
-		my-superuser nala purge -y "$@"
-	}
 else
 	package_manger="apt-get"
-	Package_installer_(){
-		my-superuser apt-get install -y "$@"
-	}
 	Package_update_(){
 		say 'Updating sources...' 1
 		# If no update today exec update
@@ -34,17 +18,24 @@ else
 			my-superuser apt-get update
 		fi
 	}
-	full_upgrade_(){
-		say 'Full upgrade your system...' 1
-		my-superuser apt-get -y full-upgrade
-	}
-	Packages_upgrade_(){
-		my-superuser apt-get -y upgrade
-	}
-	Package_remove_(){
-		my-superuser apt-get purge -y "$@"
-	}
 fi
+
+Package_installer_(){
+	my-superuser "${package_manger}" install -y "$@"
+}
+
+full_upgrade_(){
+	say 'Full upgrade your system...' 1
+	my-superuser "${package_manger}" -y full-upgrade
+}
+
+Packages_upgrade_(){
+	my-superuser "${package_manger}" -y upgrade
+}
+
+Package_remove_(){
+	my-superuser "${package_manger}" purge -y "$@"
+}
 
 download_key(){
 	mode="${1-}"
@@ -78,7 +69,7 @@ Upgradeable_Packages_count_(){
 	
 install_deb(){
 	deb_name="${1-}"
-	my-superuser dpkg -i ${deb_name} || my-superuser apt install -y ${deb_name} || continue
+	my-superuser dpkg -i ${deb_name} || my-superuser apt-get install -y ${deb_name} || continue
 	my-superuser apt-get install -y -f || continue
 }
 

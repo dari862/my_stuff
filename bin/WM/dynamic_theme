@@ -30,23 +30,21 @@ theme_color_creater_output_folder="/tmp/$USER/theme_color_creater_output"
 
 /usr/share/my_stuff/bin/WM/dynamic_theme_scripts/theme_color_creater "${style}" "$theme_color_creater_output_folder" "${wallpaper}" || show_em "failed to run system_default_colors"
 
-if command -v openbox >/dev/null 2>&1;then
-	blob_openbox_theme_path="${STYLEPATH}/openboxrctheme"
-	mkdir -p "$STYLEPATH"
-	cp -r "${theme_color_creater_output_folder}/colors.openboxrc" "${STYLEPATH}/openboxrctheme"
-fi
-
 blob_dunstrc_theme_path="${STYLEPATH}/config/dunst"
 mkdir -p "$blob_dunstrc_theme_path"
 cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "$blob_dunstrc_theme_path/theme.dunstrc"
 
-blob_gtk_theme_path="${STYLEPATH}/themes"
-mkdir -p "$blob_gtk_theme_path"
-cp -r "${theme_color_creater_output_folder}/gtk_themes"/* "$blob_gtk_theme_path"
+blob_gtk_theme_path="${BLOBPATH}/dynamic_theme/themes"
+cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-dark.css > "$blob_gtk_theme_path"/dynamic-nord/general/dark.css
+cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-nord-gtkrc > "$blob_gtk_theme_path"/dynamic-nord/gtk-2.0/gtkrc
+cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-gtkrc > "$blob_gtk_theme_path"/dynamic/gtk-2.0/gtkrc
+cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.0.css > "$blob_gtk_theme_path"/dynamic/gtk-3.0/gtk.css
+cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.20.css > "$blob_gtk_theme_path"/dynamic/gtk-3.20/gtk.css
+cat "${theme_color_creater_output_folder}/gtk_theme"/openbox-3 > "$blob_gtk_theme_path"/dynamic/openbox-3/themerc
 
-blob_gtk_icon_path="${STYLEPATH}/icons"
+blob_gtk_icon_path="${BLOBPATH}/dynamic_theme/icons/dynamic"
 mkdir -p "$blob_gtk_icon_path"
-cp -r "${theme_color_creater_output_folder}/icons"/* "$blob_gtk_icon_path"
+cp -r "${theme_color_creater_output_folder}/gtk-icons"/* "$blob_gtk_icon_path"
 
 if [ "$_panel_name_" = 'polybar' ];then
 	[ ! -d "$HOME/.config/polybar/${style}" ] && cp -r "$HOME/.config/polybar/dynamic" "$HOME/.config/polybar/${style}" 
