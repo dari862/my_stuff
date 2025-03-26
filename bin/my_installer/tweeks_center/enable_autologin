@@ -8,6 +8,7 @@ if [ "$1" = "--is-enable" ];then
 	fi
 fi
 
+say 'enable_autologin'
 my-superuser sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}
 my-superuser sed -i "s/^#autologin-user-timeout=/autologin-user-timeout=/g" ${lightdmconf}
 my-superuser sed -i "s/^autologin-user=.*$/autologin-user=${USER}/g" ${lightdmconf}

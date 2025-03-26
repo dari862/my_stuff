@@ -10,6 +10,7 @@ if [ "$1" = "--is-enable" ];then
 	fi
 fi
 
+say 'Adding non-free-firmware support.'
 for l in $deb_lines_nonfree_firmware; do
 	my-superuser sed -i "s\\^$l$\\$l non-free-firmware\\" /etc/apt/sources.list
 done

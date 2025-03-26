@@ -6,5 +6,5 @@ if [ "$1" = "--is-enable" ];then
 		exit 1
 	fi
 fi
-
+say 'Enable virtualization.'
 my-superuser zypper install -y @virtualization 

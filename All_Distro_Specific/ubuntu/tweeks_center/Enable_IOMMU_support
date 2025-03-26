@@ -102,6 +102,7 @@ failed_(){
 	exit
 }  
 
+say 'Enable IOMMU support.'
 [ ! -f "${virtualization_ready_file}" ] && check_if_host_ready_for_virt
 
 Reload_KVM_Kernel_Modules

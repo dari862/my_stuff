@@ -32,7 +32,6 @@ osd.label.bg: parentrelative
 osd.label.text.color: #d9ecf6
 
 window.active.border.color: #82cac3
-window.inactive.border.color: #598b86
 window.active.button.disabled.bg: Solid Flat
 window.active.button.disabled.bg.color: #82cac3
 window.active.button.disabled.bg.border.color: #82cac3
@@ -64,7 +63,7 @@ window.active.label.text.font: shadow=n
 window.active.title.bg: Solid Flat
 window.active.title.bg.color: #82cac3
 
-
+window.inactive.border.color: #598b86
 window.inactive.button.disabled.bg: Solid Flat
 window.inactive.button.disabled.bg.color: #598b86
 window.inactive.button.disabled.bg.border.color: #598b86

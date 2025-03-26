@@ -7,6 +7,7 @@ if [ "$1" = "--is-enable" ];then
 	fi
 fi
 
+say 'enable_Google_BBR_TCP_congestion_control'
 echo "net.core.default_qdisc=fq" | my-superuser tee /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
 echo "net.ipv4.tcp_congestion_control=bbr" | my-superuser tee -a /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
 my-superuser sysctl -p

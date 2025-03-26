@@ -10,6 +10,7 @@ if [ "$1" = "--is-enable" ];then
 	fi
 fi
 
+say 'Adding contrib support.'
 for l in $deb_lines_contrib; do
 	my-superuser sed -i "s\\^$l$\\$l contrib\\" /etc/apt/sources.list
 done

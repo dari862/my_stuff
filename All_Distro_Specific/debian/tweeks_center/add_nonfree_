@@ -9,6 +9,7 @@ if [ "$1" = "--is-enable" ];then
 		exit 1
 	fi
 fi
+say 'Adding non-free support.'
 
 for l in $deb_lines_nonfree; do
 	my-superuser sed -i "s\\^$l$\\$l non-free\\" /etc/apt/sources.list

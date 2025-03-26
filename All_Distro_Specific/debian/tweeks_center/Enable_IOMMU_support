@@ -101,6 +101,7 @@ failed_(){
 	read -r
 	exit
 }  
+say 'Enable IOMMU support.'
 
 [ ! -f "${virtualization_ready_file}" ] && check_if_host_ready_for_virt
 

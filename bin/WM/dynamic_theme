@@ -26,6 +26,9 @@ fi
 STYLEPATH="${CONFIGPATH}/$style"
 
 setbg -s "${wallpaper}"
+cp -r "$HOME/.config/nitrogen" "${BLOBPATH}/polybar/$style/config"
+cp -r "$HOME/.config/nitrogen" "${BLOBPATH}/tint2/$style/config"
+
 theme_color_creater_output_folder="/tmp/$USER/theme_color_creater_output"
 
 /usr/share/my_stuff/bin/WM/dynamic_theme_scripts/theme_color_creater "${style}" "$theme_color_creater_output_folder" "${wallpaper}" || show_em "failed to run system_default_colors"

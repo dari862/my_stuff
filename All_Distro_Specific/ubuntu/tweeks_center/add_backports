@@ -14,6 +14,7 @@ if [ "$1" = "--is-enable" ];then
 	fi
 fi
 
+say 'Adding backports support.'
 for l in $deb_lines_backports; do
 	my-superuser sed -i "s\\^$l$\\$l ${dist}-backports\\" /etc/apt/sources.list
 done

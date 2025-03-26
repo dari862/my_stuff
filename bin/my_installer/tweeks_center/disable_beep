@@ -10,6 +10,7 @@ if [ "$1" = "--is-enable" ];then
 	fi
 fi
 
+say 'disable_beep'
 # "Blacklisting pcspkr and snd_pcsp kernel modules."
 if ! ls -A /etc/modprobe.d/;then
     my-superuser sh -c "echo 'blacklist pcspkr' >> ${pcspkr_blacklist}"

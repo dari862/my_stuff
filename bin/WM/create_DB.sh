@@ -43,7 +43,7 @@ create_db_from_dirs() {
 		
 			find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
 				if ! is_installed "$(basename "$app")";then
-					echo "$(basename "$app")" >> "$db_path/$dir_name"
+					basename "$app" >> "$db_path/$dir_name"
 				fi
 			done
 		done
@@ -55,7 +55,7 @@ create_db_from_dirs() {
 		
 			find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
 				if ! is_installed "$(basename "$app")";then
-					echo "$(basename "$app")" >> "$db_path/$dir_name"
+					basename "$app" >> "$db_path/$dir_name"
 				fi
 			done
 		done
@@ -81,7 +81,7 @@ create_tweeks_db() {
 
 	find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
 	if ! ${tweek} --is-enable;then
-		echo "$(basename "$tweek")" >> "${tweeks_db_path}"
+		basename "$tweek" >> "${tweeks_db_path}"
 	fi
 	done
 }
@@ -93,7 +93,7 @@ create_full_environment_db() {
 	touch "${full_environment_db_path}"
 	
 	find "${_FULL_ENVIRONMENT_LIBDIR}" "${_FULL_ENVIRONMENT_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r FE;do
-		echo "$(basename "$FE")" >> "${full_environment_db_path}"
+		basename "$FE" >> "${full_environment_db_path}"
 	done
 }
 
@@ -171,25 +171,21 @@ remove_from_DB() {
 }
 
 check_4_envycontrol() {
-	number_of_gpus=0
 	lspci_output=$(lspci | grep -i 'vga')
 		
 	if echo "$lspci_output" | grep -iq VMware;then
-		VMware_gpu_exist=true
-		number_of_gpus=$((number_of_gpus + 1))
+		number_of_gpus=1
 	else
+		number_of_gpus=0
 		if echo "$lspci_output" | grep -iq nvidia;then
-			nvidia_gpu_exist=true
 			number_of_gpus=$((number_of_gpus + 1))
 		fi
 		
 		if echo "$lspci_output" | grep -iq intel;then
-			intel_gpu_exist=true
 			number_of_gpus=$((number_of_gpus + 1))
 		fi
 		
 		if echo "$lspci_output" | grep -iq amd;then
-			amd_gpu_exist=true
 			number_of_gpus=$((number_of_gpus + 1))
 		fi
 	fi
