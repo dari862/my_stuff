@@ -13,7 +13,7 @@ Usage:  my-installer --install app_name
     --tweek   a script to run Debian Tweeks in a popup terminal window.
 '
 skip_test=""
-
+source__file_location=false
 # if help option anywhere in args, output $HELP and exit immediately
 for i in "$@"
 do
@@ -169,7 +169,8 @@ __run_(){
 				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_chroot" "/usr/share/my_stuff/system_files/bin" || continue
 			fi
 		elif [ "${running_tweek}" = "true" ];then
-			say 'running tweek...' 1
+			tweek_title="$(echo ${file_name_} | sed 's/_/ /g')"
+			say "running tweek: ${tweek_title} ..." 1
 		elif [ "${running_fullenv}" = "true" ];then
 			say 'install full environment...' 1
 		fi
@@ -308,6 +309,29 @@ case $option in
 		*) show_help;;
 esac
 
-__run_
+if [ "${package_install}" = "true" ];then
+	grep -rq "${file_name_}" "${apps_db_path}" || source__file_location=true
+elif [ "${game_install}" = "true" ];then
+	grep -rq "${file_name_}" "${gaming_db_path}" || source__file_location=true
+elif [ "${distrobox_install}" = "true" ];then
+	grep -rq "${file_name_}" "${distrobox_deploy_db_path}" || source__file_location=true
+elif [ "${container_install}" = "true" ];then
+	grep -rq "${file_name_}" "${containers_deploy_db_path}" || source__file_location=true
+elif [ "${chroot_install}" = "true" ];then
+	grep -rq "${file_name_}" "${chroots_deploy_db_path}" || source__file_location=true
+elif [ "${running_fullenv}" = "true" ];then
+	grep -rq "${file_name_}" "${full_environment_db_path}" || source__file_location=true
+elif [ "${running_tweek}" = "true" ];then
+	grep -rq "${file_name_}" "${tweeks_db_path}" || source__file_location=true
+fi
+
+if [ "${source__file_location}" = "true" ];then
+	say
+	say "${file_name_} already installed successfully."
+	say
+	say 'Hit any key to exit...' 'pause'
+else
+	__run_
+fi
 
 exit 0

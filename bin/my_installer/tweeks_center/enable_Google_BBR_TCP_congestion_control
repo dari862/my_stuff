@@ -1,13 +1,10 @@
 #!/bin/sh
-if [ "$1" = "--is-enable" ];then
-	if grep -q 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf >/dev/null 2>&1 || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ];then
-		exit 0
-	else
-		exit 1
-	fi
+if grep -q 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf >/dev/null 2>&1 || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ];then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
 fi
 
-say 'enable_Google_BBR_TCP_congestion_control'
 echo "net.core.default_qdisc=fq" | my-superuser tee /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
 echo "net.ipv4.tcp_congestion_control=bbr" | my-superuser tee -a /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
 my-superuser sysctl -p

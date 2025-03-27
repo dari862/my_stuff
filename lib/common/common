@@ -14,16 +14,16 @@ connectiontest() {
     i=0
     attempts=${1:-0}
     while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
-        say "$TEXT_CHECKING"
+        say "$TEXT_CHECKING" 'yellow'
         if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null;then
             say "$TEXT_OK" 1
             return 0
         fi
-        say "$TEXT_FAILED"
+        say "$TEXT_FAILED" 'red'
         if [ "$i" -eq $((attempts - 1)) ];then # if last attempt
             return 1
         elif prompt "$TEXT_ASK_RETRY" Q;then # if user wants to quit
-            say "$TEXT_ABORT" 2
+            say "$TEXT_ABORT" 'yellow' 2
             [ "$attempts" -eq 0 ] && exit 1 || return 1
         fi
         tput clear
@@ -33,15 +33,38 @@ connectiontest() {
 
 # Usage: say text [delayAfterText|pause]
 say() {
-    width=$(tput cols 2>/dev/tty)
-    echo "$1" | fold -s -w $((width - 3)) | sed 's/^/  /' # wraps text nicely and adds two leading spaces
-    if [ "${2}" = 'pause' ];then
-        stty -icanon -echo time 0 min 1
-		head -c1 >/dev/null
-		stty icanon echo
-    else
-        sleep "${2:-0}"
-    fi
+	message="${1-}"
+	mode="${2-}"
+	width=$(tput cols 2>/dev/tty)
+	
+	if [ "${mode}" = 'red' ];then
+		color="31"
+		mode="${3:-}"
+	elif [ "${mode}" = 'yellow' ];then
+		color="33"
+		mode="${3:-}"
+	elif [ "${mode}" = 'green' ];then
+		color="32"
+		mode="${3:-}"
+	else
+		color="32"
+	fi
+	
+	printf '%b' "\\033[1;${color}m${message}\\033[0m\n" | fold -s -w $((width - 3)) | sed 's/^/  /' # wraps text nicely and adds two leading spaces
+
+    case "$mode" in
+    	pause)
+    		stty -icanon -echo time 0 min 1
+			head -c1 >/dev/null
+			stty icanon echo
+    		;;
+    	''|*[!0-9.]*)  # Anything other than digits or a single decimal point is invalid
+        	:
+        	;;
+    	*)
+        	sleep "${mode}"
+        	;;
+	esac
 }
 
 # Usage: prompt text [ Y | N | Q | <string> ]
@@ -52,7 +75,7 @@ prompt() {
 
     if [ "${2:-}" ] && [ "${2}" = "Q" ];then
         while true; do
-            printf "$1 "
+            say "$1 " 'red'
         	stty -icanon -echo time 0 min 1
 			answer="$(head -c1)"
 			stty icanon echo
@@ -74,7 +97,7 @@ prompt() {
     fi
 
 	while true; do
-		printf "$1 ${prompt:+[$prompt] }"
+		say "$1 ${prompt:+[$prompt] }" "yellow"
 		stty -icanon -echo time 0 min 1
 		answer="$(head -c1)"
 		stty icanon echo
@@ -84,7 +107,7 @@ prompt() {
 			[Yy]) echo; return 0 ;;
 			[Nn]) echo; return 1 ;;
 			[Qq]) echo; return 1 ;;
-			*) printf "invalid response only y[yes] or n[No] are allowed.";;
+			*) say "invalid response only y[yes] or n[No] are allowed." 'red';;
 		esac
 	done
 }
@@ -102,20 +125,17 @@ end_superuser() {
     fi
 }
 
-Distrobox_Package_update_() {
-    distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syy --noconfirm" || exit 1
-}
-
 Distrobox_package_installer_() {
+	say "Updaing gaming distrobox ..." 1
+	distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syy --noconfirm" || exit 1	
+	clear
+	say "Installing $@ ..." 1
     distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syu $@ --noconfirm" || exit 1
 }
 
 failed_to_run() {
     __message_="${1:-}"
-    echo "$__message_"
-    stty -icanon -echo time 0 min 1
-	head -c1 >/dev/null
-	stty icanon echo
+    say "$__message_" 'red' 'pause'
     exit 1
 }
 
@@ -125,15 +145,20 @@ flatpak_install() {
 		install_as_dependency flatpak
 	fi
     __icons_="${1:-}"
-    __flatpak_="${2:-}"
+    __appid="${2:-}"
     __repo_="${3:-}"
     if [ -z "$__repo_" ];then
-    	flathub="flathub"
+    	__repo_="flathub"
+    	flatpak info "${__appid}" >/dev/null 2>&1 || failed_to_run "failed to find ${__appid} in flatpak repo: ${__repo_}"
     elif [ "$__repo_" = "nonflathub" ];then
-    	flathub=""
+    	__repo_=""
+    	flatpak info "${__appid}" >/dev/null 2>&1 || failed_to_run "failed to find ${__appid}"
+    else
+    	flatpak info "${__appid}" >/dev/null 2>&1 || failed_to_run "failed to find ${__appid} in flatpak repo: ${__repo_}"
     fi
-    
-    my-superuser flatpak install -y $flathub "${__flatpak_}"
+        
+    say "Installing package ${__icons_} via flatpak"
+    my-superuser flatpak install -y $__repo_ "${__appid}"
     if [ -f "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" ];then
     	my-superuser ln -sf "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" "/usr/share/applications"
     else
@@ -141,7 +166,7 @@ flatpak_install() {
     	[Desktop Entry]
 		Name=${__icons_}
 		Comment=${__icons_}
-		Exec=flatpak run ${__flatpak_}
+		Exec=flatpak run ${__appid}
 		Terminal=false
 		Type=Application
 		Icon=flatpak

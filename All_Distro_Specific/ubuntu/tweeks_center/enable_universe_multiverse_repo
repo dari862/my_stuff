@@ -1,0 +1,12 @@
+#!/bin/sh
+if grep -qE " universe| multiverse" /etc/apt/sources.list;then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
+fi
+
+Package_installer_ software-properties-common
+enable_repo universe
+enable_repo multiverse
+		
+Package_update_

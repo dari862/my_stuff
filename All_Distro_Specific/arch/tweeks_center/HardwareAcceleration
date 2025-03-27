@@ -1,12 +1,11 @@
 #!/bin/sh
-if [ "$1" = "--is-enable" ];then
-	if grep -q "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1" /etc/environment; then
-		exit 0
-	else
-		exit 1
-	fi
+
+if grep -q "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1" /etc/environment; then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
 fi
-say 'Enabling HardwareAcceleration.'
+
 Package_installer_ libva-nvidia-driver
 mkdir -p "$HOME/.local/share/linutil"
 if [ -d "$LIBVA_DIR" ]; then

@@ -6,15 +6,13 @@ if [ "n/a" = "$dist" ];then
     dist=testing
 fi
 deb_lines_backports=$(egrep -E "^(deb|deb-src) (${mirror}|${mirror_security})" /etc/apt/sources.list | grep -v ${dist}-backports)
-if [ "$1" = "--is-enable" ];then
-	if [ -z "$deb_lines_backports" ];then
-		exit 0
-	else
-		exit 1
-	fi
+
+if [ -z "$deb_lines_backports" ];then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
 fi
 
-say 'Adding backports support.'
 for l in $deb_lines_backports; do
 	my-superuser sed -i "s\\^$l$\\$l ${dist}-backports\\" /etc/apt/sources.list
 done

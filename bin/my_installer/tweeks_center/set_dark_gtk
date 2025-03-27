@@ -3,12 +3,11 @@
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
 isgtkdark=$([ -f "${gtksettings}" ] && grep ^gtk-application-prefer-dark-theme= "${gtksettings}" | cut -d"=" -f2)
 
-if [ "$1" = "--is-enable" ];then
-	if test "${isgtkdark}";then
-		exit 0
-	else
-		exit 1
-	fi
+if test "${isgtkdark}";then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
+fi
 fi
 
   say "Setting global dark theme for gtk applications."

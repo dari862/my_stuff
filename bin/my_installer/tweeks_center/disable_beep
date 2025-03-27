@@ -2,15 +2,12 @@
 
 pcspkr_blacklist="/etc/modprobe.d/nobeep.conf"
 
-if [ "$1" = "--is-enable" ];then
-	if ls $pcspkr_blacklist >/dev/null 2>&1;then
-		exit 0
-	else
-		exit 1
-	fi
+if ls $pcspkr_blacklist >/dev/null 2>&1;then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
 fi
 
-say 'disable_beep'
 # "Blacklisting pcspkr and snd_pcsp kernel modules."
 if ! ls -A /etc/modprobe.d/;then
     my-superuser sh -c "echo 'blacklist pcspkr' >> ${pcspkr_blacklist}"

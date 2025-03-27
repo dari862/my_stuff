@@ -2,7 +2,7 @@
 app_name="Development Environment"
 my-installer --tweek-needed "Enable_multilib" || continue
 
-say 'Installing package...' 1
+say "Installing $app_name packages..." 1
 install_as_dependency httpie
 install_as_dependency docker
 install_as_dependency github-cli

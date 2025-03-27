@@ -1,10 +1,8 @@
 #!/bin/sh
-if [ "$1" = "--is-enable" ];then
-	if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then
-		exit 0
-	else
-		exit 1
-	fi
+if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
 fi
 
 cpu_are=""
@@ -66,13 +64,11 @@ check_if_host_ready_for_virt(){
 	fi
 
 	if ! lscpu | grep Virtualization | grep -q "$HVE";then
-		echo "hardware virtualization extension is most likely disabled in the BIOS/UEFI. enable it."
-		failed_
+		failed_to_run "hardware virtualization extension is most likely disabled in the BIOS/UEFI. enable it."
 	fi
 	
 	if zgrep CONFIG_KVM /boot/config-$(uname -r) | grep -qvE "^#|=y|=m";then
-		echo "krenal doest not support virtualization"
-		failed_
+		failed_to_run "krenal doest not support virtualization"
 	fi
 	
 	check_IOMMU_support
@@ -94,14 +90,6 @@ Reload_KVM_Kernel_Modules(){
 	fi
 	printf "Modprobe finished \n"
 }
-
-failed_(){
-	echo ' --- Installtion Failed --- ' 
-	echo '  Press any key to exit'
-	read -r
-	exit
-}  
-say 'Enable IOMMU support.'
 
 [ ! -f "${virtualization_ready_file}" ] && check_if_host_ready_for_virt
 

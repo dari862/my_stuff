@@ -1,0 +1,8 @@
+#!/bin/sh -e
+if [ -e /etc/yum.repos.d/rpmfusion-free.repo ] || [ -e /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
+fi
+say 'Adding multimedia-codecs support.'
+my-superuser "$PACKAGER" swap ffmpeg-free ffmpeg --allowerasing -y

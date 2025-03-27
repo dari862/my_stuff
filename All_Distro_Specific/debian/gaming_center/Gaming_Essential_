@@ -30,7 +30,6 @@ fi
 my-superuser dpkg --add-architecture i386
 
 clear
-say 'Updating new sources...' 1
 Package_update_
 
 Package_installer_ libcec6 xboxdrv || continue     

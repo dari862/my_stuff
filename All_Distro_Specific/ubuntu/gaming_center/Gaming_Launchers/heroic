@@ -3,17 +3,8 @@
 app_name="heroic"
 if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
 	app_name="heroic-games-launcher-bin"
-	Distrobox_Package_update_
-	
-	clear
-	say 'Installing package...' 1
 	Distrobox_package_installer_ ${app_name} || continue
-	
 else
-	Package_update_
-	
-	clear
-	
 	say 'Installing package...' 1
   	cd "$(mktemp -d)"
 	download_url="$(getURL '2term' 'https://api.github.com/repos/Heroic-Games-Launcher/HeroicGamesLauncher/releases/latest' \

@@ -8,5 +8,4 @@ else
 	Package_installer_ zen-browser-bin || continue
 fi
 
-say 'Installing package via flatpak...' 1
 flatpak_install ${app_name} io.github.zen_browser.zen
