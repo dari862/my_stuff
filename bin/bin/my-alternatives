@@ -1,10 +1,16 @@
 #!/bin/sh
 # my-alternatives: A script to manage My Stuff alternatives.
 # Licensed under the GNU General Public License, version 3 or later.
+
 if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
-	_SUPERUSER="my-superuser"
+	for package in sudo doas; do
+  		if command -v "$package" > /dev/null 2>&1;then
+    		_SUPERUSER="$package"
+      		break
+    	fi
+  	done
 fi
 
 my_superuser_path="/usr/bin/my-superuser"
