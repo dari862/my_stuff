@@ -1,7 +1,7 @@
 #!/bin/sh
 # my-alternatives: A script to manage My Stuff alternatives.
 # Licensed under the GNU General Public License, version 3 or later.
-if [ "$(id -u)" -ne 0 ];then
+if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
 	_SUPERUSER="my-superuser"
@@ -46,7 +46,10 @@ link_package() {
   fi
 
   # Create symbolic link as superuser
-  $_SUPERUSER ln -sf "$package_path" "$target_path"
+  if ! $_SUPERUSER ln -sf "$package_path" "$target_path";then
+  	echo "Error: failed to run ln -sf $package_path $target_path" >&2
+    return 1
+  fi
 }
 
 # Function to display usage
