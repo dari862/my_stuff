@@ -144,13 +144,13 @@ fi
 mkdir -p "/root/Templates"
 
 ##################################################################################
-show_im "copy doas.conf to correct location."
-cp -rp "/usr/share/my_stuff/lib/apps/doas/doas.conf" "/usr/share/my_stuff/system_files/doas.conf"
-
 show_im "creating missing dir"
-
 mkdir -p "${__distro_path}"/bin/my_installer/distrobox_center/Apps
 mkdir -p "${__distro_path}"/bin/my_installer/distrobox_center/Gaming
+mkdir -p "${__distro_path}"/system_files
+
+show_im "copy doas.conf to correct location."
+cp -rp "/usr/share/my_stuff/lib/apps/doas/doas.conf" "/usr/share/my_stuff/system_files/doas.conf"
 
 show_im "create uniq system files"
 mkdir -p "${__distro_path}"/system_files/updater
@@ -366,10 +366,10 @@ if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
 fi
 
 show_im "prepares hub script dir"
-"${__distro_path}"/bin/rofi/hub create
+"${__distro_path}"/bin/rofi/hub create || show_em "failed to run hub create"
 
 show_im "prepares gui scripts dir"
-"${pipemenu_creater}"/gui-apps-pipemenu
+"${pipemenu_creater}"/gui-apps-pipemenu || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu"
 
 ##################################################################################
 
@@ -380,16 +380,16 @@ show_im "Running must_create_script."
 for script_dir in "${__distro_path}"/bin/must_create_script/*;do
 	show_im "running $(basename "$script_dir"). from must_create_script ."
 	cd "${script_dir}"
-	./make
+	./make || show_em "failed to run make"
 done
 
 show_im "Create keybinds."
-"${__distro_path}"/system_files/bin/keybinds --initial-step
+"${__distro_path}"/system_files/bin/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
 
 ln -sf ${__distro_path}/distro_manager/full-upgrade ${__distro_path}/system_files/bin
 
 show_im "Create conky weather icons."
-"${__distro_path}"/bin/not_add_2_path/conky_weather_icon
+"${__distro_path}"/bin/not_add_2_path/conky_weather_icon || show_em "failed to run not_add_2_path/conky_weather_icon"
 	
 create_blob_system_files
 

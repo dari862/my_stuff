@@ -1,6 +1,11 @@
 #!/bin/sh
 # my-alternatives: A script to manage My Stuff alternatives.
 # Licensed under the GNU General Public License, version 3 or later.
+if [ "$(id -u)" -ne 0 ];then
+	_SUPERUSER=""
+else
+	_SUPERUSER="my-superuser"
+fi
 
 my_superuser_path="/usr/bin/my-superuser"
 my_alternatives_path="/usr/share/my_stuff/system_files/bin"
@@ -41,7 +46,7 @@ link_package() {
   fi
 
   # Create symbolic link as superuser
-  my-superuser ln -sf "$package_path" "$target_path"
+  $_SUPERUSER ln -sf "$package_path" "$target_path"
 }
 
 # Function to display usage
@@ -61,10 +66,10 @@ usage() {
 
 create_cli_filemanager(){
 	package="${1:-}"
-	[ -e "${my_alternatives_path}/my-file-manager" ] && my-superuser rm -rf "${my_alternatives_path}/my-file-manager"
-	echo '#!/bin/sh' | my-superuser tee "${my_alternatives_path}/my-file-manager"
-	echo "popup_terminal \"$package\"" | my-superuser tee -a "${my_alternatives_path}/my-file-manager"
-	my-superuser chmod +x "${my_alternatives_path}/my-file-manager"
+	[ -e "${my_alternatives_path}/my-file-manager" ] && $_SUPERUSER rm -rf "${my_alternatives_path}/my-file-manager"
+	echo '#!/bin/sh' | $_SUPERUSER tee "${my_alternatives_path}/my-file-manager"
+	echo "popup_terminal \"$package\"" | $_SUPERUSER tee -a "${my_alternatives_path}/my-file-manager"
+	$_SUPERUSER chmod +x "${my_alternatives_path}/my-file-manager"
 }
 
 # Install default alternatives
@@ -73,7 +78,7 @@ install_alternatives() {
 
   # Ensure alternatives directory exists
   if [ ! -d "$my_alternatives_path" ];then
-    my-superuser mkdir -p "$my_alternatives_path"
+    $_SUPERUSER mkdir -p "$my_alternatives_path"
   fi
 
   for alternative_name in $MYALTS; do
@@ -111,7 +116,7 @@ remove_alternatives() {
   if [ -z "$alt_package" ];then
     # Remove all alternatives
     for alternative_name in $MYALTS; do
-      my-superuser rm -f "${my_alternatives_path}/$alternative_name"
+      $_SUPERUSER rm -f "${my_alternatives_path}/$alternative_name"
     done
     echo "All alternatives removed."
   else
@@ -120,7 +125,7 @@ remove_alternatives() {
       echo "Error: Invalid alternative '$alt_package'." >&2
       exit 1
     fi
-    my-superuser rm -f "${my_alternatives_path}/$alt_package"
+    $_SUPERUSER rm -f "${my_alternatives_path}/$alt_package"
     echo "Removed alternative: $alt_package"
   fi
 }
@@ -203,7 +208,7 @@ list_alternatives() {
       printf "%-22.22s unused\n" "$alternative_name"
     fi
   done
-  printf "%-22.22s uses %s\n" "my-superuser" "$(readlink "$my_superuser_path")"
+  printf "%-22.22s uses %s\n" "$_SUPERUSER" "$(readlink "$my_superuser_path")"
 }
 
 # Main action handling
