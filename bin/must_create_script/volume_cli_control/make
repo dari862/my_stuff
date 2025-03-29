@@ -11,5 +11,5 @@ else
 	exit 1
 fi
 
-cat head.sh $pak tail.sh | my-superuser tee "$volume_cli_control_path" > /dev/null 2>&1
-my-superuser chmod +x "$volume_cli_control_path"
+cat head.sh $pak tail.sh | tee "$volume_cli_control_path" > /dev/null 2>&1
+chmod +x "$volume_cli_control_path"

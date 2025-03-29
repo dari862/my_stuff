@@ -11,6 +11,6 @@ if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 		exit 1
 	fi
 	
-	cat "head.sh" "$pak" "tail.sh" | my-superuser tee "$disto_brightness_controller_path" >/dev/null 2>&1
-	my-superuser chmod +x "$disto_brightness_controller_path"
+	cat "head.sh" "$pak" "tail.sh" | tee "$disto_brightness_controller_path" >/dev/null 2>&1
+	chmod +x "$disto_brightness_controller_path"
 fi

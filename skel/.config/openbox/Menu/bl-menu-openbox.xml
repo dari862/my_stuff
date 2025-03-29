@@ -97,11 +97,6 @@
                 </command>
             </action>
         </item>
-        <menu id="my_stuffGuiAppsPipemenu" execute="gui-apps-pipemenu" label="My Stuff GUI Apps"/>
-        <menu id="InstallFavouritePackages" execute="my-install-pipemenu" label="Install Favourite Packages"/>
-        <menu id="DeployFavouriteContainers" execute="containers-deployer-pipemenu" label="Deploy Distrobox and Containers"/>
-        <menu id="RunDebianTweeks" execute="my-tweeks-pipemenu" label="Run Debian Tweeks"/>
-        <menu id="InstallFullEnvironments" execute="full_environment-pipemenu" label="Install Full Environments"/>
         <item label="Synaptic Package Manager">
             <action name="Execute">
                 <command>

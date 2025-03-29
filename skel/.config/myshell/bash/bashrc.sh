@@ -23,6 +23,8 @@ thefuck
 kitty_auto_complete
 fzf
 mise
+command-not-found
+lesspipe
 )
 
 # Configure color-scheme
@@ -135,5 +137,3 @@ for bashplugin in ${bashplugins[@]}; do
   	fi
 done
 # ---------------------------------  Extra  ----------------------------------
-# make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
