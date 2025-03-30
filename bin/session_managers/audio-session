@@ -10,8 +10,13 @@
 
 if command -v pnmixer >/dev/null 2>&1;then
 	audio_app="pnmixer"
-else
+elif command -v pasystray >/dev/null 2>&1;then
+	audio_app="pasystray"
+elif command -v volumeicon >/dev/null 2>&1;then
 	audio_app="volumeicon"
+else
+	echo "[ERROR] $0 : failed to file audio_app."
+	exit 1
 fi
 
 #=== FUNCTION ======================================================================
