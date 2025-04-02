@@ -98,7 +98,7 @@ function displayss() {
 	SS_NAME="${1-}"
     . ~/.config/yadshot/yadshot.conf
     if [ ! -f "/tmp/$USER/$SS_NAME" ];then
-        echo "Failed to capture screenshot!" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=10 --text-info --wrap --title="yadshot" --button=gtk-ok
+        echo "Failed to capture screenshot!" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=10 --text-info --wrap --title="yadshot" --button="OK!gtk-ok!OK:0"
         exit 1
     fi
     if [ "$COPYONCAP" = "TRUE" ];then
@@ -118,11 +118,11 @@ function displayss() {
     	yad_opts+=(--size=orig --width=$WSIZEYAD --height=$HSIZEYAD)
     fi
     yad_opts+=(--no-escape --filename="/tmp/$USER/$SS_NAME" --image-on-top --buttons-layout="edge" --title="yadshot" --separator="," --borders="10"
-               --button="Close"\!gtk-cancel:1 --button="Main Menu"\!gtk-home:2)
+               --button="Close!gtk-cancel!Close:1" --button="Main Menu!gtk-home!Main Menu:2")
 	if [ "$Xclip_installed" = "TRUE" ];then
-    	yad_opts+=(--button="Copy to Clipboard"\!gtk-paste:3)
+    	yad_opts+=(--button="Copy to Clipboard!gtk-paste:3")
     fi
-    yad_opts+=(--button="Upload to Filebin"\!gtk-go-up:4 --button=gtk-save:5 --button="New Screenshot"\!gtk-new:0)
+    yad_opts+=(--button="Upload to Filebin!gtk-go-up!Upload to Filebin:4" --button="Save!gtk-save!Save:5" --button="New Screenshot!gtk-new!New Screenshot:0")
     yad "${yad_opts[@]}"
     BUTTON_PRESSED="$?"
     case $BUTTON_PRESSED in
@@ -150,7 +150,7 @@ function displayss() {
         		yad --window-icon="$ICON_PATH" --center --error --title="yadshot" --text="Failed to upload '$FILE'!"
     		else
         		FAILED=0
-        		echo "$FILE_URL" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --show-uri --uri-color="yellow" --title="yadshot" --button="Back"\!gtk-ok:0 --button="Close"\!gtk-cancel:1
+        		echo "$FILE_URL" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --show-uri --uri-color="yellow" --title="yadshot" --button="Back!gtk-ok!OK:0" --button="Close!gtk-cancel!Close:1"
     		fi
             displayss "$SS_NAME"
             ;;
@@ -170,7 +170,7 @@ export -f displayss
 # upload clipboard to Filebin.net
 function yadshotpaste() {
     echo -e "$(xclip -o -selection clipboard)" > /tmp/$USER/yadshotpaste.txt
-    PASTE_CONTENT="$(yad --window-icon="$ICON_PATH" --center --title="yadshot" --height=600 --width=800 --text-info --wrap --filename="/tmp/$USER/yadshotpaste.txt" --editable --borders="10" --button="Cancel"\!gtk-cancel:1 --button="Ok"\!gtk-ok:0)"
+    PASTE_CONTENT="$(yad --window-icon="$ICON_PATH" --center --title="yadshot" --height=600 --width=800 --text-info --wrap --filename="/tmp/$USER/yadshotpaste.txt" --editable --borders="10" --button="Cancel!gtk-cancel!Cancel:1" --button="Ok!gtk-ok!OK:0")"
     case $? in
         0)
             echo -e "$PASTE_CONTENT" > /tmp/$USER/yadshotpaste.txt
@@ -185,10 +185,10 @@ function yadshotpaste() {
     PASTE_URL="$(xclip -o -selection clipboard)"
     rm -f /tmp/$USER/yadshotpaste.txt
     if [[ -z "$PASTE_URL" ]];then
-        echo "Failed to upload paste!"| yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --title="yadshot" --button=gtk-ok
+        echo "Failed to upload paste!"| yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --title="yadshot" --button="OK!gtk-ok!OK:0"
         exit 1
     else
-        echo "$PASTE_URL" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --show-uri --uri-color="yellow" --title="yadshot" --button=gtk-ok
+        echo "$PASTE_URL" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --show-uri --uri-color="yellow" --title="yadshot" --button="OK!gtk-ok!OK:0"
     fi
 }
 export -f yadshotpaste
@@ -207,7 +207,7 @@ function yadshotfileselect() {
         		yad --window-icon="$ICON_PATH" --center --error --title="yadshot" --text="Failed to upload '$FILE'!"
     		else
         		FAILED=0
-        		echo "$FILE_URL" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --show-uri --uri-color="yellow" --title="yadshot" --button="Back"\!gtk-ok:0 --button="Close"\!gtk-cancel:1
+        		echo "$FILE_URL" | yad --window-icon="$ICON_PATH" --center --height=200 --width=300 --borders=20 --text-info --wrap --show-uri --uri-color="yellow" --title="yadshot" --button="Back!gtk-ok!OK:0" --button="Close!gtk-cancel!Close:1"
     		fi
             ;;
         *)
@@ -219,7 +219,7 @@ export -f yadshotfileselect
 
 # function to view upload list from tray
 function upload_list() {
-    LIST_ITEM="$(files-uploader --filebiner ls | tail -n +2 | yad --window-icon="$ICON_PATH" --borders=10 --center --list --height 600 --width 800 --title="yadshot" --text="\nDouble click an item to copy it to the clipboard." --dclick-action="bash -c 'echo -n %s | xclip -i -selection clipboard'" --separator="" --column="Uploads" --button="Delete Selected"\!gtk-delete:0 --button="Close"\!gtk-cancel:1)"
+    LIST_ITEM="$(files-uploader --filebiner ls | tail -n +2 | yad --window-icon="$ICON_PATH" --borders=10 --center --list --height 600 --width 800 --title="yadshot" --text="\nDouble click an item to copy it to the clipboard." --dclick-action="bash -c 'echo -n %s | xclip -i -selection clipboard'" --separator="" --column="Uploads" --button="Delete Selected!gtk-delete!Delete Selected:0" --button="Close!gtk-cancel!Close:1")"
     case $? in
         1)
             sleep 0
@@ -228,8 +228,8 @@ function upload_list() {
             local FILE_NAME="$(echo "$LIST_ITEM" | rev | cut -f2- -d'?' | cut -f1 -d'/' | rev)"
             filebiner -y rm -n "$FILE_NAME"
             case $? in
-                1) echo "Failed to remove '$FILE_NAME' from Filebin!" | yad --window-icon="$ICON_PATH" --borders=20 --center --text-info --wrap --title="yadshot" --button=gtk-ok;;
-                0) echo "'$FILE_NAME' has been removed from Filebin!" | yad --window-icon="$ICON_PATH" --borders=20 --center --text-info --wrap --title="yadshot" --button=gtk-ok;;
+                1) echo "Failed to remove '$FILE_NAME' from Filebin!" | yad --window-icon="$ICON_PATH" --borders=20 --center --text-info --wrap --title="yadshot" --button="OK!gtk-ok!OK:0";;
+                0) echo "'$FILE_NAME' has been removed from Filebin!" | yad --window-icon="$ICON_PATH" --borders=20 --center --text-info --wrap --title="yadshot" --button="OK!gtk-ok!OK:0";;
             esac
             "$YADSHOT_PATH" -l
             ;;
@@ -295,7 +295,7 @@ function yadshotsettings() {
     	yad_opts+=(--field="Copy screenshot to clipboard on capture":CHK "$COPYONCAP")
 	fi
 	
-	yad_opts+=(--field="Delay before capture":NUM "$SS_DELAY!0..120" --button="gtk-ok":0)
+	yad_opts+=(--field="Delay before capture":NUM "$SS_DELAY!0..120" --button="Back!gtk-ok!OK:0")
 	
     OUTPUT="$(yad "${yad_opts[@]}")"
     if [[ "$?" = 0 ]];then
@@ -321,7 +321,7 @@ export -f Imugr_upload
 # main yadshot window
 function startfunc() {
     yad --window-icon="$ICON_PATH" --center --title="yadshot" --height=200 --width=325 --form --no-escape --separator="" --button-layout="center" \
-    --borders="20" --columns="1" --button="New Screenshot"\!gtk-add:0 --button="Close"\!gtk-cancel:1 \
+    --borders="20" --columns="1" --button="New Screenshot!gtk-add!New Screensho:0" --button="Close!gtk-cancel!Close:1" \
     --field="Upload File (filebin.net)!gtk-go-up":FBTN "bash -c yadshotfileselect;exit 0" --field="Upload Paste (filebin.net)!gtk-copy":FBTN "bash -c yadshotpaste;exit 0" \
     --field="Image Capture and Upload (Imugr)!gtk-copy":FBTN "bash -c Imugr_upload -l" --field="Image Capture and Upload (Imugr) anonymous!gtk-copy":FBTN "bash -c Imugr_upload" \
     --field="Color Picker!gtk-color-picker":FBTN "bash -c yadcolorpicker" --field="View Upload List!gtk-edit":FBTN "bash -c upload_list;exit 0" \

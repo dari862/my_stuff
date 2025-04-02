@@ -95,7 +95,7 @@ case $current_wm_name in
 esac
 
 # Show yad dialog
-output=$(yad --form --button=gtk-ok --center --undecorated --fixed --borders=30 --window-icon=nautilus --text="$text" --field="$field:CHK" --separator=""  --image=debian-logo)
+output=$(yad --form --button="OK!gtk-ok!OK:0" --center --undecorated --fixed --borders=30 --window-icon=nautilus --text="$text" --field="$field:CHK" --separator=""  --image=debian-logo)
 
 # Delete simbolic link if not show next time is checked
 if [ "$output" = "FALSE" ];then
