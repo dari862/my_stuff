@@ -83,7 +83,7 @@
 				<separator/>
 				<item icon="&icons;/sys-poweroff-alt.png" label="Shutdown">
 					<action name="Execute">
-						<command>my_session_manager poweroff</command>
+						<command>my_session_manager shutdown</command>
 					</action>
 				</item>
 		</menu>

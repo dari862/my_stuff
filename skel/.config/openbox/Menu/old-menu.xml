@@ -93,7 +93,7 @@
 				<separator/>
 				<item icon="&icons;/exit3.png" label="Shutdown">
 					<action name="Execute">
-						<command>my_session_manager poweroff</command>
+						<command>my_session_manager shutdown</command>
 					</action>
 				</item>
 		</menu>

@@ -56,7 +56,7 @@
 				</item>
 				<item label="Shutdown">
 					<action name="Execute">
-						<command>my_session_manager poweroff</command>
+						<command>my_session_manager shutdown</command>
 					</action>
 				</item>
 		</menu>

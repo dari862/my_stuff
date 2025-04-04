@@ -7,8 +7,6 @@
 opt_="${1-}"
 opt2_="${2-}"
 
-confirm_it=false
-
 _logout(){
 	[ "$confirm_it" = true ] && confirmation_dialog
 	current_wm_name="$(cat "$WM_name_file_path")"
@@ -202,14 +200,14 @@ help_menu(){
 	echo "
 Powermenu
 	
-    	-h --help		Show 			this help
-    	-k --lock		Lock 			screen	Does not work for a tty session
-    	-l --logout		Logout			Also works for tty.
-    	-s --suspend	Suspend			State determined by ACPI S0 S1 or S3
-    	-i --hibernate	Suspend to Disk	Requires enough swap to store RAM
-    	-y --hybrid		Hybrid Sleep	ACPI must support sleep state S3
-    	-b --reboot	Reboot    	
-    	-p --poweroff	Shut down
+    	help		Show 			this help
+    	lock		Lock 			screen	Does not work for a tty session
+    	logout		Logout			Also works for tty.
+    	suspend		Suspend			State determined by ACPI S0 S1 or S3
+    	hibernate	Suspend			Suspend to Disk	Requires enough swap to store RAM
+    	hybrid		Hybrid Sleep	ACPI must support sleep state S3
+    	reboot		Reboot    		Reboot
+    	shutdown	poweroff		poweroff
     	
     	text menu at a TTY
 "
@@ -217,6 +215,7 @@ Powermenu
 ## Options #############################################
 if [ "$opt_" = "--no-confirm" ] || [ "$opt_" = "-n" ] ;then
 	opt_="${opt2_}"
+	confirm_it=false
 else
 	confirm_it=true
 fi

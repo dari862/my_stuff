@@ -201,7 +201,7 @@ my_power_manager_daemon(){
   	fi
   	
   	if [ "$poweroff_time" -gt 0 ] && [ "$poweroff_time" -le "$idleTime" ];then
-			my_session_manager --no-confirm poweroff
+			my_session_manager --no-confirm shutdown
   	fi
 	
   	if [ "$idleAfter" -gt 0 ] && [ "$idle" = false ] && [ "$idleTimeMillis" -gt "$idleAfterMillis" ];then
