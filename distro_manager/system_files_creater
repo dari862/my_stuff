@@ -102,11 +102,6 @@ create_blob_system_files(){
 
 ##################################################################################
 
-if [ "$machine_type_are" = "laptop" ];then 
-	show_im "this is laptop"
-	touch "${__distro_path}"/system_files/this_is_laptop
-fi
-
 show_im "update Databases ex: locate"
 updatedb
 
@@ -162,6 +157,11 @@ mkdir -p "${__distro_path}"/system_files/applications
 
 show_im "LN essional files"
 mkdir -p "${__distro_path}"/system_files/bin
+
+if [ "$machine_type_are" = "laptop" ];then 
+	show_im "this is laptop"
+	touch "${__distro_path}"/system_files/this_is_laptop
+fi
 
 show_im "copy skell file to system_files/skel ."
 cp -r "${__distro_path}/skel" "${__distro_path}/system_files"
