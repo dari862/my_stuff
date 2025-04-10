@@ -1,0 +1,30 @@
+#!/bin/sh
+# Search various search engines 
+set -eu
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+picked_engine="${1-}"
+picked_query="${2-}"
+database="${script_config_path}/search-engine-list"
+
+[ ! -f $database ] && touch $database
+
+if [ -z "$picked_engine" ];then
+	engine=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' $database | column -s '#' -t | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Choose search engine:' | grep -oP "https://.*") || exit 1
+else
+	engine=$(grep "$picked_engine" $database | grep -oP "https://.*")
+fi
+
+if [ -z "$picked_engine" ];then
+	# Searching the chosen engine.
+	query=$(rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "$engine:")
+else
+	query="$picked_engine"
+fi
+
+if [ -n "$query" ];then
+	query="$(printf "${query}" | jq -s -R -r @uri)"
+	
+	my-www-browser "${engine}${query}"
+fi

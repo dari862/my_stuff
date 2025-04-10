@@ -1,0 +1,10 @@
+#!/bin/sh
+## Openbox Pipemenu to change openbox styles
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/style.sh
+
+menuStart
+cat "${style_pipemenu_file}"
+menuEnd

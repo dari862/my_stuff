@@ -1,0 +1,70 @@
+#!/bin/sh
+
+my-installer --tweek-needed "add_contrib_nonfree" || continue
+my-installer --tweek-needed "add_nonfree_" || continue
+my-installer --tweek-needed "add_nonfree_firmware" || continue
+
+app_name="GPU Drivers"
+
+create_X11_intel_conf(){
+	my-superuser mkdir -p /etc/X11/xorg.conf.d/
+	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
+	Section "Device"
+	Identifier  "Intel Graphics"
+	Driver      "Intel"
+	Option      "AccelMethod"  "sna"
+	Option      "TearFree""True"
+	Option      "Tiling""True"
+	Option      "SwapbuffersWait" "True"
+	#Option      "AccelMethod"  "uxa"
+	EndSection
+	EOF
+}
+
+install_intel_drivers(){
+	Package_installer_ xserver-xorg-video-intel intel-gpu-tools intel-media-va-driver || continue
+	#create_X11_intel_conf
+}
+
+install_amd_drivers(){
+	Package_installer_ libgl1-mesa-dri xserver-xorg-video-ati xserver-xorg-video-amdgpu mesa-vulkan-drivers vkbasalt || continue
+}
+
+install_nvidia_drivers(){
+	_cuda_=""
+	_kernel_open_dkms_=""
+	prompt '  do you want to add Cuda Support?' && _cuda_="cuda"
+	prompt 'do you want to install opensource nvidia-kernel?' && _kernel_open_dkms_="nvidia-kernel-open-dkms"
+	. "/usr/share/my_stuff/os-release"
+	
+	download_key "gpg" "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" "/usr/share/keyrings/nvidia-drivers.gpg"
+	echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | my-superuser tee /etc/apt/sources.list.d/nvidia-drivers.list > /dev/null 2>&1
+	
+	Package_update_  || continue
+	Package_installer_ nvidia-driver nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_ || continue
+	
+	say
+	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
+	say
+	say "NVIDIA Drivers installed you need to reboot your pc."
+}
+
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+	install_nvidia_drivers
+fi
+	
+if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+	install_amd_drivers
+fi
+	
+if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+	install_intel_drivers
+fi
+
+if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
+	say "This is VM"
+fi
+
+say "Creating Check File (GPU_Drivers_ready)"
+my-superuser touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
+my-superuser  /usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"

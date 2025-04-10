@@ -1,0 +1,16 @@
+#!/bin/sh -e
+app_name="librewolf"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
+
+say 'Adding Repo...' 1
+import_key "https://rpm.librewolf.net/pubkey.gpg"
+my-superuser zypper ar -ef https://rpm.librewolf.net librewolf
+
+say 'Updating Repo...' 1
+Package_update_
+
+say 'Installing package...' 1
+Package_installer_ librewolf
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"

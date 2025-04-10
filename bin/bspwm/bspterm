@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$1" = "-f" ];then
+	bspalacritty --float
+elif [ "$1" = "-s" ];then
+	bspalacritty --full
+elif [ "$1" = "-e" ];then
+	shift
+	bspalacritty -e "$@"
+else
+	bspalacritty "$@"
+fi

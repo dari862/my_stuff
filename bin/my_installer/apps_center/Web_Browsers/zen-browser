@@ -1,0 +1,11 @@
+#!/bin/sh -e
+app_name="zen-browser"
+#pacman
+say "Installing ${app_name}..." 1
+if grep -q avx2 /proc/cpuinfo; then
+	Package_installer_ zen-browser-avx2-bin || continue
+else
+	Package_installer_ zen-browser-bin || continue
+fi
+
+flatpak_install ${app_name} io.github.zen_browser.zen

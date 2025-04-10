@@ -1,0 +1,28 @@
+#!/bin/sh
+# extract audio track from video
+set -eu
+
+file_2_extract_audio_from=${1-}
+extract_audio (){
+  nstreams=0
+  in=${1}
+  name=${in%.*}
+
+  nstreams="$(ffprobe -v error -show_format file:"${in}" | \
+              sed -n "s/nb_streams=\([0-9]\+\)$/\1/p")"
+  for i in $(seq 0 "$(( nstreams - 1))"); do
+    astring="$(ffprobe -v error -select_streams "${i}" -show_streams file:"${in}")"
+    acodec="$(echo "${astring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+    stype="$(echo "${astring}" | sed -n "s/^codec_type=\(.*\)$/\1/p")"
+    if [ "${stype}" = audio ];then
+      out="${name}_${i}.$acodec"
+      cmd="ffmpeg -i file:${in@Q} -c:a copy -y file:${out@Q}"
+      echo "${cmd}" >&2
+      eval "${cmd}"
+    fi
+  done
+}
+
+
+echo "Extracting audio streams from ${file_2_extract_audio_from}:" >&2
+extract_audio "${file_2_extract_audio_from}"

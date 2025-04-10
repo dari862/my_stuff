@@ -1,0 +1,27 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+# Pipemenu
+menuStart
+
+# Viewer
+if type 'xtightvncviewer' >/dev/null 2>&1;then
+	menuItem 'Viewer' 'vncviewer'
+else
+	menuItem 'Install Viewer' "popup_terminal --install xtightvncviewer"
+fi
+
+menuSeparator
+
+# Server
+if [ -x /usr/lib/vino/vino-server ];then
+	if pidof -s vino-server > /dev/null;then
+		menuItem 'Stop VNC Server' 'killall vino-server'
+	else
+		menuItem 'Start VNC Server' '/usr/lib/vino/vino-server'
+	fi
+	menuItem 'VNC Server Preferences' 'sh -c "notify-send -t 15000 -i \"dialog-info\" \"Configure Vino\" \"In dconf-editor open:\norg -> gnome -> desktop-> remote-access\" ;dconf-editor"'
+else
+	menuItem 'Install VNC Server' "popup_terminal --install vino"
+fi
+menuEnd

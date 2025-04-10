@@ -1,0 +1,377 @@
+#!/bin/bash
+##
+#    conkymove: a script to set the position of a moveable Conky
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+HELP="conkymove is a script to set the position of a moveable Conky
+
+Usage:  conkymove
+   or:  conkymove -h|--help
+
+Optional arguments:
+    -h | --help    Show this message (no other options are supported)
+
+After invoking the script, follow the displayed instructions
+to move a selected conky to a new position on the screen.
+"
+
+# look for a help option somewhere
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+error_exit(){
+    echo "$0 error: $1" >&2
+    exit 1
+}
+
+## check necessary tools are installed
+required_commands=(xwininfo xprop yad) # array, space-separated words
+
+missing_commands=()
+for i in "${required_commands[@]}"
+do
+    hash $i || missing_commands+=(" $i")
+done
+[[ ${missing_commands[0]} ]] && error_exit "This script requires the following commands: ${missing_commands[*]}
+Please install the packages containing the missing commands
+and rerun the script."
+
+. "/usr/share/my_stuff/lib/common/yad-includes"
+
+#####FUNCTIONS#####
+
+# makes array "config"
+parse_conkyfile(){
+    [[ -f $1 ]] || { echo "$1 is not a file." >&2;return 1;}
+    unset config
+    declare -Ag config
+    local line parse=false comment=false conkyconf name value
+    while read -r line
+    do
+        if [[ $line =~ ^[[:blank:]]*'--[[' ]]
+        then
+            comment=true # ignore comment blocks
+            continue
+        else
+            line=${line%%--*} # remove inline comments
+        fi
+        if [[ $comment = true ]]
+        then
+            if [[ $line = *']]'* ]]
+            then
+                comment=false
+                line=${line#*]]}
+            else
+                continue
+            fi
+        fi
+        [[ $line ]] || continue
+        if [[ $line =~ ^[[:blank:]]*'conky.config'[[:blank:]]*(=[[:blank:]]*'{'(.*))?$ ]]
+        then
+            parse=true
+            conkyconf=${BASH_REMATCH[2]}
+            continue
+        fi
+        if [[ $parse = true ]]
+        then
+            if [[ $line =~ ([^}]*)'}' ]]
+            then
+                conkyconf+=${BASH_REMATCH[1]}
+                break
+            else
+                conkyconf+=$line
+            fi
+        fi
+    done < "$1"
+    entry_regex="([[:alnum:]_]+)[[:blank:]]*=[[:blank:]]*([[:alnum:]-]+|'[^']+'|\"[^\"]+\")"
+    while [[ $conkyconf =~ $entry_regex ]]
+    do
+        name=${BASH_REMATCH[1]}
+        value=${BASH_REMATCH[2]#[\'\"]} # strip quotes
+        value=${value%[\'\"]}
+        config["${name}"]="${value}"
+        conkyconf=${conkyconf#*${BASH_REMATCH[0]}}
+    done
+}
+
+# for version 1.09 conky files
+# makes array "config"
+parse_conkyfile_1.09(){
+    [[ -f $1 ]] || { echo "$1 is not a file." >&2;return 1;}
+    unset config
+    declare -Ag config
+    local name value
+    while read -r name value
+    do
+        [[ $name ]] || continue
+        [[ $name = TEXT* ]] && break
+        config["$name"]="$value"
+    done < <(sed 's/\#.*$//' "$1")
+}
+
+
+# usage: edit_conkyfile file name=value [name2=value2...]
+# parse_conkyfile should already have been run
+edit_conkyfile(){
+    file=$1
+    shift
+    local name value sed_pattern sed_replace
+    declare -a sed_args
+    while [[ $1 ]]; do
+        unset name value sed_pattern sed_replace
+        name="${1%%=*}"
+        value="${1#*=}"
+        shift
+        [[ ${config["$name"]+x} ]] || {
+            echo "$0: config key $name does not exist" >&2
+            return 1
+        }
+        [[ ${config["$name"]} = "${value}" ]] && continue
+        [[ $value =~ ^([0-9-]+|true|false)$ ]] || value=\'"$value"\' # add quotes
+        (( ${#sed_args[@]} == 0 )) && sed_args=("-ri")
+        sed_pattern="[[:blank:]]*${name}[[:blank:]]*=[[:blank:]]*([[:alnum:]-]+|'[^']+'|\"[^\"]+\")"
+        grep -Eq -- "-- conky(pin|move), original value for $name:" "$file" ||
+            sed_replace="-- conkymove, original value for $name: ${config[$name]}\n"
+        sed_replace+="\t$name = $value"
+        sed_args+=("-e")
+        sed_args+=("s/$sed_pattern/$sed_replace/")
+    done
+   (( ${#sed_args[@]} )) && sed "${sed_args[@]}" "$file"
+}
+
+# for version 1.09 conky files
+# usage: edit_conkyfile file name=value [name2=value2...]
+# parse_conkyfile should already have been run
+edit_conkyfile_1.09(){
+    file=$1
+    shift
+    local name value
+    declare -a sed_args
+    while [[ $1 ]]; do
+        unset name value sed_pattern sed_replace
+        name="${1%%=*}"
+        value="${1#*=}"
+        shift
+        [[ ${config["$name"]+x} ]] || {
+            echo "$0: config key $name does not exist" >&2
+            return 1
+        }
+        [[ ${config["$name"]//[[:space:]]} = "${value//[[:space:]]}" ]] && continue
+        (( ${#sed_args[@]} == 0 )) && sed_args=("-ri")
+        sed_pattern="^ *$name .*$"
+        grep -q "#conkymove, original value for $name:" "$file" ||
+            sed_replace="#conkymove, original value for $name: ${config[$name]}\n"
+        sed_replace+="$name $value"
+        sed_args+=("-e")
+        sed_args+=("s/$sed_pattern/$sed_replace/")
+    done
+    (( ${#sed_args[@]} )) && sed "${sed_args[@]}" "$file"
+}
+
+getStart(){    #   Get initial Conky position
+    unset CONKYPATH
+    unset info1
+    declare -A info1
+    while read -r line
+    do
+        unset key value
+        [[ $line =~ Window\ id:[[:blank:]]*(0[xX][0-9a-fA-F]+) ]] && {
+            ID=${BASH_REMATCH[1]}
+        }
+        [[ $line != xwininfo:* && $line = *:* ]] && {
+            key=${line%:*}
+            value=${line#*:}
+            info1[$key]=$value
+        }
+    done < <(xwininfo)
+    # info1 array now contains all the output of xwininfo
+
+    wmc=$(xprop -id "$ID"  WM_COMMAND)
+    wmc=${wmc#*\"} # strip first & last quotes & everything outside
+    wmc=${wmc%\"*}
+    CMD=${wmc%% *} # separate first word
+    CMD=${CMD%\"*}
+    CONKYPATH=$(awk -F '", "' '{
+        for (i=1;i<=NF;i++){
+            if ($i ~ /^-[a-zA-Z]*c$/) {
+                i++
+                gsub(/\\\"/,"\"",$i) # unescape quotes
+                print $i
+                exit
+            }
+            if ($i ~ /^--config/) {
+                sub(/--config=/,"",$i)
+                gsub(/\\\"/,"\"",$i)
+                print $i
+                exit
+            }
+        }
+    }' <<< "$wmc")
+
+    [[ -z "$CONKYPATH" ]] && CONKYPATH="$HOME/.config/conky/conky.conf"
+
+    redo_dialog(){
+        echo "$0: $1" >&2
+        yad_error '--button=Exit:1' "$1\n\nChoose again?"
+        if (( $? == 1 ));then
+            echo "  Cancelled: exiting..."
+            exit 0
+        fi
+        getStart
+    }
+
+    if [[ $CMD != conky ]];then
+        redo_dialog 'Selection is not a conky'
+    elif [[ $CONKYPATH != /* ]];then
+        redo_dialog "$CONKYPATH is not an absolute path."
+    else
+        #echo "Found a conky"
+        posX_1=${info1[Absolute upper-left X]}
+        posY_1=${info1[Absolute upper-left Y]}
+    fi
+}
+
+getFinish(){   #   Get new Conky position
+    unset info2
+    declare -A info2
+    while read -r line
+    do
+        unset key value
+        [[ $line != xwininfo:* && $line = *:* ]] && {
+            key=${line%:*}
+            value=${line#*:}
+            info2[$key]=$value
+        }
+    done < <(xwininfo -id "$ID")
+    posX_2=${info2[Absolute upper-left X]}
+    posY_2=${info2[Absolute upper-left Y]}
+}
+
+getOffset(){   # parse_conkyfile should already have been run
+    if [[ ${config[alignment]} = none ]];then   # placement managed by Openbox
+        yad_info "This Conky has 'alignment none'\nso placement is handled by the Window Manager.\n"
+        echo -e "\nConky has 'alignment none',\nso placement is handled by the Window Manager\nExiting...\n"
+        exit 0
+    fi
+
+    OFFSET_X=$(( posX_2 - posX_1 ))
+    OFFSET_Y=$(( posY_2 - posY_1 ))
+
+    case ${config[alignment]} in
+        tr|top_right|mr|middle_right|br|bottom_right|mm|middle_middle|bm|bottom_middle|tm|top_middle)
+            gapX=$(( ${config[gap_x]} - OFFSET_X ))
+            ;;
+        tl|top_left|ml|middle_left|bl|bottom_left)
+            gapX=$(( ${config[gap_x]} + OFFSET_X ))
+            ;;
+    esac
+    case ${config[alignment]} in
+        tr|top_right|tl|top_left|tm|top_middle)
+            gapY=$(( ${config[gap_y]} + OFFSET_Y ))
+            ;;
+        br|bottom_right|bl|bottom_left|bm|bottom_middle|mm|middle_middle|ml|middle_left|mr|middle_right)
+            gapY=$(( ${config[gap_y]} - OFFSET_Y ))
+            ;;
+    esac
+}
+
+adjust_wintype() {
+    [[ ${CONKYPATH:-X} = 'X' || ${config[own_window_type]:-normal} = 'normal' ]] && return 0
+    original_wintype=${config[own_window_type]}
+    edit_conkyfile "$CONKYPATH" "own_window_type=normal"
+    config[own_window_type]=normal
+}
+
+restore_wintype() {
+    [[ ${CONKYPATH:-X} = 'X' || ${original_wintype:-X} = 'X' ]] && return 0
+    edit_conkyfile "$CONKYPATH" "own_window_type=$original_wintype"
+}
+
+cleanup() {
+    if [[ $success = TRUE ]];then
+        restore_wintype # backup file $BKP left, but will be overwritten on next run
+    elif [[ -n $CONKYPATH && -f $BKP ]];then
+        echo "$0: exit, restoring original $CONKYPATH"
+        mv "$BKP" "$CONKYPATH"
+    else
+        echo "$0: exit, nothing to restore"
+    fi
+}
+
+########################################################################
+
+success=FALSE
+
+unset CONKYPATH BKP config posX_1 posY_1 posX_2 posY_2 OFFSET_X OFFSET_Y gapX gapY
+
+trap cleanup EXIT
+
+# Conky in Debian Buster needs this workaround:
+# reload conky config to work around a bug
+# where conky seems to be part of root desktop window.
+# https://forums.bunsenlabs.org/viewtopic.php?id=7111
+# Not needed with conky 1.11.6-2 in Bullseye.
+#pkill -USR1 -x conky
+
+yad_question "To pick a conky, click 'Select Conky',\n\nthen click the 'xwininfo' cursor on the chosen conky\nto record its position." \
+     --button="Select Conky:0" --button="gtk-cancel:1"
+
+if (( $? == 0 ));then
+    getStart
+    BKP="${CONKYPATH}.bkp"
+    cp "$CONKYPATH" "$BKP"
+    if ! grep -Eq '(^|[[:blank:]])conky\.config[[:blank:]]*=?' "$CONKYPATH"
+    then
+        yad_info "This conky uses v1.09 syntax.\nIt is recommended to convert the conky to v1.10 syntax.\nSee: https://forums.bunsenlabs.org/viewtopic.php?id=3983"
+        parse_conkyfile() {
+            parse_conkyfile_1.09 "$@"
+        }
+        edit_conkyfile() {
+            edit_conkyfile_1.09 "$@"
+        }
+    fi
+else
+    echo "  Cancelled: exiting..."
+    exit 0
+fi
+
+parse_conkyfile "$CONKYPATH"
+
+adjust_wintype
+
+yad_question "Move the Conky to the desired location\nwith Alt+L-mousebutton Drag.\n\nThen click 'OK' to record the new position." \
+     --button="OK:0" --button="gtk-cancel:1"
+
+if (( $? == 0 ));then
+    getFinish
+else
+    echo "  Cancelled: exiting..."
+    exit 0
+fi
+
+getOffset
+
+edit_conkyfile "$CONKYPATH" "gap_x=$gapX" "gap_y=$gapY"
+
+success=TRUE
+
+exit

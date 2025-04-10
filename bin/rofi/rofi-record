@@ -1,0 +1,105 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/screenshot.rasi"
+
+# Theme Elements
+prompt='Select recording style:'
+prompt2='Recording still active. End recording?'
+mesg="Directory :: $(xdg-user-dir PICTURES)/Screenshots"
+
+# Options
+layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+if [ "$layout" = 'YES' ];then
+	Stop_Recorder="󰗟"
+	Record_Area_With_Audio="󰋫🎙️"
+	Record_Area_No_Audio="󰋫"
+	Record_screen_With_Audio="⏺️🎙️"
+	Record_screen_No_Audio="⏺️"
+	install_slop="󰏔"
+	Record_Audio="🎙️"
+	Record_webcam="🎥"
+	Record_webcam_HD="🎥󰵽"
+	Open_webcam="󰖠"
+else
+	Stop_Recorder="󰗟 Stop Screen Recorder"
+	Record_Area_With_Audio="󰋫🎙️ Record Area (With Audio)"
+	Record_Area_No_Audio="󰋫 Record Area (No Audio)"
+	Record_screen_With_Audio="⏺️🎙️Record Desktop (With Audio)"
+	Record_screen_No_Audio="⏺️Record Desktop (No Audio)"
+	install_slop="󰏔 install slop for Record specific area Area"
+	Record_Audio="🎙️ Record Audio only"
+	Record_webcam="🎥 Record Webcam"
+	Record_webcam_HD="🎥 Record webcam HD"
+	Open_webcam="󰖠 Open webcam (mpv)"
+fi
+
+asktoend() {
+	response=$(printf "No\\nYes\n$Open_webcam" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "$prompt2") &&
+	if [ "$response" = "Yes" ];then
+		chosen="$Stop_Recorder"
+	elif [ "$response" = "Yes" ];then
+		chosen="$Open_webcam"
+	fi
+}
+
+# Rofi CMD
+rofi_cmd() {
+	rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "$prompt"
+}
+
+# Pass variables to rofi dmenu
+run_rofi() {
+	menu_options="$Record_screen_With_Audio\n$Record_screen_No_Audio"
+	if command -v slop >/dev/null 2>&1;then
+		menu_options="${menu_options}\n$Record_Area_With_Audio\n$Record_Area_No_Audio"
+	else
+		menu_options="${menu_options}\n$install_slop"
+	fi
+	menu_options="${menu_options}\n$Record_Audio\n$Record_webcam\n$Record_webcam_HD\n$Open_webcam"
+	
+	printf "$menu_options" | rofi_cmd	
+}
+
+# Actions
+if pidof ffmpeg >/dev/null 2>&1;then
+	asktoend
+else
+	chosen="$(run_rofi)"
+fi
+
+case ${chosen} in
+   	$Record_screen_With_Audio)
+		my-record --screen &
+       	;;
+   	$Record_screen_No_Audio)
+		my-record --screen-na &
+       	;;
+   	$Record_Area_With_Audio)
+		my-record --area &
+       	;;
+   	$Record_Area_No_Audio)
+		my-record --area-na &
+       	;;
+   	$install_slop)
+		popup_terminal --install slop
+       	;;
+   	$Record_Audio)
+		my-record --audio &
+       	;;
+   	$Record_webcam)
+		my-record --webcam &
+       	;;
+   	$Record_webcam_HD)
+		my-record --webcam-hd &
+       	;;
+   	$Open_webcam)
+		my-record --open-webcam
+       	;;
+   	$Stop_Recorder)
+		my-record --stop
+       	;;
+esac

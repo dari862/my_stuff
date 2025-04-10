@@ -1,0 +1,28 @@
+## Colors configuration
+colors:
+  # Default colors
+  primary:
+    background: '0x1E2128'
+    foreground: '0xABB2BF'
+
+  # Normal colors
+  normal:
+    black:   '0x32363D'
+    red:     '0xE06B74'
+    green:   '0x98C379'
+    yellow:  '0xE5C07A'
+    blue:    '0x62AEEF'
+    magenta: '0xC778DD'
+    cyan:    '0x55B6C2'
+    white:   '0xABB2BF'
+
+  # Bright colors
+  bright:
+    black:   '0x50545B'
+    red:     '0xEA757E'
+    green:   '0xA2CD83'
+    yellow:  '0xEFCA84'
+    blue:    '0x6CB8F9'
+    magenta: '0xD282E7'
+    cyan:    '0x5FC0CC'
+    white:   '0xB5BCC9'

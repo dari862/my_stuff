@@ -1,0 +1,181 @@
+#!/bin/bash
+set -euo pipefail
+
+check_4_dependencies_if_installed blkid grep mkswap swapoff swapon || exit 1
+
+show_error() {
+  local red=$'\033[0;91m'
+  local nc=$'\033[0m'
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
+    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
+  else
+    echo -e "${red}${*}${nc}" 1>&2
+  fi
+}
+
+show_header() {
+  local cyan=$'\033[0;96m'
+  local nc=$'\033[0m'
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
+    echo "${1:--e}" "${cyan}${*:2}${nc}"
+  else
+    echo -e "${cyan}${*}${nc}"
+  fi
+}
+
+show_info() {
+  local green=$'\033[0;92m'
+  local nc=$'\033[0m'
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
+    echo "${1:--e}" "${green}${*:2}${nc}"
+  else
+    echo -e "${green}${*}${nc}"
+  fi
+} 
+
+show_listitem() {
+  local white=$'\033[0;97m'
+  local nc=$'\033[0m'
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
+    echo "${1:--e}" "${white}${*:2}${nc}"
+  else
+    echo -e "${white}${*}${nc}"
+  fi
+}
+
+function set_swap_on {
+  # First, make sure that SWAPFILE is defined.
+  if ! [ -v SWAPFILE ] || [ -z "${SWAPFILE}" ];then
+    show_error "ERROR: SWAPFILE is not defined. Exiting."
+    exit 3
+  fi
+
+  # Create destination dir for swap file if it doesn't exist."
+  local swapdir
+  swapdir="$(dirname "${SWAPFILE}")"
+  if [ "${swapdir}" != '/' ] && ! [ -d "${swapdir}" ];then
+    mkdir -p "${swapdir}"
+  fi
+
+  # Create swapfile if it doesn't exist.
+  if ! [ -f "${SWAPFILE}" ];then
+    show_info "Creating ${SWAPFILE@Q}"
+    dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
+    sync
+  fi
+
+  # Set permissions.
+  if [[ "$(stat -c "%a" "${SWAPFILE}")" != 600 ]];then
+    show_info "Setting ${SWAPFILE@Q} permissions"
+    chmod 0600 "${SWAPFILE}"
+  fi
+
+  # Create UUID.
+  if ! blkid -o value "${SWAPFILE}" | grep -q "^swap$";then
+    show_info "Setting ${SWAPFILE@Q} UUID"
+    mkswap -U clear "${SWAPFILE}"
+  fi
+
+  # Check if swap partition active. If not run
+  if ! swapon --show | grep -q "^${SWAPFILE}\s";then
+    show_info "Activating ${SWAPFILE@Q}"
+    swapon "${SWAPFILE}"
+  fi
+}
+
+function set_swap_off {
+  # First, make sure that SWAPFILE is defined.
+  if ! [ -v SWAPFILE ] || [ -z "${SWAPFILE}" ];then
+    show_error "ERROR: SWAPFILE is not defined. Exiting."
+    exit 3
+  fi
+
+  # Disable swap partition if it is active.
+  if swapon --show | grep -q "^${SWAPFILE}\s";then
+    show_info "Flushing cache"
+    sync
+    [ -e /proc/sys/vm/drop_caches ] && echo 3 > /proc/sys/vm/drop_caches
+    sync
+    show_info "Deactivating ${SWAPFILE@Q}"
+    swapoff "${SWAPFILE}"
+  fi
+
+  # Delete swap file if it exists.
+  if [ -f "${SWAPFILE}" ];then
+    show_info "Deleting ${SWAPFILE@Q}"
+    rm "${SWAPFILE}"
+  fi
+}
+
+function print_usage {
+  show_header "Usage: swapfile <on|off> ..."
+  show_listitem "\
+    -f|--file  path for swap file (default: /swapfile)
+    -s|--size  size of swap file in Mb (default: 8192)
+    -h|--help  print (this) help message"
+}
+
+
+OPTIONS=f:hs
+LONGOPTIONS=file:,help,size:
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -f | --file)
+      SWAPFILE="${2}"
+      shift 2
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    -s | --size)
+      SWAPSIZE="${2}"
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "ERROR: invalid option."
+      exit 3
+      ;;
+  esac
+done
+
+if ! [ "${#}" -eq 1 ];then
+  show_error "ERROR: Incorrect # of parameters. Exiting."
+  exit 3
+fi
+
+SWAPFILE="${SWAPFILE:-/swapfile}"
+SWAPSIZE="${SWAPSIZE:-8192}"
+
+case "${1}" in
+  on)
+    if [ ${EUID} -eq 0 ];then
+      set_swap_on
+    else
+      my-superuser bash -c "SWAPSIZE=${SWAPSIZE}; SWAPFILE=${SWAPFILE}; source ${ROOT}/globals; $(declare -f set_swap_on); set_swap_on"
+    fi
+    ;;
+  off)
+    if [ ${EUID} -eq 0 ];then
+      set_swap_off
+    else
+      my-superuser bash -c "SWAPSIZE=${SWAPSIZE}; SWAPFILE=${SWAPFILE}; source ${ROOT}/globals; $(declare -f set_swap_off); set_swap_off"
+    fi
+    ;;
+  help)
+    print_usage
+    exit
+    ;;
+  *)
+    show_error "ERROR: ${1@Q} not understood. Exiting."
+    print_usage
+    exit 3
+    ;;
+esac

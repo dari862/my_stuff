@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : colorblocks
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #131B26FF;
+    background-alt: #282A36FF;
+    foreground:     #F06292FF;
+    selected:       #F48FB1FF;
+    active:         #EC407AFF;
+    urgent:         #FF5555FF;
+}

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/launcher.rasi"
+
+# Run
+rofi \
+    -show drun \
+	-theme ${RASI}

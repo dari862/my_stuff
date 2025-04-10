@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : wave
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #3D4C5FFF;
+    background-alt: #383C4AFF;
+    foreground:     #67A1C6FF;
+    selected:       #FA8CAFFF;
+    active:         #98C379FF;
+    urgent:         #E06B74FF;
+}

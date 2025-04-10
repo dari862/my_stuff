@@ -1,0 +1,9 @@
+#!/bin/sh
+
+app_name="Discord"
+
+if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+	Distrobox_package_installer_ ${app_name} || continue
+else
+	flatpak_install ${app_name} com.discordapp.Discord
+fi

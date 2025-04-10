@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : shades
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #1F1F1FFF;
+    background-alt: #1F1F1FFF;
+    foreground:     #FFFFFFFF;
+    selected:       #1564C0FF;
+    active:         #98C379FF;
+    urgent:         #E06C75FF;
+}

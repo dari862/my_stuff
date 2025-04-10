@@ -1,0 +1,102 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+#
+# Description: Translate using Google Translate (through Lingva Translate)
+set -eu
+
+# Importing common libraries
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+cp2cb() {
+  case "$XDG_SESSION_TYPE" in
+    'x11') xclip -r -selection clipboard;;
+    'wayland') wl-copy -n;; 
+    *) err "Unknown display server";;
+  esac
+}
+
+# Translate service selection (default to Lingva)
+translate_service="${translate_service:-lingva}"
+
+# Main translation logic
+main() {
+  # Service URLs (mapped directly)
+  libretranslate_url="https://libretranslate.de"
+  lingva_url="https://lingva.ml"
+  
+  # Language map file (cached in /tmp)
+  lang_map="/tmp/$USER/$translate_service"
+  
+  # Fetch or update language map if needed
+  if [ ! -f "$lang_map" ] || [ "$(stat -c %y "$lang_map" | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ];then
+    case "$translate_service" in
+      "libretranslate")
+        url="$libretranslate_url/languages"
+        ;;
+      "lingva")
+        url="$lingva_url/api/v1/languages/source"
+        ;;
+      *)
+        echo "Unsupported translate service: $translate_service" >&2
+        exit 1
+        ;;
+    esac
+
+    # Fetch language list and format it into a readable file
+    getURL '2term' "$url" | sed -e 's/","name":"/ /g' -e 's/"},{"code":"/\n/g' -e 's/{"code":"//g' -e 's/}]//g' -e 's/{"languages"://g' -e 's/"}//g' > "$lang_map"
+  fi
+
+  # Get "from" and "to" language codes via rofi
+  from_name=$(sort "$lang_map" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Translate from:' || exit 1)
+  from_code=$(echo "$from_name" | awk '{print $1}')
+
+  to_name=$(sort "$lang_map" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Translate to:' || exit 1)
+  to_code=$(echo "$to_name" | awk '{print $1}')
+
+  # Get text to translate and URL encode it
+  query=$(rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Translate (${from_code} -> ${to_code}):")
+  query=$(encode "$query")
+  query="${query}%0A"  # URL encode newline
+
+  # Select translation URL based on the service
+  case "$translate_service" in
+    "libretranslate")
+      translate_url="${libretranslate_url}/translate?q=${query}&source=${from_code}&target=${to_code}"
+      translation_method="POST"
+      ;;
+    "lingva")
+      translate_url="${lingva_url}/api/v1/${from_code}/${to_code}/${query}"
+      translation_method="GET"
+      ;;
+    *)
+      echo "Unsupported translate service: $translate_service" >&2
+      exit 1
+      ;;
+  esac
+
+  # Perform the translation using curl or wget
+  if [ "$translation_method" = "POST" ];then
+    if command -v curl >/dev/null 2>&1;then
+      translation=$(curl -X "$translation_method" -Ss "$translate_url")
+    elif command -v wget >/dev/null 2>&1;then
+      translation=$(wget --quiet --method="$translation_method" --output-document=- "$translate_url")
+    else
+      echo "Neither curl nor wget is available. Unable to fetch translation." >&2
+      exit 1
+    fi
+  else
+    translation=$(getURL '2term' "$translate_url")
+  fi
+
+  # Extract translation from response
+  translation=$(echo "$translation" | sed -e 's/{"translation":"//g' -e 's/"}//g')
+
+  # Copy translation to clipboard and notify
+  echo "$translation"
+  echo "$translation" | cp2cb 
+  notify-send "Translation (in clipboard)" "$translation"
+}
+
+main "$@"

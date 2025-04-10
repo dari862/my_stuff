@@ -1,0 +1,21 @@
+#!/bin/sh
+
+pre_app_name="gpg"
+app_name="mise"
+
+say "Installing ${pre_app_name}..." 1
+
+Package_installer_ ${pre_app_name} || continue
+
+my-superuser install -dm 755 /etc/apt/keyrings
+download_key "gpg" "https://mise.jdx.dev/gpg-key.pub" "/etc/apt/keyrings/mise-archive-keyring.gpg"
+echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.gpg arch=amd64] https://mise.jdx.dev/deb stable main" | my-superuser tee /etc/apt/sources.list.d/mise.list
+  
+Package_update_
+
+clear
+
+say "Installing ${app_name}..." 1
+
+Package_installer_ ${app_name} || continue
+

@@ -1,0 +1,28 @@
+#!/bin/sh
+set -e
+[ -e "/usr/share/my_stuff/system_files/git/quickemu" ] && my-superuser rm -rdf /usr/share/my_stuff/system_files/git/quickemu
+[ -e "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop" ] && my-superuser rm -rdf "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop"
+
+my-superuser clone_repo https://github.com/quickemu-project/quickemu.git /usr/share/my_stuff/system_files/git/quickemu
+my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickemu" "/usr/share/my_stuff/system_files/bin"
+my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickget" "/usr/share/my_stuff/system_files/bin"
+my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickreport" "/usr/share/my_stuff/system_files/bin"
+my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/chunkcheck" "/usr/share/my_stuff/system_files/bin"
+my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/quickemu_gui" "/usr/share/my_stuff/system_files/bin"
+	
+my-superuser tee "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop" <<- EOF > /dev/null
+[Desktop Entry]
+Type=Application
+Name=QuickEmu GUI
+Description=Quickly download, create and run VM of any operating system.
+Exec=sh -c quickemu_gui
+Icon=/usr/share/my_stuff/icons/openbox-menu/virtualbox.png
+Categories=System;Virtualization;
+EOF
+
+my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop" /usr/share/applications
+echo ""
+echo "quickemu_gui added for quick deploy any VM."
+echo "quickemu_gui added for quick deploy any VM."
+echo "quickemu_gui added for quick deploy any VM."
+rm -f /usr/share/my_stuff/system_files/bin/quickemu_installer

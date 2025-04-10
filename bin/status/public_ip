@@ -1,0 +1,5 @@
+#!/bin/sh
+
+_external=$(dig +short myip.opendns.com @resolver1.opendns.com)
+
+echo "${_external}"

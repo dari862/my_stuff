@@ -1,0 +1,5 @@
+#!/bin/sh -e
+my-installer --install-needed "GPU" || continue
+say 'Installing package...' 1
+Package_installer_ -y wine dbus git ffmpeg ffmpeg-libs steam lutris 
+Package_installer_ -y wine dbus git lutris

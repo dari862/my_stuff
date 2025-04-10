@@ -1,0 +1,9 @@
+#!/bin/sh
+distro_path="/usr/share/my_stuff/system_files"
+download_url="https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+
+cd "/tmp/$USER"
+getURL 'download2' "$download_url" "zellij.tar.gz"
+tar -xf zellij.tar.gz zellij
+my-superuser install zellij ${distro_path}/bin
+rm zellij.tar.gz zellij

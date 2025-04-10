@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Neovim
+Comment=Edit text files
+Exec=my-terminal-emulator -e nvim %F
+Terminal=false
+Type=Application
+Icon=nvim
+Categories=Utilities;TextEditor;
+StartupNotify=false

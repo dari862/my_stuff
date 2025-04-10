@@ -1,0 +1,52 @@
+#!/bin/sh
+
+chosen="${1-}"
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/askpass.rasi"
+
+if [ "${chosen}" = "--www-search" ];then
+	words="$(rofi -dmenu -no-fixed-num-lines -theme "${RASI}" -theme-str 'textbox-prompt-colon {str: "Search : ";}')"
+	[ -n "$words" ] && my-www-browser --search "$words"
+else
+	# Actions
+	if command -v desktopeditors >/dev/null 2>&1;then
+		__word_="desktopeditors"
+		__ppt_="desktopeditors"
+		__excel_="desktopeditors"
+	elif command -v desktopeditors >/dev/null 2>&1;then
+		__word_="libreoffice --writer"
+		__ppt_="libreoffice --impress"
+		__excel_="libreoffice --calc"
+	elif command -v desktopeditors >/dev/null 2>&1;then
+		__word_="/usr/bin/wps"
+		__ppt_="/usr/bin/wpp"
+		__excel_="/usr/bin/et"
+	else
+		case ${chosen} in
+			--word)
+				rofi -e "Install an Office Suite to launch word." -theme "${RASI}"
+			;;
+			--excel)
+				rofi -e "Install an Office Suite to launch excel." -theme "${RASI}"
+			;;
+			--ppt)
+				rofi -e "Install an Office Suite to launch ppt." -theme "${RASI}"
+			;;
+		esac
+		exit
+	fi
+	case ${chosen} in
+		--word)
+			$__word_
+		;;
+		--excel)
+			$__ppt_
+		;;
+		--ppt)
+			$__excel_
+		;;
+	esac
+fi

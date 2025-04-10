@@ -1,0 +1,12 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+# A simple script for browser bookmarks
+
+database="${script_config_path}/bookmarks"
+[ ! -f "$database" ] && touch $database
+
+mark="$(cat $database | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Bookmarks:')"
+
+[ ! -z "$mark" ] && my-www-browser $mark

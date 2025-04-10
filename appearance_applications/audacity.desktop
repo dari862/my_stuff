@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Audacity
+Comment=Audacity
+Exec=flatpak run org.audacityteam.Audacity
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/Audacity.png
+Categories=GTK;
+MimeType=text/html;text/xml;application/xhtml_xml;
+StartupNotify=true

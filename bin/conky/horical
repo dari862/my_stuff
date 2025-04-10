@@ -1,0 +1,103 @@
+#!/bin/sh
+# A script to display a horizontal calendar on conky (hence the name horical :D)
+# 
+
+TODAY=$(date +%d)
+TOPLINE=" "
+OVER=" "
+REST=" "
+# -------- This part is to find out the number of days in a month to display-----------#
+year=$(date +%-Y)
+e1=$((year % 400))
+e2=$((year % 100))
+e3=$((year % 4))
+
+if [ "$e1" -eq 0 ];then
+    leap=1
+elif [ "$e2" -eq 0 ];then
+    leap=0
+elif [ "$e3" -eq 0 ];then
+    leap=1
+else
+    leap=0
+fi
+
+# Determine the number of days in the current month
+month=$(date +%-m)
+if [ "$leap" -eq 0 ];then
+    if [ "$month" -eq 2 ];then
+        days_in_month=28
+    elif [ "$month" -eq 11 ] || [ "$month" -eq 4 ] || [ "$month" -eq 6 ] || [ "$month" -eq 9 ];then
+        days_in_month=30
+    else
+        days_in_month=31
+    fi
+else
+    if [ "$month" -eq 2 ];then
+        days_in_month=29
+    elif [ "$month" -eq 11 ] || [ "$month" -eq 4 ] || [ "$month" -eq 6 ] || [ "$month" -eq 9 ];then
+        days_in_month=30
+    else
+        days_in_month=31
+    fi
+fi
+
+# Build the line showing previous days in the month
+i=1
+if [ "$TODAY" -ne 1 ];then
+    while [ "$i" -lt "$TODAY" ]; do
+        if [ "$i" -lt 10 ];then
+            OVER="$OVER 0$i"
+        else
+            OVER="$OVER $i"
+        fi
+        i=$((i + 1))
+    done
+fi
+
+# Build the line showing remaining days in the month
+i=$((TODAY + 1))
+if [ "$TODAY" -ne "$days_in_month" ];then
+    while [ "$i" -lt "$days_in_month" ]; do
+        if [ "$i" -lt 10 ];then
+            REST="$REST 0$i"
+        else
+            REST="$REST $i"
+        fi
+        i=$((i + 1))
+    done
+    REST="$REST $days_in_month"
+fi
+
+# Build the top line with abbreviated weekday names
+day_of_week=$(date +%u)
+day_of_month=$(date +%e)
+f=$((day_of_month % 7))
+
+if [ "$day_of_week" -lt "$f" ];then
+    y=$((day_of_week + 8 - f))
+else
+    y=$((day_of_week - f + 1))
+fi
+
+while [ "$days_in_month" -gt 0 ]; do
+    case "$y" in
+        1) TOPLINE="$TOPLINE Mo";;
+        2) TOPLINE="$TOPLINE Tu";;
+        3) TOPLINE="$TOPLINE We";;
+        4) TOPLINE="$TOPLINE Th";;
+        5) TOPLINE="$TOPLINE Fr";;
+        6) TOPLINE="$TOPLINE Sa";;
+        7) TOPLINE="$TOPLINE Su";;
+    esac
+    days_in_month=$((days_in_month - 1))
+    y=$((y + 1))
+    if [ "$y" -eq 8 ];then
+        y=1
+    fi
+done
+
+# Display the formatted output
+echo '${goto 180}''${font 'VCR OSD Mono:Regular:size=14'}'$TOPLINE | sed 's/Su/${color 383333}Su${color}/g' | sed 's/Su/${color fb0255}Su${color}/g'
+echo ''
+echo '${goto 180}''${font 'VCR OSD Mono:Regular:size=14'}''${color 7a7a7a}'$OVER '${color 23b3a7}'$TODAY'${color cacaca}'$REST

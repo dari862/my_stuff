@@ -1,0 +1,12 @@
+##############################
+#;#############################
+#; geany
+#;#############################
+##############################
+popup_gototagdefinition=
+edit_transposeline=Ctrl + t
+edit_movelineup=
+edit_movelinedown=
+move_tableft=Alt + Page_Up
+move_tabright=Alt + Page_Down
+#;

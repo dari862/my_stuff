@@ -1,0 +1,30 @@
+#!/bin/sh
+opt="${1-}"
+case $opt in
+		--system) 
+		if hash btop 2>/dev/null;then
+        		popup_terminal btop
+		elif hash bpytop 2>/dev/null;then
+        		popup_terminal bpytop
+		elif hash htop 2>/dev/null;then
+        		popup_terminal htop
+		fi
+		;;
+		--hardware) popup_terminal '{ echo -e \"\e[1mHARDWARE INFO: hwinfo\e[0m\"; hwinfo --short; echo -e \"\n\n\e[1mHARDWARE INFO: inxi\e[0m\"; inxi -F; echo; read; }'
+		;;
+		--hardware2) popup_terminal 'inxi system info  (Q to close)' "inxi -F -d -J -l -o -p -r -u -x -z -c 2 | less -R"
+		;;
+		--hardware3) popup_terminal 'inxi -CAGD system info' 'inxi -CGAD ; read -n 1 -r -s'
+		;;
+		--autostart) popup_terminal 'if [ -f "/usr/lib/x86_64-linux-gnu/openbox-xdg-autostart" ];then /usr/lib/x86_64-linux-gnu/openbox-xdg-autostart --list; else /usr/lib/i386-linux-gnu/openbox-xdg-autostart --list; fi; read'
+		;;
+		--memory) apps_as_root popup_terminal '/usr/share/my_stuff/bin/bin/ps_mem' 
+		;;
+		--process) popup_terminal htop 
+		;;
+		--disk) popup_terminal '{ echo -e \"\e[1mHARDWARE INFO: lsblk\e[0m\"; lsblk -o name,size,type,mountpoint; echo -e \"\n\n\e[1mHARDWARE INFO: dfc\e[0m\"; dfc -f; read; }' 
+		;;
+		--cpu) popup_terminal s-tui
+		;;
+		--wifi) popup_terminal 'if [ "$(iw dev)" ];then nmcli device wifi rescan; while true; do nmcli dev wifi list; read; clear; done; else echo "No WIFI interfaces found!"; read; fi'
+esac

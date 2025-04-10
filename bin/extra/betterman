@@ -1,0 +1,62 @@
+#!/bin/sh
+set -eu
+
+op__="${1-}"
+op2__="${2-}"
+tldr_dir="$HOME/.local/share/tldr"
+
+update_tldr_(){
+	cd "${tldr_dir}" >/dev/null 2>&1 && git pull 2> /dev/null
+}
+
+run_my_tldr_(){
+
+	[ ! -d "${tldr_dir}" ] && clone_repo https://github.com/tldr-pages/tldr "${tldr_dir}"
+	[ ! -d "${tldr_dir}/.git" ] && rm -rdf "${tldr_dir}" && clone_repo https://github.com/tldr-pages/tldr "${tldr_dir}"
+	
+	if [ "$(stat -c %y "${tldr_dir}/pages" 2>/dev/null | cut -d' ' -f1 | cut -d'-' -f1-2)" != "$(date '+%Y-%m')" ]
+	then
+		update_tldr_
+	fi
+	
+	[ -n "$(cd "${tldr_dir}" >/dev/null 2>&1 && git checkout | sed '$ d')" ] && git checkout .
+
+	command_2_find_="$(find "${tldr_dir}/pages/" -name ${op2__}.md)"
+	
+	if [ -z "${command_2_find_}" ]
+	then
+		echo "no tldr entry for ${op2__}" 
+		exit 1
+	fi
+	grep_this="common|linux"
+	command_2_find_="$(echo "${command_2_find_}" | grep -E "$grep_this")"
+	cat ${command_2_find_}
+}
+
+help()
+{
+	echo "Usage:"
+	echo "  -c  --cheat                 show cheat sheet"
+	echo "  -t  --tldr                  run tldr"
+	echo "  -tu  --tldr-update          update tldr"
+}
+
+main()
+{
+case $op__ in
+	-c|--cheat)
+		getURL '2term' "cheat.sh/$op2__"
+	;;
+	-t|--tldr)
+		run_my_tldr_
+	;;
+	-tu|--tldr-update)
+		update_tldr_
+	;;
+	*)
+		help
+	;;
+esac
+}
+
+main

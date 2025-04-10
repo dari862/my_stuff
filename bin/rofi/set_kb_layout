@@ -1,0 +1,66 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+set -e
+
+if ! command -v setxkbmap >/dev/null;then
+	exit 1
+fi
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+. /etc/default/keyboard
+kb="$XKBLAYOUT"
+
+opt__="${1-h}"
+
+kb_layout_ini_path="$HOME/.local/share"
+kb_layout_name="kb_layout.ini"
+
+HELP_List="1 add_kb_layout
+2 change_kb_layout
+3 notify-send
+4 echo kb_layout"
+
+if [ -z "$(grep us "${kb_layout_ini_path}/${kb_layout_name}" 2>/dev/null|| :)" ];then
+	mkdir -p ${kb_layout_ini_path}
+	echo "$XKBLAYOUT" > ${kb_layout_ini_path}/${kb_layout_name}
+fi
+
+add_kb_layout(){
+	kb_choice="$(awk '/! layout/{flag=1; next} /! variant/{flag=0} flag {print $2, "- " $1}' /usr/share/X11/xkb/rules/base.lst | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "" )"
+	kb="$(echo "$kb_choice" | awk '{print $3}')"
+	
+	if [ -n "$kb" ] && [ "$(grep "$kb" "${kb_layout_ini_path}/${kb_layout_name}")" != "$kb" ];then
+		echo "$kb" >> ${kb_layout_ini_path}/${kb_layout_name}
+	fi
+	
+	_help
+}
+
+change_kb_layout(){
+	current_kb="$(setxkbmap -query | grep -oP 'layout:\s*\K\w+')"
+	next_kb="$(awk "/$current_kb/{p=1}p" ${kb_layout_ini_path}/${kb_layout_name} | sed -n 2p)"
+	[ -z "$next_kb" ] && next_kb="us"
+	setxkbmap "$next_kb"
+}
+	
+_help(){
+	Chosen_OPT=""
+	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
+	opt__="$(echo $Chosen_OPT | awk '{ print $1 }')"
+	main
+}
+
+main(){
+	case $opt__ in
+		1) add_kb_layout ;;
+		2) change_kb_layout ;;
+		3) notify-send "⌨  Keyboard/language module" "$(printf "%s" "\- Current layout: $kb")";;
+		4) echo "$kb" ;;
+		*) _help ;;
+	esac
+}
+
+main

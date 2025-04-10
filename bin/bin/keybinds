@@ -1,0 +1,137 @@
+#!/bin/sh
+__opt="${1-}"
+
+. "/usr/share/my_stuff/lib/common/WM"
+
+MainDir="$HOME"
+if [ "$__opt" = "--edit" ] || [ "$__opt" = "-e" ];then
+	# open .config/keybinds/keybinds.conf in default editor
+	my-text-editor "$HOME/.config/keybinds/keybinds.conf"
+elif [ "$__opt" = "--gui" ] || [ "$__opt" = "-g" ];then
+	. "/usr/share/my_stuff/lib/common/openbox"
+	yad --text-info --title="Keybinds" --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg\
+    --filename="${script_config_path}/openbox_keybinds" --width=700 --height=700\
+    --fontname=Monospace --button=gtk-close
+    exit
+elif [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
+	my-superuser /usr/share/my_stuff/bin/must_create_script/keybinds_conf/make
+	exit
+elif [ "$__opt" = "--initial-step" ];then
+	if [ $(id -u) -ne 0 ];then
+		echo "$0: Please run this script as root or using my-superuser!"
+  		exit 1
+	fi
+	MainDir="/usr/share/my_stuff/system_files/skel"
+fi
+
+. "/usr/share/my_stuff/lib/keybinds/file_path_to_edit.conf"
+. "/usr/share/my_stuff/lib/keybinds/lib"
+
+mkdir -p "$MainDir/.config/keybinds"
+
+if [ "$__opt" = "--initial-step" ];then
+	welcome_shortcut_file_path="/usr/share/my_stuff/system_files/welcome_keybinds"
+	openboxrc_file_path="/usr/share/my_stuff/system_files/rc.xml"
+	script_config_path="${MainDir}/.config/$scriptconfig_name"
+elif [ ! -f "$HOME/.config/keybinds/keybinds.conf" ];then
+	cp -r "/usr/share/my_stuff/system_files/skel/.config/keybinds/keybinds.conf" "$HOME/.config/keybinds/keybinds.conf"
+fi
+
+mkdir -p "${script_config_path}"
+mkdir -p "${temp_shortcuts_path}"
+
+cp -r "$MainDir/.config/keybinds/keybinds.conf" "${temp_shortcuts_path}"
+cp -r "/usr/share/my_stuff/lib/keybinds/keybinds_to_sourcemainbindkey.conf" "${temp_shortcuts_path}"
+
+cd "${temp_shortcuts_path}"
+
+create_sourcemainbindkey_conf_file
+. "${temp_shortcuts_path}/sourcemainbindkey.conf"
+
+if [ -f "${xbindkeysrc_file_path}" ];then
+	create_xbindkeysrc_tmp_file
+fi
+
+if [ -f "${alacritty_file_path}" ];then
+	create_alacritty_tmp_file
+fi
+
+if [ -f "${conky_op_file_path}" ];then
+	create_conky_tmp_file
+fi
+
+if [ -f "${kittyrc_file_path}" ];then
+	create_kitty_tmp_file
+fi
+
+if [ -f "${mpv_file_path}" ];then
+	create_mpv_tmp_file
+fi
+
+if [ -f "${zshrc_file_path}" ];then
+	create_zshrc_tmp_file
+fi
+
+if [ -f "${bashrc_file_path}" ];then
+	create_bashrc_tmp_file
+fi
+
+if [ -f "${inputrc_file_path}" ];then
+	create_inputrc_tmp_file
+fi
+
+if [ -f "${ncmpcpp_file_path}" ];then
+	create_ncmpcpp_tmp_file
+fi
+
+if [ -f "${openboxrc_file_path}" ];then
+	create_openboxrc_tmp_file
+fi
+
+if [ -f "${sxhkd_file_path}" ];then
+	create_sxhkd_tmp_file
+fi
+
+if command -v rofi > /dev/null 2>&1;then
+	create_sxhkd_tmp_file "rofi"
+fi
+
+if [ -f "${Thunar_file_path}" ];then
+	create_Thunar_tmp_file
+fi
+
+if command -v rxvt > /dev/null 2>&1;then
+	create_x11_tmp_file
+fi
+
+if [ -f "${zathura_file_path}" ];then
+	create_zathura_tmp_file
+fi
+
+if [ -f "${nsxiv_file_path}" ];then
+	sed_nsxiv
+fi
+
+if [ -f "${clipit_file_path}" ];then
+	sed_clipit
+fi
+
+if [ -f "${geanyrc_file_path}" ];then
+	sed_geanyrc
+fi
+
+if [ -f "${lxterminal_file_path}" ];then
+	sed_lxterminal
+fi
+
+create_shortcut_read_file
+
+create_welcome_shortcut_file
+
+if [ -f "${openboxrc_file_path}" ];then
+	create_pipemenu_file
+fi
+
+if [ -f "${viewnior_file_path}" ];then
+	create_viewnior_tmp_file
+fi

@@ -1,0 +1,6 @@
+#!/bin/sh -e
+devel_pakages='tar tree multitail tldr trash-cli unzip cmake make jq'
+my-installer --tweek-needed "Enable_multilib" || continue
+
+say 'Installing devel-pakages ...' 1
+Package_installer_ "$devel_pakages"

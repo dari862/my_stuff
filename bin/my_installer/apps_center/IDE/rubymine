@@ -1,0 +1,8 @@
+#!/bin/sh
+
+say 'Installing snapd ...' 1
+install_as_dependency snapd
+
+say 'Installing rubymine ...' 1
+my-superuser snap install rubymine --classic || return 1
+

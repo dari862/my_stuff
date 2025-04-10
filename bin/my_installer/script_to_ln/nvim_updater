@@ -1,0 +1,34 @@
+#!/bin/sh
+distro_path="/usr/share/my_stuff/system_files"
+PATH="${distro_path}/bin:$PATH"
+name_of_nvim="nvim-linux-x86_64.appimage"
+if command -v nvim;then
+	online_ver="$(getURL '2term' 'https://api.github.com/repos/neovim/neovim/releases/latest' | grep '"browser_download_url"' | head -1 | awk -F/ '{print $8}')"
+	local_ver="$(nvim -v | grep 'NVIM v' | awk -F'NVIM ' '{print $2}')"
+	if [ "${local_ver}" = "${online_ver}" ];then
+		echo "neovim up to date local=${local_ver} online=${online_ver} ."
+		exit
+	fi
+	download_url="$(getURL 'latestgit' 'neovim/neovim' 'x86_64.*appimage' | head -n 1)"
+fi
+
+[ -d "${distro_path}/downloaded/Neovim" ] && my-superuser rm -rdf "${distro_path}/downloaded/Neovim"
+
+cd "/tmp/$USER"
+
+getURL 'download' "$download_url"
+mv $name_of_nvim nvim.appimage
+chmod +x nvim.appimage
+if ./nvim.appimage -v >/dev/null 2>&1;then
+	mkdir -p Neovim
+	mv nvim.appimage Neovim
+	my-superuser chown root:root -R Neovim
+	my-superuser mv Neovim ${distro_path}/downloaded
+	my-superuser ln -sf ${distro_path}/downloaded/Neovim/nvim.appimage ${distro_path}/bin/nvim
+else
+	./nvim.appimage --appimage-extract
+	mv squashfs-root Neovim
+	my-superuser chown root:root -R Neovim
+	my-superuser mv Neovim ${distro_path}/downloaded
+	my-superuser ln -sf ${distro_path}/downloaded/Neovim/AppRun  ${distro_path}/bin/nvim
+fi

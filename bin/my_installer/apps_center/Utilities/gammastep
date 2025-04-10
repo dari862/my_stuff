@@ -1,0 +1,35 @@
+#!/bin/sh
+
+app_name="gammastep"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+latlong=$(get_scripts --latlong)
+lat_=${latlong%,*}
+long_=${latlong#*,}
+
+my-superuser mkdir -p /usr/share/my_stuff/system_files/color_temperature_adjuster_gui
+my-superuser cp -r ${_APPS_EXTRA_LIBDIR}/Utilities/color_temperature_adjuster_gui/color_temperature_adjuster.conf /usr/share/my_stuff/system_files/color_temperature_adjuster_gui
+my-superuser sed -i "s/lat=*/lat=${_lat}/g" /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf
+my-superuser sed -i "s/lon=*/lon=${_lon}/g" /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf
+
+my-superuser mkdir -p /usr/share/my_stuff/system_files/skel/.config/gammastep
+
+my-superuser cp -r /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf /usr/share/my_stuff/system_files/skel/.config/gammastep/config.ini
+my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Utilities/color_temperature_adjuster_gui/gammastep.sh /usr/share/my_stuff/system_files/skel/.config/autostartscripts/
+
+my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Utilities/color_temperature_adjuster_gui/color_temperature_adjuster_gui /usr/share/my_stuff/system_files/bin
+my-superuser ln -sf ${_APPS_EXTRA_LIBDIR}/Utilities/color_temperature_adjuster_gui/tray_color_temperature_adjuster /usr/share/my_stuff/system_files/bin
+
+for d in /home/*/ ; do
+	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
+	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+	# Create config folders if no exists
+	d="$d/.config/autostart"; [ ! -d "$d" ] && my-superuser mkdir -v -p "$d" && my-superuser cp -r /usr/share/my_stuff/system_files/skel/.config/autostartscripts/gammastep.sh "$d" && my-superuser chown -R $user_and_group "$d"
+	d="$d/.config/gammastep"; [ ! -d "$d" ] && my-superuser mkdir -v -p "$d" && my-superuser cp -r /usr/share/my_stuff/system_files/skel/.config/gammastep/config.ini "$d" && my-superuser chown -R $user_and_group "$d"
+done
+
+say " type color_temperature_adjuster_gui"
+say "to color temperature adjuster" 

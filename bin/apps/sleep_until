@@ -1,0 +1,47 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+#######################################################################
+# This script uses YAD to create a GUI for setting sleep time using rtcwake.
+# Make sure the hardware clock is set to UTC or modify the rtcwake call accordingly.
+#######################################################################
+check_4_dependencies_if_installed yad rtcwake || exit 1
+
+# Input parameters on GUI
+frmdata=$(yad --title "Sleep Until" --form --field "Today / Tomorrow" --field="Time (24h format)")
+
+# Extract day and time
+frmday=$(echo $frmdata | awk 'BEGIN {FS="|" } { print $1 }')
+frmtime=$(echo $frmdata | awk 'BEGIN {FS="|" } { print $2 }')
+
+# Basic validation for "day" and "time"
+if [ "$frmday" != "today" ] && [ "$frmday" != "tomorrow" ];then
+    yad --error --title="Invalid Day" --text="Error: Invalid day selected. Please choose 'today' or 'tomorrow'."
+    exit 1
+fi
+
+if echo "$frmtime" | grep -qE '^([01][0-9]|2[0-3]):([0-5][0-9])$';then
+    yad --error --title="Invalid Time" --text="Error: Invalid time format. Please enter time in 24-hour format (HH:MM)."
+    exit 1
+fi
+
+foo="$frmday $frmtime"
+
+if ! date -d "$foo" >/dev/null 2>&1;then
+    yad --error --title="Invalid Date" --text="Error: Invalid date or time. Please check the entered values."
+    exit 1
+fi
+
+timestamp=$(date +%s -d "$foo")
+current_timestamp=$(date +%s)
+if [ "$timestamp" -le "$current_timestamp" ];then
+    yad --error --title="Invalid Time" --text="Error: The selected time is in the past. Please choose a future time."
+    exit 1
+fi
+
+apps_as_root "rtcwake -m mem -u -t \"$timestamp\"" || {
+    yad --error --title="Error" --text="Error: rtcwake failed. Please check the command or system logs for more details."
+    exit 1
+}
+
+yad --info --title="Success" --text="System will sleep now and wake up at the specified time."

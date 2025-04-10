@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# files-uploader: script to upload files to an image hosting service
+# Taking of screenshots is also supported.
+# At present this is a wrapper script around imgur-upload,
+# but may be extended in the future.
+
+# var
+__to_where_="${1-}"
+shift 1
+__arg_="$@"
+
+USAGE="files-uploader is a script to take screenshots and upload them to imgbb or imgur
+
+Arguments:
+    -h, --help                   Show this help, exit
+    --imgur                      upload to imgur pass --help or -h afer --imgur to show more options
+    --imgbb                      upload to imgbb pass --help or -h afer --imgbb to show more options
+
+no arg will run --imgur as default.
+
+"
+where_to_script_path="/usr/share/my_stuff/bin/not_add_2_path"
+
+# Get $USER images directory
+if type xdg-user-dir >/dev/null 2>&1;then
+    IMGDIR=$(xdg-user-dir PICTURES)
+else
+    IMGDIR="$HOME/Pictures"
+fi
+# test for screenshots dir, create if it doesn't exist
+SCROTSDIR="$IMGDIR/screenshots"
+mkdir -p "$SCROTSDIR"
+
+case "${__to_where_}" in
+	-h | --help) echo -e "\n${USAGE}"
+	exit 0
+	;;
+	--imgbb) ${where_to_script_path}/upload-imgbb $__arg_
+	;;
+	--imgur) ${where_to_script_path}/upload-imgur $__arg_
+	;;
+	--filebiner) ${where_to_script_path}/upload-filebiner $__arg_
+	;;
+	*) ${where_to_script_path}/upload-imgur $__arg_
+	;;
+esac

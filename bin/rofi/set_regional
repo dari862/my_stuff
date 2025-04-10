@@ -1,0 +1,88 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+set -eu
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+opt__="${1-h}"
+
+HELP_List="l change_locale
+t change_timezone
+e edit script"
+
+change_timezone() {
+	TIMEZONE="UTC"
+	res=""
+	zoneinfo=""
+	
+	cd /usr/share/zoneinfo
+	for r in *;do
+		if [ -d "$r" ];then
+			cd "$r"
+			for c in *;do
+				zoneinfo="${zoneinfo} $r/$c"
+			done
+			cd ..
+		fi
+	done
+	zoneinfolist=$(echo "${zoneinfo}" | sed 's/ /\n/g' )
+	res="$(printf "${zoneinfolist}" | \
+         rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select time zone ('ESC' to Exit):")"
+	clear
+  
+	if [ -z "${res}" ];then
+		exit 0
+	fi
+	
+	if [ -n "${res}" ];then
+		TIMEZONE="${res}"
+		
+		my-fix --time-zone "${TIMEZONE}" >/dev/null 2>&1
+	fi
+}
+
+change_locale() {
+  LOCALE="en_US.UTF-8"
+  CHARSET="UTF-8"
+  res=""
+  
+  res="$(sed -n "s,^#\?\ \?\([[:alnum:]\.@_\-]\+\)\ \([[:alnum:]\-]\+\)\ *$,\1 \2,p" /etc/locale.gen | \
+         rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Select locale ('ESC' to Exit):")"
+  clear
+
+	if [ -z "${res}" ];then
+		exit 0
+	fi
+
+  if [ -n "${res}" ];then
+    LOCALE="$(echo "${res}" | cut -d" " -f1)"
+    CHARSET="$(echo "${res}" | cut -d" " -f2)"
+    sed -i "/^#\ \?${LOCALE} ${CHARSET}/s/^#\ \?//" /etc/locale.gen
+    locale-gen >/dev/null 2>&1
+    echo "LANG=${LOCALE}" > /etc/locale.conf
+    echo "KEYMAP=${LOCALE}" > /etc/vconsole.conf
+  else
+    echo "Using default locale ${LOCALE@Q}."
+    echo "Using default charset ${CHARSET@Q}."
+  fi
+}
+
+help(){
+	Chosen_OPT=""
+	Chosen_OPT="$(printf '%s\n' "${HELP_List}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
+	opt__="$(echo $Chosen_OPT | awk '{ print $1 }')"
+	main
+}
+
+main(){
+	case $opt__ in
+		l) change_locale ;;
+		t) change_timezone ;;
+		e) popup_terminal --super-user-editor "$(realpath "$0")";;
+		*) help ;;
+	esac
+}
+
+main

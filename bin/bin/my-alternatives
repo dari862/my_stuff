@@ -1,0 +1,234 @@
+#!/bin/sh
+# my-alternatives: A script to manage My Stuff alternatives.
+# Licensed under the GNU General Public License, version 3 or later.
+
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
+	for package in sudo doas; do
+  		if command -v "$package" > /dev/null 2>&1;then
+    		_SUPERUSER="$package"
+      		break
+    	fi
+  	done
+fi
+
+my_superuser_path="/usr/bin/my-superuser"
+my_alternatives_path="/usr/share/my_stuff/system_files/bin"
+ACTION="${1-}"
+alt_package="${2-}"
+MYALTS="my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide"
+
+# Arrays of packages for each category (using variables instead of arrays)
+FILEMANAGERSCLI="lf ranger"
+FILEMANAGERSGUI="thunar caja dolphin nautilus pcmanfm spacefm xfe"
+FILEMANAGERS="$FILEMANAGERSGUI $FILEMANAGERSCLI"
+IMAGEVIEWERS="viewnior sxiv eog eom geeqie gpicview gthumb mirage"
+MEDIAPLAYERS="my-mpv vlc banshee dragonplayer celluloid gxine kaffeine parole smplayer totem"
+TEXTEDITORS="geany featherpad mousepad gedit jedit kate medit scite emacs"
+WWWBROWSERS="mullvad-browser librewolf firefox-esr firefox brave-browser chromium dillo google-chrome-stable chroot-browser"
+TERMINALEMULATORS="terminator alacritty kitty"
+OFFICES="libreoffice-writer"
+OFFICES="$OFFICES $TEXTEDITORS"
+IDES="nvim emacs code"
+IDES="$IDES $TEXTEDITORS"
+
+SUPERUSERS="doas sudo"
+
+# Helper function to check if a package exists
+package_exists() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+# Helper function to link a package
+link_package() {
+  package="$1"
+  target_path="$2"
+  package_path="$(command -v "$package")"
+
+  if [ -z "$package_path" ];then
+    echo "Error: Package '$package' not found." >&2
+    return 1
+  fi
+
+  # Create symbolic link as superuser
+  if ! $_SUPERUSER ln -sf "$package_path" "$target_path";then
+  	echo "Error: failed to run ln -sf $package_path $target_path" >&2
+    return 1
+  fi
+}
+
+# Function to display usage
+usage() {
+  cat <<-EOF
+	Usage: my-alternatives <action>
+	Manage My Stuff alternatives. Superuser permission is required to make changes.
+	
+	Actions:
+  		--help		| -h	Show this help message
+  		--install	| -i	Install My Stuff alternatives with default packages
+  		--list 		| -l	List all assigned My Stuff alternatives
+  		--remove 	| -r	Remove all assigned My Stuff alternatives
+  		--set 		| -s	Set My Stuff alternatives with typical installed packages
+	EOF
+}
+
+create_cli_filemanager(){
+	package="${1:-}"
+	[ -e "${my_alternatives_path}/my-file-manager" ] && $_SUPERUSER rm -rf "${my_alternatives_path}/my-file-manager"
+	echo '#!/bin/sh' | $_SUPERUSER tee "${my_alternatives_path}/my-file-manager"
+	echo "popup_terminal \"$package\"" | $_SUPERUSER tee -a "${my_alternatives_path}/my-file-manager"
+	$_SUPERUSER chmod +x "${my_alternatives_path}/my-file-manager"
+}
+
+# Install default alternatives
+install_alternatives() {
+  echo "Installing default alternatives..."
+
+  # Ensure alternatives directory exists
+  if [ ! -d "$my_alternatives_path" ];then
+    $_SUPERUSER mkdir -p "$my_alternatives_path"
+  fi
+
+  for alternative_name in $MYALTS; do
+    alt_packages_var_name="$(echo "$alternative_name" | sed -e 's/^my-//' -e 's/-//' | tr '[:lower:]' '[:upper:]')S"
+    eval alt_packages=\$$alt_packages_var_name
+
+    # Try to find and link the first valid package for the alternative
+    for package in $alt_packages; do
+      if package_exists "$package";then
+      	link_package "$package" "${my_alternatives_path}/$alternative_name"
+        break
+      fi
+    done
+  done
+
+  # Handle superuser package
+  for package in $SUPERUSERS; do
+  	if package_exists "$package";then
+    	link_package "$package" "$my_superuser_path"
+      	break
+    fi
+  done
+  
+  myfilemanagerpackagename="$(basename $(realpath "${my_alternatives_path}/my-file-manager"))"
+  for package in $FILEMANAGERSCLI; do
+  	if [ "$package" = "$myfilemanagerpackagename" ];then
+		create_cli_filemanager "$package"
+		break
+  	fi
+  done
+}
+
+# Remove all alternatives or a specific one
+remove_alternatives() {
+  if [ -z "$alt_package" ];then
+    # Remove all alternatives
+    for alternative_name in $MYALTS; do
+      $_SUPERUSER rm -f "${my_alternatives_path}/$alternative_name"
+    done
+    echo "All alternatives removed."
+  else
+    # Remove a specific alternative
+    if ! echo "$MYALTS" | grep -wq "$alt_package";then
+      echo "Error: Invalid alternative '$alt_package'." >&2
+      exit 1
+    fi
+    $_SUPERUSER rm -f "${my_alternatives_path}/$alt_package"
+    echo "Removed alternative: $alt_package"
+  fi
+}
+
+# Set a specific alternative
+set_alternatives() {
+  if [ -z "$alt_package" ];then
+    echo "Which My Stuff alternative would you like to change?"
+    echo "================================="
+    count=1
+    for alternative_name in $MYALTS; do
+      echo "$count - $alternative_name"
+      count=$((count + 1))
+    done
+	
+	echo "Enter alternative number: "
+    read -r alt_package_number
+    alt_package=$(echo $MYALTS | cut -d " " -f $alt_package_number )
+  fi
+
+  if ! echo "$MYALTS" | grep -wq "$alt_package";then
+    echo "Error: Invalid alternative '$alt_package'." >&2
+    exit 1
+  fi
+	
+alt_packages_var_name="$(echo "$alt_package" | sed -e 's/^my-//' -e 's/-//' | tr '[:lower:]' '[:upper:]')S"
+eval alt_packages=\$$alt_packages_var_name
+
+existing_alt_packages=""
+  # Prompt user to select a package  
+  if [ -z "$selected_package" ];then
+    echo "Which package do you want to set for $alt_package?"
+    echo "================================="
+    count=1
+    for package in $alt_packages; do
+    	if package_exists "$package";then
+      		echo "$count - $package"
+      		count=$((count + 1))
+      		existing_alt_packages="$existing_alt_packages $package"
+      	fi
+    done
+	echo "Enter package number: "
+    read -r picked_package_number
+    selected_package=$(echo $alt_packages | cut -d " " -f $picked_package_number )
+  else
+    for package in $alt_packages; do
+    	if package_exists "$package";then
+      		existing_alt_packages="$existing_alt_packages $package"
+      	fi
+    done
+  fi
+
+  if ! echo "$existing_alt_packages" | grep -q "$selected_package";then
+    echo "Error: Invalid package '$selected_package'." >&2
+    exit 1
+  fi
+
+  if link_package "$selected_package" "${my_alternatives_path}/$alt_package";then
+    echo "$alt_package alternative set successfully to $selected_package."
+  else
+    echo "Failed to set $alt_package alternative." >&2
+    exit 1
+  fi
+}
+
+# List all alternatives
+list_alternatives() {
+  for alternative_name in $MYALTS; do
+    link=$(readlink "${my_alternatives_path}/$alternative_name")
+    if [ -n "$link" ];then
+      printf "%-22.22s uses %s\n" "$alternative_name" "$link"
+      alt_packages_var_name="$(echo "$alternative_name" | sed -e 's/^my-//' -e 's/-//' | tr '[:lower:]' '[:upper:]')S"
+      eval alt_packages=\$$alt_packages_var_name
+      for package in $alt_packages; do
+      	if package_exists "$package";then
+       		which "$package" | xargs printf "    %s\n"
+       	fi
+      done
+    else
+      printf "%-22.22s unused\n" "$alternative_name"
+    fi
+  done
+  printf "%-22.22s uses %s\n" "$_SUPERUSER" "$(readlink "$my_superuser_path")"
+}
+
+# Main action handling
+case "$ACTION" in
+	--install|-i) install_alternatives ;;
+	--list|-l) list_alternatives ;;
+	--remove|-r) remove_alternatives ;;
+	--set|-s) 
+		selected_package="${3-}"
+  		set_alternatives
+		;;
+	""|*help|-h) usage ;;
+	*) echo "Unknown action: $ACTION" >&2; usage ;;
+esac

@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : hack
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #01161BFF;
+    background-alt: #0C252BFF;
+    foreground:     #00E5E2FF;
+    selected:       #00E5E2FF;
+    active:         #7CBF9EFF;
+    urgent:         #C2454EFF;
+}

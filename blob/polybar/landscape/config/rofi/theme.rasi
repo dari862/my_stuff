@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : landscape
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #FFFFFFFF;
+    background-alt: #E7797AFF;
+    foreground:     #3F4136FF;
+    selected:       #5294E0FF;
+    active:         #00B1A5FF;
+    urgent:         #E26C2FFF;
+}

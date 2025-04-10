@@ -1,0 +1,16 @@
+#!/bin/sh
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Openbox Pipemenu to change openbox styles
+
+# Variables and functions
+picked_terminal="${1-}"
+picked_scheme="${2-}"
+if [ "$picked_terminal" = "alacritty" ];then
+	cd "$HOME/.config/alacritty"
+	ln -sf colorschemes/"${picked_scheme}" colors.yml
+elif [ "$picked_terminal" = "kitty" ];then
+	sed -i "s|include ./themes/.*|include ./themes/${picked_scheme}|g" "$HOME/.config/kitty/theme.conf"
+fi

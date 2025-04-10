@@ -1,0 +1,3 @@
+#!/bin/sh -e
+app_name="signal"
+flatpak_install ${app_name} flathub org.signal.Signal

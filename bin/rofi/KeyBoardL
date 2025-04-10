@@ -1,0 +1,38 @@
+#!/bin/bash
+# Get the current layout
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+CURRENT=$(setxkbmap -query | awk '/layout/ {print $2}')
+
+# Layouts. You can add yours.
+declare -A LAYOUTS=(
+    ["US English"]="us"
+    ["ES América Latina"]="latam"
+    ["ES España"]="es"
+    ["FR France"]="fr"
+    ["DE Deutschland"]="de"
+    ["RU Россия"]="ru"
+    ["IT Italia"]="it"
+    ["PT Brasil"]="br"
+)
+
+# Show rofi menu
+show_rofi_menu() {
+    local options=""
+    for layout in "${!LAYOUTS[@]}"; do
+        options+="$layout\n"
+    done
+    echo -e "${options%\\n}" | rofi \
+        -dmenu \
+        -p "Keyboard Layout" \
+        -mesg "Current layout --> $CURRENT" \
+        -markup-rows \
+        -theme "$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
+}
+
+# Select and apply the layout
+selected=$(show_rofi_menu)
+if [[ -n "$selected" && -n "${LAYOUTS[$selected]}" ]];then
+    setxkbmap "${LAYOUTS[$selected]}"
+fi

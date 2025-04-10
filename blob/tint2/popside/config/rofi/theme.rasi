@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : popside
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #DEDEDEFF;
+    background-alt: #DEDEDEFF;
+    foreground:     #111113FF;
+    selected:       #BB435EFF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

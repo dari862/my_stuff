@@ -1,0 +1,100 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/mpd.rasi"
+
+status="$(mpc status)"
+if [ -z "$status" ];then
+	prompt='Offline'
+	mesg="MPD is Offline"
+else
+	prompt="$(mpc -f "%artist%" current)"
+	mesg="$(mpc -f "%title%" current) :: $(mpc status | grep "#" | awk '{print $3}')"
+fi
+
+# Buttons
+layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+if [ "$layout" = "YES" ];then
+	button_music=''
+	button_play=''
+	button_pause=''
+	button_stop=''
+	button_next=''
+	button_previous=''
+	button_repeat=''
+	button_shuffle=''
+	button_error=''
+else
+	button_music=' MPD'
+	button_play=' Play'
+	button_pause=' Pause'
+	button_stop=' Stop'
+	button_next=' Next'
+	button_previous=' Previous'
+	button_repeat=' Repeat'
+	button_shuffle=' Shuffle'
+	button_error=' Error'
+fi
+
+# Colors
+active=""
+urgent=""
+
+# Gets the current status of mpd
+status="$(MC --status)"
+
+# Defines the Play / Pause option content
+if echo "$status" | grep -q "\[playing\]" ;then
+	toggle="$button_pause"
+else
+	toggle="$button_play"
+fi
+
+# Display if repeat mode is on / off
+tog_repeat="$button_repeat"
+if echo "$status" | grep -q "repeat: on" ;then
+    active="-a 4"
+elif echo "$status" | grep -q "repeat: off" ;then
+    urgent="-u 4"
+else
+    tog_repeat="$button_error"
+fi
+
+# Display if random mode is on / off
+tog_random="$button_shuffle"
+if echo "$status" | grep -q "random: on" ;then
+    [ -n "$active" ] && active="${active},5" || active="-a 5"
+elif echo "$status" | grep -q "random: off" ;then
+    [ -n "$urgent" ] && urgent="${urgent},5" || urgent="-u 5"
+else
+    tog_random="$button_error"
+fi
+
+# Variable passed to rofi
+options="$toggle\n$button_stop\n$button_previous\n$button_next\n$tog_repeat\n$tog_random"
+
+# Spawn the mpd menu with the "Play / Pause" entry selected by default
+chosen="$(printf "$options" | rofi -dmenu -p "$prompt" -mesg "$mesg" "$active" "$urgent" -markup-rows -theme "$RASI")"
+case $chosen in
+    "$button_previous")
+        MC --previous && kunst --size 60x60 --silent
+        ;;
+    "$toggle")
+        MC --toggle && kunst --size 60x60 --silent
+        ;;
+    "$button_stop")
+        MC --stop
+        ;;
+    "$button_next")
+        MC --next && kunst --size 60x60 --silent
+        ;;
+    "$tog_repeat")
+        MC --repeat
+        ;;
+    "$tog_random")
+        MC --random
+        ;;
+esac

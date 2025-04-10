@@ -1,0 +1,130 @@
+#!/bin/bash
+# cut clips out of videos
+set -eu
+check_command() {
+  local state=true
+  for package in "${@}"; do
+    if ! command -v "${package}" >/dev/null;then
+      echo "MISSING: ${package} not installed."
+      state=false
+    fi
+  done
+  "${state}" && return 0 || return 1
+}
+
+! check_command ffmpeg && exit 3
+
+# Global functions.
+function print_usage() {
+  echo "Usage:"
+  echo "  -i  --input                 input video (e.g. input.mp4)"
+  echo "  -o  --output                output video (e.g. output.mp4)"
+  echo "  -s  --start                 starting timestamp (e.g. 01:20.5)"
+  echo "  -l  --length                length in seconds (e.g. 3.5)"
+  echo "  -e  --end                   ending timestamp (e.g. 01:20.5)"
+}
+
+function scan_input {
+  local vstring
+  local sstring
+
+  fstring="$(ffprobe -v error -show_format file:"${IN}")"
+  vstring="$(ffprobe -v error \
+               -select_streams v:0 -show_streams file:"${IN}")"
+  sstring="$(ffprobe -v error \
+               -select_streams s:0 -show_streams file:"${IN}")"
+
+  if ! [[ -v VCODEC ]];then
+    VCODEC="$(echo "${vstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v WIDTH ]];then
+    WIDTH="$(echo "${vstring}" | sed -n "s/^width=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v HEIGHT ]];then
+    HEIGHT="$(echo "${vstring}" | sed -n "s/^height=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v RESOLUTIONS ]];then
+    RESOLUTIONS=("native")
+  fi
+  if ! [[ -v DURATION ]];then
+    DURATION="$(echo "${fstring}" | sed -n "s/^duration=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v DIMENSIONS ]];then
+    DIMENSIONS=("${WIDTH}x${HEIGHT}")
+  fi
+  if ! [[ -v ASPECTRATIO ]];then
+    ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
+  fi
+  if ! [[ -v FPS ]];then
+    FPS="$(echo "${vstring}" | sed -n "s/^r_frame_rate=\(.*\)$/\1/p" | bc -l)"
+  fi
+  if ! [[ -v SCODEC ]];then
+    SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
+  fi
+}
+
+function make_clip {
+  cmd="ffmpeg -v info -y -i file:${IN@Q} -ss ${START}"
+  if [[ -v LENGTH ]];then
+    cmd="${cmd} -t ${LENGTH}"
+  elif [[ -v END ]];then
+    cmd="${cmd} -to ${END}"
+  fi
+  cmd="${cmd} -y file:${OUT@Q}"
+  eval "${cmd}"
+}
+
+START=0.0
+
+OPTIONS=i:o:s:e:l:t:
+LONGOPTIONS=input:,output:,start:,end:,length:,subtitle:
+PARSED=$(getopt -o ${OPTIONS} --long ${LONGOPTIONS} -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -i|--input)
+      IN="$2"
+      scan_input
+      shift 2
+      ;;
+    -o|--output)
+      OUT="$2"
+      shift 2
+      ;;
+    -s|--start)
+      START="$2"
+      shift 2
+      ;;
+    -e|--end)
+      END="$2"
+      shift 2
+      ;;
+    -l|--length)
+      LENGTH="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "ERROR: invalid flag ${1}."
+      print_usage
+      exit 3
+      ;;
+  esac
+done
+
+# Check if variables are set before running ffmpeg.
+if ! [[ -v IN ]] || ! [[ -v OUT ]];then
+  echo "ERROR: missing input/output files."
+  print_usage
+  exit 3
+fi
+
+if ! [[ -v LENGTH ]] && ! [[ -v END ]];then
+  LENGTH="$(echo "${DURATION} - ${START}" | bc -l)"
+fi
+
+make_clip

@@ -1,0 +1,67 @@
+#!/bin/sh
+REPO_ID="rpmfusion-nonfree-nvidia-driver"
+
+app_name="GPU Drivers"
+
+create_X11_intel_conf(){
+	my-superuser mkdir -p /etc/X11/xorg.conf.d/
+	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
+	Section "Device"
+	Identifier  "Intel Graphics"
+	Driver      "Intel"
+	Option      "AccelMethod"  "sna"
+	Option      "TearFree""True"
+	Option      "Tiling""True"
+	Option      "SwapbuffersWait" "True"
+	#Option      "AccelMethod"  "uxa"
+	EndSection
+	EOF
+}
+
+install_intel_drivers(){
+	Package_installer_ xf86-video-intel intel-gpu-tools intel-media-driver || continue
+	
+	#create_X11_intel_conf
+}
+
+install_amd_drivers(){
+	Package_installer_ libgl1-mesa-dri xserver-xorg-video-ati xserver-xorg-video-amdgpu mesa-vulkan-drivers mesa-dri xf86-video-ati xf86-video-amdgpu vulkan-radeon vkbasalt || continue
+						
+}
+
+install_nvidia_drivers(){
+	prompt 'do you want to add akmod Support?' && akmod_nvidia="akmod-nvidia"
+	prompt 'do you want to add dkms Support?' && dkms_nvidia="nvidia-dkms"
+	prompt 'do you want to add Cuda Support?' && _cuda_="xorg-x11-drv-nvidia-cuda cuda"
+	
+	enable_repo "$REPO_ID"
+	
+	Package_update_ || continue
+
+	Package_installer_ nvidia nvidia-utils nvidia-settings $akmod_nvidia $_cuda_ $dkms_nvidia || continue
+	
+	say
+	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
+	say
+	say "NVIDIA Drivers installed you need to reboot your pc."
+}
+
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+	install_nvidia_drivers
+fi
+	
+if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+	install_amd_drivers
+fi
+	
+if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+	install_intel_drivers
+fi
+
+if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
+	say "This is VM"
+fi
+
+say "Creating Check File (GPU_Drivers_ready)"
+my-superuser touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
+my-superuser  /usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"

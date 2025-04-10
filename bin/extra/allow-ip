@@ -1,0 +1,83 @@
+#!/bin/sh
+set -eu
+
+check_4_dependencies_if_installed grep ip sed || exit 1
+
+ip=""
+
+# Command line script to add a routing table entry for an IP address. Useful
+# for accessing network printers when behind a VPN that interferes with access
+# to machines addressed by a local/internal DNS.
+show_error() {
+  red="\033[0;91m"
+  nc="\033[0m"
+  printf "${red}${1}${nc}"
+}
+
+show_header() {
+  cyan="\033[0;96m"
+  nc="\033[0m"
+  printf "${cyan}${1}${nc}"
+}
+
+print_usage (){
+  show_header "Usage: allow-ip -i|--ip <ip address> -m|--mask <bitmask>"
+}
+
+OPTIONS=hi:m:
+LONGOPTIONS=help,ip:,mask:
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -i | --ip)
+      # If IP address given as xxx.xxx.xxx.xxx:
+      if [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ];then
+        IP="${2}"
+      # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
+      elif [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ];then
+        IP="$(echo "${2}" | cut -d"/" -f1)"
+        MASK="$(echo "${2}" | cut -d"/" -f2)"
+      fi
+      shift 2
+      ;;
+    -m | --mask)
+      if [ "$2" -ge 0 ] && [ "$2" -le 32 ];then
+        MASK="${2}"
+      fi
+      shift 2
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "What was that?"
+      exit 3
+      ;;
+  esac
+done
+
+# Exit if no ip address supplied.
+if [ -z "$IP" ];then
+  show_error "Give me the IP address."
+  exit 3
+fi
+
+# If the net mask is not specified, only allow the IP address given.
+MASK="${MASK:-32}"
+
+GATEWAY=$(ip route list |
+          grep -e "enp[0-9]\+s[0-9a-f]\+" -e "wlp[0-9]\+s[0-9a-f]\+" |
+          sed -n "s/^default via \([0-9\.]\+\) dev .*/\1/p" | head -1)
+
+IFACE=$(ip route show |
+        grep -e "${GATEWAY}" |
+        sed -n "s/^default via [0-9\.]\+ dev \([a-z0-9]\+\) .*/\1/p")
+
+my-superuser ip route add "${IP}/${MASK}" via "${GATEWAY}" dev "${IFACE}"

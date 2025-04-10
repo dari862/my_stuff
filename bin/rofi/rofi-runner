@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
+
+# Run
+rofi \
+    -show run \
+	-theme ${RASI}

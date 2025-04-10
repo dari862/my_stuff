@@ -1,0 +1,8 @@
+#!/bin/sh
+#===================================================================================
+
+if command -v xfce4-settings-manager >/dev/null;then
+	xfce4-settings-manager
+else
+	obconf
+fi	

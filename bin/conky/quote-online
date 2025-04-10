@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# font color : green
+color='\e[0;32m'
+
+# font color : white
+NC='\e[0m' 
+
+getquote(){
+    	num_online_quotes=9999
+    	random_it="$(od -An -N2 -i /dev/urandom  | awk '{print int($1)}')"
+		# Generate a random quote number variable, 'rand'
+		rand_online=$(( ( $random_it % $num_online_quotes ) + 1 ))
+    	quote=$(getURL '2term' "http://www.quotationspage.com/quote/$rand_online.html" |
+    	grep -e "<dt>" -e "</dd>" | awk -F'[<>]' '{ 
+        	if($2 ~ /dt/)
+        	{ print $3 } 
+        	else if($4 ~ /b/)
+        	{ print "-- " $7 "  n(" $19 ")"} 
+     	}')
+}
+i=1
+color='\e[0;32m'
+NC='\e[0m'
+
+if getURL '2term' http://google.com > /dev/null;then
+    while [ "$i" -lt 5 ]
+    do
+        getquote 
+        if echo "$quote" | grep ERROR > /dev/null;then
+            getquote
+            i=$((i + 1))
+        else
+            break
+        fi
+    done
+else
+	# Get the current second (0-59)
+	a=$(date "+%S")
+	
+	# Store quotes in a newline-separated format
+	quotes="Ever tried. Ever failed. No matter. Try Again. Fail again. Fail better._auther_-Samuel Beckett
+	Never give up, for that is just the place and time that the tide will turn._auther_-Harriet Beecher Stowe
+	Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time._auther_-Thomas A. Edison
+	Life isn't about getting and having, it's about giving and being._auther_-Kevin Kruse
+	Strive not to be a success, but rather to be of value._auther_-Albert Einstein
+	You miss 100% of the shots you don't take._auther_-Wayne Gretzky
+	People who are unable to motivate themselves must be content with mediocrity, no matter how impressive their other talents._auther_-Andrew Carnegie
+	Design is not just what it looks like and feels like. Design is how it works._auther_-Steve Jobs
+	Only those who dare to fail greatly can ever achieve greatly._auther_-Robert F. Kennedy
+	All our dreams can come true, if we have the courage to pursue them._auther_-Walt Disney
+	Success consists of going from failure to failure without loss of enthusiasm._auther_-Winston Churchill"
+	
+	# Calculate the number of quotes
+	num_quotes=$(echo "$quotes" | wc -l)
+	
+	# Get a "random" index by taking mod of `a` and number of quotes
+	index=$((a % num_quotes + 1))
+	
+	# Extract the quote at the calculated line number
+	quote=$(echo "$quotes" | awk "NR==$index" | sed 's/_auther_/\n\t\t\t/g')
+	
+    # Welcome message ! Edit it with your name 
+    #end of code
+fi 
+echo "$quote"
+

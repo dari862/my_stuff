@@ -1,0 +1,3 @@
+#!/bin/sh
+install_as_dependency mise
+mise use --global node@lts

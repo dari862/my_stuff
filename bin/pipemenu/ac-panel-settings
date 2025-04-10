@@ -1,0 +1,107 @@
+#!/bin/bash
+
+## Commands Executed By Openbox Powermenu
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/pipemenu"
+. "${Distro_config_file}"
+
+if [ "$_panel_name_" = "polybar" ];then
+	[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/style.sh
+	menuStart "PolybarMenu" "Polybar"
+	menuItem 'Open Your polybar Folder' "my-file-manager ~/.config/polybar/"
+	menuItem 'How to configure Polybar?' 'my-www-browser "https://github.com/polybar/polybar/wiki" "https://wiki.archlinux.org/title/Polybar"'
+	menuItem 'Restart' "polybar-session restart"
+	menuItem 'Stop' "polybar-session stop"
+	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
+	cat "${style_pipemenu_file}"
+	menuSubmenuEnd
+elif [ "$_panel_name_" = "xfce4-panel" ];then
+	menuStart "Xfce4PanelMenu" "xfce4-panel"
+	menuItem 'GUI Xfce4-Panel Config Tool' "xfce4-panel -p"
+	menuItem 'Open Your Xfce4-Panel Folder' "my-file-manager ~/.config/xfce4/"
+	menuItem 'How to configure xfce4-panel?' 'my-www-browser "https://docs.xfce.org/xfce/xfce4-panel/start"'
+	menuItem 'Restart' "xfce4-panel-session restart"
+	menuItem 'Stop' "xfce4-panel-session stop"
+elif [ "$_panel_name_" = "tint2" ];then
+	HELP='    tint2-pipemenu an Openbox Pipe Menu for tint2 manipulation
+    	It should normally be called from an openbox menu.
+	
+	Options:
+    	-h --help   show this message
+	
+    	If tint2-pipemenu is called with no options (the usual method),
+    	it will output an xml openbox pipemenu for handling tint2 sessions,
+    	and editing configuration files.
+	
+	For more information, see "man tint2"
+	and "Help & Resources">"Tint2" in the My Stuff menu.
+	'
+	# look for a help option somewhere
+	for i in "$@"
+	do
+    	case "$i" in
+    	-h|--help)
+        	echo "$HELP"
+        	exit 0
+        	;;
+    	esac
+	done
+	
+	TINT2PATH="$HOME/.config/tint2"
+	TINT2DEFAULT="$TINT2PATH/tint2rc"
+	TMGR="style-manager --tint2manager"
+	
+	loadChooser(){
+    	if type $TMGR >/dev/null 2>&1;then  # style-manager --tint2manager script found
+        	menuItem "Tint2 Manager" "$TMGR"
+    	fi
+	}
+	
+	loadRestart(){
+    	if pgrep -x -u "$USER" tint2 >/dev/null;then
+            menuItem "Restart Tint2" "tint2-session restart"
+    	fi
+	}
+	
+	loadReload(){
+    	if type tint2-session >/dev/null 2>&1;then
+        	menuItem "Reload Default Session" "tint2-session restart"
+    	fi
+	}
+	
+	loadEditSubmenu(){
+    	menuSubmenu "EditTint2" "Edit Tint2s"
+        	if type style-manager >/dev/null 2>&1;then
+            	menuItem "Tint2 Editor" "style-manager --tint2edit"
+        	fi
+	# tint2conf removed here but still available from "Applications" menu as Settings > Panel Manager
+	#        menuItem "Tint2 Config GUI" "tint2conf"
+        	menuItem "Default tint2rc" "my-text-editor '$TINT2DEFAULT'"
+        	if pgrep -x -u "$USER" tint2 >/dev/null;then
+            	menuSubmenu "RunningTint2" "Running Tint2s"
+            	pgrep -x 'tint2' -u "$USER" | while read -r pid; do
+                	mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
+                	[[ ${command[0]} = 'tint2' ]]  || { echo "$0: pgrep parsing failed: command is not 'tint2'" >&2; continue;}
+                	if (( ${#command[@]} > 1 ));then
+                    	TPATH=${command[-1]} # tint2 takes no options other than -c, which is optional
+                    	[[ $TPATH = /* ]] || TPATH="$HOME/$TPATH" # assume path is relative to $HOME
+                    	TINT2=${TPATH#${TINT2PATH}/}
+                	else
+                    	TPATH="$TINT2DEFAULT"
+                    	TINT2="Default tint2rc"
+                	fi
+                	[[ -f $TPATH ]] || { echo "$0: pgrep tint2 parsing failed: $TPATH is not a file" >&2; continue;}
+                	menuItem "$TINT2" "my-text-editor ${TPATH@Q}"
+            	done
+            	menuSubmenuEnd
+        	fi
+    	menuSubmenuEnd
+	}
+
+	menuStart "Tintmenu" "Tint2"
+	loadChooser
+	loadRestart
+	loadReload
+	loadEditSubmenu
+fi
+menuEnd

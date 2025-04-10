@@ -1,0 +1,11 @@
+/* Color-Scheme,Theme-Scheme, and Text Font */
+
+* {
+  al:   #00000000;
+  bg:   #000000FF;
+  fg:   #AADEF6FF;
+  se:	#1E3136FF;
+  bo:	#8EDBF2FF;
+    	icon-theme: "Zafiro";
+    font:				 	"Iosevka 10";
+}

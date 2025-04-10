@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : hack_large
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #273238FF;
+    background-alt: #0C252BFF;
+    foreground:     #02BDD6FF;
+    selected:       #02BDD6FF;
+    active:         #7CBF9EFF;
+    urgent:         #C2454EFF;
+}

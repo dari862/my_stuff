@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Style Changer
+Comment=Change Style for XFCE Desktop
+Exec=/bin/bash -c "/usr/share/my_stuff/bin/apps/style_picker_rofi"
+Icon=org.xfce.settings.appearance
+Path=
+Terminal=false
+StartupNotify=false

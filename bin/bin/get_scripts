@@ -1,0 +1,14 @@
+#!/bin/sh
+get_script_path="/usr/share/my_stuff/bin/status"
+opt="${1-}"
+
+case $opt in
+	--public) ${get_script_path}/public_ip ;;
+	--latlong) ${get_script_path}/latlong_ ;;
+	--location) ${get_script_path}/location_ ;;
+	--timezone) ${get_script_path}/timezone_ ;;
+	--battery) ${get_script_path}/battery ;;
+	--notify-batt-stat) [ -f /usr/share/my_stuff/system_files/this_is_laptop ] && notify-send "$(${get_script_path}/batt_notifcation)" ;;
+	--network) ${get_script_path}/network ;;
+	--notify-uname) notify-send "$(uname -srn)" ;;
+esac

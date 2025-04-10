@@ -1,0 +1,52 @@
+#!/bin/sh
+#===================================================================================
+. "/usr/share/my_stuff/lib/common/WM"
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all my_power_manager process
+#===================================================================================
+stop() {
+	kill_process.sh my_power_manager
+}
+
+xfce_stop() {
+	kill_process.sh xfce4-power-manager
+}
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: run xfce4-power-manager
+#===================================================================================
+start() {
+	xfce_stop
+	pidof -q my_power_manager || my_power_manager
+}
+
+xfce_start(){
+	stop
+  	pidof -q xfce4-power-manager || xfce4-power-manager &
+}
+
+# EXEC ACTION ACCORDING $1
+case "${1}" in
+	""|restart)
+		stop
+		start		
+	;;
+	start)
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	xfce_stop)	
+		xfce_stop	
+	;;
+	xfce_start)	
+		xfce_start	
+	;;
+	*)	
+		echo "Usage: xfce4-power-manager-session [start|stop|restart]"
+	;;
+esac

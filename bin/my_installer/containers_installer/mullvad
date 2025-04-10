@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+cd "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/${container_name}/"
+
+__format=""
+
+if [ "$(basename $(realpath $(which CONTAINER_RT)))" = "podman" ];then
+	__format='--format docker'
+fi
+
+CONTAINER_RT build -t mullvad . ${__format} --no-cache
+run_containers --install ${container_name}
+
+say "container contain all nessery packages for ${container_name} ."
+say

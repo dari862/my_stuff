@@ -1,0 +1,14 @@
+#!/bin/sh
+
+app_name="sublime-text"
+say "Configuring repositories..."
+my-superuser rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
+add_repo "https://download.sublimetext.com/rpm/dev/x86_64/sublime-text.repo"
+                               
+Package_update_
+
+clear
+
+say "Installing ${app_name} ..." 1
+
+Package_installer_ ${app_name} || continue

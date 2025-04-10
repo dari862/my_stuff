@@ -1,0 +1,113 @@
+#!/bin/sh -e
+# if this line exist script will be part of gui scripts.new_name=Script_Hub
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+_hub_script_dir="/usr/share/my_stuff/system_files/hub_script"
+ls_bin="/usr/bin/ls"
+opt___="${1-}"
+if [ "$opt___" = "create" ];then
+	# need superuser here
+	mkdir -p "${_hub_script_dir}"
+	_script_for_hub="$(grep -R "^# if this line exist script will be part of hub script." "/usr/share/my_stuff/system_files/bin" | awk -F: '{print $1}')"
+	for script in ${_script_for_hub};do
+		cp -rf "$script" "${_hub_script_dir}"
+	done
+	exit
+elif [ -n "$opt___" ];then
+	shift 1
+	reset_of_opt___="$@"
+fi
+
+. "${Distro_config_file}"
+
+script_name_=""
+full_script_path=""
+
+#############################################################################
+#############################################################################
+# list_scripts_hub
+#############################################################################
+#############################################################################
+
+list_scripts_hub()
+{
+	$ls_bin $_hub_script_dir
+}
+
+scripts_hub()
+{
+	# Description: a hub that you can execute all the other scripts from
+	# Dependencies: rofi, executable dmscripts, all the dependancies from dmscripts
+	list_scripts="$(list_scripts_hub)"
+	MENU="$(printf "$list_scripts" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
+	if [ -n "$MENU" ]
+	then
+		script_name_="$MENU"
+		full_script_path="${_hub_script_dir}/${script_name_}"
+        execuite_scripts_ 
+	fi
+}
+
+execuite_scripts_()
+{
+	if [ -f "${full_script_path}" ];then
+		run_this_in_popup_="'ani-cli' 'sparky-usb-formatter'"
+		
+		if echo "${run_this_in_popup_}" | grep -q "${script_name_}";then
+			run_it_in_popup_="" #run it in popup
+		else
+			run_it_in_popup_=$(grep -e "popup" -e "yad" -e "rofi" "${full_script_path}" || :) # check if it contain yad popup or rofi if yes then dont run in popup
+		fi
+		
+		if [ -z "$run_it_in_popup_" ]
+		then
+			popup_terminal "${full_script_path};read -p 'Press enter to continue'"
+		else
+			"${full_script_path}"
+		fi
+	else
+		echo "this script (${full_script_path}) does not exist"
+		help
+	fi
+}
+
+#############################################################################
+#############################################################################
+# main_rofi_menu
+#############################################################################
+#############################################################################
+
+main_rofi_menu()
+{
+	MENU="$(printf "1- hub for executing script \n2- list of configuration files to edit" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
+	case $MENU in
+		1-*) scripts_hub ;;
+		2-*) confedit ;; # script in bin
+		*) main_rofi_menu ;;
+	esac
+}
+#############################################################################
+#############################################################################
+# main
+#############################################################################
+#############################################################################
+
+help()
+{
+	echo "listing script:"
+	echo "================="
+	list_scripts_hub
+	echo ""
+	echo "================="
+	printf "type s for script hub \ntype c for config editor hub\n" 
+}
+
+case $opt___ in
+	"") main_rofi_menu ;;
+	s) scripts_hub ;;
+	c) confedit "$reset_of_opt___";; # script in bin
+	h) help ;;
+	*) script_name_="${opt___}" && full_script_path="${_hub_script_dir}/${script_name_}" && execuite_scripts_ ;;
+esac

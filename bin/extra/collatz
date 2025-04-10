@@ -1,0 +1,30 @@
+#!/bin/bash
+# if this line exist script will be part of hub script.
+
+stopping_time=0
+
+echo 'Explore the Collatz sequence, the "simplest impossible math problem"'
+echo -n "enter your number: "
+read N
+
+
+while ! [[ "$N" =~ ^[0-9]+$ ]]; do
+    echo -n "Please enter Number: "
+    read N
+done
+
+Max_N=$N
+
+while [ $N -gt 1 ]; do
+	((stopping_time++))
+	echo -n "$N->"
+	if [ $((N%2)) -eq 0 ];then
+		let N=$N/2
+	else
+		let N=3*$N+1
+	fi
+	[ $N -gt $Max_N ] && Max_N=$N
+done
+echo -e "1\n"
+echo "Max number is $Max_N"
+echo "Total stopping time is $stopping_time"

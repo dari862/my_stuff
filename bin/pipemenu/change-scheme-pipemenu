@@ -1,0 +1,37 @@
+#!/bin/sh
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Openbox Pipemenu to change openbox styles
+
+# Variables and functions
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+# Dir
+menuStart
+if command -v alacritty >/dev/null 2>&1;then
+	menuSubmenu 'alacritty_schemes' 'Alacritty Schemes'
+	dir="$HOME/.config/alacritty"
+	# Schemes
+	schemes="$(ls -p $dir/colorschemes)"
+	count=1
+	for scheme in ${schemes}; do
+		menuItem "${count}. ${scheme%.*}" "change-scheme alacritty ${scheme}"
+		count=$(($count+1))
+	done
+	menuSubmenuEnd
+fi
+if command -v kitty >/dev/null 2>&1;then
+	menuSubmenu 'kitty_schemes' 'Kitty Schemes'
+	dir="$HOME/.config/kitty"
+	# Schemes
+	schemes="$(ls -p $dir/themes)"
+	count=1
+	for scheme in ${schemes}; do
+		menuItem "${count}. ${scheme%.*}" "change-scheme kitty ${scheme}"
+		count=$(($count+1))
+	done
+	menuSubmenuEnd
+fi
+menuEnd

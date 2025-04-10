@@ -1,0 +1,59 @@
+#!/bin/sh
+#===================================================================================
+# FILE: file-manager-session
+# DESCRIPTION: manage file-manager processes for start, restart and stop all file-manager instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+	
+	__tray_name="tray_GPU_Switcher"
+	__gui_name="gui_GPU_Switcher"
+	
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all keyring process
+#===================================================================================
+stop() {
+	kill_process.sh $__tray_name
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: load file-manager
+#===================================================================================
+start() {
+	$__tray_name
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: load file-manager
+#===================================================================================
+gui() {
+	kill_process.sh $__gui_name
+	$__gui_name
+}
+
+# EXEC ACTION ACCORDING $1
+case "$1" in
+	""|start)
+		start		
+	;;
+	restart)	
+		stop
+		start
+	;;
+	stop)	
+		stop	
+	;;
+	gui)	
+		gui	
+	;;
+	*)	
+		echo "Usage: file-manager-session [start|stop|restart]"
+	;;
+esac

@@ -1,0 +1,15 @@
+#!/bin/sh
+# Start clipboard-manager
+clipboard-manager-session start &
+
+# Start panel		
+panel_launcher &
+
+# update notifcation
+update-notification -n &
+
+cd $HOME/.config/autostartscripts/
+autostartscripts_list="$(ls 2>/dev/null)"
+for script in ${autostartscripts_list};do
+	./$script
+done

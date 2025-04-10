@@ -1,0 +1,120 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/WM"
+
+tmp_dir="$(mktemp -d /tmp/$USER/frontpage_XXXXX)"
+input="${script_config_path}/frontpage-bookmarks"  # File containing your text
+output="${WM_config_dir}/bookmarks.html"  # File to save the modified text
+
+head="${tmp_dir}/head"  # File to save the modified text
+bottom="${tmp_dir}/bottom"  # File to save the modified text
+tmp_output="${tmp_dir}/temp"  # File to save the modified text
+combined="${tmp_dir}/combined"
+
+: > "$tmp_output"
+
+tee "$head" <<- EOF > /dev/null
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<style>
+.dropdown-submenu {
+  position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -1px;
+}
+</style>
+</head>
+<body>
+   
+<div class="container"><h2>Multi-Level Dropdowns</h2>                             
+
+EOF
+stored_line=""
+stored_depth=""
+first_depth=""
+second_depth=""
+third_depth=""
+
+# Read each line from the input file
+while IFS= read -r line; do
+    # Check if the line starts with a "#"
+    if echo "$line" | grep -q "^#" >/dev/null 2>&1;then
+    	stored_line="$line"
+        # Count the number of '#' to determine the depth
+        stored_depth=$(echo "$stored_line" | grep -o "#" | wc -l)
+        if [ "$stored_depth" = 3 ] && [ -z "$third_depth" ];then
+        	third_depth="$stored_line"
+        elif [ "$stored_depth" -gt 0 ] && [ -n "$third_depth" ];then
+        	echo '</ul></li>' >> "$tmp_output"
+        	if [ "$stored_depth" = 3 ];then
+        		third_depth="$stored_line"
+        	else
+        		third_depth=""
+        	fi
+		fi
+		
+        if [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
+        	second_depth="$stored_line"
+        elif [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
+        	echo '</ul></li>' >> "$tmp_output"
+        	second_depth="$stored_line"
+        elif [ "$stored_depth" = 1 ];then
+        	second_depth=""
+		fi
+		
+		if [ "$stored_depth" = 1 ] && [ -z "$first_depth" ];then
+        	first_depth="$stored_line"
+        elif [ "$stored_depth" = 1 ] && [ -n "$first_depth" ];then
+        	echo '</ul></div>' >> "$tmp_output"
+        	first_depth="$stored_line"
+		fi
+    fi
+    echo "$line" >> "$tmp_output" 
+done < "$input"
+if [ -n "$third_depth" ];then
+	echo "$third_depth third_depth" >> "$tmp_output" 
+fi
+if [ -n "$first_depth" ];then
+	echo "$first_depth first_depth" >> "$tmp_output"
+fi
+
+tee -a "$bottom" <<- 'EOF' > /dev/null
+</div>
+
+<script>
+$(document).ready(function(){
+  $('.dropdown-submenu a.test').on("click", function(e){
+    $(this).next('ul').toggle();
+    e.stopPropagation();
+    e.preventDefault();
+  });
+});
+</script>
+
+</body>
+</html>
+EOF
+sed -i '/^###/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' "$tmp_output"
+sed -i 's/^###/<li class="dropdown-submenu"><a class="test" href="#">/g' "$tmp_output"
+
+sed -i '/^##/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' "$tmp_output"
+sed -i 's/^##/<li class="dropdown-submenu"><a class="test" tabindex="-1" href="#">/g' "$tmp_output"
+
+sed -i '/^#/ s/$/<span class="caret"><\/span><\/button><ul class="dropdown-menu">/' "$tmp_output"
+sed -i 's/^#/<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">/g' "$tmp_output"
+
+sed -i '/^   */ s/$/<\/a><\/li>/' "$tmp_output"
+sed -i 's/^   */<li><a href="/g' "$tmp_output"
+sed -i 's/<A>/">/g' "$tmp_output"
+
+cat "$head" "$tmp_output" "$bottom" > "$combined"
+mv "$combined" "$output" 
+rm -rdf "$tmp_dir"

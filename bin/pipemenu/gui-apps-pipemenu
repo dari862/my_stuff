@@ -1,0 +1,61 @@
+#!/bin/sh
+HELP='    my-install-pipemenu a obmenu Pipe Menu for installing applications
+    It should normally be called from a obmenu menu.
+
+Options (usually passed from the menu):
+    -h --help   show this message
+    --openboxmenu   generate xml obmenu pipemenu for installing applications.
+    --jgmenu   generate jgmenu pipemenu for installing applications.
+    (the package must be in one of the app lists in this file)'
+
+########################################################################
+gui_scripts_dir="/usr/share/my_stuff/system_files/gui_scripts"
+
+create_gui_scripts_dir(){
+	my-superuser mkdir -p "${gui_scripts_dir}"
+	_script_for_dir="$(grep -R "# if this line exist script will be part of gui scripts." "/usr/share/my_stuff/system_files/bin" | awk -F: '{print $1}')"
+	for script in ${_script_for_dir};do
+		new_name="$(grep "# if this line exist script will be part of gui scripts." "$script" | awk -F= '{print $2}')"
+		my-superuser cp -rf "$script" "${gui_scripts_dir}/$new_name"
+	done
+	exit
+}
+
+# look for a help option somewhere
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+cd "${gui_scripts_dir}"
+
+obmenu_options(){
+	menuStart "my_stuffGuiAppsPipemenu" "My Stuff GUI Apps"
+	for gui in *;do
+		menuItem "$gui" "${gui_scripts_dir}/$gui"
+	done
+    menuEnd
+ #    menuEnd   
+}
+
+jgmenu_options(){
+	for gui in *;do
+		jgmenuItem "$gui" "${gui_scripts_dir}/$gui"
+	done
+    jgmenuEnd
+#    menuEnd
+}
+
+if [ "${1-}" = "--jgmenu" ];then # pipemenu
+	jgmenu_options
+else
+	obmenu_options
+fi
+exit 0

@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : helium_beam
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #CECECEFF;
+    background-alt: #CECECEFF;
+    foreground:     #131313FF;
+    selected:       #75998BFF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

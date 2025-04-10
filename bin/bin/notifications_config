@@ -1,0 +1,8 @@
+#!/bin/sh
+#===================================================================================
+
+if [ "$(pidof dunst)" ];then
+	my-text-editor ~/.config/dunst/dunstrc && dunst-session restart
+elif [ "$(pidof xfce4-notifyd)" ];then
+	xfce4-notifyd-config
+fi	

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+app_name="neomutt isync msmtp pass ca-certificates gettext notmuch lynx abook urlview mpop"
+say 'Installing Neomutt...' 1
+Package_installer_ ${app_name} || continue
+
+my-superuser ln -sf /usr/share/my_stuff/lib/mutt-wizard/bin/mw /usr/share/my_stuff/system_files/bin || continue
+my-superuser ln -sf /usr/share/my_stuff/lib/mutt-wizard/bin/mailsync /usr/share/my_stuff/system_files/bin || continue
+
+my-superuser mkdir -p /usr/local/share/man/man1 || continue
+my-superuser ln -sf /usr/share/my_stuff/lib/mutt-wizard/mailsync.1 /usr/local/share/man/man1 || continue
+my-superuser ln -sf /usr/share/my_stuff/lib/mutt-wizard/mw.1 /usr/local/share/man/man1 || continue
+
+my-superuser mkdir -p /usr/local/share/zsh/site-functions/ || continue
+my-superuser chmod 755 /usr/local/share/zsh/site-functions/ || continue
+my-superuser ln -sf /usr/share/my_stuff/lib/mutt-wizard/completion/_mutt-wizard.zsh /usr/local/share/zsh/site-functions/_mutt-wizard.zsh || continue
+my-superuser chmod 644 /usr/local/share/zsh/site-functions/_mutt-wizard.zsh || continue

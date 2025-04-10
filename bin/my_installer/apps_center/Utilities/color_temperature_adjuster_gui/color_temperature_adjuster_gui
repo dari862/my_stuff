@@ -1,0 +1,123 @@
+#!/bin/sh
+if command -v redshift >/dev/null 2>&1;then
+	_command="redshift"
+	_name="redshift"
+	_title="Redshift"
+	_config_name="redshift.conf"
+elif command -v gammastep >/dev/null 2>&1;then
+	_command="gammastep"
+	_name="gammastep"
+	_title="Gammastep"
+	_config_name="config.ini"
+fi
+_Enabled="$(pgrep -l ${_command} >/dev/null 2>&1 && echo TRUE || echo FALSE)"
+_Autostart="$(service_manager is-enable ${_name}.service && echo TRUE || echo FALSE)"
+
+[ ! -d "$HOME/.config/${_name}" ] && mkdir -p "$HOME/.config/${_name}"
+[ ! -f "$HOME/.config/${_name}/${_config_name}" ] && cp -r /usr/share/my_stuff/system_files/color_temperature_adjuster_gui/color_temperature_adjuster.conf "$HOME/.config/${_name}/${_config_name}"
+
+Set_(){
+	_lat="$(grep "lat=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	_lon="$(grep "lon=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	temp_day="$(grep "temp-day=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	temp_night="$(grep "temp-night=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	save_(){
+		_lat="$(echo "${_yad_output}" | awk -F'|' '{print $1}')"
+		_lon="$(echo "${_yad_output}" | awk -F'|' '{print $2}')"
+		temp_day="$(echo "${_yad_output}" | awk -F'|' '{print $3}')"
+		temp_night="$(echo "${_yad_output}" | awk -F'|' '{print $4}')"
+		sed -i "s/lat=*/lat=${_lat}/g" "$HOME/.config/${_name}/${_config_name}"
+		sed -i "s/lon=*/lon=${_lon}/g" "$HOME/.config/${_name}/${_config_name}"
+		sed -i "s/temp_day=*/temp_day=${temp_day}/g" "$HOME/.config/${_name}/${_config_name}"
+		sed -i "s/temp_night=*/temp_night=${temp_night}/g" "$HOME/.config/${_name}/${_config_name}"
+	}
+	_yad_output="$(yad	--form --title="${_title}" --image=${_name} \
+    	--scroll --center --width="250" --height="250" --image-on-top --text-justify=right \
+    	--field="_lat" "${_lat}" \
+    	--field="_lon" "${_lon}" \
+    	--field="temp_day" "${temp_day}" \
+    	--field="temp_night" "${temp_night}" \
+    	--button="Save":10 \
+    	--button="Exit":20)"
+	exval=$?
+	case $exval in
+       		10) save_ && main_yad;;
+       		20|252) exit;;
+	esac
+}
+
+Info_(){
+	Status="$(pgrep -l ${_command} >/dev/null 2>&1 && echo Enabled || echo Disabled)"
+	lat="$(grep "lat=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	lon="$(grep "lon=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	Location="$(echo "${lat}:${lon}")"
+	temp_day="$(grep "temp-day=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	temp_night="$(grep "temp-night=" $HOME/.config/${_name}/${_config_name} | awk -F= '{print $2}')"
+	Color_Temperature="$(echo "${temp_day}:${temp_night}")"
+	Period="$()"
+	yad --form --on-top\
+		--title="${_title} Info" \
+		--text="Status:${Status} 
+Location:${Location} 
+Color Temperature:${Color_Temperature} 
+Period:${Period}
+" \
+		--image=${_name}
+
+}
+
+Save_(){
+	kill_commnad(){
+		kill_process.sh ${_command}
+	}
+	Suspend_command(){
+		sleep ${1}m && ${_command}
+	}
+	_Enabled="$(echo "${_yad_output}" | awk -F'|' '{print $1}')"
+	Suspend_for="$(echo "${_yad_output}" | awk -F'|' '{print $2}')"
+	_Autostart="$(echo "${_yad_output}" | awk -F'|' '{print $3}')"
+
+	if [ "$_Autostart" = "TRUE" ];then
+		service_manager enable user ${_name}.service
+	else
+		service_manager disable user ${_name}.service
+	fi
+	
+	if [ "$_Enabled" = "FALSE" ];then
+		kill_commnad
+	fi
+	
+	if [ "$Suspend_for" = "30 min" ];then
+		kill_commnad
+		Suspend_command 30
+	elif [ "$Suspend_for" = "1 Hour" ];then
+		kill_commnad
+		Suspend_command 60
+	elif [ "$Suspend_for" = "2 Hour" ];then
+		kill_commnad
+		Suspend_command 120
+	elif [ "$_Enabled" = "TRUE" ];then
+		${_command}
+	fi
+}
+
+main_yad(){
+	_yad_output="$(yad	--form --title="${_title}" --image=${_name} \
+    	--scroll --center --width="200" --height="200" --image-on-top --text-justify=right \
+    	--field="Enable":CHK "${_Enabled}" \
+    	--field="Suspend for:cb" "!30 min!1 Hour!2 Hour" \
+    	--field="Autostart":CHK "${_Autostart}" \
+    	--button="Info!gtk-yes":10 \
+    	--button="Set ${_title} config!gtk-yes":20 \
+    	--button="Save":30 \
+    	--button="Exit":200)"
+	exval=$?
+	case $exval in
+       		10) Info_ && main_yad;;
+       		20) Set_ && main_yad;;
+       		30) Save_;;
+       		200|252) exit;;
+	esac
+}
+
+main_yad

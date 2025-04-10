@@ -1,0 +1,39 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/common"
+containers_orginal_runner_path="/usr/share/my_stuff/bin/my_installer/containers_runner"
+containers_runner_path="/usr/share/my_stuff/system_files/containers_runner"
+if [ "${1-}" = "--install" ];then
+	__mode="install"
+	shift 1
+fi
+container_name="${1-}"
+path_2_runner="${containers_runner_path}/${container_name}"
+path_2_link="${containers_orginal_runner_path}/${container_name}"
+
+list_of_containers(){
+	say "List of containers are:"
+	say "========================"
+	find "${containers_runner_path}" -maxdepth 1 -type f -exec basename {} \;
+	exit 1
+}
+
+
+if [ "${__mode}" = "install" ];then
+	my-superuser mkdir -p "${containers_runner_path}"
+	if [ -f "${path_2_link}" ];then
+		my-superuser ln -sf "${path_2_link}" "${containers_runner_path}"
+	fi
+fi
+
+if [ -n "${container_name}" ];then
+	if [ -f "${path_2_runner}" ];then
+		. "${path_2_runner}"
+	else
+		say " ERROR: failed to locate container: ${container_name} "
+		say " ERROR: path: ${containers_runner_path}"
+		say " "
+		list_of_containers
+	fi
+else
+	list_of_containers
+fi

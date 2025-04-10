@@ -1,0 +1,6 @@
+#!/bin/sh
+say 'Installing package...' 1
+
+install_as_dependency mise
+mise use --global ruby@3.3
+mise x ruby -- gem install rails --no-document

@@ -1,0 +1,55 @@
+#!/bin/sh
+BROWSERS_CHROOT_NAME="chroot-browsers"
+chroot_default_browser_name="chroot-browser"
+SCRIPT_NAME="chroot-${APP_NAME}"
+LAUNCHER_SCRIPT_NAME="chroot-${APP_NAME}-launcher"
+BROWSERS_CHROOT_DIR="${ROOT_CHROOT_DIR}/${BROWSERS_CHROOT_NAME}"
+extra_chroot_browser="${INSTALLER_CHROOT_DIR}/EXTRA/${APP_NAME}"
+my_www_browser_path="${LAUNCH_SCRIPT_PATH}/my-www-browser"
+CHROOT_DIR="${BROWSERS_CHROOT_DIR}"
+
+create_default_chroot_browser(){
+	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}" "${LAUNCH_SCRIPT_PATH}" || failed_to_run "Failed to set execute permission on launch script"
+	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}.desktop" "/usr/share/applications" || failed_to_run "Failed to set execute permission on launch script"
+}
+
+end_of_chroot_creater(){	
+	say "Creating launch script to run $APP_NAME from the host..."
+	my-superuser ln -sf "${extra_chroot_browser}/${SCRIPT_NAME}.desktop" "/usr/share/applications" || failed_to_run "Failed to set execute permission on launch script"
+	my-superuser ln -sf "${extra_chroot_browser}/${SCRIPT_NAME}" "${LAUNCH_SCRIPT_PATH}" || failed_to_run "Failed to set execute permission on launch script"
+	
+	if [ -f "/etc/doas.conf" ];then
+		my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
+		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}
+		EOF
+	
+		my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}
+		EOF
+	fi
+	
+	if [ -d "/etc/sudoers.d" ];then
+		my-superuser tee "/etc/sudoers.d/chroot_${APP_NAME}" > /dev/null <<- EOF
+		%users ALL=(ALL) NOPASSWD: ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}
+		EOF
+		my-superuser chmod 400 "/etc/sudoers.d/chroot_${APP_NAME}"
+	fi
+	
+	if [ ! -f "${LAUNCH_SCRIPT_PATH}/${chroot_default_browser_name}" ];then
+		create_default_chroot_browser
+	fi
+	
+	if [ "$make_chroot_browser_default_browser" = true ];then
+     	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}" "$my_www_browser_path"
+    fi
+    
+	Create_users_to_chroot
+	
+	say 
+	say 
+	say "You can now launch $APP_NAME from the chroot using the command: $SCRIPT_NAME"	
+}
+trap cleanup EXIT # from chroot_functions
+chroot_creater
+
+say "Installing $APP_NAME in the chroot..."

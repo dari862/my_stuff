@@ -1,0 +1,47 @@
+#!/bin/sh
+#===================================================================================
+# FILE: polybar-session
+# DESCRIPTION: manage polybar processes for start, restart and stop all polybar instances
+# AUTHOR: Leonardo Marco
+# VERSION: 1.0
+# CREATED: 2020.04.09
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all polybar process
+#===================================================================================
+stop() {
+	# Terminate already running bar instances
+	kill_process.sh polybar 2>/dev/null	
+	# Wait until the processes have been shut down
+	while pgrep -u $(id -u) -x polybar >/dev/null; do sleep 1; done
+}
+
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: start polybar
+#===================================================================================
+start() {
+	pidof -q polybar || "$HOME"/.local/bin/polybar_launch &
+}
+
+
+# EXEC ACTION ACCORDING $1
+case "${1}" in
+	""|restart)
+		stop
+		start		
+	;;
+	start)
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	*)	
+		echo "Usage: polybar-session [start|stop|restart]"
+	;;
+esac

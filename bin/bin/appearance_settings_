@@ -1,0 +1,11 @@
+#!/bin/sh
+#===================================================================================
+if command -v lxappearance >/dev/null ;then
+	if [ "$HOME" = "/root" ];then
+		lxappearance
+	else
+		lxappearance && /usr/share/my_stuff/system_files/bin/reload_gtk23
+	fi
+elif command -v xfce4-appearance-settings >/dev/null ;then
+	xfce4-appearance-settings
+fi	

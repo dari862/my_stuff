@@ -1,0 +1,33 @@
+#!/bin/sh
+## change openbox menu style
+
+# Variables and functions
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+# Change menu file & reload OB
+menu_name="${1-}"
+
+[ -z "${menu_name}" ] && echo "[ERROR] $0 : arg is empty"
+
+if [ "${menu_name}" = "jgmenu" ];then
+	if grep -q " never remove this line menu style are :obmenu " "${BACKUP_OB_RC_FILE}";then
+		sed -i 's|.*<!-- never remove this line menu style are .*|        <action name="Execute"><startupnotify><enabled>false</enabled><name>jgmenu</name></startupnotify><command>jgmenu_run</command></action> <!-- never remove this line menu style are :jgmenu -->|' "${BACKUP_OB_RC_FILE}"
+		sed -i 's|.*<!-- never remove this line menu style are .*|        <action name="Execute"><startupnotify><enabled>false</enabled><name>jgmenu</name></startupnotify><command>jgmenu_run</command></action> <!-- never remove this line menu style are :jgmenu -->|' "${OBPATH}/rc.xml"
+		
+		openbox --reconfigure
+	else
+		echo "[ERROR] $0 : failed to grep obmenu in ${BACKUP_OB_RC_FILE} ."
+	fi
+else
+	if [ -f "${OBPATH}/Menu/${menu_name}" ];then
+		if grep -q " never remove this line menu style are :jgmenu " "${BACKUP_OB_RC_FILE}";then
+			sed -i 's|.*<!-- never remove this line menu style are .*|        <action name="ShowMenu"><menu>root-menu</menu></action> <!-- never remove this line menu style are :obmenu -->|' "${BACKUP_OB_RC_FILE}"
+			sed -i 's|.*<!-- never remove this line menu style are .*|        <action name="ShowMenu"><menu>root-menu</menu></action> <!-- never remove this line menu style are :obmenu -->|' "${OBPATH}/rc.xml" 
+		fi
+		ln -sf "${OBPATH}/Menu/${menu_name}" "${OBPATH}/menu.xml" 
+		openbox --reconfigure
+	else
+		echo "[ERROR] $0 : ${OBPATH}/Menu/${menu_name} does not exist."
+	fi
+fi

@@ -1,0 +1,98 @@
+#!/bin/sh
+__arg_="${1-}"
+__image_full_path_="${2-}"
+
+. "/usr/share/my_stuff/lib/common/WM"
+
+if pgrep -x "i3lock" > /dev/null 2>&1;then
+	exit
+fi
+
+my_locker_folder="$HOME/.config/${scriptconfig_name}/my_locker"
+[ ! -d "$my_locker_folder" ] && mkdir -p "$my_locker_folder"
+[ ! -f "$my_locker_folder/config.ini" ] && cp -r "/usr/share/my_stuff/lib/locker/config.ini" "$my_locker_folder"
+
+. "$my_locker_folder/config.ini"
+
+check_if_image_is_png()
+{
+	File_type=$(file "$__image_full_path_" | awk '{print $2}')
+	if [ "$File_type" = "PNG" ];then
+  		return 0
+  	else
+  		return 1
+	fi
+}
+
+convert_to_png()
+{
+	__image_ext_="png"
+	converted_folder="/tmp/$USER/Locker/converted"
+	mkdir -p "${converted_folder}"
+	cp -r "$__image_full_path_" "$converted_folder"
+  	cd "$converted_folder"
+  	__image_basename_="$(basename "$__image_full_path_")"
+  	__image_name_="${__image_basename_%.*}"
+  	mogrify -format png "$__image_basename_"
+  	cp -r "${__image_name_}.png" "${my_locker_folder}/converted_image.png"
+  	__image_full_path_="${my_locker_folder}/converted_image.png"
+}
+
+set_custom_backgrounds_for_lockscreen()
+{
+	if [ -n "$__image_full_path_" ];then
+		check_if_image_is_png || convert_to_png
+		sed -i "s/custom_backgrounds=.*/custom_backgrounds=\"${__image_full_path_}\"/g" "$my_locker_folder/config.ini"
+	else
+		echo "$0: please pick any image."
+		exit 1
+	fi
+}
+
+_desktop_screenshot_as_lockscreen()
+{
+	greyscale_arg=""
+	pixelate_arg=""
+	[ "${greyscale}" = "true" ] && greyscale_arg="-g"
+	[ "${pixelate}" = "true" ] && pixelate_arg="-p"
+	
+	i3lock-fancy ${greyscale_arg} ${pixelate_arg} -- ac-shots
+}
+
+_usr_custom_backgrounds_as_lockscreen()
+{
+	i3lock -i "$custom_backgrounds"
+}
+
+_usr_wallpaper_as_lockscreen()
+{
+	# wallpaper path
+	__image_full_path_="$(grep 'file=' "$HOME/.config/nitrogen/bg-saved.cfg" | sed 's/file=//g')"
+	check_if_image_is_png || convert_to_pngs
+	i3lock -i "$__image_full_path_"
+}
+
+_main()
+{
+	if [ "$backgrounds_type" = "screenshot" ];then
+		_desktop_screenshot_as_lockscreen
+	elif [ "$backgrounds_type" = "custom" ];then
+		_usr_custom_backgrounds_as_lockscreen
+	elif [ "$backgrounds_type" = "wallpaper" ];then
+		_usr_wallpaper_as_lockscreen
+	fi
+}
+
+case "$__arg_" in
+	"-s") 
+		set_custom_backgrounds_for_lockscreen 
+		;;
+	"-d")
+		_desktop_screenshot_as_lockscreen
+		;;
+	"-w")
+		_usr_wallpaper_as_lockscreen
+		;;
+	*) _main ;;
+esac
+

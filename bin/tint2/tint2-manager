@@ -1,0 +1,217 @@
+#!/bin/bash
+#
+#    tint2-manager: a My Stuff tint2 selection and switcher script
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+########################################################################
+#
+#   Tint2 config files must be in $TINT2PATH
+#
+#   When the dialog opens, any running tint2s will be checkmarked.
+#
+#   Click "Apply" and all running tint2s are stopped,
+#   and all checkmarked tint2s are started.
+#
+#   To stop a tint2 just uncheck it, and "Apply".
+#
+#   Running tint2s are saved to a session file, and can be run with
+#   the "tint2-session" script. To start them at login, add the
+#   following line to autostart:
+#
+#           tint2-session
+#
+########################################################################
+
+TINT2PATH="$HOME/.config/tint2"
+TINT2DEFAULT="$TINT2PATH/tint2rc" # tint2 will create this if it doesn't exist
+SESSIONFILE="$TINT2PATH/tint2-sessionfile"
+USAGE='tint2-manager is a tint2 selection and switcher script
+which uses yad to generate a graphical user interface.
+
+Usage:  tint2-manager
+   or:  tint2-manager -h|--help
+
+Optional arguments:
+    -h | --help    Show this message (no other options are supported at this time)
+
+Use:
+    With no command option the script runs the gui
+
+    Tint2 config files must be in HOME/.config/tint2/
+
+    When the dialog opens, any running tint2s will be checkmarked.
+
+    Click "Apply" and all running tint2s are stopped,
+    and all checkmarked tint2s are started.
+
+    To stop a tint2 just uncheck it, and click "Apply".
+
+    Click "Apply" to return to the dialog after applying changes,
+    click "Apply+Close" to close the window after applying changes,
+    click "Close" to close the window without applying any more changes.
+
+    Running tint2s are saved to a session file, and can be run with
+    the "tint2-session" script. To start them at login, add the
+    following line to autostart:
+
+            tint2-session
+'
+
+# look for a help option somewhere, then exit
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$USAGE"
+        exit 0
+        ;;
+    esac
+done
+
+### DIALOG VARIABLES
+DLG="yad --center --undecorated --borders=20 "
+DLGDEC="yad --center --borders=20 "
+TITLE="My Stuff Tint2 Manager"
+WINICON="--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+OK="--button=OK:0"
+APPLY="--button=Apply:0"
+CANCEL="--button=gtk-cancel:1"
+CLOSE="--button=Close:1"
+########## FUNCTIONS ###################################################
+
+# for yad text display of filenames
+pangoEscape() {
+    local string="${1//&/&amp;}"
+    string="${string//</&lt;}"
+    string="${string//>/&gt;}"
+    printf '%s' "$string"
+}
+
+getRunning(){
+    unset runningTints
+    local pid command TPATH
+    declare -g -A runningTints
+    while read -r pid; do
+        mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
+        [[ ${command[0]} = 'tint2' ]]  || {
+            echo "$0: pgrep parsing failed: command is not 'tint2'" >&2
+            continue
+        }
+        if (( ${#command[@]} > 1 ));then
+            TPATH=${command[-1]} # tint2 takes no options other than -c, which is optional
+            [[ $TPATH = /* ]] || TPATH="$HOME/$TPATH" # assume path is relative to $HOME
+        else
+            TPATH="$TINT2DEFAULT"
+        fi
+        [[ -f $TPATH ]] || {
+            echo "$0: pgrep tint2 parsing failed: $TPATH is not a file" >&2
+            continue
+        }
+        runningTints["$TPATH"]=1
+    done < <(pgrep -x 'tint2' -u "$USER")
+}
+
+# $1 should hold full path to config file
+# returns 0 if a running tint2 is using that file
+isRunning(){
+    local file=$1
+    [[ ${runningTints["$file"]} = 1 ]] && return 0
+    return 1
+}
+
+findTints(){
+    getRunning
+    LISTTINT=() # global
+    local file name check
+    shopt -s globstar
+    for file in "$TINT2PATH"/**;do
+        [[ -f $file ]] || continue
+        [[ $file = *~ ]] && continue # ignore backups
+        grep -q "panel_monitor" "$file" || continue # not a tint2rc file
+        name=${file#$TINT2PATH/}
+        if isRunning "$file";then
+            check='TRUE'
+        else
+            check='FALSE'
+        fi
+        LISTTINT+=("$check" "$(pangoEscape "$name")" "$file")
+    done
+    shopt -u globstar
+}
+
+loadDialog() {
+    local choice retval
+    choice=$($DLGDEC $WINICON --list --title="$TITLE" \
+        --text="Select Tint2s from the list:" \
+        --checklist --width=400 --height=500 --print-column=2 \
+        --column="Select:CHK" --column="tint2 Name:TEXT" --column=path:HD "${LISTTINT[@]}" \
+        --separator='' --print-column=3 \
+        $APPLY --button='Apply+Close':2 $CLOSE \
+        )
+    retval=$?
+    if (( retval == 1 ));then # close button pressed
+        exit 0
+    fi
+    if [[ -z $choice ]];then  # No tint2s chosen
+        MSG="Nothing chosen.\n\nKill all running Tint2s?"
+        $DLG $WINICON --title="$TITLE" --text="$MSG" $OK --button='Try Again':1
+        if [[ $? = 1 ]];then
+            return
+        fi
+    fi
+
+    :> "$SESSIONFILE"    # Create/overwrite empty session file
+
+    if pgrep -x -u "$USER" tint2 >/dev/null;then
+        killall -u "$USER" tint2
+        sleep 0.5 # make sure killed tint2s are not running at next iteration of getRunning()
+    fi
+
+    while read -r path
+    do
+        [[ -n $path ]] || continue
+        echo "$path" >> "$SESSIONFILE"
+        set -m # enable job control so forked tint2 is immune to signals
+        # start the tint2 (adjust the sleep time if required)
+        tint2 -c "$path" >/dev/null 2>&1 &
+        disown
+        set +m
+        sleep 0.5s
+    done <<< "$choice"
+
+#   if there is a button that returns 2, it will apply changes and exit
+    (( retval == 2 )) && exit 0
+}
+
+# get any commandline arguments (none expected)
+if ! (( $# == 0 ));then
+    for arg in "$@";do
+        if [[ $1 = "-h" ]] || [[ $1 = "--help" ]];then
+            echo -e "$USAGE"
+            exit 0
+        else
+            echo "$0: ERROR: sorry I don't understand \"${arg}\"" >&2
+            echo -e "$USAGE"
+            exit 1
+        fi
+    done
+fi
+
+while true;do
+    findTints
+    loadDialog
+done
+
+exit 0

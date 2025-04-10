@@ -1,0 +1,17 @@
+#!/bin/sh
+browserName="Google Chrome Stable"
+browser_deb="google-chrome-stable_current_amd64.deb"
+browserUrl="https://dl.google.com/linux/direct/${browser_deb}"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
+
+say 'Installing package...' 1
+
+cd /tmp/$USER
+getURL 'download2' "${browserUrl}" "/tmp/$USER/${browser_deb}" || continue
+install_deb ${browser_deb} || continue
+rm -f /tmp/$USER/${browser_deb} || continue
+
+my-superuser ln -sf /usr/share/my_stuff/appearance_applications/WhatsApp.desktop /usr/share/applications
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"

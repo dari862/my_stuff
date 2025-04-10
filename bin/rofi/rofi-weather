@@ -1,0 +1,116 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+weather_script_config_path="$HOME/.config/scriptconfig/weather"
+Weather_OPT_="${1-}"
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+. "$weather_script_config_path"
+
+#############################################################################
+
+# var
+Weather_OPT_List="1 Show Weather Doppler |2 Show Weather Forecast Full |3 Show Weather Forecast Today |4 Shows the current moon phase current |5 Shows_the_current_moon_phase Moon_phase |6 Location_Picker |7 edit_script"
+
+#############################################################################
+Location_Picker(){ 
+	. "/usr/share/my_stuff/bin/not_add_2_path/weather/country_list"
+	chosen="$(printf "%s" "$country_list" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -sep "|" -p "Select a radar to use as default:")"
+	
+	# Set continent code and radar code.
+	continentcode=$(printf "%s" "$chosen" | cut -d':' -f1 | tr "[:lower:]" "[:upper:]")
+	radarcode=$(printf "%s" "$chosen" | cut -d' ' -f2 | cut -d':' -f1 | tr '[:lower:]' '[:upper:]')
+	place=$(printf "%s" "$chosen" | cut -d':' -f3 | cut -f1 -d',' | sed 's/^ //')
+	place="${place:-$radarcode}" # Default place to radarcode if not set
+
+	sed -i  -e "s/continentcode=.*/continentcode=\"$continentcode\"/" \
+			-e "s/radarcode=.*/radarcode=\"$radarcode\"/" \
+			-e "s/place=.*/place=\"$place\"/" \
+		"${weather_script_config_path}"
+}
+
+# Show a Doppler RADAR of a user's preferred location.
+Show_Weather_Doppler(){
+	getdoppler() {
+		notify-send "🌦️ Doppler RADAR" "Pulling most recent Doppler RADAR for $radarcode."
+		get_weather doppler || printf "%s" "[ERROR] $0 : get_weather doppler failed at getdoppler"
+	}
+	
+	showdoppler() { 
+		setsid -f mpv --no-osc --loop=inf --no-terminal "$doppler" || printf "%s" "[ERROR] $0 : get_weather doppler failed at showdoppler"
+	}
+
+	getdoppler
+	showdoppler 
+}
+
+Show_Weather_Forecast(){	
+	case $1 in
+		Full) setsid -f popup_terminal "get_weather -m extra" || printf "%s" "[ERROR] $0 : get_weather forecast failed";;
+		Today) notify-send "$(get_weather -n extra)" || printf "%s" "[ERROR] $0 : get_weather current failed" ;;
+	esac
+}
+
+Shows_the_current_moon_phase(){
+	get_weather moon >/dev/null || printf "%s" "[ERROR] $0 : get_weather moon failed"
+	icon="$(cat "$moonfile")"
+	
+	case "$icon" in
+		🌑) name="New" ;;
+		🌒) name="Waxing Crescent" ;;
+		🌓) name="First Quarter" ;;
+		🌔) name="Waxing Gibbous" ;;
+		🌕) name="Full" ;;
+		🌖) name="Waning Gibbous" ;;
+		🌗) name="Last Quarter" ;;
+		🌘) name="Waning Crescent" ;;
+		*) exit 1 ;;
+	esac
+	
+	send_Moon_phase_module(){
+	notify-send "🌜 Moon phase module" "Displays current moon phase.
+	- 🌑: New
+	- 🌒: Waxing Crescent
+	- 🌓: First Quarter
+	- 🌔: Waxing Gibbous
+	- 🌕: Full
+	- 🌖: Waning Gibbous
+	- 🌗: Last Quarter
+	- 🌘: Waning Crescent
+	
+	current moonphase is : ${icon-?}
+	
+	"
+	}
+	
+	case $1 in
+		current) notify-send "${icon} ${name}";;
+		Moon_phase) send_Moon_phase_module ;;
+	esac
+}
+
+#############################################################################
+
+main(){
+	if [ -z "${place}" ];then
+		Location_Picker
+	fi
+	
+	if [ -z "$Weather_OPT_" ];then
+		Weather_OPT_="$(printf "%s" "${Weather_OPT_List}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -sep "|" -p '' | awk '{ print $1 }')"
+	fi
+	
+	case "$Weather_OPT_" in
+		1) Show_Weather_Doppler ;;
+		2) Show_Weather_Forecast Full;;
+		3) Show_Weather_Forecast Today;;
+		4) Shows_the_current_moon_phase current ;;
+		5) Shows_the_current_moon_phase Moon_phase ;;
+		6) Location_Picker ;;
+		7) popup_terminal --super-user-editor "$(realpath "$0")";;
+		"") exit ;;
+		*) main
+	esac
+}
+
+main "$Weather_OPT_"

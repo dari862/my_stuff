@@ -1,0 +1,10 @@
+#!/bin/sh
+
+app_name="obs-studio"
+
+if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+	Distrobox_package_installer_ ${app_name} || continue
+else
+	Package_update_
+	Package_installer_ ${app_name} || continue
+fi

@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : launchy
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #30343FFF;
+    background-alt: #30343FFF;
+    foreground:     #744F3CFF;
+    selected:       #FFFFFFFF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

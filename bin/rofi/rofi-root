@@ -1,0 +1,52 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+# Apps
+layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+if [ "$layout" = 'YES' ];then
+	terminal=""
+	files=""
+	editor=""
+	clifm=""
+	vim=""
+else
+	terminal=" Terminal"
+	files=" File-Manager"
+	editor=" Text-Editor"
+	clifm=" LF"
+	vim=" CLI Editor"
+fi
+# Variable passed to rofi
+options="$terminal\n$files\n$editor\n$clifm\n$vim"
+
+# Functions
+chosen="$(printf "$options" | rofi -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
+case $chosen in
+    $terminal)
+        app_2_run_as_root="my-terminal-emulator"
+		Extra_Arg=""
+        ;;
+    $files)
+        app_2_run_as_root="my-file-manager"
+		Extra_Arg=""
+        ;;
+    $editor)
+        app_2_run_as_root="my-text-editor"
+		Extra_Arg=""
+        ;;
+    $clifm)
+        app_2_run_as_root="popup_terminal"
+		Extra_Arg="lf"
+        ;;
+    $vim)
+        app_2_run_as_root="popup_terminal"
+        Extra_Arg="$(which $CLI_EDITER)"
+        ;;
+esac
+
+command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+
+[ -n "${command_2_run}" ] && apps_as_root "${command_2_run}"

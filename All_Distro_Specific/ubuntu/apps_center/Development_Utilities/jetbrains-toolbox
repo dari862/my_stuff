@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+say "Installing libfuse2..." 1
+Package_installer_ libfuse2
+JETBRAINS_TOOLBOX_DIR="/opt/jetbrains-toolbox"
+case $(uname -m) in
+	x86_64) ARCHIVE_URL=$(getURL '2term' "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" | jq -r ".TBA[0].downloads.linux.link") ;;
+	arm64 | aarch64) ARCHIVE_URL=$(getURL '2term' "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" | jq -r ".TBA[0].downloads.linuxARM64.link") ;;
+	*) echo "Unsupported architecture: $(uname -m)"; exit 1   ;;
+esac
+cd /tmp
+
+say 'Downloading tgz file...' 1
+getURL 'download2' "$ARCHIVE_URL" "jetbrains-toolbox.tar.gz"
+[ -d "$JETBRAINS_TOOLBOX_DIR" ] && my-superuser rm -rf "$JETBRAINS_TOOLBOX_DIR"
+
+say 'Extracting tgz file...' 1
+my-superuser mkdir -p "$JETBRAINS_TOOLBOX_DIR"
+my-superuser tar -xzf "jetbrains-toolbox.tar.gz" -C "$JETBRAINS_TOOLBOX_DIR" --strip-components=1
+my-superuser ln -sf "$JETBRAINS_TOOLBOX_DIR/jetbrains-toolbox" "/usr/bin/jetbrains-toolbox"

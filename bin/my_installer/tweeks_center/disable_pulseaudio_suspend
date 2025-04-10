@@ -1,0 +1,11 @@
+#!/bin/sh
+
+pulseconfig="/etc/pulse/default.pa"
+
+if [ ! -f ${pulseconfig} ] || grep -q "#load-module module-suspend-on-idle" "${pulseconfig}";then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
+fi
+
+my-superuser sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}

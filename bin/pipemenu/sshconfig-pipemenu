@@ -1,0 +1,17 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+# Pipemenu
+menuStart
+    
+if type 'sshd' >/dev/null 2>&1;then
+	menuItem 'Edit SSH user config' "my-text-editor ${HOME}/.ssh/config"
+else
+	menuItem 'Install OpenSSH Server' "popup_terminal --install 'openssh-server'"
+	if [ -f "${HOME}/.ssh/config" ];then
+		menuSeparator
+		menuItem 'Edit SSH user config' "my-text-editor ${HOME}/.ssh/config"
+	fi
+fi
+
+menuEnd

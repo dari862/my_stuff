@@ -1,0 +1,40 @@
+#!/bin/sh
+my-installer --install-needed "GPU" || continue
+app_name="Gaming Essential"
+. "/usr/share/my_stuff/os-release"
+distro_name_and_ver_3=$(printf "%s" "$distro_name_and_ver_2" | cut -c1 | tr '[:lower:]' '[:upper:]')$(printf "%s" "$distro_name_and_ver_2" | cut -c2-)
+
+SHELL_EXT="$(which gnome-shell >/dev/null 2>&1 && echo gnome-shell-extension-gamemode)"
+
+say 'add new repo ...' 1
+[ ! -d "/etc/apt/keyrings" ] && my-superuser mkdir -pm755 /etc/apt/keyrings
+if ! dpkg -q lutris 2>/dev/null;then
+	download_key "gpg" "https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_3/Release.key" "/usr/share/keyrings/lutris.gpg"
+	echo "deb [signed-by=/usr/share/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_3/ ./" | my-superuser tee /etc/apt/sources.list.d/lutris.list > /dev/null 2>&1
+fi
+
+if ! dpkg -q winehq-staging 2>/dev/null;then
+	download_key "download" "https://dl.winehq.org/wine-builds/winehq.key" "/etc/apt/keyrings/winehq-archive.key"
+	download_key "download" "https://dl.winehq.org/wine-builds/debian/dists/${version_codename}/winehq-${version_codename}.sources" "/etc/apt/sources.list.d/winehq-${version_codename}.sources"
+fi
+
+my-superuser dpkg --add-architecture i386
+
+clear
+Package_update_
+
+Package_installer_ libcec6 xboxdrv || continue     
+Package_installer_ mangohud goverlay gamemode $SHELL_EXT lutris || continue                
+Package_installer_ --install-recommends winehq-staging || continue     
+Package_installer_ wine wine64 wine-binfmt || continue     
+
+Package_installer_ steam || continue
+
+flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue     
+flatpak_install "bottles" "com.usebottles.bottles" "nonflathub" || continue     
+flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     
+
+say "Creating Check File (Gaming_ready)"
+my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
+my-superuser touch /usr/share/my_stuff/system_files/Gaming_ready
+/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"

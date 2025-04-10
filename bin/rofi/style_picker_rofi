@@ -1,0 +1,24 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+. "${Distro_config_file}"
+
+BLOBPATH="$HOME/.config/blob"
+
+if [ "$_panel_name_" = 'polybar' ];then
+	CONFIGPATH="${BLOBPATH}/polybar"
+	default_style="default"
+else
+	CONFIGPATH="${BLOBPATH}/tint2"
+	default_style="Beryllium"
+fi
+
+list_styles="$(cd "$CONFIGPATH" && ls -d * 2>/dev/null)"
+Picked_Style="$(echo "$list_styles" | rofi -no-config -no-lazy-grab -dmenu -i -p '' \
+	-theme "$HOME/.config/rofi/$ROFI_STYLE"/launcher.rasi )"
+	
+[ -z "$Picked_Style" ] && Picked_Style="${default_style}"
+	
+style_setter "$Picked_Style"

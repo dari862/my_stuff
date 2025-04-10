@@ -1,0 +1,70 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+
+platfrom_name=""
+REPLY="${1-}"
+
+install_kali(){
+	# include_kali
+	echo "deb [arch=amd64 signed-by=/usr/share/keyrings/kali-archive-keyring.asc] https://http.kali.org/kali kali-rolling main non-free contrib" | my-superuser tee /etc/apt/sources.list.d/kali.list > /dev/null 2>&1
+	echo 'Package: *' | my-superuser tee /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
+	echo 'Pin: release a=kali-rolling' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+	echo 'Pin-Priority: 50' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
+	download_key "download" "https://archive.kali.org/archive-key.asc" "/usr/share/keyrings/kali-archive-keyring.asc"
+	my-superuser apt-get update && my-superuser apt-get upgrade && my-superuser apt-get dist-upgrade -y
+	my-superuser apt-get install -t kali-rolling -y kali-archive-keyring
+	
+	# install_kali
+	my-superuser apt-get -f install -y
+	my-superuser apt-get install -t kali-rolling -y -y linux-headers-4.14.0-kali3-amd64
+    clear
+}
+
+install_parrot() {
+	# include_parrot
+    echo "deb https://deb.parrotsec.org/parrot parrot main contrib non-free" | my-superuser tee /etc/apt/sources.list.d/parrot.list > /dev/null 2>&1
+    echo 'Package: *' | my-superuser tee /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+    echo 'Pin: release a=parrot' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+    echo 'Pin-Priority: 50' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
+    download_key "gpg" "https://deb.parrotsec.org/parrot/misc/parrotsec.gpg" "/etc/apt/trusted.gpg.d/parrotsec.gpg"
+    my-superuser apt-get update
+}
+
+create_install_script() {
+	my-superuser ln -s "${_FULL_ENVIRONMENT_LIBDIR}"/Cybersecurity_Extra/${platfrom_name}_install /usr/share/my_stuff/system_files/bin
+    my-superuser mkdir -p /usr/share/my_stuff/lib/auto_completion/
+    my-superuser ln -s /usr/share/my_stuff/lib/auto_completion/${platfrom_name}_install /usr/share/my_stuff/system_files/auto_completion/
+}
+
+##############################################################################################
+if [ -z "$REPLY" ];then
+	printf 'Do you want to install Kali or Parrot? \n[1 or k] for Kali \n[2 or p] for Parrot\n'
+	stty -icanon -echo time 0 min 1
+	REPLY="$(head -c1)"
+	stty icanon echo
+fi
+
+case "$REPLY" in
+	1|k|K)
+		platfrom_name="kali"
+		install_kali
+		create_install_script
+		kali_install #script at /usr/share/my_stuff/bin/bin to install kali packages
+	;;
+	2|p|P)
+		platfrom_name="parrot"
+		install_parrot
+		create_install_script
+		parrot_install #script at /usr/share/my_stuff/bin/bin to install parrot packages
+	;;
+	*)
+		echo "$0: no such install option $REPLY"
+   		exit 1
+	;;
+esac
+
+#clear 
+echo " "
+echo "To install ${platfrom_name} packages please using ${platfrom_name}_install <package name> or ${platfrom_name}_install to show basice menu"
+echo " "
+echo ' --- Installtion Complated --- ' 

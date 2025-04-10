@@ -1,0 +1,13 @@
+#!/bin/sh -e
+case $(uname -m) in
+	x86_64) url="https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz" ;;
+	arm64 | aarch64) url="https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz" ;;
+	*) failed_to_run "Unsupported architecture: $(uname -m)" ;;
+esac
+cd /tmp
+
+say 'Downloading tgz file...' 1
+getURL 'download2' "$url" "ngrok.tgz"
+
+say 'Extracting tgz file...' 1
+my-superuser tar -xzf ngrok.tgz -C /usr/local/bin

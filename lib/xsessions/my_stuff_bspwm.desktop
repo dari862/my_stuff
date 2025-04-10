@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=My Stuff bspwm
+Comment=Log in to a My Stuff bspwm session
+Exec=/usr/share/my_stuff/system_files/bin/xsessions/bspwm
+TryExec=/usr/share/my_stuff/system_files/bin/xsessions/bspwm
+Icon=bspwm
+Type=Xsession

@@ -1,0 +1,4 @@
+#!/bin/sh
+# if this line exist script will be part of gui scripts.new_name=Package_Manager
+
+popup_terminal --install yadstore

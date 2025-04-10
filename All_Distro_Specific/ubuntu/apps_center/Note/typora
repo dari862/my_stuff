@@ -1,0 +1,26 @@
+#!/bin/sh
+
+app_name="typora"
+Package_update_
+
+download_key "gpg" "https://typora.io/linux/public-key.asc" "/usr/share/keyrings/typora.gpg"
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/typora.gpg] https://typora.io/linux ./" | my-superuser tee /etc/apt/sources.list.d/typora.list
+
+Package_update_
+
+clear
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+my-superuser cp -r /usr/share/my_stuff/lib/Dev-Env/typora /usr/share/my_stuff/system_files/skel/.config
+
+for d in /home/*; do
+	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+	if [ -d "$d/.config" ];then
+		my-superuser cp -rv /usr/share/my_stuff/system_files/skel/.config/typora "$d/.config"
+		my-superuser chown -R $user_and_group "$d/.config/typora"
+	fi
+done
+

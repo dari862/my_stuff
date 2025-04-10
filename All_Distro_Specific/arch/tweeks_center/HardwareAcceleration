@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if grep -q "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1" /etc/environment; then # enabled
+	exit 0 
+elif [ "$1" = "--is-enable" ];then # disabled and only check
+	exit 1
+fi
+
+Package_installer_ libva-nvidia-driver
+mkdir -p "$HOME/.local/share/linutil"
+if [ -d "$LIBVA_DIR" ]; then
+	rm -rf "$LIBVA_DIR"
+fi
+say "Cloning libva from https://github.com/intel/libva in ${LIBVA_DIR}"
+git clone --branch=v2.22-branch --depth=1 https://github.com/intel/libva "$LIBVA_DIR"
+mkdir -p "$LIBVA_DIR/build"
+cd "$LIBVA_DIR/build" && arch-meson .. -Dwith_legacy=nvctrl && ninja
+my-superuser ninja install
+my-superuser sed -i '/^MOZ_DISABLE_RDD_SANDBOX/d' "/etc/environment"
+my-superuser sed -i '/^LIBVA_DRIVER_NAME/d' "/etc/environment"
+printf "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1" | my-superuser tee -a /etc/environment >/dev/null
+say "Hardware Acceleration setup completed successfully."
+if prompt "enable Hardware Acceleration in MPV player" 'Y'; then
+	mkdir -p "$HOME/.config/mpv"
+	if [ -f "$MPV_CONF" ]; then
+		sed -i '/^hwdec/d' "$MPV_CONF"
+	fi
+	printf "hwdec=auto" | tee -a "$MPV_CONF" >/dev/null
+	say "MPV Hardware Acceleration enabled successfully."
+fi

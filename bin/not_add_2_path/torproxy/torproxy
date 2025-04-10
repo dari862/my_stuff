@@ -1,0 +1,201 @@
+#!/bin/sh
+set -e
+. "/usr/share/my_stuff/lib/env_torproxy.sh"
+
+RULES="/usr/share/my_stuff/system_files/tor-router.save"
+
+is_nftables_installed=false
+is_iptables_installed=false
+
+if dpkg -s iptables >/dev/null 2>&1;then
+	is_iptables_installed=true
+elif dpkg -s nftables >/dev/null 2>&1;then
+	is_nftables_installed=true
+else
+	echo "[ERROR] $0 : please install nftables or iptables."
+	exit 1	
+fi
+
+__arg_="${1-}"
+
+if dpkg -s ufw >/dev/null 2>&1;then
+	ignore_ufw=false
+	if ufw status | grep -q "inactive";then
+		ignore_ufw=true
+	fi
+else
+	ignore_ufw=true
+fi
+
+stop_ufw(){
+	if [ "$ignore_ufw" = "true" ];then
+		return
+	fi
+	ufw disable >/dev/null 2>&1
+}
+
+start_ufw(){
+	if [ "$ignore_ufw" = "true" ];then
+		return
+	fi
+	ufw enable >/dev/null 2>&1
+}
+
+start_iptables(){
+	if ! iptables-save | tee "$RULES" >/dev/null 2>&1;then
+		echo "failed to create $RULES existing."
+	fi
+	chmod 700 "$RULES"
+		
+	### flush iptables
+	iptables -F
+	iptables -t nat -F
+		
+	### set iptables *nat to ignore tor user
+	iptables -t nat -A OUTPUT -m owner --uid-owner $__UUID -j RETURN
+	
+	### redirect all DNS output to tor's DNSPort
+	iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $__DNSPort
+	
+	### set iptables *filter
+	iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+	
+	### allow clearnet access for hosts in $_non_tor
+	for _clearnet in $_non_tor 127.0.0.0/8; do
+   		iptables -t nat -A OUTPUT -d $_clearnet -j RETURN
+   		iptables -A OUTPUT -d $_clearnet -j ACCEPT
+	done
+		
+	### redirect all other output to tor's TransPort
+	iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $__TransPort
+	
+	### allow only tor output
+	iptables -A OUTPUT -m owner --uid-owner $__UUID -j ACCEPT
+	iptables -A OUTPUT -j REJECT
+}
+
+stop_iptables(){
+	echo "Restoring previous rules from $RULES"
+	iptables -F
+	iptables -t nat -F
+	iptables -t mangle -F
+	iptables -X
+	iptables -t nat -X
+	iptables -t mangle -X
+	if sh -c "iptables-restore < \"$RULES\"";then
+		rm -f "$RULES"
+	else
+		return 1
+	fi
+}
+
+start_nftables() {
+    # Save the current nftables ruleset
+    if ! nft list ruleset > "$RULES" 2>/dev/null;then
+        echo "Failed to create $RULES (or no existing ruleset)."
+    fi
+    chmod 700 "$RULES"
+
+    # Flush (remove) all existing nftables rules
+    nft flush ruleset
+
+    #-------------------------------------------------
+    # Create tables and chains
+    #-------------------------------------------------
+    # NAT table
+    nft add table ip nat
+    nft add chain ip nat PREROUTING  { type nat hook prerouting  priority -100 \; }
+    nft add chain ip nat INPUT       { type nat hook input       priority    0 \; }
+    nft add chain ip nat OUTPUT      { type nat hook output      priority    0 \; }
+    nft add chain ip nat POSTROUTING { type nat hook postrouting priority  100 \; }
+
+    # FILTER table
+    nft add table ip filter
+    nft add chain ip filter INPUT   { type filter hook input   priority 0 \; }
+    nft add chain ip filter FORWARD { type filter hook forward priority 0 \; }
+    nft add chain ip filter OUTPUT  { type filter hook output  priority 0 \; }
+
+    #-------------------------------------------------
+    # 1) In the NAT table, ignore traffic from Tor user
+    #-------------------------------------------------
+    nft add rule ip nat OUTPUT meta skuid $__UUID return
+
+    #-------------------------------------------------
+    # 2) Redirect all UDP DNS (port 53) to Tor's DNSPort
+    #-------------------------------------------------
+    nft add rule ip nat OUTPUT udp dport 53 redirect to $__DNSPort
+
+    #-------------------------------------------------
+    # 3) In the FILTER table, allow established/related
+    #-------------------------------------------------
+    nft add rule ip filter OUTPUT ct state established,related accept
+
+    #-------------------------------------------------
+    # 4) Allow clearnet access for hosts in $_non_tor and local addresses
+    #-------------------------------------------------
+    for _clearnet in $_non_tor 127.0.0.0/8; do
+        # Bypass NAT
+        nft add rule ip nat OUTPUT ip daddr $_clearnet return
+        # Accept in filter
+        nft add rule ip filter OUTPUT ip daddr $_clearnet accept
+    done
+
+    #-------------------------------------------------
+    # 5) Redirect all other TCP SYN packets to Tor's TransPort
+    #-------------------------------------------------
+    nft add rule ip nat OUTPUT tcp flags syn redirect to $__TransPort
+
+    #-------------------------------------------------
+    # 6) Allow only Tor user and then reject everything else
+    #-------------------------------------------------
+    nft add rule ip filter OUTPUT meta skuid $__UUID accept
+    nft add rule ip filter OUTPUT reject
+
+    echo "nftables rules for Tor have been applied."
+}
+
+stop_nftables() {
+    echo "Restoring previous rules from $RULES"
+
+    # First, flush any new rules
+    nft flush ruleset
+
+    # Attempt to load the previously saved ruleset
+    if nft -f "$RULES";then
+        rm -f "$RULES"
+        echo "Previous nftables rules restored."
+    else
+        echo "Failed to restore rules from $RULES."
+        return 1
+    fi
+}
+
+start_tor(){
+	# Most of this is from
+	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
+	# destinations you don't want routed through Tor
+	if test -f "$RULES";then
+		echo "$RULES exists. Either delete it, or stop tor-router first."
+		exit 1
+	else
+		stop_ufw
+		# Only save the rules when we are sure that everything is working
+		[ "$is_nftables_installed" = true ] && start_nftables
+		[ "$is_iptables_installed" = true ] && start_iptables
+	fi
+}
+
+stop_tor(){
+	if test -f "$RULES";then
+		[ "$is_nftables_installed" = true ] && stop_nftables && start_ufw
+		[ "$is_iptables_installed" = true ] && stop_iptables && start_ufw
+	else
+		echo "$RULES does not exist. Not doing anything."
+		exit
+	fi
+}
+
+case "$__arg_" in
+	start)	start_tor;;
+	stop)	stop_tor;;
+esac

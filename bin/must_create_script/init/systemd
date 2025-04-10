@@ -1,0 +1,31 @@
+#!/bin/sh
+set -e
+option=${1-}
+service=${2-}
+user=""
+_superuser="my-superuser"
+if [ "${service}" = "user" ];then
+	user="--user"
+	service=${3-}
+	_superuser=""
+fi
+
+if [ "${option}" = "start" ];then
+	$_superuser systemctl start ${service}
+elif [ "${option}" = "restart" ];then
+	$_superuser systemctl restart ${service}
+elif [ "${option}" = "is-enable" ];then
+	systemctl is-enabled --quiet ${service}
+elif [ "${option}" = "is-active" ];then
+	systemctl is-active --quiet ${service}
+elif [ "${option}" = "stop" ];then
+	$_superuser systemctl stop ${service}.
+elif [ "${option}" = "enable" ];then
+	$_superuser systemctl ${user} enable --now ${service}
+elif [ "${option}" = "disable" ];then
+	$_superuser systemctl ${user} disable --now ${service}
+elif [ "${option}" = "cleanup" ];then
+	$_superuser journalctl --vacuum-time=3d
+else
+	echo "option are enable is-enable is-active disable start restart stop"
+fi

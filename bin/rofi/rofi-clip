@@ -1,0 +1,13 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+. "${script_config_path}/clipmanager/config.ini" 
+
+if pgrep clipmanager >/dev/null 2>&1;then
+	cat "${_history}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi | xclip -selection clipboard
+else
+	echo "$0: ERROR clipmanager is not running."
+	exit 1
+fi

@@ -1,0 +1,43 @@
+#!/bin/sh
+
+pre_app_name="apt-transport-https"
+app_name="php8.3"
+extra_apps_="${app_name}-{curl,bz2,mbstring,cli,apcu,intl,opcache,pgsql,mysql,sqlite3,redis,xml,zip,fpm}"
+
+say 'Installing pre-package...' 1
+
+Package_installer_ ${pre_app_name} || continue
+
+# Add php repo source and signing key along with dependencies
+. "/usr/share/my_stuff/system_files/os-release"
+download_key "download" "https://packages.sury.org/php/apt.gpg" "/usr/share/keyrings/deb.sury.org-php.gpg"
+echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $version_codename main" | my-superuser tee /etc/apt/sources.list.d/php.list >/dev/null 2>&1
+
+Package_update_
+
+# Remove old packages
+Package_remove_ php8.2* || :
+clear
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+if [ -n "${extra_apps_}" ];then
+	say 'Installing extra packages...' 1
+	Package_installer_ ${extra_apps_} || continue
+	clear
+fi
+
+# On Apache: Enable PHP 8.3 FPM
+my-superuser a2enconf php8.3-fpm
+
+# When upgrading from an older PHP version:
+my-superuser a2disconf php8.2-fpm
+
+say 'get composer ...' 1
+cd /tmp/$USER
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php composer-setup.php --quiet && my-superuser mv composer.phar /usr/local/bin/composer
+my-superuser chown root:root -R /usr/local/bin/composer
+rm composer-setup.php
