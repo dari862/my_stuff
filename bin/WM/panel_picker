@@ -49,7 +49,7 @@ if [ "$_picked_panel_" = "tint2" ];then
 		which_MENU="$(echo "jgmenu|obmenu" | \
 		rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi)"
 		if [ "$which_MENU" = "jgmenu" ];then
-			ac-ob-menu jgmenu
+			change-ob-menu jgmenu
 		fi
 	fi
 fi

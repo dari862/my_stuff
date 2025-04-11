@@ -21,17 +21,17 @@ if [ "${menu_style}" = "jgmenu" ];then
 	menuSeparator 'Switch to obmenu'
 	cd "${OBPATH}/Menu"
 	for menu in *.xml;do
-		menuItem "${menu}" "ac-ob-menu ${menu}"
+		menuItem "${menu}" "change-ob-menu ${menu}"
 	done
 else
 	cd "${OBPATH}/Menu"
 	for menu in *.xml;do
-		menuItem "${menu}" "ac-ob-menu ${menu}"
+		menuItem "${menu}" "change-ob-menu ${menu}"
 	done
 	if [ "${jgmenu_exist}" = true ];then
 		menuSeparator
 		menuSeparator
-		menuItem 'Switch to jgmenu' "ac-ob-menu jgmenu"
+		menuItem 'Switch to jgmenu' "change-ob-menu jgmenu"
 	fi
 fi
 menuEnd
