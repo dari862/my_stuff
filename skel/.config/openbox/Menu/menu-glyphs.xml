@@ -35,8 +35,8 @@
 		<menu id="TakeScreenshot" execute="screenshot-pipemenu" label=" Screenshot"/>
 		<menu id="record-pipemenu" execute="record-pipemenu" label=" Screen Recorder"/>
 		<separator/>
-		<menu id="ac-places" execute="ac-places --recent ~/" label=" Places"/>
-		<menu id="ac-recent" execute="ac-recent-files" label=" Recent Files"/>
+		<menu id="places-pipemenu" execute="places-pipemenu --recent ~/" label=" Places"/>
+		<menu id="ac-recent" execute="recent-files-pipemenu" label=" Recent Files"/>
 		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label=" Preferences"/>
 		<menu id="HelpAndResources" execute="help-menu-openbox" label=" Help &amp; Resources"/>
 		<menu id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label=" Keybinds"/>
@@ -47,7 +47,7 @@
 			</action>
 		</item>
 		<menu id="Exit" label=" System">
-				<menu id="SystemPipeMenu" execute="ac-sysinfo" label=" Stats"/>
+				<menu id="SystemPipeMenu" execute="sysinfo-pipemenu" label=" Stats"/>
 				<item label=" Logout">
 					<action name="Execute">
 						<command>my_session_manager logout</command>

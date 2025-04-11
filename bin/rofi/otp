@@ -27,7 +27,7 @@ case $choice in
 
 		notify-send "Scan the image." "Scan the OTP QR code."
 
-		ac-shot --area "$temp" || exit 1
+		my-shots --area "$temp" || exit 1
 		info="$(zbarimg -q "$temp")"
 		info="${info#QR-Code:}"
 

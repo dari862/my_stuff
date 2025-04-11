@@ -4,7 +4,7 @@
 # To install, put this file somewhere and make sure it is executable.
 # Edit your $HOME/.config/openbox/menu.xml file. Add something like the following
 # near the top::
-#    <menu id="XrandrPipeMenu" label="Display/Monitor" execute="/path/to/ac-randr" />
+#    <menu id="XrandrPipeMenu" label="Display/Monitor" execute="/path/to/randr-pipemenu" />
 #
 # Then add this in the place you actually want the menu to appear::
 #

@@ -482,7 +482,7 @@ main_yad(){
     	--tab="Radio" \
     	--tab="USB" \
     	--tab="ThinkPad_Battery" \
-    	--title="TLP" --image=/usr/share/my_stuff/images/linux.png \
+    	--title="TLP" --image=/usr/share/my_stuff/icons/linux.png \
     	--scroll --center --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  \
     	--text="$INTRO_TXT" \
     	--button="show simple statistics":"bash -c 'show_statistics simple'" \

@@ -477,7 +477,7 @@ yad --notebook --tab-pos="left" --key=$KEY \
     --tab="<i>$COMPOSITOR</i>" \
     --tab="$SYSTEM" \
     --tab="$HELP"\
-    --title="$TITLE" --image=/usr/share/my_stuff/images/linux.png \
+    --title="$TITLE" --image=/usr/share/my_stuff/icons/linux.png \
     --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  --no-buttons > $out &
 }
 

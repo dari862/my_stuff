@@ -58,15 +58,15 @@ obmenu_options(){
 	
 	# local Screenshot
     menuSubmenu 'Screenshooters' 'Screenshooter'
-		menuItem 'Screenshot Now' "ac-shots"
-		menuItem 'Screenshot In 5s' "ac-shots --delay 5"
-		menuItem 'Screenshot In 10s' "ac-shots --delay 10"
+		menuItem 'Screenshot Now' "my-shots"
+		menuItem 'Screenshot In 5s' "my-shots --delay 5"
+		menuItem 'Screenshot In 10s' "my-shots --delay 10"
 		if command -v slop >/dev/null 2>&1;then
-			menuItem 'Screenshot Area' "ac-shots --area"
+			menuItem 'Screenshot Area' "my-shots --area"
 		else
 			menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
 		fi
-		menuItem 'Screenshot Window' "ac-shots --win"
+		menuItem 'Screenshot Window' "my-shots --win"
     menuSubmenuEnd
 
     menuSubmenu 'imgur' 'Imgur - Upload Screenshot'
@@ -108,15 +108,15 @@ jgmenu_options(){
 	# pipemenu
 	# local Screenshot
     jgmenuSubmenu 'root' 'takescreenshot' 'scrot Screenshooter'
-    jgmenuItem 'takescreenshot' "Screenshoot Now" "ac-shots"
-    jgmenuItem 'takescreenshot' "Screenshoot In 5 secs..." "ac-shots --delay 5"
-    jgmenuItem 'takescreenshot' "Screenshoot In 10 secs..." "ac-shots --delay 10"
+    jgmenuItem 'takescreenshot' "Screenshoot Now" "my-shots"
+    jgmenuItem 'takescreenshot' "Screenshoot In 5 secs..." "my-shots --delay 5"
+    jgmenuItem 'takescreenshot' "Screenshoot In 10 secs..." "my-shots --delay 10"
     if command -v slop >/dev/null 2>&1;then
-		jgmenuItem 'takescreenshot' "Screenshoot Select Area" "ac-shots --area"
+		jgmenuItem 'takescreenshot' "Screenshoot Select Area" "my-shots --area"
 	else
 		jgmenuItem 'takescreenshot' 'install slop for Screenshot Area' 'popup_terminal --install slop'
 	fi
-    jgmenuItem 'takescreenshot' "Screenshoot Current Focus" "ac-shots --win"
+    jgmenuItem 'takescreenshot' "Screenshoot Current Focus" "my-shots --win"
         	
     jgmenuSubmenu 'root' 'imgur' 'Imgur - Upload Screenshot'
 	

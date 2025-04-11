@@ -1,15 +1,16 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/common/WM"
+__distro_path="/usr/share/my_stuff"
+
+. "${__distro_path}/lib/common/WM"
 
 machine_type_are="${1:-}"
 
 if [ -z "${machine_type_are}" ];then
-	. "/usr/share/my_stuff/lib/common/machine_type"
+	. "${__distro_path}/lib/common/machine_type"
 	machine_type_are="$(check_machine_type)"
 fi
 
-__distro_path="/usr/share/my_stuff"
 _hub_script_dir="${__distro_path}/system_files/hub_script"
 pipemenu_creater="${__distro_path}/bin/not_add_2_path/create_pipemenu"
 
@@ -144,7 +145,7 @@ mkdir -p "${__distro_path}"/bin/my_installer/distrobox_center/Gaming
 mkdir -p "${__distro_path}"/system_files
 
 show_im "copy doas.conf to correct location."
-cp -rp "/usr/share/my_stuff/lib/apps/doas/doas.conf" "/usr/share/my_stuff/system_files/doas.conf"
+cp -rp "${__distro_path}/lib/apps/doas/doas.conf" "${__distro_path}/system_files/doas.conf"
 
 show_im "create uniq system files"
 mkdir -p "${__distro_path}"/system_files/updater

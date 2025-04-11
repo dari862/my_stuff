@@ -76,8 +76,8 @@
             </action>
         </item>
     </menu>
-    <menu id="Places" execute="ac-places" label="Places"/>
-    <menu id="RecentFiles" execute="ac-recent-files -rl15" label="Recent Files"/>
+    <menu id="Places" execute="places-pipemenu" label="Places"/>
+    <menu id="RecentFiles" execute="recent-files-pipemenu -rl15" label="Recent Files"/>
     <separator/>
     <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/bl'" label="Preferences"/>
     <menu id="applications-system" label="System">

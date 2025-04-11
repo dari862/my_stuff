@@ -76,8 +76,8 @@ show_information() {
         --fixed \
         --width 500 \
         --title "Mux Icon: ${vendor}"\
-        --image "/usr/share/my_stuff/images/GPU_ICONS/${gpu_vendor_icon}.svg"\
-        --window-icon "/usr/share/my_stuff/images/GPU_ICONS/${gpu_vendor_icon}.svg"\
+        --image "/usr/share/my_stuff/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
+        --window-icon "/usr/share/my_stuff/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
         --button="yad-close:0"\
         --button="Return!device_pci:${program}" \
         --text "<small>you can close the notification icon by middle clicking it</small>" \

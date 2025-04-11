@@ -43,9 +43,9 @@
 		<separator/>
 		<separator/>
 		<separator/>
-		<menu icon="&icons;/places.png" id="ac-places" execute="ac-places --recent ~/" label="Places"/>
+		<menu icon="&icons;/places.png" id="places-pipemenu" execute="places-pipemenu --recent ~/" label="Places"/>
 		<separator/>
-		<menu icon="&icons;/recents.png" id="ac-recent" execute="ac-recent-files" label="Recent Files"/>
+		<menu icon="&icons;/recents.png" id="ac-recent" execute="recent-files-pipemenu" label="Recent Files"/>
 		<separator/>
 		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
 		<separator/>
@@ -61,7 +61,7 @@
 		</item>
 		<separator/>
 		<menu icon="&icons;/sys-poweroff.png" id="Exit" label="System">
-				<menu icon="&icons;/stats.png" id="SystemPipeMenu" execute="ac-sysinfo" label="Stats"/>
+				<menu icon="&icons;/stats.png" id="SystemPipeMenu" execute="sysinfo-pipemenu" label="Stats"/>
 				<separator/>
 				<item icon="&icons;/sys-exit.png" label="Logout">
 					<action name="Execute">

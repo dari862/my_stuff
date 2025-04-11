@@ -7,7 +7,7 @@ check_4_dependencies_if_installed picom || exit 1
 dir="$HOME/.config/"
 
 HELP='
-ac-compositor an openbox pipe menu for use with picom
+my-compositor an openbox pipe menu for use with picom
 It should normally be called from an openbox menu.
 
 Options (passed from the menu):
@@ -18,7 +18,7 @@ Options (passed from the menu):
     --edit      open the picom config file in a text editor
     --watch     restart picom when the config is modified (useful for debugging)
 
-If ac-compositor is called with no options (the usual method),
+If my-compositor is called with no options (the usual method),
 it will output an xml openbox pipemenu for handling compositing.
 
 See ~/.config/picom.conf and "man picom" for configuration options.'

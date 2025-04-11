@@ -44,18 +44,18 @@ run_rofi() {
 chosen="$(run_rofi)"
 case ${chosen} in
     $shot_now)
-		ac-shots
+		my-shots
         ;;
     $shot_area)
-		ac-shots --area
+		my-shots --area
         ;;
     $shot_win)
-		ac-shots --win
+		my-shots --win
         ;;
     $shot_after_5sec)
-		ac-shots --delay 5
+		my-shots --delay 5
         ;;
     $shot_after_10sec)
-		ac-shots --delay 10
+		my-shots --delay 10
         ;;
 esac

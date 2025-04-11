@@ -366,7 +366,7 @@ Launch_YAD_(){
     	xdotool key --delay 20 Right && sleep 0.3
 	
     	# take screenshot and make thumbnail @9% fullsize
-    	ac-shots --no-view --no-notify --no-copy --thumb 9 --path "${SCREENSHOT_PATH}" --name "${ANS}.jpg"
+    	my-shots --no-view --no-notify --no-copy --thumb 9 --path "${SCREENSHOT_PATH}" --name "${ANS}.jpg"
     	mv "${SCREENSHOT_PATH}"/"${ANS}.jpg" "${SCREENSHOT_PATH}"/preview.jpg
     	(cd "${SCREENSHOT_PATH}" && cd .. && ln -sf "${ANS}"/preview.jpg .)
 	

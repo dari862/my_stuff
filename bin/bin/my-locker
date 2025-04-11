@@ -56,7 +56,7 @@ _desktop_screenshot_as_lockscreen()
 	[ "${greyscale}" = "true" ] && greyscale_arg="-g"
 	[ "${pixelate}" = "true" ] && pixelate_arg="-p"
 	
-	i3lock-fancy ${greyscale_arg} ${pixelate_arg} -- ac-shots
+	i3lock-fancy ${greyscale_arg} ${pixelate_arg} -- my-shots
 }
 
 _usr_custom_backgrounds_as_lockscreen()

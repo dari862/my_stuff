@@ -13,8 +13,8 @@
 # export running directory variables for use later
 export YADSHOT_PATH="$(readlink -f $0)"
 export RUNNING_DIR="$(dirname ${YADSHOT_PATH})"
-if [ -f "/usr/share/my_stuff/images/yadshot.svg" ];then
-    export ICON_PATH="/usr/share/my_stuff/images/yadshot.svg"
+if [ -f "/usr/share/my_stuff/icons/yadshot.svg" ];then
+    export ICON_PATH="/usr/share/my_stuff/icons/yadshot.svg"
 else
     export ICON_PATH="gtk-fullscreen"
 fi
@@ -88,7 +88,7 @@ function yadshotcapture() {
 		COPYONCAP_arg="--no-copy"
 	fi
 	
-	ac-shots "$DECORATIONS_arg" "$SELECTION_arg" --delay "$SS_DELAY" --path "/tmp/$USER/${SS_NAME}" --no-view "$COPYONCAP_arg"
+	my-shots "$DECORATIONS_arg" "$SELECTION_arg" --delay "$SS_DELAY" --path "/tmp/$USER/${SS_NAME}" --no-view "$COPYONCAP_arg"
 	displayss "${SS_NAME}"
 }
 export -f yadshotcapture

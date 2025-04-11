@@ -8,7 +8,7 @@ TITLE="--always-print-result --dialog-sep --window-icon=usb-creator --image=usb-
 TITLETEXT="USB Disk Formatter"
 TEXT="--text="
 OKBUTTON="--button=Ok:0 "
-DIALOGZEN="zenity --progress --pulsate --auto-close --auto-kill --no-cancel --window-icon=/usr/share/my_stuff/images/linux.png --width=450 --height=120"
+DIALOGZEN="zenity --progress --pulsate --auto-close --auto-kill --no-cancel --window-icon=/usr/share/my_stuff/icons/linux.png --width=450 --height=120"
 TITLEZEN="--title="
 
 if [ "$(id -u)" -ne 0 ];

@@ -230,7 +230,7 @@ separator_padding = 0 8
 
 # Exit dialog
 button = new
-button_icon = /usr/share/my_stuff/images/exit/light/poweroff.png
+button_icon = /usr/share/my_stuff/icons/exit/light/poweroff.png
 #button_icon = system-shutdown
 button_text =
 button_tooltip = Logout/Shutdown...

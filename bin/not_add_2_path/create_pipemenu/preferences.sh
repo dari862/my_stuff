@@ -19,7 +19,7 @@ create_exec_pipemenu(){
 	create_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
 	create_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
 	menuSubmenu "preferences-openbox" "Openbox"
-    	create_exec_pipemenu "ac-ob-menu-pipemenu" "ac-ob-menu-pipemenu" "Menu Style"
+    	create_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
     	menuItem "Edit rc.xml" "my-text-editor &openboxconfig;/rc.xml"
     	menuSeparator
     	menuItem "WM Preferences" "obconf --config-file &openboxconfig;/rc.xml"
@@ -27,9 +27,9 @@ create_exec_pipemenu(){
     	menuItem "Reconfigure" "openbox --reconfigure"
     	menuItem "Restart" "restart-openbox"
 	menuSubmenuEnd
-	create_exec_pipemenu "Compositor" "ac-compositor-pipemenu" "Compositor"
+	create_exec_pipemenu "Compositor" "compositor-pipemenu" "Compositor"
 	create_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
-	create_exec_pipemenu "panel_settings" "ac-panel-settings" "Taskbar"
+	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	menuItem "Appearance" "appearance_settings_"
 	menuItem "Reload GTK" "reload_gtk23"
 	menuItem "Font configuration" "my-text-editor ~/.config/fontconfig/fonts.conf"
@@ -59,7 +59,7 @@ create_exec_pipemenu(){
 	create_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
 	
 	menuSubmenu "obconfig" "Openbox"
-    	create_exec_pipemenu "ac-ob-menu-pipemenu" "ac-ob-menu-pipemenu" "Menu Style"
+    	create_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
     	menuItem "Settings" "obconf"
     	menuSeparator
     	menuItem "Edit menu.xml" "my-text-editor &openboxconfig;/menu.xml"
@@ -70,15 +70,15 @@ create_exec_pipemenu(){
     	menuItem "Restart" "restart-openbox"
 	menuSubmenuEnd
 	
-	create_exec_pipemenu "CompositingPipeMenu" "ac-compositor-pipemenu" "Compositor"
-	create_exec_pipemenu "XrandrPipeMenu" "ac-randr" "Display / Monitor"
-	create_exec_pipemenu "ScalePipeMenu" "ac-scale-randr" "Display / Monitor Scaling"
+	create_exec_pipemenu "CompositingPipeMenu" "compositor-pipemenu" "Compositor"
+	create_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
+	create_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
 	menuSeparator
 	create_exec_pipemenu "StylePipeMenu" "change-style-pipemenu" "Change Style"
 	create_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
 	create_exec_pipemenu "FontPipeMenu" "change-fonts-pipemenu" "Change Font"
 	create_exec_pipemenu "SchemePipeMenu" "change-scheme-pipemenu" "Terminal Color Scheme"
-	create_exec_pipemenu "panel_settings" "ac-panel-settings" "Taskbar"
+	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	menuSeparator
 	menuItem "Change Wallpaper" "pickbg"
 	menuItem "Appearance Settings" "appearance_settings_"
@@ -100,8 +100,8 @@ create_exec_pipemenu(){
 	create_exec_pipemenu "RunDebianTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Debian Tweeks"
 	create_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
 	menuSeparator "GRAPHICAL PREFERENCES"
-	create_exec_pipemenu "XrandrPipeMenu" "ac-randr" "Display / Monitor"
-	create_exec_pipemenu "ScalePipeMenu" "ac-scale-randr" "Display / Monitor Scaling"
+	create_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
+	create_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
 	create_exec_pipemenu "StylePipeMenu" "change-style-pipemenu" "Change Style"
 	create_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
 	menuSubmenu "obConfig" "Desktop"
@@ -114,7 +114,7 @@ create_exec_pipemenu(){
 	menuSubmenuEnd
 	
 	menuSubmenu "obmenu" "Menu"
-    	create_exec_pipemenu "ac-ob-menu-pipemenu" "ac-ob-menu-pipemenu" "Menu Style"
+    	create_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
     	menuItem "Edit menu.xml" "my-text-editor &openboxconfig;/menu.xml"
     	menuItem "Hide/show icons in menu" "bash -c 'if grep -q icon_hide=\" &openboxconfig;/menu.xml;then sed -i \"s/icon_hide=\"/icon=\"/g\" &openboxconfig;/menu.xml; else sed -i \"s/icon=\"/icon_hide=\"/g\" &openboxconfig;/menu.xml; fi'"
     	menuItem "How to configure menu.xml?" "my-www-browser \"http://openbox.org/wiki/Help:Menus\" \"https://wiki.archlinux.org/index.php/openbox#Menus\""
@@ -122,8 +122,8 @@ create_exec_pipemenu(){
     	menuItem "Reload Menu" "openbox --reconfigure"
 	menuSubmenuEnd
 	
-	create_exec_pipemenu "CompositingPipeMenu" "ac-compositor-pipemenu" "Compositor"
-	create_exec_pipemenu "panel_settings" "ac-panel-settings" "Taskbar"
+	create_exec_pipemenu "CompositingPipeMenu" "compositor-pipemenu" "Compositor"
+	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	create_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
 	
 	menuSubmenu "autostart" "Autostarted programs"

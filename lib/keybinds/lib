@@ -160,9 +160,9 @@ EOF
 	append_xbindkey_shortcut "Lock Screen" "my_session_manager lock" "$xbindkeysrc_Lock_Screen"
 	append_xbindkey_shortcut "Logout" "my_session_manager --yad" "$xbindkeysrc_Logout"
 	append_xbindkey_shortcut "Kill a Window" "xkill" "$Kill_a_Window"
-	append_xbindkey_shortcut "Print Screen" "ac-shots" "$Print_Screen"
-	append_xbindkey_shortcut "Print Screen area" "ac-shots --area" "$Print_Screen_area"
-	append_xbindkey_shortcut "Print Screen with 10s delay" "ac-shots --delay 10" "$Print_Screen_with_10s_delay"
+	append_xbindkey_shortcut "Print Screen" "my-shots" "$Print_Screen"
+	append_xbindkey_shortcut "Print Screen area" "my-shots --area" "$Print_Screen_area"
+	append_xbindkey_shortcut "Print Screen with 10s delay" "my-shots --delay 10" "$Print_Screen_with_10s_delay"
 
 	sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_xbindkeysrc_file_path}" "${xbindkeysrc_file_path}"
 
@@ -1416,11 +1416,11 @@ EOF
     generate_openbox_keybind "$Openbox_Close" "Close"
     generate_openbox_keybind "$Execute_xkill" "Execute" "xkill"
     echo "<!--  Screenshot Keys -->"
-    generate_openbox_keybind "$Print_Screen" "Execute" "ac-shots"
-    generate_openbox_keybind "$Execute_ac_shots_delay_5" "Execute" "ac-shots --delay 5"
-    generate_openbox_keybind "$Execute_ac_shots_delay_10" "Execute" "ac-shots --delay 10"
-    generate_openbox_keybind "$Execute_ac_shots_win" "Execute" "ac-shots --win"
-    generate_openbox_keybind "$Execute_ac_shots_area" "Execute" "ac-shots --area"
+    generate_openbox_keybind "$Print_Screen" "Execute" "my-shots"
+    generate_openbox_keybind "$Execute_ac_shots_delay_5" "Execute" "my-shots --delay 5"
+    generate_openbox_keybind "$Execute_ac_shots_delay_10" "Execute" "my-shots --delay 10"
+    generate_openbox_keybind "$Execute_ac_shots_win" "Execute" "my-shots --win"
+    generate_openbox_keybind "$Execute_ac_shots_area" "Execute" "my-shots --area"
     echo "<!-- jgmenu is now launched by Mod4 + space in ~/.xbindkeysrc -->"
 echo "<!--
     <keybind key=\"${Execute_jgmenu_run}\">
@@ -1545,11 +1545,11 @@ create_sxhkd_tmp_file(){
 	[ "$mode" != "rofi" ] && echo "##---------- System Keys ----------##" >> "$temp_sxhkd_file_path"
 	append_sxhkd "$show_shortcut" 'yad --button=Exit:1 --text-info --title="Bspwm Keybinds" --filename=$script_config_path\sxhkd_keybinds --width=750 --height=600' "show shortcut"
 	append_sxhkd "$switch_keyboard_languge" "kswitch" "switch keyboard languge"
-	append_sxhkd "$Take_a_screenshot" "ac-shots" "Take a screenshot"
-	append_sxhkd "$Take_screenshot_in_5_second" "ac-shots --delay 5" "Take screenshot in 5 second"
-	append_sxhkd "$Take_screenshot_in_10_second" "ac-shots --delay 10" "Take screenshot in 10 second"
-	append_sxhkd "$Take_screenshot_of_active_window" "ac-shots --win" "Take screenshot of active window"
-	append_sxhkd "$Take_screenshot_of_area" "ac-shots --area" "Take screenshot of area"
+	append_sxhkd "$Take_a_screenshot" "my-shots" "Take a screenshot"
+	append_sxhkd "$Take_screenshot_in_5_second" "my-shots --delay 5" "Take screenshot in 5 second"
+	append_sxhkd "$Take_screenshot_in_10_second" "my-shots --delay 10" "Take screenshot in 10 second"
+	append_sxhkd "$Take_screenshot_of_active_window" "my-shots --win" "Take screenshot of active window"
+	append_sxhkd "$Take_screenshot_of_area" "my-shots --area" "Take screenshot of area"
 	append_sxhkd "$Volume_mute" "volume_cli_control --toggle" "Toggle mute/unmute volume"
 	if [ "$mode" != "rofi" ];then
 		append_sxhkd "$Volume_control" "volume_cli_control{ --inc, --dec}" "Volume control"
@@ -2051,11 +2051,11 @@ create_pipemenu_file(){
   		
 		
 		menuSeparator "Screenshot Keys"
-		[ -n "${Print_Screen}" ] && menuItem "${Print_Screen}	-	Print Screen" "ac-shots"
-		[ -n "${Execute_ac_shots_delay_5}" ] && menuItem "${Execute_ac_shots_delay_5}	-	Print Screen dealy 5 sec" "ac-shots --delay 5"
-		[ -n "${Execute_ac_shots_delay_10}" ] && menuItem "${Execute_ac_shots_delay_10}	-	Print Screen dealy 10 sec" "ac-shots --delay 10"
-		[ -n "${Execute_ac_shots_win}" ] && menuItem "${Execute_ac_shots_win}	-	Print Screen win" "ac-shots --win"
-		[ -n "${Execute_ac_shots_area}" ] && menuItem "${Execute_ac_shots_area}	-	Print Screen area" "ac-shots --area"
+		[ -n "${Print_Screen}" ] && menuItem "${Print_Screen}	-	Print Screen" "my-shots"
+		[ -n "${Execute_ac_shots_delay_5}" ] && menuItem "${Execute_ac_shots_delay_5}	-	Print Screen dealy 5 sec" "my-shots --delay 5"
+		[ -n "${Execute_ac_shots_delay_10}" ] && menuItem "${Execute_ac_shots_delay_10}	-	Print Screen dealy 10 sec" "my-shots --delay 10"
+		[ -n "${Execute_ac_shots_win}" ] && menuItem "${Execute_ac_shots_win}	-	Print Screen win" "my-shots --win"
+		[ -n "${Execute_ac_shots_area}" ] && menuItem "${Execute_ac_shots_area}	-	Print Screen area" "my-shots --area"
 		
 		menuSeparator "Keybindings for menus"
 		[ -n "${Execute_jgmenu_run}" ] && menuItem "${Execute_jgmenu_run}	-	Execute jgmenu run" "xdotool key ${Execute_jgmenu_run}"

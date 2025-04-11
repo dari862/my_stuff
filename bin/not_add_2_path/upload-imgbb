@@ -166,9 +166,9 @@ function settings_conf(){
 		FILE_FORMAT="png"
 		
 		# Screenshot commands
-		SCREENSHOT_SELECT_COMMAND="ac-shots --area --no-view --no-copy --no-notify"
-		SCREENSHOT_WINDOW_COMMAND="ac-shots --win --no-view --no-copy --no-notify"
-		SCREENSHOT_FULL_COMMAND="ac-shots --no-view --no-copy --no-notify"
+		SCREENSHOT_SELECT_COMMAND="my-shots --area --no-view --no-copy --no-notify"
+		SCREENSHOT_WINDOW_COMMAND="my-shots --win --no-view --no-copy --no-notify"
+		SCREENSHOT_FULL_COMMAND="my-shots --no-view --no-copy --no-notify"
 		
 		EOF
     fi

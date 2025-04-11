@@ -4,7 +4,7 @@
 
 title_name="Live wallpaper"
 icon_name="livewall_gui"
-icon="/usr/share/my_stuff/images/${icon_name}.png"
+icon="/usr/share/my_stuff/icons/${icon_name}.png"
 _dir_vid="$(livewall -p)"
 
 pick_it(){

@@ -3,7 +3,7 @@
 
 title_name="Fingerprint gui"
 icon_name="url_downloader"
-icon="/usr/share/my_stuff/images/${icon_name}.png"
+icon="/usr/share/my_stuff/icons/${icon_name}.png"
 
 yad --form \
     --no-buttons \

@@ -1,0 +1,69 @@
+#!/bin/sh
+# User's config dir
+dir="$HOME/.config/"
+
+# Variables and functions
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+##-- various checks ---------------------
+check_backend=$(cat $dir/picom.conf | grep "backend = " | head -n1 | cut -d'=' -f2 | tr -d ';,[:blank:],"')
+check_corners=$(cat $dir/picom.conf | grep 'corner-radius =' | cut -d'=' -f2 | tr -d ';,[:blank:]')
+check_border=$(cat $dir/picom.conf | grep 'round-borders =' | cut -d'=' -f2 | tr -d ';,[:blank:]')
+check_shadow=$(cat $dir/picom.conf | grep 'shadow =' | head -n1 | cut -d'=' -f2 | tr -d ';,[:blank:]')
+check_fading=$(cat $dir/picom.conf | grep 'fading =' | head -n1 | cut -d'=' -f2 | tr -d ';,[:blank:]')
+check_blur=$(cat $dir/picom.conf | grep 'method =' | head -n1 | cut -d'=' -f2 | tr -d ';,[:blank:],"')
+
+menuStart
+if ! pidof picom >/dev/null 2>&1;then
+	menuItem 'Enable Compositor' "my-compositor --start"
+else
+	menuSeparator 'Backend'
+	if [ "$check_backend" != "glx" ];then
+		menuItem 'Use glx backend' "my-compositor --use-glx"
+	else
+		menuItem 'Use xrender backend' "my-compositor --use-xrender"
+	fi
+	menuSeparator 'Corners'
+	if [ "$check_corners" != "0" ];then
+		menuItem 'Change Corner Radius' "my-compositor --corner-radius"
+		menuItem 'Disable Rounded Corners' "my-compositor --disable-corners"
+	else
+		menuItem 'Enable Rounded Corners' "my-compositor --corner-radius"
+	fi
+	menuSeparator 'Border'
+	if [ "$check_border" != "0" ];then
+		menuItem 'Change Border Size' "my-compositor --border-size"
+		menuItem 'Disable Borders' "my-compositor --disable-borders"
+	else
+		menuItem 'Enable Borders' "my-compositor --border-size"
+	fi
+	menuSeparator 'Shadow'
+	if [ "$check_shadow" = "true" ];then
+		menuItem 'Modify Shadow Settings' "my-compositor --update-shadows"
+		menuItem 'Reset Shadow Settings' "my-compositor --reset-shadows"
+		menuItem 'Disable Client Shadows' "my-compositor --disable-shadows"
+	else
+		menuItem 'Enable Client Shadows' "my-compositor --enable-shadows"
+	fi
+	menuSeparator 'Fading'
+	if [ "$check_fading" = "true" ];then
+		menuItem 'Modify Fading Settings' "my-compositor --update-fading"
+		menuItem 'Reset Fading Settings' "my-compositor --reset-fading"
+		menuItem 'Disable Fading' "my-compositor --disable-fading"
+	else
+		menuItem 'Enable Fading' "my-compositor --enable-fading"
+	fi
+	menuSeparator 'Blur'
+	if [ "$check_blur" != "dual_kawase" ];then
+		menuItem 'Enable Blur Effect' "my-compositor --enable-blur"
+	else
+		menuItem 'Set Blur Strength' "my-compositor --update-blur"
+		menuItem 'Disable Blur Effect' "my-compositor --disable-blur"
+	fi
+	menuSeparator 'Settings'
+	menuItem 'Restart Compositor' "my-compositor --restart"
+	menuItem 'Disable Compositor' "my-compositor --stop"
+fi
+menuSeparator
+menuItem 'Edit Configuration File' "my-compositor --edit"
+menuEnd

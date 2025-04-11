@@ -55,12 +55,12 @@ case $1 in
     --recent)
         shift
         output='<openbox_pipe_menu>'
-        if [[ "$(command -v ac-recent-files)" ]];then
+        if [[ "$(command -v recent-files-pipemenu)" ]];then
             output="$output
   <separator label=\"Recently opened...\"/>
-  <menu execute=\"ac-recent-files\" id=\"recent\" label=\"files\"/>"
+  <menu execute=\"recent-files-pipemenu\" id=\"recent\" label=\"files\"/>"
         else
-            echo "$0 : cannot find executable script ac-recent-files" >&2
+            echo "$0 : cannot find executable script recent-files-pipemenu" >&2
         fi
         ;;
     *) output='<openbox_pipe_menu>'

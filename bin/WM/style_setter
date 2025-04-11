@@ -112,7 +112,7 @@ if command -v jgmenu >/dev/null 2>&1;then
 	sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
 fi
 
-dunstify -u normal --replace=699 -i /usr/share/my_stuff/images/channelmixer.svg "Applying Style : ${style}"
+dunstify -u normal --replace=699 -i /usr/share/my_stuff/icons/channelmixer.svg "Applying Style : ${style}"
 Set_Style_ || show_em "failed to run Set_Style_"
 
 if [ "$_panel_name_" = 'polybar' ];then

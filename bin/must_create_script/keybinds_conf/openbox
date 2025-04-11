@@ -70,8 +70,8 @@ ToggleShowDesktopp=Super + d
 
 #;Screenshot Keys
 #;#########
-Execute ac-shots --delay 5=Alt + Print
-Execute ac-shots --win=Ctrl + Print
+Execute my-shots --delay 5=Alt + Print
+Execute my-shots --win=Ctrl + Print
 ShowMenu (2)=Alt + Ctrl + q
 
 #;Window Tiling: Snap feature

@@ -47,7 +47,7 @@ jgmenu can use xml pipemenus written for Openbox, or csv pipemenus.
     CSV pipemenus use the menu generation functions provided in
     /usr/share/my_stuff/lib/common/pipemenu and have entries like:
     
-    	jgmenuItem 'takescreenshot' "Screenshot Now" "ac-shots"
+    	jgmenuItem 'takescreenshot' "Screenshot Now" "my-shots"
 
     The first element is a tag indicating which submenu the item goes in,
     tag "root" means the root menu. The second is the label,
