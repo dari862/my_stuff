@@ -38,7 +38,7 @@ if [ ! -z "${vim_extra}" ];then
 	[ -d "${nvim_skel_path}" ] && my-superuser rm -rdf ${nvim_skel_path}
 	
 	if [ "${vim_extra}" = "Lazyvim" ];then
-		my-superuser clone_repo https://github.com/LazyVim/starter ${nvim_skel_path} || continue
+		super_clone_repo https://github.com/LazyVim/starter ${nvim_skel_path} || continue
 		my-superuser rm -rf ${nvim_skel_path}/.git
 		
 		# Disable update notification popup in starter config
