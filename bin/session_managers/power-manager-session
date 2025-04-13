@@ -3,11 +3,28 @@
 . "/usr/share/my_stuff/lib/common/WM"
 
 #=== FUNCTION ======================================================================
+# NAME: reload
+# DESCRIPTION: reload all my_power_manager process
+#===================================================================================
+reload_my_power_managers() {
+	if [ "$reload_cbatticon" = true ];then
+		stop
+		my_power_manager
+	else
+		kill_process.sh my_power_manager_daemon
+		my_power_manager --daemon
+	fi
+}
+
+#=== FUNCTION ======================================================================
 # NAME: stop
 # DESCRIPTION: stop all my_power_manager process
 #===================================================================================
 stop() {
-	kill_process.sh my_power_manager
+	for prosses2kill in my_power_manager_daemon cbatticon
+	do
+		kill_process.sh $prosses2kill
+	done
 }
 
 xfce_stop() {
@@ -33,6 +50,14 @@ case "${1}" in
 	""|restart)
 		stop
 		start		
+	;;
+	reload-daemon)
+		reload_cbatticon=false
+		reload_my_power_managers
+	;;
+	reload-all)
+		reload_cbatticon=true
+		reload_my_power_managers
 	;;
 	start)
 		start		

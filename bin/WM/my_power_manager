@@ -2,105 +2,20 @@
 
 opt="${1-}"
 ini_file_="my_power_manager.ini"
-ini_dir_="$HOME/.config/my_power_manager"
+ini_dir_="$HOME/.config/scriptconfig"
+my_power_manager_ini_location="$ini_dir_/$ini_file_"
 
 my_power_managers_session(){
 	. "/usr/share/my_stuff/lib/common/WM"
 	. "${Distro_config_file}"
 	
-	stop_my_power_managers
+	power-manager-session stop
 	
 	my_power_manager_daemon &
 	
-	if [ "$(command -v cbatticon)" ] && [ "$_panel_name_" != "polybar" ]
-	then
-		cbatticon -i symbolic -x "my_power_manager --gui" &
+	if [ "$(command -v cbatticon)" ] && [ "$_panel_name_" != "polybar" ];then
+		cbatticon -i symbolic -x "gui_power_manager" &
 	fi
-}
-
-my_power_managers_gui(){
-
-	if ! pidof my_power_manager_daemon >/dev/null 2>&1;then
-			my_power_managers_session
-	fi
-	my_power_manager_ini_location="$ini_dir_/$ini_file_"
-	get_idletime="$(cat $my_power_manager_ini_location | grep idleAfter= | cut -d '=' -f2)"
-	get_turnoff_moniter_time="$(cat $my_power_manager_ini_location | grep turnoff_moniter_time= | cut -d '=' -f2)"
-	get_logout_time="$(cat $my_power_manager_ini_location | grep logout_time= | cut -d '=' -f2)"
-	get_suspend_time="$(cat $my_power_manager_ini_location | grep suspend_time= | cut -d '=' -f2)"
-	get_hibernate_time="$(cat $my_power_manager_ini_location | grep hibernate_time= | cut -d '=' -f2)"
-	get_poweroff_time="$(cat $my_power_manager_ini_location | grep poweroff_time= | cut -d '=' -f2)"
-	get_brightness_level="$(cat $my_power_manager_ini_location | grep brightness_level= | cut -d '=' -f2)"
-	get_lock_screen_on_idle="$(cat $my_power_manager_ini_location | grep lock_screen_on_idle= | cut -d '=' -f2)"
-	################################################
-	
-	set_idletime="1 idletime"
-	set_turnoff_moniter_time="2 turnoff_moniter_time"
-	set_logout_time="3 logout_time"
-	set_suspend_time="4 suspend_time"
-	set_hibernate_time="5 hibernate_time"
-	set_poweroff_time="6 poweroff_time"
-	set_brightness_level="7 brightness_level"
-	set_lock_screen_on_idle="8 enable_lock_screen_on_idle"
-	enable_lock_screen_on_idle="8 enable_lock_screen_on_idle"
-	disable_lock_screen_on_idle="8 disable_lock_screen_on_idle"
-	finish="9 finish"
-	cancel="10 cancel"
-	
-	################################################
-	
-	power_manager_MENU=$(yad --title "My Power Manager" --form --field="idle time($get_idletime):NUM" --field="turn off moniter after($get_turnoff_moniter_time):NUM" --field="logout after($get_logout_time):NUM" --field="suspend after($get_suspend_time):NUM" --field="hibernate after($get_hibernate_time):NUM" --field="poweroff after($get_poweroff_time):NUM" --field="set brightness level($get_brightness_level):NUM" --field="lock screen on idle($get_lock_screen_on_idle):CB" "$get_idletime" "$get_turnoff_moniter_time" "$get_turnoff_moniter_time" "$get_logout_time" "$get_suspend_time" "$get_hibernate_time" "$get_brightness_level" 'true!false')
-	
-	idletime=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $1 }')
-	turnoff_moniter_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $2 }')
-	logout_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $3 }')
-	suspend_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $4 }')
-	hibernate_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $5 }')
-	poweroff_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $6 }')
-	brightness_level=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $7 }')
-	lock_screen_on_idle=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $8 }')
-						
-	if [ -n "$idletime" ]
-	then
-  	sed -i -e "s|idleAfter=.*|idleAfter=$idletime|g" $ini_dir_/$ini_file_
-	fi
-	
-	if [ -n "$turnoff_moniter_time" ]
-	then
-  	sed -i -e "s|turnoff_moniter_time=.*|turnoff_moniter_time=$turnoff_moniter_time|g" $ini_dir_/$ini_file_
-	fi
-	
-	if [ -n "$logout_time" ]
-	then
-  	sed -i -e "s|logout_time=.*|logout_time=$logout_time|g" $ini_dir_/$ini_file_
-	fi
-	
-	if [ -n "$suspend_time" ]
-	then
-  	sed -i -e "s|suspend_time=.*|suspend_time=$suspend_time|g" $ini_dir_/$ini_file_
-	fi
-	
-	if [ -n "$hibernate_time" ]
-	then
-  	sed -i -e "s|hibernate_time=.*|hibernate_time=$hibernate_time|g" $ini_dir_/$ini_file_
-	fi
-	
-	if [ -n "$poweroff_time" ]
-	then
-  	sed -i -e "s|poweroff_time=.*|poweroff_time=$poweroff_time|g" $ini_dir_/$ini_file_
-	fi
-	
-	if [ -n "$brightness_level" ]
-	then
-  	sed -i -e "s|brightness_level=.*|brightness_level=$brightness_level|g" $ini_dir_/$ini_file_
-	fi
-	
-	if [ -n "$lock_screen_on_idle" ]
-	then
-  	sed -i -e "s|lock_screen_on_idle=.*|lock_screen_on_idle=$lock_screen_on_idle|g" $ini_dir_/$ini_file_
-	fi
-	
-	reload_my_power_managers
 }
 
 my_power_manager_daemon(){
@@ -109,30 +24,28 @@ my_power_manager_daemon(){
 	xset s off -dmps >/dev/null 2>&1
 	xset dpms 0 0 0 >/dev/null 2>&1
 	
-	set_brightness_on_idle()
-	{
-	if [ "$only_one_display" = "true" ];then
-		this_is_n_activate_display=$(xrandr -q | grep " connected" | awk '{print $1;}')
-		xrandr --output $this_is_n_activate_display --brightness 0.5
-	else
-		while [ "$n" -le "$max_n" ];
-		do
-			this_is_n_activate_display=$(xrandr -q | grep " connected" | awk '{print $1;}' | head -n $n | tail -l)
+	set_brightness_on_idle(){
+		if [ "$only_one_display" = "true" ];then
+			this_is_n_activate_display=$(xrandr -q | grep " connected" | awk '{print $1;}')
 			xrandr --output $this_is_n_activate_display --brightness 0.5
-			n=$(($n+1))
-		done
-	fi
+		else
+			while [ "$n" -le "$max_n" ];
+			do
+				this_is_n_activate_display=$(xrandr -q | grep " connected" | awk '{print $1;}' | head -n $n | tail -l)
+				xrandr --output $this_is_n_activate_display --brightness 0.5
+				n=$(($n+1))
+			done
+		fi
 	}
 	
-	min_var_is_()
-	{
-  	minval=$1
-  	for i in $*
-  	do
-    	if [ "$i" -le "$minval" ] && [ "$i" -gt 0 ];then
-      	minval=$i
-    	fi
-  	done
+	min_var_is_(){
+  		minval=$1
+  		for i in $*
+  		do
+    		if [ "$i" -le "$minval" ] && [ "$i" -gt 0 ];then
+      		minval=$i
+    		fi
+  		done
 	}
 	
 	idle=false
@@ -141,31 +54,8 @@ my_power_manager_daemon(){
 	if [ "$max_n" -eq 1 ];then
 		only_one_display="true"
 	fi
-	
-	if [ ! -f "$ini_dir_/$ini_file_" ]
-	then
-		mkdir -p $ini_dir_
-		tee $ini_dir_/$ini_file_ <<- EOF > /dev/null
-		idleAfter=10800
-		turnoff_moniter_time=0
-		logout_time=0
-		suspend_time=0
-		hibernate_time=0
-		poweroff_time=0
-		brightness_level=0
-		lock_screen_on_idle=true
-		EOF
-	fi
-	
-	idleAfter=$(grep $ini_dir_/$ini_file_ -e "idleAfter=" | cut -d '=' -f 2)
-	idleAfterMillis=$((idleAfter*1000))
-	turnoff_moniter_time=$(grep $ini_dir_/$ini_file_ -e "turnoff_moniter_time=" | cut -d '=' -f 2)
-	logout_time=$(grep $ini_dir_/$ini_file_ -e "logout_time=" | cut -d '=' -f 2)
-	suspend_time=$(grep $ini_dir_/$ini_file_ -e "suspend_time=" | cut -d '=' -f 2)
-	hibernate_time=$(grep $ini_dir_/$ini_file_ -e "hibernate_time=" | cut -d '=' -f 2)
-	poweroff_time=$(grep $ini_dir_/$ini_file_ -e "poweroff_time=" | cut -d '=' -f 2)
-	brightness_level=$(grep $ini_dir_/$ini_file_ -e "brightness_level=" | cut -d '=' -f 2)
-	lock_screen_on_idle=$(grep $ini_dir_/$ini_file_ -e "lock_screen_on_idle=" | cut -d '=' -f 2)
+
+	. "$my_power_manager_ini_location"
 	
 	min_var_is_ $idleAfter $turnoff_moniter_time $logout_time $suspend_time $hibernate_time $poweroff_time
 	
@@ -223,27 +113,7 @@ my_power_manager_daemon(){
 	done
 }
 
-stop_my_power_managers(){
-	for prosses2kill in my_power_manager_daemon cbatticon
-	do
-		kill_process.sh $prosses2kill
-	done
-}
-
-reload_my_power_managers(){
-	[ "$opt" = "--reload-all" ] && reload_cbatticon="cbatticon"
-	for prosses2reload in my_power_manager_daemon ${reload_cbatticon}
-	do
-		kill_process.sh $prosses2reload
-		$prosses2reload &
-	done
-}
-
 case $opt in
-		--gui) my_power_managers_gui ;;
-		--managers) my_power_manager_daemon ;;
-		--reload-daemon) reload_my_power_managers ;;
-		--reload-all) reload_my_power_managers ;;
-		stop) stop_my_power_managers ;;
+		--daemon) my_power_manager_daemon ;;
 		*) my_power_managers_session
 esac
