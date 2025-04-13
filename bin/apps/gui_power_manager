@@ -1,9 +1,9 @@
 #!/bin/sh
-
+. "/usr/share/my_stuff/lib/common/WM"
+	
 opt="${1-}"
 ini_file_="my_power_manager.ini"
-ini_dir_="$HOME/.config/scriptconfig"
-ini_path="$ini_dir_/$ini_file_"
+ini_path="$script_config_path/$ini_file_"
 default_ini="/usr/share/my_stuff/lib/$ini_file"
 
 update_ini() {
@@ -31,7 +31,7 @@ cancel="10 cancel"
 ################################################
 
 if [ ! -f "$ini_path" ];then
-	cp -r "$default_ini" "$ini_dir_"
+	cp -r "$default_ini" "$script_config_path"
 fi
 
 . "$ini_path"

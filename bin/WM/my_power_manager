@@ -1,14 +1,12 @@
 #!/bin/sh
-
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+	
 opt="${1-}"
 ini_file_="my_power_manager.ini"
-ini_dir_="$HOME/.config/scriptconfig"
-my_power_manager_ini_location="$ini_dir_/$ini_file_"
+my_power_manager_ini_location="$script_config_path/$ini_file_"
 
 my_power_managers_session(){
-	. "/usr/share/my_stuff/lib/common/WM"
-	. "${Distro_config_file}"
-	
 	power-manager-session stop
 	
 	my_power_manager_daemon &
