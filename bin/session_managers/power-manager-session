@@ -12,6 +12,7 @@ reload_my_power_managers() {
 		my_power_manager
 	else
 		kill_process.sh my_power_manager_daemon
+		kill_process.sh my_power_manager
 		my_power_manager --daemon
 	fi
 }
@@ -21,7 +22,7 @@ reload_my_power_managers() {
 # DESCRIPTION: stop all my_power_manager process
 #===================================================================================
 stop() {
-	for prosses2kill in my_power_manager_daemon cbatticon
+	for prosses2kill in my_power_manager_daemon cbatticon my_power_manager
 	do
 		kill_process.sh $prosses2kill
 	done
@@ -37,12 +38,12 @@ xfce_stop() {
 #===================================================================================
 start() {
 	xfce_stop
-	pidof -q my_power_manager_daemon || my_power_manager
+	kill_process.sh my_power_manager_daemon || my_power_manager
 }
 
 xfce_start(){
 	stop
-  	pidof -q xfce4-power-manager || xfce4-power-manager &
+  	kill_process.sh xfce4-power-manager || xfce4-power-manager &
 }
 
 # EXEC ACTION ACCORDING $1

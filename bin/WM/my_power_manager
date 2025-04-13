@@ -3,7 +3,7 @@
 
 ini_file_="my_power_manager.ini"
 ini_path="$script_config_path/$ini_file_"
-default_ini="/usr/share/my_stuff/lib/$ini_file"
+default_ini="/usr/share/my_stuff/lib/$ini_file_"
 
 if [ ! -f "$ini_path" ];then
 	cp -r "$default_ini" "$script_config_path"
@@ -57,6 +57,7 @@ my_power_manager_daemon(){
 	fi
 
 	. "$default_ini"
+	idleAfterMillis=$((idleAfter*1000))
 	
 	min_var_is_ $idleAfter $turnoff_moniter_time $logout_time $suspend_time $hibernate_time $poweroff_time
 	
