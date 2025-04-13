@@ -37,7 +37,7 @@ xfce_stop() {
 #===================================================================================
 start() {
 	xfce_stop
-	pidof -q my_power_manager || my_power_manager
+	pidof -q my_power_manager_daemon || my_power_manager
 }
 
 xfce_start(){

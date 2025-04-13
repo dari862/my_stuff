@@ -4,7 +4,6 @@
 opt="${1-}"
 ini_file_="my_power_manager.ini"
 ini_path="$script_config_path/$ini_file_"
-default_ini="/usr/share/my_stuff/lib/$ini_file"
 
 update_ini() {
     key="$1"
@@ -30,15 +29,9 @@ cancel="10 cancel"
 	
 ################################################
 
-if [ ! -f "$ini_path" ];then
-	cp -r "$default_ini" "$script_config_path"
-fi
+power-manager-session start
 
 . "$ini_path"
-
-if ! pidof my_power_manager_daemon >/dev/null 2>&1;then
-		my_power_managers_session
-fi
 
 power_manager_MENU=$(yad --title "My Power Manager" --form \
 					--field="idle time($idleAfter):NUM" \
