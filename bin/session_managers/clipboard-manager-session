@@ -10,6 +10,10 @@
 if command -v diodon >/dev/null 2>&1;then
 	clipboard_manager_name="diodon"
 	clipboard_manager_command="exec diodon"
+elif command -v clipmenud >/dev/null 2>&1;then
+	clipboard_manager_name="clipmenud"
+	clipboard_manager_command="exec clipmenud"
+	export CM_LAUNCHER="rofi"
 elif command -v xfce4-clipman >/dev/null 2>&1;then
 	clipboard_manager_name="xfce4-clipman"
 	clipboard_manager_command="xfce4-clipman"

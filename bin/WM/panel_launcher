@@ -38,9 +38,6 @@ conky-session restart &
 ## Notification Daemon
 dunst-session restart &
 
-# Start compositor
-picom-session start &
-
 ## Launch Plank
 #plank-session
 		

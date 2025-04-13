@@ -33,6 +33,7 @@ fi
 
 if which xdg-autostart >/dev/null 2>/dev/null; then
    CMD=xdg-autostart
+   mkdir -p "$HOME/.config/autostart"
 else
    CMD=/usr/share/my_stuff/lib/xsessions/openbox_files/openbox-xdg-autostart
 fi

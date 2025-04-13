@@ -17,8 +17,6 @@ if [ ! -f "${Distro_config_file}" ];then
 	conky_sessionfile=".config/conky/openbox-conky.conf"
 	tint2_sessionfile="/.config/tint2/default.tint2rc"
 	EOF
-	# Start compositor
-	picom-session start &
 	
 	# pickers
 	panel_picker

@@ -5,6 +5,9 @@
 #### Pre Launch      #################################################################################
 /usr/share/my_stuff/bin/WM/pre_launch_wm
 
+# Start compositor
+picom-session start &
+
 #### START SETTINGS  #################################################################################
 ## Themeing --------------------------------------------------#
 . "${HOME}/.config/bspwm/theme.conf"
