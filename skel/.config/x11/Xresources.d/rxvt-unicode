@@ -16,6 +16,7 @@ URxvt*iso14755:			false
 URxvt*urgentOnBell:		true
 
 ! appearance
+! Set depth to make transparency work.
 URxvt*depth:			24
 URxvt*scrollBar:		false
 URxvt*scrollBar_right:	false

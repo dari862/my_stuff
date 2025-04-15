@@ -301,11 +301,8 @@ if command -v polybar >/dev/null ;then
 	fi
 fi
 
-show_im "Edit picom.conf ."
-# test if in virtual machine
 if [ "$machine_type_are" = "vm" ];then
-	# disable vsync from picom (vsync in virtual machine make issues)
-	show_im "picom vm"
+	show_im "disable vsync from picom (vsync in virtual machine make issues)"
 	sed -i "s/^vsync = .*/vsync = false;/g" "${__distro_path}"/system_files/skel/.config/picom.conf
 fi
 

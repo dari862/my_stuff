@@ -14,7 +14,14 @@ script_name="$(basename $0)"
 
 print_total_updates() { cat "$updates_file" | wc -l; }
 
-__my_superuser_() { my-superuser true; }
+set_superuser() { 
+	if [ "$(id -u)" -eq 0 ];then
+		__my_superuser=""
+	else
+		__my_superuser="my-superuser"
+	fi
+	$__my_superuser true
+}
 
 #=== FUNCTIONs ==================================================================
 # NAME: Massage system
@@ -39,18 +46,14 @@ warning() {
 	printf "\e[1;1m\e[1;33m==> $(gettext "WARNING:")\e[1;0m\e[1;1m ${mesg}\e[1;0m\n" "$@" >&2
 }
 
-#=== FUNCTION ==================================================================
-# NAME: update
-# DESCRIPTION: make update and and check new packages updates and save the list in $updates_file
-#===============================================================================
-update () {
-	__my_superuser_
+update_system () {
+	set_superuser
 	connectiontest
 	Package_update_
 	
 	plain "Checking updates and saving in $updates_file..."
-	printf "" | my-superuser tee "$updates_file" > /dev/null 2>&1
-	Upgradeable_Packages_count_ | my-superuser tee -a "$updates_file" > /dev/null 2>&1
+	printf "" | $__my_superuser tee "$updates_file" > /dev/null 2>&1
+	Upgradeable_Packages_count_ | $__my_superuser tee -a "$updates_file" > /dev/null 2>&1
 
 	# No updates
 	if [ ! -s "$updates_file" ];then
@@ -62,13 +65,8 @@ update () {
 	fi
 }
 
-
-#=== FUNCTION ==================================================================
-# NAME: update
-# DESCRIPTION: make upgrade interactive
-#===============================================================================
 interactive_upgrade() {
-	update
+	update_system
 	printf ""
 	if [ ! -s "$updates_file" ];then
 		printf "Press any key to exit..."
@@ -87,17 +85,13 @@ interactive_upgrade() {
 		exit 1
 	fi
 
-	printf "" | my-superuser tee "$updates_file" > /dev/null 2>&1
+	printf "" | $__my_superuser tee "$updates_file" > /dev/null 2>&1
 	printf ""
 	printf "Update complete!"
 	read pause
 	exit
 }
 
-#=== FUNCTION ==================================================================
-# NAME: notifcation system
-# DESCRIPTION: shot text for display in systray
-#===============================================================================
 send_notifcation_msg () {
 	if [ -s "$updates_file" ];then
 	    UPDATES=$(print_total_updates)
@@ -118,19 +112,8 @@ send_notifcation_msg () {
 	exit 0
 }
 
-
-#=== FUNCTION ==================================================================
-# NAME: install
-# DESCRIPTION: install the script
-#===============================================================================
-install_it () {	
-	if [ "$(id -u)" -eq 0 ];then
-		__my_superuser=""
-	else
-		__my_superuser="my-superuser"
-		__my_superuser_
-	fi
-	
+install_it () {
+	set_superuser	
 	if [ ! -f "/usr/share/my_stuff/system_files/bin/update-notification" ] ;then
 		$__my_superuser ln -sf "/usr/share/my_stuff/bin/bin/update-notification" "/usr/share/my_stuff/system_files/bin"
 	fi
@@ -145,19 +128,15 @@ install_it () {
 	exit 
 }
 
-#=== FUNCTION ==================================================================
-# NAME: update
-# DESCRIPTION: uninstall the script
-#===============================================================================
-uninstall (){
-	__my_superuser_
+uninstall_it (){
+	set_superuser
 	printf "Deleting symblink /etc/cron.$cron_when/${script_name}..."
-	[ -f "/etc/cron.monthly/${script_name}" ] && my-superuser rm "/etc/cron.monthly/${script_name}"
-	[ -f "/etc/cron.weekly/${script_name}" ] && my-superuser rm "/etc/cron.weekly/${script_name}"
-	[ -f "/etc/cron.daily/${script_name}" ] && my-superuser rm "/etc/cron.daily/${script_name}"
-	[ -f "/etc/cron.hourly/${script_name}" ] && my-superuser rm "/etc/cron.hourly/${script_name}"
+	[ -f "/etc/cron.monthly/${script_name}" ] && $__my_superuser rm "/etc/cron.monthly/${script_name}"
+	[ -f "/etc/cron.weekly/${script_name}" ] && $__my_superuser rm "/etc/cron.weekly/${script_name}"
+	[ -f "/etc/cron.daily/${script_name}" ] && $__my_superuser rm "/etc/cron.daily/${script_name}"
+	[ -f "/etc/cron.hourly/${script_name}" ] && $__my_superuser rm "/etc/cron.hourly/${script_name}"
 	printf "Deleting $updates_file..."
-	my-superuser rm "$updates_file"
+	$__my_superuser rm -f "$updates_file"
 	exit 
 }
 
@@ -186,20 +165,18 @@ Usage: ${script_name} -[huc]
    \e[1m-n\e[0m\tOutput message for dunst
    \e[1m-u\e[0m\tMake update and check for new packages updates
    \e[1m-I\e[0m\tInstall the script (copy and link to cron.$cron_when)
-   \e[1m-U\e[0m\tUninstall
+   \e[1m-U\e[0m\uninstall the script
 	'
 	exit 0
 }
 
-case $__arg in
-	"") update;;
-	-h) help ;;
+case "$__arg" in
+	""|-u) update_system;;
 	-i) interactive_upgrade ;;
 	-n) send_notifcation_msg ;;
 	-I) install_it ;;
-	-U) uninstall ;;
-	-u) update;;
+	-U) uninstall_it ;;
 	-l) list_update;;
 	-c) print_total_updates;;
-	*) update;;
+	*) help;;
 esac

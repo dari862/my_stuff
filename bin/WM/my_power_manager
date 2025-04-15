@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 . "/usr/share/my_stuff/lib/common/WM"
 
 ini_file_="my_power_manager.ini"
@@ -10,8 +11,6 @@ if [ ! -f "$ini_path" ];then
 fi
 
 my_power_managers_session(){
-	power-manager-session stop
-	
 	my_power_manager_daemon &
 	
 	if [ "$(command -v cbatticon)" ] && [ "$_panel_name_" != "polybar" ];then
