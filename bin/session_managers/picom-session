@@ -26,6 +26,7 @@ stop() {
 start() {
   	if ! pidof -q picom ;then
   		exec picom --daemon --config "$picom_path" &
+  		#exec picom -b --experimental-backends --config "$picom_path" &
 	fi
 }
 

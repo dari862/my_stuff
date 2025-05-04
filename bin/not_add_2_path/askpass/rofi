@@ -7,5 +7,5 @@ rofi -dmenu\
    	-password\
    	-i\
    	-no-fixed-num-lines\
-   	-p "User Password: "\
+   	-p "[] Enter Superuser Password, ${USER}: "\
    	-theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi

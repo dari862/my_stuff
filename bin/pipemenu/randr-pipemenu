@@ -163,6 +163,13 @@ echo "<command>xrandr --auto</command>"
 echo "</action>"
 echo "</item>"
 
+echo "<separator label=\"GUI Select Display Resolution\" />"
+echo "<item label=\"displayselect manual_selection\">"
+echo "<action name=\"execute\">"
+echo "<command>displayselect manual_selection</command>"
+echo "</action>"
+echo "</item>"
+
 if [ -f "$HOME/$RCFILE" ];then
 	# Include user-defined shortcuts
 	get_rc_menu

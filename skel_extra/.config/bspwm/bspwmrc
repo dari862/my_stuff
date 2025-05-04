@@ -43,7 +43,11 @@ bspc config active_border_color "$BSPWM_ABC"
 bspc config presel_feedback_color "$BSPWM_PFC"
 # Use the line below if you are on bspwm < 0.9.4
 #bspc config presel_border_color "$BSPWM_PBC"
-
+bspc config borderless_monocle ${BSP_BORDERLESS_MONOCLE}
+bspc config gapless_monocle ${BSP_GAPLESS_MONOCLE}
+bspc config paddingless_monocle ${BSP_PADDINGLESS_MONOCLE}
+bspc config single_monocle ${BSP_SINGLE_MONOCLE}
+bspc config focus_follows_pointer ${BSP_FOCUS_FOLLOWS_POINTER}
 ## Manage all the unmanaged windows remaining from a previous session.
 bspc wm --adopt-orphans
 
@@ -58,6 +62,9 @@ xsetroot -cursor_name left_ptr
 #Set Keyboard Layout
 setxkbmap -layout us
 
+# To support other applications that don't work on WMs #
+# May have to install wmname
+#wmname LG3D
 
 #### Window rules ###############################################################################
 
@@ -65,15 +72,19 @@ setxkbmap -layout us
 bspc rule -r *:*
 
 # 1 > terminal
-terminal="my-terminal-emulator kitty Alacritty Xfce4-terminal Pcmanfm Thunar"
+terminal="my-terminal-emulator kitty Alacritty Xfce4-terminal"
 for i in ${terminal}; do
    bspc rule -a $i desktop='^1' follow=on focus=on; done
+bspc rule -a "dev.warp.Warp" state=floating follow=on focus=on
 
 # 2 > web
-web="firefox chromium Thunderbird TelegramDesktop Hexchat Discord"
+web="my-www-browser firefox Google-chrome Brave-browser chromium Thunderbird TelegramDesktop Hexchat Discord"
 for i in ${web}; do
    bspc rule -a $i desktop='^2' follow=on focus=on; done
-
+web2="guiscrcpy kdeconnect.app MEGAsync Element Free Windscribe2 Protonvpn"
+for i in ${web2}; do
+   bspc rule -a $i desktop='^2' state=floating follow=on focus=on; done
+   
 # 3 > code
 code="Geany code-oss Gucharmap Atril Evince 
 libreoffice-writer libreoffice-calc libreoffice-impress 

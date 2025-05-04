@@ -1,0 +1,13 @@
+* {
+
+background:			#1A1B26;
+background-alt:		#4D5575;
+foreground:			#D4BFFF;
+selected:			#85ACF8;
+highlight:			#4DA7B4;
+urgent:				#F88199;
+on:					#A8D475;
+off:				#F88199;
+img-background: url("/usr/share/my_stuff/blob/polybar/Emilia/preview.jpg", width);
+
+}

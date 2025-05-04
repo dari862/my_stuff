@@ -11,6 +11,12 @@ list_update(){
 
 print_total_updates(){
 	style="${__arg}"
+
+	. "/usr/share/my_stuff/lib/apps/update-notification.conf"
+	
+	UPDATES=$(cat "$updates_file" | wc -l)
+	
+	update-notification -n
 	
 	if [ "$style" = "forest" ] || [ "$style" = "forest_large" ];then
     	BAR_ICON=""
@@ -18,20 +24,19 @@ print_total_updates(){
     	BAR_ICON=""
 	fi
 	
-	. "/usr/share/my_stuff/lib/apps/update-notification.conf"
-	
-	UPDATES=$(cat "$updates_file" | wc -l)
-	
-	update-notification -n
-	if [ "$UPDATES" -eq 0 ];then
-		echo "$BAR_ICON 0"
+	if [ "$style" = "exo" ];then
+		_output="$UPDATES"
+	elif [ "$UPDATES" -eq 0 ];then
+		_output="$BAR_ICON 0"
 	elif [ "$UPDATES" -eq 1 ];then
-		echo "$BAR_ICON $UPDATES Update"
+		_output="$BAR_ICON $UPDATES Update"
 	elif [ "$UPDATES" -gt 1 ];then
-		echo "$BAR_ICON $UPDATES Updates"
+		_output="$BAR_ICON $UPDATES Updates"
 	else
-		echo "$BAR_ICON"
+		_output="$BAR_ICON"
 	fi
+	
+	echo "$_output"
 }
 
 case $__arg in

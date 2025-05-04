@@ -16,6 +16,7 @@ list_commands=""
 run_create_script=false
 OPT__=""
 choice=""
+create_display_script=true
 
 show_massage(){
 	[ "$MODE" = "noninteractive" ] && return
@@ -132,9 +133,11 @@ add_command() {
 }
 
 create_script() {
-	echo '#!/bin/sh' > "$display_script"
-	echo -e "$list_commands" >> "$display_script"
-	chmod +x "$display_script"
+	if [ "$create_display_script" = true ];then
+		echo '#!/bin/sh' > "$display_script"
+		echo -e "$list_commands" >> "$display_script"
+		chmod +x "$display_script"
+	fi
 }
 
 execute_command() {
@@ -248,6 +251,7 @@ auto_detect_displays() {
 		add_command "xrandr --output $monitor --mode $highest_resolution"
 	done
 	run_create_script=true
+	[ -f "/usr/share/my_stuff/system_files/this_is_laptop" ] && create_display_script=false
 	postrun_massage="Setting resolution for $monitor to $highest_resolution..."
 }
 # Function to set resolutions

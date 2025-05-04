@@ -1,12 +1,12 @@
 #!/bin/sh
+__mode="${1:-}"
+__extra="${2:-}"
 
-if [ "$1" = "-f" ];then
-	bspalacritty --float
-elif [ "$1" = "-s" ];then
-	bspalacritty --full
-elif [ "$1" = "-e" ];then
-	shift
-	bspalacritty -e "$@"
-else
-	bspalacritty "$@"
-fi
+case "$__mode" in
+    --float|-f)
+		bspalacritty --float "$__extra" ;;
+    --full|-s)
+      	bspalacritty --full "$__extra" ;;
+	*)
+		bspalacritty "$@" ;;
+esac

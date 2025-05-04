@@ -1,0 +1,13 @@
+* {
+
+background:			#1a1f26;
+background-alt:		#6F8F9E;
+foreground:			#0abdc6;
+selected:			#186DA7;
+highlight:			#2597DB;
+urgent:				#26506F;
+on:					#496773;
+off:				#26506F;
+img-background: url("/usr/share/my_stuff/blob/polybar/ICE_Moon/preview.jpg", width);
+
+}

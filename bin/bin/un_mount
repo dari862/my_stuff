@@ -1,0 +1,252 @@
+#!/bin/bash
+. "/usr/share/my_stuff/lib/common/WM"
+action="${1:-}"
+devname="${2:-}"
+
+EXIT_CONFIG=78
+EXIT_CMDNOTFOUND=127
+
+if ! . "$script_config_path" >/dev/null 2>&1; then
+    printf '%s\n' "un_mount: Failed to source configuration file."
+    exit $EXIT_CONFIG
+fi
+
+if (( udisks )); then
+	if type -p udisksctl >/dev/null 2>&1; then
+    	udisks=1
+	else
+    	printf '%s\n' "un_mount: 'udisksctl': command not found"
+    	udisks=0
+	fi
+else
+	udisks=0
+fi
+
+if (( colourize )); then
+    if tput setaf 0 >/dev/null 2>&1; then
+        ALL_OFF="$(tput sgr0)"
+        BOLD="$(tput bold)"
+        BLUE="${BOLD}$(tput setaf 4)"
+        GREEN="${BOLD}$(tput setaf 2)"
+        RED="${BOLD}$(tput setaf 1)"
+    else
+        ALL_OFF="\e[1;0m"
+        BOLD="\e[1;1m"
+        BLUE="${BOLD}\e[1;34m"
+        GREEN="${BOLD}\e[1;32m"
+        RED="${BOLD}\e[1;31m"
+    fi
+else
+    ALL_OFF=""
+    BOLD=""
+    BLUE=""
+    GREEN=""
+    RED=""
+fi
+ARROW="==>"
+
+run_post_mount=0
+run_post_unmount=0
+retval=0
+
+info_fstype() {
+    lsblk -drno FSTYPE "$1" 2>/dev/null
+}
+
+msg() {
+    printf '\n%b\n\n' "${GREEN}${ARROW}${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
+}
+error() {
+    printf '\n%b\n\n' "${RED}${ARROW}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
+    enter_to_continue
+}
+enter_to_continue() {
+    printf '\n'
+    read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: "
+}
+
+invalid_command() {
+    printf '\n'
+    error "Invalid command. See the help menu."
+}
+
+info_type() {
+    lsblk -drno TYPE "$1" 2>/dev/null
+}
+
+info_uuid() {
+    lsblk -drno UUID "$1" 2>/dev/null
+}
+
+info_mountpath() {
+    findmnt -no TARGET "$1" 2>/dev/null
+}
+
+check_device() {
+    if [[ ! -b "$1" ]]; then
+        error "$1 is no longer available."
+        return 1
+    fi
+}
+
+check_mounted() {
+    findmnt -no TARGET "$1" >/dev/null 2>&1
+}
+
+__mount() {
+    msg "Mounting $1 ..."
+    if (( udisks )); then
+        udisksctl mount $mount_options --block-device "$1"
+    else
+        read -r -e -p "Choose the mountpoint directory: " dir
+        [[ -z "$dir" ]] && return 1
+        if [[ ! -e "$dir" ]]; then
+            if ! mkdir -p "$dir"; then
+                error "'$dir': Could not create directory."
+                return 1
+            fi
+        fi
+        sudo mount $mount_options "$1" "$dir"
+    fi
+}
+
+__unmount() {
+    msg "Unmounting $1 ..."
+    if (( udisks )); then
+        udisksctl unmount --block-device "$1"
+    else
+        sudo umount "$1"
+    fi
+}
+
+get_luks_child() {
+    local uuid="$(info_uuid "$1")"
+    printf '%s' "/dev/mapper/luks-$uuid"
+}
+
+get_luks_header_information() {
+    sudo sh -c "cryptsetup luksDump '$1' | less"
+}
+
+action_eject() {
+    check_device "$1" || exit 1
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        action_unmount "$1" || exit 1
+    else
+        check_mounted "$1" && action_unmount "$1"
+    fi
+
+    local -i retval=0
+    if ! check_mounted "$1"; then
+        msg "Ejecting $1 ..."
+        device_type=$(info_type "$1")
+        if (( udisks )) && [[ "$device_type" != "rom" ]]; then
+            udisksctl power-off -b "$1"
+            retval=$?
+        else
+            sudo eject "$1"
+            retval=$?
+        fi
+        if (( retval == 0 )); then
+            # Give the device some time to eject.
+            sleep 1.5s
+        else
+            enter_to_continue
+        fi
+    fi
+}
+
+action_mount() {
+    check_device "$1" || exit 1
+    if check_mounted "$1"; then
+        error "$1 is already mounted."
+        exit 1
+    fi
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ ! -b "$luks_child" ]]; then
+            action_unlock "$1" || exit 1
+        fi
+        action_mount "$luks_child"
+        exit $?
+    fi
+
+    if __mount "$1"; then
+        msg "$1 mounted successfully."
+        (( run_post_mount )) && "No 'post_mount' command specified in un_mount configuration file."
+        sleep 0.1s
+        exit 0
+    fi
+    error "$1 could not be mounted."
+    exit 1
+}
+
+action_unmount() {
+    check_device "$1" || return 1
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ -b "$luks_child" ]]; then
+            if check_mounted "$luks_child"; then
+                action_unmount "$luks_child" || exit 1
+            fi
+            action_lock "$1" || exit 1
+        fi
+        exit $?
+    fi
+
+    if ! check_mounted "$1"; then
+        error "$1 is already unmounted."
+        exit 1
+    fi
+
+    if __unmount "$1"; then
+        msg "$1 unmounted successfully."
+        (( run_post_unmount )) && "No 'post_unmount' command specified in un_mount configuration file."
+        sleep 0.1s
+        exit 0
+    fi
+    error "$1 could not be unmounted."
+    exit 1
+}
+
+action_unlock() {
+    local -i retval=0
+    if (( udisks )); then
+        udisksctl unlock --block-device "$1"
+        retval=$?
+    else
+        sudo cryptsetup open --type luks -v "$1" "luks-${1##*/}"
+        retval=$?
+    fi
+    (( retval != 0 )) && enter_to_continue
+    return $retval
+}
+
+action_lock() {
+    local -i retval=0
+    if (( udisks )); then
+        udisksctl lock --block-device "$1"
+        retval=$?
+    else
+        sudo cryptsetup close --type luks "$1"
+        retval=$?
+    fi
+    (( retval != 0 )) && enter_to_continue
+    return $retval
+}
+
+case "$action" in
+    -e) action_eject "$devname";;
+    -m) action_mount "$devname";;
+    -u) action_unmount "$devname";;
+    -1) get_luks_header_information "$devname";;
+    -2) action_unlock "$devname" || exit 1;;
+    -3) action_lock "$devname" || exit 1;;
+    -4) custom4_command "$devname";;
+    -5) custom5_command "$devname";;
+    -6) custom6_command "$devname";;
+    *) invalid_command; exit 0;;
+esac

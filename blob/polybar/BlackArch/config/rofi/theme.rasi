@@ -1,0 +1,13 @@
+* {
+
+background:			#000000;
+background-alt:		#555555;
+foreground:			#0000fc;
+selected:			#0F98F3;
+highlight:			#00AAAA;
+urgent:				#AA0000;
+on:					#00AA00;
+off:				#AA0000;
+img-background: url("/usr/share/my_stuff/blob/polybar/BlackArch/preview.jpg", width);
+
+}

@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import random
+import requests
+import re
+from html.parser import HTMLParser
+
+# Terminal size
+try:
+    width, height = os.get_terminal_size()
+    p = True
+except OSError:
+    width = 120
+    height = 80
+    p = False
+
+class color:
+    PURPLE = "\033[95m"
+    CYAN = "\033[96m"
+    DARKCYAN = "\033[36m"
+    BLUE = "\033[94m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    END = "\033[0m"
+
+colors = ["\033[92m", "\033[95m", "\033[96m", "\033[94m", "\033[36m"]
+wikiurl = ""
+
+def req(term, lang="en"):
+    global wikiurl
+    wikiurl = f"https://{lang}.wikipedia.org/wiki/{term}"
+    r = requests.get(wikiurl, timeout=15)
+    return r.text
+
+class SummaryParser(HTMLParser):
+    def __init__(self, limit=3):
+        super().__init__()
+        self.in_p = False
+        self.skip_sup = False
+        self.paragraphs = []
+        self.buffer = []
+        self.limit = limit
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "p":
+            self.in_p = True
+            self.buffer = []
+        elif tag == "sup":
+            self.skip_sup = True
+
+    def handle_endtag(self, tag):
+        if tag == "p" and self.in_p:
+            paragraph = "".join(self.buffer).strip()
+            if paragraph:
+                self.paragraphs.append(paragraph)
+            self.in_p = False
+        elif tag == "sup":
+            self.skip_sup = False
+
+    def handle_data(self, data):
+        if self.in_p and not self.skip_sup and len(self.paragraphs) < self.limit:
+            self.buffer.append(data)
+
+class InfoParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_p = False
+        self.in_headline = False
+        self.skip_sup = False
+        self.entries = []
+        self.buffer = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "p":
+            self.in_p = True
+            self.buffer = []
+        elif tag == "sup":
+            self.skip_sup = True
+        elif tag == "span":
+            for attr, val in attrs:
+                if attr == "class" and "mw-headline" in val:
+                    self.in_headline = True
+                    self.buffer = []
+
+    def handle_endtag(self, tag):
+        if tag == "p" and self.in_p:
+            data = "".join(self.buffer).strip()
+            if data:
+                self.entries.append(data)
+            self.in_p = False
+        elif tag == "sup":
+            self.skip_sup = False
+        elif tag == "span" and self.in_headline:
+            data = "".join(self.buffer).strip()
+            if data:
+                self.entries.append("!" + data)
+            self.in_headline = False
+
+    def handle_data(self, data):
+        if (self.in_p or self.in_headline) and not self.skip_sup:
+            self.buffer.append(data)
+
+def extract_summary(html):
+    parser = SummaryParser()
+    parser.feed(html)
+    return parser.paragraphs
+
+def extract_info(html):
+    parser = InfoParser()
+    parser.feed(html)
+    return parser.entries
+
+def extract_title(html):
+    match = re.search(r"<title>(.*?) - Wikipedia</title>", html)
+    return match.group(1).strip() if match else "Random Article"
+
+def extract_links(html):
+    return re.findall(r'<a[^>]+title="([^"]+)"[^>]*data-serp-pos[^>]*>', html)
+
+def extract_dym(html):
+    match = re.search(r"<em>(.*?)</em>", html)
+    return match.group(1) if match else None
+
+def getSummary(term, lang="en"):
+    html = req(term, lang)
+    paragraphs = extract_summary(html)
+    print("\n" + (color.BOLD + term).center(width, "-") + color.END)
+    if any("Other reasons this message may be displayed" in p for p in paragraphs):
+        print("Did you mean: ")
+        searchInfo(term, called=True)
+        return
+    print(colors[random.randrange(len(colors))])
+    print("\n\n".join(paragraphs), color.END)
+
+def getInfo(term, lang="en"):
+    html = req(term, lang)
+    entries = extract_info(html)
+    if entries and "may refer to:" in entries[0]:
+        searchInfo(term)
+        return
+    if p:
+        print("\n" + (color.BOLD + term).center(width, "-") + color.END)
+        print(color.BLUE + wikiurl.center(width, " ") + color.END + "\n")
+    else:
+        print("\n" + term.center(width, "-"))
+        print(wikiurl.center(width, " ") + "\n")
+    for e in entries:
+        if not e.strip():
+            continue
+        if e in ["!See also", "!Notes", "!References", "!External links", "!Further reading"]:
+            continue
+        if p and e.startswith("!"):
+            print(color.BOLD + colors[random.randrange(len(colors))] + e[1:] + color.END * 2)
+            print("-" * len(e))
+        elif p:
+            print(color.YELLOW + "[-] " + color.END + colors[random.randrange(len(colors))] + e + color.END)
+        else:
+            print(e)
+
+def getRand(lang="en"):
+    html = req("Special:Random", lang)
+    title = extract_title(html)
+    entries = extract_info(html)
+    print("\n" + (color.BOLD + title).center(width, "-") + color.END + "\n")
+    for e in entries:
+        if not e.strip():
+            continue
+        if e in ["!See also", "!Notes", "!References", "!External links", "!Further reading"]:
+            continue
+        if p and e.startswith("!"):
+            print(color.BOLD + colors[random.randrange(len(colors))] + e[1:] + color.END * 2)
+            print("-" * len(e))
+        elif p:
+            print(color.YELLOW + "[-] " + color.END + colors[random.randrange(len(colors))] + e + color.END)
+        else:
+            print(e)
+
+def searchInfo(term, lang="en", called=False):
+    r = requests.get(f"https://{lang}.wikipedia.org/w/index.php?fulltext=Search&search={term}", timeout=15)
+    if "/wiki/" in r.url:
+        getInfo(term)
+        return
+    html = r.text
+    links = extract_links(html)
+    dym = extract_dym(html)
+    if not called:
+        print("Result: \n")
+    if dym:
+        print(dym)
+    for title in links:
+        print(title)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--search", help="Search any topic")
+    parser.add_argument("-i", "--info", help="Get info on any topic")
+    parser.add_argument("-q", "--quick", help="Get the summary on any topic")
+    parser.add_argument("-l", "--lang", help="Get info in your native language (default english)")
+    parser.add_argument("-x", "--rand", help="Get random Wikipedia article", action="store_true")
+
+    a = parser.parse_args()
+    if not a.lang:
+        a.lang = "en"
+
+    if a.quick:
+        getSummary(a.quick, a.lang)
+    if a.info:
+        getInfo(a.info, a.lang)
+    if a.search:
+        searchInfo(a.search, a.lang)
+    if a.rand:
+        getRand(a.lang)

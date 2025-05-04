@@ -28,8 +28,8 @@ get_weather_report_less(){
 	WEATHER_INFO=$(cat "${weatherreport}")
 	forecast=$(cat "${forecastreport}")
 	less_all=$(echo "$WEATHER_INFO" | jq -r '.main.temp,.weather[0].main' | tr '\n' '|' )
-	WEATHER_TEMP=$(echo "$less_all" | awk -F '\|' '{print $1}')
-	WEATHER_MAIN=$(echo "$less_all" | awk -F '\|' '{print $2}')
+	WEATHER_TEMP=$(echo "$less_all" | awk -F '|' '{print $1}')
+	WEATHER_MAIN=$(echo "$less_all" | awk -F '|' '{print $2}')
     case "$WEATHER_MAIN" in
         "Snow") weather_ICON=""; weather_description="Cold and snowy"; weather_TEXT="Snow" ;;
         "Rain" | "Drizzle") weather_ICON=""; weather_description="Bring an umbrella"; weather_TEXT="Rainy" ;;
@@ -76,13 +76,13 @@ create_detailed_weather_report(){
   		TEMP_WEATHER_DATA=$(echo $forecast | jq -r ".list[$i].dt_txt,.list[$i].main.temp,.list[$i].weather[0].description,.list[$i].main.humidity,.list[$i].wind.speed,.list[$i].clouds.all,.list[$i].pop" | tr '\n' '|')
 
   		# Extract forecast time and weather details for each 3-hour interval
-  		DATE_TIME=$(echo $TEMP_WEATHER_DATA | awk -F '\|' '{print $1}')
-  		TEMP=$(echo $TEMP_WEATHER_DATA | awk -F '\|' '{print $2}')
-  		DESCRIPTION=$(echo $TEMP_WEATHER_DATA | awk -F '\|' '{print $3}')
-  		HUMIDITY=$(echo $TEMP_WEATHER_DATA | awk -F '\|' '{print $4}')
-  		WIND_SPEED=$(echo $TEMP_WEATHER_DATA | awk -F '\|' '{print $5}')
-  		CLOUDS=$(echo $TEMP_WEATHER_DATA | awk -F '\|' '{print $6}')
-  		POP=$(echo $TEMP_WEATHER_DATA | awk -F '\|' '{print $7}')
+  		DATE_TIME=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $1}')
+  		TEMP=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $2}')
+  		DESCRIPTION=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $3}')
+  		HUMIDITY=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $4}')
+  		WIND_SPEED=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $5}')
+  		CLOUDS=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $6}')
+  		POP=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $7}')
 		Chance_of_Rain="$(awk -v val="$POP" 'BEGIN {print (val * 100)}')"
   		# Print the weather forecast for this time period in a single line
   		echo "$DATE_TIME | Temperature: $TEMP $scaleT | Description: $DESCRIPTION | Humidity: $HUMIDITY% | Wind Speed: $WIND_SPEED $scaleV | Cloud Coverage: $CLOUDS% | Chance of Rain: $Chance_of_Rain%"
@@ -92,22 +92,22 @@ create_detailed_weather_report(){
 get_weather_report_more(){
 	WEATHER_INFO=$(cat "${weatherreport}")
     all="$(echo "$WEATHER_INFO" | jq -r '.coord.lon,.coord.lat,.main.temp,.main.pressure,.main.temp_min,.main.temp_max,.wind.speed,.wind.deg,.clouds.all,.sys.sunrise,.sys.sunset,.main.humidity,.weather[0].description,.sys.country,.name,.weather[0].main' | tr '\n' '|')"
-	longitude=$(printf '%06.1f' $(echo "$all" | awk -F '\|' '{print $1}'))
-	latitude=$(printf '%+.1f' $(echo "$all" | awk -F '\|' '{print $2}'))
-	temperature=$(printf '%+.1f%s' $(echo "$all" | awk -F '\|' '{print $3}') $scaleT)
-	pressure=$(printf '%.f %s' $(echo "$all" | awk -F '\|' '{print $4}') mb)
-	temperature_min=$(printf '%+.1f%s' $(echo "$all" | awk -F '\|' '{print $5}') $scaleT)
-	temperature_max=$(printf '%+.1f%s' $(echo "$all" | awk -F '\|' '{print $6}') $scaleT)
-	windspeed=$(printf '%.1f %s' $(echo "$all" | awk -F '\|' '{print $7}') $scaleV)
-	winddir=$(printf '%3.f%s' $(echo "$all" | awk -F '\|' '{print $8}') °)
-	cloud_cover=$(printf '%d%s' $(echo "$all" | awk -F '\|' '{print $9}') %)
-	sunrise=$(date -d @$(echo "$all" | awk -F '\|' '{print $10}') +"%R")
-	sunset=$(date -d @$(echo "$all" | awk -F '\|' '{print $11}') +"%R")
-	humidity="$(echo "$all" | awk -F '\|' '{print $12}')"
-	description="$(echo "$all" | awk -F '\|' '{print $13}')"
-	COUNTRY="$(echo "$all" | awk -F '\|' '{print $14}')"
-	city="$(echo "$all" | awk -F '\|' '{print $15}')"
-	condition="$(echo "$all" | awk -F '\|' '{print $16}')"
+	longitude=$(printf '%06.1f' $(echo "$all" | awk -F '|' '{print $1}'))
+	latitude=$(printf '%+.1f' $(echo "$all" | awk -F '|' '{print $2}'))
+	temperature=$(printf '%+.1f%s' $(echo "$all" | awk -F '|' '{print $3}') $scaleT)
+	pressure=$(printf '%.f %s' $(echo "$all" | awk -F '|' '{print $4}') mb)
+	temperature_min=$(printf '%+.1f%s' $(echo "$all" | awk -F '|' '{print $5}') $scaleT)
+	temperature_max=$(printf '%+.1f%s' $(echo "$all" | awk -F '|' '{print $6}') $scaleT)
+	windspeed=$(printf '%.1f %s' $(echo "$all" | awk -F '|' '{print $7}') $scaleV)
+	winddir=$(printf '%3.f%s' $(echo "$all" | awk -F '|' '{print $8}') °)
+	cloud_cover=$(printf '%d%s' $(echo "$all" | awk -F '|' '{print $9}') %)
+	sunrise=$(date -d @$(echo "$all" | awk -F '|' '{print $10}') +"%R")
+	sunset=$(date -d @$(echo "$all" | awk -F '|' '{print $11}') +"%R")
+	humidity="$(echo "$all" | awk -F '|' '{print $12}')"
+	description="$(echo "$all" | awk -F '|' '{print $13}')"
+	COUNTRY="$(echo "$all" | awk -F '|' '{print $14}')"
+	city="$(echo "$all" | awk -F '|' '{print $15}')"
+	condition="$(echo "$all" | awk -F '|' '{print $16}')"
 	
 	if [ "$show_Extra" = true ];then
 		detailed_weatherreport="${weather_script_data_path}/ow_detailed_weatherreport"
@@ -164,10 +164,10 @@ parse_weather_for_conky_vision(){
 	
 	current_file="$(echo "$WEATHER_INFO" | jq .weather[0].id)"
 	all_id="$(echo "$forecast" | jq --arg target_time "00:00:00" '.list[] | select(.dt_txt | endswith($target_time)) | .weather[0].id' | tr '\n' '|')"
-	forecast1_file="$(echo "$all_id" | awk -F '\|' '{print $2}')"
-	forecast2_file="$(echo "$all_id" | awk -F '\|' '{print $3}')"
-	forecast3_file="$(echo "$all_id" | awk -F '\|' '{print $4}')"
-	forecast4_file="$(echo "$all_id" | awk -F '\|' '{print $5}')"
+	forecast1_file="$(echo "$all_id" | awk -F '|' '{print $2}')"
+	forecast2_file="$(echo "$all_id" | awk -F '|' '{print $3}')"
+	forecast3_file="$(echo "$all_id" | awk -F '|' '{print $4}')"
+	forecast4_file="$(echo "$all_id" | awk -F '|' '{print $5}')"
 	
 	current_realpath="$(realpath "${image_folder}/${current_file}.png")"
 	forecast1_realpath="$(realpath "${image_folder}/${forecast1_file}.png")"

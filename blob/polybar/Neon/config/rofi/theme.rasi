@@ -1,0 +1,13 @@
+* {
+
+background:			#0c1018;
+background-alt:		#a88986;
+foreground:			#f1c4c0;
+selected:			#FD4955;
+highlight:			#EA7288;
+urgent:				#F8506D;
+on:					#F06576;
+off:				#F8506D;
+img-background: url("/usr/share/my_stuff/blob/polybar/Neon/preview.jpg", width);
+
+}
