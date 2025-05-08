@@ -23,8 +23,7 @@ fi
 
 ID="$(ip route | awk '/default/ { print $5 }')"
 
-if [ "$Style" != "hack" ]
-then
+if ! echo "$polybar_STYLE" | grep -q "hack";then
     while true; do       
 		if echo "$ID" | grep "^e";then
             echo "$ethernet_connected" ; sleep 25

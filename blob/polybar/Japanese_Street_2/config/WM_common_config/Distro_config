@@ -1,5 +1,0 @@
-_panel_name_="polybar"
-ROFI_STYLE="exo"
-polybar_STYLE="Japanese_Street_2"
-conky_sessionfile=".config/conky/openbox-conky.conf"
-tint2_sessionfile="/.config/tint2/default.tint2rc"

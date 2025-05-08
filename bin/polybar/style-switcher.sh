@@ -59,7 +59,7 @@ change_color() {
 	
 	polybar-msg cmd restart
 }
-elif [ "$polybar_STYLE" = "forest" ] || [ "$polybar_STYLE" = "forest_large" ]
+elif [ "$polybar_STYLE" = "forest/original" ] || [ "$polybar_STYLE" = "forest/large" ]
 then
 # Change colors
 change_color() {

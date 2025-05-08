@@ -116,6 +116,7 @@ dunstify -u normal --replace=699 -i /usr/share/my_stuff/icons/channelmixer.svg "
 Set_Style_ || show_em "failed to run Set_Style_"
 
 if [ "$_panel_name_" = 'polybar' ];then
+	polybar_alternative_style
 	polybar_launch_creater
 fi
 

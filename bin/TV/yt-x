@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #A script written by Benexl in September 2024 under MIT LICENSE
 . "/usr/share/my_stuff/lib/common/WM"
-. "${script_config_path}/yt-x.conf"
+. "${script_config_path}/My_TV/yt-x.conf"
 
 on_terminal(){
 	# shellcheck disable=SC2154
@@ -10,7 +10,7 @@ on_terminal(){
    	fi
 }
 
-if [ "$PREFERRED_SELECTOR" = "auto" ]
+if [ "$PREFERRED_SELECTOR" = "auto" ];then
 	if on_terminal;then
 		PREFERRED_SELECTOR=fzf
 	else

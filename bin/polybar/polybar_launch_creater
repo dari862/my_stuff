@@ -13,72 +13,31 @@ if [ ! -f "$HOME/.config/polybar/$polybar_STYLE/system.ini" ];then
 	polybar_fixer
 fi
 
-create_exo_launcher(){
-	# Launch polybar #
-	for bar in main apps bspwmInfo CheckNetwork info monitoring network sec SystemTray sysTray third fourth fifth sixth;do
-		if grep -q "^\[bar/$bar]" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
-			echo "MONITOR=\$MON polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/config.ini\" &" >> "${polybar_launcher_path}"
-		fi
-	done
-}
-
 tee "${polybar_launcher_path}" <<- 'EOF' > /dev/null
 #!/bin/sh
 MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
 for mon in ${MONITORS}; do
 EOF
 echo "polybar_STYLE=\"$polybar_STYLE\"" >> "${polybar_launcher_path}"
-if [ "$ROFI_STYLE" = "exo" ];then
-	create_exo_launcher
+
+if grep -q "#EXO#" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
+	bar_2_check="main apps bspwmInfo CheckNetwork info monitoring network sec SystemTray sysTray third fourth fifth sixth"
 else
 	case "$polybar_STYLE" in
-		pwidgets)
-			tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
-				# pwidgets_mode are: main apps mpd system workspace cpu memory fs
-				pwidgets_mode="main"
-				if [ "$pwidgets_mode" = "main" ] || [ ! -f "$HOME/.config/polybar/$polybar_STYLE/${pwidgets_mode}.ini" ];then
-					MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
-					MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
-					MONITOR=$mon polybar -q top -c "$HOME/.config/polybar/$polybar_STYLE/main.ini" &
-				else
-					MONITOR=$mon polybar -q primary -c "$HOME/.config/polybar/$polybar_STYLE/${pwidgets_mode}.ini" &
-					MONITOR=$mon polybar -q secondary -c "$HOME/.config/polybar/$polybar_STYLE/${pwidgets_mode}.ini" &
-				fi
-			EOF
-			;;
-		hack|cuts|hack_large)
-			echo '	MONITOR=$mon polybar -q top -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &' >> "${polybar_launcher_path}"
-			echo '	MONITOR=$mon polybar -q bottom -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &' >> "${polybar_launcher_path}"
-			;;
-		cynthia|melissa)
-			tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
-				MONITOR=$mon polybar -q bar1 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar2 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-			EOF
-			;;
-		karla)
-			tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
-				MONITOR=$mon polybar -q bar1 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar2 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar3 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-			EOF
-			;;
-		pamela|andrea)
-			tee -a "${polybar_launcher_path}" <<- 'EOF' > /dev/null
-				MONITOR=$mon polybar -q bar1 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar2 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar3 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar4 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar5 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-				MONITOR=$mon polybar -q bar6 -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &
-			EOF
-			;;
-		*)
-			echo '	MONITOR=$mon polybar -q main -c "$HOME/.config/polybar/$polybar_STYLE/config.ini" &' >> "${polybar_launcher_path}"
-			;;
+		pwidgets)		bar_2_check="primary secondary top";;
+		hack*|cuts)		bar_2_check="top bottom";;
+		cynthia|melissa)bar_2_check="bar1 bar2";;
+		karla)			bar_2_check="bar1 bar2 bar3";;
+		pamela|andrea)	bar_2_check="bar1 bar2 bar3 bar4 bar5 bar6";;
+		*)				bar_2_check="main";;
 	esac
 fi
-if [ "$polybar_STYLE" != "pwidgets" ];then
-	echo 'done' >> "${polybar_launcher_path}"
-	chmod +x "${polybar_launcher_path}"
-fi
+
+for bar in $bar_2_check;do
+	if grep -q "^\[bar/$bar]" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
+		echo "MONITOR=\$MON polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/config.ini\" &" >> "${polybar_launcher_path}"
+	fi
+done
+
+echo 'done' >> "${polybar_launcher_path}"
+chmod +x "${polybar_launcher_path}"

@@ -1,6 +1,6 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/common/WM"
-. "${script_config_path}/ani-cli.conf"
+. "${script_config_path}/My_TV/ani-cli.conf"
 
 on_terminal(){
 	# shellcheck disable=SC2154
@@ -9,7 +9,7 @@ on_terminal(){
    	fi
 }
 
-if [ "$use_external_menu" = "auto" ]
+if [ "$use_external_menu" = "auto" ];then
 	if on_terminal;then
 		use_external_menu=fzf
 	else

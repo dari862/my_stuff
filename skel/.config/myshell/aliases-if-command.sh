@@ -19,12 +19,6 @@ if command -v zoxide >/dev/null 2>&1;then
 	alias z='zoxide'
 fi
 
-if command -v trash > /dev/null;then
-	alias rm='trash -v'
-else
-	alias rm="rm -vI"
-fi
-
 if command -v nvim > /dev/null;then
 	alias vi='nvim'
 	alias vis='nvim "+set si"'

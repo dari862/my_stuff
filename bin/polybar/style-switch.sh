@@ -5,7 +5,7 @@ rofi_command() {
 	rofi -no-config -no-lazy-grab  -dmenu -i -p '' -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
 }
 # Launch Rofi
-if [ "$ROFI_STYLE" = "blocks" ]
+if [ "$polybar_STYLE" = "blocks" ]
 then
 	MENU="$(echo " Default| Nord| Gruvbox| Adapta| Cherry" | rofi_command)"
 				case "$MENU" in
@@ -15,7 +15,7 @@ then
 					*Adapta) style-switcher.sh --adapta ;;
 					*Cherry) style-switcher.sh --cherry ;;
 				esac
-elif [ "$ROFI_STYLE" = "forest" ] || [ "$ROFI_STYLE" = "forest_large" ]
+elif [ "$polybar_STYLE" = "forest/original" ] || [ "$polybar_STYLE" = "forest/large" ]
 then
 	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry" | rofi_command)"
 				case "$MENU" in
@@ -25,7 +25,7 @@ then
 					*Dark) style-switcher.sh --dark ;;
 					*Cherry) style-switcher.sh --cherry ;;
 				esac
-elif [ "$ROFI_STYLE" = "cuts" ]
+elif [ "$polybar_STYLE" = "cuts" ]
 then
 	MENU="$(echo " Black| Adapta| Dark| Red| Green| Teal| Gruvbox| Nord| Solarized| Cherry" | rofi_command)"
 				case "$MENU" in
@@ -40,7 +40,7 @@ then
 					*Solarized) style-switcher.sh --mode9 ;;
 					*Cherry) style-switcher.sh --mode10 ;;
 				esac
-elif [ "$ROFI_STYLE" = "pwidgets" ]
+elif [ "$polybar_STYLE" = "pwidgets" ]
 then
 	MENU="$(echo " Default| Nord| Gruvbox| Dark| Cherry| White| Black" | rofi_command)"
 				case "$MENU" in
@@ -52,7 +52,7 @@ then
 					*White) style-switcher.sh --white ;;
 					*Black) style-switcher.sh --black ;;
 				esac
-elif echo "$ROFI_STYLE" |  grep -q "panels/";then
+elif echo "$polybar_STYLE" |  grep -q "panels/";then
 	# Launch Rofi
 	MENU="$(echo " Budgie| Deepin| Elementary| Elementary_Dark| Gnome| KDE| KDE_Dark| Liri| Mint| Ubuntu_gnome| Ubuntu_unity| Xubuntu| Zorin" | rofi_command)"
 				case "$MENU" in

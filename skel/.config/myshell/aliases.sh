@@ -154,6 +154,9 @@ alias gcm='git commit -m'
 alias gcam='git commit -a -m'
 alias gcad='git commit -a --amend'
 
+# my trash script
+alias rm='trash_it'
+
 # my-superuser not required for some system commands
 for command in mount umount sv apt updatedb su shutdown poweroff reboot freshclam; do
 	alias $command="my-superuser $command"

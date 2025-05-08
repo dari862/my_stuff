@@ -44,7 +44,7 @@ else
 	case "${__mode}" in
 		yt) name="yt-x" ;;
 		ani)name="ani-cli" ;;
-		mov)name="lobster" ;;
+		mov)name="movie" ;;
 		tv) name="termv" ;;
 	esac
 	

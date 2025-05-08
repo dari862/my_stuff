@@ -130,7 +130,7 @@ then
 	
 	polybar-msg cmd restart
 	}
-elif [ "$polybar_STYLE" = "hack" ] || [ "$polybar_STYLE" = "hack_large" ]
+elif [ "$polybar_STYLE" = "hack/original" ] || [ "$polybar_STYLE" = "hack/large" ] || [ "$polybar_STYLE" = "hack/more" ]
 then
 	change_color() {
 	# polybar
