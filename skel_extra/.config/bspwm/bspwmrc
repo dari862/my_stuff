@@ -10,7 +10,7 @@ picom-session start &
 
 #### START SETTINGS  #################################################################################
 ## Themeing --------------------------------------------------#
-. "${HOME}/.config/bspwm/theme.conf"
+. "${HOME}/.config/bspwm/theme-bspwm.conf"
 
 ## Configurations --------------------------------------------#
 #workspace
@@ -129,6 +129,6 @@ if command -v urxvtc >/dev/null 2>&1;then
 fi
 
 # Start bspwm scripts
-bspfloat &
+bspfloat 5 &
 
 /usr/share/my_stuff/bin/WM/post_launch_wm

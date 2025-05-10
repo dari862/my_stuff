@@ -180,7 +180,7 @@ rofi_menu(){
 
 yad_menu(){
 	opt_=""
-	yad --class=WmanExit --title "Exit" --close-on-unfocus --undecorated --center --on-top --borders=10 --window-icon=system-log-out \
+	yad --title "Exit" --close-on-unfocus --undecorated --center --on-top --borders=10 --window-icon=system-log-out \
        		--button=" _Logout!system-log-out!Logout":10 \
        		--button=" L_ock Screen!system-lock-screen!":20 \
        		--button=" _Suspend!system-suspend!":30 \

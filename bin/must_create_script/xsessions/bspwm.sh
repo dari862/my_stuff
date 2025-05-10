@@ -3,6 +3,10 @@ if [ -d "/usr/share/my_stuff/bin/bspwm" ];then
    	PATH="/usr/share/my_stuff/bin/bspwm:$PATH"
 fi
 
+if [ -d "/usr/share/my_stuff/bin/pipemenu" ] && command -v jgmenu >/dev/null 2>&1;then
+   	PATH="/usr/share/my_stuff/bin/pipemenu:$PATH"
+fi
+
 usr_autostart="$usr_confdir/bspwm/bspwmrc"
 default_autostart='/usr/share/my_stuff/system_files/skel/.config/bspwm'
 

@@ -23,7 +23,7 @@ Utilities,^checkout(bl-utilities),applications-utilities
 Places,^pipe(jgmenu_run ob --cmd="places-pipemenu" --tag="places-pipemenu"),folder
 Recent Files,^pipe(jgmenu_run ob --cmd="recent-files-pipemenu -rl15" --tag="bl-recent-files-pipemenu")
 ^sep()
-Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat /usr/share/my_stuff/system_files/preferences_pipemenu/bl'" --tag="preferences-system")
+Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/bl'" --tag="preferences-system")
 System,^checkout(bl-system),applications-system
 ^sep()
 Help &amp; Resources,^pipe(jgmenu_run ob --cmd="help-menu-openbox" --tag="help-contents")

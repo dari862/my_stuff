@@ -1538,7 +1538,7 @@ create_sxhkd_tmp_file(){
 	append_sxhkd "$Launch_Apps_my_www_browser" "my-www-browser" "my_www_browser"
 	append_sxhkd "$Launch_Apps_my_text_editor" "my-text-editor" "my-text-editor"
 	append_sxhkd "$Launch_Apps_my_Media_Player" "my-media-player" "my-media-player"
-	append_sxhkd "$Terminal_Apps_htop" 'bspterm -e "sysinfo_script_ --process"' "Terminal Apps"
+	append_sxhkd "$Terminal_Apps_htop" 'sysinfo_script_ --process' "Terminal Apps"
 	append_sxhkd "$Color_Picker" "colorpick.sh" "Color Picker"
 	append_sxhkd "$Lockscreen" "my_session_manager lock" "Lockscreen"
 	
