@@ -145,9 +145,9 @@ create_exec_pipemenu(){
 	menuItem "Display" "arandr"
 	
 	menuSeparator "SYSTEM PREFERENCES"
-	menuItem "Synaptic Package Manager" "apps_as_root synaptic"
+	menuItem "GUI Package Manager" "apps_as_root gui_packagemanager"
 	menuItem "Check Pending Updates" "update-notification -n"
-	menuItem "Alternatives" "galternatives"
+	menuItem "Alternatives" "edit-alternatives"
 	menuItem "Power Management" "power_manager_settings"
 	menuItem "Network Configuration" "nm-connection-editor"
 	menuItem "Removable Drives and Media" "thunar-volman-settings"

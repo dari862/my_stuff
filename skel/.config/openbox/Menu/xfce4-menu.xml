@@ -48,7 +48,7 @@
                 </command>
             </action>
         </item>
-        <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="obamenu" />		
+        <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="obamenu.py" />		
         <separator/>
         <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
 		<menu id="info" execute="sysinfo-pipemenu --more" label="System info" icon="&icons;/stats.png"/>		

@@ -97,10 +97,10 @@
                 </command>
             </action>
         </item>
-        <item label="Synaptic Package Manager">
+        <item label="Gui Package Manager">
             <action name="Execute">
                 <command>
-                    apps_as_root synaptic
+                    apps_as_root gui_packagemanager
                 </command>
             </action>
         </item>
@@ -132,10 +132,10 @@
                 </command>
             </action>
         </item>
-        <item label="Edit Debian Alternatives">
+        <item label="Edit Alternatives">
             <action name="Execute">
                 <command>
-                    galternatives
+                    edit-alternatives
                 </command>
             </action>
         </item>
@@ -144,7 +144,7 @@
         <menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
         <menu id="DisplayKeybinds" execute="my_stuff-kb-pipemenu" label="Display Keybinds"/>
         <separator/>
-        <menu id="applications-menu" label="Applications" execute="obamenu"/>
+        <menu id="applications-menu" label="Applications" execute="obamenu.py"/>
         <separator/>
         <item label="Lock Screen">
             <action name="Execute">

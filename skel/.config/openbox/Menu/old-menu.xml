@@ -50,7 +50,7 @@
             </action>
         </item>
 
-        <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="obamenu" />
+        <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="obamenu.py" />
 		
         <separator/>
 

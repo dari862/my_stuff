@@ -34,7 +34,7 @@
 		<separator/>
 		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine" icon="&icons;/virtualbox.png"/>
 		<separator/>
-		<menu icon="&icons;/apps.png" id="applications-menu" label="Applications" execute="obamenu"/>
+		<menu icon="&icons;/apps.png" id="applications-menu" label="Applications" execute="obamenu.py"/>
 		<separator/>
 		<menu icon="&icons;/shots.png" id="TakeScreenshot" execute="screenshot-pipemenu" label="Screenshot"/>
 		<menu icon="&icons;/root.png" id="apps_as_root-pipemenu" execute="apps_as_root-pipemenu" label="Apps As Root"/>

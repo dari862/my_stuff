@@ -30,7 +30,7 @@
 		<separator/>
 		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine"/>
 	    <separator/>
-		<menu id="app-menu" execute="obamenu" label=" Applications"/>
+		<menu id="app-menu" execute="obamenu.py" label=" Applications"/>
 		<menu id="apps_as_root" execute="apps_as_root-pipemenu" label="Apps As Root"/>
 		<menu id="TakeScreenshot" execute="screenshot-pipemenu" label=" Screenshot"/>
 		<menu id="record-pipemenu" execute="record-pipemenu" label=" Screen Recorder"/>

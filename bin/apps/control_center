@@ -359,13 +359,10 @@ INTRO_TXT=$(cat <<EOF
 \n
 EOF
 )
-if hash pamac-manager 2>/dev/null;then
-        gui_package_manager="pamac-manager"
-        gui_package_manager_update="pamac-manager --updates"
-else
-        gui_package_manager="apps_as_root synaptic"
-        gui_package_manager_update="apps_as_root synaptic"
-fi
+
+gui_package_manager="gui_packagemanager"
+gui_package_manager_update="gui_packagemanager --updates"
+
 #INTRO
 yad --plug=$KEY --tabnum=1 --borders=10 \
 --text="$INTRO_TXT" --image=/usr/share/icons/hicolor/128x128/apps/mbcc.png \
