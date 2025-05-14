@@ -1,0 +1,19 @@
+#!/bin/sh
+my-installer --tweek "Enable_virtualization" || continue
+
+Package_update_
+
+say 'Installing package...' 1
+Package_installer_ virtualbox virtualbox-host-kmp-default || continue
+
+my-superuser modprobe vboxdrv
+my-superuser modprobe vboxnetflt
+my-superuser modprobe vboxnetadp
+
+my-superuser usermod -aG vboxusers $USER 
+
+say
+say "virtualbox has been installed successfully."
+say
+say 'you need to logout...' 2
+say

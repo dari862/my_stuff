@@ -77,6 +77,9 @@ for arg in "$@"; do
 		--no-notify)
 			__no_notify=true
 			;;
+		--delete)
+			__delete=true
+			;;
 		--help)
 			_help
 			;;
@@ -97,6 +100,11 @@ fi
 
 IMAGE_FILE="${__dir}/${__file}.${extension}"
 IMAGE_THUMB="${__dir}/${__file}-thumb.${extension}"
+
+if [ "$__delete" = true ];then
+	[ -f "${IMAGE_FILE}" ] && rm -f "${IMAGE_FILE}"
+	[ -f "${IMAGE_THUMB}" ] && rm -f "${IMAGE_THUMB}"
+fi
 
 # Set screenshot command based on the selected package
 if [ "$package_screenshot" = "ImageMagick" ] || [ "$package_screenshot" = "ffmpeg" ];then

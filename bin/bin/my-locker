@@ -1,6 +1,7 @@
 #!/bin/sh
 __arg_="${1-}"
-__image_full_path_="${2-}"
+__passed_image_="${2-}"
+__image_full_path_="${__passed_image_}"
 
 . "/usr/share/my_stuff/lib/common/WM"
 
@@ -8,91 +9,100 @@ if pgrep -x "i3lock" > /dev/null 2>&1;then
 	exit
 fi
 
-my_locker_folder="$HOME/.config/${scriptconfig_name}/my_locker"
-[ ! -d "$my_locker_folder" ] && mkdir -p "$my_locker_folder"
-[ ! -f "$my_locker_folder/config.ini" ] && cp -r "/usr/share/my_stuff/lib/locker/config.ini" "$my_locker_folder"
+my_locker_folder="${script_config_path}/locker"
+[ ! -d "$my_locker_folder" ] && cp -r "/usr/share/my_stuff/skel/.config/scriptconfig/locker" "${script_config_path}"
+[ ! -f "$my_locker_folder/config.ini" ] && cp -r "/usr/share/my_stuff/skel/.config/scriptconfig/locker/config.ini" "$my_locker_folder"
 
 . "$my_locker_folder/config.ini"
 
-check_if_image_is_png()
+_desktop_screenshot_as_lockscreen()
 {
+	if [ "$color" = "white" ]; then #white background image and black text
+    	bw="black"
+    	icon="/usr/share/my_stuff/icons/lock/lockdark.png"
+    	param="--inside-color=0000001c --ring-color=0000003e \
+        	--line-color=00000000 --keyhl-color=ffffff80 --ringver-color=ffffff00 \
+        	--separator-color=22222260 --insidever-color=ffffff1c \
+        	--ringwrong-color=ffffff55 --insidewrong-color=ffffff1c \
+        	--verif-color=ffffff00 --wrong-color=ff000000 --time-color=ffffff00 \
+        	--date-color=ffffff00 --layout-color=ffffff00"
+	else
+    	bw="white"
+    	icon="/usr/share/my_stuff/icons/lock/lock.png"
+    	param="--inside-color=ffffff1c --ring-color=ffffff3e \
+        	--line-color=ffffff00 --keyhl-color=00000080 --ringver-color=00000000 \
+        	--separator-color=22222260 --insidever-color=0000001c \
+        	--ringwrong-color=00000055 --insidewrong-color=0000001c \
+        	--verif-color=00000000 --wrong-color=ff000000 --time-color=00000000 \
+        	--date-color=00000000 --layout-color=00000000"
+	fi
+	greyscale_arg=""
+	pixelate_arg=""
+	
+	_path="/tmp/$USER"
+	_name="lockscreen.png"
+	__image_full_path_="${_path}/${_name}"
+	
+	[ "${greyscale}" = "true" ] && greyscale_arg="-level 0%,100%,0.6 -set colorspace Gray -average"
+	[ "${pixelate}" = "true" ] && pixelate_arg="-scale 10% -scale 1000%"
+
+	# If invoked with -d/--desktop, we'll attempt to minimize all windows (ie. show
+	# the desktop) before locking.
+	wmctrl is /usr/bin/wmctrl -k on
+	
+	my-shots --no-notify --no-copy --no-view --win --path "$_path" --name "$_name" --delete
+	
+	# As above, if we were passed -d/--desktop, we'll attempt to restore all windows
+	# after unlocking.
+	wmctrl is /usr/bin/wmctrl -k off
+	
+    convert "$__image_full_path_" $greyscale_arg $pixelate_arg -font "$font" -pointsize 26 -fill "$bw" -gravity center \
+    	-annotate +0+160 "$lock_text" "${icon}" -gravity center -composite "$__image_full_path_"
+}
+
+_usr_image_as_lockscreen()
+{
+	if [ -n "$custom_backgrounds" ];then
+		__image_full_path_="$custom_backgrounds"
+	elif [ -n "$__image_full_path_" ];then
+		__image_full_path_="$__image_full_path_"
+	else
+		__image_full_path_="$(grep 'file=' "$HOME/.config/nitrogen/bg-saved.cfg" | sed 's/file=//g')"
+	fi
+	
 	File_type=$(file "$__image_full_path_" | awk '{print $2}')
+	
 	if [ "$File_type" = "PNG" ];then
   		return 0
   	else
-  		return 1
-	fi
-}
-
-convert_to_png()
-{
-	__image_ext_="png"
-	converted_folder="/tmp/$USER/Locker/converted"
-	mkdir -p "${converted_folder}"
-	cp -r "$__image_full_path_" "$converted_folder"
-  	cd "$converted_folder"
-  	__image_basename_="$(basename "$__image_full_path_")"
-  	__image_name_="${__image_basename_%.*}"
-  	mogrify -format png "$__image_basename_"
-  	cp -r "${__image_name_}.png" "${my_locker_folder}/converted_image.png"
-  	__image_full_path_="${my_locker_folder}/converted_image.png"
-}
-
-set_custom_backgrounds_for_lockscreen()
-{
-	if [ -n "$__image_full_path_" ];then
-		check_if_image_is_png || convert_to_png
-		sed -i "s/custom_backgrounds=.*/custom_backgrounds=\"${__image_full_path_}\"/g" "$my_locker_folder/config.ini"
-	else
-		echo "$0: please pick any image."
-		exit 1
-	fi
-}
-
-_desktop_screenshot_as_lockscreen()
-{
-	greyscale_arg=""
-	pixelate_arg=""
-	[ "${greyscale}" = "true" ] && greyscale_arg="-g"
-	[ "${pixelate}" = "true" ] && pixelate_arg="-p"
-	
-	i3lock-fancy ${greyscale_arg} ${pixelate_arg} -- my-shots
-}
-
-_usr_custom_backgrounds_as_lockscreen()
-{
-	i3lock -i "$custom_backgrounds"
-}
-
-_usr_wallpaper_as_lockscreen()
-{
-	# wallpaper path
-	__image_full_path_="$(grep 'file=' "$HOME/.config/nitrogen/bg-saved.cfg" | sed 's/file=//g')"
-	check_if_image_is_png || convert_to_pngs
-	i3lock -i "$__image_full_path_"
-}
-
-_main()
-{
-	if [ "$backgrounds_type" = "screenshot" ];then
-		_desktop_screenshot_as_lockscreen
-	elif [ "$backgrounds_type" = "custom" ];then
-		_usr_custom_backgrounds_as_lockscreen
-	elif [ "$backgrounds_type" = "wallpaper" ];then
-		_usr_wallpaper_as_lockscreen
+		convert "$__image_full_path_" "${my_locker_folder}/converted_image.png"
+		__image_full_path_="${my_locker_folder}/converted_image.png"
 	fi
 }
 
 case "$__arg_" in
-	"-s") 
-		set_custom_backgrounds_for_lockscreen 
+	-s) if [ -z "$__passed_image_" ];then
+			echo "$0: please pick any image."
+			exit 1
+		fi
+		_usr_image_as_lockscreen
 		;;
-	"-d")
-		_desktop_screenshot_as_lockscreen
+	-d) _desktop_screenshot_as_lockscreen ;;
+	-w) _usr_image_as_lockscreen ;;
+	*)	if [ "$backgrounds_type" = "screenshot" ];then
+			_desktop_screenshot_as_lockscreen
+		else
+			_usr_image_as_lockscreen		
+		fi
 		;;
-	"-w")
-		_usr_wallpaper_as_lockscreen
-		;;
-	*) _main ;;
 esac
 
+if [ -n "$__passed_image_" ];then
+	sed -i "s/custom_backgrounds=.*/custom_backgrounds=\"${__image_full_path_}\"/g" "$my_locker_folder/config.ini"
+fi
+
+# try to use i3lock with prepared parameters
+if ! "i3lock -i $__image_full_path_" "$param" >/dev/null 2>&1; then
+    # We have failed, lets get back to stock one
+    i3lock -i "$__image_full_path_"
+fi

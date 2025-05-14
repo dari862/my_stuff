@@ -67,7 +67,7 @@ element {
 }
 
 element selected.normal {
-    background-color:            @selected-normal-foreground;
+    background-color:            @selected;
     text-color:                  @background;
 }
 

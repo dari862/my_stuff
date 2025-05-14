@@ -208,7 +208,7 @@ if command -v git >/dev/null 2>&1;then
     super_clone_repo() {
         getthis="${1:-}"
         getto="${2:-}"
-        echo "git clone ${getthis}"
+        say "git clone ${getthis} to ${getto}" 1
         my-superuser git clone --depth=1 "${getthis}" "${getto}"
     }
 elif command -v svn >/dev/null 2>&1;then
@@ -221,7 +221,7 @@ elif command -v svn >/dev/null 2>&1;then
     super_clone_repo() {
         getthis="${1:-}"
         getto="${2:-}"
-        echo "svn clone ${getthis}"
+        say "git clone ${getthis} to ${getto}" 1
         my-superuser svn clone --depth=1 "${getthis}" "${getto}"
     }
 fi

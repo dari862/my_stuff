@@ -1,0 +1,23 @@
+#!/bin/sh
+my-installer --tweek "Enable_virtualization" || continue
+
+say 'Installing package...' 1
+my-superuser dnf install -y \
+  https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
+  https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+say 'Installing package...' 1
+Package_installer_ VirtualBox kernel-devel kernel-headers dkms gcc make || continue
+
+my-superuser akmods --force
+my-superuser modprobe vboxdrv
+my-superuser modprobe vboxnetflt
+my-superuser modprobe vboxnetadp
+
+my-superuser usermod -aG vboxusers $USER 
+
+say
+say "virtualbox has been installed successfully."
+say
+say 'you need to logout...' 2
+say
