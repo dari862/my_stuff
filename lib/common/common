@@ -5,6 +5,7 @@
 # Usage: connectiontest [attempts]
 # If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
 connectiontest() {
+	getURL_path="$(which getURL)"
     TEXT_CHECKING='Checking internet connection...'
     TEXT_FAILED='Internet connection test failed!'
     TEXT_ASK_RETRY='\n\nThis script requires a working internet connection. Please configure your internet connection, then hit "Enter" to continue, else hit "q" to quit.'
@@ -15,7 +16,7 @@ connectiontest() {
     attempts=${1:-0}
     while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
         say "$TEXT_CHECKING" 'yellow'
-        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null;then
+        if $getURL_path '2term' "http://network-test.debian.org/nm" | grep -q "NetworkManager is online";then
             say "$TEXT_OK" 1
             return 0
         fi

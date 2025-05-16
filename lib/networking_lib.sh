@@ -1,5 +1,11 @@
 #!/bin/bash
 
+WIRELESS_INTERFACES=($(nmcli device | awk '$2=="wifi" {print $1}'))
+WIRELESS_INTERFACES_PRODUCT=()
+WLAN_INT=0
+WIRED_INTERFACES=($(nmcli device | awk '$2=="ethernet" {print $1}'))
+WIRED_INTERFACES_PRODUCT=()
+
 initialization() {
 	for i in "${WIRELESS_INTERFACES[@]}"; do WIRELESS_INTERFACES_PRODUCT+=("$(nmcli -f general.product device show "$i" | awk '{print $2}')"); done
 	for i in "${WIRED_INTERFACES[@]}"; do WIRED_INTERFACES_PRODUCT+=("$(nmcli -f general.product device show "$i" | awk '{print $2}')"); done
@@ -87,7 +93,7 @@ connect() {
 stored_connection() {
 	check_wifi_connected
 	notification "-t 0 $NOTIFICATION_WIFI_TILE" "$NOTIFICATION_WIFI_CONNECTING $1"
-	if [[ $(nmcli dev wifi con "$1" ifname "${WIRELESS_INTERFACES[WLAN_INT]}" | grep -c "successfully activated") -eq "1" ]]; then
+	if nmcli dev wifi con "$1" ifname "${WIRELESS_INTERFACES[WLAN_INT]}" | grep -q "successfully activated"; then
 		notification "$NOTIFICATION_WIFI_TILE_CONNECTION_OK" "$NOTIFICATION_WIFI_CONNECTED '$1'"
 	else
 		notification "$NOTIFICATION_WIFI_TILE_CONNECTION_ERROR" "$NOTIFICATION_WIFI_ERROR"
@@ -117,9 +123,13 @@ gen_qrcode_file(){
 	[[ -e $QRCODE_DIR$SSID.png ]] || qrencode -t png -o $QRCODE_DIR$SSID.png -l H -s 25 -m 2 --dpi=192 "WIFI:S:""$SSID"";T:""$(nmcli dev wifi show-password | grep -oP '(?<=Security: ).*' | head -1)"";P:""$PASSWORD"";;"
 }
 
-create_share_pass() {
+show_pass() {
 	SSID=$(nmcli dev wifi show-password | grep -oP '(?<=SSID: ).*' | head -1)
 	PASSWORD=$(nmcli dev wifi show-password | grep -oP '(?<=Password: ).*' | head -1)
+}
+
+create_share_pass() {
+	show_pass
 	OPTIONS="SSID: ${SSID}\nPassword: ${PASSWORD}"
 	[[ -x "$(command -v qrencode)" ]] && OPTIONS="${OPTIONS}\n${SELECTION_PREFIX}${SELECTION_QRCODE}"
 }
@@ -207,7 +217,8 @@ scan() {
 }
 
 connect2hiddenSSID() {
-	PASS="${1:-}"
+	SSID="${1:-}"
+	PASS="${2:-}"
 	if [[ -n "$PASS" ]]; then
 		nmcli con add type wifi con-name "$SSID" ssid "$SSID" ifname "${WIRELESS_INTERFACES[WLAN_INT]}"
 		nmcli con modify "$SSID" wifi-sec.key-mgmt wpa-psk

@@ -6,12 +6,8 @@
 
 rofi_network_manager_config="${script_config_path}/rofi-network-manager.ini"
 languages_lib_dir="/usr/share/my_stuff/lib/languages/rofi-network-manager"
+networking_lib="/usr/share/my_stuff/lib/networking_lib.sh"
 SELECTION_PREFIX="~"
-WIRELESS_INTERFACES=($(nmcli device | awk '$2=="wifi" {print $1}'))
-WIRELESS_INTERFACES_PRODUCT=()
-WLAN_INT=0
-WIRED_INTERFACES=($(nmcli device | awk '$2=="ethernet" {print $1}'))
-WIRED_INTERFACES_PRODUCT=()
 
 rofi_menu() {
 	if [[ ${#WIRELESS_INTERFACES[@]} -gt "1" ]]; then
@@ -90,7 +86,7 @@ ssid_hidden() {
 	enter_ssid
 	if [[ -n $SSID ]]; then
 		enter_passwword && check_wifi_connected
-		[[ "$PASS" != "$PASSWORD_ENTER" ]] && connect2hiddenSSID "$PASS"
+		[[ "$PASS" != "$PASSWORD_ENTER" ]] && connect2hiddenSSID "$SSID" "$PASS"
 	fi
 }
 
@@ -176,7 +172,7 @@ main() {
 }
 
 # main
-. "/usr/share/my_stuff/lib/networking_lib.sh"
+. "${networking_lib}"
 . "${Distro_config_file}"
 . "${rofi_network_manager_config}"
 
