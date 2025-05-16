@@ -30,8 +30,7 @@ remove_this_Array="
 .zprofile
 .xprofile
 "
-move_this_Array="$(ls /usr/share/my_stuff/system_files/skel/.config/ -I"${WM_config_name}")"
-move_this_Array="${move_this_Array} nitrogen"
+move_this_from_config_Array="$(ls /usr/share/my_stuff/system_files/skel/.config) nitrogen $WM_config_name"
 
 #-----------------------------------------------------------##-----------------------------------------------------------#
 
@@ -59,7 +58,7 @@ done
 
 mkdir -p "${backup_file_path}/.config"
 
-for movethis in ${move_this_Array}; do
+for movethis in ${move_this_from_config_Array}; do
 	[ -e "${HOME}/.config/${movethis}" ] && mv "${HOME}/.config/${movethis}" "${backup_file_path}/.config"  > /dev/null 2>&1
 done
 
