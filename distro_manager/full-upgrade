@@ -2,7 +2,7 @@
 # It runs full system upgrade in a text console
 opt="${1:-}"
 
-if [ "$EUID" -ne 0 ]; then
+if [ "$(id -u)" -ne 0 ]; then
   __SUPER_USER="my-superuser"
 fi
 
@@ -87,8 +87,10 @@ Updating_Distro(){
 	
 	blob_modified=false
 	skel_modified=false
-	
-	if $(git fetch >/dev/null 2>&1);then
+	print_purple "==> Fetching Distro repo."
+	$__SUPER_USER git remote set-url origin https://github.com/dari862/my_stuff.git >/dev/null 2>&1
+	$__SUPER_USER git fetch >/dev/null 2>&1
+	if $(git status | grep -q "^Your branch is up to date");then
 		print_GREEN "==> Distro is up to date." 
 	else
 		print_purple "==> Updating Distro."
@@ -170,7 +172,9 @@ create_new_os_release_file(){
 	EOF
 }
 
-if [ "${opt}" = "--skip-internet-check" ];then
+##########################################################################################################################3
+
+if [ "${opt}" != "--skip-internet-check" ];then
 	connectiontest
 	update_full_upgrade_script
 fi
