@@ -82,3 +82,9 @@ import_key() {
 	say "importing $url key..."
 	my-superuser rpm --import ${url}
 }
+
+__dpkg_configure() {
+    my-superuser dnf clean all
+	my-superuser dnf autoremove -y
+	my-superuser dnf autoremove --assumeno
+}

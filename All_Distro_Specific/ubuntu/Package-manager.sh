@@ -104,3 +104,7 @@ Package_cleanup() {
 
     service_manager cleanup
 }
+
+__dpkg_configure() {
+    my-superuser dpkg --configure -a
+}

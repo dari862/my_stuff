@@ -63,3 +63,7 @@ enable_repo() {
 		echo "SigLevel = $SigLevel" | my-superuser tee -a /etc/pacman.conf
 	fi
 }
+
+__dpkg_configure() {
+    my-superuser pacman -Rns $(pacman -Qdtq)
+}

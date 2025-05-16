@@ -226,11 +226,6 @@ elif command -v svn >/dev/null 2>&1;then
     }
 fi
 
-__dpkg_configure() {
-    my-superuser dpkg --configure -a
-}
-
-
 my_installer_ln_script() {
 	script_name="${1}"
 	my-superuser mkdir -p /usr/share/my_stuff/system_files/updater

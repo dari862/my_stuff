@@ -22,6 +22,6 @@ done
 for d in /home/*; do
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 	my-superuser rm -rdf "$d/.config/blob"
-	my-superuser cp -r "/usr/share/my_stuff/system_files/blob" "$d/.config/blob"
+	my-superuser cp -r "/usr/share/my_stuff/system_files/blob" "$d/.config"
 	my-superuser chown -R "$user_and_group" "$d"
 done

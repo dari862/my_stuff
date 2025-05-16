@@ -64,3 +64,7 @@ import_key() {
 	say "importing $url key..."
 	my-superuser rpm --import ${url}
 }
+
+__dpkg_configure() {
+    my-superuser zypper remove $(zypper packages --orphaned | awk '/^[0-9]/ {print $5}')
+}

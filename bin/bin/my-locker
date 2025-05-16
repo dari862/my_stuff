@@ -43,18 +43,18 @@ _desktop_screenshot_as_lockscreen()
 	_name="lockscreen.png"
 	__image_full_path_="${_path}/${_name}"
 	
-	[ "${greyscale}" = "true" ] && greyscale_arg="-level 0%,100%,0.6 -set colorspace Gray -average"
+	[ "${greyscale}" = "true" ] && greyscale_arg="-level 0%,100%,0.6 -colorspace Gray"
 	[ "${pixelate}" = "true" ] && pixelate_arg="-scale 10% -scale 1000%"
 
 	# If invoked with -d/--desktop, we'll attempt to minimize all windows (ie. show
 	# the desktop) before locking.
-	wmctrl is /usr/bin/wmctrl -k on
+	[ "${minimize_all_windows}" = "true" ] && wmctrl is /usr/bin/wmctrl -k on
 	
 	my-shots --no-notify --no-copy --no-view --win --path "$_path" --name "$_name" --delete
 	
 	# As above, if we were passed -d/--desktop, we'll attempt to restore all windows
 	# after unlocking.
-	wmctrl is /usr/bin/wmctrl -k off
+	[ "${minimize_all_windows}" = "true" ] && wmctrl is /usr/bin/wmctrl -k off
 	
     convert "$__image_full_path_" $greyscale_arg $pixelate_arg -font "$font" -pointsize 26 -fill "$bw" -gravity center \
     	-annotate +0+160 "$lock_text" "${icon}" -gravity center -composite "$__image_full_path_"

@@ -80,19 +80,43 @@ Updating_Distro(){
 	print_purple "==> checking Distro for update."
 	cd "/usr/share/my_stuff"
 	
+	blob_modified=false
+	skel_modified=false
+	
 	if $(git fetch >/dev/null 2>&1);then
 		print_GREEN "==> Distro is up to date." 
 	else
 		print_purple "==> Updating Distro."
+		
+		if git diff --quiet HEAD -- blob/ blob_dynamic/ blob_extra/; then
+  			blob_modified=true
+		fi
+		
+		if git diff --quiet HEAD -- skel/ skel_extra/; then
+  			skel_modified=true
+		fi
+		
 		if __upgrade_current_repo_;then
-			for d in /home/*/ ; do
-    			[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
-    			f="${d}${usr_flag_setup_path}"
-				my-superuser test -f "${f}" && my-superuser rm -f "${f}"
+			for d in /home/*; do
+				[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
+    			f="${d}/${usr_flag_setup_path}"
+    			[ ! -f "$f" ] && continue
+    			if [ "$skel_modified" = true ];then
+					my-superuser rm -f "${f}"
+    			elif [ "$blob_modified" = true ];then
+					user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+					if [ -d "$d/.config/blob" ];then
+						my-superuser cp -r "/usr/share/my_stuff/system_files/blob"/* "$d/.config/blob"
+					else
+						my-superuser cp -r "/usr/share/my_stuff/system_files/blob" "$d/.config"
+					fi
+					my-superuser chown -R "$user_and_group" "$d"
+				fi
 			done
 		else
 			print_RED "Updating Distro Failed... "
 		fi
+
 		print_GREEN "==> Distro is up to date." 
 	fi
 }
@@ -155,7 +179,6 @@ print_GREEN "==> full system upgraded"
 
 print_purple "==> clean package repository and remove orphan packages"
 Package_remove_ || :
-__dpkg_configure
 print_GREEN "==> orphan packages removed "
 
 if [ -d "/usr/share/my_stuff/system_files/updater" ];then
