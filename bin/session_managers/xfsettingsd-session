@@ -8,12 +8,14 @@
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
 
+sleep_time="${2:-0}"
+
 #=== FUNCTION ======================================================================
 # NAME: stop
 # DESCRIPTION: stop all conky process
 #===================================================================================
 stop() {
-	kill_process.sh xfsettingsd
+	sleep $sleep_time && kill_process.sh xfsettingsd
 }
 
 

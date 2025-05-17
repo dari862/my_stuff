@@ -4,24 +4,24 @@
 		
 if [ "$_panel_name_" = "polybar" ];then 
 	# Start volume control
-	audio-session stop
+	audio-session stop 3 &
 	
 	# Start network manager
-	nm-applet-session stop
+	nm-applet-session stop 3 &
 	
 	# Lauch xsettingsd daemon
-	xfsettingsd-session stop
+	xfsettingsd-session stop 3 &
 	
 	power-manager-session stop
 elif [ "$_panel_name_" =  "tint2" ];then
 	# Start clipboard-manager
-	clipboard-manager-session stop
+	clipboard-manager-session stop 3 &
 
 	# Start volume control
-	audio-session stop
+	audio-session stop 3 &
 	
 	# Start network manager
-	nm-applet-session stop
+	nm-applet-session stop 3 &
 	
 	power-manager-session stop
 fi

@@ -29,7 +29,7 @@ reload_my_power_managers() {
 
 daemon_mode_only() {
 	stop_power_manager
-	my_power_manager --daemon
+	setsid my_power_manager --daemon &
 }
 
 #=== FUNCTION ======================================================================

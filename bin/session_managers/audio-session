@@ -8,6 +8,8 @@
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
 
+sleep_time="${2:-0}"
+
 if command -v pnmixer >/dev/null 2>&1;then
 	audio_app="pnmixer"
 elif command -v pasystray >/dev/null 2>&1;then
@@ -24,7 +26,7 @@ fi
 # DESCRIPTION: stop all audio process
 #===================================================================================
 stop() {
-	kill_process.sh ${audio_app}
+	sleep $sleep_time && kill_process.sh ${audio_app}
 }
 
 

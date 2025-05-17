@@ -7,6 +7,9 @@
 # CREATED: 2020.04.09
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
+
+sleep_time="${2:-0}"
+
 if command -v diodon >/dev/null 2>&1;then
 	clipboard_manager_name="diodon"
 	clipboard_manager_command="exec diodon"
@@ -32,7 +35,7 @@ fi
 #===================================================================================
 stop() {
 	for prosses2kill in clipmanager diodon xfce4-clipman greenclip;do
-		kill_process.sh $prosses2kill
+		( sleep $sleep_time && kill_process.sh $prosses2kill ) &
 	done
 }
 
