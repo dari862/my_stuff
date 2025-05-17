@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm_command="$(builtin command rm)"
+rm_command="$(builtin command -v rm)"
 trash_dir="${XDG_DATA_HOME:-$HOME/.local/share}/Trash"
 trash_files="$trash_dir/files"
 trash_info="$trash_dir/info"
@@ -40,7 +40,7 @@ Path=$abs_path
 DeletionDate=$timestamp
 EOF
 
-        echo "Trashed: $filepath → $base"
+        echo "Trashed: $filepath → $trash_files/$base"
     done
 }
 
@@ -171,5 +171,5 @@ case "$1" in
     -e|--remove_from_trash) empty_trash ;;
     -E|--empty-all) empty_trash ;;
     -h|--help) show_help ;;
-    *) shift; trash "$@" ;;
+    *) trash "$@" ;;
 esac
