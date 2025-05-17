@@ -5,7 +5,7 @@
 # Usage: connectiontest [attempts]
 # If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
 connectiontest() {
-	getURL_path="$(which getURL)"
+	getURL_path="/usr/share/my_stuff/system_files/bin/getURL"
     TEXT_CHECKING='Checking internet connection...'
     TEXT_FAILED='Internet connection test failed!'
     TEXT_ASK_RETRY='\n\nThis script requires a working internet connection. Please configure your internet connection, then hit "Enter" to continue, else hit "q" to quit.'

@@ -24,13 +24,10 @@ stop() {
 # DESCRIPTION: load mpd with config file
 #===================================================================================
 start() {
+	if [ ! -f "$HOME/.config/mpd/mpd.db" ];then
+		( sleep 1 && cd ~/Music/ && mpc -q add * ) &
+	fi
 	pidof -q mpd || mpd ${mpdconf_path} &
-}
-
-pre() {
-	stop
-	start
-	( sleep 1 && cd ~/Music/ && mpc -q add * ) &
 }
 
 # EXEC ACTION ACCORDING $1
@@ -44,9 +41,6 @@ case "${1}" in
 	;;
 	stop)	
 		stop	
-	;;
-	pre)	
-		pre	
 	;;
 	*)	
 		echo "Usage: mpd-session [start|stop|restart]"

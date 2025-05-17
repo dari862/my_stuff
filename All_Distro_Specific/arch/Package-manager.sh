@@ -37,7 +37,7 @@ Upgradeable_Packages_count_(){
 	checkupdates 2> /dev/null | wc -l
 }
 Package_cleanup() {
-	my-superuser "$package_manger" -Sc --noconfirm
+	my-superuser "$package_manger" -Scc --noconfirm
 	my-superuser "$package_manger" -Rns "$(pacman -Qtdq)" --noconfirm > /dev/null || true
             
     if [ -d /var/tmp ]; then
