@@ -27,6 +27,11 @@ reload_my_power_managers() {
 	fi
 }
 
+daemon_mode_only() {
+	stop_power_manager
+	my_power_manager --daemon
+}
+
 #=== FUNCTION ======================================================================
 # NAME: stop
 # DESCRIPTION: stop all my_power_manager process
@@ -79,6 +84,9 @@ case "${1}" in
 	;;
 	xfce_start)	
 		xfce_start	
+	;;
+	daemon)
+		daemon_mode_only
 	;;
 	*)	
 		echo "Usage: xfce4-power-manager-session [start|stop|restart]"

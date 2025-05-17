@@ -12,7 +12,7 @@ if [ "$_panel_name_" = "polybar" ];then
 	# Lauch xsettingsd daemon
 	xfsettingsd-session stop
 	
-	kill_process.sh cbatticon
+	power-manager-session stop
 elif [ "$_panel_name_" =  "tint2" ];then
 	# Start clipboard-manager
 	clipboard-manager-session stop
@@ -23,7 +23,7 @@ elif [ "$_panel_name_" =  "tint2" ];then
 	# Start network manager
 	nm-applet-session stop
 	
-	kill_process.sh cbatticon
+	power-manager-session stop
 fi
 	
 if [ "${1-}" = "--reload" ] || [ "${1-}" = "-r" ];then
@@ -43,7 +43,7 @@ dunst-session restart &
 		
 if [ "$_panel_name_" = "polybar" ];then 
 	# Enable power management
-	power-manager-session start &
+	power-manager-session daemon &
 	
 	# Start polybar
 	polybar_workspace_fixer
