@@ -27,7 +27,6 @@ fi
 if [ -e "$scripts_folder_/$ans" ];then
 	$CLI_EDITER "$file"
 else
-	echo "#!/bin/sh" >> "$file"
-	chmod +x "$file"
+	cp -r "/usr/share/my_stuff/lib/Templates/ShellScripting/sh.sh" "$file"
 	$CLI_EDITER "$file"
 fi

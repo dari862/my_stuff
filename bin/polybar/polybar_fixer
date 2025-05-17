@@ -121,10 +121,10 @@ fix_modules() {
 		
 		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ AC_only / battery /g' {} +
 		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ AC_only / battery /g' {} +
-		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna / brightness /g' {} +
-		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna / brightness /g' {} +
-		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna-bar / brightness-bar /g' {} +
-		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna-bar / brightness-bar /g' {} +
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
 	fi
 	
 	if ! echo "$INTERFACE" | grep -q "^e";then
