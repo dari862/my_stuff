@@ -115,21 +115,17 @@ get_values() {
 # Fix backlight and network modules
 fix_modules() {
 	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
-		if [ -z "$CARD" ];then
+		if xbacklight -get >/dev/null 2>&1; then
 			find $HOME/.config/polybar -type f -exec sed -i 's|type = internal/backlight|type = internal/xbacklight|g' {} +
 		fi
 		
-		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ AC_only / battery /g' {} +
-		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ AC_only / battery /g' {} +
-		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna / backlight /g' {} +
-		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna / backlight /g' {} +
-		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
-		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ bna-bar / backlight-bar /g' {} +
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ AC_only/ batteryControl/g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ AC_only/ batteryControl/g' {} +
 	fi
 	
 	if ! echo "$INTERFACE" | grep -q "^e";then
-		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ ethernet / network /g' {} +
-		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ ethernet / network /g' {} +
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ ethernetControl/ networkControl/g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ ethernetControl/ networkControl/g' {} +
 	fi
 }
 
@@ -151,7 +147,7 @@ remove_modules() {
 		#find $HOME/.config/polybar -type f -exec sed -i 's/label-active/label-focused/g' {} +
  	fi
 
- 	find $HOME/.config/polybar -type f -exec sed -i 's/ bluetooth/ no_bluetooth/g' {} +
+ 	find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
  	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
  	if [ -z "$VPN_INTERFACE" ];then

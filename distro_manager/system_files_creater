@@ -132,8 +132,8 @@ fi
 ############
 if command -v thunar >/dev/null;then
 	show_im "fix thunar"
-	__thunar_wall_plug="$(locate thunar | grep wall || :)"
-	[ -n "${__thunar_wall_plug}" ] && mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
+	__thunar_wall_plug="$(locate thunar | grep "plugin.so" | grep "wall" | grep -v "\.backup" || :)"
+	[ -f "${__thunar_wall_plug}" ] && [ ! -f "${__thunar_wall_plug}.backup" ] && mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
 fi
 
 mkdir -p "/root/Templates"
