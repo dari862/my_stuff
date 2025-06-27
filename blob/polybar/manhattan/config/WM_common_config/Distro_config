@@ -1,0 +1,5 @@
+_panel_name_="polybar"
+ROFI_STYLE="lite"
+polybar_STYLE="manhattan"
+conky_sessionfile=".config/conky/openbox-conky.conf"
+tint2_sessionfile="/.config/tint2/manhattan.tint2rc"

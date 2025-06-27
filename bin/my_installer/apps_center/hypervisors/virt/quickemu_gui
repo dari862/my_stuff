@@ -1,0 +1,66 @@
+#!/bin/sh
+# if this line exist script will be part of gui scripts.new_name=QuickEMU_GUI
+
+choices=""
+configdir="$HOME/.local/quickemu"
+
+mkdir -p "${configdir}"
+cd "${configdir}"
+	
+create_VM_() {
+	get_releases_() {
+		release=$(echo "$choices" | grep 'Releases' | cut -d':' -f2 | grep -o '[^ ]*' | yad --form --separator=" " --field="Release:CB")
+	}
+	
+	get_editions_() {
+		edition=$(echo "$choices" | grep 'Editions' | cut -d':' -f2 | grep -o '[^ ]*' | yad --form --separator=" " --field="Editions:CB")
+	}
+	picked_os=$(quickget | awk 'NR==2,/zorin/' | cut -d':' -f2 | grep -o '[^ ]*' | yad --width=640 --height=500 --title="Create VM" --list --print-all --radiolist --column="check" --column="Distro" || return)
+	os=$(echo $picked_os | grep "TRUE|" | awk -F"|" '{print $2}')
+	choices=$(quickget "$os" | sed 1d)
+	# Get the release and edition to download, if necessary
+	if [ -z "$os" ];then 
+		exit 100
+	elif [ "$(echo "$choices" | wc -l)" = 1 ];then
+		get_releases_ || exit 101
+		popup_terminal "Downloading $os $release $edition" "echo -e '\\nTrying to download $os $release $edition \\n'; quickget "$os" "$release" "$edition""
+	else
+		get_releases_
+		get_editions_
+		popup_terminal "Downloading $os $release $edition" "echo -e '\\nTrying to download $os $release $edition \\n'; quickget "$os" "$release" "$edition""
+	fi
+	run_yad_gui
+}
+
+choose_VM_and_run_() {
+	vms="$(ls *.conf | sed 's/.conf//g')"
+	chosen=$(printf '%s\n' "${vms}" | yad --width=640 --height=500 --title="Create VM" --list --print-all --radiolist --column="check" --column="Distro" || return)	
+	popup_terminal "Downloading $os $release $edition" "echo -e '\\nStarting $chosen \\n'; quickemu -vm "$chosen.conf""
+}
+
+quickget_open_distro_homepage(){
+    picked_os=$(quickget | awk 'NR==2,/zorin/' | cut -d':' -f2 | grep -o '[^ ]*' | yad --width=640 --height=500 --title="Open Distro Homepage" --list --print-all --radiolist --column="check" --column="Distro" || return)
+	os=$(echo $picked_os | grep "TRUE|" | awk -F"|" '{print $2}')
+	quickget -o "${os}"
+}
+
+run_yad_gui(){
+	yad --center --borders=20 \
+    	--title="QuickEMU GUI"\
+    	--button="Create VM":1 \
+    	--button="Run VM":2 \
+    	--button="Open Distro Homepage":3 \
+    	--button="Exit":99
+}
+
+while true; do
+    run_yad_gui      # this is how to invoke the command from the array
+    exval=$?
+    case $exval in
+    	1) create_VM_;;
+        2) choose_VM_and_run_;;
+        3) quickget_open_distro_homepage;;
+        99) break;;
+        *) echo "[ERROR] $0 : exval= $exval ." && exit 1;;
+    esac
+done

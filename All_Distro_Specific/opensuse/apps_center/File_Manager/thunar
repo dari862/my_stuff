@@ -1,0 +1,11 @@
+#!/bin/sh
+app_name="thunar"
+extra_app_name="thunar-archive-plugin thunar-volman tumbler"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
+
+say 'Installing thunar...' 1
+Package_installer_ ${app_name} ${extra_app_name} || continue
+copy_from_extra_skel ".config/Thunar" || continue
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-file-manager" "${app_name}"
+file-manager-session start

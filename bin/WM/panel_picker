@@ -1,0 +1,57 @@
+#!/bin/sh
+default_panel="polybar"
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+. "${Distro_config_file}"
+
+count=0
+spliter1="|"
+spliter2="|"
+_jgmenu_=""
+	
+mkdir -p "$WM_config_dir"
+
+if command -v polybar >/dev/null 2>&1
+then
+	polybar_in_rofi="polybar"
+	count=$((count + 1))
+	_picked_panel_="polybar"
+else
+	spliter1=""
+fi
+
+if command -v xfce4-panel >/dev/null 2>&1
+then
+	xfce4_in_rofi="xfce4-panel"
+	count=$((count + 1))
+	_picked_panel_="xfce4-panel"
+else
+	spliter2=""
+fi
+	
+if command -v tint2 >/dev/null 2>&1
+then
+	tint2_in_rofi="tint2"
+	count=$((count + 1))
+	_picked_panel_="tint2"
+fi
+
+if [ "$count" -gt 1 ];then
+	_picked_panel_="$(echo "${polybar_in_rofi}${spliter1}${xfce4_in_rofi}${spliter2}${tint2_in_rofi}" | \
+	rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi)"
+fi
+
+cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
+
+if [ "$_picked_panel_" = "tint2" ];then
+	if command -v jgmenu >/dev/null 2>&1;then
+		which_MENU="$(echo "jgmenu|obmenu" | \
+		rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi)"
+		if [ "$which_MENU" = "jgmenu" ];then
+			change-ob-menu jgmenu
+		fi
+	fi
+fi
+
+sed -i "s/_panel_name_=.*/_panel_name_=$_picked_panel_/g" "${Distro_config_file}"

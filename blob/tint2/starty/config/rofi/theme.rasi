@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : starty
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #FFFFFFFF;
+    background-alt: #FFFFFFFF;
+    foreground:     #ABD7EAFF;
+    selected:       #8CAED0FF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

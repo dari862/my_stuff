@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : keyboards
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #14171CFF;
+    background-alt: #0D0E13FF;
+    foreground:     #BE62C7FF;
+    selected:       #C30ED7FF;
+    active:         #50FA7BFF;
+    urgent:         #FF5555FF;
+}

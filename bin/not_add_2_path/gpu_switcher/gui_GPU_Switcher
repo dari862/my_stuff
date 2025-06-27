@@ -1,0 +1,199 @@
+#!/bin/sh
+# if this line exist script will be part of gui scripts.new_name=GPU_Switcher
+
+NVIDIA_VENDOR="NVIDIA Corporation"
+AMD_VENDOR="AMD"
+SOFTWARE_VENDOR="Mesa/X.org"
+VMWARE_VENDOR="VMware, Inc."
+
+case $(glxinfo_vendor) in
+	"${NVIDIA_VENDOR}")
+		gpu_vendor_icon="NVIDIA_ICON"
+	;;
+	
+	"${AMD_VENDOR}")
+		gpu_vendor_icon="AMD_ICON"
+	;;
+	
+	"${SOFTWARE_VENDOR}")
+		gpu_vendor_icon="XORG_ICON"
+	;;
+	
+	"${VMWARE_VENDOR}")
+		gpu_vendor_icon="VMWARE_ICON"
+	;;
+	
+	*)
+		gpu_vendor_icon="UNKNOWN_ICON"
+	;;
+esac
+
+gpu_switcher="$(which envycontrol)"
+__MODE_=""
+__current_mode="$gpu_switcher --query"
+YAD_URL="https://github.com/v1cont/yad"
+GLXINFO_URL="https://dri.freedesktop.org/wiki/glxinfo/"
+program="$0"
+
+# Check if a specific command exists
+exists() {
+    command -v "${1}" > /dev/null 2>&1
+    return ${?}
+}
+
+# Show an error dialog
+error_dialog() {
+    yad \
+        --title="Mux Icon: ${1}"\
+        --text="${2}"\
+        --escape-ok\
+        --on-top\
+        --center\
+        --skip-taskbar\
+        --button=yad-quit:0\
+        --image=error\
+        --window-icon=error
+}
+
+# Show information dialog
+show_information() {
+    vendor="$(glxinfo_vendor)"
+
+    if [ "$(glxinfo_accelerated)" = "yes" ];then
+        accelerated="TRUE"
+    else
+        accelerated="FALSE"
+    fi
+
+    if [ "$(glxinfo_unfied_memory)" = "yes" ];then
+        unified="TRUE"
+    else
+        unified="FALSE"
+    fi
+
+    yad --form \
+        --center \
+        --fixed \
+        --width 500 \
+        --title "Mux Icon: ${vendor}"\
+        --image "/usr/share/my_stuff/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
+        --window-icon "/usr/share/my_stuff/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
+        --button="yad-close:0"\
+        --button="Return!device_pci:${program}" \
+        --text "<small>you can close the notification icon by middle clicking it</small>" \
+        --field="Vendor:RO" "${vendor}"\
+        --field="Device:RO" "$(glxinfo_device)" \
+        --field="Total Memory:RO" "$(glxinfo_total_memory)" \
+        --field="Dedicated Memory:RO" "$(glxinfo_dedicated_memory)" \
+        --field="OpenGL:RO" "$(glxinfo_gl_version)"\
+        --field="OpenGL ES:RO" "$(glxinfo_gl_es_version)" \
+        --field="Accelerated:CHK" "${accelerated}" \
+        --field="Unified Memory:CHK" "${unified}" > /dev/null
+}
+
+# Show full glxinfo
+show_glxinfo() {
+    glxinfo | yad --text-info \
+        --width=640 \
+        --height=480 \
+        --window-icon=device_pci \
+        --title="Mux Icon: GLX Info" \
+        --center \
+        --button="yad-close:0"
+}
+
+# Get the GPU manufacturer from glxinfo
+glxinfo_vendor() {
+    glxinfo | grep "OpenGL vendor string" | cut -d ":" -f 2 | sed 's/ //' 2> /dev/null
+}
+
+# Get the GPU device
+glxinfo_device() {
+    glxinfo | grep "OpenGL renderer string" | cut -d ":" -f 2 | cut -d "(" -f 1 | sed 's/ //' 2> /dev/null
+}
+
+# Get dedicated video memory
+glxinfo_dedicated_memory() {
+    glxinfo | grep "Dedicated video memory" | cut -d ":" -f 2 | sed 's/ //g' 2> /dev/null
+}
+
+# Get total video memory
+glxinfo_total_memory() {
+    glxinfo | grep "Total available memory" | cut -d ":" -f 2 | sed 's/ //g' 2> /dev/null
+}
+
+# Get if its accelerated
+glxinfo_accelerated() {
+    glxinfo | grep "Accelerated" | cut -d ":" -f 2 | sed 's/ //g' 2> /dev/null
+}
+
+# Get if its unified memory
+glxinfo_unfied_memory() {
+    glxinfo | grep "Unified memory" | cut -d ":" -f 2 | sed 's/ //g' 2> /dev/null
+}
+
+# Get OpenGL version
+glxinfo_gl_version() {
+    glxinfo | grep "OpenGL version string" | cut -d ":" -f 2 | sed 's/ //' 2> /dev/null
+}
+
+# Get OpenGL ES version
+glxinfo_gl_es_version() {
+    glxinfo | grep "OpenGL ES profile version string" | cut -d ":" -f 2 | sed 's/ //' 2> /dev/null
+}
+
+superuser_gpu_switcher(){
+	__arg_="${@}"
+	apps_as_root --yad "$gpu_switcher $__arg_"
+}
+
+run_Integrated_mode_(){
+	superuser_gpu_switcher -s integrated
+}
+
+run_Hybrid_mode_(){
+	superuser_gpu_switcher -s hybrid --rtd3
+}
+
+run_Nvidia_mode_(){
+	superuser_gpu_switcher -s nvidia --force-comp --coolbits 24
+}
+
+run_yad_gui_(){
+	__MODE_="$(yad --center --width 200 --height 200 \
+	--on-top --list --title 'GPU Switcher' --text 'Pick GPU Mode current ($__current_mode):' \
+	--column Pick:RD --column Mode:TEXT \
+	TRUE Integrated FALSE Hybrid FALSE Nvidia \
+	--buttons-layout=center --print-column=2 \
+	--button="Show GLX Info":4	--button="Show GPU Info":3 \
+	--button="Select":2  --button=gtk-cancel:1 \
+	)"
+	exval=$?
+	case $exval in
+		2)
+		__MODE_=$(echo "$__MODE_" | sed 's/.$//')
+		case $__MODE_ in
+    		Integrated) run_Integrated_mode_;;
+        	Hybrid) run_Hybrid_mode_;;
+        	Nvidia) run_Nvidia_mode_;;
+    	esac
+    	;;
+    	3)show_information ;;
+    	4)show_glxinfo ;;
+	esac
+}
+
+# Check if the user has YAD
+if ! exists "yad";then
+    echo ":: unable to find 'yad', make sure YAD is installed" > /dev/stderr
+    echo ":: more information at '${YAD_URL}'" > /dev/stderr
+    exit 1
+fi
+
+# Check if the user has glxinfo
+if ! exists "glxinfo";then
+    error_dialog "missing glxinfo" "Looks like there's no glxinfo command\n\nnormally is part of 'mesa-utils' or 'mesa-demos' package\n\ncheck out '${GLXINFO_URL}'"
+    exit 1
+fi
+
+run_yad_gui_      # this is how to invoke the command from the array

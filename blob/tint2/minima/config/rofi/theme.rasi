@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : minima
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #FFFFFFFF;
+    background-alt: #FFFFFFFF;
+    foreground:     #000000FF;
+    selected:       #DC6978FF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

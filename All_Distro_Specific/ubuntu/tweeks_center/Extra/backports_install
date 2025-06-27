@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+app_is_="${@}"
+dist=$(lsb_release -cs)
+if [ "n/a" = "$dist" ];then
+    dist=testing
+fi
+
+my-superuser apt-get install -t ${debian_base}-backports $app_is_

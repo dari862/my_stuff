@@ -1,0 +1,30 @@
+#!/bin/sh
+app_name="terminator"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+copy_from_extra_skel ".config/terminator" || continue
+say 'Fix terminator' 1 
+
+[ ! -d "/root/.config/terminator" ] && my-superuser mkdir -p "/root/.config/terminator"
+[ ! -f "/root/.config/terminator/config" ] && my-superuser cp -r "${__distro_path}"/skel_extra/.config/terminator/config "/root/.config/terminator"
+
+if my-superuser grep -q 'always_on_top =' "/root/.config/terminator/config";then
+	my-superuser sed -i "s/always_on_top =.*/always_on_top = True/g" "/root/.config/terminator/config"
+else
+	my-superuser sed -i '0,/[global_config]/a dddddddddddddddddddd' "/root/.config/terminator/config"
+	my-superuser sed -i 's/dddddddddddddddddddd/  always_on_top = True/g' "/root/.config/terminator/config"
+fi
+
+if my-superuser grep -q 'hide_window =' "/root/.config/terminator/config";then
+	my-superuser sed -i "s/hide_window =.*/hide_window = F10/g" "/root/.config/terminator/config"
+else
+	my-superuser sed -i '0,/[keybindings]/a xxxxxxxxxxxxxxxxxxxxx' "/root/.config/terminator/config"
+	my-superuser sed -i 's/xxxxxxxxxxxxxxxxxxxxx/  hide_window = F10/g' "/root/.config/terminator/config"
+fi
+
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-terminal-emulator" "${app_name}"

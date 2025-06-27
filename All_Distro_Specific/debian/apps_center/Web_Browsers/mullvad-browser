@@ -1,0 +1,23 @@
+#!/bin/sh
+
+app_name="mullvad-browser"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
+
+# Download the Mullvad signing key
+say 'Adding Repo...' 1
+download_key "download" "https://repository.mullvad.net/deb/mullvad-keyring.asc" "/usr/share/keyrings/mullvad-keyring.asc"
+
+# Add the Mullvad repository server to apt
+. "/usr/share/my_stuff/os-release"
+echo "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=$( dpkg --print-architecture )] https://repository.mullvad.net/deb/stable $version_codename main" | my-superuser tee /etc/apt/sources.list.d/mullvad.list
+
+Package_update_
+
+clear
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"

@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+target_path="/usr/share/my_stuff/system_files/bin/popup_terminal"
+popup_terminal_create_path="/usr/share/my_stuff/bin/must_create_script/popup_terminal"
+
+for term in terminator alacritty urxvt kitty;do
+	command -v "$term" > /dev/null 2>&1 && terminal="$term" && break
+done
+
+ln -sf "${popup_terminal_create_path}/$terminal" "${target_path}"

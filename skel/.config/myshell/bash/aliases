@@ -1,0 +1,9 @@
+#!/bin/bash
+# Edit this .bashrc file
+alias ebrc='$CLI_EDITER ~/.bashrc'
+
+# Show help for this .bashrc file
+alias hlp='less ~/.bashrc_help'
+
+# re-source bashrc file
+alias rbash="source $BASHDOTDIR/bashrc"

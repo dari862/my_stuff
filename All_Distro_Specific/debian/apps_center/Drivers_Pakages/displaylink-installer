@@ -1,0 +1,16 @@
+#!/bin/sh
+
+say 'Installing displaylink-installer ...' 1
+
+cd /tmp/$USER
+my-superuser true
+clone_repo https://github.com/AdnanHodzic/displaylink-debian.git
+cd displaylink-debian
+
+sed -i 's|read -p "\[I\]nstall|echoechoechoecho|g' ./displaylink-debian.sh
+sed -i '/read -p/d' ./displaylink-debian.sh
+sed -i 's|echoechoechoecho|read -p "\[I\]nstall|g' ./displaylink-debian.sh
+sed -i 's|read ACCEPT||g' ./displaylink-debian.sh
+sed -i 's|apt-get install|apt-get install -y|g' ./displaylink-debian.sh
+Package_installer_ mokutil
+my-superuser ./displaylink-debian.sh --install

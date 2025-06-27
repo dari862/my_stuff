@@ -1,0 +1,7 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+echo "cleaning zypper"
+my-superuser zypper clean all
+my-superuser zypper autoremove -y
+echo "zypper cleaned."

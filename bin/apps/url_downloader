@@ -1,0 +1,59 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=URL_Downloader
+
+title_name="URL Downloader"
+icon_name="url_downloader"
+icon="/usr/share/my_stuff/icons/${icon_name}.png"
+
+download_it()
+{
+	if command -v curl >/dev/null 2>&1;then
+		command="curl"
+		[ -z "${yad_output1}" ] && return
+    	__links_="${yad_output1}"
+    	[ "${yad_output3}" = "TRUE" ] && continue_if_interrupted="-C -"
+    	[ "${yad_output4}" = "TRUE" ] && insecure="--insecure"
+		retries="${yad_output2}"
+		retryes_arg="--retry"
+		[ -z "${retries}" ] && retries="" && retryes_arg=""
+		__links_array="$(echo "${__links_}" | sed 's/\\n/ /g')"
+	elif command -v wget >/dev/null 2>&1;then
+		command="wget"
+		[ -z "${yad_output1}" ] && return
+    	__links_="${yad_output1}"
+    	[ "${yad_output3}" = "TRUE" ] && continue_if_interrupted="-c"
+    	[ "${yad_output4}" = "TRUE" ] && insecure="--no-check-certificate"
+		retries="${yad_output2}"
+		retryes_arg="-t"
+		[ -z "${retries}" ] && retries="" && retryes_arg=""
+		__links_array="$(echo "${__links_}" | sed 's/\\n/ /g')"
+	fi
+	
+	for link in ${__links_array};do
+		# note in curl -O $link
+    	popup_terminal "${command} ${continue_if_interrupted} ${insecure} ${retryes_arg} ${retries} $link"
+    done
+}
+
+yad_output="$(yad --form \
+    		--title="${title_name}" \
+    		--window-icon="$icon" \
+    		--width=400 \
+    		--height=450 \
+    		--center \
+    		--field 'Link(s)':TXT '' \
+    		--field 'number of retries( -t )':SCL '20' \
+    		--field 'download to continue if it was interrupted previously( -c ).':CHK TRUE \
+    		--field 'bypasses SSL certificate validation':CHK TRUE \
+    		--button="Download:100")"
+exval=$?
+case $exval in
+   	100) 
+   		yad_output1="$(echo "$yad_output" | awk -F'|' '{print $1}')"
+   		yad_output2="$(echo "$yad_output" | awk -F'|' '{print $2}')"
+   		yad_output3="$(echo "$yad_output" | awk -F'|' '{print $3}')"
+   		yad_output4="$(echo "$yad_output" | awk -F'|' '{print $4}')"
+   		download_it 		
+   	;;
+esac

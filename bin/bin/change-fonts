@@ -1,0 +1,117 @@
+#!/bin/sh
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+## Openbox Pipemenu to change openbox styles
+
+# Variables and functions
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+. "${Distro_config_file}"
+
+	# Dir
+	pdir="$HOME/.config/polybar"
+	tdir="$HOME/.config/alacritty"
+	odir="${OBPATH}/rc.xml"
+	ddir="$HOME/.config/dunst"
+	
+	# Font
+	getfonts () {
+		FONT=$(yad --title='Select A Font' --font --separate-output --button=Cancel:1 --button=Select:0)
+		FNAME=$(echo $FONT | cut -d'|' -f1)
+		FSTYLE=$(echo $FONT | cut -d'|' -f2)
+		FSIZE=$(echo $FONT | cut -d'|' -f3)
+	}
+	
+	font_bar () {
+		if [ "$FONT" ];then
+			PSTYLE=$(cat $pdir/launch.sh | grep STYLE | head -n 1 | tr -d 'STYLE=' | tr -d \" | tr -d "[:blank:]")
+			sed -i -e "s/font-0 = .*/font-0 = $FNAME:$FSTYLE:size=$FSIZE;2/g" $pdir/"$PSTYLE"/config.ini
+			polybar-msg cmd restart
+		else
+			exit 0
+		fi
+	}
+	
+	font_rofi () {
+		if [ "$FONT" ];then
+			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "$HOME/.config/rofi/$ROFI_STYLE"/font.rasi
+			sed -i -e "s/font:.*/font:				 	\"$FNAME $FSTYLE $FSIZE\";/g" "$HOME/.config/rofi/$ROFI_STYLE/askpass.rasi" "$HOME/.config/rofi/$ROFI_STYLE/confirm.rasi"
+		else
+			exit 0
+		fi
+	}
+	
+	font_term () {
+		if [ "$FONT" ];then
+			sed -i -e "s/family: .*/family: \"$FNAME\"/g" "$tdir"/fonts.yml "$tdir"/fullscreen-fonts.yml
+			sed -i -e "s/size: .*/size: $FSIZE/g" "$tdir"/fonts.yml "$tdir"/fullscreen-fonts.yml
+		else
+			exit 0
+		fi
+	}
+	
+	font_ob () {
+		if [ "$FONT" ];then
+			sed -i 's/font_var "'.*'"/font_var "'"$FNAME"'"/g' ${odir}
+			sed -i 's/size_var "'.*'"/size_var "'"$FSIZE"'"/g' ${odir}
+			openbox --reconfigure
+		else
+			exit 0
+		fi
+	}
+	
+	font_dunst () {
+		if [ "$FONT" ];then
+			sed -i -e "s/font = .*/font = $FNAME $FSTYLE $FSIZE/g" $ddir/dunstrc
+			pkill dunst && dunst &
+		else
+			exit 0
+		fi
+	}
+	
+	font_gtk () {
+		if [ "$FONT" ];then
+			xfconf-query -c xsettings -p /Gtk/FontName -s "$FNAME $FSTYLE $FSIZE"
+		else
+			exit 0
+		fi
+	}
+	
+	if [ "$1" = "--bar" ];then
+		getfonts
+		font_bar
+	
+	elif [ "$1" = "--rofi" ];then
+		getfonts
+		font_rofi
+	
+	elif [ "$1" = "--terminal" ];then
+		getfonts
+		font_term
+	
+	elif [ "$1" = "--openbox" ];then
+		getfonts
+		font_ob
+	
+	elif [ "$1" = "--dunst" ];then
+		getfonts
+		font_dunst
+	
+	elif [ "$1" = "--gtk" ];then
+		getfonts
+		font_gtk
+	
+	elif [ "$1" = "--all" ];then
+		getfonts
+		font_bar
+		font_rofi
+		font_term
+		font_ob
+		font_dunst
+		font_gtk
+	fi
+	
+	exit 0
+

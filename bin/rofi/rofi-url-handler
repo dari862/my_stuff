@@ -1,0 +1,107 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+__is_there_arg_="$@"
+
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
+
+__run_rofi(){
+	# Run
+	rofi \
+    	-show run \
+		-theme ${RASI}
+}
+
+__ask_rofi(){
+	_rofi_prompt_value="$@"
+	echo "$_rofi_prompt_value" | rofi -dmenu\
+     	-i\
+     	-no-fixed-num-lines\
+     	-p "Type your Value: "\
+     	-theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+}
+
+__reason_rofi(){
+	_rofi_reason_value="$@"
+	echo "$_rofi_reason_value" | rofi -dmenu\
+     	-i\
+     	-no-fixed-num-lines\
+     	-p "reason: "\
+     	-theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+}
+
+main(){
+	__arg_="$1"
+	__arg2_="$2"
+	shift 1
+	___all_arg_="$@"
+	case "$__arg_" in
+		http|https)
+			my-www-browser "${___all_arg_}"
+			;;
+		browser)
+			my-www-browser "${___all_arg_}"
+			;;
+		freetube)
+			my-media-player "${___all_arg_}"
+			;;
+		mpv|vlc)
+			my-media-player "${___all_arg_}"
+			;;
+		play)
+			my-media-player "${___all_arg_}"
+			;;
+		git)
+			my-www-browser "https://github.com/${___all_arg_}"
+			;;
+		mal)
+			my-www-browser "https://myanimelist.net/anime/${___all_arg_}"
+			;;
+		aur)
+			my-www-browser "https://aur.archlinux.org/packages/${___all_arg_}"
+			;;
+		pypi)
+			my-www-browser "https://pypi.org/project/${___all_arg_}"
+			;;
+		twitch)
+			my-www-browser "https://www.twitch.tv/${___all_arg_}"
+			;;
+		*.doc|*.rtf)
+			my-text-editor "$___all_arg_"
+			;;
+		*.pdf)
+			my-text-editor "$___all_arg_"
+			;;
+		*.txt|*.cc|*.cpp|*.h|*.java|*.html|*.htm|*.epl|*.tex|*.latex|*.js|*.css|*.xml|*.xsl|*.am)
+			my-text-editor "$___all_arg_"
+			;;
+		*)
+			"${___all_arg_}"
+			;;
+	esac
+}
+
+
+if [ -z "${__is_there_arg_}" ];then
+	__run_rofi;
+elif echo "$__is_there_arg_" | grep -q "beepmein";then
+	__arg2_="$2"
+	shift 2
+	___all_arg_="$@"
+	if [ "$__arg2_" = "--nr" ];then
+		beepmein ${___all_arg_}
+	else
+		__time_="$(__ask_rofi "${__arg2_}")"
+		_reason_="$(__reason_rofi )"
+		beepmein --reason "${_reason_}" "${__time_}" ${___all_arg_}
+	fi
+else
+	__rofi_value="$(__ask_rofi "${__is_there_arg_}")"
+	main ${__rofi_value}
+fi
+
+

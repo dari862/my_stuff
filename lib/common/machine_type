@@ -1,0 +1,77 @@
+#!/bin/sh
+check_machine_type(){
+	# Are we a mac?
+	if test -d /proc/pmu;then
+        	batteries=$(grep Battery /proc/pmu/info | cut -f2 -d:)
+        	if test "$batteries" -ne 0;then
+            	machine_type_are="laptop"
+        	fi
+	fi
+	
+	if dmidecode="$(command -v dmidecode)" && [ -r /dev/mem -a -x "$dmidecode" ]
+	then
+        	# dmidecode to grab the Chassis type
+        	dmitype=$("$dmidecode" --string chassis-type)
+	
+        	if test "$dmitype" = "Notebook" || \
+           	test "$dmitype" = "Portable" || \
+           	test "$dmitype" = "Laptop"   || \
+           	test "$dmitype" = "Hand Held";then
+            	machine_type_are="laptop"
+        	fi
+	
+        	# turn back on for debugging
+        	#echo "$dmitype"
+	fi
+	
+	# check for non device ACPI batteries
+	/sbin/modprobe battery 2> /dev/null || true
+	sysfs_power_supply=/sys/class/power_supply
+	if [ -d "$sysfs_power_supply" ];then
+		for power_supply in "$sysfs_power_supply"/*
+		do
+			if (
+				grep -q Battery "$power_supply"/type 2>/dev/null
+			) && (
+				! grep -q Device "$power_supply"/scope 2>/dev/null
+			)
+			then
+				machine_type_are="laptop"
+			fi
+		done
+	fi
+	# old interface:
+	if [ -d /proc/acpi/battery ];then
+        	results=$(find /proc/acpi/battery -mindepth 1 -type d)
+        	if [ -n "$results" ];then
+            	machine_type_are="laptop"
+        	fi
+	fi
+
+	# check for APM batteries. This sucks, because we'll only get a valid response
+	# if the laptop has a battery fitted at the time
+	if [ -f /proc/apm ];then
+    	battery=$(awk '{print $6}' </proc/apm)
+    	if [ "$battery" != "0xff" ] && [ "$battery" != "0x80" ];then
+        	machine_type_are="laptop"
+    	fi
+	fi
+	
+	if [ -e /sys/devices/virtual/dmi/id/chassis_type ];then
+    	chassis_type="$(cat /sys/devices/virtual/dmi/id/chassis_type)"
+    	case "$chassis_type" in
+        	8|9|10|11) # Portable
+            	machine_type_are="laptop"
+            	;;
+            1) # vm
+            	machine_type_are="vm"
+            	;;
+    	esac
+	fi
+	
+	if [ -z "$machine_type_are" ];then
+		machine_type_are="pc"
+	fi
+	
+	echo "$machine_type_are"
+}

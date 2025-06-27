@@ -1,0 +1,158 @@
+#!/bin/bash
+set -euo pipefail
+. "/usr/share/my_stuff/lib/common/WM"
+. "${script_config_path}/My_TV/termv.conf"
+
+check_4_dependencies_if_installed mpv jq $use_external_menu || exit 1
+
+on_terminal(){
+	# shellcheck disable=SC2154
+	if [ ! -t 1 ];then
+   		return 1
+   	fi
+}
+
+if [ "$use_external_menu" = "auto" ];then
+	if on_terminal;then
+		use_external_menu=fzf
+	else
+		use_external_menu=rofi
+	fi
+fi
+
+if [ "$use_external_menu" = "fzf" ];then
+	launcher() {	
+		cat "${Channels_List_DB}" |\
+		fzf -e -i --reverse --cycle --with-nth="1..-2"\
+			--bind "enter:execute(_play {})"\
+			--bind "double-click:execute(_play {})"\
+			--header="Select channel (press Escape to exit)" -q "${*:-}"
+	}
+elif [ "$use_external_menu" = "rofi" ];then
+	. "${Distro_config_file}"
+	launcher() {
+		cat "${Channels_List_DB}" |\
+	    Chosen_channel="$(rofi -dmenu -i -p "Select channel (press Escape to exit)" -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -width 1500)"
+	    _play "${Chosen_channel}"
+	}
+fi
+
+if [ "${TERMV_SWALLOW}" = true ];then
+	check_4_dependencies_if_installed xdo || exit 1
+	_play() {
+		printf '%s\n' "Fetching channel, please wait..."
+		WID=$(xdo id)
+		xdo hide
+		# shellcheck disable=SC2086
+		mpv "${*##* }" ${TERMV_MPV_FLAGS} --force-media-title="${*%%  *}" --force-window=immediate
+		xdo show "$WID" && xdo activate "$WID"
+	}
+else
+	_play() {
+		printf '%s\n' "Fetching channel, please wait..."
+		# shellcheck disable=SC2086
+		mpv "${*##* }" ${TERMV_MPV_FLAGS} --force-media-title="${*%%  *}"
+	}
+fi
+export -f _play
+
+if command -v curl >/dev/null 2>&1;then
+	get_data_from_url(){
+		curl -s "${1}" --etag-compare "${2}" --etag-save "${3}" -o "${4}" -H "accept-encoding:gzip" --compressed
+	}
+elif command -v wget >/dev/null 2>&1;then
+	get_data_from_url(){
+		wget --quiet --header="accept-encoding:gzip" --compression=gzip --output-document="${4}" --header="If-None-Match: ${2}" --save-headers --no-check-certificate "${1}"
+	}
+fi
+
+update_jsonfiles() {
+    download_and_update() {
+        # Arguments: url, etag_path, data_path_new, data_path
+        url=$1
+        etag_path=$2
+        data_path_new=$3
+        data_path=$4
+
+        printf 'Downloading %s... ' "$url"
+        [ -f "$etag_path" ] && old_etag=$(<"$etag_path") || old_etag="null"
+
+        if get_data_from_url "$url" "$etag_path" "$etag_path" "$data_path_new"; then
+            new_etag=$(<"$etag_path")
+            if [ "$new_etag" = "$old_etag" ]; then
+                touch "$data_path"
+                printf '\033[33;1m %s \033[0m\n' "Your version is already up to date."
+            else
+                mv -f "$data_path_new" "$data_path"
+                printf '\033[32;1m %s \033[0m\n' "Done!"
+            fi
+        else
+            rm -f "$etag_path" "$data_path_new"
+            echo "$old_etag" > "$etag_path"
+            printf '\033[31;1m %s \033[0m\n' "Uh oh, failed!"
+            exit 1
+        fi
+    }
+
+    # Update channels
+    channels_etag="${TERMV_CACHE_DIR:?}/channels_etag"
+    channels_data_new="${TERMV_CACHE_DIR:?}/channels_data.json_new"
+    channels_data="${TERMV_CACHE_DIR:?}/channels_data.json"
+    download_and_update "${TERMV_CHANNELS_URL:?}" "$channels_etag" "$channels_data_new" "$channels_data"
+
+    # Update streams
+    streams_etag="${TERMV_CACHE_DIR:?}/streams_etag"
+    streams_data_new="${TERMV_CACHE_DIR:?}/streams_data.json_new"
+    streams_data="${TERMV_CACHE_DIR:?}/streams_data.json"
+    download_and_update "${TERMV_STREAMS_URL:?}" "$streams_etag" "$streams_data_new" "$streams_data"
+
+    # Optional filtering
+    [ -n "$TERMV_CATEGORY" ] && echo "Chosen category: $TERMV_CATEGORY" &&
+        TERMV_FILTER="$TERMV_FILTER | select(.categories[0].name == \"$TERMV_CATEGORY\")"
+    [ -n "$TERMV_LANGUAGE" ] && echo "Chosen language: $TERMV_LANGUAGE" &&
+        TERMV_FILTER="$TERMV_FILTER | select(.languages[0].name == \"$TERMV_LANGUAGE\")"
+    [ -n "$TERMV_COUNTRY" ] && echo "Chosen country: $TERMV_COUNTRY" &&
+        TERMV_FILTER="$TERMV_FILTER | select(.countries[0].name == \"$TERMV_COUNTRY\")"
+
+    # Merge JSON files
+	jq -n --argfile streams "$streams_data" --argfile channels "$channels_data" '
+		($streams | unique_by(.channel) | map({id: .channel, url})) as $s
+		| ($channels | map({id, name, categories, is_nsfw, languages, country})) as $c
+		| ($s + $c)
+		| group_by(.id)
+		| map(add)
+		| map(select(.url != null))
+	  ' | awk 'NR<2 || NR>5' |\
+	jq -r ".[] $TERMV_FILTER | \"\(.name) \t \(.categories[]? // \"N/A\") \t \(.languages[]? // \"N/A\") \t \(.country? // \"N/A\") \t \(.url)\"" |\
+	awk -v max="${COLUMNS:-80}" '
+		BEGIN { FS = " \t " }
+		{
+    		name = $1
+    		sub(/^[0-9]+\. */, "", name)
+    		category = $2
+    		language = $3
+    		country = $4
+    		url = $5
+    		sub(/^[[:space:]]*>[[:space:]]*/, "", category)
+    		sub(/^[[:space:]]*>[[:space:]]*/, "", language)
+    		sub(/^[[:space:]]*>[[:space:]]*/, "", country)
+    		sub(/^[[:space:]]*>[[:space:]]*/, "", url)
+    		name = substr(name, 1, int(max / 4))
+    		category = substr(category, 1, int(max / 8))
+    		language = substr(language, 1, int(max / 8))
+    		country = substr(country, 1, 70)
+		
+    		print name "\t|" category "\t|" language "\t|" country "\t" url
+		}' | column -t -s $'\t' > "$Channels_List_DB"
+
+    find "${TERMV_CACHE_DIR:?}" -type f -name '*_data.json_new' -delete
+}
+
+mkdir -p "${TERMV_CACHE_DIR:?}"
+mkdir -p "${TERMV_LOCAL_DIR:?}"
+
+if [ ! -f "${Channels_List_DB}" ] || [ ! "$(stat -c %y "${Channels_List_DB}" 2>/dev/null | cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ];then
+	 update_jsonfiles
+fi
+
+launcher

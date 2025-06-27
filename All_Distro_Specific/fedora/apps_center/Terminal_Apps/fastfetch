@@ -1,0 +1,11 @@
+#!/bin/sh -e
+app_name="fastfetch"
+say "Installing ${app_name}..." 1
+Package_installer_ fastfetch
+
+say "Copying Fastfetch config files..."
+if [ -d "${HOME}/.config/fastfetch" ] && [ ! -d "${HOME}/.config/fastfetch-bak" ]; then
+	cp -r "${HOME}/.config/fastfetch" "${HOME}/.config/fastfetch-bak"
+fi
+mkdir -p "${HOME}/.config/fastfetch/"
+getURL 'download2' "https://raw.githubusercontent.com/ChrisTitusTech/mybash/main/config.jsonc" "${HOME}/.config/fastfetch/config.jsonc"

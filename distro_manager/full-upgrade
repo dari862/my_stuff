@@ -1,0 +1,219 @@
+#!/bin/sh
+# It runs full system upgrade in a text console
+opt="${1:-}"
+
+if [ "$(id -u)" -ne 0 ]; then
+  __SUPER_USER="my-superuser"
+fi
+
+if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
+	echo ""
+	echo "runs full system and distro upgrade."
+	echo ""
+	exit 0
+fi
+
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+x_session_picker_path="/usr/share/my_stuff/system_files/bin/xsessions/openbox"
+
+usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g')"
+usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g')"
+usr_flag_setup_path="${usr_flag_setup_dir}/${usr_flag_setup_name}"
+getURL_path="$(which getURL)"
+
+update_full_upgrade_script(){
+	print_purple "==> check if full upgrade need update. "
+	do_full_upgrade_need_update=false
+	$__SUPER_USER mkdir -p /tmp/root/disto_updater
+	$__SUPER_USER $getURL_path 'download2' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade "/tmp/root/disto_updater/full-upgrade"
+	$__SUPER_USER chmod +x "/tmp/root/disto_updater/full-upgrade"
+	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "/usr/share/my_stuff/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
+	
+	if [ "${do_full_upgrade_need_update}" = true ];then
+		print_purple "==> running new version of full-upgrade. "
+		$__SUPER_USER /tmp/root/disto_updater/full-upgrade --skip-internet-check && exit || ( print_RED "failed to do full upgrade" && exit 1 )
+	else
+		print_GREEN "==> full upgrade up to date."
+	fi
+}
+
+print_RED() {
+	_msg_="${1-}"
+	printf "\n\033[0;31m${_msg_}\033[0m\n"
+	exit 1
+}
+print_GREEN() {
+	_msg_="${1-}"
+	printf "\n\033[0;32m${_msg_}\033[0m\n"
+}
+print_purple() {
+	_msg_="${1-}"
+	printf "\n\033[1;35m${_msg_}\033[0m\n"
+}
+
+__upgrade_current_repo_(){
+	  print_purple "==> status"
+	  __git_status="$($__SUPER_USER git status 2>&1 | grep 'fatal: unknown index entry format')"
+	  if [ -n "$__git_status" ];then
+	  	$__SUPER_USER rm -f .git/index
+	  	$__SUPER_USER git status || :
+	  fi
+      print_purple "==> Fetching"
+      $__SUPER_USER git fetch  || print_RED "git fetch failed... "
+      
+      print_purple "==> Stash (dont apply local changes)."
+      $__SUPER_USER git stash  || print_RED "git stash failed... "
+      
+      print_purple "==> Pulling"
+      $__SUPER_USER git pull
+}
+
+update_packages(){
+	cd "/usr/share/my_stuff/system_files/updater"
+	updaters_list="$(ls)"
+	first_updater_file="$(echo "$updaters_list" | head -n 1)"
+	if [ -f "${updaters_list}" ];then
+		for updater in "${updaters_list}";do
+			print_purple "==> runing $updater updater."
+			./$updater
+		done
+	fi
+}
+
+Updating_Distro(){
+	print_purple "==> checking Distro for update."
+	cd "/usr/share/my_stuff"
+	
+	blob_modified=false
+	skel_modified=false
+	print_purple "==> Fetching Distro repo."
+	$__SUPER_USER git remote set-url origin https://github.com/dari862/my_stuff.git >/dev/null 2>&1
+	$__SUPER_USER git fetch >/dev/null 2>&1
+	if $(git status | grep -q "^Your branch is up to date");then
+		print_GREEN "==> Distro is up to date." 
+	else
+		print_purple "==> Updating Distro."
+		
+		if ! $__SUPER_USER git diff --quiet HEAD -- blob/ blob_dynamic/ blob_extra/; then
+  			blob_modified=true
+		fi
+		
+		if ! $__SUPER_USER git diff --quiet HEAD -- skel/ skel_extra/; then
+  			skel_modified=true
+		fi
+		
+		if __upgrade_current_repo_;then
+			for d in /home/*; do
+				[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
+    			f="${d}/${usr_flag_setup_path}"
+    			[ ! -f "$f" ] && continue
+    			if [ "$skel_modified" = true ];then
+					$__SUPER_USER rm -f "${f}"
+    			elif [ "$blob_modified" = true ];then
+					user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+					if [ -d "$d/.config/blob" ];then
+						$__SUPER_USER cp -r "/usr/share/my_stuff/system_files/blob"/* "$d/.config/blob"
+					else
+						$__SUPER_USER cp -r "/usr/share/my_stuff/system_files/blob" "$d/.config"
+					fi
+					$__SUPER_USER chown -R "$user_and_group" "$d"
+				fi
+			done
+		else
+			print_RED "Updating Distro Failed... "
+		fi
+
+		print_GREEN "==> Distro is up to date." 
+	fi
+}
+
+Updating_opt(){
+	cd "/usr/share/my_stuff/opt/git/"
+	__git_dir_to_update_="$(ls)"
+	first__git_dir_to_update_file="$(echo "$__git_dir_to_update_" | head -n 1)"
+	if [ -d "${first__git_dir_to_update_file}" ];then
+		for __repo_ in "${__git_dir_to_update_}";do
+			print_purple "==> ${__repo_} repository."
+			cd "${__repo_}"
+			__upgrade_current_repo_
+			cd ..
+			print_GREEN "==> ${__repo_} repository updated."
+		done
+	fi
+}
+
+post_updating(){
+	create_new_os_release_file
+	print_purple "==> running system_files_creater."
+	$__SUPER_USER /usr/share/my_stuff/distro_manager/system_files_creater
+}
+
+create_new_os_release_file(){
+	print_purple "==> running create_new_os_release_file."
+	if [ -f /etc/os-release ];then
+		. /etc/os-release
+		version_="$(echo "${VERSION_ID}" | tr -d '.')"
+		distro_name="$ID"
+		distro_desc="$PRETTY_NAME"
+		distro_name_and_ver_="$ID$version_"
+		distro_name_and_ver_2="${ID}_${version_}"
+		version_codename="${VERSION_CODENAME}"
+		VERSION_ID="$VERSION_ID"
+	fi
+	$__SUPER_USER tee "/usr/share/my_stuff/os-release" <<- EOF > /dev/null 2>&1
+	version_="$version_"
+	distro_name="$distro_name"
+	distro_desc="$distro_desc"
+	distro_name_and_ver_="$distro_name_and_ver_"
+	distro_name_and_ver_2="$distro_name_and_ver_2"
+	version_codename="${version_codename}"
+	VERSION_ID="$VERSION_ID"
+	EOF
+}
+
+##########################################################################################################################3
+
+if [ "${opt}" != "--skip-internet-check" ];then
+	connectiontest
+	update_full_upgrade_script
+fi
+
+print_purple "==> sync package repositories"
+Package_update_
+print_GREEN "==> sync completed"
+
+print_purple "==> full system upgrade"
+full_upgrade_
+print_GREEN "==> full system upgraded"
+
+print_purple "==> clean package repository and remove orphan packages"
+Package_remove_ || :
+print_GREEN "==> orphan packages removed "
+
+if [ -d "/usr/share/my_stuff/system_files/updater" ];then
+	print_purple "==> updating packages(s)."
+	update_packages
+	print_GREEN "==> updating packages(s) completed. "
+fi
+
+Updating_Distro
+
+if [ -d "/usr/share/my_stuff/opt/git" ];then
+	print_purple "==> updating git repository(s)."
+	Updating_opt
+	print_GREEN "==> fully git repository(s) updated."
+fi
+
+if command -v flatpak >/dev/null 2>&1;then
+	print_purple "==> updating flatpak(s)."
+	flatpak update -y
+	print_GREEN "==> fully flatpak(s) updated."
+fi
+
+print_purple "==> post updating."
+post_updating
+print_GREEN "==> post updating completed ."
+
+print_GREEN "==> Done"
+exit 0

@@ -1,0 +1,657 @@
+#!/bin/bash
+## Dynamic Wallpaper : Set wallpapers according to current time.
+## Created to work better with job schedulers (cron)
+
+#[ "$(id -u)" -eq 0 ] && { echo "never run script as root. existing.."; exit 1 ;}
+cron_dwall_extra_arg=()
+SETTER=""
+folder_2_convert_2_Dywall=""
+WALSCHEME='dark'
+
+## ANSI Colors (FG & BG)
+RED="$(printf '\033[31m')"  GREEN="$(printf '\033[32m')"  ORANGE="$(printf '\033[33m')"  BLUE="$(printf '\033[34m')"
+MAGENTA="$(printf '\033[35m')"  CYAN="$(printf '\033[36m')"  WHITE="$(printf '\033[37m')" BLACK="$(printf '\033[30m')"
+REDBG="$(printf '\033[41m')"  GREENBG="$(printf '\033[42m')"  ORANGEBG="$(printf '\033[43m')"  BLUEBG="$(printf '\033[44m')"
+MAGENTABG="$(printf '\033[45m')"  CYANBG="$(printf '\033[46m')"  WHITEBG="$(printf '\033[47m')" BLACKBG="$(printf '\033[40m')"
+
+## Wallpaper directory
+dwall_script="/usr/share/my_stuff/bin/bin/dwall"
+wallpapers_folder_name="Dynamic_wallpapers"
+DIR="/usr/share/my_stuff/system_files/${wallpapers_folder_name}"
+HOUR="$(date +%k)"
+
+## Wordsplit in ZSH
+set -o shwordsplit 2>/dev/null
+## Case-independent regex matching
+shopt -s nocasematch
+
+# Turn debug mode off by default
+DEBUG=false
+
+## Reset terminal colors
+reset_color() {
+	tput sgr0   # reset attributes
+	tput op     # reset color
+    return
+}
+
+exit_0(){
+	reset_color
+	exit 0
+}
+
+exit_1(){
+	reset_color
+	exit 1
+}
+
+## Script Termination
+exit_on_signal_SIGINT() {
+    { printf "${RED}\n\n%s\n\n" "[!] Program Interrupted." 2>&1; reset_color; }
+    exit 0
+}
+
+exit_on_signal_SIGTERM() {
+    { printf "${RED}\n\n%s\n\n" "[!] Program Terminated." 2>&1; reset_color; }
+    exit 0
+}
+
+trap exit_on_signal_SIGINT SIGINT
+trap exit_on_signal_SIGTERM SIGTERM
+
+## Prerequisite
+Prerequisite() { 
+    check_4_dependencies_if_installed crontab || exit 1
+	## Choose wallpaper setter						  
+	case "$OSTYPE" in
+		linux*)	
+				if [ -n "$SWAYSOCK" ];then
+					SETTER="eval ogurictl output '*' --image"
+				elif [[ "$DESKTOP_SESSION" =~ ^(MATE|Mate|mate)$ ]];then
+					SETTER="gsettings set org.mate.background picture-filename"
+				elif [[ "$DESKTOP_SESSION" =~ ^(Xfce Session|xfce session|XFCE|xfce|Xubuntu|xubuntu)$ ]];then
+					check_4_dependencies_if_installed xrandr || exit 1
+					SCREEN="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $1}' | tr -d \:)"
+					MONITOR="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $2}' | tr -d \*+)"
+					SETTER="xfconf-query --channel xfce4-desktop --property /backdrop/screen$SCREEN/monitor$MONITOR/workspace0/last-image --set"
+				elif [[ "$DESKTOP_SESSION" =~ ^(LXDE|Lxde|lxde)$ ]];then
+					SETTER="pcmanfm --set-wallpaper"
+				elif [[ "$DESKTOP_SESSION" =~ ^(cinnamon|Cinnamon)$ ]];then
+					SETTER=set_cinnamon
+				elif [[ "$DESKTOP_SESSION" =~ ^(/usr/share/xsessions/plasma|NEON|Neon|neon|PLASMA|Plasma|plasma|KDE|Kde|kde)$ ]];then
+					SETTER=set_kde
+				elif [[ "$DESKTOP_SESSION" =~ GNOME|Ubuntu|Pop|Deepin ]];then
+					SETTER=set_gnome
+				elif [[ "$DESKTOP_SESSION" =~ Pantheon ]];then
+					SETTER=set_pantheon
+				elif [[ "$DESKTOP_SESSION" =~ sway ]];then
+					SETTER="swaybg -i"
+				elif [[ "$DESKTOP_SESSION" =~ ^(PANTHEON|Pantheon|pantheon|GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg|UBUNTU|Ubuntu|ubuntu|DEEPIN|Deepin|deepin|POP|Pop|pop)$ ]];then
+					SETTER="gsettings set org.gnome.desktop.background picture-uri"
+				elif type -p "feh" >/dev/null 2>&1;then
+					SETTER="feh --bg-fill"
+				else 
+					check_4_dependencies_if_installed xwallpaper || exit 1
+					SETTER="xwallpaper --stretch"
+				fi
+				;;
+	esac
+}
+
+## Usage
+usage() {
+	clear
+    cat <<- EOF
+		${RED}╺┳┓╻ ╻┏┓╻┏━┓┏┳┓╻┏━╸   ${GREEN}╻ ╻┏━┓╻  ╻  ┏━┓┏━┓┏━┓┏━╸┏━┓
+		${RED} ┃┃┗┳┛┃┗┫┣━┫┃┃┃┃┃     ${GREEN}┃╻┃┣━┫┃  ┃  ┣━┛┣━┫┣━┛┣╸ ┣┳┛
+		${RED}╺┻┛ ╹ ╹ ╹╹ ╹╹ ╹╹┗━╸   ${GREEN}┗┻┛╹ ╹┗━╸┗━╸╹  ╹ ╹╹  ┗━╸╹┗╸${WHITE}
+		
+		Dwall V2.0   : Set wallpapers according to current time.
+		Developed By : Aditya Shakya (@adi1090x)
+			
+		Usage : `basename $0` [-h] [-p] [-s style]
+
+		Options:
+		  -s                             Name of the style to apply (required)
+		  -h                             Show this help message 
+		  -p                             Use pywal to set wallpaper 
+		  -b                         	 Pass a backend to pywal 
+		  -l                          	 Force light color scheme 
+		  -a                          	 Automatically set light/dark color scheme based on GNOME theme or daytime 
+		  -o                             Output wallpaper to file instead of setting it
+		  -d                             Turn on debug messages	   
+	EOF
+
+	styles="$(ls $DIR 2>/dev/null || :)"
+	printf ${GREEN}"Available styles:  "
+	printf -- ${ORANGE}'%s  ' "${styles}"
+	printf -- '\n\n'${WHITE}
+
+    cat <<- EOF
+		Examples:
+		`basename $0` -s beach                   Set 'beach' style wallpaper
+		`basename $0` -s beach -o ~/.wallpaper   Save 'beach' style wallpaper into file '~/.wallpaper'
+		`basename $0` -p -s sahara               Set 'beach' style wallpaper, and refresh the pywal theme
+		`basename $0` -b colorz -s sahara     	 Set 'sahara' style wallpaper, and refresh the pywal theme with 'colorz' backend
+		`basename $0` -b colorz -s sahara -a     Set 'sahara' style wallpaper, and refresh the pywal theme with 'colorz' backend with automatic light/dark mode
+		`basename $0` -b colorz -s sahara -l     Set 'sahara' style wallpaper, and refresh the pywal theme with 'colorz' backend with forced light mode															 
+	EOF
+}
+
+## Set wallpaper in kde
+set_kde() {
+	qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
+		var allDesktops = desktops();
+		print (allDesktops);
+		for (i=0;i<allDesktops.length;i++) {
+			d = allDesktops[i];
+			d.wallpaperPlugin = 'org.kde.image';
+			d.currentConfigGroup = Array('Wallpaper',
+										'org.kde.image',
+										'General');
+			d.writeConfig('Image', 'file://"$1"')
+		}"
+}
+
+## Set wallpaper in cinnamon
+set_cinnamon() {
+	 gsettings set org.cinnamon.desktop.background picture-uri "file:///$1"
+}
+
+## Get Image
+get_img() {
+	image="$DIR/$STYLE/$1"
+
+	# get image format
+	if [[ -f "${image}.png" ]];then
+		FORMAT="png"
+	elif [[ -f "${image}.jpg" ]];then
+		FORMAT="jpg"
+	else
+		echo -e ${RED}"[!] Invalid image file, Exiting..."
+		exit_1
+	fi
+}
+
+## Check valid pywal backend
+pywal_backend() {
+	backends=$(wal --backend | tail -n +2 | cut -d ' ' -f 3 | xargs)
+	[[ "$backends" =~ (^| )"$1"($| ) ]] && return 0 || return 1
+}
+
+## Determine light/dark scheme based on GNOME night light or daytime
+pywal_light() {
+	[[ $WALSCHEME == 'light' ]] && return 0
+	if [[ $WALSCHEME == 'auto' ]];then
+		[[ $DESKTOP_SESSION =~ ^(GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg)$ && $(gsettings get org.gnome.desktop.interface gtk-theme) != *"dark"* ]] && return 0
+		(( $HOUR > 6 && $HOUR < 18 )) && return 0
+	fi
+	return 1
+}
+## Set wallpaper with pywal
+pywal_set() {
+	get_img "$1"
+	if ! pywal_backend "$2";then
+		echo -e ${RED}"[!] $2 is not a valid pywal backend. Check valid backends with `wal --backend`. Exiting..."
+		exit_1
+	fi
+	if [[ -x `command -v wal` ]];then
+		local walcmd=(wal --backend "$2" -i "$image.$FORMAT" -n)
+		if pywal_light;then
+			walcmd+=(-l)
+		fi
+		"${walcmd[@]}"
+		set_wallpaper "$1"				
+	else
+		echo -e ${RED}"[!] pywal is not installed on your system, exiting..."
+		exit_1
+	fi
+}
+
+## Put wallpaper in $OUTPUT
+file_set() {
+	get_img "$1"
+	if [[ -n $(echo "$OUTPUT" | grep -o "^[/~]") ]]
+	then
+		DIR=$(dirname $OUTPUT)
+		if [[ -d $DIR ]]
+		then
+			cp "$image.$FORMAT" "$OUTPUT"
+		else
+			echo "[!] Directory $DIR does not exist, exiting..."
+		fi
+	else
+		echo "[!] Output must be an absolute path, $OUTPUT isn't, exiting..."
+	fi
+}
+
+## Wallpaper Setter
+set_wallpaper() {
+	cfile="$HOME/.cache/dwall_current"
+	get_img "$1"
+
+	# set wallpaper with setter
+	if [[ -n "$FORMAT" ]];then
+		$SETTER "$image.$FORMAT"
+	fi
+
+	# make/update dwall cache file
+	if [[ ! -f "$cfile" ]];then
+		touch "$cfile"
+		echo "$image.$FORMAT" > "$cfile"
+	else
+		echo "$image.$FORMAT" > "$cfile"	
+	fi
+}
+
+## Check valid style
+check_style() {
+	if [[ "$(ls $DIR/$1 2>/dev/null)" ]];then
+		echo -e ${BLUE}"[*] Using style : ${MAGENTA}$1"
+		reset_color
+	else
+		echo -e ${RED}"[!] Invalid style name : ${GREEN}$1${RED}, exiting..."
+		exit_1
+	fi
+}
+
+## Convert choses folder to Dywall
+Convert_current_folder_2_Dywall_now() {
+	number_of_files="$(\ls -1 | wc -l || echo 'no files')"
+	
+	if [ "$number_of_files" == 1 ] || [ "$number_of_files" -gt 23 ];then
+		echo "there are $number_of_files in this folder: $folder_2_convert_2_Dywall"
+		return 1
+	fi
+	
+	fullname="$(\ls | tail -1)"
+	extension="${fullname##*.}"
+		
+	if [ "$number_of_files" -lt 9 ];then
+		first_file="$(\ls | head -1)"
+		last_file="${fullname}"
+		mv ${last_file} 9999
+		mv ${first_file} 0_0_0
+		if [ "$number_of_files" == 3 ];then
+			mv `\ls | head -2 | tail -1` 13.${extension}
+		elif [ "$number_of_files" == 4 ];then
+			mv `\ls | head -2 | tail -1` 13.${extension}
+			mv `\ls | head -3 | tail -1` 17.${extension}
+		elif [ "$number_of_files" == 5 ];then
+			mv `\ls | head -2 | tail -1` 7.${extension}
+			mv `\ls | head -3 | tail -1` 13.${extension}
+			mv `\ls | head -4 | tail -1` 17.${extension}
+		elif [ "$number_of_files" == 6 ];then
+			mv `\ls | head -2 | tail -1` 7.${extension}
+			mv `\ls | head -3 | tail -1` 13.${extension}
+			mv `\ls | head -4 | tail -1` 17.${extension}
+			mv `\ls | head -5 | tail -1` 19.${extension}
+		elif [ "$number_of_files" == 7 ];then
+			mv `\ls | head -2 | tail -1` 7.${extension}
+			mv `\ls | head -3 | tail -1` 13.${extension}
+			mv `\ls | head -4 | tail -1` 17.${extension}
+			mv `\ls | head -5 | tail -1` 19.${extension}
+			mv `\ls | head -6 | tail -1` 21.${extension}
+		elif [ "$number_of_files" == 8 ];then
+			mv `\ls | head -2 | tail -1` 7.${extension}
+			mv `\ls | head -3 | tail -1` 13.${extension}
+			mv `\ls | head -4 | tail -1` 17.${extension}
+			mv `\ls | head -5 | tail -1` 19.${extension}
+			mv `\ls | head -6 | tail -1` 21.${extension}
+			mv `\ls | head -7 | tail -1` 4.${extension}
+		fi
+		
+		mv 9999 0.${extension}
+		mv 0_0_0 5.${extension}
+		[ ! -f 19.${extension} ] && ln -s 0.${extension} 19.${extension}
+	fi
+	Create_links_for_folders_now
+	reset_color
+}
+
+Create_links_for_folders_now(){
+	fullname_L="$(\ls | tail -1)"
+	extension_L="${fullname_L##*.}"
+	folders_2_create_links_for=(`\ls | sort -n | tr '\n' ' '`)
+	newName_L=1
+	for filename_L in ${folders_2_create_links_for[@]}; do
+		while [ "$newName_L" -lt 24 ]
+		do
+			if [ -f "${newName_L}.${extension_L}" ] || [ "$newName_L" -gt 24 ];then
+				break
+			fi
+				ln -s "$filename_L" "${newName_L}.${extension_L}"
+				let newName_L=newName_L+1
+		done
+		let newName_L=newName_L+1
+	done
+}
+
+## Install script
+install_now_() {
+	# Path
+	if [ -f ${dwall_script} ];then 
+		echo -e ${GREEN}"[*] Already exsist. Execute 'dwall' to Run."${WHITE} 
+		reset_color
+		exit 0
+	fi
+	SCRIPT_ABSOLATE_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/$(basename "${BASH_SOURCE[0]}")"
+
+	## Make dirs
+	mkdir_dw() {
+		echo -e ${ORANGE}"[*] Installing Dynamic Wallpaper..."${WHITE}
+		if [[ -d $DIR ]];then
+			# delete old directory
+			my-superuser rm -rf $DIR
+			# create new directory
+			my-superuser mkdir -p $DIR
+		else
+			# create new directory
+			my-superuser mkdir -p $DIR
+		fi
+	}
+
+	## Copy files
+	copy_files() {
+		my-superuser cp "$SCRIPT_ABSOLATE_PATH" ${dwall_script}
+		# make script executable
+		my-superuser chmod +x ${dwall_script}
+		echo -e ${GREEN}"[*] Installed Successfully. Execute 'dwall' to Run."${WHITE}
+	}
+
+	## Install
+	mkdir_dw
+	copy_files
+	reset_color
+	Download_wallpapers_now
+}
+
+YES_OR_NO()
+{
+	while true; do
+		printf "Do you want to proceed? (yes/no) " >&2
+		stty -icanon -echo time 0 min 1
+		answer="$(head -c1)"
+		stty icanon echo
+		echo
+        	
+		case "$answer" in
+			[Yy]) return 0 ;;
+			[Nn]) return 1;;
+			*) echo "invalid response";;
+		esac
+	done
+}
+
+Download_wallpapers_now(){
+	. "/usr/share/my_stuff/lib/common/common"
+	check_4_dependencies_if_installed git || exit 1
+	mkdir -p /tmp/$USER/dynamic_wallpapers
+	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"
+	echo "size wallpaper is 150 MB"
+	if YES_OR_NO;then
+		echo "Downloading 1-3 urls for wallpapers"
+		super_clone_repo https://github.com/adi1090x/dynamic-wallpaper			/tmp/$USER/dynamic-wallpaper
+		mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
+	else
+		echo "skipping Download..."
+	fi
+	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"
+	echo "size wallpaper is 150 MB"
+	if YES_OR_NO;then
+		echo "Downloading 2-3 urls for wallpapers"
+		mkdir -p /tmp/$USER/dynamic-wallpaper/images/
+		mkdir -p /tmp/$USER/dynamic-wallpaper/tempfornow
+		getURL 'download2' "https://raw.githubusercontent.com/adi1090x/files/master/dynamic-wallpaper/wallpapers/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz" "/tmp/$USER/dynamic-wallpaper/tempfornow/{catalina,london,maldives,mojaveHD,mountfuji,seoul}.tar.gz"
+		mkdir -p /tmp/$USER/dynamic-wallpaper/images/london
+		tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" -C /tmp/$USER/dynamic-wallpaper/images/london && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/london.tar.gz" /tmp/$USER/dynamic-wallpaper
+		mkdir -p /tmp/$USER/dynamic-wallpaper/images/mountfuji
+		tar -xvf "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji" -C /tmp/$USER/dynamic-wallpaper/images/mountfuji && mv "/tmp/$USER/dynamic-wallpaper/tempfornow/mountfuji.tar.gz" /tmp/$USER/dynamic-wallpaper
+		for f in /tmp/$USER/dynamic-wallpaper/tempfornow/*.tar.gz -C ; do tar -xvf "$f" -C "/tmp/$USER/dynamic-wallpaper/images/"; done
+		
+		mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
+	else
+		echo "skipping Download...";
+	fi
+	echo "Download wallpapers for https://github.com/saint-13/Linux_Dynamic_Wallpapers"
+	echo "size 2.5 GB"
+	if YES_OR_NO;then
+		echo "Downloading 3-3 urls for wallpapers"
+		super_clone_repo https://github.com/saint-13/Linux_Dynamic_Wallpapers	/tmp/$USER/Linux_Dynamic_Wallpapers
+		cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
+		/bin/rm -f * 2>/dev/null
+		
+		rm -rdf /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/Mojave
+		
+		cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01
+		extension="jpg"
+		mv *-10.${extension} cyberpunk-00-0-0.0.${extension}
+		mv *-11.${extension} cyberpunk-00-0-0.1.${extension}
+		mv *-12.${extension} cyberpunk-00-0-0.2.${extension}
+		mv *-13.${extension} cyberpunk-00-0-1.${extension}
+		mv *-14.${extension} cyberpunk-00-0-2.${extension}
+		mv *-15.${extension} cyberpunk-00-0-3.${extension}
+		newName=0
+		for filename in *; do
+			mv "$filename" "${newName}.${extension}"
+			let newName=newName+1
+		done
+		mv 15.${extension} 21.${extension}
+		mv 14.${extension} 19.${extension}
+		mv 13.${extension} 18.${extension}
+		mv 12.${extension} 17.${extension}
+		mv 11.${extension} 15.${extension}
+		mv 10.${extension} 13.${extension}
+		mv 9.${extension} 12.${extension}
+		mv 8.${extension} 11.${extension}
+		mv 7.${extension} 10.${extension}
+		mv 6.${extension} 9.${extension}
+		mv 5.${extension} 8.${extension}
+		mv 4.${extension} 7.${extension}
+		mv 3.${extension} 6.${extension}
+		mv 2.${extension} 5.${extension}
+		mv 1.${extension} 3.${extension}
+		Create_links_for_folders_now
+			
+		mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01 /tmp/$USER/dynamic_wallpapers
+			
+		extension=""
+		folder_2_convert_2_Dywall=""
+		d=""
+		cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
+		for d in *
+		do
+				cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/"${d}"
+			newName=0
+			fullname="$(\ls | tail -1)"
+			extension="${fullname##*.}"
+			for filename in *; do
+				mv "$filename" "${newName}.${extension}"
+				let newName=newName+1
+			done
+			Convert_current_folder_2_Dywall_now
+		done
+			
+		mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
+		echo "Downloading complete"
+	else
+		echo "skipping Download..."
+	fi
+	
+	if [ ! -d /tmp/$USER/Linux_Dynamic_Wallpapers ] && [ ! -d /tmp/$USER/dynamic-wallpaper ];then
+		exit_0
+	fi
+	
+	my-superuser mkdir -p $DIR
+	echo $DIR
+	my-superuser cp -r /tmp/$USER/dynamic_wallpapers/* $DIR
+	echo $DIR
+	echo "Done"
+	exit_1
+}
+
+## Uninstall script
+uninstall_now_() {
+	## Delete files
+	rmdir_dw() {
+		echo -e ${ORANGE}"[*] Uninstalling Dynamic Wallpaper..."${WHITE}
+		if [[ -d $DIR ]];then
+			# delete dwall directory
+			my-superuser rm -rf $DIR
+		fi
+	}
+
+	del_files() {
+		if [[ -f ${dwall_script} ]];then
+			my-superuser rm ${dwall_script}
+		fi
+		echo -e ${GREEN}"[*] Uninstalled Successfully."${WHITE}
+	}
+
+	## Uninstall
+	rmdir_dw
+	del_files
+}
+
+#
+create_crontab_now() {
+	crontab -r 2>/dev/null
+	(crontab -l 2>/dev/null; echo "0 * * * * env PATH=$PATH DISPLAY=$DISPLAY DESKTOP_SESSION=$DESKTOP_SESSION DBUS_SESSION_BUS_ADDRESS=\"$DBUS_SESSION_BUS_ADDRESS\" ${dwall_script} ${cron_dwall_extra_arg[@]}") | crontab -
+}
+
+## Main
+main() {
+	# get current hour
+	num=$(($HOUR/1))
+	# set wallpaper accordingly
+	if [[ -n "$PYWAL" ]];then
+		_walbackend=${WALBACKEND:-wal}
+		{ pywal_set "$num" "$_walbackend"; reset_color; exit 0; }
+	elif [[ -n "$OUTPUT" ]];then
+		{ file_set "$num"; reset_color; exit 0; }
+	else
+		{ set_wallpaper "$num"; reset_color; exit 0; }
+	fi
+	
+	reset_color
+	
+	if [ "$create_crontab_" == true ];then
+		create_crontab_now
+	fi
+	exit 0
+}
+
+## Get Options
+while getopts ":dolachiugys:pb:c:z:" opt; do
+	case ${opt} in
+		d)
+			DEBUG=true
+			;;
+		p)
+			PYWAL=true
+			;;
+		b)
+			WALBACKEND=$OPTARG
+			PYWAL=true
+			;;
+		o)
+			OUTPUT=$OPTARG
+			;;
+		s)
+			STYLE=$OPTARG
+			;;
+		l)
+			WALSCHEME='light'
+			;;
+		a)
+			WALSCHEME='auto'
+			;;
+		c)
+			folder_2_convert_2_Dywall=$OPTARG
+			do_you_want_2_convert_folder_2_Dywall=true
+			;;
+		h)
+			usage
+			exit_0
+			;;
+		i)
+			Set_installation_=true
+			;;
+		u)
+			Set_uninstall_=true
+			;;
+		y)
+			crontab -r 
+			echo -e ${GREEN}"[*] Crontab task remove Successfully."${WHITE}
+			exit_o
+			;;
+		z)
+			create_crontab_=true
+			;;
+		g)
+			Download_wallpapers_=true
+			;;
+		\?)
+			echo -e ${RED}"[!] Unknown option, run ${GREEN}`basename $0` -h"
+			exit_1
+			;;
+		:)
+			echo -e ${RED}"[!] Invalid:$G -$OPTARG$R requires an argument."
+			exit_1
+			;;
+	esac
+done
+
+if [[ "$do_you_want_2_convert_folder_2_Dywall" == true ]];then
+	if [ ! -d $folder_2_convert_2_Dywall ];then
+		echo "directory does not exsist"
+		exit_1
+	else
+		cd $folder_2_convert_2_Dywall
+		Convert_current_folder_2_Dywall_now
+	fi
+	exit_0
+fi
+
+if [[ "$Set_installation_" == true ]];then
+	install_now_
+	exit_0
+fi
+
+if [[ "$Set_uninstall_" == true ]];then
+	uninstall_now_
+	exit_0
+fi
+
+if [[ "$Download_wallpapers_" == true ]] || [[ ! -d "$DIR" ]];then
+	Download_wallpapers_now
+fi
+
+if [[ "$create_crontab_" == true ]];then
+	if [[ "$STYLE" ]];then
+		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-s $STYLE")
+	fi
+	
+	if [[ "$WALBACKEND" ]];then
+		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-b $WALBACKEND")
+	elif [[ "$PYWAL" == true ]];then
+		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-p")
+	fi
+	
+	if [[ "$WALSCHEME" == "light" ]];then
+		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-l")
+	elif [[ "$WALSCHEME" == "auto" ]];then
+		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-a")
+	fi		
+	exit_1
+fi
+
+## Run
+Prerequisite
+if [[ "$STYLE" ]];then
+	check_style "$STYLE"
+	main	
+else
+	usage
+	exit_1
+fi

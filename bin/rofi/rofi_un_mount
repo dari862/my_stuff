@@ -1,0 +1,124 @@
+#!/bin/bash
+
+__mounter(){
+	# Mounts Android Phones and USB drives (encrypted or not). This script will
+	# replace the older `dmenumount` which had extra steps and couldn't handle
+	# encrypted drives.
+	# TODO: Try decrypt for drives in crtypttab
+	# TODO: Add some support for connecting iPhones (although they are annoying).
+	
+	IFS='
+	'
+	# Function for escaping cell-phone names.
+	escape(){ echo "$@" | iconv -cf UTF-8 -t ASCII//TRANSLIT | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | sed "s/-\+/-/g;s/\(^-\|-\$\)//g" ;}
+	
+	# Check for phones.
+	phones="$(simple-mtpfs -l 2>/dev/null | sed "s/^/📱/")"
+	mountedphones="$(grep "simple-mtpfs" /etc/mtab)"
+	# If there are already mounted phones, remove them from the list of mountables.
+	[ -n "$mountedphones" ] && phones="$(for phone in $phones; do
+		for mounted in $mountedphones; do
+			escphone="$(escape "$phone")"
+			[[ "$mounted" =~ "$escphone" ]] && break 1
+		done && continue 1
+		echo "$phone"
+	done)"
+	
+	# Check for drives.
+	lsblkoutput="$(lsblk -rpo "uuid,name,type,size,label,mountpoint,fstype")"
+	# Get all LUKS drives
+	allluks="$(echo "$lsblkoutput" | grep crypto_LUKS)"
+	# Get a list of the LUKS drive UUIDs already decrypted.
+	decrypted="$(find /dev/disk/by-id/dm-uuid-CRYPT-LUKS2-* | sed "s|.*LUKS2-||;s|-.*||")"
+	# Functioning for formatting drives correctly for dmenu:
+	filter() { sed "s/ /:/g" | awk -F':' '$7==""{printf "%s%s (%s) %s\n",$1,$3,$5,$6}' ; }
+	
+	# Get only LUKS drives that are not decrypted.
+	unopenedluks="$(for drive in $allluks; do
+		uuid="${drive%% *}"
+		uuid="${uuid//-}"	# This is a bashism.
+		[ -n "$decrypted" ] && for open in $decrypted; do
+			[ "$uuid" = "$open" ] && break 1
+		done && continue 1
+		echo "🔒 $drive"
+	done | filter)"
+	
+	# Get all normal, non-encrypted or decrypted partitions that are not mounted.
+	normalparts="$(echo "$lsblkoutput"| grep -v crypto_LUKS | grep 'part\|rom\|crypt' | sed "s/^/💾 /" | filter )"
+	
+	# Add all to one variable. If no mountable drives found, exit.
+	alldrives="$(printf "${phones}\n${unopenedluks}\n${normalparts}" | sed "/^$/d;s/ *$//")"
+	
+	# Quit the script if a sequential command fails.
+	set -e
+	
+	test -n "$alldrives"
+	
+	# Feed all found drives to dmenu and get user choice.
+	chosen="$(echo "$alldrives" | rofi -dmenu -p "Mount which drive?" -i)"
+	
+	# Function for prompting user for a mountpoint.
+	getmount(){
+		mp="$(find /mnt /media /mount /home -maxdepth 1 -type d 2>/dev/null | rofi -dmenu -i -p "Mount this drive where?")"
+		test -n "$mp"
+		if [ ! -d "$mp" ]; then
+			mkdiryn=$(printf "No\\nYes" | rofi -dmenu -i -p "$mp does not exist. Create it?")
+			[ "$mkdiryn" = "Yes" ] && (mkdir -p "$mp" || sudo -A mkdir -p "$mp")
+		fi
+	}
+	driveicon="${chosen:0:1}"
+	drivepath="${chosen:1}"
+	drivepath="${drivepath%% *}"
+		
+	getmount
+	
+	case "$driveicon" in
+		💾)
+			./un_mount -m "$drivepath" "$mp"
+			notify-send "💾Drive Mounted." "$drivepath mounted to $mp."
+			;;
+	
+		🔒)
+			./un_mount -m "$drivepath" "$mp"
+			notify-send "🔓Decrypted drive Mounted." "$drivepath decrypted and mounted to $mp."
+			;;
+	
+		📱)
+			notify-send "❗Note" "Remember to allow file access on your phone now."
+			./un_mount -m "$drivepath" "$mp"
+			notify-send "🤖 Android Mounted." "Android device mounted to $mp."
+			;;
+	esac
+}
+
+__unmounter(){
+	set -e
+	# Unmount USB drives or Android phones. Replaces the older `dmenuumount`. Fewer
+	# prompt and also de-decrypts LUKS drives that are unmounted.
+	mounteddroids="$(grep simple-mtpfs /etc/mtab | awk '{print "📱" $2}')"
+	u_lsblkoutput="$(lsblk -nrpo "name,type,size,mountpoint")"
+	mounteddrives="$(echo "$u_lsblkoutput" | awk '($2=="part"||$2="crypt")&&$4!~/\/boot|\/home$|SWAP/&&length($4)>1{printf "💾%s (%s)\n",$4,$3}')"
+	
+	allunmountable="$(echo "$mounteddroids
+	$mounteddrives" | sed "/^$/d;s/ *$//" | sed 's/\t//g')"
+	
+	test -n "$allunmountable"
+	
+	u_chosen="$(echo "$allunmountable" | rofi -dmenu -i -p "Unmount which drive?")"
+	u_chosen="${u_chosen%% *}"
+	u_chosen="${u_chosen:1}"
+	u_driveicon="${u_chosen:0:1}"
+	test -n "$u_chosen"
+	drive2unmount="$(printf '%s\n' "$u_lsblkoutput" | grep -F -- "$u_chosen" | awk '{print $1}')"
+	if ./un_mount -u "$drive2unmount";then
+		notify-send "Device unmounted." "$drive2unmount has been unmounted."
+		[ "$(lsblk -drno TYPE "$drive2unmount" 2>/dev/null)" = "crypto_LUKS" ] && notify-send "🔒Device dencryption closed." "Drive is now securely locked again."
+	fi
+}
+
+what2do="$(printf "Mount drives\nUnmount drives" | rofi -dmenu -i -p "What do you want to do?")"
+
+case "$what2do" in
+	Mount*)   __mounter;;
+	Unmount*) __unmounter;;
+esac

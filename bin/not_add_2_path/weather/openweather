@@ -1,0 +1,203 @@
+#!/bin/bash
+which_timestamp_to_traget_in_jq(){
+	CURRENT_DATE="$(date +"%Y-%m-%d")"
+	TARGET_DATE="$CURRENT_DATE"
+	CURRENT_TIME="$(date +"%H%M")"
+	if [ ${CURRENT_TIME} -lt 300 ];then
+		TARGET_TIME=3:00
+	elif [ ${CURRENT_TIME} -lt 600 ];then
+		TARGET_TIME=6:00
+	elif [ ${CURRENT_TIME} -lt 900 ];then
+		TARGET_TIME=9:00
+	elif [ ${CURRENT_TIME} -lt 1200 ];then
+		TARGET_TIME=12:00
+	elif [ ${CURRENT_TIME} -lt 1500 ];then
+		TARGET_TIME=15:00
+	elif [ ${CURRENT_TIME} -lt 1800 ];then
+		TARGET_TIME=18:00
+	elif [ ${CURRENT_TIME} -lt 2100 ];then
+		TARGET_TIME=21:00
+	else
+		TARGET_TIME=00:00
+		TARGET_DATE="$(date -d "$(date '+%Y-%m-%d') +1 day" '+%Y-%m-%d')"
+	fi
+	date -d "$TARGET_DATE $TARGET_TIME" +%s
+}
+
+get_weather_report_less(){
+	WEATHER_INFO=$(cat "${weatherreport}")
+	forecast=$(cat "${forecastreport}")
+	less_all=$(echo "$WEATHER_INFO" | jq -r '.main.temp,.weather[0].main' | tr '\n' '|' )
+	WEATHER_TEMP=$(echo "$less_all" | awk -F '|' '{print $1}')
+	WEATHER_MAIN=$(echo "$less_all" | awk -F '|' '{print $2}')
+    case "$WEATHER_MAIN" in
+        "Snow") weather_ICON=""; weather_description="Cold and snowy"; weather_TEXT="Snow" ;;
+        "Rain" | "Drizzle") weather_ICON=""; weather_description="Bring an umbrella"; weather_TEXT="Rainy" ;;
+        "Clouds") weather_ICON=""; weather_description="Perfect for outdoor activities"; weather_TEXT="Cloudy" ;;
+        "Storm") weather_ICON=""; weather_description="Stay indoors, stormy weather"; weather_TEXT="Storm" ;;
+        "Clear") weather_ICON=""; weather_description="Sunny, wear a hat"; weather_TEXT="Clear" ;;
+        "Fog" | "Mist") weather_ICON=""; weather_description="Foggy, use your headlamp"; weather_TEXT="Fog" ;;
+        *) weather_ICON=" $WEATHER_MAIN"; weather_description="Unusual weather"; weather_TEXT="$WEATHER_MAIN" ;;
+    esac
+    if [ "$show_Extra" = true ];then
+    	TARGET_TIMESTAMP=$(which_timestamp_to_traget_in_jq)
+    	getPOP=$(echo "$forecast" | jq --arg target_timestamp "$TARGET_TIMESTAMP" '
+    			.list[] | select(.dt | tostring == $target_timestamp).pop')
+    	getprecipchance="$(awk -v val="$getPOP" 'BEGIN {print (val * 100)}')"
+    	getdailyhighlow="$(echo "$WEATHER_INFO" | jq -r '.main.temp_min,.main.temp_max')"
+		WEATHER_TEMP="$(printf "☔%s 🥶%s° 🌞%s°\n" "$getprecipchance" $getdailyhighlow)"
+	fi
+}
+
+create_detailed_weather_report(){
+	days=3
+	forecast=$(cat "${forecastreport}")
+	
+	# Extract the current weather information
+	CURRENT_DATETIME=$(date "+%Y-%m-%d %H:%M:%S")
+	CURRENT_POP=$(echo $forecast | jq -r ".list[0].pop")  # chance of rain
+	
+	# Display the current weather
+	echo "Weather forecast for $city, $COUNTRY:"
+	echo "-------------------------"
+	echo "$CURRENT_DATETIME"
+	echo "Temperature: $temperature"
+	echo "Description: $description"
+	echo "Humidity: $humidity"
+	echo "Wind Speed: $windspeed"
+	echo "Cloud Coverage: $cloud_cover"
+	echo "Chance of Rain: $CURRENT_POP%"
+	echo "-------------------------"
+	
+	# Loop through the 3-hour forecast data and display it in a single line per interval
+	echo "Forecast for the next $days days (every 3 hours):"
+	echo "-------------------------"
+	for i in $(seq 0 $(($(echo $forecast | jq '.list | length') - 1))); do
+  		TEMP_WEATHER_DATA=$(echo $forecast | jq -r ".list[$i].dt_txt,.list[$i].main.temp,.list[$i].weather[0].description,.list[$i].main.humidity,.list[$i].wind.speed,.list[$i].clouds.all,.list[$i].pop" | tr '\n' '|')
+
+  		# Extract forecast time and weather details for each 3-hour interval
+  		DATE_TIME=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $1}')
+  		TEMP=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $2}')
+  		DESCRIPTION=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $3}')
+  		HUMIDITY=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $4}')
+  		WIND_SPEED=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $5}')
+  		CLOUDS=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $6}')
+  		POP=$(echo $TEMP_WEATHER_DATA | awk -F '|' '{print $7}')
+		Chance_of_Rain="$(awk -v val="$POP" 'BEGIN {print (val * 100)}')"
+  		# Print the weather forecast for this time period in a single line
+  		echo "$DATE_TIME | Temperature: $TEMP $scaleT | Description: $DESCRIPTION | Humidity: $HUMIDITY% | Wind Speed: $WIND_SPEED $scaleV | Cloud Coverage: $CLOUDS% | Chance of Rain: $Chance_of_Rain%"
+	done
+}
+
+get_weather_report_more(){
+	WEATHER_INFO=$(cat "${weatherreport}")
+    all="$(echo "$WEATHER_INFO" | jq -r '.coord.lon,.coord.lat,.main.temp,.main.pressure,.main.temp_min,.main.temp_max,.wind.speed,.wind.deg,.clouds.all,.sys.sunrise,.sys.sunset,.main.humidity,.weather[0].description,.sys.country,.name,.weather[0].main' | tr '\n' '|')"
+	longitude=$(printf '%06.1f' $(echo "$all" | awk -F '|' '{print $1}'))
+	latitude=$(printf '%+.1f' $(echo "$all" | awk -F '|' '{print $2}'))
+	temperature=$(printf '%+.1f%s' $(echo "$all" | awk -F '|' '{print $3}') $scaleT)
+	pressure=$(printf '%.f %s' $(echo "$all" | awk -F '|' '{print $4}') mb)
+	temperature_min=$(printf '%+.1f%s' $(echo "$all" | awk -F '|' '{print $5}') $scaleT)
+	temperature_max=$(printf '%+.1f%s' $(echo "$all" | awk -F '|' '{print $6}') $scaleT)
+	windspeed=$(printf '%.1f %s' $(echo "$all" | awk -F '|' '{print $7}') $scaleV)
+	winddir=$(printf '%3.f%s' $(echo "$all" | awk -F '|' '{print $8}') °)
+	cloud_cover=$(printf '%d%s' $(echo "$all" | awk -F '|' '{print $9}') %)
+	sunrise=$(date -d @$(echo "$all" | awk -F '|' '{print $10}') +"%R")
+	sunset=$(date -d @$(echo "$all" | awk -F '|' '{print $11}') +"%R")
+	humidity="$(echo "$all" | awk -F '|' '{print $12}')"
+	description="$(echo "$all" | awk -F '|' '{print $13}')"
+	COUNTRY="$(echo "$all" | awk -F '|' '{print $14}')"
+	city="$(echo "$all" | awk -F '|' '{print $15}')"
+	condition="$(echo "$all" | awk -F '|' '{print $16}')"
+	
+	if [ "$show_Extra" = true ];then
+		detailed_weatherreport="${weather_script_data_path}/ow_detailed_weatherreport"
+		create_detailed_weather_report > "$detailed_weatherreport"
+		less -Srf "$detailed_weatherreport" # workonthis
+	else
+		#printf "%s; %s; %s %s" "$city" "$temperature" "$windspeed" "$winddir"
+		printf "%s: %s\nTemp: %s\nHumidity: %s\n" "$city" "$description" "$temperature" "$humidity"
+	fi
+}
+
+old_weather_data_(){
+	[ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
+	[ ! -s "$forecastreport" ] && [ "$(stat -c %y "$forecastreport" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
+}
+
+get_weather_data_(){
+	getURL '2term' "${WEATHER_URL}" > "${weatherreport}"
+	getURL '2term' "${FORECAST_URL}" > "${forecastreport}"
+}
+
+parse_weather_for_conky_vision(){
+	WEATHER_INFO=$(cat "${weatherreport}")
+	forecast=$(cat "${forecastreport}")
+	cache_folder="$HOME/.cache/conky-vision"
+	image_folder="/usr/share/my_stuff/system_files/conky_weather_icons/openweather"
+
+	mkdir -p "${cache_folder}"
+		
+	parse_weather_file="${cache_folder}/parse_weather_file"
+	
+	get_property () {
+		local mode="$1"
+    	local day="$2"
+    	current_date="$(date +%Y-%m-%d)"
+    	picked_date="$(date -d "$next_date + $day day" +%Y-%m-%d)"
+    	
+		if [[ "$mode" = "max" ]];then
+    		res=$(echo "$forecast" | jq --arg target_day "$picked_date" '.list[] | select(.dt_txt | startswith($target_day)) | .main.temp_max' | sort -nr | head -1)
+		elif [[ "$mode" = "min" ]];then
+			res=$(echo "$forecast" | jq --arg target_day "$picked_date" '.list[] | select(.dt_txt | startswith($target_day)) | .main.temp_min' | sort -n | head -1)
+		fi
+
+    	LC_NUMERIC=C printf %.0f $res
+	}
+	current_weather="$(echo "$WEATHER_INFO" | jq .main.temp | awk '{print int($1+0.5)}')"
+	echo "${current_weather}°" > ${parse_weather_file}
+	for day in {1..4}; do
+    	echo "$(get_property 'max' "$day")°" >> ${parse_weather_file}
+	done
+	for day in {1..4}; do
+    	echo "$(get_property 'min' "$day")°" >> ${parse_weather_file}
+	done
+	
+	current_file="$(echo "$WEATHER_INFO" | jq .weather[0].id)"
+	all_id="$(echo "$forecast" | jq --arg target_time "00:00:00" '.list[] | select(.dt_txt | endswith($target_time)) | .weather[0].id' | tr '\n' '|')"
+	forecast1_file="$(echo "$all_id" | awk -F '|' '{print $2}')"
+	forecast2_file="$(echo "$all_id" | awk -F '|' '{print $3}')"
+	forecast3_file="$(echo "$all_id" | awk -F '|' '{print $4}')"
+	forecast4_file="$(echo "$all_id" | awk -F '|' '{print $5}')"
+	
+	current_realpath="$(realpath "${image_folder}/${current_file}.png")"
+	forecast1_realpath="$(realpath "${image_folder}/${forecast1_file}.png")"
+	forecast2_realpath="$(realpath "${image_folder}/${forecast2_file}.png")"
+	forecast3_realpath="$(realpath "${image_folder}/${forecast3_file}.png")"
+	forecast4_realpath="$(realpath "${image_folder}/${forecast4_file}.png")"
+	
+	ln -sf "${current_realpath}" "${cache_folder}/current.png"
+	ln -sf "${forecast1_realpath}" "${cache_folder}/forecast-1.png"
+	ln -sf "${forecast2_realpath}" "${cache_folder}/forecast-2.png"
+	ln -sf "${forecast3_realpath}" "${cache_folder}/forecast-3.png"
+	ln -sf "${forecast4_realpath}" "${cache_folder}/forecast-4.png"
+}
+appid=$(cat "${API_path}/${weather}" || :)
+
+if [ -z "$appid" ];then
+	echo "No API key." 
+   	echo "Weather information unavailable. Get one from http://openweathermap.org/api" 
+   	echo "or switch mode to 'wttr' in $weather_script_config_path" 
+   	exit 1
+fi
+	
+api_prefix="api.openweathermap.org/data/2.5/"
+
+appid="APPID=$appid"
+units="&units=$units"
+
+if [ -n "${lang}" ];then
+	lang="&lang=$lang"
+fi
+
+WEATHER_URL="${api_prefix}weather?${appid}&q=${place}${units}${lang}"
+FORECAST_URL="${api_prefix}forecast?${appid}&q=${place}${units}${lang}"

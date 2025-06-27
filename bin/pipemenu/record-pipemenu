@@ -1,0 +1,26 @@
+#!/bin/sh
+## Openbox Pipemenu to Record Screen with slop and ffmpeg
+
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+menuStart
+if pidof ffmpeg >/dev/null 2>&1;then
+	menuItem 'Stop Screen Recorder' "my-record --stop &"
+	menuSeparator
+else
+	menuItem 'Record Desktop (With Audio)' "my-record --screen &"
+	menuItem 'Record Desktop (No Audio)' "my-record --screen-na &"
+	if command -v slop >/dev/null 2>&1;then
+		menuItem 'Record Area (With Audio)' "my-record --area &"
+		menuItem 'Record Area (No Audio)' "my-record --area-na &"
+	else
+		menuItem 'install slop for Record specific area Area ' 'popup_terminal --install slop'
+	fi
+	menuSeparator
+	menuItem 'Record Audio only' "my-record --audio &"
+	menuSeparator
+	menuItem 'Record Webcam' "my-record --webcam &"
+	menuItem 'Record webcam HD' "my-record --webcam-hd &"
+fi
+menuItem 'Open webcam (mpv)' "my-record --open-webcam"
+menuEnd

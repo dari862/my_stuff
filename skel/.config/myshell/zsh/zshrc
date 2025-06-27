@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+# --------------------------------- Settings -----------------------------------
+vim_mode_enabled=true
+
+remote_plugins=(
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-syntax-highlighting
+zsh-users/zsh-history-substring-search
+MichaelAquilina/zsh-you-should-use
+MichaelAquilina/zsh-auto-notify
+)
+
+# ---------------------------------   Theme  -----------------------------------
+ZSH_THEME="pure"
+
+# ---------------------------------  source  -----------------------------------
+source $ZDOTDIR/zshrc.sh

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=Settings;Network;
+Name=NetworkManager rofi
+GenericName=Networkmanager Settings
+Exec=rofi-network-manager
+Icon=nm-device-wireless
+Type=Application
+Comment=
+Path=
+Terminal=false
+StartupNotify=false

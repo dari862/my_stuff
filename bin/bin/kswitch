@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+stop_at_next_target=false
+new_lang=""
+active_lang=$(setxkbmap -query | grep layout | sed 's/layout.* //g')
+
+case "$active_lang" in
+	*,*) active_lang="us" ;;
+esac
+
+langs="$(locale -a | grep "_" | sed 's/en_US/us_US/' | awk -F_ '{print $1}')"
+
+for lang in $langs;do
+	if [ "$lang" = "$active_lang" ];then
+		stop_at_next_target=true
+	elif [ "$stop_at_next_target" = true ];then
+		new_lang="$lang"
+		break
+	fi
+done
+
+[ -z "$new_lang" ] && new_lang="$(echo "$langs" | awk '{print $1}')"
+
+setxkbmap "$new_lang"

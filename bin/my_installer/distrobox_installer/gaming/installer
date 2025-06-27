@@ -1,0 +1,93 @@
+#!/bin/sh
+set -e
+
+distro_name="gaming"
+cd "${distrobbox_script_installer_path}/${distro_name}"
+
+__format=""
+
+if [ "$CONTAINER_RT" = "podman" ];then
+	__format='--format docker'
+fi
+
+prefix="$HOME/.local/distrobox"
+tmp_folder=""
+
+# Required on xorg setups
+if [ -z "$WAYLAND_DISPLAY" ];then
+	xhost "+si:localuser:$USER" || failed_to_run "Couldn't use xhost, please install it and re-run installation"
+fi
+
+gpu_detect_command=$(lspci | grep -i vga | tr '[:upper:]' '[:lower:]')
+case "$gpu_detect_command" in
+	*amd*)
+		GPU="amd"
+		;;
+	*nvidia*)
+		CUDA_LIBS="$(find /usr/lib* -iname "libcuda*.so*")"
+		[ -z "$CUDA_LIBS" ] || failed_to_run "Couldn't find CUDA on host, please install it, reboot and try again, as it's required for NVENC encoder support."
+		GPU="nvidia"
+		;;
+	*intel*)
+		GPU="intel"
+		;;
+	*)	failed_to_run "Unsupported gpu found."
+		;;
+esac
+
+MULTI_GPU="$(lspci | grep -ic vga)"
+
+if [ -n "$(pgrep pipewire)" ];then
+	AUDIO_SYSTEM="pipewire"
+	echo "Do note that pulseaudio won't work with automatic microphone routing as it requires pipewire."
+elif [ -n "$(pgrep pulseaudio)" ];then
+	AUDIO_SYSTEM="pulseaudio"
+else
+	failed_to_run "Unsupported audio system ($AUDIO_SYSTEM): you may have issues with audio!"
+fi
+
+echo "GPU=$GPU" | tee /tmp/$USER/ENV
+echo "MULTI_GPU=$MULTI_GPU" | tee -a /tmp/$USER/ENV
+echo "AUDIO_SYSTEM=$AUDIO_SYSTEM" | tee -a /tmp/$USER/ENV
+
+Pre_createing_container_image(){
+	tmp_folder=$(mktemp -d /tmp/$USER/${distro_name}-container-XXXXXXXX)
+	mkdir -p "$HOME/.local/distrobox/$distro_name"
+}
+
+###################################################################
+say 'Pre-createing container image ...' 1
+
+Pre_createing_container_image || failed_to_run "failed to install Pre-createing container image."
+
+say 'Createing container image ...' 1
+CONTAINER_RT build -t ${distro_name} . ${__format} --no-cache
+
+say 'Deploy container image ...' 1
+distrobox create --pull --image "localhost/$distro_name" \
+		--name "$distro_name" \
+		--home "$prefix/$distro_name" \
+		"${enable_gpu}" || failed_to_run "Couldn't create distrobox container. GPU: $GPU; AUDIO SYSTEM: $AUDIO_SYSTEM"
+distrobox enter --name "$distro_name" --additional-flags "--env XDG_CURRENT_DESKTOP=X-Generic --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8"
+
+say 'Createing container lanucher ...' 1
+echo '#!/bin/sh' > "${tmp_folder}/${distro_name}"
+echo "distrobox enter --name \"$distro_name\" " >> "${tmp_folder}/${distro_name}"
+
+chmod +x "${tmp_folder}/${distro_name}"
+mkdir -p "$HOME/.local/bin"
+mv "${tmp_folder}/${distro_name}" "$HOME/.local/bin"
+
+[ -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ] && my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
+my-superuser touch /usr/share/my_stuff/system_files/Gaming_ready
+	
+# Prevent host steam to be used during install, forcefully kill it (on steamos produces output like it tries to kill host processes and fails, fixme?...)
+# pkill -f steam
+
+distrobox stop "$distro_name" --yes
+
+
+say "${distro_name} successfully depolyed."
+say
+say "type ${distro_name} to use it."
+say

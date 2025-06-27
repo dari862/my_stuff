@@ -1,0 +1,4 @@
+#!/bin/sh -e
+app_name="waterfox"
+
+flatpak_install ${app_name} net.waterfox.waterfox

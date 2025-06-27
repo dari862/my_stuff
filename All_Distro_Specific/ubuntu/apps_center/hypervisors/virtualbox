@@ -1,0 +1,35 @@
+#!/bin/sh
+my-installer --tweek "Enable_IOMMU_support" || continue
+virtualbox_version="$(getURL '2term' "https://download.virtualbox.org/virtualbox/LATEST.TXT" | cut -d '.' -f1,2)"
+ep_url="https://download.virtualbox.org/virtualbox/${virtualbox_version}.0/Oracle_VirtualBox_Extension_Pack-${virtualbox_version}.0.vbox-extpack"
+temp_dir=$(mktemp -d)
+file_location="${temp_dir}/VirtualBox_Extension_Pack.vbox-extpack"
+extra_apps_="linux-headers-$(uname -r) dkms virtualbox-$virtualbox_version"
+
+say 'Installing package...' 1
+. "/usr/share/my_stuff/os-release"
+Package_installer_ gnupg2 || failed_to_run "to install gnupg2"
+download_key "gpg" "https://www.virtualbox.org/download/oracle_vbox_2016.asc" "/etc/apt/trusted.gpg.d/vbox.gpg"
+download_key "gpg" "https://www.virtualbox.org/download/oracle_vbox.asc" "/etc/apt/trusted.gpg.d/oracle_vbox.gpg"
+echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $version_codename contrib" | my-superuser tee /etc/apt/sources.list.d/virtualbox.list > /dev/null 2>&1
+
+Package_update_ || failed_to_run "failed to update"
+
+say 'Installing Extra package...' 1
+Package_installer_ ${extra_apps_} || continue
+
+my-superuser usermod -aG vboxusers $USER 
+
+printf "\e[1mDownloading and installing Extension pack..\e[0m\n"
+if getURL 'download2' "$ep_url" "${file_location}";then
+	yes | my-superuser vboxmanage extpack install --replace ${file_location}
+	rm -rfd "$temp_dir"
+else
+	failed_to_run "failed to download Extension pack."
+fi
+
+say
+say "virtualbox has been installed successfully."
+say
+say 'you need to logout...' 2
+say

@@ -1,0 +1,6 @@
+#!/bin/sh -e
+app_name="discord"
+say "Installing ${app_name}..." 1
+Package_installer_ "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+Package_installer_ discord
+

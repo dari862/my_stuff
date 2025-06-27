@@ -1,0 +1,30 @@
+#!/bin/sh
+app_name="podman"
+__newGroup="podmanusers"
+		
+if [ ! -f '/usr/share/my_stuff/system_files/Container_Group_podman' ];then
+	say "install container software ..." 1
+	Package_installer_ ${app_name} || continue
+	
+	clear
+	
+	if ! groups | grep "$__newGroup" >/dev/null 2>&1;then
+		my-superuser groupadd $__newGroup >/dev/null 2>&1 || :
+		my-superuser usermod -aG $__newGroup ${USER} >/dev/null 2>&1 || :
+	fi
+	
+	registries_conf="/etc/containers/registries.conf"
+	if ! grep -q 'docker.io' $registries_conf;then
+		echo 'unqualified-search-registries = ["docker.io"]' | my-superuser tee -a $registries_conf > /dev/null
+	fi
+	
+	_podman_command=$(my-superuser which podman)
+	my-superuser chmod 750 $_podman_command || :
+	my-superuser chgrp $__newGroup $_podman_command || :
+	echo "${__newGroup}" | my-superuser tee '/usr/share/my_stuff/system_files/Container_Group_podman' > /dev/null 2>&1
+	logout_ "$container_software installed successfully."
+else	
+	if ! groups | grep -q "${__newGroup}";then
+		logout_ "$container_software installed successfully."
+	fi
+fi

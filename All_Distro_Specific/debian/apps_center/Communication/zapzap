@@ -1,0 +1,4 @@
+#!/bin/sh -e     
+app_name="zapzap"
+
+flatpak_install ${app_name} com.rtosta.zapzap || continue

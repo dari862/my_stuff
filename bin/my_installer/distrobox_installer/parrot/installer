@@ -1,0 +1,66 @@
+#!/bin/sh
+set -e
+
+distro_name="parrot"
+cd "${distrobbox_script_installer_path}/${distro_name}"
+
+__format=""
+
+if [ "$CONTAINER_RT" = "podman" ];then
+	__format='--format docker'
+fi
+
+prefix="$HOME/.local/distrobox"
+tmp_folder=""
+
+mode=""
+if [ "$mode" = "root" ];then
+        root_command="--root"
+else
+        root_command=""
+fi
+
+Pre_createing_container_image(){
+	tmp_folder=$(mktemp -d /tmp/${distro_name}-container-XXXXXXXX)
+	mkdir -p "$HOME/.local/distrobox/$distro_name"
+	cd "$HOME/.local/distrobox/$distro_name"
+	touch Profile
+	touch 1.profile
+	touch 2.profile
+	touch 3.profile
+	touch Zion
+	touch '(Reversed).colors'
+	touch Breeze
+	touch High
+	touch Contrast.colors
+	touch Dark.colors
+}
+
+###################################################################
+say 'Pre-createing container image ...' 1
+
+Pre_createing_container_image || failed_to_run "failed to install Pre-createing container image."
+
+say 'Createing container image ...' 1
+CONTAINER_RT build -t ${distro_name} . ${__format} --no-cache
+
+say 'Deploy container image ...' 1
+distrobox create --image "localhost/${distro_name}" \
+         --name "$distro_name" \
+         --home "$prefix/$distro_name" ${root_command} || failed_to_run "failed to deploy container image."
+
+say 'Createing container lanucher ...' 1
+echo '#!/bin/sh' > "${tmp_folder}/${distro_name}"
+echo "distrobox enter --name \"$distro_name\" ${root_command} " >> "${tmp_folder}/${distro_name}"
+
+chmod +x "${tmp_folder}/${distro_name}"
+mkdir -p "$HOME/.local/bin"
+mv "${tmp_folder}/${distro_name}" "$HOME/.local/bin"
+
+distrobox stop "$distro_name" --yes ${root_command}
+
+
+say "${distro_name} successfully depolyed."
+say
+say "type ${distro_name} to use it."
+say

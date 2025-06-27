@@ -1,0 +1,66 @@
+#!/bin/bash
+# if this line exist script will be part of gui scripts.new_name=My_MPV
+# if this line exist script will be part of hub script.
+
+# wrapper for mpv to enable use as alternative for my-media-player
+
+MPV_PROFILE=my-pseudo-gui
+
+check_4_dependencies_if_installed mpv || exit 1
+
+run_video_using_mpv(){
+	if (( $# > 0 ));then
+    	for ((i=1 ; i <= $# ; i++))
+    	do
+        	[[ ${!i} = - ]] && break # using stdin
+        	if [[ ${!i} = -- ]] # all following arguments are files
+        	then
+            	((i++))
+        	elif [[ ${!i} = -* ]] # skip options
+        	then
+            	continue
+        	fi
+        	URI="${!i}"
+        	break
+    	done
+	
+    	# Use the MIME type of the first file passed to us to determine the
+    	# playback profile.
+	#    if [[ -s "$URI" && "$(file --mime-type --brief "$URI")" =~ ^audio/ ]];then
+    	# file now reports eg mp4 files as mime-type video, use mpv itself to check instead:
+    	if [ -s "$URI" ] && mpv --term-playing-msg='${=vid:no}' --msg-level=cplayer=no --quiet --vo=null --ao=null --frames=1 --no-cache --no-config -- "$URI" | grep -q "^no$" ;then
+        	MPV_PROFILE=audio-only
+    	else
+        	case "$URI" in
+        	http://*)
+            	MPV_PROFILE=http-profile
+            	;;
+        	https://*)
+            	MPV_PROFILE=https-profile
+            	;;
+        	ytdl://*)
+            	MPV_PROFILE=ytdl-profile
+            	;;
+        	esac
+    	fi
+	fi
+	
+	exec mpv --profile=$MPV_PROFILE "$@" 1>/tmp/$USER/my-mpv-logs 2>/tmp/$USER/my-mpv-logs
+}
+
+if [ -z "$@" ];then
+	icon_name="yad-mpv"
+	icon="/usr/share/my_stuff/icons/${icon_name}.png"
+		
+    MPVFILE="$(yad --form --window-icon="${icon}" --title="yad-mpv" --width=500 --height=100 --button="OK!gtk-ok!OK:0" --button="close!gtk-cancel!close:1" --separator=" " --text="yad-mpv\n\nSelect the files you would like to play or input a url to play.\n\n\n" --field="File(s)":MFL "" )"
+    case $? in
+        0)
+           	run_video_using_mpv ${MPVFILE}
+           	;;
+        1)
+           	exit 0
+            ;;
+    esac
+else
+	run_video_using_mpv $@
+fi	

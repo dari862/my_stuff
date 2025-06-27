@@ -1,0 +1,17 @@
+##############################
+#;#############################
+#; nsxiv
+#;#############################
+##############################
+setbg=w
+copy image=c
+move image=m
+rotate 90=r
+rotate -90=R
+flop=f
+copied to clipboard=y
+copied path to clipboard=Y
+delete image=d
+install gimp=g
+notify-send notify image information=i
+#;

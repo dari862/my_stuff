@@ -1,0 +1,4 @@
+#!/bin/sh
+app_name="Zed"
+say "Installing ${app_name}..." 1
+getURL '2term' https://zed.dev/install.sh | sh

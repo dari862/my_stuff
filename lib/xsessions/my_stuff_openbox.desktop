@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=My Stuff openbox
+Comment=Log in to a My Stuff openbox session
+Exec=/usr/share/my_stuff/system_files/bin/xsessions/openbox
+TryExec=/usr/share/my_stuff/system_files/bin/xsessions/openbox
+Icon=openbox
+Type=Xsession

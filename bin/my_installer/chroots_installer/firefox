@@ -1,0 +1,24 @@
+#!/bin/sh
+APP_NAME="firefox"
+make_chroot_browser_default_browser=false
+prompt "Do you want to set chroot-${APP_NAME} as default browser(my-www-browser)?" 'Y' && make_chroot_browser_default_browser=true
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/bin/my_installer/chroots_installer/browsers_creater"
+trap cleanup EXIT
+my-superuser chroot "$BROWSERS_CHROOT_DIR" bash -c "
+	apt install -y curl
+    install -d -m 0755 /etc/apt/keyrings
+    curl -sL https://packages.mozilla.org/apt/repo-signing-key.gpg -o /etc/apt/keyrings/packages.mozilla.org.asc
+    echo 'deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main' | tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+    
+    tee /etc/apt/preferences.d/mozilla > /dev/null <<- EOF
+	Package: *
+    Pin: origin packages.mozilla.org
+    Pin-Priority: 1000
+	EOF
+	
+    apt-get update && apt-get install -y ${APP_NAME}
+    apt purge -y curl
+" || failed_to_run "Failed to install ${APP_NAME} in chroot"
+end_of_chroot_creater
+my-superuser touch "${_CHROOTS_INSTALLED_LIBDIR}/firefox"

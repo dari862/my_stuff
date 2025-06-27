@@ -1,0 +1,3 @@
+#!/bin/sh
+set -e
+run_containers --install ${container_name}

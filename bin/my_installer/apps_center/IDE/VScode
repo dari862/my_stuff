@@ -1,0 +1,25 @@
+#!/bin/sh
+app_name="code"
+
+say "Configuring repositories..."
+download_key "gpg" "https://packages.microsoft.com/keys/microsoft.asc" "/usr/share/keyrings/vscode-keyring.gpg"
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/vscode-keyring.gpg] http://packages.microsoft.com/repos/vscode stable main" | my-superuser tee /etc/apt/sources.list.d/vscode.list > /dev/null 2>&1
+
+Package_update_
+
+clear
+
+say "Installing ${app_name} ..." 1
+
+Package_installer_ ${app_name} || continue
+
+my-superuser cp -r /usr/share/my_stuff/lib/Dev-Env/Code /usr/share/my_stuff/system_files/skel/.config
+
+for d in /home/*; do
+    user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+    if [ -d "$d/.config" ];then
+		my-superuser cp -rv /usr/share/my_stuff/system_files/skel/.config/Code "$d/.config"
+		my-superuser chown -R $user_and_group "$d/.config/Code"
+	fi
+done
+

@@ -1,0 +1,94 @@
+#!/bin/sh
+set -e
+#===================================================================================
+. "/usr/share/my_stuff/lib/common/WM"
+
+#=== FUNCTION ======================================================================
+# NAME: reload
+# DESCRIPTION: reload all my_power_manager process
+#===================================================================================
+stop_power_manager(){
+	__process_id="$(pgrep -f my_power_manager 2>/dev/null || :)"
+	if [ -n "$__process_id" ];then
+		for pid in $__process_id;do
+			if kill ${pid} >/dev/null 2>&1;then
+				(sleep 3 && kill -9 ${pid} >/dev/null 2>&1) &
+			fi
+		done
+	fi
+}
+reload_my_power_managers() {
+	if [ "$reload_cbatticon" = true ];then
+		stop_all
+		my_power_manager
+	else
+		stop_power_manager
+		my_power_manager --daemon
+	fi
+}
+
+daemon_mode_only() {
+	stop_power_manager
+	setsid my_power_manager --daemon &
+}
+
+#=== FUNCTION ======================================================================
+# NAME: stop
+# DESCRIPTION: stop all my_power_manager process
+#===================================================================================
+stop_all() {
+	kill_process.sh cbatticon
+	stop_power_manager
+}
+
+xfce_stop() {
+	kill_process.sh xfce4-power-manager
+}
+
+#=== FUNCTION ======================================================================
+# NAME: start
+# DESCRIPTION: run xfce4-power-manager
+#===================================================================================
+start() {
+	xfce_stop
+	pgrep -f my_power_manager 2>/dev/null || my_power_manager
+}
+
+xfce_start(){
+	stop_all
+  	pidof -q xfce4-power-manager || xfce4-power-manager &
+}
+
+# EXEC ACTION ACCORDING $1
+case "${1}" in
+	""|restart)
+		stop_all
+		start		
+	;;
+	reload-daemon)
+		reload_cbatticon=false
+		reload_my_power_managers
+	;;
+	reload-all)
+		reload_cbatticon=true
+		reload_my_power_managers
+	;;
+	start)
+		start		
+	;;
+	stop)	
+		stop_all	
+	;;
+	xfce_stop)	
+		xfce_stop	
+	;;
+	xfce_start)	
+		xfce_start	
+	;;
+	daemon)
+		daemon_mode_only
+	;;
+	*)	
+		echo "Usage: xfce4-power-manager-session [start|stop|restart]"
+	;;
+esac

@@ -1,0 +1,10 @@
+styles_db_path="${WM_config_dir}/styles_db"
+
+db_dir="/usr/share/my_stuff/system_files/DB"
+tweeks_db_path="${db_dir}/tweeks_db"
+full_environment_db_path="${db_dir}/full_environment_db"
+apps_db_path="${db_dir}/apps_db"
+gaming_db_path="${db_dir}/gaming_db"
+distrobox_deploy_db_path="${db_dir}/distrobox_deploy_db"
+containers_deploy_db_path="${db_dir}/containers_deploy_db"
+chroots_deploy_db_path="${db_dir}/chroots_deploy_db"

@@ -1,0 +1,9 @@
+bottom=0
+top=20
+right=20
+left=20
+font=JetBrainsMono
+size=9
+theme=Tokyonight-Dark-B
+titleLayout=CLM
+gtk_icon_name="Green-Icons"

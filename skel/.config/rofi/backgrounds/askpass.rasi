@@ -1,0 +1,90 @@
+// # z0mbi3 - https://github.com/gh0stzk/dotfiles
+
+
+configuration {
+	modi: 						"drun";
+	icon-theme: 				"Papirus-Dark";
+	application-fallback-icon: 	"Adwaita";
+    show-icons:                 true;
+	drun-display-format:        "{name}";
+	disable-history:            true;
+	sidebar-mode: 				false;
+	
+	hover-select:				true;
+	me-select-entry:			"";
+	me-accept-entry:			"MousePrimary";
+}
+
+
+@import "theme.rasi"
+
+
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       550px;
+    x-offset:                    0px;
+    y-offset:                    0px;
+
+    /* properties for all widgets */
+    enabled:                     true;
+    border-radius:               6px;
+    cursor:                      "default";
+    background-color:            @background;
+}
+
+
+mainbox {
+    enabled:                     true;
+    spacing:                     0px;
+    background-color:            transparent;
+    orientation:                 vertical;
+    children:                    [ "inputbar", "listbox" ];
+}
+
+listbox {
+    spacing:                     10px;
+    padding:                     15px 15px;
+    background-color:            transparent;
+    orientation:                 vertical;
+    children:                    [ "listview" ];
+}
+
+
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     50px 100px;
+    background-color:            transparent;
+    background-image:            @img-background;
+    text-color:                  @foreground;
+    orientation:                 horizontal;
+    children:                    [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    enabled:                     true;
+    expand:                      false;
+    font:                        @font;
+    str:                         "Passowrd";
+    padding:                     12px 19px 0 15px;
+    border-radius:               8px;
+    background-color:            @background-alt;
+    text-color:                  inherit;
+}
+
+entry {
+    enabled:                     true;
+    expand:                      true;
+    padding:                     12px 12px;
+    border-radius:               8px;
+    background-color:            @background-alt;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "Type password here";
+    placeholder-color:           inherit;
+}
+
+

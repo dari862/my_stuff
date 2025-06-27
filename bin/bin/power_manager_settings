@@ -1,0 +1,6 @@
+#!/bin/sh
+if command -v xfce4-power-manager-settings >/dev/null;then
+	xfce4-power-manager-settings
+else
+	gui_power_manager
+fi	

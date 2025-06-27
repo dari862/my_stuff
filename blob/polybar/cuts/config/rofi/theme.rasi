@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : cuts
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #0A0A0AFF;
+    background-alt: #101010FF;
+    foreground:     #F0F9F8FF;
+    selected:       #FE5252FF;
+    active:         #98C379FF;
+    urgent:         #E06B74FF;
+}

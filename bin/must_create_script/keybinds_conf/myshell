@@ -1,0 +1,40 @@
+##############################
+#;#############################
+#; myshell
+#;#############################
+##############################
+##############################
+#; zshrc.sh
+#;######
+
+#######
+#; bashrc.sh
+#;######
+#; below line make bash when pressing ctrl+f runs commnad zi .
+commnad zi=Ctrl + f
+
+#######
+#; inputrc
+#;######
+#; Arrow keys match what you've typed so far against your command history
+#
+backward-kill-line='\eU'
+overwrite-mode='\e[[2~'
+delete-char='\e[[3~'
+beginning-of-line (1)='\e[[H'
+beginning-of-line (2)='\e[[1~'
+end-of-line (1)='\e[[F'
+end-of-line (2)='\e[[4~'
+forward-word='\e[[1;5C'
+backward-word='\e[[1;5D'
+kill-word='\e[[3;5~' 
+beginning-of-buffer-or-history='\e[[5~'
+end-of-buffer-or-history='\e[[6~' 
+undo='\e[[Z' 
+magic-space=' '
+history-search-backward=\e[A
+history-search-forward=\e[B
+forward-char=\e[C
+backward-char=\e[D
+
+#;

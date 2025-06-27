@@ -1,0 +1,17 @@
+#!/bin/sh
+app_name="lua5.4"
+extra_app="build-essential libreadline-dev unzip liblua5.4-dev"
+say "Installing ${app_name}..." 1
+Package_installer_ ${app_name} ${extra_app} || continue
+
+say "Installing luarocks..." 1
+cd "/tmp/$USER"
+getURL 'download' "https://luarocks.org/releases/luarocks-3.11.0.tar.gz"
+tar zxpf luarocks-3.11.0.tar.gz
+cd luarocks-3.11.0
+
+./configure --with-lua-include=/usr/include/lua5.4
+make
+my-superuser make install
+
+my-superuser luarocks install luacheck

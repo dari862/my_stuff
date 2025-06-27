@@ -1,0 +1,11 @@
+#!/bin/sh
+__mode="${1:-}"
+
+case "$__mode" in
+    --float|-f)
+		bspalacritty --float "-e tmux" ;;
+    --full|-s)
+      	bspalacritty --full "-e tmux" ;;
+	*)
+		bspalacritty "-e tmux" ;;
+esac

@@ -1,0 +1,481 @@
+#!/bin/sh
+# if this line exist script will be part of gui scripts.new_name=Control_Center
+# if this line exist script will be part of hub script.
+#
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+if hash btop 2>/dev/null;then
+        BTOP="btop"
+elif hash bpytop 2>/dev/null;then
+        BTOP="bpytop"
+elif hash htop 2>/dev/null;then
+        BTOP="htop"
+fi
+
+if hash pfetch 2>/dev/null;then
+        fetch_app="pfetch"
+elif hash neofetch 2>/dev/null;then
+        fetch_app="neofetch"
+fi
+
+
+case $LANG in
+    pl*)
+        TITLE="Centrum Sterowania"
+        acc="<big><b>${TITLE}</b></big>\t\n<i>Skonfiguruj wygląd i zachowanie swojego </i>\t"
+        START="Start"
+        SYSTEM="System i Sprzęt"
+        LOCALE_SETTINGS="Język i formaty"
+        LANGUAGE_PACKAGES="Pakiety językowe"
+        KERNEL="Jądro systemowe"
+        USER_ACCOUNTS="Konta użytkowników"
+        TIME_DATE="Data i Czas"
+        KEYBOARD="Mysz i Klawiatura"
+        HARDWARE="Konfiguracja sprzętowa"
+        SOFTWARE="Programy"
+        AUTOSTART="Autostart"
+        AUTOSTART_HEAD="Autostart"
+        LOOK="Wygląd"
+        TINT2="Panel Tint2"
+        SETTINGS="Ustawienia"
+        CONKY="Conky"
+        MENU="Menu/Panele boczne"
+        THEMES="Motywy"
+        HELP="Pomoc"
+        HELP_TXT="Visit <a href='https://manual.maboxlinux.org/en/'>Linux Manual</a> to learn more about Mabox.    \nDo you have questions? Want to get involved?\nTake a look at our: <a href='https://maboxlinux.org/'>official website</a>, <a href='https://forum.maboxlinux.org/'>forum</a>, <a href='https://blog.maboxlinux.org/'>blog</a>\n                                                                              \n<i>Linux is developed with passion in spare time.\nis free and it will always be.\nIf you like you can help by making a small <a href='https://ko-fi.com/maboxlinux'>donation</a></i>         \nThank you for choosing to use Linux!\n"
+        SYSTEM_DESC="Ustawienia oraz informacje systemowe i sprzętowe"
+        MONITORS="<b>Monitor(y)</b>"
+        SOFTWARE_DESC="Aktualizacja - Instalacja Programów - Preferowane programy\n"
+        AUTOSTART_DESC="<a href='https://manual.maboxlinux.org/en/configuration/autostart/'>Pomoc (online)</a>\nOpenbox używa dwóch mechanizmów autostartu.\nPierwszy z nich to autostart XDG."
+        AUTOSTART_DESC2="Drugim - specyficznym dla Openbox - jest skrypt <i><b>${OBPATH}/autostart</b></i>."
+        EDIT_XDG="Wybierz programy autostartu XDG"
+        EDIT_SCRIPT="Edytuj skrypt"
+        AUTOSTART_RESET="Przywróć domyślny skrypt autostartu"
+        LOOK_DESC="Narzędzia do konfiguracji wyglądu\n"
+        EDIT_FILE="Edytuj plik"
+        TINT_DESC="<b>Konfigurator paneli tint2</b>\nTutaj możesz wybrać konfigurację panelu Tint2.\nW Maboxie dostępne są różne konfiguracje panelu tint2, możesz również dodać własne do katalogu <i>~/.config/tint2</i>."
+        T_CONF="Konfiguruj panel"
+        T_CHOOSE="Wybierz tint2!!Możesz uruchomić kilka paneli"
+        T_RESTART="Restartuj panel(e)"
+        T_LAUNCHERS="Dodaj/usuń programy do panelu"
+        TINT_DIR="Otwórz katalog <i>~/.config/tint2/</i> w menadżerze plików"
+        CONKY_DESC="<b>Menedżer Conky</b><i>(beta)</i>\nWybierz uruchamiane Conky. W Maboxie dostępnych jest kilka konfiguracji Conky, możesz dodać własne do katalogu <i>~/.config/conky</i>."
+        CONKY_CHOOSE="Wybierz Conky"
+        CONKY_RESTART="Restartuj Conky"
+        CONKY_EDIT="Edytuj Conky"
+        OPEN_CONKYDIR="Otwórz katalog <i>~/.config/conky</i>"
+        MENU_DESC="Główne menu (<small>wywoływane przez: prawy klik, skrót win+spacja lub z ikony w panelu</small>) umożliwia wyszukiwanie, należy po prostu zacząć pisać np. nazwę programu.\n<small><i>Dostępne są również dwa <b>panele boczne</b>, umożliwiające szybki dostęp np. do systemu plików.</i>\nDo menu oraz paneli możesz dodawać swoje własne polecenia - <a href='https://blog.maboxlinux.org/how-to-add-custom-commands-to-menu-and-sidepanels/'>post na devblogu</a></small>"
+        M_EDIT_MAIN="Ulubione"
+        M_EDIT_MAIN_AFTER="Pod Aplikacjami"
+        M_RESTORE_MAIN="Przywróć domyślne menu"
+        M_LEFT="<b>PANEL LEWY</b>"
+        M_LEFT_KEY="<small>(ctrl+super+left)</small>"
+        M_MAIN="<b>MENU GŁÓWNE</b>"
+        M_MAIN_KEY="<small>(super)</small>"
+        SETTINGS_MENU="<b>MENU USTAWIEŃ</b>"
+        SETTINGS_EDIT="Edytuj..."
+        M_RIGHT="<b>PANEL PRAWY</b>"
+        M_RIGHT_KEY="<small>(ctrl+super+left)</small>"
+        M_LEFT_DESC="<small>Lewy panel\n - szybka nawigacja po systemie plików\n - zakładki GTK\n - maszyny wirtualne</small>"
+        M_RIGHT_DESC="<small>Prawy panel\n - ustawienia systemowe\n - pomoc\n - wyjście</small>"
+        M_CUSTOMIZE="<i>Edytuj komendy:</i>"
+        M_MORE="<b>WIĘCEJ USTAWIEŃ...</b>"
+        M_COLORSETTINGS="<b>Kolorystyka...</b>"
+        OWN_COMMANDS_TOP="(Góra)"
+        OWN_COMMANDS_BOTTOM="(Dół)"
+        COMPOSITOR="Kompozytor"
+        COMP_DESC="Menadżerem kompozycji w Maboxie jest <b>Picom</b> - fork Compton.\nSkrót klawiszowy do włączania/wyłączania menadżera kompozycji to (<b>win</b>+<b>p</b>)."
+        COMP_GUI="Ustawienia"
+        COMP_EDIT="Edytuj plik konfiguracyjny"
+        COMP_RESTART="Restart"
+        COMP_TOGGLE="Włącz/Wyłącz (<b>win</b>+<b>p</b>)"
+        COMP_REMOVE="Usuń plik konfiguracyjny"
+        COMP_DEFAULT="Przywróć domyślny plik konfiguracyjny"
+        MT_MNGR="Menedżer Motywów "
+        MT_MNGR_DESC="\n<a href='https://manual.maboxlinux.org/en/configuration/theme-manager/'>Pomoc (online)</a>\nMotyw  składa się z:\n - tapety\n - wystroju GTK2/GTK3 oraz obramowania okien Openboxa\n - ustawień panelu Tint2\n - uruchamianych automatycznie Conky                              \n\nZa pomocą menedżera motywów możesz w wygodny sposób zapisywać swoje konfiguracje, a następnie dowolnie przełączać się między nimi."
+        COLORIZER_DESC="<b>Colorizer</b>\nUmożliwia zmianę kolorystyki elementów pulpitu Mabox.\nMoże również automatycznie generować kolorystykę na bazie tapety.\n<i>Zobacz video (online):</i> <a href='https://youtu.be/h50oeS7aFyM'>Colorizer - krótki przegląd</a>\n"
+        COL_MODULES="Pojedyńcze Moduły (Zaawansowane)"
+        COL_MENU="Colorizer Menu (Zaawansowane)"
+        LNG="pl"
+        USER_LBL="użytkownik"
+        USERS_MSM="Użytkownicy"
+        RES="rozdzielczość"
+        PKGS_INSTALLED="zainstalowane pakiety"
+        PKGS_STAT="Statystyki"
+        UPDCHECK="sprawdź aktualizacje"
+        CLI_UPD="Aktualizacja CLI"
+        KERNEL_LBL="jądro"
+        KERNELS="Jądra"
+        INSTALLED="zainstalowany:"
+        DAYS_AGO="dni temu"
+        MABOX_DESC="Twój lekki, szybki i funkcjonalny Linuksowy Desktop"
+        ADVANCED="Zaawansowane"
+        ;;
+    es*)
+        TITLE="Centro de control"
+        acc="<big><b>${TITLE}</b></big>\t\nConfigura y ajusta tu sistema Mabox\t"
+        START="Start"
+        SYSTEM="Sistema/Hardware"
+        LOCALE_SETTINGS="Configuración regional"
+        LANGUAGE_PACKAGES="Paquetes de idiomas"
+        KERNEL="Núcleo"
+        USER_ACCOUNTS="Cuentas de usuario"
+        TIME_DATE="Hora y fecha"
+        KEYBOARD="Mouse e teclado"
+        HARDWARE="Configuración de hardware"
+        SOFTWARE="Programas"
+        AUTOSTART="Programas de inicio"
+        AUTOSTART_HEAD="Programas de inicio"
+        LOOK="Apariencia"
+        TINT2="Panel Tint2"
+        SETTINGS="Ajustes"
+        CONKY="Recuadro Conky"
+        MENU="Menú y Paneles"
+        THEMES="Temas"
+        HELP="Help"
+        HELP_TXT="Visit <a href='https://manual.maboxlinux.org/es/'>Linux Manual</a> to learn more about Mabox.    \nDo you have questions? Want to get involved?\nTake a look at our: <a href='https://maboxlinux.org/'>official website</a>, <a href='https://forum.maboxlinux.org/'>forum</a>, <a href='https://blog.maboxlinux.org/'>blog</a>\n                                                                              \n<i>Linux is developed with passion in spare time.\nis free and it will always be.\nIf you like you can help by making a small <a href='https://ko-fi.com/maboxlinux'>donation</a></i>         \nThank you for choosing to use Linux!\n"
+        SYSTEM_DESC="Ajustes e información del sistema y de hardware"
+        MONITORS="<b>Monitor(es)</b>"
+        SOFTWARE_DESC="Instalación y actualización de programas - Aplicaciones preferidas.\n"
+        AUTOSTART_DESC="<a href='https://manual.maboxlinux.org/es/configuration/autostart/'>Info (online)</a>\nOpenbox ocupa 2 métodos de reinicio.\nEl primero es reinicio por XDG."
+        AUTOSTART_DESC2="El segundo método de reinicio es usar el mismo archivo script de Openbox:\n<i><b>${OBPATH}/autostart</b></i>. "
+        EDIT_XDG="Seleccionar ítemes para reinicio"
+        EDIT_SCRIPT="Editar el archivo script de reinicio"
+        AUTOSTART_RESET="Reestablecer el archivo script de reinicio por defecto"
+        LOOK_DESC="Configurar la apariencia de tu escritorio.\n"
+        EDIT_FILE="Editar el archivo"
+        TINT_DESC="<b>Configurador de paneles Tint2</b>\nAquí puede elegir los ajustes para los paneles.\nExisten varios ajustes predefinidos en Mabox, y además puede agregar nuevos en este directorio <i>~/.config/tint2</i> ."
+        T_CONF="Configurar panel"
+        T_CHOOSE="Elija un panel tint2!!Puede ejecutar varios paneles de inmediato"
+        T_RESTART="Reiniciar panel tint2"
+        T_LAUNCHERS="Add/remove launchers..."
+        TINT_DIR="Abrir la carpeta <i>~/.config/tint2/</i> "
+        CONKY_DESC="<b>Gestor de recuadro Conky</b><i>(beta)</i>\nElija el recuadro Conky que desea ejecutar. Existen varios ajustes predefinidos de recuadros Conky, y además puede agregar nuevos en este directorio <i>~/.config/conky</i> ."
+        CONKY_CHOOSE="Seleccionar recuadros Conky"
+        CONKY_RESTART="Recargar recuadro Conky"
+        CONKY_EDIT="Editar recuadro Conky"
+        OPEN_CONKYDIR="Abrir la carpeta <i>~/.config/conky</i> "
+        MENU_DESC="Menu principal (<small>accede con clic derecho, teclas Super+barra de espacio o desde el ícono del panel</small>) activa escribe sobre buscar. Sólo empieza a escribir el término que estas buscando.\n<small><i>There are also two <b>side-panels</b> available for quick access to file system locations for example.</i>You can add custom commands to menus and side-panels - <a href='https://blog.maboxlinux.org/how-to-add-custom-commands-to-menu-and-sidepanels/'>blogpost</a></small>"
+        M_EDIT_MAIN="Favoritos"
+        M_EDIT_MAIN_AFTER="Below Apps"
+        M_RESTORE_MAIN="Reestablecer el menu por defecto"
+        M_LEFT="<b>PANEL IZQUIERDO</b>"
+        M_LEFT_KEY="<small>(ctrl+super+left)</small>"
+        M_MAIN="<b>MENU PRINCIPAL</b>"
+        M_MAIN_KEY="<small>(super)</small>"
+        SETTINGS_MENU="<b>SETTINGS MENU</b>"
+        SETTINGS_EDIT="Editar..."
+        M_RIGHT="<b>PANEL DERECHO</b>"
+        M_RIGHT_KEY="<small>(ctrl+super+right)</small>"
+        M_LEFT_DESC="<small>Panel izquierdo\n - Navegacion veloz\n - Marcadores GTK\n - Máquinas Virtuales</small>"
+        M_RIGHT_DESC="<small>Panel derecho\n - Configuración del sistema\n - ayuda\n - opciones de salida</small>"
+        M_CUSTOMIZE="<i>Ajustes:</i>"
+        M_MORE="<b>MORE SETTINGS..</b>"
+        M_COLORSETTINGS="<b>Coloring...</b>"
+        OWN_COMMANDS_TOP="(TOP)"
+        OWN_COMMANDS_BOTTOM="(BOTTOM)"
+        COMPOSITOR="Compositor gráfico"
+        COMP_DESC="<b>Picom</b> se usa como gestor gráfico en Mabox"
+        COMP_GUI="Configuración"
+        COMP_EDIT="Editar el archivo de configuración"
+        COMP_RESTART="Reiniciar compositor gráfico"
+        COMP_TOGGLE="Activar/desactivar compositor (<b>win</b>+<b>p</b>)"
+        COMP_REMOVE="Eliminar archivo picom.conf"
+        COMP_DEFAULT="Reestablecer compositor grafico por defecto"
+        MT_MNGR="Gestor de Temas Mabox"
+        MT_MNGR_DESC="\n<a href='https://manual.maboxlinux.org/es/configuration/theme-manager/'>Help (online)</a>\nTemas consiste de:\n - fondos de pantalla\n - temas GTK2/GTK3\n - ajustes a tema Openbox\n - paneles Tint2 seleccionados\n - recuadros Conky seleccionados\n\nCon el gestor de Temas en puede fácilmente guardar nuevas configuraciones, y cambiar entre ellas."
+        COLORIZER_DESC="<b>Colorizer</b>\nColorizer allows you to change the color of the desktop elements.\nIt can also automatically generate colors based on the wallpaper.\n<i>See video (online - YT):</i> <a href='https://youtu.be/h50oeS7aFyM'>Colorizer - overview</a>\n"
+        COL_MODULES="Individual Modules (advanced mode):"
+        COL_MENU="Colorizer Menu (advanced)"
+        LNG="en"
+        USER_LBL="user"
+        USERS_MSM="Users"
+        RES="resolution"
+        PKGS_INSTALLED="installed pkgs"
+        PKGS_STAT="Statistics"
+        UPDCHECK="check updates"
+        CLI_UPD="CLI update"
+        KERNEL_LBL="kernel"
+        KERNELS="Kernels"
+        INSTALLED="install date: "
+        DAYS_AGO="days ago"
+        MABOX_DESC="Your fast, lightweight and functional Linux Desktop"
+        ADVANCED="Advanced"
+        ;;
+    *)
+        TITLE="Control Center"
+        acc="<big><b>${TITLE}</b></big>\t\n<i>Configure and customize your Linux</i>\t"
+        START="Start"
+        SYSTEM="System/HW"
+        LOCALE_SETTINGS="Locale Settings"
+        LANGUAGE_PACKAGES="Language Packages"
+        KERNEL="Kernel"
+        USER_ACCOUNTS="User Accounts"
+        TIME_DATE="Time and Date"
+        KEYBOARD="Mouse and Keyboard Settings"
+        HARDWARE="Hardware Configuration"
+        SOFTWARE="Software"
+        AUTOSTART="Autostart"
+        AUTOSTART_HEAD="Autostart"
+        LOOK="Look and Feel"
+        TINT2="Tint2 Panel"
+        SETTINGS="Settings"
+        CONKY="Conky"
+        MENU="Menu/SidePanels"
+        THEMES="Themes"
+        HELP="Help"
+        HELP_TXT="Visit <a href='https://manual.maboxlinux.org/en/'>Linux Manual</a> to learn more about Mabox.    \nDo you have questions? Want to get involved?\nTake a look at our: <a href='https://maboxlinux.org/'>official website</a>, <a href='https://forum.maboxlinux.org/'>forum</a>, <a href='https://blog.maboxlinux.org/'>blog</a>\n                                                                              \n<i>Linux is developed with passion in spare time.\nis free and it will always be.\nIf you like you can help by making a small <a href='https://ko-fi.com/maboxlinux'>donation</a></i>         \nThank you for choosing to use Linux!\n"
+        SYSTEM_DESC="System and Hardware settings and information"
+        MONITORS="<b>Monitor(s)</b>"
+        SOFTWARE_DESC="Software installation and update - Preferred Applications.\n"
+        AUTOSTART_DESC="<a href='https://manual.maboxlinux.org/en/configuration/autostart/'>Info (online)</a>\nOpenbox uses two autostart methods.\nFirst is XDG autostart."
+        AUTOSTART_DESC2="Second method is Openbox own autostart script: <i><b>${OBPATH}/autostart</b></i>. "
+        EDIT_XDG="Select items to autostart"
+        EDIT_SCRIPT="Edit script"
+        AUTOSTART_RESET="Reset to default autostart script"
+        LOOK_DESC="Customize Look and Feel of your desktop.\n"
+        EDIT_FILE="Edit file"
+        TINT_DESC="<b>Tint2 panels Configurator</b>\nHere you can choose Tint2 panel(s) configuration.\nThere are some predefined configurations in Mabox, you can also add your own to <i>~/.config/tint2</i> directory."
+        T_CONF="Configure panel"
+        T_CHOOSE="Choose tint2!!You can run several tint2 panels at once"
+        T_RESTART="Restart tint2"
+        T_LAUNCHERS="Add/remove launchers..."
+        TINT_DIR="Open <i>~/.config/tint2/</i> directory "
+        CONKY_DESC="<b>Conky Manager</b><i>(beta)</i>\nChoose Conky you want to run. There are several predefined Conky configurations, you can also add your own to <i>~/.config/conky</i> directory."
+        CONKY_CHOOSE="Choose Conky(s)"
+        CONKY_RESTART="Reload Conky"
+        CONKY_EDIT="Edit Conky"
+        OPEN_CONKYDIR="Open <i>~/.config/conky</i> directory"
+        MENU_DESC="Main menu (<small>access it by right click, win+space shortcut or from panel icon</small>) have type to search functionality. Just start to type what you looking for.\n<small><i>There are also two <b>side-panels</b> available for quick access to file system locations for example.</i> You can add custom commands to menus and side-panels <a href='https://blog.maboxlinux.org/how-to-add-custom-commands-to-menu-and-sidepanels/'>blogpost</a></small>"
+        M_EDIT_MAIN="Edit Favorites"
+        M_EDIT_MAIN_AFTER="Edit below Apps"
+        M_RESTORE_MAIN="Reset mainmenu to default"
+        M_LEFT="<b>LEFT PANEL</b>"
+        M_LEFT_KEY="<small>(ctrl+super+left)</small>"
+        M_MAIN="<b>MAIN MENU</b>"
+        M_MAIN_KEY="<small>(super)</small>"
+        SETTINGS_MENU="<b>SETTINGS MENU</b>"
+        SETTINGS_EDIT="Edit..."
+        M_RIGHT="<b>RIGHT PANEL</b>"
+        M_RIGHT_KEY="<small>(ctrl+super+right)</small>"
+        M_LEFT_DESC="<small>Left panel\n - quick navigation\n - GTK Bookmarks\n - Virtualbox machines</small>"
+        M_RIGHT_DESC="<small>Right panel\n - system settings\n - help\n - exit options</small>"
+        M_CUSTOMIZE="<i>Customize commands:</i>"
+        M_MORE="<b>MORE SETTINGS..</b>"
+        M_COLORSETTINGS="<b>Coloring...</b>"
+        OWN_COMMANDS_TOP="(TOP)"
+        OWN_COMMANDS_BOTTOM="(BOTTOM)"
+        COMPOSITOR="Compositor"
+        COMP_DESC="<b>Picom</b> is used as composite manager in Mabox"
+        COMP_GUI="Settings"
+        COMP_EDIT="Edit config file"
+        COMP_RESTART="Restart"
+        COMP_TOGGLE="Toggle (<b>win</b>+<b>p</b>)"
+        COMP_REMOVE="Remove picom.conf"
+        COMP_DEFAULT="Reset to default"
+        MT_MNGR="Theme Manager"
+        MT_MNGR_DESC="\n<a href='https://manual.maboxlinux.org/en/configuration/theme-manager/'>Help (online)</a>\ntheme consist of:\n - wallpaper\n - GTK2/GTK3 Theme and Openbox window decoration          \n - selected Tint2 panel(s)\n - selected Conkies                                \n\nWith Theme Manager you can easily save your configurations, and switch between them."
+        COLORIZER_DESC="<b>Colorizer</b>\nColorizer allows you to change the color of the desktop elements.\nIt can also automatically generate colors based on the wallpaper.\n<i>See video (online - YT):</i> <a href='https://youtu.be/h50oeS7aFyM'>Colorizer - overview</a>\n"
+        COL_MODULES="Individual Modules (advanced mode):"
+        COL_MENU="Colorizer Menu (advanced)"
+        LNG="en"
+        USER_LBL="user"
+        USERS_MSM="Users"
+        RES="resolution"
+        PKGS_INSTALLED="installed pkgs"
+        PKGS_STAT="Statistics"
+        UPDCHECK="check updates"
+        CLI_UPD="CLI update"
+        KERNEL_LBL="kernel"
+        KERNELS="Kernels"
+        INSTALLED="install date: "
+        DAYS_AGO="days ago"
+        MABOX_DESC="Your fast, lightweight and functional Linux Desktop"
+        ADVANCED="Advanced"
+        ;;
+esac
+
+maindialog(){
+	KEY=$(od -An -N2 -i /dev/urandom | tr -d ' ')
+
+	res1=$(mktemp --tmpdir acc-tab1.XXXXXXXX)
+	res2=$(mktemp --tmpdir acc-tab2.XXXXXXXX)
+	res3=$(mktemp --tmpdir acc-tab3.XXXXXXXX)
+	res4=$(mktemp --tmpdir acc-tab4.XXXXXXXX)
+	res5=$(mktemp --tmpdir acc-tab5.XXXXXXXX)
+	res6=$(mktemp --tmpdir acc-tab6.XXXXXXXX)
+	res7=$(mktemp --tmpdir acc-tab7.XXXXXXXX)
+	res8=$(mktemp --tmpdir acc-tab8.XXXXXXXX)
+	res9=$(mktemp --tmpdir acc-tab9.XXXXXXXX)
+    out=$(mktemp --tmpdir acc-out.XXXXXXXX)
+
+# cleanup
+trap "rm -f $res1 $res3 $res4 $res5 $res6 $res7 $res8 $res9 $res10 $res11 $res12 $out" EXIT
+
+. "/usr/share/my_stuff/os-release"
+# system uptime
+UPT=$(uptime -p | sed -e 's/^up //' -e 's/ day/d/' -e 's/ hour/h/' -e 's/ minute/m/' -e 's/s//g')
+
+# install date
+if [ -f /var/log/pacman.log ];then
+        INST=$(sed 1q /var/log/pacman.log | awk '{print $1}' | sed -e 's/T.*//' -e 's/\[//')
+		#INST=$(echo "$INST" | tr '-' ' ')
+
+fi
+
+if [ -f /var/log/apt/term.log ];then
+        INST="$(stat /var/log/apt/term.log | grep Modify: | awk -F" " '{print $2}')"
+fi
+# Days ago
+TODAY=$(date +%F)
+TODAY_in_sec=$(date +%s -d ${TODAY})
+INST_in_sec=$(date +%s -d ${INST})
+DIFF_in_sec=$(($TODAY_in_sec - $INST_in_sec))
+DIFF=$((DIFF_in_sec / 86400))
+if [ "$DIFF" -gt 1 ];then
+DAGO="(${DIFF} ${DAYS_AGO})"
+else
+DAGO=""
+fi
+
+if hash pacman 2>/dev/null;then
+        PKGS=$(pacman -Qq 2>/dev/null | wc -l)
+else
+        PKGS=$(dpkg --list 2>/dev/null | wc -l)
+fi
+
+# kernel version
+KERN=$(uname -r | cut -d'-' -f1 | sed 's/linux//' | tr '[:upper:]' '[:lower:]')
+
+RESOLUTION=$(xdpyinfo | awk '/^ +dimensions/ {print $2}')
+
+INTRO_TXT=$(cat <<EOF
+\t<big> <i>$distro_name</i> $VERSION_ID</big>
+\t<small><i>$MABOX_DESC</i></small>\n
+\t<small><tt>$INSTALLED </tt></small><b>$INST</b> <small>$DAGO</small>
+\t<small><tt>wm:            </tt></small><b>$XDG_SESSION_DESKTOP</b>
+\t<small><tt>uptime:        </tt></small><b>$UPT</b>
+\n
+EOF
+)
+
+gui_package_manager="gui_packagemanager"
+gui_package_manager_update="gui_packagemanager --updates"
+
+#INTRO
+yad --plug=$KEY --tabnum=1 --borders=10 \
+--text="$INTRO_TXT" --image=/usr/share/icons/hicolor/128x128/apps/mbcc.png \
+--columns=4 --form \
+--field="$USER_LBL:LBL" "" \
+--field="$PKGS_INSTALLED:LBL" "" \
+--field="$UPDCHECK:LBL" "" \
+--field="$KERNEL_LBL:LBL" "" \
+--field="$RES:LBL" "" \
+--field="<b>$USER</b>:LBL" "" \
+--field="<b>$PKGS</b>:LBL" "" \
+--field="<b>>>></b>:LBL" "" \
+--field="<b>$KERN</b>:LBL" "" \
+--field="<b>$RESOLUTION</b>:LBL" "" \
+--field=" $USERS_MSM!system-config-users!:FBTN" "apps_as_root popup_terminal '/usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
+--field=" Package-Manager!package-manager-icon!:FBTN" "$gui_package_manager" \
+--field=" Package-Manager updater!software-update!:FBTN" "$gui_package_manager_update" \
+--field=" ARandr!system-terminal!:FBTN" "arandr" \
+--field=" :LBL" "" \
+--field=" $PKGS_STAT!utilities-terminal!:FBTN" "popup_terminal 'Package stats' 'deb_pkglist -l'" \
+--field=" $CLI_UPD!utilities-terminal!:FBTN" "popup_terminal 'Package update' 'full-upgrade'" \
+--field=" :LBL" "" \
+--field=" LXRandr!system-terminal!:FBTN" "lxrandr" \
+> $res1 &
+
+# TINT2
+yad --plug=$KEY --tabnum=2 --borders=20 \
+--text="$TINT_DESC \n" --image=tint2conf \
+--columns=1 --form \
+--field="$T_RESTART:FBTN" "tint2-session restart" \
+--field="$ADVANCED:LBL" "" \
+--field="$T_CHOOSE:FBTN" "style-manager --tint2manager" \
+--field="$TINT_DIR:FBTN" "my-text-editor $HOME/.config/tint2/" \
+> $res2 &
+
+# AUTOSTART
+yad --plug=$KEY --tabnum=3 --borders=20 --uri-handler=my-text-editor \
+--text="<b>$AUTOSTART_HEAD</b>" --image=gtk-execute \
+--columns=1 --form \
+--field="$AUTOSTART_DESC:LBL" "" \
+--field="$EDIT_XDG:FBTN" "yautostart" \
+--field="$AUTOSTART_DESC2 :LBL" "" \
+--field="$EDIT_SCRIPT <i>${OBPATH}/autostart</i>:FBTN" "my-text-editor ${OBPATH}/autostart" \
+--field="$AUTOSTART_RESET:FBTN" "cp ${OBPATH_SKEL}/autostart ${OBPATH}/" \
+> $res3 &
+#--field=":LBL" "" \
+yad --plug=$KEY --tabnum=4 --borders=20 --text="$LOOK_DESC" --icons --read-dir=/usr/share/my_stuff/appearance_applications --item-width=80 \
+> $res4 &
+
+# MOTYWY
+yad --plug=$KEY --tabnum=5 --borders=20 --uri-handler=my-text-editor \
+--text="<b>$MT_MNGR</b>\n $MT_MNGR_DESC" \
+--form --field="$MT_MNGR!preferences-desktop-theme:FBTN" "style_picker_yad" \
+> $res5 &
+
+# CONKY
+yad --plug=$KEY --tabnum=6 --borders=20 \
+--text="$CONKY_DESC \n" --image=conky \
+--form \
+--field="$CONKY_RESTART:FBTN" "conky-session restart" \
+--field="$ADVANCED :LBL" "" \
+--field="$CONKY_CHOOSE:FBTN" "style-manager --conkymanager" \
+--field="$CONKY_EDIT:FBTN" "style-manager --conkyedit" \
+--field="$OPEN_CONKYDIR:FBTN" "my-text-editor $HOME/.config/conky/" \
+> $res6 &
+
+# Picom 
+yad --plug=$KEY --tabnum=7 --borders=20 \
+--text="$COMP_DESC" --image=compton \
+--columns=1 --form \
+--field="$COMP_EDIT:FBTN" "my-text-editor $HOME/.config/picom.conf" \
+--field="$COMP_RESTART:FBTN" "picom-session restart" \
+--field="$COMP_TOGGLE:FBTN" "picom-session toggle" \
+> $res7 &
+
+# SYSTEM_SPRZET
+yad --plug=$KEY --tabnum=8 --borders=0 --text="$SYSTEM_DESC" --columns=2 --align="center" --form --scroll \
+--field="<b>$SETTINGS</b>:LBL" " " \
+--field="System Settings:FBTN" "hub s" \
+--field=" $USERS_MSM!system-config-users!:FBTN" "apps_as_root popup_terminal '/usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
+--field="$MONITORS:LBL" "" \
+--field="ARandr:FBTN" "arandr" \
+--field="LXRandR:FBTN" "lxrandr" \
+--field=" :LBL" "" \
+--field="<b>Info</b>:LBL" "" \
+--field=" inxi -CGAD!utilities-terminal!:FBTN" "sysinfo_script_ --hardware3" \
+--field=" $fetch_app!utilities-terminal!:FBTN" "popup_terminal '$fetch_app ; read -n 1 -r -s'" \
+--field=" $BTOP!utilities-terminal!:FBTN" "popup_terminal 'prosses system info' $BTOP" \
+> $res8 &
+# HELP
+yad --plug=$KEY --tabnum=9 \
+--image=/usr/share/icons/hicolor/128x128/apps//usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-justify=center --uri-handler=my-text-editor --text="$HELP_TXT" \
+--form --columns="4" \
+--field="www:FBTN" "my-text-editor https://maboxlinux.org" \
+--field="forum:FBTN" "my-text-editor https://forum.maboxlinux.org" \
+--field="manual:FBTN" "my-text-editor https://manual.maboxlinux.org/en/" \
+--field="donate:FBTN" "my-text-editor https://ko-fi.com/maboxlinux" \
+> $res9 &
+
+
+#main window
+yad --notebook --tab-pos="left" --key=$KEY \
+    --tab="$START" \
+    --tab="$TINT2"\
+    --tab="$AUTOSTART" \
+    --tab="$LOOK"  \
+    --tab="$THEMES" \
+    --tab="<i>$CONKY</i>" \
+    --tab="<i>$COMPOSITOR</i>" \
+    --tab="$SYSTEM" \
+    --tab="$HELP"\
+    --title="$TITLE" --image=/usr/share/my_stuff/icons/linux.png \
+    --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  --no-buttons > $out &
+}
+
+maindialog

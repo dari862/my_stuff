@@ -1,0 +1,10 @@
+#!/bin/sh
+
+app_name="tmux"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+say "Setting configs to all users..."
+copy_from_extra_skel ".config/tmux"

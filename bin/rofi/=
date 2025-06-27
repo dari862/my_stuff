@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# https://github.com/onespaceman/menu-calc
+# Calculator for use with rofi.
+# Copying to the clipboard requires xclip
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+copy_to_clipboard() {
+  if [ "$XDG_SESSION_TYPE" = "wayland" ];then
+    echo "$1" | wl-copy
+  else
+    echo "$1" | xclip -selection clip
+  fi
+}
+
+if [ "$1" = "-h" ] || [ "$1" = "--help" ];then
+  echo "$(tput bold)menu-calc$(tput sgr0)"
+  echo "A calculator for Rofi"
+  echo
+  echo "$(tput bold)Usage:$(tput sgr0)"
+  echo "    = 4+2"
+  echo "    = (4+2)/(4+3)"
+  echo "    = 4^2"
+  echo "    = sqrt(4)"
+  echo "    = c(2)"
+  echo
+  echo "$(tput bold)Passing arguments to Rofi:$(tput sgr0)"
+  echo
+  echo "    = <Rofi args>"
+  echo
+  echo "The answer can be copied to the clipboard and used for further calculations inside (or outside) Rofi."
+  echo
+  exit
+fi
+
+# Grab the answer
+menu="rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -lines 3"
+eq="$($menu -p =)"
+if [ -n "$eq" ];then
+	answer=$(calc $eq | sed '/\./ s/\.\{0,1\}0\{1,\}$//')
+	
+	action=$(echo -e "Copy to clipboard\nClear\nClose" | $menu "$@" -p "= $answer")
+fi
+case $action in
+  "Clear") $0 ;;
+  "Copy to clipboard") copy_to_clipboard "$answer" ;;
+  "Close") ;;
+  "") ;;
+  *) $0 ;;
+esac

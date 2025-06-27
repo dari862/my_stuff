@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Pinta
+Comment=Pinta
+Exec=flatpak run com.github.PintaProject.Pinta
+Terminal=false
+Type=Application
+Icon=/usr/share/my_stuff/icons/Pinta.png
+Categories=GTK;
+MimeType=text/html;text/xml;application/xhtml_xml;
+StartupNotify=true

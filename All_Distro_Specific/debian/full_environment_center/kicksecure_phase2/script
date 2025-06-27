@@ -1,0 +1,40 @@
+#!/bin/sh
+set -e
+[ -f "/tmp/$USER/not_rebooted" ] && exit
+# test if in virtual machine
+if [ "$(cat /sys/devices/virtual/dmi/id/chassis_type)" = "1" ];then # 1 eq vm
+	if dpkg -l xfce4 | grep -w "xfce4 " >/dev/null 2>&1 ;then
+		kicksecure_package=kicksecure-xfce-vm
+	else
+		kicksecure_package=kicksecure-cli-vm
+	fi
+else
+	if dpkg -l xfce4 | grep -w "xfce4 " >/dev/null 2>&1 ;then
+		kicksecure_package=kicksecure-xfce-host
+	else
+		kicksecure_package=kicksecure-cli-host
+	fi
+fi
+__passwd="$(my-superuser which passwd)"
+__reboot="$(my-superuser which reboot)"
+echo 'continue installing kicksecure ...'
+my-superuser extrepo enable kicksecure
+my-superuser apt-get update
+my-superuser apt-get -y full-upgrade
+my-superuser apt-get install -y --no-install-recommends ${kicksecure_package}
+my-superuser repository-dist --enable --repository stable
+my-superuser extrepo disable kicksecure
+my-superuser rm /etc/apt/sources.list
+my-superuser touch /etc/apt/sources.list
+clear
+echo 'pick new password for user...'
+my-superuser $__passwd $USER
+clear
+rm -f $HOME/.config/autostartscripts/kicksecure_phase2
+echo ''
+echo 'installion complated...'
+echo 'Hit any key to reboot...'
+stty -icanon -echo time 0 min 1
+head -c1 >/dev/null
+stty icanon echo
+my-superuser $__reboot

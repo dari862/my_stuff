@@ -1,0 +1,73 @@
+#!/bin/sh
+# Usage: menuItem label command
+
+
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+# Pipemenu
+menuStart
+menuSeparator 'Online Help'
+menuItem 'Welcome tips' 'welcome'
+menuSeparator
+menuItem 'Getting Started' 'my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=21'
+menuItem 'Tutorials' 'my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=25'
+menuItem 'Basic Help & Support' 'my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=2'
+menuItem 'Scripts, Tutorials & Tips' 'my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=9'
+menuSubmenu 'help_Debian' 'Debian'
+	menuItem 'Debian Documentation' 'my-www-browser https://www.debian.org/doc/'
+	menuItem 'Debian Handbook' 'my-www-browser https://debian-handbook.info/browse/stable/'
+	menuItem 'Debian Reference' 'my-www-browser https://www.debian.org/doc/manuals/debian-reference/'
+	menuItem 'Wiki' 'my-www-browser https://wiki.debian.org/'
+	menuItem 'FAQsFromDebianUser' 'my-www-browser https://wiki.debian.org/FAQsFromDebianUser'
+	menuItem 'Forum' 'my-www-browser http://forums.debian.net/'
+	menuItem 'Package Search' 'my-www-browser https://www.debian.org/distrib/packages'
+	menuItem 'Package Tracker' 'my-www-browser https://tracker.debian.org/'
+	menuItem 'Security Tracker' 'my-www-browser https://security-tracker.debian.org/tracker/'
+menuSubmenuEnd
+menuItem 'Arch Wiki' 'my-www-browser https://wiki.archlinux.org/index.php/Table_of_contents'
+menuSeparator
+menuSubmenu 'help_Openbox' 'Openbox'
+	menuSubmenu 'help_Openbox_Website' 'Openbox Website'
+		menuItem 'Openbox Homepage' 'my-www-browser http://openbox.org/'
+		menuItem 'Openbox Getting Started' 'my-www-browser http://openbox.org/wiki/Help:Getting_started'
+		menuItem 'Openbox Documentation' 'my-www-browser http://openbox.org/wiki/Help:Contents'
+		menuItem 'Openbox FAQs' 'my-www-browser http://openbox.org/wiki/Help:FAQ'
+	menuSubmenuEnd
+	menuItem 'ArchWiki Openbox Guide' 'my-www-browser http://wiki.archlinux.org/index.php/Openbox'
+	menuItem 'Debian Wiki Openbox Guide' 'my-www-browser https://wiki.debian.org/Openbox'
+	menuItem 'Urukramas Openbox Guide' 'my-www-browser https://urukrama.wordpress.com/openbox-faq/'
+menuSubmenuEnd
+menuSubmenu 'help_Tint2' 'Tint2'
+	menuItem 'Tint2 Wiki: FAQ' 'my-www-browser https://gitlab.com/o9000/tint2/wikis/FAQ'
+	menuItem 'Tint2 Wiki: Configuration' 'my-www-browser https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md'
+	menuItem 'Tint2 Forum Thread' 'my-www-browser https://forums.bunsenlabs.org/viewtopic.php?id=254'
+	menuItem 'Tint2 man page' 'popup_terminal --man tint2'
+	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+menuSubmenuEnd
+menuSubmenu 'help_Conky' 'Conky'
+	menuItem 'Conky Wiki' 'my-www-browser https://github.com/brndnmtthws/conky/wiki'
+	menuItem 'Conky Archive' 'my-www-browser https://web.archive.org/web/20160325091248/https://crunchbang.org/forums/viewtopic.php?pid=371424'
+	menuItem 'Conky man pages' 'popup_terminal --man conky'
+	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+menuSubmenuEnd
+menuSeparator
+menuSubmenu 'help_Theme_Resources' 'Theme Resources'
+	menuItem 'bunsenlabs on DeviantArt' 'my-www-browser http://bunsenlabs.deviantart.com/'
+	menuItem 'Box-Look.org' 'my-www-browser http://www.box-look.org'
+	menuItem 'gnome-look.org' 'my-www-browser http://gnome-look.org/'
+menuSubmenuEnd
+menuSeparator
+menuSeparator 'man pages'
+menuItem 'Compositor' 'popup_terminal --man picom'
+menuItem 'jgmenu' 'popup_terminal --man jgmenu'
+menuItem 'rofi' 'popup_terminal --man rofi'
+menuItem 'xrandr' 'popup_terminal --man xrandr'
+menuSeparator
+menuSubmenu 'help_my_stuff_Help_Files' 'My Stuff Help Files'
+	menuItem 'How to Edit Menu' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="How to Edit the Menu" --filename="/usr/share/my_stuff/lib/docs/menu.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About BLOB' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About BLOB" --filename="/usr/share/my_stuff/lib/docs/blob.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About My Stuff Autostart' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Autostart" --filename="/usr/share/my_stuff/lib/docs/blautostart.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About My Stuff Alternatives' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Alternatives" --filename="/usr/share/my_stuff/lib/docs/alternatives.txt" --width=900 --height=700 --fontname=Monospace'
+menuSubmenuEnd
+menuEnd

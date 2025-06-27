@@ -1,0 +1,31 @@
+#!/bin/sh
+conky_path="/usr/share/my_stuff/bin/conky"
+tint2_path="/usr/share/my_stuff/bin/tint2"
+
+tint2manager(){
+	${tint2_path}/tint2-manager
+}
+
+tint2edit(){
+	${tint2_path}/tint2-edit
+}
+
+conkyedit(){
+	${conky_path}/conky-edit
+}
+
+conkymanager(){
+	${conky_path}/conky-manager
+}
+
+conkymove(){
+	${conky_path}/conkymove
+}
+
+case "${1-}" in
+		--tint2manager) tint2manager ;;
+		--tint2edit) tint2edit ;;
+		--conkyedit) conkyedit ;;
+		--conkymanager) conkymanager ;;
+		--conkymove) conkymove ;;
+esac

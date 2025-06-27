@@ -1,0 +1,3 @@
+#!/bin/sh
+say 'Installing tgpt ...' 1
+my_installer_ln_script "tgpt_updater" || failed_to_run "failed to run tgpt_updater ."

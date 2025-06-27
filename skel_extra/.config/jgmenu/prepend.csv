@@ -1,0 +1,61 @@
+# My Stuff Main Menu
+
+## My Stuff User config files
+## All default My Stuff user config files are located in /usr/share/my_stuff/skel.
+## The script skel_user_setup_ copies them to the user $HOME directory on first login.
+## See more info with command 'skel_user_setup_ --help'
+
+@text,,6,6,150,20,2,left,top,auto,#000000 0,<span size="large">🔍︎</span>
+@search,,24,3,150,20,2,left,top,auto,#000000 0,Type to Search
+
+^sep()
+Run Program,rofi-runner
+^sep()
+Terminal,my-terminal-emulator,utilities-terminal
+Web Browser,my-www-browser,web-browser
+File Manager,my-file-manager,system-file-manager
+Text Editor,my-text-editor,text-editor
+Media Player,my-media-player,multimedia-player
+^sep()
+Quick Screenshot+Upload,files-uploader
+^sep()
+Utilities,^checkout(bl-utilities),applications-utilities
+Places,^pipe(jgmenu_run ob --cmd="places-pipemenu" --tag="places-pipemenu"),folder
+Recent Files,^pipe(jgmenu_run ob --cmd="recent-files-pipemenu -rl15" --tag="bl-recent-files-pipemenu")
+^sep()
+Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/bl'" --tag="preferences-system")
+System,^checkout(bl-system),applications-system
+^sep()
+Help &amp; Resources,^pipe(jgmenu_run ob --cmd="help-menu-openbox" --tag="help-contents")
+Display Keybinds,^pipe(jgmenu_run ob --cmd="my_stuff-kb-pipemenu" --tag="my_stuff-kb-pipemenu")
+^sep()
+Applications,^checkout(apps)
+^sep()
+Lock Screen,my_session_manager lock,system-lock-screen
+Exit,my_session_manager --yad,system-shutdown
+
+^tag(bl-utilities)
+Back,^back()
+Change Style,^pipe(jgmenu_run ob --cmd="change-style-pipemenu" --tag="StylePipeMenu")
+Take Screenshot,^pipe(jgmenu_run ob --cmd="screenshot-pipemenu" --tag="screenshot-pipemenu")
+BLOB Themes Manager,(style_picker_yad)
+SSH,^pipe(jgmenu_run ob --cmd="sshconfig-pipemenu" --tag="sshconfig-pipemenu")
+Remote Desktop,^pipe(jgmenu_run ob --cmd="remote-desktop-pipemenu" --tag="remote-desktop-pipemenu")
+App Finder,rofi-launcher
+
+System,^tag(bl-system)
+Back,^back()
+Quick System Info,sysinfo_script_ --hardware2
+^sep()
+Printers,^pipe(jgmenu_run ob --cmd="printing-pipemenu" --tag="bl-printing-pipemenu"),printer
+Task Manager (htop),sysinfo_script_ --process,htop
+Install Favourite Packages,^pipe(jgmenu_run ob --cmd="my-install-pipemenu" --tag="my-install-pipemenu")
+GUI Package Manager,sh -c 'apps_as_root gui_packagemanager',gui_packagemanager
+Login Settings,apps_as_root my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf,lightdm-settings
+Login Interface,lightdm-gtk-greeter-settings-pkexec,lightdm-settings
+GParted Partition Manager,apps_as_root gparted,gparted
+Set Default Browser,"""popup_terminal 'Select Default Browser' 'my-alternatives --set my-www-browser'""",web-browser
+Edit Alternatives,edit-alternatives,Edit-Alternatives
+
+^tag(apps)
+

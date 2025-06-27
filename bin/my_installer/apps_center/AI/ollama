@@ -1,0 +1,6 @@
+#!/bin/sh
+app_name="ollama"
+say "Installing ${app_name}..." 1
+getURL '2term' "https://ollama.com/install.sh" | my-superuser sh || continue
+service_manager "start" ollama || continue
+ln -sf "${_APPS_LIBDIR}/AI/Extra/manage_ollama.sh" "/usr/share/my_stuff/system_files/bin" || continue

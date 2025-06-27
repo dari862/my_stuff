@@ -1,0 +1,62 @@
+##############################
+#;#############################
+#; mpv
+#;#############################
+##############################
+chapter -1=!
+chapter 1="
+switch_audio=#
+balance -0.1=(
+balance 0.1=)
+ao-volume 1 (1)=*
+audio-delay 0.010=+
+audio-delay -0.010=-
+frame_step=.
+ao-volume -1 (1)=/
+ao-volume 1 (2)=0
+contrast -1=1
+contrast 1=2
+brightness -1=3
+brightness 1=4
+hue -1=5
+hue 1=6
+saturation -1=7
+saturation 1=8
+ao-volume -1 (2)=9
+speed 1.0=Backspace
+no-osd cycle deinterlace=D                  
+seek -60=DOWN               
+mpv_quit=ESC                
+show_text=I                  
+pause (1)=Space
+seek -10 (1)=LEFT
+seek -10 (2)=MOUSE_BTN0
+seek 10 (1)=MOUSE_BTN2         
+seek -600=Page_Down              
+seek 600=Page_Up               
+seek 10 (2)=RIGHT              
+pause (2)=SPACE              
+playlist_prev=Shift+ Tab          
+ontop=T                  
+playlist_next=TAB                
+seek 60=UP                 
+sub-delay 1=X                  
+sub-delay -1=Y
+speed 0.9091=[                  
+speed 1.1=]
+framedrop=d
+panscan 0.2=e
+fullscreen=f
+mute=m
+show_progress=p
+sub-pos -1=r
+screenshot=s
+sub-pos 1=t
+sub-scale 0.1=u
+panscan -0.2=w
+sub-delay 0.1=x
+sub-delay -0.1=y
+sub-scale -0.1=z
+speed 0.5={
+speed 2.0=}
+#;

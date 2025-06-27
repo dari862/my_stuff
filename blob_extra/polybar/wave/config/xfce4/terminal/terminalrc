@@ -1,0 +1,39 @@
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+
+[Configuration]
+MiscAlwaysShowTabs=FALSE
+MiscBell=FALSE
+MiscBellUrgent=FALSE
+MiscBordersDefault=TRUE
+MiscCursorBlinks=TRUE
+MiscCursorShape=TERMINAL_CURSOR_SHAPE_BLOCK
+MiscDefaultGeometry=82x25
+MiscInheritGeometry=FALSE
+MiscMenubarDefault=FALSE
+MiscMouseAutohide=FALSE
+MiscMouseWheelZoom=TRUE
+MiscToolbarDefault=FALSE
+MiscConfirmClose=TRUE
+MiscCycleTabs=TRUE
+MiscTabCloseButtons=TRUE
+MiscTabCloseMiddleClick=TRUE
+MiscTabPosition=GTK_POS_TOP
+MiscHighlightUrls=TRUE
+MiscMiddleClickOpensUri=FALSE
+MiscCopyOnSelect=FALSE
+MiscShowRelaunchDialog=TRUE
+MiscRewrapOnResize=TRUE
+MiscUseShiftArrowsToScroll=FALSE
+MiscSlimTabs=TRUE
+MiscNewTabAdjacent=FALSE
+MiscSearchDialogOpacity=100
+MiscShowUnsafePasteDialog=TRUE
+ScrollingUnlimited=TRUE
+FontName=Iosevka Custom 9
+ScrollingBar=TERMINAL_SCROLLBAR_NONE
+ColorForeground=#f8f8f8f8f2f2
+ColorBackground=#32323f3f4e4e
+ColorCursor=#f8f8f8f8f2f2
+ColorBoldUseDefault=FALSE
+ColorPalette=#3d3d4c4c5f5f;#f4f48f8fb1b1;#a1a1efefd3d3;#f1f1fafa8c8c;#9292b6b6f4f4;#bdbd9999ffff;#8787dfdfebeb;#f8f8f8f8f2f2;#565668687e7e;#eeee4f4f8484;#5353e2e2aeae;#f1f1ffff5252;#64649898efef;#98985e5effff;#2424d1d1e7e7;#e5e5e5e5e5e5

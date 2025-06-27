@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+rofi -dmenu\
+   	-password\
+   	-i\
+   	-no-fixed-num-lines\
+   	-p "[] Enter Superuser Password, ${USER}: "\
+   	-theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi

@@ -1,0 +1,9 @@
+bottom=0
+top=8
+right=8
+left=8
+font=JetBrainsMono
+size=9
+theme=Spark
+titleLayout=LIMC
+gtk_icon_name="Luv-Folders"

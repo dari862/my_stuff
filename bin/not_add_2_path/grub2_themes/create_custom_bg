@@ -1,0 +1,81 @@
+#!/bin/sh
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+TEMP_DIR="/tmp/$USER/GRUB_background"
+BACKGROUND_IMAGE="background.jpg"
+BACKGROUND_IMAGE_PATH="${SCRIPT_DIR}/${BACKGROUND_IMAGE}"
+OUTPUT_IMAGE="${SCRIPT_DIR}/common/background.jpg"
+
+# Check if background image exists
+if [ ! -f "$BACKGROUND_IMAGE_PATH" ];then
+    echo "Error: Please add a background image named '$BACKGROUND_IMAGE' in $SCRIPT_DIR."
+    exit 1
+fi
+
+# Determine screen resolution
+SCREEN_WIDTH="$(xrandr | awk '/\*/ {print $1; exit}' | cut -d 'x' -f1)"
+case "$SCREEN_WIDTH" in
+    [0-9]|1[0-9][0-9][0-9]) SCREEN_RES="1920x1080" ;;
+    2[0-5][0-9][0-9]) SCREEN_RES="2560x1440" ;;
+    3[0-8][0-9][0-9]) SCREEN_RES="3840x2160" ;;
+    *) SCREEN_RES="1920x1080" ;; # Default fallback
+esac
+
+MENU_IMAGE="menu_image.png"
+BLURRED_BACKGROUND="blurred_${BACKGROUND_IMAGE}"
+CROPPED_BACKGROUND="cropped_${BACKGROUND_IMAGE}"
+CROPPED_RESIZED="cropped_resized_${BACKGROUND_IMAGE}"
+CROPPED_RESIZED_ROUNDED="${CROPPED_RESIZED}.png"
+MASK_IMAGE="mask_${CROPPED_RESIZED_ROUNDED}"
+COMBINED_MENU_IMAGE="combined_menu_image.png"
+FINAL_IMAGE="final_${BACKGROUND_IMAGE}"
+
+# Get image dimensions
+BACKGROUND_WIDTH=$(identify -format "%w" "$BACKGROUND_IMAGE_PATH")
+BACKGROUND_HEIGHT=$(identify -format "%h" "$BACKGROUND_IMAGE_PATH")
+
+# Compute dimensions
+MENU_WIDTH=$((BACKGROUND_WIDTH * 67 / 100))
+MENU_HEIGHT=$((BACKGROUND_HEIGHT * 75 / 100))
+EXTRA_WIDTH=$((BACKGROUND_WIDTH * 43 / 100))
+EXTRA_HEIGHT=$((BACKGROUND_HEIGHT * 75 / 100))
+EXTRA_Y=$((EXTRA_HEIGHT / 2))
+EXTRA_RESIZED_WIDTH=$((MENU_WIDTH * 45 / 100))
+EXTRA_RESIZED_HEIGHT=$((MENU_HEIGHT * 95 / 100))
+MENU_RADIUS_W=$((MENU_WIDTH * 5 / 100))
+MENU_RADIUS_H=$((MENU_HEIGHT * 5 / 100))
+EXTRA_RADIUS_W=$((MENU_WIDTH * 3 / 100))
+EXTRA_RADIUS_H=$((MENU_HEIGHT * 3 / 100))
+BACKGROUND_COLOR="#2A2A35"
+
+# Cleanup and prepare directories
+[ -f "$OUTPUT_IMAGE" ] && rm -f "$OUTPUT_IMAGE"
+[ -d "$TEMP_DIR" ] && rm -rf "$TEMP_DIR"
+mkdir -p "$TEMP_DIR"
+cd "$TEMP_DIR" || exit 1
+
+# Process images
+convert "$BACKGROUND_IMAGE_PATH" -blur 0x8 "$BLURRED_BACKGROUND"
+convert "$BACKGROUND_IMAGE_PATH" -crop "${EXTRA_WIDTH}x${EXTRA_HEIGHT}+0+${EXTRA_Y}" "$CROPPED_BACKGROUND"
+
+convert -size "${MENU_WIDTH}x${MENU_HEIGHT}" xc:none \
+    -fill "$BACKGROUND_COLOR" \
+    -draw "roundrectangle 0,0,$((MENU_WIDTH-1)),$((MENU_HEIGHT-1)),${MENU_RADIUS_W},${MENU_RADIUS_H}" \
+    "$MENU_IMAGE"
+
+convert "$CROPPED_BACKGROUND" -resize "${EXTRA_RESIZED_WIDTH}x${EXTRA_RESIZED_HEIGHT}!" "$CROPPED_RESIZED"
+
+convert -size "${EXTRA_RESIZED_WIDTH}x${EXTRA_RESIZED_HEIGHT}" xc:none -fill white \
+    -draw "roundRectangle 0,0,${EXTRA_RESIZED_WIDTH},${EXTRA_RESIZED_HEIGHT} ${EXTRA_RADIUS_W},${EXTRA_RADIUS_H}" \
+    "$MASK_IMAGE"
+
+convert "$CROPPED_RESIZED" "$MASK_IMAGE" -alpha off -compose copy-opacity -composite "$CROPPED_RESIZED_ROUNDED"
+
+composite -gravity center -geometry "+$((MENU_WIDTH / 4))+0" "$CROPPED_RESIZED_ROUNDED" "$MENU_IMAGE" "$COMBINED_MENU_IMAGE"
+
+composite -gravity center "$COMBINED_MENU_IMAGE" "$BLURRED_BACKGROUND" "$FINAL_IMAGE"
+
+convert "$FINAL_IMAGE" -resize "$SCREEN_RES" "$OUTPUT_IMAGE"
+
+echo "Image successfully processed and saved as $OUTPUT_IMAGE"

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+shortcut_rofi_file_path="${script_config_path}/shortcut_rofi"
+RASI="$HOME/.config/rofi/$ROFI_STYLE/launcher.rasi"
+
+_rofi() {
+	rofi -show run -dmenu -i -p "" -no-show-icons -l 10 -theme ${RASI} "$@"
+}
+
+column -t -s " | " "$shortcut_rofi_file_path" | _rofi "$@"

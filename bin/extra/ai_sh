@@ -1,0 +1,259 @@
+#!/bin/sh
+
+API_path="/usr/share/my_stuff/lib/common/API"
+OPENAI_KEY=$(cat "${API_path}/${OPENAI}" 2>/dev/null || :)
+
+# Error handler function
+handle_error() {
+    response="$1"
+    if echo "$response" | jq -e '.error' >/dev/null;then
+        error_type=$(echo "$response" | jq -r '.error.type')
+        error_message=$(echo "$response" | jq -r '.error.message')
+        printf "Error: $error_type\nMessage: $error_message"
+        exit 1
+    fi
+}
+if command -v curl >/dev/null 2>&1;then
+	# Request function for completions
+	request_to_completions() {
+    	prompt="$1"
+    	curl -sS https://api.openai.com/v1/completions \
+        	-H 'Content-Type: application/json' \
+        	-H "Authorization: Bearer $OPENAI_KEY" \
+        	-d '{
+            	"model": "'"$MODEL"'",
+            	"prompt": "'"$prompt"'",
+            	"max_tokens": '$MAX_TOKENS',
+            	"temperature": '$TEMPERATURE'
+        	}'
+	}
+	
+	# Request function for image generation
+	request_to_image() {
+    	prompt="$1"
+    	curl -sS https://api.openai.com/v1/images/generations \
+        	-H 'Content-Type: application/json' \
+        	-H "Authorization: Bearer $OPENAI_KEY" \
+        	-d '{
+            	"prompt": "'"${prompt#*image:}"'",
+            	"n": 1,
+            	"size": "'"$SIZE"'"
+        	}'
+	}
+	
+	# Request function for chat completion
+	request_to_chat() {
+    	message="$1"
+    	system_prompt=$(escape "$SYSTEM_PROMPT")
+    	curl -sS https://api.openai.com/v1/chat/completions \
+        	-H 'Content-Type: application/json' \
+        	-H "Authorization: Bearer $OPENAI_KEY" \
+        	-d '{
+            	"model": "'"$MODEL"'",
+            	"messages": [
+                	{"role": "system", "content": "'"$system_prompt"'"},
+                	'"$message"'
+            	],
+            	"max_tokens": '$MAX_TOKENS',
+            	"temperature": '$TEMPERATURE'
+        	}'
+	}
+	get_models(){
+		curl -sS https://api.openai.com/v1/models -H "Authorization: Bearer $OPENAI_KEY"
+	}
+elif command -v wget >/dev/null 2>&1;then
+	# Request function for completions
+	request_to_completions() {
+    	prompt="$1"
+    	wget --quiet --method=POST --header="Content-Type: application/json" --header="Authorization: Bearer $OPENAI_KEY" \
+        	--body-data='{
+            	"model": "'"$MODEL"'",
+            	"prompt": "'"$prompt"'",
+            	"max_tokens": '$MAX_TOKENS',
+            	"temperature": '$TEMPERATURE'
+        	}' "https://api.openai.com/v1/completions"
+	}
+	
+	# Request function for image generation
+	request_to_image() {
+    	prompt="$1"
+    	wget --quiet --method=POST --header="Content-Type: application/json" --header="Authorization: Bearer $OPENAI_KEY" \
+        	--body-data='{
+            	"prompt": "'"${prompt#*image:}"'",
+            	"n": 1,
+            	"size": "'"$SIZE"'"
+        	}' "https://api.openai.com/v1/images/generations"
+	}
+	
+	# Request function for chat completion
+	request_to_chat() {
+    	message="$1"
+    	system_prompt=$(escape "$SYSTEM_PROMPT")
+    	wget --quiet --method=POST --header="Content-Type: application/json" --header="Authorization: Bearer $OPENAI_KEY" \
+        	--body-data='{
+            	"model": "'"$MODEL"'",
+            	"messages": [
+                	{"role": "system", "content": "'"$system_prompt"'"},
+                	'"$message"'
+            	],
+            	"max_tokens": '$MAX_TOKENS',
+            	"temperature": '$TEMPERATURE'
+        	}' "https://api.openai.com/v1/chat/completions"
+	}
+	
+	# Get models
+	get_models() {
+    	wget --quiet --header="Authorization: Bearer $OPENAI_KEY" "https://api.openai.com/v1/models"
+	}
+fi
+# Escape function for system prompt
+escape() {
+    echo "$1" | jq -Rrs 'tojson[1:-1]'
+}
+
+# List available models
+list_models() {
+    models_response=$(get_models)
+    handle_error "$models_response"
+    echo "$models_response" | jq -r '.data[] | {id, owned_by, created}'
+}
+
+# Print usage instructions
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [options]
+
+Options:
+  -i, --init-prompt            Provide an initial prompt to use in context
+  --init-prompt-from-file      Provide an initial prompt from a file
+  -p, --prompt                 Provide a prompt instead of starting a chat
+  --prompt-from-file           Provide a prompt from a file
+  -t, --temperature            Temperature for the model
+  --max-tokens                 Max tokens for the model's response
+  -l, --list                   List available OpenAI models
+  -m, --model                  Model to use (default: gpt-3.5-turbo)
+  -s, --size                   Image size (default: 512x512)
+  -c, --chat-context           Enable chat context for the model
+  -h, --help                   Show this message and exit
+EOF
+}
+
+# Main script logic
+
+# Default settings
+MODEL="gpt-3.5-turbo"
+TEMPERATURE=0.7
+MAX_TOKENS=1024
+SIZE="512x512"
+CONTEXT=false
+
+# Argument parsing
+while [ -n "$1" ]; do
+    case $1 in
+        -i | --init-prompt)
+            CHAT_INIT_PROMPT="$2"
+            SYSTEM_PROMPT="$2"
+            CONTEXT=true
+            shift 2
+            ;;
+        --init-prompt-from-file)
+            CHAT_INIT_PROMPT=$(cat "$2")
+            SYSTEM_PROMPT="$CHAT_INIT_PROMPT"
+            CONTEXT=true
+            shift 2
+            ;;
+        -p | --prompt)
+            prompt="$2"
+            shift 2
+            ;;
+        --prompt-from-file)
+            prompt=$(cat "$2")
+            shift 2
+            ;;
+        -t | --temperature)
+            TEMPERATURE="$2"
+            shift 2
+            ;;
+        --max-tokens)
+            MAX_TOKENS="$2"
+            shift 2
+            ;;
+        -l | --list)
+            list_models
+            exit 0
+            ;;
+        -m | --model)
+            MODEL="$2"
+            shift 2
+            ;;
+        -s | --size)
+            SIZE="$2"
+            shift 2
+            ;;
+        -c | --chat-context)
+            CONTEXT=true
+            shift
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# Check if the OpenAI API key is set
+if [ -z "$OPENAI_KEY" ];then
+    echo "You need to set your OpenAI API key to ${API_path}/${OPENAI}"
+    exit 1
+fi
+
+# Set defaults if no prompt is provided
+if [ -z "$prompt" ] && [ -z "$CHAT_INIT_PROMPT" ];then
+    echo "No prompt provided. Exiting."
+    exit 1
+fi
+
+# Create temporary file for multi-line prompts
+if [ "$MULTI_LINE_PROMPT" = true ];then
+    tmpfile=$(mktemp)
+    trap 'rm -f "$tmpfile"' EXIT
+    while IFS= read -r line; do
+        echo "$line" >> "$tmpfile"
+    done
+    prompt=$(cat "$tmpfile")
+fi
+
+# Use context for chat if enabled
+if [ "$CONTEXT" = true ] && [ -z "$CHAT_INIT_PROMPT" ];then
+    CHAT_INIT_PROMPT="$SYSTEM_PROMPT"
+fi
+
+# Request logic
+if echo "$prompt" | grep -q 'image:';then
+    # Image request
+    image_response=$(request_to_image "$prompt")
+    handle_error "$image_response"
+    echo "$image_response" | jq -r '.data[0].url'
+else
+    # Chat or completions request
+    if [ "$CONTEXT" = true ];then
+        # Handle chat history
+        chat_history_file="${API_path}/chat_history.json"
+        message="{\"role\": \"user\", \"content\": \"$prompt\"}"
+        if [ -s "$chat_history_file" ];then
+            chat_history=$(cat "$chat_history_file")
+            response=$(request_to_chat "$message")
+        else
+            response=$(request_to_chat "$message")
+        fi
+    else
+        response=$(request_to_completions "$prompt")
+    fi
+    handle_error "$response"
+    echo "$response" | jq -r '.choices[0].text'
+fi

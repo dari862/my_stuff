@@ -1,0 +1,16 @@
+#!/bin/sh
+
+app_name="vmplayer"
+extra_apps_="build-essential linux-headers-$(uname -r)"
+my-installer --tweek "Enable_IOMMU_support" || continue
+
+say "Installing ${extra_apps_}..." 1
+Package_installer_ ${extra_apps_} || continue
+
+clear
+say 'Downloading VMware-Player-Full.bundle...' 1
+getURL 'download2' "https://www.vmware.com/go/getplayer-linux" "/tmp/$USER/VMware-Player-Full.bundle"
+my-superuser chmod +x /tmp/VMware-Player-Full.bundle
+my-superuser chown root:root /tmp/VMware-Player-Full.bundle
+say 'Installing VMware-Player-Full.bundle...' 1
+my-superuser /tmp/VMware-Player-Full.bundle

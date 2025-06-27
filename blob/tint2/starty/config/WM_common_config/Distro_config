@@ -1,0 +1,5 @@
+_panel_name_="tint2"
+ROFI_STYLE="default"
+polybar_STYLE=""
+conky_sessionfile=".config/conky/cliff/cliff.conkyrc"
+tint2_sessionfile="/.config/tint2/starty/starty.tint2rc"

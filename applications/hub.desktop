@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Script Hub
+Comment=show list in rofi of list of Script and editable config file.
+Keywords=openbox;conky;tint2;gtk;wallpaper;preferences;settings;theme;style;appearance;
+Icon=preferences-desktop-theme
+Exec=hub
+StartupNotify=false
+Categories=GTK;Settings;DesktopSettings;
+Path=
+Terminal=false

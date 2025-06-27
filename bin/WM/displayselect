@@ -1,0 +1,737 @@
+#!/bin/bash
+# if this line exist script will be part of hub script.
+set -eu
+
+. "/usr/share/my_stuff/lib/common/WM"
+Menu_="${1:-}"
+MODE="${2:-}"
+if [ -z "$Menu_" ] || [ "$Menu_" = "rofi" ];then
+	MODE="rofi"
+	. "${Distro_config_file}"
+elif [ "$MODE" = "pass" ];then
+	pass_arg="${3:-}"
+fi
+
+list_commands=""
+run_create_script=false
+OPT__=""
+choice=""
+create_display_script=true
+
+show_massage(){
+	[ "$MODE" = "noninteractive" ] && return
+	[ "$MODE" = "rofi" ] && return
+	COLOR="$1"
+	massage="$2"
+	pre_="$3"
+	RC='\033[0m'
+	if [ "$COLOR" = "YELLOW" ];then
+		COLOR='\033[33m'
+	elif [ "$COLOR" = "RED" ];then
+		COLOR='\033[31m'
+	elif [ "$COLOR" = "GREEN" ];then
+		COLOR='\033[32m'
+	elif [ "$COLOR" = "CYAN" ];then
+		COLOR='\033[36m'
+	else
+		COLOR=''
+		RC=''
+	fi
+	printf "%b\n" "${pre_}${COLOR}${massage}${RC}"
+}
+
+show_title(){
+	[ "$MODE" = "noninteractive" ] && return
+	[ "$MODE" = "rofi" ] && return
+	COLOR="$1"
+	title="$2"
+	if [ "$COLOR" = "YELLOW" ];then
+		COLOR='\033[33m'
+	elif [ "$COLOR" = "RED" ];then
+		COLOR='\033[31m'
+	elif [ "$COLOR" = "GREEN" ];then
+		COLOR='\033[32m'
+	elif [ "$COLOR" = "CYAN" ];then
+		COLOR='\033[36m'
+	fi
+	RC='\033[0m'
+	printf "%b\n" "${COLOR}=========================================${RC}"
+	printf "%b\n" "${COLOR}  ${title}${RC}"
+	printf "%b\n" "${COLOR}=========================================${RC}"
+}
+
+enter_choice(){
+	choice=""
+	[ "$MODE" = "noninteractive" ] && return
+	[ "$MODE" = "rofi" ] && return
+	RED='\033[31m'
+	RC='\033[0m'
+	massage="${1:-}"
+	printf "%b" "$massage (or 'q' to quit): "
+	read -r choice
+	if [ "$choice" = "q" ]; then
+		printf "%b\n" "${RED}Exiting...${RC}"
+		exit
+	else
+		echo "$choice"
+	fi
+}
+
+rofi_menu(){
+	echo "${2:-}" | rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "${1:-}"
+}
+
+# Function to prompt for confirmation
+confirm_action() {
+	[ "$MODE" = "noninteractive" ] && return
+	action="$1"
+	if [ "$MODE" != "rofi" ];then
+		CYAN='\033[36m'
+		RC='\033[0m'
+		printf "%b\n" "${CYAN}$action"
+		printf "%b" "${CYAN}Are you sure? (y/N): "
+		read -r confirm
+	else
+		confirm="$(rofi_menu "$action. Are you sure?" "Yes|No")"
+	fi
+	echo $confirm
+	if echo "$confirm" | grep -qE '^[Yy]'; then
+		return 0
+	else
+		postrun_massage="Action canceled."
+		return 1
+	fi
+}
+
+Invalid_selection(){
+	if [ "$MODE" != "rofi" ];then
+		RED='\033[31m'
+		RC='\033[0m'
+		__OPT__="${1:-}"
+		if [ "$__OPT__" = "continue" ];then
+			printf "%b\n" "${RED}Invalid selection. Please try again.${RC}"
+			printf "Press [Enter] to continue..."
+			read -r _
+		else
+			show_massage "RED" "Invalid selection."
+		fi
+	else
+		if [ "$__OPT__" = "continue" ];then
+			rofi_menu "ERROR:" "Invalid selection. Please try again."
+		else
+			rofi_menu "ERROR:" "Invalid selection."
+		fi
+	fi
+	postrun_title="ERROR"
+	postrun_massage="Invalid selection."
+}
+
+# Function to execute xrandr commands and handle errors
+add_command() {
+	command="$1"
+	list_commands="$command\n$list_commands"
+}
+
+create_script() {
+	if [ "$create_display_script" = true ];then
+		echo '#!/bin/sh' > "$display_script"
+		echo -e "$list_commands" >> "$display_script"
+		chmod +x "$display_script"
+	fi
+}
+
+execute_command() {
+	RED='\033[31m'
+	RC='\033[0m'
+	command="$1"
+	[ "$MODE" != "noninteractive" ] && printf "Executing: %s\n" "$command"
+	$command 2>&1 | tee /tmp/xrandr.log | tail -n 20
+	# shellcheck disable=SC2181
+	if [ $? -ne 0 ]; then
+		if [ "$MODE" != "rofi" ];then
+			show_massage "RED" "An error occurred while executing the command. Check /tmp/xrandr.log for details."
+		else
+			rofi_menu "ERROR" "An error occurred while executing the command. Check /tmp/xrandr.log for details."
+		fi
+	fi
+}
+
+# Function to detect connected monitors
+detect_connected_monitors() {
+	xrandr_output=$(xrandr)
+	printf "%b\n" "$xrandr_output" | grep " connected" | awk '{print $1}'
+}
+
+# Function to get the current brightness for a monitor
+get_current_brightness() {
+	monitor="$1"
+	xrandr --verbose | grep -A 10 "^$monitor connected" | grep "Brightness:" | awk '{print $2}'
+}
+
+# Function to get resolutions for a monitor
+get_unique_resolutions() {
+	monitor="$1"
+	xrandr_output=$(xrandr)
+	available_resolutions=$(printf "%s" "$xrandr_output" | sed -n "/$monitor connected/,/^[^ ]/p" | grep -oP '\d+x\d+' | sort -u)
+	
+	standard_resolutions="1920x1080 1280x720 1600x900 2560x1440 3840x2160"
+
+	filtered_standard_resolutions=$(printf "%s" "$standard_resolutions" | tr ' ' '\n' | grep -xF -f <(printf "%s" "$available_resolutions") | tr '\t' ' ')
+
+	available_resolutions_sorted=$(printf "%s\n" "$available_resolutions" | sort)
+	filtered_standard_resolutions_sorted=$(printf "%s\n" "$filtered_standard_resolutions" | sort)
+	
+	remaining_resolutions=$(comm -23 <(echo "$available_resolutions_sorted") <(echo "$filtered_standard_resolutions_sorted"))
+	
+	printf "%b\n" "$filtered_standard_resolutions\n$remaining_resolutions" | head -n 10
+}
+
+postrun() {
+	if [ "$run_create_script" = true ];then
+		create_script
+		execute_command "$display_script"
+		my_session_manager --no-confirm reload
+		dunst-session restart
+	fi
+	notify-send "💻 $postrun_title" "$postrun_massage"
+	exit
+}
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+#########################################################################################################################
+
+scale_monitors() {
+	postrun_title="Scale Monitors to Highest Resolution"
+	show_title "YELLOW" "Scale Monitors to Highest Resolution"
+	max_width=0
+	max_height=0
+	for monitor in $monitor_array; do
+		res=$(xrandr | grep -A1 "^$monitor connected" | tail -1 | awk '{print $1}')
+		width=$(echo "$res" | awk -Fx '{print $1}')
+		height=$(echo "$res" | awk -Fx '{print $2}')
+		if [ "$width" -gt "$max_width" ]; then
+			max_width=$width
+		fi
+		if [ "$height" -gt "$max_height" ]; then
+			max_height=$height
+		fi
+	done
+	show_massage "YELLOW" "Highest resolution found: ${max_width}x${max_height}"
+	for monitor in $monitor_array; do
+		show_massage "YELLOW" "Scaling $monitor to ${max_width}x${max_height}"
+		add_command "xrandr --output $monitor --scale-from ${max_width}x${max_height}"
+	done
+	run_create_script=true
+	show_massage "GREEN" "Scaling complete. All monitors are now scaled to ${max_width}x${max_height}."
+	postrun_massage="Scaling complete. All monitors are now scaled to ${max_width}x${max_height}."
+}
+
+# Function to auto-detect displays and set common resolution
+auto_detect_displays() {
+	postrun_title="Auto-detect displays and set common resolution"
+	confirm_action "Auto-detect displays and set common resolution?" || return
+	execute_command "xrandr --auto"
+	first_monitor=$(echo "$monitor_list" | head -n 1)
+	common_resolutions=$(get_unique_resolutions "$first_monitor")
+	for monitor in $monitor_list; do
+		resolutions=$(get_unique_resolutions "$monitor")
+		temp_common_resolutions=$(printf "%b\n" "$common_resolutions" | sort)
+		temp_resolutions=$(printf "%b\n" "$resolutions" | sort)
+		common_resolutions=$(comm -12 <(echo "$temp_common_resolutions") <(echo "$temp_resolutions"))
+	done
+	
+	if [ -z "$common_resolutions" ]; then
+		show_massage "RED" "No common resolution found among connected monitors."
+		return
+	fi
+	highest_resolution=$(echo "$common_resolutions" | sort -n -t'x' -k1,1 -k2,2 | tail -n 1)
+	for monitor in $monitor_list; do
+		show_massage "YELLOW" "Setting resolution for $monitor to $highest_resolution..."
+		add_command "xrandr --output $monitor --mode $highest_resolution"
+	done
+	run_create_script=true
+	[ -f "/usr/share/my_stuff/system_files/this_is_laptop" ] && create_display_script=false
+	postrun_massage="Setting resolution for $monitor to $highest_resolution..."
+}
+# Function to set resolutions
+set_resolutions() {
+	postrun_title="Monitor configuration set resolutions"
+	while true; do
+		clear
+		show_title "YELLOW" "Monitor Configuration"
+		show_massage "YELLOW" ":"
+		i=1
+		for monitor in $monitor_array; do
+			show_massage "YELLOW" "$monitor" "$i. "
+			rofi_choose="${rofi_choose}$i. $monitor|"
+			i=$((i + 1))
+		done
+		if [ "$MODE" != "rofi" ];then
+			enter_choice "Enter the choice:"
+			monitor_choice="$choice"
+		else
+			monitor_choice="$(rofi_menu "Choose a monitor to configure:" "$rofi_choose")"
+		fi
+		if ! echo "$monitor_choice" | grep -qE '^[0-9]+$' || [ "$monitor_choice" -lt 1 ] || [ "$monitor_choice" -gt "$((i - 1))" ]; then
+			Invalid_selection && continue
+		fi
+		monitor_name=$(echo "$monitor_array" | cut -d' ' -f"$monitor_choice")
+		resolutions=$(get_unique_resolutions "$monitor_name" | sort -rn -t'x' -k1,1 -k2,2)
+		if [ "$MODE" != "rofi" ];then
+			resolutions_choose="$(printf "%b\n" "$resolutions" | awk '{print NR " " $0}' | sed 's/ /.\t/g')"
+			printf "%b\n" "$resolutions_choose"
+		else
+			rofi_choose="$(printf "%b\n" "$resolutions" | awk '{print NR " " $0}' | sed 's/ /.\t/g' | sed 's/$/|/g' | tr '\n' ' '| sed 's/| /|/g')"
+		fi
+		clear
+		show_title "YELLOW" "Resolution Configuration for $monitor_name"
+		
+		while true; do
+			if [ "$MODE" != "rofi" ];then
+				enter_choice "Enter the choice:"
+				resolution_choice="$choice"
+			else
+				resolution_choice="$(rofi_menu "Choose resolution Configuration for $monitor_name:" "$rofi_choose")"
+			fi
+			if ! echo "$resolution_choice" | grep -qE '^[0-9]+$' || [ "$resolution_choice" -lt 1 ] || [ "$resolution_choice" -gt "$((i - 1))" ]; then
+				Invalid_selection && continue
+			fi
+			selected_resolution=$(echo "$resolutions_choose" | awk "NR==$resolution_choice")
+			if confirm_action "Set resolution for $monitor_name to $selected_resolution?";then
+				show_massage "GREEN" "Setting resolution for $monitor_name to $selected_resolution"
+				add_command "xrandr --output $monitor_name --mode $selected_resolution"
+				postrun_massage="Setting resolution for $monitor_name to $selected_resolution"
+				run_create_script=true
+				break
+			else
+				show_massage "RED" "Action canceled. Please choose a different resolution."
+				postrun_massage="Action canceled. Please choose a different resolution."
+				run_create_script=false
+			fi
+		done
+	done
+}
+
+# Function to set a monitor as primary
+set_primary_monitor() {
+	postrun_title="Set Primary Monitor"
+	[ "$monitor_configuration" = "single" ] && exit
+	clear
+	show_title "YELLOW" "Set Primary Monitor"
+	show_massage "YELLOW" "Choose a monitor to set as primary:"
+	i=1
+	for monitor in $monitor_array; do
+		show_massage "GREEN" "$monitor" "$i. "
+		rofi_choose="${rofi_choose}$i. $monitor|"
+		rofi_choose="${rofi_choose}$i. $monitor|"
+		i=$((i + 1))
+	done
+	if [ "$MODE" != "rofi" ];then
+		enter_choice "Enter the number of the monitor to set as primary:"
+		monitor_choice="$choice"
+	else
+		monitor_choice="$(rofi_menu "Choose a monitor to set as primary:" "$rofi_choose")"
+	fi
+	if ! echo "$monitor_choice" | grep -qE '^[0-9]+$' || [ "$monitor_choice" -lt 1 ] || [ "$monitor_choice" -gt "$((i - 1))" ]; then
+		Invalid_selection && return
+	fi
+	monitor_name=$(echo "$monitor_array" | cut -d' ' -f"$monitor_choice")
+	if confirm_action "Set $monitor_name as the primary monitor?"; then
+		show_massage "GREEN" "Setting $monitor_name as primary monitor"
+		add_command "xrandr --output $monitor_name --primary"
+		show_massage "GREEN" "Monitor $monitor_name set as primary successfully."
+		postrun_massage="Monitor $monitor_name set as primary successfully."
+		run_create_script=true
+	else
+		show_massage "RED" "Action canceled."
+		postrun_massage="Action canceled."
+		run_create_script=false
+	fi
+}
+enable_monitor() {
+	postrun_title="Enabling monitor"
+	if [ "$monitor_configuration" = "[ "$monitor_configuration" = "multi-monitor" ]" ];then
+		clear
+		show_title "YELLOW" "Enable Monitor"
+		show_massage "YELLOW" "Choose a monitor to enable: "
+		i=1
+		for monitor in $monitor_array; do
+			show_massage "GREEN" "$monitor" "$i. "
+			rofi_choose="${rofi_choose}$i. $monitor|"
+			rofi_choose="${rofi_choose}$i. $monitor|"
+			i=$((i + 1))
+		done
+		if [ "$MODE" != "rofi" ];then
+			enter_choice "Enter the number of the monitor:"
+			monitor_choice="$choice"
+		else
+			monitor_choice="$(rofi_menu "Choose a monitor to enable:" "$rofi_choose")"
+		fi
+		if ! echo "$monitor_choice" | grep -qE '^[0-9]+$' || [ "$monitor_choice" -lt 1 ] || [ "$monitor_choice" -gt "$((i - 1))" ]; then
+			Invalid_selection && return
+		fi
+		monitor_name=$(echo "$monitor_array" | cut -d' ' -f"$monitor_choice")
+		if confirm_action "Enable $monitor_name?"; then
+			show_massage "GREEN" "Enabling $monitor_name"
+			add_command "xrandr --output $monitor_name --auto"
+			show_massage "GREEN" "Monitor $monitor_name enabled successfully."
+			postrun_massage="Monitor $monitor_name enabled successfully."
+			run_create_script=true
+		else
+			show_massage "RED" "Action canceled."
+			postrun_massage="Action canceled."
+			run_create_script=false
+		fi
+	else
+		add_command "xrandr --output $monitor_list --auto"
+		postrun_massage="Monitor $monitor_name enabled successfully."
+	fi
+}
+extend_displays() {
+	postrun_title="Extend displays"
+	[ "$monitor_configuration" = "single" ] && exit
+	i=1
+	for monitor in $monitor_array; do
+		prev_monitor=$(echo "$monitor_array" | cut -d' ' -f$((i-1)))
+		if confirm_action "Extend $monitor to the right of $prev_monitor?"; then
+			show_massage "GREEN" "Extending $monitor to the right of $prev_monitor"
+			add_command "xrandr --output $monitor --right-of $prev_monitor"
+		fi
+		i=$((i + 1))
+	done
+	run_create_script=true
+	postrun_massage="Extending $monitor to the right of $prev_monitor"
+}
+adjust_monitor_brightness() {
+	postrun_title="Adjust Monitor Brightness"
+	GREEN='\033[32m'
+	while true; do
+		clear
+		show_title "YELLOW" "Adjust Monitor Brightness"
+		show_massage "YELLOW" "Choose a monitor to adjust brightness:"
+		count=1
+		echo "$monitor_list" | while IFS= read -r monitor; do
+			show_massage "" "$count. $monitor"
+			rofi_choose="${rofi_choose}$count. $monitor|"
+			count=$((count + 1))
+		done
+		if [ "$MODE" != "rofi" ];then
+			enter_choice "Enter the number of the monitor"
+			monitor_choice="$choice"
+		else
+			monitor_choice="$(rofi_menu "Choose a monitor to adjust brightness:" "$rofi_choose")"
+		fi
+		if ! echo "$monitor_choice" | grep -qE '^[0-9]+$'; then
+			Invalid_selection && continue
+		fi
+		number_of_monitors=$(echo "$monitor_list" | wc -l)
+		if [ "$monitor_choice" -lt 1 ] || [ "$monitor_choice" -gt "$number_of_monitors" ]; then
+			Invalid_selection && continue
+		fi
+		monitor_name=$(echo "$monitor_list" | sed -n "${monitor_choice}p")
+		current_brightness=$(get_current_brightness "$monitor_name")
+		current_brightness_percentage=$(awk -v brightness="$current_brightness" 'BEGIN {printf "%.0f", brightness * 100}')
+		
+		Current_brightness_massage_="Current brightness for $monitor_name: ${GREEN}$current_brightness_percentage%"
+		show_massage "YELLOW" "$Current_brightness_massage_"
+		while true; do
+			if [ "$MODE" != "rofi" ];then
+				enter_choice "Enter the new brightness value as a percentage (10 to 100)"
+				new_brightness_percentage="$choice"
+			else
+				new_brightness_percentage="$(rofi_menu "Enter the new brightness value as a percentage (10 to 100)" "")"
+			fi
+			# Validate brightness input: accept only values above 10
+			if ! echo "$new_brightness_percentage" | grep -qE '^[0-9]+$' || [ "$new_brightness_percentage" -lt 10 ] || [ "$new_brightness_percentage" -gt 100 ]; then
+				Invalid_selection && continue
+			fi
+			# Convert percentage to xrandr brightness value (10% to 0.10)
+			new_brightness=$(awk "BEGIN {printf \"%.2f\", $new_brightness_percentage / 100}")
+			if confirm_action "Set brightness for $monitor_name to $new_brightness_percentage%?"; then
+				show_massage "GREEN" "Setting brightness for $monitor_name to $new_brightness_percentage%"
+				add_command "xrandr --output $monitor_name --brightness $new_brightness"
+				show_massage "GREEN" "Brightness for $monitor_name set to $new_brightness_percentage% successfully."
+				postrun_massage="Brightness for $monitor_name set to $new_brightness_percentage% successfully."
+				run_create_script=true
+				break
+			else
+				show_massage "RED" "Action canceled. Please choose a different brightness value."
+				postrun_massage="Action canceled. Please choose a different brightness value"
+				run_create_script=false
+			fi
+		done
+	done
+}
+duplicate_displays() {
+	postrun_title="Duplicate displays"
+	[ "$monitor_configuration" = "single" ] && exit
+	primary=$(echo "$monitor_list" | head -n 1)
+	for monitor in $(detect_connected_monitors | tail -n +2); do
+		if confirm_action "Duplicate $monitor to $primary?"; then
+			show_massage "GREEN" "Duplicating $monitor to $primary"
+			add_command "xrandr --output $monitor --same-as $primary"
+		fi
+	done
+	run_create_script=true
+	postrun_massage="Duplicating $monitor to $primary"
+}
+change_orientation() {
+	postrun_title="Change Monitor Orientation"
+	clear
+	show_title "YELLOW" "Change Monitor Orientation"
+	show_massage "YELLOW" "Choose a monitor to configure: "
+	i=1
+	for monitor in $monitor_array; do
+		show_massage "GREEN" "$monitor" "$i. "
+		rofi_choose="${rofi_choose}$i. $monitor|"
+		i=$((i + 1))
+	done
+	if [ "$MODE" != "rofi" ];then
+		enter_choice "Enter the number of the monitor:"
+		monitor_choice="$choice"
+	else
+		monitor_choice="$(rofi_menu "Choose a monitor to configure:" "$rofi_choose")"
+	fi
+	if ! echo "$monitor_choice" | grep -qE '^[0-9]+$' || [ "$monitor_choice" -lt 1 ] || [ "$monitor_choice" -gt "$((i - 1))" ]; then
+		Invalid_selection && return
+	fi
+	monitor_name=$(echo "$monitor_array" | cut -d' ' -f"$monitor_choice")
+	clear	
+	show_title "YELLOW" "Set Orientation for $monitor_name"
+	show_massage "YELLOW" "Choose orientation:"
+	show_massage "GREEN" "Normal" "1. "
+	show_massage "GREEN" "Left" "2. "
+	show_massage "GREEN" "Right" "3. "
+	show_massage "GREEN" "Inverted" "4. "
+	if [ "$MODE" != "rofi" ];then
+		enter_choice "Enter the number of the orientation:"
+		orientation_choice="$choice"
+	else
+		orientation_choice="$(rofi_menu "Choose a monitor to orientation:" "1. Normal|2. Left|3. Right|4. Inverted")"
+	fi
+	case $orientation_choice in
+		1) orientation="normal" ;;
+		2) orientation="left" ;;
+		3) orientation="right" ;;
+		4) orientation="inverted" ;;
+		*) Invalid_selection && return ;;
+	esac
+	if confirm_action "Change orientation of $monitor_name to $orientation?"; then
+		show_massage "GREEN" "Changing orientation of $monitor_name to $orientation"
+		add_command "xrandr --output $monitor_name --rotate $orientation"
+		show_massage "GREEN" "Orientation changed successfully."
+		postrun_massage="Orientation of $monitor_name to $orientation changed successfully."
+		run_create_script=true
+	else
+		show_massage "RED" "Action canceled."
+		postrun_massage="Action canceled."
+		run_create_script=false
+	fi
+	postrun_title="Change orientation complete"
+}
+manage_arrangement() {
+	postrun_title="Manage Monitor Arrangement"
+	[ "$monitor_configuration" = "single" ] && exit
+	clear
+	show_title "YELLOW" "Manage Monitor Arrangement"
+	show_massage "YELLOW" "Choose the monitor to arrange: "
+	i=1
+	for monitor in $monitor_array; do
+		show_massage "GREEN" "$monitor" "$i. "
+		rofi_choose="${rofi_choose}$i. $monitor|"
+		i=$((i + 1))
+	done
+	if [ "$MODE" != "rofi" ];then
+		enter_choice "Enter the number of the monitor to arrange:"
+		monitor_choice="$choice"
+	else
+		monitor_choice="$(rofi_menu "Choose a monitor to arrange:" "$rofi_choose")"
+	fi
+	
+	if ! echo "$monitor_choice" | grep -qE '^[0-9]+$' || [ "$monitor_choice" -lt 1 ] || [ "$monitor_choice" -gt "$((i - 1))" ]; then
+		Invalid_selection && return
+	fi
+	monitor_name=$(echo "$monitor_array" | cut -d' ' -f"$monitor_choice")
+	clear
+	show_massage "YELLOW" "Choose position of $monitor_name relative to other monitors:"
+	show_massage "GREEN" "Left of" "1. "
+	show_massage "GREEN" "Right of" "2. "
+	show_massage "GREEN" "Above" "3. "
+	show_massage "GREEN" "Below" "4. "
+	if [ "$MODE" != "rofi" ];then	
+		enter_choice "number of the position:"
+		position_choice="$choice"
+	else
+		position_choice="$(rofi_menu "Choose position relative to other monitors:" "Left of|Right of|Above|Below")"
+	fi
+	case $position_choice in
+		1) position="--left-of" ;;
+		2) position="--right-of" ;;
+		3) position="--above" ;;
+		4) position="--below" ;;
+		*) Invalid_selection && return ;;
+	esac
+
+	show_massage "YELLOW" "Choose the reference monitor:"
+	i=1
+	for monitor in $monitor_array; do
+		if [ "$monitor" != "$monitor_name" ]; then
+			show_massage "GREEN" "$monitor" "$i. "
+			rofi_choose="${rofi_choose}$i. $monitor|"
+		fi
+		i=$((i + 1))
+	done
+	if [ "$MODE" != "rofi" ];then
+		enter_choice "Enter the number of the reference monitor:"
+		ref_choice="$choice"
+	else
+		ref_choice="$(rofi_menu "Enter the number of the reference monitor:" "Left of|Right of|Above|Below")"
+	fi
+	if ! echo "$ref_choice" | grep -qE '^[0-9]+$' || [ "$ref_choice" -lt 1 ] || [ "$ref_choice" -gt "$((i - 1))" ] || [ "$ref_choice" -eq "$monitor_choice" ]; then
+		Invalid_selection && return
+	fi
+	ref_monitor=$(echo "$monitor_array" | cut -d' ' -f"$ref_choice")
+	if confirm_action "Arrange $monitor_name ${position} $ref_monitor?"; then
+		show_massage "GREEN" "Arranging $monitor_name ${position} $ref_monitor"
+		add_command "xrandr --output $monitor_name $position $ref_monitor"
+		show_massage "GREEN" "Arrangement updated successfully."
+		postrun_massage="Arrangement of $monitor_name ${position} $ref_monitor updated successfully."
+		run_create_script=true
+	else
+		show_massage "RED" "Action canceled."
+		postrun_massage="Action canceled."
+		run_create_script=false
+	fi
+}
+
+Set_scaling() {
+	postrun_title="Set Monitor Scaling Resolution"
+	show_title "YELLOW" "Set Monitor Scaling Resolution"
+	show_massage "YELLOW" "Enter the new Scaling Resolution value as a percentage (10 to 300)"
+	
+	if [ "$MODE" != "pass" ];then
+		if [ "$MODE" != "rofi" ];then
+			enter_choice "Enter the new Scaling Resolution value as a percentage (10 to 300):"
+			new_scaling_resolution="$choice"
+		else
+			new_scaling_resolution="$(rofi_menu "Enter the new Scaling Resolution value as a percentage (10 to 300) current:" "")"
+		fi
+	else
+		new_scaling_resolution="$pass_arg"
+	fi
+	
+	if [ -n "$new_scaling_resolution" ];then
+		new_scaling_resolution="$(awk "BEGIN {printf \"%.2f\", $new_scaling_resolution / 10}")"
+	else
+		new_scaling_resolution="1"
+	fi
+	
+	for monitor in $monitor_array; do
+		show_massage "CYAN" "Setting scaling for $monitor to ${new_scaling_resolution} (resolution)"
+		add_command "xrandr --output $monitor --scale ${new_scaling_resolution}x${new_scaling_resolution}"
+	done
+	
+	show_massage "GREEN" "All monitor scalings have been set to ${new_scaling_resolution}."
+	postrun_massage="All monitor scalings have been set to ${new_scaling_resolution}."
+	run_create_script=true
+
+	if command -v autorandr >/dev/null 2>&1;then
+		mkdir -p "$HOME/.config/autorandr"
+		echo "$new_scaling_resolution" > $HOME/.config/autorandr/scale
+		execute_command "autorandr -s $monitor_configuration >/dev/null 2>&1"
+	fi
+}
+
+disable_monitor() {
+	postrun_title="Disable Monitor"
+	disable_monitor=true
+	clear
+	show_title "YELLOW" "Disable Monitor"
+	show_massage "YELLOW" "Choose a monitor to disable: "
+	i=1
+	for monitor in $monitor_array; do
+		show_massage "GREEN" "$monitor" "$i. "
+		rofi_choose="${rofi_choose}$i. $monitor|"
+		i=$((i + 1))
+	done
+	if [ "$MODE" != "rofi" ];then
+		enter_choice "Enter the number of the monitor:"
+		monitor_choice="$choice"
+	else
+		monitor_choice="$(rofi_menu "Choose a monitor to disable:" "$rofi_choose")"
+	fi
+	if ! echo "$monitor_choice" | grep -qE '^[0-9]+$' || [ "$monitor_choice" -lt 1 ] || [ "$monitor_choice" -gt "$((i - 1))" ]; then
+		Invalid_selection && return
+	fi
+	monitor_name=$(echo "$monitor_array" | cut -d' ' -f"$monitor_choice")
+	show_massage "RED" "Warning: Disabling the monitor will turn it off and may affect your display setup."
+	
+	if confirm_action "Auto-detect displays and set common resolution?"; then
+		show_massage "GREEN" "Disabling $monitor_name"
+		add_command "xrandr --output $monitor_name --off"
+		show_massage "GREEN" "Monitor $monitor_name disabled successfully."
+		postrun_massage="Monitor $monitor_name disabled successfully."
+		run_create_script=true
+	else
+		show_massage "RED" "Action canceled."
+		postrun_massage="Action canceled."
+		run_create_script=false
+	fi
+}
+##############################################################################################################################
+
+help(){
+	echo help
+	exit
+}
+
+monitor_list=$(detect_connected_monitors)
+monitor_array=$(echo "$monitor_list" | tr '\n' ' ')
+number_of_monitors=$(echo "$monitor_list" | wc -l)
+
+if [ "$number_of_monitors" -eq 1 ];then
+	monitor_configuration="single"
+else
+	monitor_configuration="multi-monitor"
+fi
+
+if [ "$MODE" = "rofi"  ];then
+	rofi_choose="1. auto|2. Set_scaling|3. manage_arrangement|4. change_orientation|5. duplicate_displays|6. adjust_monitor_brightness|7. extend_displays|8. enable_monitor|9. set_primary_monitor|10. scale_monitors|11. disable_monitor|12. set_resolutions|13. Manual Selection"
+	OPT__="$(rofi_menu "displays options:" "$rofi_choose" | cut -d '.' -f 1)"
+else
+	case $Menu_ in
+		auto) OPT__=1 ;;
+		Set_scaling) OPT__=2 ;;
+		manage_arrangement) OPT__=3 ;;
+		change_orientation) OPT__=4 ;;
+		duplicate_displays) OPT__=5 ;;
+		adjust_monitor_brightness) OPT__=6 ;;
+		extend_displays) OPT__=7 ;;
+		enable_monitor) OPT__=8 ;;
+		set_primary_monitor) OPT__=9 ;;
+		scale_monitors) OPT__=10 ;;
+		disable_monitor) OPT__=11 ;;
+		set_resolutions) OPT__=12 ;;
+		manual_selection) OPT__=13 ;;
+		h|help) help ;;
+		*) help
+	esac
+fi
+
+case $OPT__ in
+	1) auto_detect_displays ;;
+	2) Set_scaling ;;
+	3) manage_arrangement ;;
+	4) change_orientation ;;
+	5) duplicate_displays ;;
+	6) adjust_monitor_brightness ;;
+	7) extend_displays ;;
+	8) enable_monitor ;;
+	9) set_primary_monitor ;;
+	10) scale_monitors ;;
+	11) disable_monitor ;;
+	12) set_resolutions ;;
+	13) arandr ; exit ;;
+esac
+postrun

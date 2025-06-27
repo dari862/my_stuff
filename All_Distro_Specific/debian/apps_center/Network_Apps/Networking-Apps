@@ -1,0 +1,26 @@
+#!/bin/sh
+
+app_name="iwd network-manager-openvpn network-manager-openvpn-gnome openssh-server wireguard-tools wireless-tools"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+nmconf="/etc/NetworkManager/NetworkManager.conf"
+say "Networking applications installed."
+
+say "Setting up MAC address randomization in Network Manager."
+if ! test "$(grep "mac-address=random" ${nmconf})";then
+	my-superuser sh -c "echo "" >> ${nmconf}"
+	my-superuser sh -c "echo '# Enabling built-in MAC Address randomization' >> ${nmconf}"
+	my-superuser sh -c "echo '[connection-mac-randomization]' >> ${nmconf}"
+	my-superuser sh -c "echo 'wifi.cloned-mac-address=random' >> ${nmconf}"
+	my-superuser sh -c "echo 'ethernet.cloned-mac-address=random' >> ${nmconf}"
+fi
+
+say "Disabling SSH root login and forcing SSH v2."
+my-superuser sed -i \
+	-e "/^#PermitRootLogin prohibit-password$/a PermitRootLogin no" \
+	-e "/^#Port 22$/i Protocol 2" \
+	/etc/ssh/sshd_config
+

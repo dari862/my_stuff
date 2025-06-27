@@ -1,0 +1,31 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/common"
+if [ "${1-}" = "--upate" ];then
+	"/usr/share/my_stuff/bin/my_installer/update-containers.sh"
+	exit
+else
+	container_name="${1-}"
+fi
+
+containers_installer_path="/usr/share/my_stuff/bin/my_installer/containers_installer"
+container_path="${containers_installer_path}/${container_name}"
+
+list_of_containers(){
+	say "List of containers are:"
+	say "========================"
+	find "${containers_installer_path}" -maxdepth 1 -type f -exec basename {} \;
+	exit 1
+}
+
+if [ -n "${container_name}" ];then
+	if [ -f "${container_path}" ];then
+		. "${container_path}"
+	else
+		say " ERROR: failed to locate container: ${container_name} "
+		say " ERROR: path: ${containers_installer_path}"
+		say " "
+		list_of_containers
+	fi
+else
+	list_of_containers
+fi

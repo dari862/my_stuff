@@ -1,0 +1,175 @@
+#!/bin/bash
+
+rm_command="$(builtin command -v rm)"
+trash_dir="${XDG_DATA_HOME:-$HOME/.local/share}/Trash"
+trash_files="$trash_dir/files"
+trash_info="$trash_dir/info"
+
+if [[ -z "$trash_dir" ]]; then
+	echo "[ERROR] $0: variable trash_dir is empty"
+	exit 1
+fi
+
+mkdir -p "$trash_files" "$trash_info"
+
+# Trash file(s)
+trash() {
+    for filepath in "$@"; do
+        if [[ ! -e "$filepath" ]]; then
+            echo "File '$filepath' not found!"
+            continue
+        fi
+
+        abs_path=$(readlink -f "$filepath")
+        filename=$(basename "$filepath")
+        timestamp=$(date +"%Y-%m-%dT%H:%M:%S")
+
+        # Handle name collisions
+        base="$filename"
+        count=1
+        while [[ -e "$trash_files/$base" || -e "$trash_info/$base.trashinfo" ]]; do
+            base="${filename%.*}_$count.${filename##*.}"
+            ((count++))
+        done
+
+        mv "$filepath" "$trash_files/$base"
+
+        cat > "$trash_info/$base.trashinfo" <<EOF
+[Trash Info]
+Path=$abs_path
+DeletionDate=$timestamp
+EOF
+
+        echo "Trashed: $filepath → $trash_files/$base"
+    done
+}
+
+# List trash contents
+list_trash() {
+    if [[ -z "$(ls -A "$trash_files")" ]]; then
+        echo "Trash is empty."
+        return
+    fi
+
+    echo -e "Trash contents:\n"
+    for file in "$trash_files"/*; do
+        [[ -e "$file" ]] || continue
+        base=$(basename "$file")
+        info_file="$trash_info/$base.trashinfo"
+        path=$(grep '^Path=' "$info_file" | cut -d= -f2-)
+        date=$(grep '^DeletionDate=' "$info_file" | cut -d= -f2-)
+        echo "  $base"
+        echo "    Original: $path"
+        echo "    Deleted:  $date"
+    done
+}
+
+# Restore single file
+restore_file() {
+    local filename="$1"
+    local info_file="$trash_info/$filename.trashinfo"
+    local file_path="$trash_files/$filename"
+
+    if [[ ! -f "$info_file" || ! -e "$file_path" ]]; then
+        echo "Cannot find file or metadata for: $filename"
+        return
+    fi
+
+    original=$(grep '^Path=' "$info_file" | cut -d= -f2-)
+
+    read -rp "Restore '$filename' to '$original'? [y/N]: " confirm
+    if [[ "$confirm" == "y" ]]; then
+        mkdir -p "$(dirname "$original")"
+        mv "$file_path" "$original"
+        ${rm_command} -f "$info_file"
+        echo "Restored: $original"
+    fi
+}
+
+# Restore all
+restore_all() {
+    shopt -s nullglob
+    files=("$trash_files"/*)
+    if [[ ${#files[@]} -eq 0 ]]; then
+        echo "Trash is already empty."
+        return
+    fi
+
+    echo "Restoring all files..."
+    for file in "${files[@]}"; do
+        base=$(basename "$file")
+        info_file="$trash_info/$base.trashinfo"
+        if [[ ! -f "$info_file" ]]; then
+            echo "Missing metadata for $base. Skipping."
+            continue
+        fi
+        original=$(grep '^Path=' "$info_file" | cut -d= -f2-)
+        mkdir -p "$(dirname "$original")"
+        mv "$file" "$original" && ${rm_command} -f "$info_file"
+        echo "Restored: $original"
+    done
+}
+
+remove_from_trash() {
+    for filename in "$@"; do
+        local info_file="$trash_info/$filename.trashinfo"
+        local file_path="$trash_files/$filename"
+
+        if [[ ! -e "$file_path" || ! -f "$info_file" ]]; then
+            echo "Cannot find trashed file or metadata: $filename"
+            continue
+        fi
+
+        read -rp "Permanently delete '$filename'? [y/N]: " confirm
+        if [[ "$confirm" == "y" ]]; then
+            ${rm_command} -f "$file_path" "$info_file"
+            echo "Deleted: $filename"
+        else
+            echo "Skipped: $filename"
+        fi
+    done
+}
+
+# Empty trash
+empty_trash() {
+    read -rp "Empty entire trash permanently? [y/N]: " confirm
+    if [[ "$confirm" == "y" ]]; then
+        ${rm_command} -rfd "$trash_dir"
+        echo "Trash emptied."
+    else
+        echo "Cancelled."
+    fi
+}
+
+# Help
+show_help() {
+	script_name="$(basename "$0")"
+    cat <<EOF
+Trash Utility (FreeDesktop Spec Compliant)
+
+Usage:
+  ${script_name} -t file1 [file2 ...]    # Trash file(s)
+  ${script_name} -l                      # List contents
+  ${script_name} -r filename             # Restore one file
+  ${script_name} -R                      # Restore all files
+  ${script_name} -e                      # Empty one trash
+  ${script_name} -E                      # Empty all trash
+  ${script_name} -h                      # Show help
+
+Example:
+  ${script_name} -t myfile.txt
+  ${script_name} -r myfile.txt
+EOF
+}
+
+# Main argument handler
+case "$1" in
+    -t|--trash) shift; trash "$@" ;;
+    -l|--list) list_trash ;;
+    -r|--restore) shift; restore_file "$1" ;;
+    -R|--restore-all) restore_all ;;
+    -e|--remove_from_trash) empty_trash ;;
+    -E|--empty-all) empty_trash ;;
+    -h|--help) show_help ;;
+    *) trash "$@" ;;
+esac

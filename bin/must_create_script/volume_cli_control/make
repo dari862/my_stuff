@@ -1,0 +1,15 @@
+#!/bin/sh
+volume_cli_control_path="/usr/share/my_stuff/system_files/bin/volume_cli_control"
+if command -v pactl > /dev/null 2>&1;then
+	pak=pactl.sh
+elif command -v pulsemixer > /dev/null 2>&1;then
+	pak=pulsemixer.sh
+elif command -v amixer > /dev/null 2>&1;then
+	pak=amixer.sh
+else
+	echo "$0: pactl or pulsemixer not installed."
+	exit 1
+fi
+
+cat head.sh $pak tail.sh | tee "$volume_cli_control_path" > /dev/null 2>&1
+chmod +x "$volume_cli_control_path"

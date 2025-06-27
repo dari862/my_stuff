@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+CONTAINER_RT run --rm -it -p 4433:4433 \
+	-e PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native \
+	-v ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native \
+	-v ~/.config/pulse/cookie:/root/.config/pulse/cookie \
+	-d ${container_name}

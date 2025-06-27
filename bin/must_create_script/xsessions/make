@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+. "/usr/share/my_stuff/lib/common/WM"
+xsessions_path="/usr/share/my_stuff/system_files/bin/xsessions"
+mkdir -p "$xsessions_path"
+
+cat "main" | tee "$xsessions_path"/openbox > /dev/null 2>&1
+echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | tee -a "$xsessions_path"/openbox > /dev/null 2>&1
+echo "echo 'openbox' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | tee -a "$xsessions_path"/openbox > /dev/null 2>&1
+cat "/usr/share/my_stuff/lib/common/openbox" "openbox.sh" | tee -a "$xsessions_path"/openbox > /dev/null 2>&1
+
+
+cat "main" | tee "$xsessions_path"/bspwm > /dev/null 2>&1
+echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
+echo "echo 'bspwm' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
+cat "bspwm.sh" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
+
+chmod +x "$xsessions_path"/*

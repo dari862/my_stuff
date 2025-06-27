@@ -1,0 +1,4 @@
+#!/bin/sh
+
+say 'Installing package...' 1
+bash -c "$(getURL '2term' https://gef.blah.cat/sh)"

@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ ! -d /sys/class/bluetooth ];then
+	echo # No Bluetooth interface
+	exit 0
+fi
+if command -v bluetoothctl >/dev/null ;then
+	# Print Status
+	print_status
+fi

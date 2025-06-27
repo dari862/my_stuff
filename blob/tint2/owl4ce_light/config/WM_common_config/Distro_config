@@ -1,0 +1,37 @@
+#!/bin/sh
+_panel_name_="tint2"
+ROFI_STYLE="modi"
+polybar_STYLE=""
+conky_sessionfile=""
+
+CHK_THEME="owl4ce_light"
+CHK_MODE="artistic"
+
+CHK_OB_BUTTON_STYLE_artistic="Lovely"
+CHK_OB_BUTTON_LOC_artistic="right"
+CHK_WALLPAPER_artistic="owl4ce_light_wall-01.jpg"
+	
+CHK_OB_BUTTON_STYLE_interactive="Dots2"
+CHK_OB_BUTTON_LOC_interactive="left"
+CHK_WALLPAPER_interactive="owl4ce_light_wall-02.jpg"
+
+CHK_PANEL_ORT="vertical"
+CHK_PANEL_ORT_V="left"
+CHK_PANEL_ORT_H="bottom"
+
+if [ "$CHK_MODE" = "artistic" ];then
+	CHK_OB_BUTTON_STYLE="$CHK_OB_BUTTON_STYLE_artistic"
+	CHK_OB_BUTTON_LOC="$CHK_OB_BUTTON_LOC_artistic"
+	CHK_WALLPAPER="$CHK_WALLPAPER_artistic"
+else
+	CHK_PANEL_ORT="top"
+	CHK_OB_BUTTON_STYLE="$CHK_OB_BUTTON_STYLE_interactive"
+	CHK_OB_BUTTON_LOC="$CHK_OB_BUTTON_LOC_interactive"
+	CHK_WALLPAPER="$CHK_WALLPAPER_interactive"
+fi
+
+tint2_sessionfile="/.config/tint2/${CHK_THEME}/${CHK_PANEL_ORT}.${CHK_MODE}.tint2rc"
+#########################
+WALLPAPERS_DIR="$HOME/.wallpapers"
+OB_BUTTON_STYLE_DIR="$HOME/.themes/Joyful.OBB"
+#########################

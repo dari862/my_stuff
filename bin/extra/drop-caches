@@ -1,0 +1,17 @@
+#!/bin/bash
+# if this line exist script will be part of hub script.
+
+# clear system cache
+set -eu
+
+if [ -e /proc/sys/vm/drop_caches ];then
+  sync
+  my-superuser bash -c "echo 3 > /proc/sys/vm/drop_caches"
+  echo "Done!"
+elif ( ! command -v purge > /dev/null ) && echo "${OSTYPE}" | grep -q "darwin" /dev/null 2>&1;then
+  sync
+  my-superuser purge
+else
+  echo "Not possible..."
+  exit 3
+fi

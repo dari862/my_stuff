@@ -1,0 +1,17 @@
+/**
+ *
+ * theme : candle
+ * 
+ * Colors
+ **/
+
+* {
+    theme: "openbox-menu";
+    font:						 "Sans Regular 14";
+    background:     #FFFFFFFF;
+    background-alt: #FFFFFFFF;
+    foreground:     #273238FF;
+    selected:       #ECEDEEFF;
+    active:         #98C379FF;
+    urgent:         #E06B74FF;
+}

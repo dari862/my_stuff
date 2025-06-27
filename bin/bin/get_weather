@@ -1,0 +1,121 @@
+#!/bin/bash
+
+__opt="${1-}"
+__opt2="${2-}"
+
+show_Extra=false
+script_config_path="$HOME/.config/scriptconfig"
+weather_script_config_path="${script_config_path}/weather"
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/API"
+
+[ ! -f "$weather_script_config_path" ] && cp -r "/usr/share/my_stuff/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
+. "$weather_script_config_path"
+
+if [ -z "$place" ];then
+	. "/usr/share/my_stuff/bin/not_add_2_path/weather/country_list"
+   	# Geolocate IP:
+   	place=$(get_scripts --location)
+   	chosen="$(printf "%s" "$country_list" | grep "$place" )"
+	
+	# Set continent code and radar code.
+	continentcode=$(printf "%s" "$chosen" | cut -d':' -f1 | tr "[:lower:]" "[:upper:]")
+	radarcode=$(printf "%s" "$chosen" | cut -d' ' -f2 | cut -d':' -f1 | tr '[:lower:]' '[:upper:]')
+	place=$(printf "%s" "$chosen" | cut -d':' -f3 | cut -f1 -d',' | sed 's/^ //')
+	place="${place:-$radarcode}" # Default place to radarcode if not set
+
+	sed -i  -e "s/continentcode=.*/continentcode=\"$continentcode\"/" \
+			-e "s/radarcode=.*/radarcode=\"$radarcode\"/" \
+			-e "s/place=.*/place=\"$place\"/" \
+		"${weather_script_config_path}"
+fi
+
+if [ "$mode" = "wttr" ];then
+	weatherreport="$wttr_weatherreport"
+elif [ "$mode" = "openweather" ];then
+	weatherreport="$ow_weatherreport"
+fi
+
+[ "$__opt2" = "extra" ] && show_Extra=true
+
+connectiontest() {
+    i=0
+    attempts=${1:-0}
+    while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
+        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null 2>&1;then
+            return 0
+        fi
+        i=$((i + 1))
+    done
+    echo ""
+    echo "No internet connection. Weather information unavailable."
+    exit 1
+}
+
+get_moon_phase() { 
+	# Moon Phase should be updated only once a day.
+	[ ! -s "$moonfile" ] && [ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && (getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || echo "[ERROR] $0 : failed to run get_moon_phase")
+	cat "$moonfile" && echo ""
+}
+
+getdoppler() {
+	[ -s "$doppler" ] && [ $(($(date '+%s') - $(stat -c %Y "$doppler"))) -le "$secs" ] && return
+	case "$continentcode" in
+		"US") getURL '2term' "https://radar.weather.gov/ridge/standard/${radarcode}_loop.gif" > "$doppler" ;;
+		"EU") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rainTMC/2/" > "$doppler" ;;
+		"AF") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rain/2/" > "$doppler" ;;
+		"DE") radarcode="$(echo "$radarcode" | tr "[:upper:]" "[:lower:]")"
+				getURL '2term' "https://www.dwd.de/DWD/wetter/radar/radfilm_${radarcode}_akt.gif" > "$doppler" ;;
+	esac
+}
+
+main() {	
+	if old_weather_data_;then
+		connectiontest 10 && get_weather_data_
+	fi
+
+	if [ "$__opt" = "-m" ];then
+		get_weather_report_more
+	elif [ "$__opt" = "-v" ];then
+		parse_weather_for_conky_vision
+	else
+		get_weather_report_less
+		if [ "$show_Extra" = true ];then
+			scaleT=""
+			weather_ICON=""
+			weather_TEXT=""
+		fi
+		if  [ "$__opt" = "-i" ];then
+   			echo "${weather_ICON} ${WEATHER_TEMP}${scaleT}"
+   		elif  [ "$__opt" = "-t" ];then
+   			echo "${weather_description}"
+		elif  [ "$__opt" = "-d" ];then
+   			echo "${weather_TEXT} ${WEATHER_TEMP}${scaleT}"
+   		elif  [ "$__opt" = "-n" ];then
+   			echo -e "${weather_ICON} ${WEATHER_TEMP}${scaleT} \n ${weather_description} \n"
+   		fi
+	fi
+}
+
+mkdir -p "$weather_script_data_path" || echo "[ERROR] $0 : mkdir -p $weather_script_data_path"
+	
+if [ "$units" = "metric" ];then
+   	scaleT="°C"
+   	scaleV="m/s"
+else
+   	scaleT="°F"
+   	scaleV="mph"
+fi
+
+if [ "$__opt" = "moon" ];then
+	connectiontest 10 && get_moon_phase
+elif [ "$__opt" = "doppler" ];then
+	connectiontest 10 && getdoppler
+elif [ "$mode" = "wttr" ];then
+	. "/usr/share/my_stuff/bin/not_add_2_path/weather/wttr"
+	main
+elif [ "$mode" = "openweather" ];then
+	. "/usr/share/my_stuff/bin/not_add_2_path/weather/openweather"
+	main
+fi

@@ -1,0 +1,36 @@
+#!/bin/sh -e
+installKernel() {
+    if ! "$PACKAGER" -Q | grep -q "\blinux-neptune"; then
+        say "Installing linux-neptune..."
+        Package_update_
+        Package_installer_ linux-neptune linux-neptune-headers steamdeck-dsp jupiter-staging/alsa-ucm-conf
+        my-superuser mkinitcpio -P
+    else
+        say "linux-neptune detected. Skipping installation."
+    fi
+    if [ -f /etc/default/grub ]; then
+        say "Updating GRUB..."
+    if ! grep -q '^UPDATEDEFAULT=' /etc/default/grub; then
+        echo 'UPDATEDEFAULT=yes' | my-superuser tee -a /etc/default/grub
+    else
+        my-superuser sed -i 's/^UPDATEDEFAULT=.*/UPDATEDEFAULT=yes/' /etc/default/grub
+    fi
+    if [ -f /boot/grub/grub.cfg ]; then
+        my-superuser grub-mkconfig -o /boot/grub/grub.cfg
+    else
+        say "${RED}GRUB configuration file not found. Run grub-mkconfig manually."
+    fi
+    else
+        say "${RED}GRUB not detected. Manually set your bootloader to use linux-neptune."
+    fi
+}
+copyFirmwareFiles() {
+    say "Copying firmware files..."
+    my-superuser mkdir -p /usr/lib/firmware/cirrus
+    my-superuser cp /usr/lib/firmware/cs35l41-dsp1-spk-cali.bin /usr/lib/firmware/cirrus/
+    my-superuser cp /usr/lib/firmware/cs35l41-dsp1-spk-cali.wmfw  /usr/lib/firmware/cirrus/
+    my-superuser cp /usr/lib/firmware/cs35l41-dsp1-spk-prot.bin  /usr/lib/firmware/cirrus/
+    my-superuser cp /usr/lib/firmware/cs35l41-dsp1-spk-prot.wmfw  /usr/lib/firmware/cirrus/
+}
+installKernel
+copyFirmwareFiles

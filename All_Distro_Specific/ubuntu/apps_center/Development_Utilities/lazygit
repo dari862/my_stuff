@@ -1,0 +1,16 @@
+#!/bin/sh
+# Install vim and add lazygit distro
+no_neovim="${1:-}"
+distro_path="/usr/share/my_stuff/system_files"
+skel_path="${distro_path}/skel"
+lazygit_skel_path="${skel_path}/.config/lazygit"
+Title="lazygit"
+
+__choice=""
+if [ "${no_neovim}" = "no_neovim" ];then
+	say "Installing Neovim..." 1
+	install_as_dependency Neovim
+fi
+
+say "Installing ${Title} updater and installer..." 1
+my_installer_ln_script "lazygit_updater" || failed_to_run "failed to run lazygit_updater ."

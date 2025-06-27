@@ -1,0 +1,109 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=Autostart_Manager
+
+case $LANG in
+ 	pl*)
+ 		TITLE="Edytor autostartu XDG"
+ 		DESC="Wybierz programy/usługi, które mają być uruchamiane autamatycznie\nwraz z sesją OpenBox. <a href='https://manual.maboxlinux.org/en/configuration/autostart/'>Pomoc (online)</a>"
+ 		ENABLE="wł"
+ 		FILE="Plik"
+ 		NAME="Nazwa"
+ 		COMMENT="Komentarz"
+ 		NO_DESC=""
+ 		CANCEL="--button=Anuluj:1"
+ 		OK="--button=Zastosuj:0"
+ 	;;
+ 	es*)
+ 		TITLE="XDG Autostart Editor"
+ 		DESC="Elegir apps o servicios para un reinicio en sesión Openbox.\n<a href='https://manual.maboxlinux.org/es/configuration/autostart/'>Info (online)</a>"
+ 		ENABLE="ejecutar"
+ 		FILE="Archivo"
+ 		NAME="Nombrar"
+ 		COMMENT="Comentar"
+ 		NO_DESC=""
+ 		CANCEL="--button=Cancelar:1"
+ 		OK="--button=Aceptar:0"
+	;;
+ 	*)
+ 		TITLE="Mabox XDG Autostart Editor"
+ 		DESC="Choose apps/services to autostart with OpenBox session.\n<a href='https://manual.maboxlinux.org/en/configuration/autostart/'>Info (online)</a>"
+ 		ENABLE="run"
+ 		FILE="File"
+ 		NAME="Name"
+ 		COMMENT="Comment"
+ 		NO_DESC=""
+ 		CANCEL="--button=Cancel:1"
+ 		OK="--button=OK:10"
+ 	;;
+esac
+
+remove_from_xdg_list=""
+remove_from_xdg_autostart_list=""
+config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
+# Copy only new files from /etc/xdg/autostart/
+mkdir -p $config_dir/autostart
+
+get_autostart_apps_=$(mktemp --tmpdir autostart.XXXXXXXXXX)
+yad_results=$(mktemp --tmpdir autostart.XXXXXXXXXX)
+results=$(mktemp --tmpdir autostart.XXXXXXXXXX)
+
+# $config_dir/autostart list
+if [ -n "$(ls "$config_dir"/autostart/*.desktop 2>/dev/null)" ] ;then
+	for f in $config_dir/autostart/*.desktop; do	
+		echo true >> $get_autostart_apps_
+		echo $f >> $get_autostart_apps_
+		name=$(grep -m 1 -e '^[[:blank:]]*Name=' "$f" | cut -d = -f 2)
+		echo "$name" >> $get_autostart_apps_
+		comment=$(grep -m 1 -e '^[[:blank:]]*Comment=' "$f" | cut -d = -f 2)
+		if [ -n "$comment" ];then 
+			echo "${comment}"  >> $get_autostart_apps_
+		else
+			echo "$NO_DESC" >> $get_autostart_apps_
+		fi
+		basename_of_f=$(basename $f)
+		remove_from_xdg_autostart_list="$remove_from_xdg_autostart_list $basename_of_f"
+	done
+fi
+# /etc/xdg/autostart list
+xdg_autostart_list="$(ls /etc/xdg/autostart/*.desktop)"
+
+if [ -n "$remove_from_xdg_autostart_list" ];then
+	for element in ${remove_from_xdg_autostart_list}; do
+    	xdg_autostart_list="$(echo "$xdg_autostart_list" | sed "s/\b$element\b//g")"
+	done
+fi
+
+unset remove_from_xdg_autostart_list
+
+for f in ${xdg_autostart_list}; do
+	if [ -f "$f" ];then
+		echo false >> $get_autostart_apps_
+		echo $f >> $get_autostart_apps_
+		name=$(grep -m 1 -e '^[[:blank:]]*Name=' "$f" | cut -d = -f 2)
+		echo "$name" >> $get_autostart_apps_
+		comment=$(grep -m 1 -e '^[[:blank:]]*Comment=' "$f" | cut -d = -f 2)
+		if [ -n "$comment" ];then 
+			echo "${comment}"  >> $get_autostart_apps_
+		else
+			echo "$NO_DESC" >> $get_autostart_apps_
+		fi
+	fi
+done
+
+unset xdg_autostart_list
+
+cat $get_autostart_apps_ | yad --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --width=640 --height=500 --title="$TITLE" --image="gtk-execute" --uri-handler=xdg-open \
+								--text="$DESC" --list --print-all --bool-fmt="t" \
+								--checklist --column="$ENABLE:CHK" --column="$FILE:HD" --column="$NAME" --column="$COMMENT" --tooltip-column=4 $CANCEL $OK > $yad_results
+if [ "$?" -eq 10 ];then
+	awk -F'|' '{print $1 ";" $2 }' $yad_results > $results
+	sed -i '/FALSE;\/etc/d' $results
+	sed -i '/TRUE;\/home/d' $results
+	sed -i 's/FALSE;/rm -f /g' $results
+	sed -i '/^TRUE;/ s/$/ $HOME\/.config\/autostart/' $results
+	sed -i 's/TRUE;/cp -r /g' $results
+	bash $results
+fi
+rm -f $get_autostart_apps_ $yad_results $results
+exit 0

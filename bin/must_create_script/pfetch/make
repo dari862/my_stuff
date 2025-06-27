@@ -1,0 +1,515 @@
+#!/bin/sh
+set -e
+
+pfetch_path="/usr/share/my_stuff/system_files/bin/pfetch"
+
+# This is just a simple wrapper around 'command -v' to avoid
+# spamming '>/dev/null' throughout this function. This also guards
+# against aliases and functions.
+has_package() {
+	_cmd=$(command -v "$1") 2>/dev/null || return 1
+	[ -x "$_cmd" ] || return 1
+}
+
+read -r os arch <<-EOF
+		$(uname -srm)
+	EOF
+
+get_os_Windows_wsl_path=""
+
+case $os in
+    (Linux*)
+    	if [ -f /etc/os-release ]; then
+            get_os_path="OS_based/get_os/Linux/os-release.sh"
+            while IFS='=' read -r key val; do
+                case $key in
+                    (PRETTY_NAME)
+                        distro=$(echo $val | sed 's/"//g')
+                    ;;
+                esac
+            done < /etc/os-release
+        elif [ -d /system/app ] && [ -d /system/priv-app ]; then
+            get_os_path="OS_based/get_os/Linux/Android.sh"
+            distro="Android"
+    		# Ensure that the 'TMPDIR' is writable as heredocs use it and
+    		# fail without the write permission. This was found to be the
+    		# case on Android where the temporary directory requires root.
+    		[ -w "${TMPDIR:-/tmp}" ] || export TMPDIR=~
+		
+        elif has_package lsb_release; then
+            get_os_path="OS_based/get_os/Linux/lsb_release.sh"
+            distro=$(lsb_release -sd)
+        elif has_package crux; then
+            get_os_path="OS_based/get_os/Linux/crux.sh"
+            distro=$(crux)
+        elif has_package guix; then
+            get_os_path="OS_based/get_os/Linux/guix.sh"
+            distro='Guix System'
+        elif echo "$PATH" | grep -q '/bedrock/cross/'; then
+            get_os_path="OS_based/get_os/Linux/bedrock.sh"
+            distro='Bedrock'
+        fi
+        get_os_Windows_wsl_path="OS_based/get_os/Linux/Windows.sh"
+    ;;
+
+    (Darwin*)
+ 			get_os_path="OS_based/get_os/Darwin.sh"
+    ;;
+
+    (Haiku)
+        get_os_path="OS_based/get_os/Haiku.sh"
+    ;;
+
+    (Minix|DragonFly)
+        get_os_path="OS_based/get_os/Minix.sh"
+    ;;
+
+    (SunOS)
+        get_os_path="OS_based/get_os/SunOS.sh"
+    ;;
+
+    (OpenBSD*)
+        get_os_path="OS_based/get_os/OpenBSD.sh"
+    ;;
+
+    (FreeBSD)
+        get_os_path="OS_based/get_os/FreeBSD.sh"
+    ;;
+
+    (*)
+        get_os_path="OS_based/get_os/else.sh"
+        distro="$os $kernel"
+    ;;
+esac
+
+case $os in
+    (*BSD*|Haiku|Minix)
+        get_kernel_path="OS_based/get_kernel/nothing.sh"
+    ;;
+    (*)
+        get_kernel_path="OS_based/get_kernel/get_kernel.sh"
+    ;;
+esac
+
+case $os in
+    (Linux*)
+        get_host_path="OS_based/get_host/Linux.sh"
+    ;;
+
+    (Darwin* | FreeBSD* | DragonFly*)
+        get_host_path="OS_based/get_host/hw.model.sh"
+    ;;
+
+    (NetBSD*)
+       get_host_path="OS_based/get_host/machdep.dmi.sh"
+    ;;
+
+    (OpenBSD*)
+        get_host_path="OS_based/get_host/hw.version.sh"
+    ;;
+
+    (*BSD* | Minix)
+        get_host_path="OS_based/get_host/hw.vendor.sh"
+    ;;
+esac
+
+case $os in
+    (Linux* | Minix* | SerenityOS*)
+        get_uptime_path="OS_based/get_uptime/Linux.sh"
+    ;;
+
+    (Darwin* | *BSD* | DragonFly*)
+        get_uptime_path="OS_based/get_uptime/Darwin.sh"
+    ;;
+
+    (Haiku)
+        get_uptime_path="OS_based/get_uptime/Haiku.sh"
+    ;;
+
+    (SunOS)
+        get_uptime_path="OS_based/get_uptime/SunOS.sh"
+    ;;
+
+    (IRIX)
+        get_uptime_path="OS_based/get_uptime/IRIX.sh"
+    ;;
+esac
+
+    case $os in
+        (Linux*)
+            has_package bonsai     && get_pkgs_path="OS_based/get_pkgs/Linux/bonsai.sh"
+            has_package crux       && get_pkgs_path="OS_based/get_pkgs/Linux/crux.sh"
+            has_package pacman-key && get_pkgs_path="OS_based/get_pkgs/Linux/pacman-key.sh"
+            has_package dpkg       && get_pkgs_path="OS_based/get_pkgs/Linux/dpkg.sh"
+            has_package rpm        && get_pkgs_path="OS_based/get_pkgs/Linux/rpm.sh"
+            has_package xbps-query && get_pkgs_path="OS_based/get_pkgs/Linux/xbps-query.sh"
+            has_package apk        && get_pkgs_path="OS_based/get_pkgs/Linux/apk.sh"
+            has_package guix       && get_pkgs_path="OS_based/get_pkgs/Linux/guix.sh"
+            has_package opkg       && get_pkgs_path="OS_based/get_pkgs/Linux/opkg.sh"
+            has_package kiss       && get_pkgs_path="OS_based/get_pkgs/Linux/kiss.sh"
+            has_package cpt-list   && get_pkgs_path="OS_based/get_pkgs/Linux/cpt-list.sh"
+            has_package brew       && get_pkgs_path="OS_based/get_pkgs/Linux/brew.sh"
+            has_package emerge     && get_pkgs_path="OS_based/get_pkgs/Linux/emerge.sh"
+            has_package pkgtool    && get_pkgs_path="OS_based/get_pkgs/Linux/pkgtool.sh"
+            has_package eopkg      && get_pkgs_path="OS_based/get_pkgs/Linux/eopkg.sh"
+            has_package nix-store  && get_pkgs_path="OS_based/get_pkgs/Linux/nix-store.sh"
+        ;;
+
+        (Darwin*)
+            has_package pkgin      && get_pkgs_path="OS_based/get_pkgs/Darwin/pkgin.sh"
+            has_package dpkg       && get_pkgs_path="OS_based/get_pkgs/Darwin/dpkg.sh"
+            has_package brew       && get_pkgs_path="OS_based/get_pkgs/Darwin/brew.sh"
+            has_package port       && get_pkgs_path="OS_based/get_pkgs/Darwin/port.sh"
+        ;;
+
+        (FreeBSD*|DragonFly*)
+            get_pkgs_path="OS_based/get_pkgs/FreeBSD.sh"
+        ;;
+
+        (OpenBSD*)
+            get_pkgs_path="OS_based/get_pkgs/OpenBSD.sh"
+        ;;
+
+        (NetBSD*)
+            get_pkgs_path="OS_based/get_pkgs/NetBSD.sh"
+        ;;
+
+        (Haiku)
+            get_pkgs_path="OS_based/get_pkgs/Haiku.sh"
+        ;;
+
+        (Minix)
+            get_pkgs_path="OS_based/get_pkgs/Minix.sh"
+        ;;
+
+        (SunOS)
+            has_package pkginfo && get_pkgs_path="OS_based/get_pkgs/SunOS/pkginfo.sh"
+            has_package pkg     && get_pkgs_path="OS_based/get_pkgs/SunOS/pkg.sh"
+        ;;
+
+        (IRIX)
+            get_pkgs_path="OS_based/get_pkgs/IRIX.sh"
+        ;;
+
+        (SerenityOS)
+            get_pkgs_path="OS_based/get_pkgs/SerenityOS.sh"
+        ;;
+    esac
+
+case $os in
+    (Linux*)
+        get_memory_path="OS_based/get_memory/Linux.sh"
+    ;;
+
+    (Darwin*)
+        get_memory_path="OS_based/get_memory/Darwin.sh"
+    ;;
+
+    (OpenBSD*)
+        get_memory_path="OS_based/get_memory/OpenBSD.sh"
+    ;;
+
+    (FreeBSD*|DragonFly*)
+        get_memory_path="OS_based/get_memory/FreeBSD.sh"
+    ;;
+
+    (NetBSD*)
+        get_memory_path="OS_based/get_memory/NetBSD.sh"
+    ;;
+
+    (Haiku)
+        get_memory_path="OS_based/get_memory/Haiku.sh"
+    ;;
+
+    (Minix)
+        get_memory_path="OS_based/get_memory/Minix.sh"
+    ;;
+
+    (SunOS)
+        get_memory_path="OS_based/get_memory/SunOS.sh"
+    ;;
+
+    (IRIX)
+        get_memory_path="OS_based/get_memory/IRIX.sh"
+    ;;
+
+    (SerenityOS)
+        get_memory_path="OS_based/get_memory/SerenityOS.sh"
+    ;;
+esac
+
+case $os in
+    (Darwin*)
+    	get_wm_path="OS_based/get_wm/Darwin.sh"
+    ;;
+
+    (*)
+        has_package xprop && get_wm_path="OS_based/get_wm/else/xprop.sh" || get_wm_path="OS_based/get_wm/else/else.sh"
+    ;;
+esac
+
+get_ascii_head_path="OS_based/get_ascii/0Head.sh"
+# This checks for ascii art in the following order:
+# '$1':        Argument given to 'get_ascii()' directly.
+# '$PF_ASCII': Environment variable set by user.
+# '$distro':   The detected distribution name.
+# '$os':       The name of the operating system/kernel.
+#
+# NOTE: Each ascii art below is indented using tabs, this
+#       allows indentation to continue naturally despite
+#       the use of '<<-EOF'.
+#
+# False positive.
+# shellcheck disable=2154
+case ${distro:-$os} in
+		([Aa]lpine*)
+				get_ascii_path="OS_based/get_ascii/Alpine.sh"
+    ;;
+
+    ([Aa]ndroid*)
+				get_ascii_path="OS_based/get_ascii/Android.sh"
+    ;;
+
+    ([Aa]rch*)
+				get_ascii_path="OS_based/get_ascii/Arch.sh"
+    ;;
+
+    ([Aa]rco*)
+				get_ascii_path="OS_based/get_ascii/Arco.sh"
+    ;;
+
+    ([Aa]rtix*)
+				get_ascii_path="OS_based/get_ascii/Artix.sh"
+    ;;
+
+    ([Bb]edrock*)
+				get_ascii_path="OS_based/get_ascii/Bedrock.sh"
+    ;;
+
+    ([Bb]uildroot*)
+				get_ascii_path="OS_based/get_ascii/Buildroot.sh"
+    ;;
+
+    ([Cc]el[Oo][Ss]*)
+				get_ascii_path="OS_based/get_ascii/CelOS.sh"
+    ;;
+
+    ([Cc]ent[Oo][Ss]*)
+				get_ascii_path="OS_based/get_ascii/CentOS.sh"
+    ;;
+
+    ([Cc]rystal*[Ll]inux)
+				get_ascii_path="OS_based/get_ascii/CrystalLinux.sh"
+    ;;
+
+    ([Dd]ahlia*)
+				get_ascii_path="OS_based/get_ascii/Dahlia.sh"
+    ;;
+
+    ([Dd]ebian*)
+				get_ascii_path="OS_based/get_ascii/Debian.sh"
+    ;;
+
+		([Dd]evuan*)
+			    get_ascii_path="OS_based/get_ascii/Devuan.sh"
+		;;
+
+    ([Dd]ragon[Ff]ly*)
+				get_ascii_path="OS_based/get_ascii/Dragonfly.sh"
+    ;;
+
+    ([Ee]lementary*)
+				get_ascii_path="OS_based/get_ascii/Elementary.sh"
+    ;;
+
+    ([Ee]ndeavour*)
+				get_ascii_path="OS_based/get_ascii/Endeavour.sh"
+    ;;
+
+    ([Ff]edora*)
+				get_ascii_path="OS_based/get_ascii/Fedora.sh"
+    ;;
+
+    ([Ff]ree[Bb][Ss][Dd]*)
+				get_ascii_path="OS_based/get_ascii/FreeBSD.sh"
+    ;;
+
+    ([Gg]aruda*)
+				get_ascii_path="OS_based/get_ascii/Garuda.sh"
+    ;;
+
+    ([Gg]entoo*)
+				get_ascii_path="OS_based/get_ascii/Gentoo.sh"
+    ;;
+
+    ([Gg][Nn][Uu]*)
+				get_ascii_path="OS_based/get_ascii/GNU.sh"
+    ;;
+
+    ([Gg]uix[Ss][Dd]*|[Gg]uix*)
+				get_ascii_path="OS_based/get_ascii/Guix.sh"
+    ;;
+
+    ([Hh]aiku*)
+				get_ascii_path="OS_based/get_ascii/Haiku.sh"
+    ;;
+
+    ([Hh]ydroOS*)
+			    get_ascii_path="OS_based/get_ascii/HydroOS.sh"
+    ;;
+
+    ([Hh]yperbola*)
+				get_ascii_path="OS_based/get_ascii/Hyperbola.sh"
+    ;;
+
+    ([Ii]glunix*)
+				get_ascii_path="OS_based/get_ascii/Iglunix.sh"
+    ;;
+
+    ([Ii]nstant[Oo][Ss]*)
+				get_ascii_path="OS_based/get_ascii/InstantOS.sh"
+    ;;
+
+    ([Ii][Rr][Ii][Xx]*)
+				get_ascii_path="OS_based/get_ascii/IRIX.sh"
+    ;;
+
+    ([Kk][Dd][Ee]*[Nn]eon*)
+				get_ascii_path="OS_based/get_ascii/Neon.sh"
+    ;;
+
+    ([Ll]inux*[Ll]ite*|[Ll]ite*)
+				get_ascii_path="OS_based/get_ascii/Lite.sh"
+    ;;
+
+    ([Ll]inux*[Mm]int*|[Mm]int)
+				get_ascii_path="OS_based/get_ascii/Mint.sh"
+    ;;
+
+
+    ([Ll]inux*)
+				get_ascii_path="OS_based/get_ascii/Linux.sh"
+    ;;
+
+    ([Mm]ac[Oo][Ss]*|[Dd]arwin*)
+				get_ascii_path="OS_based/get_ascii/Darwin.sh"
+    ;;
+
+    ([Mm]ageia*)
+				get_ascii_path="OS_based/get_ascii/Mageia.sh"
+    ;;
+
+    ([Mm]anjaro*)
+				get_ascii_path="OS_based/get_ascii/Manjaro.sh"
+    ;;
+
+    ([Mm]inix*)
+				get_ascii_path="OS_based/get_ascii/Minix.sh"
+    ;;
+
+    ([Mm][Xx]*)
+				get_ascii_path="OS_based/get_ascii/MX.sh"
+    ;;
+
+    ([Nn]et[Bb][Ss][Dd]*)
+				get_ascii_path="OS_based/get_ascii/NetBSD.sh"
+    ;;
+
+    ([Nn]ix[Oo][Ss]*)
+				get_ascii_path="OS_based/get_ascii/NixOS.sh"
+    ;;
+
+    ([Oo]pen[Bb][Ss][Dd]*)
+				get_ascii_path="OS_based/get_ascii/OpenBSD.sh"
+    ;;
+
+    ([Oo]pen[Ss][Uu][Ss][Ee]*[Tt]umbleweed*)
+				get_ascii_path="OS_based/get_ascii/Tumbleweed.sh"
+    ;;
+
+    ([Oo]pen[Ss][Uu][Ss][Ee]*|[Oo]pen*SUSE*|SUSE*|suse*)
+				get_ascii_path="OS_based/get_ascii/SUSE.sh"
+    ;;
+
+    ([Oo]pen[Ww]rt*)
+				get_ascii_path="OS_based/get_ascii/OpenWrt.sh"
+    ;;
+
+    ([Pp]arabola*)
+				get_ascii_path="OS_based/get_ascii/Parabola.sh"
+    ;;
+
+    ([Pp]op!_[Oo][Ss]*)
+				get_ascii_path="OS_based/get_ascii/Pop_OS.sh"
+    ;;
+
+    ([Pp]ure[Oo][Ss]*)
+				get_ascii_path="OS_based/get_ascii/PureOS.sh"
+    ;;
+
+    ([Rr]aspbian*)
+				get_ascii_path="OS_based/get_ascii/Raspbian.sh"
+    ;;
+
+    ([Ss]erenity[Oo][Ss]*)
+				get_ascii_path="OS_based/get_ascii/SerenityOS.sh"
+    ;;
+
+    ([Ss]lackware*)
+				get_ascii_path="OS_based/get_ascii/Slackware.sh"
+    ;;
+
+    ([Ss]olus*)
+				get_ascii_path="OS_based/get_ascii/Solus.sh"
+    ;;
+
+    ([Ss]un[Oo][Ss]|[Ss]olaris*)
+				get_ascii_path="OS_based/get_ascii/SunOS.sh"
+    ;;
+
+    ([Uu]buntu*)
+				get_ascii_path="OS_based/get_ascii/Ubuntu.sh"
+    ;;
+
+    ([Vv]oid*)
+				get_ascii_path="OS_based/get_ascii/Void.sh"
+    ;;
+
+    ([Xx]eonix*)
+				get_ascii_path="OS_based/get_ascii/Xeonix.sh"
+    ;;
+esac
+get_ascii_tail_path="OS_based/get_ascii/0tail.sh"
+
+
+cat "head.sh" "$get_os_path" "$get_os_Windows_wsl_path" "$get_kernel_path" "$get_host_path" "$get_uptime_path" "$get_pkgs_path" "$get_memory_path" "$get_wm_path" "$get_ascii_head_path" "$get_ascii_path" "$get_ascii_tail_path" "tail.sh" | tee "$pfetch_path" >/dev/null 2>&1
+
+# Username is retrieved by first checking '$USER' with a fallback
+if [ -n "$USER" ];then
+	user="${USER}"
+else
+	user="\$(id -un)"
+fi
+
+# Hostname is retrieved by first checking '$HOSTNAME' with a fallback
+# to the 'hostname' command.
+#
+# Disable the warning about '$HOSTNAME' being undefined in POSIX sh as
+# the intention for using it is allowing the user to overwrite the
+# value on invocation.
+# shellcheck disable=3028,2039
+if [ -n "$HOSTNAME" ];then
+	hostname="\${HOSTNAME}"
+elif [ -n "$hostname" ];then
+	hostname="\${hostname}"
+elif hostname >/dev/null 2>&1;then
+	hostname="\$(hostname)"
+else
+	# If the hostname is still not found, fallback to the contents of the
+	# /etc/hostname file.
+	hostname="\$(read -r hostname < /etc/hostname)"
+fi
+
+sed -i "s|____arch____|$arch|g;s|____os____|$os|g;s|____hostname____|$hostname|g;s|____user____|$user|g" "$pfetch_path"
+
+chmod +x "$pfetch_path"

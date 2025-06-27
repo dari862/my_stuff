@@ -1,0 +1,11 @@
+#!/bin/bash
+#===================================================================================
+failed_(){
+	massage="${1-}"
+	"[ERROR] $0 : ${massage}"
+	exit 1
+}
+
+ps_mem_path="/usr/share/my_stuff/bin/not_add_2_path/ps_mem/"
+cd "${ps_mem_path}" || failed_ "Failed to cd ${ps_mem_path}."
+my-superuser ./sudo_ps_mem

@@ -1,0 +1,68 @@
+#!/bin/sh
+set -e
+. "/usr/share/my_stuff/lib/common/WM"
+	
+opt="${1-}"
+ini_file_="my_power_manager.ini"
+ini_path="$script_config_path/$ini_file_"
+
+update_ini() {
+    key="$1"
+    val="$2"
+    if [ -n "$val" ]; then
+        escaped_val=$(printf '%s\n' "$val" | sed 's/[\/&]/\\&/g')
+        sed -i "s/^$key=.*/$key=$escaped_val/" "$ini_path"
+    fi
+}
+
+set_idletime="1 idletime"
+set_turnoff_moniter_time="2 turnoff_moniter_time"
+set_logout_time="3 logout_time"
+set_suspend_time="4 suspend_time"
+set_hibernate_time="5 hibernate_time"
+set_poweroff_time="6 poweroff_time"
+set_brightness_level="7 brightness_level"
+set_lock_screen_on_idle="8 enable_lock_screen_on_idle"
+enable_lock_screen_on_idle="8 enable_lock_screen_on_idle"
+disable_lock_screen_on_idle="8 disable_lock_screen_on_idle"
+finish="9 finish"
+cancel="10 cancel"
+	
+################################################
+
+power-manager-session start
+
+. "$ini_path"
+
+power_manager_MENU=$(yad --title "My Power Manager" --form \
+					--field="idle time($idleAfter):NUM" \
+					--field="turn off moniter after($turnoff_moniter_time):NUM" \
+					--field="logout after($logout_time):NUM" \
+					--field="suspend after($suspend_time):NUM" \
+					--field="hibernate after($hibernate_time):NUM" \
+					--field="poweroff after($poweroff_time):NUM" \
+					--field="set brightness level($brightness_level):NUM" \
+					--field="lock screen on idle($lock_screen_on_idle):CB" \
+					"$idleAfter" "$turnoff_moniter_time" "$turnoff_moniter_time" "$logout_time" "$suspend_time" "$hibernate_time" "$brightness_level" 'true!false')
+
+[ $? -ne 0 ] && exit 0
+
+idletime=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $1 }')
+turnoff_moniter_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $2 }')
+logout_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $3 }')
+suspend_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $4 }')
+hibernate_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $5 }')
+poweroff_time=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $6 }')
+brightness_level=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $7 }')
+lock_screen_on_idle=$(echo $power_manager_MENU | awk 'BEGIN {FS="|" } { print $8 }')
+
+update_ini "idleAfter" "$idletime"
+update_ini "turnoff_moniter_time" "$turnoff_moniter_time_val"
+update_ini "logout_time" "$logout_time_val"
+update_ini "suspend_time" "$suspend_time_val"
+update_ini "hibernate_time" "$hibernate_time_val"
+update_ini "poweroff_time" "$poweroff_time_val"
+update_ini "brightness_level" "$brightness_level_val"
+update_ini "lock_screen_on_idle" "$lock_screen_on_idle_val"
+
+power-manager-session reload-daemon

@@ -1,0 +1,36 @@
+#!/bin/sh
+wallpapers_dir="/usr/share/my_stuff/my_wallpapers"
+current_wall="$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2 || :)"
+
+if command -v nitrogen >/dev/null 2>&1;then
+	if [ ! -f "$HOME/.config/nitrogen/nitrogen.cfg" ];then
+		tee "$HOME/.config/nitrogen/nitrogen.cfg" <<- EOF > /dev/null
+		[geometry]
+		posx=654
+		posy=174
+		sizex=508
+		sizey=500
+		
+		[nitrogen]
+		view=icon
+		recurse=true
+		sort=alpha
+		icon_caps=false
+		dirs=
+		EOF
+		sed -i "s|dirs=.*|dirs=${wallpapers_dir};|g" "$HOME/.config/nitrogen/nitrogen.cfg"
+	fi
+	nitrogen
+else
+	image_file=$(yad --file-selection --title="Select an Image" --filter="Images | *.png *.jpg *.jpeg *.gif *.bmp" --filename="${wallpapers_dir}/" --add-preview --large-preview)
+	if [ -n "$image_file" ];then
+    	setbg -R "$image_file"
+    else
+    	return 1
+	fi
+fi
+
+new_wall="$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2 || :)"
+if [ "$current_wall" = "$new_wall" ];then
+	return 1
+fi

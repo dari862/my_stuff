@@ -1,0 +1,16 @@
+/**
+ *
+ * theme : repentance
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #1E1D2FFF;
+    background-alt: #282839FF;
+    foreground:     #D9E0EEFF;
+    selected:       #C67C6FFF;
+    active:         #ABE9B3FF;
+    urgent:         #F28FADFF;
+}
+

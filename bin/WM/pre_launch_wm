@@ -1,0 +1,52 @@
+#!/bin/sh
+#### Fix missing files        ########################################################################
+
+. "/usr/share/my_stuff/lib/common/WM"
+
+if mkdir -p "/tmp/$USER";then
+	chmod 700 "/tmp/$USER"
+else
+	echo "$0: ERROR failed to create /tmp/$USER"
+fi
+
+if [ ! -f "${Distro_config_file}" ];then
+	cat <<- EOF > "${Distro_config_file}"
+	_panel_name_="polybar"
+	ROFI_STYLE="default"
+	polybar_STYLE="default"
+	conky_sessionfile=".config/conky/openbox-conky.conf"
+	tint2_sessionfile="/.config/tint2/default.tint2rc"
+	EOF
+	
+	# pickers
+	panel_picker
+	style_setter
+	touch "${WM_config_dir}/rofi_picked"
+fi
+
+#### START SETTINGS  #################################################################################
+
+# Exec first script screenlayout found
+if [ "$(ls -A ~/.screenlayout >/dev/null 2>&1)" ];then
+	"$(ls ~/.screenlayout/*.sh | head -1)"
+elif [ -f "$display_script" ];then
+	"$display_script"
+else
+	displayselect auto "noninteractive"
+fi
+
+# Set wallpaper
+setbg -r
+
+# Start keyring	
+keyring-session start &
+
+## Start Music Player Daemon
+mpd-session start &
+
+## Notification Daemon
+dunst-session start &
+
+## file-manager Daemon
+file-manager-session start &
+

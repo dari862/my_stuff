@@ -1,0 +1,45 @@
+#!/bin/bash
+#### User configurables:  ################################################
+
+# Choose wttr or openweather:
+#mode="wttr"
+mode="openweather"
+
+# Either set the location manually here, or leave it empty and script will attempts to get a geolocation from the IP address.
+place="Paris"
+
+# Choose fahrenheit/Imperial or Celcius/metric:
+#units='imperial'
+units='metric'
+
+continentcode=""
+radarcode=""
+secs=600 # Download a new doppler radar if one hasn't been downloaded in $secs seconds.
+
+#### Don't change   ################################################
+#### Global configurables:  ################################################
+
+weather_script_data_path="${XDG_DATA_HOME:-$HOME/.local/share}/weather"
+
+#### openweather configurables:  ###########################################
+ow_weatherreport="${weather_script_data_path}/ow_weatherreport.json"
+forecastreport="${weather_script_data_path}/forecastreport.json"
+
+lang="" 
+
+scaleT=""
+scaleV=""
+WEATHER_INFO=""
+WEATHER_URL=""
+WEATHER_MAIN=""
+WEATHER_TEMP=""
+weather_ICON=""
+weather_description=""
+weather_TEXT=""
+
+#### WTTRURL configurables:  ##############################################
+wttr_weatherreport="${weather_script_data_path}/wttr_weatherreport"
+weatherreport_json="${weather_script_data_path}/wttr_weatherreport.json"
+WTTRURL="${WTTRURL:-wttr.in}"
+moonfile="${weather_script_data_path}/moonphase"
+doppler="${XDG_CACHE_HOME:-$HOME/.cache}/${radar}_doppler.gif"

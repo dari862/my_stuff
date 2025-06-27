@@ -1,0 +1,47 @@
+#!/bin/sh
+__option="${1-}"
+__timezone="${2-}"
+
+set_time_(){
+	current_date="$(getURL 'head' "$get_date_from_here" 2>&1 | sed -n 's/^ *Date: *//p')"
+	my-superuser date -s "$current_date" >/dev/null 2>&1
+}
+
+set_time_zone(){
+	if [ -z "$__timezone" ];then
+		__timezone="$(get_scripts --timezone)"
+	fi
+	
+	echo "Using ${__timezone} as time zone."
+	if command -v timedatectl >/dev/null 2>&1;then
+		my-superuser timedatectl set-timezone $__timezone
+	else
+		my-superuser ln -sf /usr/share/zoneinfo/$__timezone /etc/localtime
+		my-superuser hwclock --systohc
+	fi
+}
+
+
+fix_time(){
+	echo "runing fix_time_ function"
+	get_date_from_here=""
+	list_to_test="debian.com ipinfo.io 104.16.132.229"
+	
+	for test in ${list_to_test};do
+		ping -c 1 $test >/dev/null 2>&1 && get_date_from_here="$test" && break
+	done
+		
+	if [ -z "$get_date_from_here" ];then 
+		echo "failed to ping all of this: ${list_to_test}" && exit 1
+	else
+		set_time_
+		set_time_zone
+	fi
+}
+
+case $__option in
+  --time|-t) fix_time ;;
+  --time-zone|-z) set_time_zone ;;
+  "") ;;
+  *) ;;
+esac

@@ -1,0 +1,4 @@
+#!/bin/sh -e
+app_name="Zoom"
+
+flatpak_install ${app_name} us.zoom.Zoom

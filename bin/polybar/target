@@ -1,0 +1,15 @@
+#!/bin/sh
+
+FILE=/tmp/$USER/target
+
+if [ $# -eq 0 ];then
+	if [ -e "$FILE" ];then
+		cat $FILE
+	else
+		printf "No Target"
+	fi
+elif [ "$1" = "reset" ];then
+	rm /tmp/$USER/target
+else
+	echo $1 > $FILE
+fi

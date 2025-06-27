@@ -1,0 +1,28 @@
+set runtimepath+=/etc/vim/                  		
+
+call plug#begin('/etc/vim/plugged')        			
+
+"THEMES
+Plug 'kristijanhusak/vim-hybrid-material'   		
+Plug 'w0ng/vim-hybrid'                      		
+Plug 'romainl/Apprentice'                   		
+Plug 'ErichDonGubler/vim-sublime-monokai' 			
+Plug 'arcticicestudio/nord-vim' 					
+
+"PLUGINS
+Plug 'preservim/nerdtree' 							
+Plug 'preservim/nerdcommenter'              		
+Plug 'psliwka/vim-smoothie'                 		
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } 
+Plug 'junegunn/fzf.vim' 							
+Plug 'ntpeters/vim-better-whitespace' 				
+
+"DISABLED
+"Plug 'jiangmiao/auto-pairs' 						
+"Plug 'mhinz/vim-startify'                  		
+"Plug 'vim-airline/vim-airline'             		
+"Plug 'vim-airline/vim-airline-themes'      		
+"Plug 'godlygeek/csapprox'                  		
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}	
+
+call plug#end()                             		

@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : leve
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #FBC2CBFF;
+    background-alt: #FBC2CBFF;
+    foreground:     #000000FF;
+    selected:       #D34E3FFF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

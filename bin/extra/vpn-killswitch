@@ -1,0 +1,173 @@
+#!/bin/bash
+set -euo pipefail
+
+check_4_dependencies_if_installed drill ufw nmcli || exit 1
+
+#
+# Functions
+#
+
+show_error() {
+  local red=$'\033[0;91m'
+  local nc=$'\033[0m'
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
+    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
+  else
+    echo -e "${red}${*}${nc}" 1>&2
+  fi
+}
+
+show_header() {
+  local cyan=$'\033[0;96m'
+  local nc=$'\033[0m'
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
+    echo "${1:--e}" "${cyan}${*:2}${nc}"
+  else
+    echo -e "${cyan}${*}${nc}"
+  fi
+}
+
+show_listitem() {
+  local white=$'\033[0;97m'
+  local nc=$'\033[0m'
+  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
+    echo "${1:--e}" "${white}${*:2}${nc}"
+  else
+    echo -e "${white}${*}${nc}"
+  fi
+}
+
+function get_device() {
+  nmcli device status |
+    grep -v bridge |
+    sed -n "s/\(\S\+\)\s\+\S\+\s\+connected\s\+\(\S\+\)\s*$/\1/p"
+}
+
+function get_vpn_data() {
+  local device
+  local vpnid
+  local cmd
+  device="${1}"
+  vpnid="$(nmcli connection show |
+           sed -n "s/^\(.*\)\+\s\+\([0-9a-z\-]\+\)\s\+vpn\s\+${device}/\2/p")"
+  if [ -z "${vpnid}" ];then
+    return
+  else
+    cmd="nmcli conn show ${vpnid}"
+    eval "${cmd}"
+  fi
+}
+
+function get_vpn_dns() {
+  local vpndata
+  vpndata="${1}"
+  echo "${vpndata}" | sed -n "s/^IP4.GATEWAY:\s\+\([0-9\.]\+\)/\1/p"
+}
+
+function get_vpn_ip() {
+  local vpnip=
+  local iplist=
+  local vpndata
+  vpndata="${1}"
+  for addr in $(echo "${vpndata}" | sed -n "s/^VPN.GATEWAY:\s\+\(.*\)/\1/p" | sed -e "s/,//g"); do
+    vpnip=$(drill "${addr%:*}" | grep "^${addr%:*}" | cut -d"	" -f5)
+    if [[ -z "${iplist}" ]];then
+      iplist="${vpnip}/32"
+    elif ! [[ "${iplist}" =~ ${vpnip} ]];then
+      iplist="${iplist} ${vpnip}/32"
+    fi
+  done
+  echo "${iplist}"
+}
+
+function get_vpn_port() {
+  local vpnport=
+  local portlist=
+  local vpndata
+  vpndata="${1}"
+  for addr in $(echo "${vpndata}" | sed -n "s/^VPN.GATEWAY:\s\+\(.*\)/\1/p" | sed -e "s/,//g"); do
+    vpnport="${addr##*:}"
+    if [[ -z "${portlist}" ]];then
+      portlist="${vpnport}"
+    elif ! [[ "${portlist}" =~ ${vpnport} ]];then
+      portlist="${portlist},${vpnport}"
+    fi
+  done
+  echo "${portlist}"
+}
+
+function enable_killswitch() {
+  local device
+  local vpndata
+  local dns
+  local iplist
+  local portlist
+
+  device="$(get_device)"
+  vpndata="$(get_vpn_data "${device}")"
+  if [ -z "${vpndata}" ];then
+    show_error "VPN info not found. Exiting."
+    exit 2
+  fi
+  dns="$(get_vpn_dns "${vpndata}")"
+  iplist="$(get_vpn_ip "${vpndata}")"
+  portlist="$(get_vpn_port "${vpndata}")"
+
+  my-superuser ufw --force reset
+  my-superuser ufw default deny incoming
+  my-superuser ufw default deny outgoing
+  my-superuser ufw allow out on tun0 to 0.0.0.0/0
+  for ip in ${iplist}; do
+    my-superuser ufw allow in on "${device}" from "${ip}" port "${portlist}"
+    my-superuser ufw allow out on "${device}" to "${ip}" port "${portlist}"
+  done
+  my-superuser ufw allow out on "${device}" to "${dns}" port 53
+  my-superuser ufw enable
+}
+
+function print_usage() {
+  show_header "Usage: vpn-killswitch"
+  show_listitem "  -e|--enable   enable firewall 'killswitch'"
+  show_listitem "  -d|--disable  disable 'killswitch' and reset firewall rules"
+}
+
+#
+# Main
+#
+
+function disable_killswitch() {
+  my-superuser ufw --force reset
+  my-superuser ufw default deny incoming
+  my-superuser ufw default allow outgoing
+  my-superuser ufw enable
+}
+
+OPTIONS=deh
+LONGOPTIONS=disable,enable,help
+PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
+eval set -- "${PARSED}"
+
+while [ ${#} -ge 1 ]; do
+  case "${1}" in
+    -d | --disable)
+      disable_killswitch
+      shift
+      ;;
+    -e | --enable)
+      enable_killswitch
+      shift
+      ;;
+    -h | --help)
+      print_usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      show_error "What was that?"
+      exit 3
+      ;;
+  esac
+done

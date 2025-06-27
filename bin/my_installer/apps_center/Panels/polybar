@@ -1,0 +1,21 @@
+#!/bin/sh
+
+app_name="polybar"
+#libnm-dev for networkmanager_dmenu
+extra_apps_="libnm-dev"
+
+###################################################################
+. "/usr/share/my_stuff/lib/common/WM"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} {extra_apps_} || continue
+
+copy_from_extra_skel ".config/polybar" || continue
+
+say 'Copy bin from polybar...' 1
+# distro 
+if [ -d "/usr/share/my_stuff/bin/polybar" ];then
+	my-superuser ln -sf "/usr/share/my_stuff/bin/polybar/"* "/usr/share/my_stuff/system_files/bin" || continue
+fi
+polybar_launch_creater || continue

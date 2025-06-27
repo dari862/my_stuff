@@ -1,0 +1,6 @@
+#!/bin/sh
+yad --notification \
+	--image="gtk-zoom-fit" \
+	--icon-size=22 \
+	--command="color_temperature_adjuster_gui" \
+	--text="Gammastep"

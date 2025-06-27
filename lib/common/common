@@ -1,0 +1,236 @@
+#!/bin/sh
+
+########################################################################
+# Check the connection by downloading a file from ftp.debian.org. No disk space used.
+# Usage: connectiontest [attempts]
+# If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
+connectiontest() {
+	getURL_path="/usr/share/my_stuff/system_files/bin/getURL"
+    TEXT_CHECKING='Checking internet connection...'
+    TEXT_FAILED='Internet connection test failed!'
+    TEXT_ASK_RETRY='\n\nThis script requires a working internet connection. Please configure your internet connection, then hit "Enter" to continue, else hit "q" to quit.'
+    TEXT_ABORT='Script aborted.'
+    TEXT_OK='Internet connection test passed!'
+
+    i=0
+    attempts=${1:-0}
+    while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
+        say "$TEXT_CHECKING" 'yellow'
+        if $getURL_path '2term' "http://network-test.debian.org/nm" | grep -q "NetworkManager is online";then
+            say "$TEXT_OK" 1
+            return 0
+        fi
+        say "$TEXT_FAILED" 'red'
+        if [ "$i" -eq $((attempts - 1)) ];then # if last attempt
+            return 1
+        elif prompt "$TEXT_ASK_RETRY" Q;then # if user wants to quit
+            say "$TEXT_ABORT" 'yellow' 2
+            [ "$attempts" -eq 0 ] && exit 1 || return 1
+        fi
+        tput clear
+        i=$((i + 1))
+    done
+}
+
+# Usage: say text [delayAfterText|pause]
+say() {
+	message="${1-}"
+	mode="${2-}"
+	width=$(tput cols 2>/dev/tty)
+	
+	if [ "${mode}" = 'red' ];then
+		color="31"
+		mode="${3:-}"
+	elif [ "${mode}" = 'yellow' ];then
+		color="33"
+		mode="${3:-}"
+	elif [ "${mode}" = 'green' ];then
+		color="32"
+		mode="${3:-}"
+	else
+		color="32"
+	fi
+	
+	printf '%b' "\\033[1;${color}m${message}\\033[0m\n" | fold -s -w $((width - 3)) | sed 's/^/  /' # wraps text nicely and adds two leading spaces
+
+    case "$mode" in
+    	pause)
+    		stty -icanon -echo time 0 min 1
+			head -c1 >/dev/null
+			stty icanon echo
+    		;;
+    	''|*[!0-9.]*)  # Anything other than digits or a single decimal point is invalid
+        	:
+        	;;
+    	*)
+        	sleep "${mode}"
+        	;;
+	esac
+}
+
+# Usage: prompt text [ Y | N | Q | <string> ]
+prompt() {
+    answer=""
+    prompt=""
+    default=""
+
+    if [ "${2:-}" ] && [ "${2}" = "Q" ];then
+        while true; do
+            say "$1 " 'red'
+        	stty -icanon -echo time 0 min 1
+			answer="$(head -c1)"
+			stty icanon echo
+            echo
+            if [ "$answer" = "Q" ] || [ "$answer" = "q" ];then
+                return 0
+            elif [ -z "$answer" ];then
+                return 1
+            fi
+        done
+    fi
+
+    if [ -z "${2:-}" ] || [ "${2}" = "Y" ];then
+        prompt='Y/n'
+        default='Y'
+    elif [ "${2}" = "N" ];then
+        prompt='y/N'
+        default='N'
+    fi
+
+	while true; do
+		say "$1 ${prompt:+[$prompt] }" "yellow"
+		stty -icanon -echo time 0 min 1
+		answer="$(head -c1)"
+		stty icanon echo
+		echo
+        	
+		case "$answer" in
+			[Yy]) echo; return 0 ;;
+			[Nn]) echo; return 1 ;;
+			[Qq]) echo; return 1 ;;
+			*) say "invalid response only y[yes] or n[No] are allowed." 'red';;
+		esac
+	done
+}
+
+keep_superuser() {
+    while true; do
+        my-superuser true
+        sleep 600
+    done
+}
+
+end_superuser() {
+    if command -v doas >/dev/null 2>&1;then
+        doas -L
+    fi
+}
+
+Distrobox_package_installer_() {
+	say "Updaing gaming distrobox ..." 1
+	distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syy --noconfirm" || exit 1	
+	clear
+	say "Installing $@ ..." 1
+    distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syu $@ --noconfirm" || exit 1
+}
+
+failed_to_run() {
+    __message_="${1:-}"
+    say "$__message_" 'red' 'pause'
+    exit 1
+}
+
+flatpak_install() {
+	if ! command -v flatpak >/dev/null 2>&1;then
+		say 'Installing flatpak...' 1
+		install_as_dependency flatpak
+	fi
+    __icons_="${1:-}"
+    __appid="${2:-}"
+    __repo_="${3:-}"
+    if [ -z "$__repo_" ];then
+    	__repo_="flathub"
+    	flatpak info "${__appid}" >/dev/null 2>&1 || failed_to_run "failed to find ${__appid} in flatpak repo: ${__repo_}"
+    elif [ "$__repo_" = "nonflathub" ];then
+    	__repo_=""
+    	flatpak info "${__appid}" >/dev/null 2>&1 || failed_to_run "failed to find ${__appid}"
+    else
+    	flatpak info "${__appid}" >/dev/null 2>&1 || failed_to_run "failed to find ${__appid} in flatpak repo: ${__repo_}"
+    fi
+        
+    say "Installing package ${__icons_} via flatpak"
+    my-superuser flatpak install -y $__repo_ "${__appid}"
+    if [ -f "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" ];then
+    	my-superuser ln -sf "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" "/usr/share/applications"
+    else
+    	my-superuser tee "/usr/share/my_stuff/system_files/applications/${__icons_}.desktop" <<- EOF >/dev/null 2>&1
+    	[Desktop Entry]
+		Name=${__icons_}
+		Comment=${__icons_}
+		Exec=flatpak run ${__appid}
+		Terminal=false
+		Type=Application
+		Icon=flatpak
+		Categories=GTK;
+		MimeType=text/html;text/xml;application/xhtml_xml;
+		StartupNotify=true
+		EOF
+    	my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/${__icons_}.desktop" "/usr/share/applications"
+    fi
+}
+
+copy_from_extra_skel() {
+    __copythis="${1:-}"
+    __basename=$(basename "$__copythis")
+    __dirname=$(dirname "$__copythis")
+    __copythere=""
+
+    if [ "$__dirname" != "." ];then
+        __copythere="$__dirname"
+    fi
+
+    my-superuser cp -r "/usr/share/my_stuff/skel_extra/${__copythis}" "/usr/share/my_stuff/system_files/skel/${__copythere}"
+
+    for d in /home/*/; do
+        [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue
+        user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+        my-superuser cp -r "/usr/share/my_stuff/system_files/skel/${__copythis}" "$d/${__copythis}"
+        my-superuser chown -R "$user_and_group" "$d"
+    done
+}
+
+if command -v git >/dev/null 2>&1;then
+    clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        echo "git clone ${getthis}"
+        git clone --depth=1 "${getthis}" "${getto}"
+    }
+    super_clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        say "git clone ${getthis} to ${getto}" 1
+        my-superuser git clone --depth=1 "${getthis}" "${getto}"
+    }
+elif command -v svn >/dev/null 2>&1;then
+    clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        echo "svn clone ${getthis}"
+        svn clone --depth=1 "${getthis}" "${getto}"
+    }
+    super_clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        say "git clone ${getthis} to ${getto}" 1
+        my-superuser svn clone --depth=1 "${getthis}" "${getto}"
+    }
+fi
+
+my_installer_ln_script() {
+	script_name="${1}"
+	my-superuser mkdir -p /usr/share/my_stuff/system_files/updater
+	my-superuser mkdir -p /usr/share/my_stuff/system_files/downloaded
+	my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/script_to_ln/${script_name}" "/usr/share/my_stuff/system_files/updater"
+	"/usr/share/my_stuff/system_files/updater/${script_name}" 
+}

@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+release="10"
+
+if [ -f "/usr/share/my_stuff/system_files/bin/quickemu_installer" ];then
+	say " Installing quickemu for quick and auto deploy windows."
+	. /usr/share/my_stuff/system_files/bin/quickemu_installer
+fi
+say " Getting windows ${release} required ISO."
+if ! quickget windows ${release};then
+	say " Creating then running VM."
+	quickemu --vm windows-${release}.conf || say " failed to running VM."
+else
+	say " failed to get required ISO."
+fi
+echo ""
+say "windows_vm_installer to auto deploy windows ${release} vm."
+say "windows_vm_installer to auto deploy windows ${release} vm."
+say "windows_vm_installer to auto deploy windows ${release} vm."
+rm -f /usr/share/my_stuff/system_files/bin/windows_vm_installer

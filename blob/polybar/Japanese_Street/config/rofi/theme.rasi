@@ -1,0 +1,13 @@
+* {
+
+background:			#1e222a;
+background-alt:		#545862;
+foreground:			#c8ccd4;
+selected:			#61afef;
+highlight:			#56b6c2;
+urgent:				#e06c75;
+on:					#98c379;
+off:				#e06c75;
+img-background: url("/usr/share/my_stuff/blob/polybar/Japanese_Street/preview.jpg", width);
+
+}

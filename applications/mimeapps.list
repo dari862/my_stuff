@@ -1,0 +1,20 @@
+[Default Applications]
+image/gif=my-image-viewer.desktop
+image/jpeg=my-image-viewer.desktop
+image/png=my-image-viewer.desktop
+image/svg+xml=my-image-viewer.desktop
+text/plain=my-text-editor.desktop
+text/html=my-text-editor.desktop
+application/xml=my-text-editor.desktop
+application/javascript=my-text-editor.desktop
+x-directory/normal=my-file-manager.desktop
+x-directory/gnome-default-handler=my-file-manager.desktop
+inode/directory=my-file-manager.desktop
+audio/mpeg=my-media-player.desktop
+audio/mp4=my-media-player.desktop
+audio/x-wav=my-media-player.desktop
+audio/aac=my-media-player.desktop
+video/webm=my-media-player.desktop
+video/x-ms-asf=my-media-player.desktop
+video/x-theora+ogg=my-media-player.desktop
+application/x-deb=gdebi.desktop

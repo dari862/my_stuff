@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -e
+
+app_is_="${@}"
+
+if [ -z "${app_is_}" ];then
+	NORMAL=`echo "\033[m"`
+	MENU=`echo "\033[36m"` #Blue
+	NUMBER=`echo "\033[33m"` #yellow
+	FGRED=`echo "\033[41m"`
+	RED_TEXT=`echo "\033[31m"`
+	ENTER_LINE=`echo "\033[33m"`
+	apps_list_=("kali-linux" "kali-linux-all" "kali-linux-forensic" "kali-linux-full" "kali-linux-gpu" "kali-linux-nethunter" "kali-linux-pwtools" "kali-linux-rfid" "kali-linux-sdr" "kali-linux-top10" "kali-linux-voip" "kali-linux-web" "kali-linux-wireless")
+	
+	##############################################################################################
+	echo -e "${MENU}\n\t**********************************************************${NORMAL}
+		\n\t-------------Welcome to Kali Linux OS Installer--------------
+		\n
+		\n\t${MENU}**${NUMBER} 1)${MENU} Install Kali Linux base system ${NORMAL}
+		\n\t${MENU}**${NUMBER} 2)${MENU} Install Kali Linux - all packages ${NORMAL}
+		\n\t${MENU}**${NUMBER} 3)${MENU} Install Kali Linux forensic tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 4)${MENU} Install Kali Linux complete system ${NORMAL}
+		\n\t${MENU}**${NUMBER} 5)${MENU} Install Kali Linux GPU tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 6)${MENU} Install Kali Linux Nethunter tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 7)${MENU} Install Kali Linux password cracking tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 8)${MENU} Install Kali Linux RFID tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 9)${MENU} Install Kali Linux SDR tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 10)${MENU}Install Kali Linux Top 10 tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 11)${MENU}Install Kali Linux VoIP tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 12)${MENU}Install Kali Linux webapp assessment tools ${NORMAL}
+		\n\t${MENU}**${NUMBER} 13)${MENU}Install Kali Linux wireless tools ${NORMAL}
+		\n
+		\n\t${MENU}*********************************************************${NORMAL}"
+	COUNTER=0
+	apps_list_length=${#apps_list_[@]}
+	while [  $COUNTER -lt 4 ]; do
+		echo -e "\n${ENTER_LINE}Please enter a menu option or ${RED_TEXT}type exit to exit. ${NORMAL}"
+		read -p 'Input Your Choice: ' i
+		[ "$i" = "exit" ] && exit
+		index=i-1
+		if (($i <= ${apps_list_length} )) && (( $i >= 1 ));then 
+			app_is_="${apps_list_[$index]}"
+		else
+			app_is_=""
+		fi
+		if [ -n "$app_is_" ];then 
+			break
+		else
+			echo -e "\nInvalid Choice! Try again. $((3-$COUNTER)) chances left..)"
+		fi
+		let COUNTER=COUNTER+1 
+	done
+	[ -z "$app_is_" ] && exit
+fi
+my-superuser apt-get -f install -t kali-rolling "$app_is_"

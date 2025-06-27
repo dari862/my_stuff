@@ -1,0 +1,4065 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta property="og:image" content="assets/bash.png" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>#Bash Guide | {reference,survival} guild to bash scripting</title>
+	<meta property="og:title" content="Bash Guide" />
+	<meta property="og:locale" content="en_US" />
+	<meta name="description" content="{reference,survival} guild to bash scripting" />
+	<meta property="og:description" content="{reference,survival} guild to bash scripting" />
+	<link rel="canonical" href="https://github.com/dylanaraps/pure-bash-bible" />
+	<meta property="og:url" content="https://github.com/dylanaraps/pure-bash-bible" />
+	<meta property="og:site_name" content="#Bash Guide" />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="#Bash Guide" />
+	<link rel="stylesheet" href="assets/main.css?x=1747078270">
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+	<link rel="manifest" href="assets/site.webmanifest">
+	<link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#222222">
+	<link rel="shortcut icon" href="assets/favicon.ico">
+	<meta name="msapplication-TileColor" content="#c0c0c0">
+	<meta name="msapplication-config" content="assets/browserconfig.xml">
+	<meta name="theme-color" content="#222222">
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		"description": "{reference,survival} guild to bash scripting",
+		"headline": "#Bash Guide | {reference,survival} guild to bash scripting",
+		"name": ",
+		"url": "https://github.com/dylanaraps/pure-bash-bible"
+	}
+	</script>
+</head>
+<body>
+	<aside id="toc" tabindex="1">
+		<input type="checkbox" id="toggle">
+		<label for="toggle" id="hide"></label>
+		<h3 id="table-of-contents">Table of Contents</h3>
+		<section id="full">
+
+
+
+
+
+
+
+
+
+				
+						
+						
+						
+<details><summary><strong>
+								
+<a class="heading" href="#foreword">Foreword</a><a class="link" href="#foreword"></a></strong></summary></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Subshells<a class="link" href="#subshells"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#what-is-a-subshell">What is a subshell?</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#subshell-environment">Subshell environment</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#parentheses-and-curly-braces">Parentheses and curly braces</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#command-substitution">Command substitution</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#explicit-subshell-invocation">Explicit subshell invocation</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Variables<a class="link" href="#variables"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#scoping">Scoping</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#multiple-assignment">Multiple assignment</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#assign-and-access-a-variable-using-a-variable">Assign and access a variable using a variable</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#name-a-variable-based-on-another-variable">Name a variable based on another variable</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+<a class="heading" href="#special-characters">Special Characters</a><a class="link" href="#special-characters"></a></strong></summary></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Strings<a class="link" href="#strings"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#trim-leading-and-trailing-white-space-from-string">Trim leading and trailing white-space from string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#trim-all-white-space-from-string-and-truncate-spaces">Trim all white-space from string and truncate spaces</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#use-regex-on-a-string">Use regex on a string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#split-a-string-on-a-delimiter">Split a string on a delimiter</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#change-a-string-to-lowercase">Change a string to lowercase</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#change-a-string-to-uppercase">Change a string to uppercase</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#reverse-a-string-case">Reverse a string case</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#trim-quotes-from-a-string">Trim quotes from a string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#strip-all-instances-of-pattern-from-string">Strip all instances of pattern from string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#strip-first-occurrence-of-pattern-from-string">Strip first occurrence of pattern from string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#strip-pattern-from-start-of-string">Strip pattern from start of string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#strip-pattern-from-end-of-string">Strip pattern from end of string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#percent-encode-a-string">Percent-encode a string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#decode-a-percent-encoded-string">Decode a percent-encoded string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#check-if-string-contains-a-sub-string">Check if string contains a sub-string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#check-if-string-starts-with-sub-string">Check if string starts with sub-string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#check-if-string-ends-with-sub-string">Check if string ends with sub-string</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Arrays<a class="link" href="#arrays"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#reverse-an-array">Reverse an array</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#remove-duplicate-array-elements">Remove duplicate array elements</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#random-array-element">Random array element</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#cycle-through-an-array">Cycle through an array</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#toggle-between-two-values">Toggle between two values</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Loops<a class="link" href="#loops"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#loop-over-a-range-of-numbers">Loop over a range of numbers</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#loop-over-a-variable-range-of-numbers">Loop over a variable range of numbers</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#loop-over-an-array">Loop over an array</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#loop-over-an-array-with-an-index">Loop over an array with an index</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#loop-over-the-contents-of-a-file">Loop over the contents of a file</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#loop-over-files-and-directories">Loop over files and directories</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+File Handling<a class="link" href="#file-handling"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#read-a-file-to-a-string">Read a file to a string</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#read-a-file-to-an-array-by-line">Read a file to an array (<em</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-first-n-lines-of-a-file">Get the first N lines of a file</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-last-n-lines-of-a-file">Get the last N lines of a file</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-number-of-lines-in-a-file">Get the number of lines in a file</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#count-files-or-directories-in-directory">Count files or directories in directory</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#create-an-empty-file">Create an empty file</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#extract-lines-between-two-markers">Extract lines between two markers</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+File Paths<a class="link" href="#file-paths"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-directory-name-of-a-file-path">Get the directory name of a file path</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-base-name-of-a-file-path">Get the base-name of a file path</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Variables<a class="link" href="#variables-1"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#scoping-1">Scoping</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#multiple-assignment-1">Multiple assignment</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#assign-and-access-a-variable-using-a-variable-1">Assign and access a variable using a variable</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#name-a-variable-based-on-another-variable-1">Name a variable based on another variable</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Escape Sequences<a class="link" href="#escape-sequences"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#text-colors">Text Colors</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#text-attributes">Text Attributes</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#cursor-movement">Cursor Movement</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#erasing-text">Erasing Text</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Parameter Expansion<a class="link" href="#parameter-expansion"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#indirection">Indirection</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#replacement">Replacement</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#length">Length</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#expansion">Expansion</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#case-modification">Case Modification</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#default-value">Default Value</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Brace Expansion<a class="link" href="#brace-expansion"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#ranges">Ranges</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#string-lists">String Lists</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Conditional Expressions<a class="link" href="#conditional-expressions"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#file-conditionals">File Conditionals</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#file-comparisons">File Comparisons</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#variable-conditionals">Variable Conditionals</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#variable-comparisons">Variable Comparisons</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Arithmetic<a class="link" href="#arithmetic"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#assignment">Assignment</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#expression">Expression</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#bitwise">Bitwise</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#logical">Logical</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#miscellaneous">Miscellaneous</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#simpler-syntax-to-set-variables">Simpler syntax to set variables</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#ternary-tests">Ternary Tests</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Traps<a class="link" href="#traps"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#on-script-exit">On script exit</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#ignoring-interrupts-ctrlc-sigint">Ignoring interrupts (CTRL+C, SIGINT)</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#react-to-window-resize">React to window resize</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#pre-command-execution">Pre-command execution</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#on-funcion-or-source-completion">On funcion or source completion</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Performance<a class="link" href="#performance"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#disable-unicode">Disable Unicode</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Obsolete Syntax<a class="link" href="#obsolete-syntax"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#shebang">Shebang</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#command-substitution-1">Command Substitution</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#function-declaration">Function Declaration</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Internal Variables<a class="link" href="#internal-variables"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-location-to-the-bash-binary">Get the location to the bash binary</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-version-of-the-current-running-bash-process">Get the version of the current running bash process</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#open-the-users-preferred-text-editor">Open the user’s preferred text editor</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-name-of-the-current-function">Get the name of the current function</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-host-name-of-the-system">Get the host-name of the system</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-architecture-of-the-operating-system">Get the architecture of the Operating System</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-name-of-the-operating-system--kernel">Get the name of the Operating System / Kernel</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-current-working-directory">Get the current working directory</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-number-of-seconds-the-script-has-been-running">Get the number of seconds the script has been running</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-a-pseudorandom-integer">Get a pseudorandom integer</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Information About the Terminal<a class="link" href="#information-about-the-terminal"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-terminal-size-in-lines-and-columns-from-a-script">Get the terminal size in lines and columns (<em</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-terminal-size-in-pixels">Get the terminal size in pixels</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-current-cursor-position">Get the current cursor position</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Conversion<a class="link" href="#conversion"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#convert-a-hex-color-to-rgb">Convert a hex color to RGB</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#convert-an-rgb-color-to-hex">Convert an RGB color to hex</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Code Golf<a class="link" href="#code-golf"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#shorter-for-loop-syntax">Shorter for loop syntax</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#shorter-infinite-loops">Shorter infinite loops</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#shorter-function-declaration">Shorter function declaration</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#shorter-if-syntax">Shorter if syntax</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#case-statement-variable-assignment">Case statement variable assignment</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+Misc<a class="link" href="#misc"></a></strong></summary><ul>
+								
+						
+				
+						
+						
+						
+<li><a href="#use-read-as-an-alternative-to-the-sleep-command">Use read as an alternative to the sleep command</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#check-if-a-program-is-in-the-users-path">Check if a program is in the user’s PATH</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-current-date-using-strftime">Get the current date using strftime</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-username-of-the-current-user">Get the username of the current user</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#generate-a-uuid-v4">Generate a UUID V4</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#progress-bars">Progress bars</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#get-the-list-of-functions-in-a-script">Get the list of functions in a script</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#bypass-shell-aliases">Bypass shell aliases</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#bypass-shell-functions">Bypass shell functions</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#run-a-command-in-the-background">Run a command in the background</a></li>
+								
+						
+				
+						
+						
+						
+<li><a href="#capture-the-return-value-of-a-function-without-command-substitution">Capture the return value of a function without command substitution</a></li>
+								
+</ul></details>
+								
+						
+				
+						
+						
+						
+<details><summary><strong>
+								
+References and Further Reading<a class="link" href="#references-and-further-reading"></a></strong></summary><ul>
+								
+						
+				
+<details><summary><strong><a class="heading" href="#afterword">Afterword</a><a class="link" href="#afterword"></a></strong></summary></details>
+
+
+		</section>
+	</aside>
+	<header>
+		<h1 id="bash-guide"><i class="bash"></i> #Bash Guide</h1>
+		<p><code>{reference,survival}</code> guide to scripting in the bash shell</p>
+	</header>
+	<main>
+		<!-- CHAPTER START -->
+
+<h1 id="foreword">Foreword</h1>
+
+<p>Shell scripting can sometimes feel esoteric, cryptic, unintuitive, and error-prone. The goal of the document is to both offer a primer and quick reference of solutions to common issues and pitfalls for the bourne again shell. Examples will be in function format showcasing how to incorporate them into your code. Much of this guide will be presented as a collection of pure <code class="language-plaintext highlighter-rouge">bash</code> alternatives to external processes and programs. Calling an external process in <code class="language-plaintext highlighter-rouge">bash</code> is expensive and excessive use will cause a noticeable slowdown. Scripts and programs written using built-in methods <em>can</em> be faster, and fewer dependencies makes them more portable.</p>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="subshells">Subshells</h1>
+
+<p></p>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> <em>“everything”</em> in <code class="language-plaintext highlighter-rouge">bash</code> is a subshell</p>
+</blockquote>
+
+<h2 id="what-is-a-subshell">What is a subshell?</h2>
+
+<p>In UNIX <code class="language-plaintext highlighter-rouge">{,like}</code> systems processes are a tree. Upon script evaluation, <code class="language-plaintext highlighter-rouge">bash</code> creates a parent process called a <strong>shell</strong>. Which in-turn can spawn it’s own child process called a <strong>subshell</strong>. It’s possible for one parent to spawn multiple subshells.</p>
+
+<p>A subshell, also known as a child shell, is a separate instance of the shell that is spawned from the current shell process. It inherits the environment and variables from its parent shell but operates independently, allowing for isolated execution of it’s commands. When a subshell is created, it runs in a separate process, distinct from the parent shell.</p>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> Any changes made to the environment within the subshell, such as modifying variables or defining functions, are isolated and do not persist in the parent shell after the subshell terminates.</p>
+</blockquote>
+
+<h2 id="subshell-environment">Subshell environment</h2>
+
+<p>Every subshell has it’s own context memory, called an <strong>environment</strong>. Parents in the tree are responsible for their children, and provide them with a <em>copy</em> of their entire environment which they base their own upon. This means, only variables that are part of the currently executing shell’s environment are available in the child process.</p>
+
+<p>When you execute a program from the interactive <code class="language-plaintext highlighter-rouge">bash</code> prompt, e.g. <code class="language-plaintext highlighter-rouge">ls</code></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">ls</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">Bash</code> performs two steps:</p>
+<ul>
+  <li>Makes a copy of itself (a subshell)</li>
+  <li>The copy replaces itself with the <code class="language-plaintext highlighter-rouge">ls</code> program</li>
+</ul>
+
+<p>The copy of <code class="language-plaintext highlighter-rouge">bash</code> will inherit the environment from the “main bash” process, with all environment variables copied to the new subshell process.</p>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> The replacement process is referred to as <strong>forking</strong></p>
+</blockquote>
+
+<p>For a short moment, you have a process tree similar to:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.
+└── bash
+    └── bash (copy)
+</code></pre></div></div>
+
+<p>the “bash (copy)” subshell replaces itself with the <code class="language-plaintext highlighter-rouge">ls</code> program, then executes it:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.
+└── bash
+    └── ls
+</code></pre></div></div>
+
+<p>These two steps result in one program being run. The copy of the environment from the first step (forking) becomes the environment for the final running program (in this case, <code class="language-plaintext highlighter-rouge">ls</code>).</p>
+
+<p>In this example, the <code class="language-plaintext highlighter-rouge">ls</code> program runs inside its own environment, it can’t affect the environment of its parent process (in this case, <code class="language-plaintext highlighter-rouge">bash</code>). The state of the shell environment is copied as <code class="language-plaintext highlighter-rouge">ls</code> executes. Nothing is <em>“copied back”</em> to the parent environment when <code class="language-plaintext highlighter-rouge">ls</code> terminates.</p>
+
+<h2 id="parentheses-and-curly-braces">Parentheses and curly braces</h2>
+
+<p>The commands enclosed within parentheses are executed in a subshell. This is one of the most common and straightforward ways to create a subshell in Bash.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create a subshell</span>
+<span class="nv">$ </span><span class="o">(</span><span class="nb">pwd</span><span class="p">;</span> <span class="nb">ls</span><span class="p">;</span> <span class="nb">whoami</span><span class="o">)</span>
+<span class="c"># Using curly braces {...} around a set of commands can also create a subshell</span>
+<span class="nv">$ </span><span class="o">{</span> <span class="nb">sleep </span>3<span class="p">;</span> <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"Hello from subshell"</span><span class="p">;</span> <span class="o">}</span>
+<span class="c"># Subshell created</span>
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"Back in parent shell"</span>
+</code></pre></div></div>
+
+<h2 id="command-substitution">Command substitution</h2>
+
+<p>Command substitution creates a subshell and captures its output, which can be assigned to a variable or used in another command.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Assign the output of a subshell to a variable</span>
+localfunc<span class="o">(){</span> <span class="nb">echo </span>hi<span class="p">;</span><span class="o">}</span>
+<span class="nv">$output</span><span class="o">=</span><span class="si">$(</span>localfunc<span class="p">;</span><span class="nb">whoami</span><span class="si">)</span>
+</code></pre></div></div>
+
+<h2 id="explicit-subshell-invocation">Explicit subshell invocation</h2>
+
+<p>The bash built-in command can be used to start a subshell and execute commands within it explicitly. The -c option allows you to specify the commands to be executed.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Execute a subshell</span>
+<span class="nv">$ </span>bash <span class="nt">-c</span> <span class="s2">"ls; whoami"</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="variables">Variables</h1>
+
+<h2 id="scoping">Scoping</h2>
+
+<p>The parent shell and its subshells have a hierarchical relationship. As I have mentioned, the subshell inherits the environment variables, functions, and other settings from the parent shell, but any modifications made to the environment within the subshell are isolated and do not affect the parent shell.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">declare </span>a b c
+<span class="nv">a</span><span class="o">=</span>foo
+<span class="nv">b</span><span class="o">=</span>bar
+<span class="nv">c</span><span class="o">=</span>baz
+
+foo<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">local </span><span class="nv">a</span><span class="o">=</span>1 <span class="nv">b</span><span class="o">=</span>2 <span class="nv">c</span><span class="o">=</span>3
+
+    <span class="nb">echo</span> <span class="s2">"function scope"</span>
+    <span class="nb">declare</span> <span class="nt">-p</span> a
+    <span class="nb">declare</span> <span class="nt">-p</span> b
+    <span class="nb">declare</span> <span class="nt">-p</span> c
+<span class="o">}</span>
+
+foo
+
+<span class="nb">echo</span> <span class="s2">"global scope"</span>
+<span class="nb">declare</span> <span class="nt">-p</span> a
+<span class="nb">declare</span> <span class="nt">-p</span> b
+<span class="nb">declare</span> <span class="nt">-p</span> c
+</code></pre></div></div>
+
+<p>Output:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function scope
+declare -- a="1"
+declare -- b="2"
+declare -- c="3"
+global scope
+declare -- a="foo"
+declare -- b="bar"
+declare -- c="baz"
+</code></pre></div></div>
+
+<h2 id="multiple-assignment">Multiple assignment</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ var1</span><span class="o">=</span><span class="nv">var2</span><span class="o">=</span><span class="nv">var3</span><span class="o">=</span><span class="s2">"same value"</span>
+</code></pre></div></div>
+
+<h2 id="assign-and-access-a-variable-using-a-variable">Assign and access a variable using a variable</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ hello_world</span><span class="o">=</span><span class="s2">"value"</span>
+
+<span class="c"># Create the variable name.</span>
+<span class="nv">$ var</span><span class="o">=</span><span class="s2">"world"</span>
+<span class="nv">$ ref</span><span class="o">=</span><span class="s2">"hello_</span><span class="nv">$var</span><span class="s2">"</span>
+
+<span class="c"># Print the value of the variable name stored in 'hello_$var'.</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="p">!ref</span><span class="k">}</span><span class="s2">"</span>
+value
+</code></pre></div></div>
+
+<p>Alternatively, on <code class="language-plaintext highlighter-rouge">bash</code> 4.3+:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ hello_world</span><span class="o">=</span><span class="s2">"value"</span>
+<span class="nv">$ var</span><span class="o">=</span><span class="s2">"world"</span>
+
+<span class="c"># Declare a nameref.</span>
+<span class="nv">$ </span><span class="nb">declare</span> <span class="nt">-n</span> <span class="nv">ref</span><span class="o">=</span>hello_<span class="nv">$var</span>
+
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$ref</span><span class="s2">"</span>
+value
+</code></pre></div></div>
+
+<h2 id="name-a-variable-based-on-another-variable">Name a variable based on another variable</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ var</span><span class="o">=</span><span class="s2">"world"</span>
+<span class="nv">$ </span><span class="nb">declare</span> <span class="s2">"hello_</span><span class="nv">$var</span><span class="s2">=value"</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$hello_world</span><span class="s2">"</span>
+value
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="special-characters">Special Characters</h1>
+
+<p>Some characters are evaluated by Bash to have a non-literal meaning. Instead, these characters carry out a special instruction, or have an alternate meaning; they are called “special characters”, or “meta-characters”.</p>
+
+<table class="special">
+  <thead>
+    <tr>
+      <th>Characters</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">" "</code></td>
+      <td><strong>Whitespace</strong> this is a <em>“tab”, “newline”, “vertical tab”, “form feed”, “carriage return”,</em> or <em>“space”</em>. Bash uses whitespace to determine where words begin and end. The first word is the command name and additional words become arguments to that command.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">$</code></td>
+      <td><strong>Expansion</strong> a <em>“dollar sign”</em> introduces various types of expansion: parameter expansion (e.g. <code class="language-plaintext highlighter-rouge">$var</code> or <code class="language-plaintext highlighter-rouge">${var}</code>), command substitution (e.g. <code class="language-plaintext highlighter-rouge">$(command)</code>), or arithmetic expansion (e.g. <code class="language-plaintext highlighter-rouge">$((expression))</code>). see: <a href="#parameter-expansion">parameter expansion</a></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">''</code></td>
+      <td><strong>Single Quotes</strong> protect the text inside them so that it has a literal meaning. With them, generally any kind of interpretation by Bash is ignored: special characters are passed over and multiple words are prevented from being split.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">""</code></td>
+      <td><strong>Double Quotes</strong> protect the text inside them from being split into multiple words or arguments, yet allow substitutions to occur; the meaning of most other special characters is usually prevented.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\</code></td>
+      <td><strong>Escape</strong> <em>“backslash”</em> prevents the next character from being interpreted as a special character. This works outside of quoting, inside double quotes, and generally ignored in single quotes.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">#</code></td>
+      <td><strong>Comment</strong> the <em>“pound sign”</em> begins a commentary that extends to the end of the line. Comments are notes of explanation and are not processed by the shell.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">=</code></td>
+      <td><strong>Assignment</strong> assign a value to a variable (e.g. <code class="language-plaintext highlighter-rouge">logdir=/var/log/myprog</code>). Whitespace is not allowed on either side of the = character.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">[[ ]]</code></td>
+      <td><strong>Test</strong> an evaluation of a conditional expression to determine whether it is <code class="language-plaintext highlighter-rouge">true</code> or <code class="language-plaintext highlighter-rouge">false</code>. Tests are used in Bash to compare strings, check the existence of a file, etc.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">!</code></td>
+      <td><strong>Negate</strong> (or <em>“bang”</em>) is used to negate or reverse a test or exit status. e.g. <code class="language-plaintext highlighter-rouge">! grep text file; exit $?</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&gt;, &gt;&gt;, &lt;</code></td>
+      <td><strong>Redirection</strong> redirect a command’s output or input to a file.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&lt;&lt;</code></td>
+      <td><strong>HereDoc</strong> or <em>“hearfile”</em> is a <code class="language-plaintext highlighter-rouge">{file,input}</code> literal, a section of code treated as a seperate file. The syntax is <code class="language-plaintext highlighter-rouge">&lt;&lt; delimiter</code> then a line break. All subsequent lines will be redirected until the delimiter (usually <code class="language-plaintext highlighter-rouge">EOF</code>) is found at the start of a line.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&lt;&lt;&lt;</code></td>
+      <td><strong>HereString</strong> effects input redirection from a word (or quoted string). It’s key difference between a heredoc is that herestrings have no delimeter.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">|</code></td>
+      <td><strong>Pipe</strong> send the output from one command to the input of another command. This is a method of chaining commands together. e.g. <code class="language-plaintext highlighter-rouge">echo hello beautiful" | grep -o beautiful</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">;</code></td>
+      <td><strong>Command Separator</strong> <em>“semicolon”</em> is used to separate multiple commands that are on the same line.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">{ }</code></td>
+      <td><strong>Inline Group</strong> commands inside the curly braces are treated as if they were one command. It is convenient to use these when Bash syntax requires only one command and a function doesn’t feel warranted.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">( )</code></td>
+      <td><strong>Subshell Group</strong> similar to the above but where commands within are executed in a subshell (a new process). Used much like a sandbox, if a command causes side effects (like changing variables), it will have no effect on the current shell.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">(( ))</code></td>
+      <td><strong>Arithmetic Expression</strong> with an arithmetic expression, characters such as <code class="language-plaintext highlighter-rouge">+</code>, <code class="language-plaintext highlighter-rouge">-</code>, <code class="language-plaintext highlighter-rouge">*</code>, and <code class="language-plaintext highlighter-rouge">/</code> are mathematical operators used for calculations. They can be used for variable assignments e.g. <code class="language-plaintext highlighter-rouge">(( a = 1 + 4 ))</code> as well as tests like <code class="language-plaintext highlighter-rouge">if (( a &lt; b ))</code>. see <a href="#arithmetic">arithmetic</a></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">$(( ))</code></td>
+      <td><strong>Arithmetic Expansion</strong> Comparable to the above, but the expression is replaced with the result of its arithmetic evaluation. e.g. <code class="language-plaintext highlighter-rouge">echo "The average is $(( (a+b)/2 ))"</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">*, ?</code></td>
+      <td><strong>Globs</strong> <em>“wildcard”</em> characters which match parts of filenames. e.g. <code class="language-plaintext highlighter-rouge">ls *.txt</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">~</code></td>
+      <td><strong>Home Directory</strong> <em>“tilde”</em> is a representation of a home directory. When alone or followed by a <code class="language-plaintext highlighter-rouge">/</code>, it means the current user’s home directory; otherwise, a username must be specified. e.g. <code class="language-plaintext highlighter-rouge">ls ~/downloads; cp ~john/.bashrc .</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&amp;</code></td>
+      <td><strong>Background</strong> when a command is suffixed with an  <em>“ampersand”</em>, it is processed in the background. The script continues to run and does not wait for it to complete. Useful for long running processes, launching daemons, and task parallelization.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">:</code></td>
+      <td><strong>NOOP</strong> the <em>“colon”</em> symbol is an internal command of the shell that does nothing, yet is powerful. In <code class="language-plaintext highlighter-rouge">bash</code> is is functionally equivalent to <code class="language-plaintext highlighter-rouge">true</code>, but is often faster.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Examples:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ LOGNAME</span><span class="o">=</span><span class="s2">"LOG"</span>
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"it is: </span><span class="nv">$LOGNAME</span><span class="s2">"</span>
+it is: LOG
+
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'it is: $LOGNAME'</span>
+it is: <span class="nv">$LOGNAME</span>
+
+<span class="nv">$ </span><span class="c"># ignore me</span>
+
+<span class="nv">$ </span><span class="nb">echo </span>An open<span class="se">\ \ \ </span>space
+An open   space
+
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"my computer is </span><span class="si">$(</span><span class="nb">hostname</span><span class="si">)</span><span class="s2">"</span>
+my computer is localhost
+
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"slacker"</span> | <span class="nb">sed</span> <span class="s1">'s/sl/h/'</span>
+hacker
+
+<span class="nv">$ </span><span class="nb">echo</span> <span class="k">$((</span> <span class="m">5</span> <span class="o">+</span> <span class="m">5</span> <span class="k">))</span>
+10
+
+<span class="nv">$ </span><span class="o">((</span> 5 <span class="o">&gt;</span> 0 <span class="o">))</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"five is greater than zero."</span>
+five is greater than zero.
+
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$STUFF</span><span class="s2">"</span> <span class="o">&gt;</span> file
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"append"</span> <span class="o">&gt;&gt;</span> file
+
+<span class="nv">$ </span><span class="nb">tr </span>a-z A-Z <span class="o">&lt;&lt;&lt;</span> one
+ONE
+
+<span class="nv">$ </span><span class="nb">tr </span>a-z A-Z <span class="o">&lt;&lt;&lt;</span> <span class="s1">'one two three'</span>
+ONE TWO THREE
+
+<span class="nv">$ foo</span><span class="o">=</span><span class="s1">'one two three'</span>
+<span class="nv">$ </span><span class="nb">tr </span>a-z A-Z <span class="o">&lt;&lt;&lt;</span> <span class="s2">"</span><span class="nv">$foo</span><span class="s2">"</span>
+ONE TWO THREE
+
+<span class="nv">$ </span><span class="nb">tr </span>a-z A-Z <span class="o">&lt;&lt;&lt;</span> <span class="s1">'one
+&gt; two
+&gt; three'</span>
+ONE
+TWO
+THREE
+
+<span class="nv">$ </span>./lauch-daemon &amp;
+<span class="o">[</span>1] 806033 <span class="c"># the background task id is displayed</span>
+
+<span class="nv">$ </span>future_function<span class="o">()</span> <span class="o">{</span> :<span class="p">;</span> <span class="o">}</span>
+<span class="c"># stub implementation</span>
+
+<span class="nv">$ </span>:&gt; file.log
+<span class="c"># creates an empty file</span>
+
+<span class="nv">$ </span>: | misbehaving_program
+<span class="c"># silences/ignores subshell exit codes</span>
+
+<span class="nv">$ </span>: | cmd <span class="nt">--</span>
+<span class="c"># feeds an empty stream to a command</span>
+</code></pre></div></div>
+
+<p>the <code class="language-plaintext highlighter-rouge">:</code> in conjunction with a <code class="language-plaintext highlighter-rouge">heredoc</code> can be used to create multi-line comment blocks:</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>: <span class="o">&lt;&lt;</span> <span class="sh">'</span><span class="no">EOF</span><span class="sh">'
+
+This part of the script is a commented out
+</span><span class="no">
+EOF
+</span></code></pre></div></div>
+
+<p>NOOP or <code class="language-plaintext highlighter-rouge">true</code> are both useful for infinite loops (that break or exit themselves):</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> :<span class="p">;</span> <span class="k">do</span>
+    <span class="c"># do stuff</span>
+    <span class="o">[[</span> <span class="o">!</span> <span class="s2">"</span><span class="nv">$test</span><span class="s2">"</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">break</span><span class="p">;</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">herestrings</code> are particularly useful for commands that often take short input, such as the calculator <code class="language-plaintext highlighter-rouge">bc</code>:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>bc <span class="o">&lt;&lt;&lt;</span> 2^10
+1024
+</code></pre></div></div>
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> <code class="language-plaintext highlighter-rouge">herestring</code> behavior can also be accomplished by reversing the order and  piping the echo command:</p>
+</blockquote>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'one two three'</span> | <span class="nb">tr </span>a-z A-Z
+ONE TWO THREE
+</code></pre></div></div>
+<blockquote class="caveat">
+  <p><strong><em>CAVEAT:</em></strong> <code class="language-plaintext highlighter-rouge">herestrings</code> are particularly useful when the last command needs to run in the current process, as is the case with the <code class="language-plaintext highlighter-rouge">read</code> builtin:</p>
+</blockquote>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'one two three'</span> | <span class="nb">read</span> <span class="nt">-r</span> a b c
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$a</span><span class="s2"> </span><span class="nv">$b</span><span class="s2"> </span><span class="nv">$c</span><span class="s2">"</span>
+<span class="c">#</span>
+</code></pre></div></div>
+<p>yields nothing, while</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">read</span> <span class="nt">-r</span> a b c <span class="o">&lt;&lt;&lt;</span> <span class="s1">'one two three'</span>
+<span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$a</span><span class="s2"> </span><span class="nv">$b</span><span class="s2"> </span><span class="nv">$c</span><span class="s2">"</span>
+one two three
+</code></pre></div></div>
+<p>This happens because in the previous example “piping” causes read to run in a subshell, and as such cannot affect the environment of the parent process.</p>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="strings">Strings</h1>
+
+<h2 id="trim-leading-and-trailing-white-space-from-string">Trim leading and trailing white-space from string</h2>
+
+<p>This is an alternative to <code class="language-plaintext highlighter-rouge">sed</code>, <code class="language-plaintext highlighter-rouge">awk</code>, <code class="language-plaintext highlighter-rouge">perl</code> and other tools. The
+function below works by finding all leading and trailing white-space and
+removing it from the start and end of the string. The <code class="language-plaintext highlighter-rouge">:</code> built-in is used in place of a temporary variable.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>trim_string<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: trim_string "   example   string    "</span>
+    : <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">#</span><span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">%%[![</span>:space:]]<span class="p">*</span><span class="k">}</span><span class="s2">"</span><span class="k">}</span><span class="s2">"</span>
+    : <span class="s2">"</span><span class="k">${</span><span class="nv">_</span><span class="p">%</span><span class="s2">"</span><span class="k">${</span><span class="nv">_</span><span class="p">##*[![</span>:space:]]<span class="k">}</span><span class="s2">"</span><span class="k">}</span><span class="s2">"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$_</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>trim_string <span class="s2">"    Hello,  World    "</span>
+Hello,  World
+
+<span class="nv">$ name</span><span class="o">=</span><span class="s2">"   John Black  "</span>
+<span class="nv">$ </span>trim_string <span class="s2">"</span><span class="nv">$name</span><span class="s2">"</span>
+John Black
+</code></pre></div></div>
+
+<h2 id="trim-all-white-space-from-string-and-truncate-spaces">Trim all white-space from string and truncate spaces</h2>
+
+<p>This is an alternative to <code class="language-plaintext highlighter-rouge">sed</code>, <code class="language-plaintext highlighter-rouge">awk</code>, <code class="language-plaintext highlighter-rouge">perl</code> and other tools. The
+function below works by abusing word splitting to create a new string
+without leading/trailing white-space and with truncated spaces.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># shellcheck disable=SC2086,SC2048</span>
+trim_all<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: trim_all "   example   string    "</span>
+    <span class="nb">set</span> <span class="nt">-f</span>
+    <span class="nb">set</span> <span class="nt">--</span> <span class="nv">$*</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$*</span><span class="s2">"</span>
+    <span class="nb">set</span> +f
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>trim_all <span class="s2">"    Hello,    World    "</span>
+Hello, World
+
+<span class="nv">$ name</span><span class="o">=</span><span class="s2">"   John   Black  is     my    name.    "</span>
+<span class="nv">$ </span>trim_all <span class="s2">"</span><span class="nv">$name</span><span class="s2">"</span>
+John Black is my name.
+</code></pre></div></div>
+
+<h2 id="use-regex-on-a-string">Use regex on a string</h2>
+
+<p>The result of <code class="language-plaintext highlighter-rouge">bash</code>’s regex matching can be used to replace <code class="language-plaintext highlighter-rouge">sed</code> for a
+large number of use-cases.</p>
+
+<blockquote class="caveat">
+  <p><strong><em>CAVEAT:</em></strong> This is one of the few platform dependent <code class="language-plaintext highlighter-rouge">bash</code> features.
+<code class="language-plaintext highlighter-rouge">bash</code> will use whatever regex engine is installed on the user’s system.
+Stick to POSIX regex features if aiming for compatibility.</p>
+</blockquote>
+
+<blockquote class="caveat">
+  <p><strong><em>CAVEAT:</em></strong> This example only prints the first matching group. When using
+multiple capture groups some modification is needed.</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>regex<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: regex "string" "regex"</span>
+    <span class="o">[[</span> <span class="nv">$1</span> <span class="o">=</span>~ <span class="nv">$2</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">BASH_REMATCH</span><span class="p">[1]</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="c"># Trim leading white-space.</span>
+<span class="nv">$ </span>regex <span class="s1">'    hello'</span> <span class="s1">'^\s*(.*)'</span>
+hello
+
+<span class="nv">$ </span><span class="c"># Validate a hex color.</span>
+<span class="nv">$ </span>regex <span class="s2">"#FFFFFF"</span> <span class="s1">'^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'</span>
+<span class="c">#FFFFFF</span>
+
+<span class="nv">$ </span><span class="c"># Validate a hex color (invalid).</span>
+<span class="nv">$ </span>regex <span class="s2">"red"</span> <span class="s1">'^(#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$'</span>
+<span class="c"># no output (invalid)</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage in script:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>is_hex_color<span class="o">()</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$1</span> <span class="o">=</span>~ ^<span class="o">(</span><span class="c">#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))$ ]]; then</span>
+        <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">BASH_REMATCH</span><span class="p">[1]</span><span class="k">}</span><span class="s2">"</span>
+    <span class="k">else
+        </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"error: </span><span class="nv">$1</span><span class="s2"> is an invalid color."</span>
+        <span class="k">return </span>1
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="nb">read</span> <span class="nt">-r</span> color
+is_hex_color <span class="s2">"</span><span class="nv">$color</span><span class="s2">"</span> <span class="o">||</span> <span class="nv">color</span><span class="o">=</span><span class="s2">"#FFFFFF"</span>
+
+<span class="c"># Do stuff.</span>
+</code></pre></div></div>
+
+<h2 id="split-a-string-on-a-delimiter">Split a string on a delimiter</h2>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+</blockquote>
+
+<p>This is an alternative to <code class="language-plaintext highlighter-rouge">cut</code>, <code class="language-plaintext highlighter-rouge">awk</code> and other tools.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">split</span><span class="o">()</span> <span class="o">{</span>
+   <span class="c"># Usage: split "string" "delimiter"</span>
+   <span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n</span><span class="s1">'</span> <span class="nb">read</span> <span class="nt">-d</span> <span class="s2">""</span> <span class="nt">-ra</span> arr <span class="o">&lt;&lt;&lt;</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">//</span><span class="nv">$2</span><span class="p">/</span><span class="s1">$'</span><span class="se">\n</span><span class="s1">'</span><span class="k">}</span><span class="s2">"</span>
+   <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">split</span> <span class="s2">"apples,oranges,pears,grapes"</span> <span class="s2">","</span>
+apples
+oranges
+pears
+grapes
+
+<span class="nv">$ </span><span class="nb">split</span> <span class="s2">"1, 2, 3, 4, 5"</span> <span class="s2">", "</span>
+1
+2
+3
+4
+5
+
+<span class="c"># Multi char delimiters work too!</span>
+<span class="nv">$ </span><span class="nb">split</span> <span class="s2">"hello---world---my---name---is---john"</span> <span class="s2">"---"</span>
+hello
+world
+my
+name
+is
+john
+</code></pre></div></div>
+
+<h2 id="change-a-string-to-lowercase">Change a string to lowercase</h2>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lower<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: lower "string"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">,,</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>lower <span class="s2">"HELLO"</span>
+hello
+
+<span class="nv">$ </span>lower <span class="s2">"HeLlO"</span>
+hello
+
+<span class="nv">$ </span>lower <span class="s2">"hello"</span>
+hello
+</code></pre></div></div>
+
+<h2 id="change-a-string-to-uppercase">Change a string to uppercase</h2>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upper<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: upper "string"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">^^</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>upper <span class="s2">"hello"</span>
+HELLO
+
+<span class="nv">$ </span>upper <span class="s2">"HeLlO"</span>
+HELLO
+
+<span class="nv">$ </span>upper <span class="s2">"HELLO"</span>
+HELLO
+</code></pre></div></div>
+
+<h2 id="reverse-a-string-case">Reverse a string case</h2>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>reverse_case<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: reverse_case "string"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">~~</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>reverse_case <span class="s2">"hello"</span>
+HELLO
+
+<span class="nv">$ </span>reverse_case <span class="s2">"HeLlO"</span>
+hElLo
+
+<span class="nv">$ </span>reverse_case <span class="s2">"HELLO"</span>
+hello
+</code></pre></div></div>
+
+<h2 id="trim-quotes-from-a-string">Trim quotes from a string</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>trim_quotes<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: trim_quotes "string"</span>
+    : <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">//\</span><span class="s1">'}"
+    printf '</span><span class="p">%s\n</span><span class="s1">' "${_//\"}"
+}
+</span></code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ var</span><span class="o">=</span><span class="s2">"'Hello', </span><span class="se">\"</span><span class="s2">World</span><span class="se">\"</span><span class="s2">"</span>
+<span class="nv">$ </span>trim_quotes <span class="s2">"</span><span class="nv">$var</span><span class="s2">"</span>
+Hello, World
+</code></pre></div></div>
+
+<h2 id="strip-all-instances-of-pattern-from-string">Strip all instances of pattern from string</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>strip_all<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: strip_all "string" "pattern"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">//</span><span class="nv">$2</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>strip_all <span class="s2">"The Quick Brown Fox"</span> <span class="s2">"[aeiou]"</span>
+Th Qck Brwn Fx
+
+<span class="nv">$ </span>strip_all <span class="s2">"The Quick Brown Fox"</span> <span class="s2">"[[:space:]]"</span>
+TheQuickBrownFox
+
+<span class="nv">$ </span>strip_all <span class="s2">"The Quick Brown Fox"</span> <span class="s2">"Quick "</span>
+The Brown Fox
+</code></pre></div></div>
+
+<h2 id="strip-first-occurrence-of-pattern-from-string">Strip first occurrence of pattern from string</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>strip<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: strip "string" "pattern"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">/</span><span class="nv">$2</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>strip <span class="s2">"The Quick Brown Fox"</span> <span class="s2">"[aeiou]"</span>
+Th Quick Brown Fox
+
+<span class="nv">$ </span>strip <span class="s2">"The Quick Brown Fox"</span> <span class="s2">"[[:space:]]"</span>
+TheQuick Brown Fox
+</code></pre></div></div>
+
+<h2 id="strip-pattern-from-start-of-string">Strip pattern from start of string</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lstrip<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: lstrip "string" "pattern"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">##</span><span class="nv">$2</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>lstrip <span class="s2">"The Quick Brown Fox"</span> <span class="s2">"The "</span>
+Quick Brown Fox
+</code></pre></div></div>
+
+<h2 id="strip-pattern-from-end-of-string">Strip pattern from end of string</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rstrip<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: rstrip "string" "pattern"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">%%</span><span class="nv">$2</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>rstrip <span class="s2">"The Quick Brown Fox"</span> <span class="s2">" Fox"</span>
+The Quick Brown
+</code></pre></div></div>
+
+<h2 id="percent-encode-a-string">Percent-encode a string</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>urlencode<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: urlencode "string"</span>
+    <span class="nb">local </span><span class="nv">LC_ALL</span><span class="o">=</span>C
+    <span class="k">for</span> <span class="o">((</span> i <span class="o">=</span> 0<span class="p">;</span> i &lt; <span class="k">${#</span><span class="nv">1</span><span class="k">}</span><span class="p">;</span> i++ <span class="o">))</span><span class="p">;</span> <span class="k">do</span>
+        : <span class="s2">"</span><span class="k">${</span><span class="nv">1</span>:i:1<span class="k">}</span><span class="s2">"</span>
+        <span class="k">case</span> <span class="s2">"</span><span class="nv">$_</span><span class="s2">"</span> <span class="k">in</span>
+            <span class="o">[</span>a-zA-Z0-9.~_-]<span class="p">)</span>
+                <span class="nb">printf</span> <span class="s1">'%s'</span> <span class="s2">"</span><span class="nv">$_</span><span class="s2">"</span>
+            <span class="p">;;</span>
+
+            <span class="k">*</span><span class="p">)</span>
+                <span class="nb">printf</span> <span class="s1">'%%%02X'</span> <span class="s2">"'</span><span class="nv">$_</span><span class="s2">"</span>
+            <span class="p">;;</span>
+        <span class="k">esac</span>
+    <span class="k">done
+    </span><span class="nb">printf</span> <span class="s1">'\n'</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>urlencode <span class="s2">"https://github.com/dylanaraps/pure-bash-bible"</span>
+https%3A%2F%2Fgithub.com%2Fdylanaraps%2Fpure-bash-bible
+</code></pre></div></div>
+
+<h2 id="decode-a-percent-encoded-string">Decode a percent-encoded string</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>urldecode<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: urldecode "string"</span>
+    : <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">//+/ </span><span class="k">}</span><span class="s2">"</span>
+    <span class="nb">printf</span> <span class="s1">'%b\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">_</span><span class="p">//%/\\x</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>urldecode <span class="s2">"https%3A%2F%2Fgithub.com%2Fdylanaraps%2Fpure-bash-bible"</span>
+https://github.com/dylanaraps/pure-bash-bible
+</code></pre></div></div>
+
+<h2 id="check-if-string-contains-a-sub-string">Check if string contains a sub-string</h2>
+
+<p><strong>Using a test:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">[[</span> <span class="nv">$var</span> <span class="o">==</span> <span class="k">*</span>sub_string<span class="k">*</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"sub_string is in var."</span>
+<span class="k">fi</span>
+
+<span class="c"># Inverse (substring not in string).</span>
+<span class="k">if</span> <span class="o">[[</span> <span class="nv">$var</span> <span class="o">!=</span> <span class="k">*</span>sub_string<span class="k">*</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"sub_string is not in var."</span>
+<span class="k">fi</span>
+
+<span class="c"># This works for arrays too!</span>
+<span class="k">if</span> <span class="o">[[</span> <span class="k">${</span><span class="nv">arr</span><span class="p">[*]</span><span class="k">}</span> <span class="o">==</span> <span class="k">*</span>sub_string<span class="k">*</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"sub_string is in array."</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<p><strong>Using a case statement:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="s2">"</span><span class="nv">$var</span><span class="s2">"</span> <span class="k">in</span>
+    <span class="k">*</span>sub_string<span class="k">*</span><span class="p">)</span>
+        <span class="c"># Do stuff</span>
+    <span class="p">;;</span>
+
+    <span class="k">*</span>sub_string2<span class="k">*</span><span class="p">)</span>
+        <span class="c"># Do more stuff</span>
+    <span class="p">;;</span>
+
+    <span class="k">*</span><span class="p">)</span>
+        <span class="c"># Else</span>
+    <span class="p">;;</span>
+<span class="k">esac</span>
+</code></pre></div></div>
+
+<h2 id="check-if-string-starts-with-sub-string">Check if string starts with sub-string</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">[[</span> <span class="nv">$var</span> <span class="o">==</span> sub_string<span class="k">*</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"var starts with sub_string."</span>
+<span class="k">fi</span>
+
+<span class="c"># Inverse (var does not start with sub_string).</span>
+<span class="k">if</span> <span class="o">[[</span> <span class="nv">$var</span> <span class="o">!=</span> sub_string<span class="k">*</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"var does not start with sub_string."</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<h2 id="check-if-string-ends-with-sub-string">Check if string ends with sub-string</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">[[</span> <span class="nv">$var</span> <span class="o">==</span> <span class="k">*</span>sub_string <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"var ends with sub_string."</span>
+<span class="k">fi</span>
+
+<span class="c"># Inverse (var does not end with sub_string).</span>
+<span class="k">if</span> <span class="o">[[</span> <span class="nv">$var</span> <span class="o">!=</span> <span class="k">*</span>sub_string <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"var does not end with sub_string."</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="arrays">Arrays</h1>
+
+<h2 id="reverse-an-array">Reverse an array</h2>
+
+<p>Enabling <code class="language-plaintext highlighter-rouge">extdebug</code> allows access to the <code class="language-plaintext highlighter-rouge">BASH_ARGV</code> array which stores
+the current function’s arguments in reverse.</p>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> Requires <code class="language-plaintext highlighter-rouge">shopt -s compat44</code> in <code class="language-plaintext highlighter-rouge">bash</code> 5.0+.</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>reverse_array<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: reverse_array "array"</span>
+    <span class="nb">shopt</span> <span class="nt">-s</span> extdebug
+    f<span class="o">()(</span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">BASH_ARGV</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="o">)</span><span class="p">;</span> f <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+    <span class="nb">shopt</span> <span class="nt">-u</span> extdebug
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>reverse_array 1 2 3 4 5
+5
+4
+3
+2
+1
+
+<span class="nv">$ arr</span><span class="o">=(</span>red blue green<span class="o">)</span>
+<span class="nv">$ </span>reverse_array <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+green
+blue
+red
+</code></pre></div></div>
+
+<h2 id="remove-duplicate-array-elements">Remove duplicate array elements</h2>
+
+<p>Create a temporary associative array. When setting associative array
+values and a duplicate assignment occurs, bash overwrites the key. This
+allows us to effectively remove array duplicates.</p>
+
+<blockquote>
+  <p><strong><em>NOTE:</em></strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+</blockquote>
+
+<blockquote class="caveat">
+  <p><strong><em>CAVEAT:</em></strong> List order may not stay the same.</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>remove_array_dups<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: remove_array_dups "array"</span>
+    <span class="nb">declare</span> <span class="nt">-A</span> tmp_array
+
+    <span class="k">for </span>i <span class="k">in</span> <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span><span class="p">;</span> <span class="k">do</span>
+        <span class="o">[[</span> <span class="nv">$i</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nv">IFS</span><span class="o">=</span><span class="s2">" "</span> tmp_array[<span class="s2">"</span><span class="k">${</span><span class="nv">i</span><span class="k">:-</span><span class="p"> </span><span class="k">}</span><span class="s2">"</span><span class="o">]=</span>1
+    <span class="k">done
+
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="p">!tmp_array[@]</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>remove_array_dups 1 1 2 2 3 3 3 3 3 4 4 4 4 4 5 5 5 5 5 5
+1
+2
+3
+4
+5
+
+<span class="nv">$ arr</span><span class="o">=(</span>red red green blue blue<span class="o">)</span>
+<span class="nv">$ </span>remove_array_dups <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+red
+green
+blue
+</code></pre></div></div>
+
+<h2 id="random-array-element">Random array element</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>random_array_element<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: random_array_element "array"</span>
+    <span class="nb">local </span><span class="nv">arr</span><span class="o">=(</span><span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span><span class="o">)</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[RANDOM % </span><span class="nv">$#]</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ array</span><span class="o">=(</span>red green blue yellow brown<span class="o">)</span>
+<span class="nv">$ </span>random_array_element <span class="s2">"</span><span class="k">${</span><span class="nv">array</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+yellow
+
+<span class="c"># Multiple arguments can also be passed.</span>
+<span class="nv">$ </span>random_array_element 1 2 3 4 5 6 7
+3
+</code></pre></div></div>
+
+<h2 id="cycle-through-an-array">Cycle through an array</h2>
+
+<p>Each time the <code class="language-plaintext highlighter-rouge">printf</code> is called, the next array element is printed. When
+the print hits the last array element it starts from the first element
+again.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">arr</span><span class="o">=(</span>a b c d<span class="o">)</span>
+
+cycle<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">printf</span> <span class="s1">'%s '</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[</span><span class="k">${</span><span class="nv">i</span>:<span class="p">=0</span><span class="k">}</span><span class="p">]</span><span class="k">}</span><span class="s2">"</span>
+    <span class="o">((</span><span class="nv">i</span><span class="o">=</span>i&gt;<span class="o">=</span><span class="k">${#</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="nt">-1</span>?0:++i<span class="o">))</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="toggle-between-two-values">Toggle between two values</h2>
+
+<p>This works the same as above, this is just a different use case.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">arr</span><span class="o">=(</span><span class="nb">true false</span><span class="o">)</span>
+
+cycle<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">printf</span> <span class="s1">'%s '</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[</span><span class="k">${</span><span class="nv">i</span>:<span class="p">=0</span><span class="k">}</span><span class="p">]</span><span class="k">}</span><span class="s2">"</span>
+    <span class="o">((</span><span class="nv">i</span><span class="o">=</span>i&gt;<span class="o">=</span><span class="k">${#</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="nt">-1</span>?0:++i<span class="o">))</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="loops">Loops</h1>
+
+<h2 id="loop-over-a-range-of-numbers">Loop over a range of numbers</h2>
+
+<p>Alternative to <code class="language-plaintext highlighter-rouge">seq</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Loop from 0-100 (no variable support).</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>0..100<span class="o">}</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="loop-over-a-variable-range-of-numbers">Loop over a variable range of numbers</h2>
+
+<p>Alternative to <code class="language-plaintext highlighter-rouge">seq</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Loop from 0-VAR.</span>
+<span class="nv">VAR</span><span class="o">=</span>50
+<span class="k">for</span> <span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="o">=</span>VAR<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="loop-over-an-array">Loop over an array</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">arr</span><span class="o">=(</span>apples oranges tomatoes<span class="o">)</span>
+
+<span class="c"># Just elements.</span>
+<span class="k">for </span>element <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$element</span><span class="s2">"</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="loop-over-an-array-with-an-index">Loop over an array with an index</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">arr</span><span class="o">=(</span>apples oranges tomatoes<span class="o">)</span>
+
+<span class="c"># Elements and index.</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="p">!arr[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[i]</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># Alternative method.</span>
+<span class="k">for</span> <span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="k">${#</span><span class="nv">arr</span><span class="p">[@]</span><span class="k">}</span><span class="p">;</span>i++<span class="o">))</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">arr</span><span class="p">[i]</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="loop-over-the-contents-of-a-file">Loop over the contents of a file</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while </span><span class="nb">read</span> <span class="nt">-r</span> line<span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>
+<span class="k">done</span> &lt; <span class="s2">"file"</span>
+</code></pre></div></div>
+
+<h2 id="loop-over-files-and-directories">Loop over files and directories</h2>
+
+<p>Don’t use <code class="language-plaintext highlighter-rouge">ls</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Greedy example.</span>
+<span class="k">for </span>file <span class="k">in</span> <span class="k">*</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># PNG files in dir.</span>
+<span class="k">for </span>file <span class="k">in</span> ~/Pictures/<span class="k">*</span>.png<span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># Iterate over directories.</span>
+<span class="k">for </span><span class="nb">dir </span><span class="k">in</span> ~/Downloads/<span class="k">*</span>/<span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$dir</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># Brace Expansion.</span>
+<span class="k">for </span>file <span class="k">in</span> /path/to/parentdir/<span class="o">{</span>file1,file2,subdir/file3<span class="o">}</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># Iterate recursively.</span>
+<span class="nb">shopt</span> <span class="nt">-s</span> globstar
+<span class="k">for </span>file <span class="k">in</span> ~/Pictures/<span class="k">**</span>/<span class="k">*</span><span class="p">;</span> <span class="k">do
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
+<span class="k">done
+</span><span class="nb">shopt</span> <span class="nt">-u</span> globstar
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="file-handling">File Handling</h1>
+
+<blockquote class="caveat">
+  <p><strong><em>CAVEAT:</em></strong> <code class="language-plaintext highlighter-rouge">bash</code> does not handle binary data properly in versions <code class="language-plaintext highlighter-rouge">&lt; 4.4</code>.</p>
+</blockquote>
+
+<h2 id="read-a-file-to-a-string">Read a file to a string</h2>
+
+<p>Alternative to the <code class="language-plaintext highlighter-rouge">cat</code> command.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">file_data</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span>&lt;<span class="s2">"file"</span><span class="si">)</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="read-a-file-to-an-array-by-line">Read a file to an array (<em>by line</em>)</h2>
+
+<p>Alternative to the <code class="language-plaintext highlighter-rouge">cat</code> command.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Bash &lt;4 (discarding empty lines).</span>
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n</span><span class="s1">'</span> <span class="nb">read</span> <span class="nt">-d</span> <span class="s2">""</span> <span class="nt">-ra</span> file_data &lt; <span class="s2">"file"</span>
+
+<span class="c"># Bash &lt;4 (preserving empty lines).</span>
+<span class="k">while </span><span class="nb">read</span> <span class="nt">-r</span> line<span class="p">;</span> <span class="k">do
+    </span>file_data+<span class="o">=(</span><span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span><span class="o">)</span>
+<span class="k">done</span> &lt; <span class="s2">"file"</span>
+
+<span class="c"># Bash 4+</span>
+<span class="nb">mapfile</span> <span class="nt">-t</span> file_data &lt; <span class="s2">"file"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-first-n-lines-of-a-file">Get the first N lines of a file</h2>
+
+<p>Alternative to the <code class="language-plaintext highlighter-rouge">head</code> command.</p>
+
+<p><strong>NOTE:</strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">head</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: head "n" "file"</span>
+    <span class="nb">mapfile</span> <span class="nt">-tn</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> line &lt; <span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">line</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">head </span>2 ~/.bashrc
+<span class="c"># Prompt</span>
+<span class="nv">PS1</span><span class="o">=</span><span class="s1">'➜ '</span>
+
+<span class="nv">$ </span><span class="nb">head </span>1 ~/.bashrc
+<span class="c"># Prompt</span>
+</code></pre></div></div>
+
+<h2 id="get-the-last-n-lines-of-a-file">Get the last N lines of a file</h2>
+
+<p>Alternative to the <code class="language-plaintext highlighter-rouge">tail</code> command.</p>
+
+<p><strong>NOTE:</strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">tail</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: tail "n" "file"</span>
+    <span class="nb">mapfile</span> <span class="nt">-tn</span> 0 line &lt; <span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">line</span><span class="p">[@]</span>:<span class="p"> -</span><span class="nv">$1</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">tail </span>2 ~/.bashrc
+<span class="c"># Enable tmux.</span>
+<span class="c"># [[ -z "$TMUX"  ]] &amp;&amp; exec tmux</span>
+
+<span class="nv">$ </span><span class="nb">tail </span>1 ~/.bashrc
+<span class="c"># [[ -z "$TMUX"  ]] &amp;&amp; exec tmux</span>
+</code></pre></div></div>
+
+<h2 id="get-the-number-of-lines-in-a-file">Get the number of lines in a file</h2>
+
+<p>Alternative to <code class="language-plaintext highlighter-rouge">wc -l</code>.</p>
+
+<p><strong>Example Function (bash 4):</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lines<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: lines "file"</span>
+    <span class="nb">mapfile</span> <span class="nt">-tn</span> 0 lines &lt; <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${#</span><span class="nv">lines</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Function (bash 3):</strong></p>
+
+<p>This method uses less memory than the <code class="language-plaintext highlighter-rouge">mapfile</code> method and works in <code class="language-plaintext highlighter-rouge">bash</code> 3 but it is slower for bigger files.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lines_loop<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: lines_loop "file"</span>
+    <span class="nv">count</span><span class="o">=</span>0
+    <span class="k">while </span><span class="nv">IFS</span><span class="o">=</span> <span class="nb">read</span> <span class="nt">-r</span> _<span class="p">;</span> <span class="k">do</span>
+        <span class="o">((</span>count++<span class="o">))</span>
+    <span class="k">done</span> &lt; <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$count</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>lines ~/.bashrc
+48
+
+<span class="nv">$ </span>lines_loop ~/.bashrc
+48
+</code></pre></div></div>
+
+<h2 id="count-files-or-directories-in-directory">Count files or directories in directory</h2>
+
+<p>This works by passing the output of the glob to the function and then counting the number of arguments.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>count<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: count /path/to/dir/*</span>
+    <span class="c">#        count /path/to/dir/*/</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"$#"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Count all files in dir.</span>
+<span class="nv">$ </span>count ~/Downloads/<span class="k">*</span>
+232
+
+<span class="c"># Count all dirs in dir.</span>
+<span class="nv">$ </span>count ~/Downloads/<span class="k">*</span>/
+45
+
+<span class="c"># Count all jpg files in dir.</span>
+<span class="nv">$ </span>count ~/Pictures/<span class="k">*</span>.jpg
+64
+</code></pre></div></div>
+
+<h2 id="create-an-empty-file">Create an empty file</h2>
+
+<p>Alternative to <code class="language-plaintext highlighter-rouge">touch</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Shortest.</span>
+<span class="o">&gt;</span>file
+
+<span class="c"># Longer alternatives:</span>
+:&gt;file
+<span class="nb">echo</span> <span class="nt">-n</span> <span class="o">&gt;</span>file
+<span class="nb">printf</span> <span class="s1">''</span> <span class="o">&gt;</span>file
+</code></pre></div></div>
+
+<h2 id="extract-lines-between-two-markers">Extract lines between two markers</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>extract<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: extract file "opening marker" "closing marker"</span>
+    <span class="k">while </span><span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n</span><span class="s1">'</span> <span class="nb">read</span> <span class="nt">-r</span> line<span class="p">;</span> <span class="k">do</span>
+        <span class="o">[[</span> <span class="nv">$extract</span> <span class="o">&amp;&amp;</span> <span class="nv">$line</span> <span class="o">!=</span> <span class="s2">"</span><span class="nv">$3</span><span class="s2">"</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span>
+            <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>
+
+        <span class="o">[[</span> <span class="nv">$line</span> <span class="o">==</span> <span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nv">extract</span><span class="o">=</span>1
+        <span class="o">[[</span> <span class="nv">$line</span> <span class="o">==</span> <span class="s2">"</span><span class="nv">$3</span><span class="s2">"</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nv">extract</span><span class="o">=</span>
+    <span class="k">done</span> &lt; <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Extract code blocks from MarkDown file.</span>
+<span class="nv">$ </span>extract ~/projects/pure-bash/README.md <span class="s1">'```sh'</span> <span class="s1">'```'</span>
+<span class="c"># Output here...</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="file-paths">File Paths</h1>
+
+<h2 id="get-the-directory-name-of-a-file-path">Get the directory name of a file path</h2>
+
+<p>Alternative to the <code class="language-plaintext highlighter-rouge">dirname</code> command.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">dirname</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: dirname "path"</span>
+    <span class="nb">local </span><span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="k">:-</span><span class="p">.</span><span class="k">}</span>
+
+    <span class="o">[[</span> <span class="nv">$tmp</span> <span class="o">!=</span> <span class="k">*</span><span class="o">[!</span>/]<span class="k">*</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">{</span>
+        <span class="nb">printf</span> <span class="s1">'/\n'</span>
+        <span class="k">return</span>
+    <span class="o">}</span>
+
+    <span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">tmp</span><span class="p">%%</span><span class="s2">"</span><span class="k">${</span><span class="nv">tmp</span><span class="p">##*[!/]</span><span class="k">}</span><span class="s2">"</span><span class="k">}</span>
+
+    <span class="o">[[</span> <span class="nv">$tmp</span> <span class="o">!=</span> <span class="k">*</span>/<span class="k">*</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">{</span>
+        <span class="nb">printf</span> <span class="s1">'.\n'</span>
+        <span class="k">return</span>
+    <span class="o">}</span>
+
+    <span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">tmp</span><span class="p">%/*</span><span class="k">}</span>
+    <span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">tmp</span><span class="p">%%</span><span class="s2">"</span><span class="k">${</span><span class="nv">tmp</span><span class="p">##*[!/]</span><span class="k">}</span><span class="s2">"</span><span class="k">}</span>
+
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">tmp</span><span class="k">:-</span><span class="p">/</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">dirname</span> ~/Pictures/Wallpapers/1.jpg
+/home/black/Pictures/Wallpapers
+
+<span class="nv">$ </span><span class="nb">dirname</span> ~/Pictures/Downloads/
+/home/black/Pictures
+</code></pre></div></div>
+
+<h2 id="get-the-base-name-of-a-file-path">Get the base-name of a file path</h2>
+
+<p>Alternative to the <code class="language-plaintext highlighter-rouge">basename</code> command.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">basename</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: basename "path" ["suffix"]</span>
+    <span class="nb">local </span>tmp
+
+    <span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%</span><span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">##*[!/]</span><span class="k">}</span><span class="s2">"</span><span class="k">}</span>
+    <span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">tmp</span><span class="p">##*/</span><span class="k">}</span>
+    <span class="nv">tmp</span><span class="o">=</span><span class="k">${</span><span class="nv">tmp</span><span class="p">%</span><span class="s2">"</span><span class="k">${</span><span class="nv">2</span><span class="p">/</span><span class="s2">"</span><span class="nv">$tmp</span><span class="s2">"</span><span class="k">}</span><span class="s2">"</span><span class="k">}</span>
+
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">tmp</span><span class="k">:-</span><span class="p">/</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">basename</span> ~/Pictures/Wallpapers/1.jpg
+1.jpg
+
+<span class="nv">$ </span><span class="nb">basename</span> ~/Pictures/Wallpapers/1.jpg .jpg
+1
+
+<span class="nv">$ </span><span class="nb">basename</span> ~/Pictures/Downloads/
+Downloads
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="variables-1">Variables</h1>
+
+<h2 id="scoping-1">Scoping</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">declare </span>a b c
+<span class="nv">a</span><span class="o">=</span>foo
+<span class="nv">b</span><span class="o">=</span>bar
+<span class="nv">c</span><span class="o">=</span>baz
+
+foo<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">local </span><span class="nv">a</span><span class="o">=</span>1 <span class="nv">b</span><span class="o">=</span>2 <span class="nv">c</span><span class="o">=</span>3
+
+    <span class="nb">echo</span> <span class="s2">"function scope"</span>
+    <span class="nb">declare</span> <span class="nt">-p</span> a
+    <span class="nb">declare</span> <span class="nt">-p</span> b
+    <span class="nb">declare</span> <span class="nt">-p</span> c
+<span class="o">}</span>
+
+foo
+
+<span class="nb">echo</span> <span class="s2">"global scope"</span>
+<span class="nb">declare</span> <span class="nt">-p</span> a
+<span class="nb">declare</span> <span class="nt">-p</span> b
+<span class="nb">declare</span> <span class="nt">-p</span> c
+</code></pre></div></div>
+<p>Output:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>scope
+<span class="nb">declare</span> <span class="nt">--</span> <span class="nv">a</span><span class="o">=</span><span class="s2">"1"</span>
+<span class="nb">declare</span> <span class="nt">--</span> <span class="nv">b</span><span class="o">=</span><span class="s2">"2"</span>
+<span class="nb">declare</span> <span class="nt">--</span> <span class="nv">c</span><span class="o">=</span><span class="s2">"3"</span>
+global scope
+<span class="nb">declare</span> <span class="nt">--</span> <span class="nv">a</span><span class="o">=</span><span class="s2">"foo"</span>
+<span class="nb">declare</span> <span class="nt">--</span> <span class="nv">b</span><span class="o">=</span><span class="s2">"bar"</span>
+<span class="nb">declare</span> <span class="nt">--</span> <span class="nv">c</span><span class="o">=</span><span class="s2">"baz"</span>
+</code></pre></div></div>
+<h2 id="multiple-assignment-1">Multiple assignment</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ var1</span><span class="o">=</span><span class="nv">var2</span><span class="o">=</span><span class="nv">var3</span><span class="o">=</span><span class="s2">"same value"</span>
+</code></pre></div></div>
+
+<h2 id="assign-and-access-a-variable-using-a-variable-1">Assign and access a variable using a variable</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ hello_world</span><span class="o">=</span><span class="s2">"value"</span>
+
+<span class="c"># Create the variable name.</span>
+<span class="nv">$ var</span><span class="o">=</span><span class="s2">"world"</span>
+<span class="nv">$ ref</span><span class="o">=</span><span class="s2">"hello_</span><span class="nv">$var</span><span class="s2">"</span>
+
+<span class="c"># Print the value of the variable name stored in 'hello_$var'.</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="p">!ref</span><span class="k">}</span><span class="s2">"</span>
+value
+</code></pre></div></div>
+
+<p>Alternatively, on <code class="language-plaintext highlighter-rouge">bash</code> 4.3+:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ hello_world</span><span class="o">=</span><span class="s2">"value"</span>
+<span class="nv">$ var</span><span class="o">=</span><span class="s2">"world"</span>
+
+<span class="c"># Declare a nameref.</span>
+<span class="nv">$ </span><span class="nb">declare</span> <span class="nt">-n</span> <span class="nv">ref</span><span class="o">=</span>hello_<span class="nv">$var</span>
+
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$ref</span><span class="s2">"</span>
+value
+</code></pre></div></div>
+
+<h2 id="name-a-variable-based-on-another-variable-1">Name a variable based on another variable</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ var</span><span class="o">=</span><span class="s2">"world"</span>
+<span class="nv">$ </span><span class="nb">declare</span> <span class="s2">"hello_</span><span class="nv">$var</span><span class="s2">=value"</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$hello_world</span><span class="s2">"</span>
+value
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="escape-sequences">Escape Sequences</h1>
+
+<p>Contrary to popular belief, there is no issue in utilizing raw escape sequences. Using <code class="language-plaintext highlighter-rouge">tput</code> abstracts the same ANSI sequences as if printed manually. Worse still, <code class="language-plaintext highlighter-rouge">tput</code> is not actually portable. There are a number of <code class="language-plaintext highlighter-rouge">tput</code> variants each with different commands and syntaxes (<em>try <code class="language-plaintext highlighter-rouge">tput setaf 3</code> on a FreeBSD system</em>). Raw sequences are fine.</p>
+
+<h2 id="text-colors">Text Colors</h2>
+
+<p><strong>NOTE:</strong> Sequences requiring RGB values only work in True-Color Terminal Emulators.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Sequence</th>
+      <th>Description</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[38;5;&lt;NUM&gt;m</code></td>
+      <td>Set text foreground color</td>
+      <td><strong>0-255</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[48;5;&lt;NUM&gt;m</code></td>
+      <td>Set text background color</td>
+      <td><strong>0-255</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[38;2;&lt;R&gt;;&lt;G&gt;;&lt;B&gt;m</code></td>
+      <td>Set text foreground color to RGB color</td>
+      <td><strong>R</strong>, <strong>G</strong>, <strong>B</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[48;2;&lt;R&gt;;&lt;G&gt;;&lt;B&gt;m</code></td>
+      <td>Set text background color to RGB color</td>
+      <td><strong>R</strong>, <strong>G</strong>, <strong>B</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="text-attributes">Text Attributes</h2>
+
+<p><strong>NOTE:</strong> Prepend 2 to any code below to turn it’s effect off
+(examples: 21=bold text off, 22=faint text off, 23=italic text off).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Sequence</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[m</code></td>
+      <td>Reset text formatting and colors</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[1m</code></td>
+      <td>Bold text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[2m</code></td>
+      <td>Faint text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[3m</code></td>
+      <td>Italic text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[4m</code></td>
+      <td>Underline text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[5m</code></td>
+      <td>Blinking text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[7m</code></td>
+      <td>Highlighted text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[8m</code></td>
+      <td>Hidden text</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[9m</code></td>
+      <td>Strike-through text</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="cursor-movement">Cursor Movement</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Sequence</th>
+      <th>Description</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[&lt;LINE&gt;;&lt;COLUMN&gt;H</code></td>
+      <td>Move cursor to absolute position.</td>
+      <td><strong>line</strong>, <strong>column</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[H</code></td>
+      <td>Move cursor to home position (<strong>0,0</strong>)</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[&lt;NUM&gt;A</code></td>
+      <td>Move cursor up N lines</td>
+      <td><strong>num</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[&lt;NUM&gt;B</code></td>
+      <td>Move cursor down N lines</td>
+      <td><strong>num</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[&lt;NUM&gt;C</code></td>
+      <td>Move cursor right N columns</td>
+      <td><strong>num</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[&lt;NUM&gt;D</code></td>
+      <td>Move cursor left N columns</td>
+      <td><strong>num</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[s</code></td>
+      <td>Save cursor position</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[u</code></td>
+      <td>Restore cursor position</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="erasing-text">Erasing Text</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Sequence</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[K</code></td>
+      <td>Erase from cursor position to end of line</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[1K</code></td>
+      <td>Erase from cursor position to start of line</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[2K</code></td>
+      <td>Erase the entire current line</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[J</code></td>
+      <td>Erase from the current line to the bottom of the screen</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[1J</code></td>
+      <td>Erase from the current line to the top of the screen</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[2J</code></td>
+      <td>Clear the screen</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\e[2J\e[H</code></td>
+      <td>Clear the screen and move cursor to <strong>0,0</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="parameter-expansion">Parameter Expansion</h1>
+
+<h2 id="indirection">Indirection</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${!VAR}</code></td>
+      <td>Access a variable based on the value of <strong>VAR</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${!VAR*}</code></td>
+      <td>Expand to <strong>IFS</strong> separated list of variable names starting with <strong>VAR</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${!VAR@}</code></td>
+      <td>Expand to <strong>IFS</strong> separated list of variable names starting with <strong>VAR</strong>. If double-quoted, each variable name expands to a separate word</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="replacement">Replacement</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR#PATTERN}</code></td>
+      <td>Remove shortest match of pattern from start of string</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR##PATTERN}</code></td>
+      <td>Remove longest match of pattern from start of string</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR%PATTERN}</code></td>
+      <td>Remove shortest match of pattern from end of string</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR%%PATTERN}</code></td>
+      <td>Remove longest match of pattern from end of string</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR/PATTERN/REPLACE}</code></td>
+      <td>Replace first match with string</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR//PATTERN/REPLACE}</code></td>
+      <td>Replace all matches with string</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR/PATTERN}</code></td>
+      <td>Remove first match</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR//PATTERN}</code></td>
+      <td>Remove all matches</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="length">Length</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${#VAR}</code></td>
+      <td>Length of var in characters</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${#ARR[@]}</code></td>
+      <td>Length of array in elements</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="expansion">Expansion</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:OFFSET}</code></td>
+      <td>Remove first <strong>N</strong> chars from variable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:OFFSET:LENGTH}</code></td>
+      <td>Get substring from <strong>N</strong> character to <strong>N</strong> character. <br /> (<strong>${VAR:10:10}</strong>: Get sub-string from char <strong>10</strong> to char <strong>20</strong>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:: OFFSET}</code></td>
+      <td>Get first <strong>N</strong> chars from variable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:: -OFFSET}</code></td>
+      <td>Remove last <strong>N</strong> chars from variable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR: -OFFSET}</code></td>
+      <td>Get last <strong>N</strong> chars from variable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:OFFSET:-OFFSET}</code></td>
+      <td>Cut first <strong>N</strong> chars and last <strong>N</strong> chars. requires <strong>bash 4.2+</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="case-modification">Case Modification</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR^}</code></td>
+      <td>Uppercase first character</td>
+      <td><strong>bash 4+</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR^^}</code></td>
+      <td>Uppercase all characters</td>
+      <td><strong>bash 4+</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR,}</code></td>
+      <td>Lowercase first character</td>
+      <td><strong>bash 4+</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR,,}</code></td>
+      <td>Lowercase all characters</td>
+      <td><strong>bash 4+</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR~}</code></td>
+      <td>Reverse case of first character</td>
+      <td><strong>bash 4+</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR~~}</code></td>
+      <td>Reverse case of all characters</td>
+      <td><strong>bash 4+</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="default-value">Default Value</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:-STRING}</code></td>
+      <td>If <strong>VAR</strong> is empty or unset, use <strong>STRING</strong> as its value</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR-STRING}</code></td>
+      <td>If <strong>VAR</strong> is unset, use <strong>STRING</strong> as its value</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:=STRING}</code></td>
+      <td>If <strong>VAR</strong> is empty or unset, set the value of <strong>VAR</strong> to <strong>STRING</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR=STRING}</code></td>
+      <td>If <strong>VAR</strong> is unset, set the value of <strong>VAR</strong> to <strong>STRING</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:+STRING}</code></td>
+      <td>If <strong>VAR</strong> is not empty, use <strong>STRING</strong> as its value</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR+STRING}</code></td>
+      <td>If <strong>VAR</strong> is set, use <strong>STRING</strong> as its value</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR:?STRING}</code></td>
+      <td>Display an error if empty or unset</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">${VAR?STRING}</code></td>
+      <td>Display an error if unset</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="brace-expansion">Brace Expansion</h1>
+
+<h2 id="ranges">Ranges</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Syntax: {&lt;START&gt;..&lt;END&gt;}</span>
+
+<span class="c"># Print numbers 1-100.</span>
+<span class="nb">echo</span> <span class="o">{</span>1..100<span class="o">}</span>
+
+<span class="c"># Print range of floats.</span>
+<span class="nb">echo </span>1.<span class="o">{</span>1..9<span class="o">}</span>
+
+<span class="c"># Print chars a-z.</span>
+<span class="nb">echo</span> <span class="o">{</span>a..z<span class="o">}</span>
+<span class="nb">echo</span> <span class="o">{</span>A..Z<span class="o">}</span>
+
+<span class="c"># Nesting.</span>
+<span class="nb">echo</span> <span class="o">{</span>A..Z<span class="o">}{</span>0..9<span class="o">}</span>
+
+<span class="c"># Print zero-padded numbers.</span>
+<span class="c"># NOTE: requires bash 4+</span>
+<span class="nb">echo</span> <span class="o">{</span>01..100<span class="o">}</span>
+
+<span class="c"># Change increment amount.</span>
+<span class="c"># Syntax: {&lt;START&gt;..&lt;END&gt;..&lt;INCREMENT&gt;}</span>
+<span class="c"># NOTE: requires bash 4+</span>
+<span class="nb">echo</span> <span class="o">{</span>1..10..2<span class="o">}</span> <span class="c"># Increment by 2.</span>
+</code></pre></div></div>
+
+<h2 id="string-lists">String Lists</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="o">{</span>apples,oranges,pears,grapes<span class="o">}</span>
+
+<span class="c"># Example Usage:</span>
+<span class="c"># Remove dirs Movies, Music and ISOS from ~/Downloads/.</span>
+<span class="nb">rm</span> <span class="nt">-rf</span> ~/Downloads/<span class="o">{</span>Movies,Music,ISOS<span class="o">}</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="conditional-expressions">Conditional Expressions</h1>
+
+<h2 id="file-conditionals">File Conditionals</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Expression</th>
+      <th>Value</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-a</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-b</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a block special file</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-c</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a character special file</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-d</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a directory</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-e</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-f</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a regular file</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-g</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and its set-group-id bit is set</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-h</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a symbolic link</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-k</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and its sticky-bit is set</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-p</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a named pipe (<em>FIFO</em>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-r</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is readable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-s</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and its size is greater than zero</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-t</code></td>
+      <td><code class="language-plaintext highlighter-rouge">fd</code></td>
+      <td>If file descriptor is open and refers to a terminal</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-u</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and its set-user-id bit is set</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-w</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is writable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-x</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is executable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-G</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is owned by the effective group ID</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-L</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a symbolic link</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-N</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and has been modified since last read</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-O</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is owned by the effective user ID</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-S</code></td>
+      <td><code class="language-plaintext highlighter-rouge">file</code></td>
+      <td>If file exists and is a socket</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="file-comparisons">File Comparisons</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Expression</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">file -ef file2</code></td>
+      <td>If both files refer to the same inode and device numbers</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">file -nt file2</code></td>
+      <td>If <strong>file</strong> is newer than <strong>file2</strong> (<em>uses modification time</em>) or <strong>file</strong> exists and <strong>file2</strong> does not</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">file -ot file2</code></td>
+      <td>If <strong>file</strong> is older than <strong>file2</strong> (<em>uses modification time</em>) or <strong>file2</strong> exists and <strong>file</strong> does not</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="variable-conditionals">Variable Conditionals</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Expression</th>
+      <th>Value</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-o</code></td>
+      <td><code class="language-plaintext highlighter-rouge">opt</code></td>
+      <td>If shell option is enabled</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-v</code></td>
+      <td><code class="language-plaintext highlighter-rouge">var</code></td>
+      <td>If variable has a value assigned</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-R</code></td>
+      <td><code class="language-plaintext highlighter-rouge">var</code></td>
+      <td>If variable is a name reference</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-z</code></td>
+      <td><code class="language-plaintext highlighter-rouge">var</code></td>
+      <td>If the length of string is zero</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-n</code></td>
+      <td><code class="language-plaintext highlighter-rouge">var</code></td>
+      <td>If the length of string is non-zero</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="variable-comparisons">Variable Comparisons</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Expression</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">var = var2</code></td>
+      <td>Equal to</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">var == var2</code></td>
+      <td>Equal to (synonym for <strong>=</strong>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">var != var2</code></td>
+      <td>Not equal to</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">var &lt; var2</code></td>
+      <td>Less than (<em>in ASCII alphabetical order.</em>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">var &gt; var2</code></td>
+      <td>Greater than (<em>in ASCII alphabetical order.</em>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="arithmetic">Arithmetic</h1>
+
+<h2 id="assignment">Assignment</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operators</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">=</code></td>
+      <td>Initialize or change the value of a variable</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="expression">Expression</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operators</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">+</code></td>
+      <td>Addition</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-</code></td>
+      <td>Subtraction</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">*</code></td>
+      <td>Multiplication</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/</code></td>
+      <td>Division</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">**</code></td>
+      <td>Exponentiation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">%</code></td>
+      <td>Modulo</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">+=</code></td>
+      <td>Plus-Equal (<em>Increment a variable.</em>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">-=</code></td>
+      <td>Minus-Equal (<em>Decrement a variable.</em>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">*=</code></td>
+      <td>Times-Equal (<em>Multiply a variable.</em>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/=</code></td>
+      <td>Slash-Equal (<em>Divide a variable.</em>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">%=</code></td>
+      <td>Mod-Equal (<em>Remainder of dividing a variable.</em>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="bitwise">Bitwise</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operators</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&lt;&lt;</code></td>
+      <td>Bitwise Left Shift</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&lt;&lt;=</code></td>
+      <td>Left-Shift-Equal</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&gt;&gt;</code></td>
+      <td>Bitwise Right Shift</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&gt;&gt;=</code></td>
+      <td>Right-Shift-Equal</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&amp;</code></td>
+      <td>Bitwise AND</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&amp;=</code></td>
+      <td>Bitwise AND-Equal</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\|</code></td>
+      <td>Bitwise OR</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\|=</code></td>
+      <td>Bitwise OR-Equal</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">~</code></td>
+      <td>Bitwise NOT</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">^</code></td>
+      <td>Bitwise XOR</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">^=</code></td>
+      <td>Bitwise XOR-Equal</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="logical">Logical</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operators</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">!</code></td>
+      <td>NOT</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&amp;&amp;</code></td>
+      <td>AND</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">\|\|</code></td>
+      <td>OR</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="miscellaneous">Miscellaneous</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operators</th>
+      <th>Description</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">,</code></td>
+      <td>Comma Separator</td>
+      <td><code class="language-plaintext highlighter-rouge">((a=1,b=2,c=3))</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="simpler-syntax-to-set-variables">Simpler syntax to set variables</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Simple math</span>
+<span class="o">((</span><span class="nv">var</span><span class="o">=</span>1+2<span class="o">))</span>
+
+<span class="c"># Decrement/Increment variable</span>
+<span class="o">((</span>var++<span class="o">))</span>
+<span class="o">((</span>var--<span class="o">))</span>
+<span class="o">((</span>var+<span class="o">=</span>1<span class="o">))</span>
+<span class="o">((</span>var-<span class="o">=</span>1<span class="o">))</span>
+
+<span class="c"># Using variables</span>
+<span class="o">((</span><span class="nv">var</span><span class="o">=</span>var2<span class="k">*</span>arr[2]<span class="o">))</span>
+</code></pre></div></div>
+
+<h2 id="ternary-tests">Ternary Tests</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Set the value of var to var2 if var2 is greater than var.</span>
+<span class="c"># var: variable to set.</span>
+<span class="c"># var2&gt;var: Condition to test.</span>
+<span class="c"># ?var2: If the test succeeds.</span>
+<span class="c"># :var: If the test fails.</span>
+<span class="o">((</span><span class="nv">var</span><span class="o">=</span>var2&gt;var?var2:var<span class="o">))</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="traps">Traps</h1>
+
+<p>Traps allow a script to execute code on various signals. In <a href="https://github.com/dylanaraps/pxltrm">pxltrm</a> (<em>a pixel art editor written in bash</em>)  traps are used to redraw the user interface on window resize. Another use case is cleaning up temporary files on script exit.</p>
+
+<p>Traps should be added near the start of scripts so any early errors are also caught.</p>
+
+<p><strong>NOTE:</strong> For a full list of signals, see <code class="language-plaintext highlighter-rouge">trap -l</code>.</p>
+
+<h2 id="on-script-exit">On script exit</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Clear screen on script exit.</span>
+<span class="nb">trap</span> <span class="s1">'printf \\e[2J\\e[H\\e[m'</span> EXIT
+</code></pre></div></div>
+
+<h2 id="ignoring-interrupts-ctrlc-sigint">Ignoring interrupts (CTRL+C, SIGINT)</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">trap</span> <span class="s1">''</span> INT
+</code></pre></div></div>
+
+<h2 id="react-to-window-resize">React to window resize</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Call a function on window resize.</span>
+<span class="nb">trap</span> <span class="s1">'code_here'</span> SIGWINCH
+</code></pre></div></div>
+
+<h2 id="pre-command-execution">Pre-command execution</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">trap</span> <span class="s1">'code_here'</span> DEBUG
+</code></pre></div></div>
+
+<h2 id="on-funcion-or-source-completion">On funcion or source completion</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">trap</span> <span class="s1">'code_here'</span> RETURN
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="performance">Performance</h1>
+
+<h2 id="disable-unicode">Disable Unicode</h2>
+
+<p>If unicode is not required, it can be disabled for a performance increase. Results may vary however there have been noticeable improvements in <a href="https://github.com/dylanaraps/neofetch">neofetch</a> and other programs.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Disable unicode.</span>
+<span class="nv">LC_ALL</span><span class="o">=</span>C
+<span class="nv">LANG</span><span class="o">=</span>C
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="obsolete-syntax">Obsolete Syntax</h1>
+
+<h2 id="shebang">Shebang</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">#!/usr/bin/env bash</code> instead of <code class="language-plaintext highlighter-rouge">#!/bin/bash</code>.</p>
+
+<ul>
+  <li>The former searches the user’s <code class="language-plaintext highlighter-rouge">PATH</code> to find the <code class="language-plaintext highlighter-rouge">bash</code> binary.</li>
+  <li>The latter assumes it is always installed to <code class="language-plaintext highlighter-rouge">/bin/</code> which can cause issues.</li>
+</ul>
+
+<p><strong>NOTE:</strong> There are times when one may have a good reason for using <code class="language-plaintext highlighter-rouge">#!/bin/bash</code> or another direct path to the binary.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Right:</span>
+
+    <span class="c">#!/usr/bin/env bash</span>
+
+<span class="c"># Less right:</span>
+
+    <span class="c">#!/bin/bash</span>
+</code></pre></div></div>
+
+<h2 id="command-substitution-1">Command Substitution</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">$()</code> instead of <code class="language-plaintext highlighter-rouge">` `</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Right.</span>
+<span class="nv">var</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">command</span><span class="si">)</span><span class="s2">"</span>
+
+<span class="c"># Wrong.</span>
+<span class="nv">var</span><span class="o">=</span><span class="sb">`</span><span class="nb">command</span><span class="sb">`</span>
+
+<span class="c"># $() can easily be nested whereas `` cannot.</span>
+<span class="nv">var</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">command</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">command</span><span class="si">)</span><span class="s2">"</span><span class="si">)</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="function-declaration">Function Declaration</h2>
+
+<p>Do not use the <code class="language-plaintext highlighter-rouge">function</code> keyword, it reduces compatibility with older versions of <code class="language-plaintext highlighter-rouge">bash</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Right.</span>
+do_something<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># ...</span>
+<span class="o">}</span>
+
+<span class="c"># Wrong.</span>
+<span class="k">function </span>do_something<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># ...</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="internal-variables">Internal Variables</h1>
+
+<h2 id="get-the-location-to-the-bash-binary">Get the location to the bash binary</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$BASH</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-version-of-the-current-running-bash-process">Get the version of the current running bash process</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># As a string.</span>
+<span class="s2">"</span><span class="nv">$BASH_VERSION</span><span class="s2">"</span>
+
+<span class="c"># As an array.</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">BASH_VERSINFO</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="open-the-users-preferred-text-editor">Open the user’s preferred text editor</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$EDITOR</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
+
+<span class="c"># NOTE: This variable may be empty, set a fallback value.</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">EDITOR</span><span class="k">:-</span><span class="nv">vi</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-name-of-the-current-function">Get the name of the current function</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Current function.</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">FUNCNAME</span><span class="p">[0]</span><span class="k">}</span><span class="s2">"</span>
+
+<span class="c"># Parent function.</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">FUNCNAME</span><span class="p">[1]</span><span class="k">}</span><span class="s2">"</span>
+
+<span class="c"># So on and so forth.</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">FUNCNAME</span><span class="p">[2]</span><span class="k">}</span><span class="s2">"</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">FUNCNAME</span><span class="p">[3]</span><span class="k">}</span><span class="s2">"</span>
+
+<span class="c"># All functions including parents.</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">FUNCNAME</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-host-name-of-the-system">Get the host-name of the system</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$HOSTNAME</span><span class="s2">"</span>
+
+<span class="c"># NOTE: This variable may be empty.</span>
+<span class="c"># Optionally set a fallback to the hostname command.</span>
+<span class="s2">"</span><span class="k">${</span><span class="nv">HOSTNAME</span><span class="k">:-</span><span class="si">$(</span><span class="nb">hostname</span><span class="si">)</span><span class="k">}</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-architecture-of-the-operating-system">Get the architecture of the Operating System</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$HOSTTYPE</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-name-of-the-operating-system--kernel">Get the name of the Operating System / Kernel</h2>
+
+<p>This can be used to add conditional support for different Operating
+Systems without needing to call <code class="language-plaintext highlighter-rouge">uname</code>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$OSTYPE</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-current-working-directory">Get the current working directory</h2>
+
+<p>This is an alternative to the <code class="language-plaintext highlighter-rouge">pwd</code> built-in.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-the-number-of-seconds-the-script-has-been-running">Get the number of seconds the script has been running</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$SECONDS</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<h2 id="get-a-pseudorandom-integer">Get a pseudorandom integer</h2>
+
+<p>Each time <code class="language-plaintext highlighter-rouge">$RANDOM</code> is used, a different integer between <code class="language-plaintext highlighter-rouge">0</code> and <code class="language-plaintext highlighter-rouge">32767</code> is returned. This variable should not be used for anything related to security (<em>this includes encryption keys etc</em>).</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"</span><span class="nv">$RANDOM</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="information-about-the-terminal">Information About the Terminal</h1>
+
+<h2 id="get-the-terminal-size-in-lines-and-columns-from-a-script">Get the terminal size in lines and columns (<em>from a script</em>)</h2>
+
+<p>This is handy when writing scripts in pure bash and <code class="language-plaintext highlighter-rouge">stty</code>/<code class="language-plaintext highlighter-rouge">tput</code> can’t be
+called.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>get_term_size<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: get_term_size</span>
+
+    <span class="c"># (:;:) is a micro sleep to ensure the variables are</span>
+    <span class="c"># exported immediately.</span>
+    <span class="nb">shopt</span> <span class="nt">-s</span> checkwinsize<span class="p">;</span> <span class="o">(</span>:<span class="p">;</span>:<span class="o">)</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$LINES</span><span class="s2"> </span><span class="nv">$COLUMNS</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Output: LINES COLUMNS</span>
+<span class="nv">$ </span>get_term_size
+15 55
+</code></pre></div></div>
+
+<h2 id="get-the-terminal-size-in-pixels">Get the terminal size in pixels</h2>
+
+<blockquote class="caveat">
+  <p><strong><em>CAVEAT:</em></strong> This does not work in some terminal emulators.</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>get_window_size<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: get_window_size</span>
+    <span class="nb">printf</span> <span class="s1">'%b'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">TMUX</span>:+<span class="p">\\ePtmux;\\e</span><span class="k">}</span><span class="se">\\</span><span class="s2">e[14t</span><span class="k">${</span><span class="nv">TMUX</span>:+<span class="p">\\e\\\\</span><span class="k">}</span><span class="s2">"</span>
+    <span class="nv">IFS</span><span class="o">=</span><span class="s1">';t'</span> <span class="nb">read</span> <span class="nt">-d</span> t <span class="nt">-t</span> 0.05 <span class="nt">-sra</span> term_size
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">term_size</span><span class="p">[1]</span><span class="k">}</span><span class="s2">x</span><span class="k">${</span><span class="nv">term_size</span><span class="p">[2]</span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Output: WIDTHxHEIGHT</span>
+<span class="nv">$ </span>get_window_size
+1200x800
+
+<span class="c"># Output (fail):</span>
+<span class="nv">$ </span>get_window_size
+x
+</code></pre></div></div>
+
+<h2 id="get-the-current-cursor-position">Get the current cursor position</h2>
+
+<p>This is useful when creating a TUI in pure bash.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>get_cursor_pos<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: get_cursor_pos</span>
+    <span class="nv">IFS</span><span class="o">=</span><span class="s1">'[;'</span> <span class="nb">read</span> <span class="nt">-p</span> <span class="s1">$'</span><span class="se">\e</span><span class="s1">[6n'</span> <span class="nt">-d</span> R <span class="nt">-rs</span> _ y x _
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$x</span><span class="s2"> </span><span class="nv">$y</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Output: X Y</span>
+<span class="nv">$ </span>get_cursor_pos
+1 8
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="conversion">Conversion</h1>
+
+<h2 id="convert-a-hex-color-to-rgb">Convert a hex color to RGB</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hex_to_rgb<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: hex_to_rgb "#FFFFFF"</span>
+    <span class="c">#        hex_to_rgb "000000"</span>
+    : <span class="s2">"</span><span class="k">${</span><span class="nv">1</span><span class="p">/\#</span><span class="k">}</span><span class="s2">"</span>
+    <span class="o">((</span><span class="nv">r</span><span class="o">=</span>16#<span class="k">${</span><span class="nv">_</span>:0:2<span class="k">}</span>,g<span class="o">=</span>16#<span class="k">${</span><span class="nv">_</span>:2:2<span class="k">}</span>,b<span class="o">=</span>16#<span class="k">${</span><span class="nv">_</span>:4:2<span class="k">}</span><span class="o">))</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$r</span><span class="s2"> </span><span class="nv">$g</span><span class="s2"> </span><span class="nv">$b</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>hex_to_rgb <span class="s2">"#FFFFFF"</span>
+255 255 255
+</code></pre></div></div>
+
+<h2 id="convert-an-rgb-color-to-hex">Convert an RGB color to hex</h2>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rgb_to_hex<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: rgb_to_hex "r" "g" "b"</span>
+    <span class="nb">printf</span> <span class="s1">'#%02x%02x%02x\n'</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$3</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>rgb_to_hex <span class="s2">"255"</span> <span class="s2">"255"</span> <span class="s2">"255"</span>
+<span class="c">#FFFFFF</span>
+</code></pre></div></div>
+
+<h1 id="code-golf">Code Golf</h1>
+
+<h2 id="shorter-for-loop-syntax">Shorter for loop syntax</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Tiny C Style.</span>
+<span class="k">for</span><span class="o">((</span><span class="p">;</span>i++&lt;10<span class="p">;</span><span class="o">)){</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span><span class="p">;</span><span class="o">}</span>
+
+<span class="c"># Undocumented method.</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..10<span class="o">}</span><span class="p">;</span><span class="o">{</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span><span class="p">;</span><span class="o">}</span>
+
+<span class="c"># Expansion.</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..10<span class="o">}</span><span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+
+<span class="c"># C Style.</span>
+<span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="o">=</span>10<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="shorter-infinite-loops">Shorter infinite loops</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Normal method</span>
+<span class="k">while</span> :<span class="p">;</span> <span class="k">do </span><span class="nb">echo </span>hi<span class="p">;</span> <span class="k">done</span>
+
+<span class="c"># Shorter</span>
+<span class="k">for</span><span class="o">((</span><span class="p">;;</span><span class="o">)){</span> <span class="nb">echo </span>hi<span class="p">;</span><span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="shorter-function-declaration">Shorter function declaration</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Normal method</span>
+f<span class="o">(){</span> <span class="nb">echo </span>hi<span class="p">;</span><span class="o">}</span>
+
+<span class="c"># Using a subshell</span>
+f<span class="o">()(</span><span class="nb">echo </span>hi<span class="o">)</span>
+
+<span class="c"># Using arithmetic</span>
+<span class="c"># This can be used to assign integer values.</span>
+<span class="c"># Example: f a=1</span>
+<span class="c">#          f a++</span>
+f<span class="o">()((</span><span class="nv">$1</span><span class="o">))</span>
+
+<span class="c"># Using tests, loops etc.</span>
+<span class="c"># NOTE: ‘while’, ‘until’, ‘case’, ‘(())’, ‘[[]]’ can also be used.</span>
+f<span class="o">()</span><span class="k">if </span><span class="nb">true</span><span class="p">;</span> <span class="k">then </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span><span class="p">;</span> <span class="k">fi
+</span>f<span class="o">()</span><span class="k">for </span>i <span class="k">in</span> <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span><span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="shorter-if-syntax">Shorter if syntax</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># One line</span>
+<span class="c"># Note: The 3rd statement may run when the 1st is true</span>
+<span class="o">[[</span> <span class="nv">$var</span> <span class="o">==</span> hello <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">echo </span>hi <span class="o">||</span> <span class="nb">echo </span>bye
+<span class="o">[[</span> <span class="nv">$var</span> <span class="o">==</span> hello <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">{</span> <span class="nb">echo </span>hi<span class="p">;</span> <span class="nb">echo </span>there<span class="p">;</span> <span class="o">}</span> <span class="o">||</span> <span class="nb">echo </span>bye
+
+<span class="c"># Multi line (no else, single statement)</span>
+<span class="c"># Note: The exit status may not be the same as with an if statement</span>
+<span class="o">[[</span> <span class="nv">$var</span> <span class="o">==</span> hello <span class="o">]]</span> <span class="o">&amp;&amp;</span>
+    <span class="nb">echo </span>hi
+
+<span class="c"># Multi line (no else)</span>
+<span class="o">[[</span> <span class="nv">$var</span> <span class="o">==</span> hello <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">{</span>
+    <span class="nb">echo </span>hi
+    <span class="c"># ...</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="case-statement-variable-assignment">Case statement variable assignment</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">:</code> built-in can be used to avoid repeating <code class="language-plaintext highlighter-rouge">variable=</code> in a case statement. The <code class="language-plaintext highlighter-rouge">$_</code> variable stores the last argument of the last command. <code class="language-plaintext highlighter-rouge">:</code> always succeeds so it can be used to store the variable value.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Modified snippet from Neofetch.</span>
+<span class="k">case</span> <span class="s2">"</span><span class="nv">$OSTYPE</span><span class="s2">"</span> <span class="k">in</span>
+    <span class="s2">"darwin"</span><span class="k">*</span><span class="p">)</span>
+        : <span class="s2">"MacOS"</span>
+    <span class="p">;;</span>
+
+    <span class="s2">"linux"</span><span class="k">*</span><span class="p">)</span>
+        : <span class="s2">"Linux"</span>
+    <span class="p">;;</span>
+
+    <span class="k">*</span><span class="s2">"bsd"</span><span class="k">*</span> <span class="p">|</span> <span class="s2">"dragonfly"</span> <span class="p">|</span> <span class="s2">"bitrig"</span><span class="p">)</span>
+        : <span class="s2">"BSD"</span>
+    <span class="p">;;</span>
+
+    <span class="s2">"cygwin"</span> <span class="p">|</span> <span class="s2">"msys"</span> <span class="p">|</span> <span class="s2">"win32"</span><span class="p">)</span>
+        : <span class="s2">"Windows"</span>
+    <span class="p">;;</span>
+
+    <span class="k">*</span><span class="p">)</span>
+        <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"Unknown OS detected, aborting..."</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">exit </span>1
+    <span class="p">;;</span>
+<span class="k">esac</span>
+
+<span class="c"># Finally, set the variable.</span>
+<span class="nv">os</span><span class="o">=</span><span class="s2">"</span><span class="nv">$_</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="misc">Misc</h1>
+
+<h2 id="use-read-as-an-alternative-to-the-sleep-command">Use read as an alternative to the sleep command</h2>
+
+<p>Surprisingly, <code class="language-plaintext highlighter-rouge">sleep</code> is an external command and not a <code class="language-plaintext highlighter-rouge">bash</code> built-in.</p>
+
+<p><strong>NOTE:</strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>read_sleep<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: read_sleep 1</span>
+    <span class="c">#        read_sleep 0.2</span>
+    <span class="nb">read</span> <span class="nt">-rt</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> &lt;<span class="o">&gt;</span> &lt;<span class="o">(</span>:<span class="o">)</span> <span class="o">||</span> :
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>read_sleep 1
+read_sleep 0.1
+read_sleep 30
+</code></pre></div></div>
+
+<p>For performance-critical situations, where it is not economic to open and close an excessive number of file descriptors, the allocation of a file descriptor may be done only once for all invocations of <code class="language-plaintext highlighter-rouge">read</code>:</p>
+
+<p>(See the generic original implementation at https://blog.dhampir.no/content/sleeping-without-a-subprocess-in-bash-and-how-to-sleep-forever)</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">exec</span> <span class="o">{</span>sleep_fd<span class="o">}</span>&lt;<span class="o">&gt;</span> &lt;<span class="o">(</span>:<span class="o">)</span>
+<span class="k">while </span>some_quick_test<span class="p">;</span> <span class="k">do</span>
+    <span class="c"># equivalent of sleep 0.001</span>
+    <span class="nb">read</span> <span class="nt">-t</span> 0.001 <span class="nt">-u</span> <span class="nv">$sleep_fd</span>
+<span class="k">done</span>
+</code></pre></div></div>
+
+<h2 id="check-if-a-program-is-in-the-users-path">Check if a program is in the user’s PATH</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># There are 3 ways to do this and either one can be used.</span>
+<span class="nb">type</span> <span class="nt">-p</span> executable_name &amp;&gt;/dev/null
+<span class="nb">hash </span>executable_name &amp;&gt;/dev/null
+<span class="nb">command</span> <span class="nt">-v</span> executable_name &amp;&gt;/dev/null
+
+<span class="c"># As a test.</span>
+<span class="k">if </span><span class="nb">type</span> <span class="nt">-p</span> executable_name &amp;&gt;/dev/null<span class="p">;</span> <span class="k">then</span>
+    <span class="c"># Program is in PATH.</span>
+<span class="k">fi</span>
+
+<span class="c"># Inverse.</span>
+<span class="k">if</span> <span class="o">!</span> <span class="nb">type</span> <span class="nt">-p</span> executable_name &amp;&gt;/dev/null<span class="p">;</span> <span class="k">then</span>
+    <span class="c"># Program is not in PATH.</span>
+<span class="k">fi</span>
+
+<span class="c"># Example (Exit early if program is not installed).</span>
+<span class="k">if</span> <span class="o">!</span> <span class="nb">type</span> <span class="nt">-p</span> convert &amp;&gt;/dev/null<span class="p">;</span> <span class="k">then
+    </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"error: convert is not installed, exiting..."</span>
+    <span class="nb">exit </span>1
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<h2 id="get-the-current-date-using-strftime">Get the current date using strftime</h2>
+
+<p>Bash’s <code class="language-plaintext highlighter-rouge">printf</code> has a built-in method of getting the date which can be used in place of the <code class="language-plaintext highlighter-rouge">date</code> command.</p>
+
+<p><strong>NOTE:</strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">date</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: date "format"</span>
+    <span class="c"># See: 'man strftime' for format.</span>
+    <span class="nb">printf</span> <span class="s2">"%(</span><span class="nv">$1</span><span class="s2">)T</span><span class="se">\\</span><span class="s2">n"</span> <span class="s2">"-1"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Using above function.</span>
+<span class="nv">$ </span><span class="nb">date</span> <span class="s2">"%a %d %b  - %l:%M %p"</span>
+Fri 15 Jun  - 10:00 AM
+
+<span class="c"># Using printf directly.</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%(%a %d %b  - %l:%M %p)T\n'</span> <span class="s2">"-1"</span>
+Fri 15 Jun  - 10:00 AM
+
+<span class="c"># Assigning a variable using printf.</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="nt">-v</span> <span class="nb">date</span> <span class="s1">'%(%a %d %b  - %l:%M %p)T\n'</span> <span class="s1">'-1'</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="nv">$date</span><span class="s2">"</span>
+Fri 15 Jun  - 10:00 AM
+</code></pre></div></div>
+
+<h2 id="get-the-username-of-the-current-user">Get the username of the current user</h2>
+
+<p><strong>NOTE:</strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4.4+</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>: <span class="se">\\</span>u
+<span class="c"># Expand the parameter as if it were a prompt string.</span>
+<span class="nv">$ </span><span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">_</span><span class="p">@P</span><span class="k">}</span><span class="s2">"</span>
+black
+</code></pre></div></div>
+
+<h2 id="generate-a-uuid-v4">Generate a UUID V4</h2>
+
+<blockquote class="caveat">
+  <p><strong><em>CAVEAT:</em></strong> The generated value is not cryptographically secure.</p>
+</blockquote>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uuid<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: uuid</span>
+    <span class="nv">C</span><span class="o">=</span><span class="s2">"89ab"</span>
+
+    <span class="k">for</span> <span class="o">((</span><span class="nv">N</span><span class="o">=</span>0<span class="p">;</span>N&lt;16<span class="p">;</span>++N<span class="o">))</span><span class="p">;</span> <span class="k">do
+        </span><span class="nv">B</span><span class="o">=</span><span class="s2">"</span><span class="k">$((</span>RANDOM%256<span class="k">))</span><span class="s2">"</span>
+
+        <span class="k">case</span> <span class="s2">"</span><span class="nv">$N</span><span class="s2">"</span> <span class="k">in
+            </span>6<span class="p">)</span>  <span class="nb">printf</span> <span class="s1">'4%x'</span> <span class="s2">"</span><span class="k">$((</span>B%16<span class="k">))</span><span class="s2">"</span> <span class="p">;;</span>
+            8<span class="p">)</span>  <span class="nb">printf</span> <span class="s1">'%c%x'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">C</span>:<span class="nv">$RANDOM</span><span class="p">%</span><span class="k">${#</span><span class="nv">C</span><span class="k">}</span>:1<span class="k">}</span><span class="s2">"</span> <span class="s2">"</span><span class="k">$((</span>B%16<span class="k">))</span><span class="s2">"</span> <span class="p">;;</span>
+
+            3|5|7|9<span class="p">)</span>
+                <span class="nb">printf</span> <span class="s1">'%02x-'</span> <span class="s2">"</span><span class="nv">$B</span><span class="s2">"</span>
+            <span class="p">;;</span>
+
+            <span class="k">*</span><span class="p">)</span>
+                <span class="nb">printf</span> <span class="s1">'%02x'</span> <span class="s2">"</span><span class="nv">$B</span><span class="s2">"</span>
+            <span class="p">;;</span>
+        <span class="k">esac</span>
+    <span class="k">done
+
+    </span><span class="nb">printf</span> <span class="s1">'\n'</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>uuid
+d5b6c731-1310-4c24-9fe3-55d556d44374
+</code></pre></div></div>
+
+<h2 id="progress-bars">Progress bars</h2>
+
+<p>This is a simple way of drawing progress bars without needing a for loop
+in the function itself.</p>
+
+<p><strong>Example Function:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bar<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: bar 1 10</span>
+    <span class="c">#            ^----- Elapsed Percentage (0-100).</span>
+    <span class="c">#               ^-- Total length in chars.</span>
+    <span class="o">((</span><span class="nv">elapsed</span><span class="o">=</span><span class="nv">$1</span><span class="k">*</span><span class="nv">$2</span>/100<span class="o">))</span>
+
+    <span class="c"># Create the bar with spaces.</span>
+    <span class="nb">printf</span> <span class="nt">-v</span> prog  <span class="s2">"%</span><span class="k">${</span><span class="nv">elapsed</span><span class="k">}</span><span class="s2">s"</span>
+    <span class="nb">printf</span> <span class="nt">-v</span> total <span class="s2">"%</span><span class="k">$((</span><span class="nv">$2</span><span class="o">-</span>elapsed<span class="k">))</span><span class="s2">s"</span>
+
+    <span class="nb">printf</span> <span class="s1">'%s\r'</span> <span class="s2">"[</span><span class="k">${</span><span class="nv">prog</span><span class="p">// /-</span><span class="k">}${</span><span class="nv">total</span><span class="k">}</span><span class="s2">]"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="o">((</span><span class="nv">i</span><span class="o">=</span>0<span class="p">;</span>i&lt;<span class="o">=</span>100<span class="p">;</span>i++<span class="o">))</span><span class="p">;</span> <span class="k">do</span>
+    <span class="c"># Pure bash micro sleeps (for the example).</span>
+    <span class="o">(</span>:<span class="p">;</span>:<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span>:<span class="p">;</span>:<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span>:<span class="p">;</span>:<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span>:<span class="p">;</span>:<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span>:<span class="p">;</span>:<span class="o">)</span>
+
+    <span class="c"># Print the bar.</span>
+    bar <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span> <span class="s2">"10"</span>
+<span class="k">done
+
+</span><span class="nb">printf</span> <span class="s1">'\n'</span>
+</code></pre></div></div>
+
+<h2 id="get-the-list-of-functions-in-a-script">Get the list of functions in a script</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>get_functions<span class="o">()</span> <span class="o">{</span>
+    <span class="c"># Usage: get_functions</span>
+    <span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n</span><span class="s1">'</span> <span class="nb">read</span> <span class="nt">-d</span> <span class="s2">""</span> <span class="nt">-ra</span> functions &lt; &lt;<span class="o">(</span><span class="nb">declare</span> <span class="nt">-F</span><span class="o">)</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="s2">"</span><span class="k">${</span><span class="nv">functions</span><span class="p">[@]//declare -f </span><span class="k">}</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="bypass-shell-aliases">Bypass shell aliases</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># alias</span>
+<span class="nb">ls</span>
+
+<span class="c"># command</span>
+<span class="c"># shellcheck disable=SC1001</span>
+<span class="se">\l</span>s
+</code></pre></div></div>
+
+<h2 id="bypass-shell-functions">Bypass shell functions</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># function</span>
+<span class="nb">ls</span>
+
+<span class="c"># command</span>
+<span class="nb">command ls</span>
+</code></pre></div></div>
+
+<h2 id="run-a-command-in-the-background">Run a command in the background</h2>
+
+<p>This will run the given command and keep it running, even after the terminal or SSH connection is terminated. All output is ignored.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bkr<span class="o">()</span> <span class="o">{</span>
+    <span class="o">(</span><span class="nb">nohup</span> <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span> &amp;&gt;/dev/null &amp;<span class="o">)</span>
+<span class="o">}</span>
+
+bkr ./some_script.sh <span class="c"># some_script.sh is now running in the background</span>
+</code></pre></div></div>
+
+<h2 id="capture-the-return-value-of-a-function-without-command-substitution">Capture the return value of a function without command substitution</h2>
+
+<p><strong>NOTE:</strong> Requires <code class="language-plaintext highlighter-rouge">bash</code> 4+</p>
+
+<p>This uses local namerefs to avoid using <code class="language-plaintext highlighter-rouge">var=$(some_func)</code> style command substitution for function output capture.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>to_upper<span class="o">()</span> <span class="o">{</span>
+  <span class="nb">local</span> <span class="nt">-n</span> <span class="nv">ptr</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="k">}</span>
+
+  <span class="nv">ptr</span><span class="o">=</span><span class="k">${</span><span class="nv">ptr</span><span class="p">^^</span><span class="k">}</span>
+<span class="o">}</span>
+
+<span class="nv">foo</span><span class="o">=</span><span class="s2">"bar"</span>
+to_upper foo
+<span class="nb">printf</span> <span class="s2">"%s</span><span class="se">\n</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">foo</span><span class="k">}</span><span class="s2">"</span> <span class="c"># BAR</span>
+</code></pre></div></div>
+
+<!-- CHAPTER END -->
+
+<!-- CHAPTER START -->
+
+<h1 id="references-and-further-reading">References and Further Reading</h1>
+
+<ul id="refs">
+  <li><a href="https://web.archive.org/web/20230406205817/https://wiki.bash-hackers.org/">The Bash-Hackers Wiki</a> The most human-readable documentation of any kind about Bash <code class="language-plaintext highlighter-rouge">ARCHIVED</code></li>
+  <li><a href="https://web.archive.org/web/20230330234404/https://wiki.bash-hackers.org/scripting/newbie_traps">Bash beginner’s mistakes</a> by the Bash-Hackers Wiki <code class="language-plaintext highlighter-rouge">ARCHIVED</code></li>
+  <li><a href="http://mywiki.wooledge.org/BashGuide">Bash Guide</a> Excellent guide by Lhunath</li>
+  <li><a href="http://mywiki.wooledge.org/BashFAQ">Bash FAQ</a> Lhunath answers many common questions</li>
+  <li><a href="http://mywiki.wooledge.org/BashPitfalls">Bash Pitfalls</a> Discusses common pitfalls beginners fall into, and how to avoid them.</li>
+  <li><a href="http://www.gnu.org/software/bash/manual/">Bash manual</a> Official GNU Bourne-Again Shell manual.</li>
+  <li><a href="http://tiswww.case.edu/php/chet/bash/FAQ">Bash FAQ</a> by Chet Ramey</li>
+  <li><a href="http://tldp.org/LDP/abs/html/">Advanced Bash-Scripting Guide</a> An in-depth exploration of the art of shell scripting</li>
+  <li><a href="http://www.tldp.org/LDP/Bash-Beginners-Guide/html/">Bash Guide for Beginners</a> by Machtelt Garrels</li>
+  <li><a href="http://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html#toc">Bash Programming - Intro/How-to</a> Intermediate scripting by TLDP</li>
+  <li><a href="https://github.com/denysdovhan/bash-handbook">bash-handbook</a> A handbook for those who want to learn Bash without diving in too deeply</li>
+  <li><a href="https://google.github.io/styleguide/shellguide.html">Google’s Shell Style Guide</a> Reasonable advice about code style</li>
+  <li><a href="http://www.sobell.com/CR3/index.html">Sobell’s Book</a> A practical guide to commands, editors, and shell programming</li>
+  <li><a href="https://en.wikibooks.org/wiki/Bash_Shell_Scripting">WikiBooks: Bash Shell Scripting</a> All the citations</li>
+  <li><a href="http://redsymbol.net/articles/unofficial-bash-strict-mode/">Use the Unofficial Bash Strict Mode</a> <em>“Unless You Looove Debugging”</em></li>
+  <li><a href="https://github.com/denysdovhan/learnyoubash">learnyoubash</a> Interactive workshop for using the shell and writing your the first bash script</li>
+  <li><a href="https://web.archive.org/web/20180917174959/http://www.kfirlavi.com/blog/2012/11/14/defensive-bash-programming">Defensive BASH Programming</a> Defend your code from breakages while keeping it clean <code class="language-plaintext highlighter-rouge">ARCHIVED</code></li>
+  <li><a href="https://explainshell.com">explainshell</a> A website that breaks down shell commands, including their flags and options</li>
+  <li><a href="https://github.com/anordal/shellharden/blob/master/how_to_do_things_safely_in_bash.md">Safe ways to do things in bash</a> by the shellharden team</li>
+</ul>
+
+<!-- CHAPTER END -->
+
+		<h1 id="afterword">Afterword</h1>
+		<p><i class="git"></i> Contribute to the project at: <a href="https://github.com/dylanaraps/pure-bash-bible">github.com/dylanaraps/pure-bash-bible</a></p>
+		<p><i class="rip"></i> The now defunct, original Pure Bash Bible was available <a href="https://github.com/dylanaraps/pure-bash-bible">here</a>. RIP ol'McDylan, <a href="https://github.com/dylanaraps/dylanaraps/commit/811599cc564418e242f23a11082299323e7f62f8">enjoy your farm</a></p>
+	</main>
+</body>
+</html>

@@ -1,0 +1,185 @@
+#!/bin/bash
+weatherdata=""
+WEATHER_TEMP=""
+
+which_timestamp_to_traget_in_jq(){
+	CURRENT_TIME="$(date +"%H%M")"
+	if [ ${CURRENT_TIME} -lt 300 ];then
+		TARGET_TIME=300
+	elif [ ${CURRENT_TIME} -lt 600 ];then
+		TARGET_TIME=600
+	elif [ ${CURRENT_TIME} -lt 900 ];then
+		TARGET_TIME=900
+	elif [ ${CURRENT_TIME} -lt 1200 ];then
+		TARGET_TIME=1200
+	elif [ ${CURRENT_TIME} -lt 1500 ];then
+		TARGET_TIME=1500
+	elif [ ${CURRENT_TIME} -lt 1800 ];then
+		TARGET_TIME=1800
+	elif [ ${CURRENT_TIME} -lt 2100 ];then
+		TARGET_TIME=2100
+	else
+		TARGET_TIME=0
+		idx=1
+	fi
+}
+
+getprecipchance() {
+	idx=0
+	TARGET_TIME=0
+	which_timestamp_to_traget_in_jq
+	echo "$weatherdata_json" | jq --arg target_time "$TARGET_TIME" --argjson idx "$idx" '
+    			.weather[$idx].hourly[] | select(.time | tostring == $target_time).chanceofrain' | sed 's/"//g'
+}
+	
+getdailyhighlow() {
+	if [ "$units" = "metric" ];then
+		echo "$weatherdata_json" | jq -r ".weather[0].mintempC,.weather[0].maxtempC"
+	else
+		echo "$weatherdata_json" | jq -r ".weather[0].mintempF,.weather[0].maxtempF"
+	fi
+}
+
+show_weather_extra() {
+	weatherdata_json="$(cat "$weatherreport_json")"
+	printf "☔%s 🥶%s° 🌞%s°\n" "$(getprecipchance)" $(getdailyhighlow)
+}
+
+show_weather() {
+	weatherdata_json="$(cat "$weatherreport_json")"
+	if [ "$units" = "metric" ];then
+		echo "$weatherdata_json" | jq -r ".current_condition[0].temp_C"
+	else
+		echo "$weatherdata_json" | jq -r ".current_condition[0].temp_F"
+	fi
+}
+
+get_weather_report_less(){
+	weatherdata_json="$(cat "$weatherreport_json")"
+	WEATHER_MAIN=$(echo "$weatherdata_json" | jq -r ".current_condition[0].weatherDesc[0].value" | tr "[:lower:]" "[:upper:]")
+    
+    case "$WEATHER_MAIN" in
+        *"SNOW"*) weather_ICON=""; weather_description="Cold and snowy"; weather_TEXT="Snow" ;;
+        *"RAIN"* | *"DRIZZLE"*) weather_ICON=""; weather_description="Bring an umbrella"; weather_TEXT="Rainy" ;;
+        *"CLOUD"*) weather_ICON=""; weather_description="Perfect for outdoor activities"; weather_TEXT="Cloudy" ;;
+        *"STORM"*) weather_ICON=""; weather_description="Stay indoors, stormy weather"; weather_TEXT="Storm" ;;
+        *"CLEAR"* | *"SUNNY"*) weather_ICON=""; weather_description="Sunny, wear a hat"; weather_TEXT="Clear" ;;
+        *"FOG"* | *"MIST"*) weather_ICON=""; weather_description="Foggy, use your headlamp"; weather_TEXT="Fog" ;;
+        *) weather_ICON=" $WEATHER_MAIN"; weather_description="Unusual weather"; weather_TEXT="$WEATHER_MAIN" ;;
+    esac
+	if [ "$show_Extra" = true ];then
+		WEATHER_TEMP="$(show_weather_extra)"
+	else
+		WEATHER_TEMP="$(show_weather)"
+	fi
+	
+}
+
+get_weather_report_more(){
+	if [ "$show_Extra" = true ];then
+		less -Srf "$weatherreport"
+	else
+		get_weather_report_more_no_extra
+	fi
+}
+
+get_weather_report_more_no_extra() {
+	weatherdata_json=$(cat "${weatherreport_json}")
+	if [ "$units" = "metric" ];then
+		all_temp="$(echo "$weatherdata_json" | jq -r ".current_condition[0].temp_C,.weather[0].mintempC,.weather[0].maxtempC,.current_condition[0].windspeedKmph" | tr '\n' '|')"		
+	else
+		all_temp="$(echo "$weatherdata_json" | jq -r ".current_condition[0].temp_F,.weather[0].mintempF,.weather[0].maxtempF,.current_condition[0].windspeedMiles" | tr '\n' '|')"
+	fi
+	
+	temperature="$(echo "$all_temp" | awk -F '|' '{print $1}') $scaleT"
+	temperature_min="$(echo "$all_temp" | awk -F '|' '{print $2}') $scaleT"
+	temperature_max="$(echo "$all_temp" | awk -F '|' '{print $3}') $scaleT"
+	windspeed="$(echo "$all_temp" | awk -F '|' '{print $4}') $scaleV"
+    # load values into array:
+    all="$(echo "$weatherdata_json" | jq -r '.nearest_area[0].country[0].value,.current_condition[0].weatherDesc[0].value,.nearest_area[0].longitude,.nearest_area[0].latitude,.current_condition[0].weatherDesc[0].value,.current_condition[0].pressure,.current_condition[0].winddirDegree,.current_condition[0].cloudcover,.weather[0].astronomy[0].sunrise,.weather[0].astronomy[0].sunset,.current_condition[0].humidity' | tr '\n' '|')"
+	city=$(echo "$all" | awk -F '|' '{print $1}')
+    weather_desc=$(echo "$all" | awk -F '|' '{print $2}')
+	longitude=$(printf '%06.1f' $(echo "$all" | awk -F '|' '{print $3}'))
+	latitude=$(printf '%+.1f' $(echo "$all" | awk -F '|' '{print $4}'))
+	condition="$(echo "$all" | awk -F '|' '{print $5}')"
+	pressure=$(printf '%.f %s' $(echo "$all" | awk -F '|' '{print $6}') mb)
+	winddir=$(printf '%3.f%s' $(echo "$all" | awk -F '|' '{print $7}') °)
+	cloud_cover=$(printf '%d%s' $(echo "$all" | awk -F '|' '{print $8}') %)
+	sunrise=$(echo "$all" | awk -F '|' '{print $9}')
+	sunset=$(echo "$all" | awk -F '|' '{print $10}')
+	humidity="$(echo "$all" | awk -F '|' '{print $11}')"
+	description="$weather_desc"
+	
+	if [ "$show_Extra" = true ];then
+		less -Srf "$weatherreport"
+	else
+		#printf "%s; %s; %s %s" "$city" "$temperature" "$windspeed" "$winddir"
+		printf "%s: %s\nTemp: %s\nHumidity: %s\n" "$city" "$description" "$temperature" "$humidity"
+	fi
+}
+
+old_weather_data_(){
+	[ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
+	[ ! -s "$weatherreport_json" ] && [ "$(stat -c %y "$weatherreport_json" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
+}
+
+get_weather_data_(){
+	getURL '2term' "${WTTRURL}/$place" > "${weatherreport}"
+	getURL '2term' "${WTTRURL}/$place?format=j1" > "${weatherreport_json}"
+}
+
+parse_weather_for_conky_vision(){
+	weatherdata_json=$(cat "${weatherreport_json}")
+	cache_folder="$HOME/.cache/conky-vision"
+	image_folder="/usr/share/my_stuff/system_files/conky_weather_icons/wttr"
+
+	mkdir -p "${cache_folder}"
+		
+	parse_weather_file="${cache_folder}/parse_weather_file"
+	
+	if [ "$units" = "metric" ];then
+		unit_json="C"
+	else
+		unit_json="F"
+	fi
+	json_filter=".current_condition[0].temp_${unit_json},.weather[0].maxtemp${unit_json},.weather[1].maxtemp${unit_json},.weather[2].maxtemp${unit_json},.weather[0].mintemp${unit_json},.weather[1].mintemp${unit_json},.weather[2].mintemp${unit_json}"
+	all="$(echo "$weatherdata_json" | jq -r "$json_filter" | tr '\n' '|')"
+	current_temp=$(echo "$all" | awk -F '|' '{print $1}')
+	max1_temp=$(echo "$all" | awk -F '|' '{print $2}')
+	max2_temp=$(echo "$all" | awk -F '|' '{print $3}')
+	max3_temp=$(echo "$all" | awk -F '|' '{print $4}')
+	min1_temp=$(echo "$all" | awk -F '|' '{print $5}')
+	min2_temp=$(echo "$all" | awk -F '|' '{print $6}')
+	min3_temp=$(echo "$all" | awk -F '|' '{print $7}')
+		
+	tee ${parse_weather_file} <<- EOF >/dev/null
+	$current_temp
+	$max1_temp
+	$max2_temp
+	$max3_temp
+	$max3_temp
+	$min1_temp
+	$min2_temp
+	$min3_temp
+	$min3_temp
+	EOF
+	
+	current_file="$(echo "$weatherdata_json" | jq -r '.current_condition[0].weatherCode')"
+	current_realpath="$(realpath "${image_folder}/${current_file}.png")"
+	ln -sf "${current_realpath}"  "${cache_folder}/current.png"
+	
+	get_most_common_weather_code() {
+		local weather_data=$1
+		weatherdata_json_var="$(echo "$weatherdata_json" | jq -r ".weather[$weather_data].hourly[].weatherCode" | sort | uniq -c | sort -nr | head -n 1 | awk '{print $2}')"
+		realpath="$(realpath "${image_folder}/${weatherdata_json_var}.png")"
+		ln -sf "${realpath}" "${cache_folder}/forecast-${i}.png"
+	}
+	
+	# Process the forecast weather codes
+	for i in {0..2}; do
+  		get_most_common_weather_code "$i"
+	done
+	realpath_for_forecast_3="$(realpath ${cache_folder}/forecast-2.png)"
+	ln -sf "${realpath_for_forecast_3}" "${cache_folder}/forecast-3.png"
+}
+

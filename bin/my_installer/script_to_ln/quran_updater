@@ -1,0 +1,14 @@
+#!/bin/sh
+distro_path="/usr/share/my_stuff/system_files"
+PATH="${distro_path}/bin:$PATH"
+app_name="quran"
+Quran_Dir="${distro_path}/downloaded/Quran"
+download_url="$(getURL 'latestgit' '0xzer0x/quran-companion' 'x86_64.*AppImage' | head -n 1)"
+[ -d "$Quran_Dir" ] && my-superuser rm -rdf "${Quran_Dir}"
+my-superuser mkdir -p "$Quran_Dir"
+cd "$Quran_Dir"
+getURL 'download2' "$download_url" "/tmp/$USER/quran_companion.AppImage"
+my-superuser mv -f "/tmp/$USER/quran_companion.AppImage" .
+my-superuser chmod +x quran_companion.AppImage
+my-superuser chown root:root quran_companion.AppImage
+my-superuser ln -sf "${distro_path}/downloaded/Quran/quran_companion.AppImage" "${distro_path}/bin/quran"

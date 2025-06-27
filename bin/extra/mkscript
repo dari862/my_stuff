@@ -1,0 +1,32 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+# Simple script to generate a script file in my scripts directory
+
+scripts_folder_="$HOME/script"
+ans="${1-}"
+if [ -z "$ans" ];then
+	printf "File Name: "
+	
+	# Set a name for the script
+	while [ -z "$ans" ];
+		do
+  		read -r ans
+		
+  		if [ -z "$ans" ];then
+    		printf "File Name: "
+  		fi
+	done
+fi
+file=$scripts_folder_/$ans
+
+if [ ! -d "$scripts_folder_" ];then
+	mkdir -p $scripts_folder_
+fi
+
+if [ -e "$scripts_folder_/$ans" ];then
+	$CLI_EDITER "$file"
+else
+	cp -r "/usr/share/my_stuff/lib/Templates/ShellScripting/sh.sh" "$file"
+	$CLI_EDITER "$file"
+fi

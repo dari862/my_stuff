@@ -1,0 +1,14 @@
+#!/bin/sh
+desktop_number="${1:-}"
+## All windows are floating on desktop ${desktop_number}
+FLOATING_DESKTOP_ID=$(bspc query -D -d "^${desktop_number}")
+
+bspc subscribe node_add | while IFS= read -r msg ; do
+   # Extract the relevant fields using field splitting
+   desk_id=$(echo "$msg" | awk '{print $3}')
+   wid=$(echo "$msg" | awk '{print $5}')
+   
+   if [ "$FLOATING_DESKTOP_ID" = "$desk_id" ];then
+      bspc node "$wid" -t floating
+   fi
+done

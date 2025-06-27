@@ -1,0 +1,6 @@
+#!/bin/sh
+
+app_name="bluez blueman pulseaudio-module-bluetooth bluez-cups bluez-obexd bluez-tools"
+say 'Installing bluetooth-packages ...' 1
+
+Package_installer_ ${app_name} || continue

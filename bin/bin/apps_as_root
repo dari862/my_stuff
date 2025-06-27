@@ -1,0 +1,61 @@
+#!/bin/sh
+
+gui_app_are="${1:-}"
+
+if [ -z "$gui_app_are" ] ;then
+	echo "$0: no arg provided" 
+	exit 1
+elif [ "$gui_app_are" = "--yad" ] || [ "$gui_app_are" = "--rofi" ];then
+	shift 1
+fi
+
+app_2_run_as_root="$1"
+[ -z "$app_2_run_as_root" ] && echo "$0: no arg provided" && exit 1
+shift 1
+Extra_Arg="$@"
+
+if [ "$gui_app_are" = "--yad" ];then
+	password="$(/usr/share/my_stuff/bin/not_add_2_path/askpass/yad)"
+	ret="$?"
+elif [ "$gui_app_are" = "--rofi" ];then
+	password="$(/usr/share/my_stuff/bin/not_add_2_path/askpass/rofi)"
+	ret="$?"
+else
+	password="$(/usr/share/my_stuff/bin/not_add_2_path/askpass/rofi)"
+	ret="$?"
+fi
+
+if [ "$ret" = 2 ];then
+	exit 2
+fi
+
+app_2_run_as_root="$(which $app_2_run_as_root)"
+command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+
+if command -v doas >/dev/null 2>&1;then
+	expect <<-EOF
+	# don't mind the man behind the curtain
+	log_user 0
+	
+	# spawn doas operation
+	spawn doas $command_2_run
+	
+	# send password and execute command
+	expect {
+			"doas*password:" {
+				send -- "$password\r"
+				expect \r
+				log_user 1
+				expect eof
+			}
+	}
+	EOF
+else
+	if echo "$password" | my-superuser -S true >/dev/null 2>&1;then
+		my-superuser ${command_2_run}
+		return 0
+	else
+		yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --title Alert --text="\n  password was incorrect."
+		return 1
+	fi
+fi

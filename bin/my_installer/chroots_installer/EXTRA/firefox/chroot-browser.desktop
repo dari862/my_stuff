@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Chroot Browser (Default Browser)
+Comment=Browse the World Wide Web
+GenericName=Web Browser
+X-GNOME-FullName=firefox Web Browser
+Exec=/usr/share/my_stuff/system_files/bin/chroot-browser
+erminal=false
+X-MultipleArgs=false
+Type=Application
+Icon=org.xfce.webbrowser
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/vnd.mozilla.xul+xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;
+StartupNotify=true

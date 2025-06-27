@@ -1,0 +1,25 @@
+#!/bin/sh
+disconnected=""
+disconnected2=""
+disconnected3=""
+ESSID="none"
+ID="$(ip route | awk '/default/ { print $5 }')"
+case "$ID" in
+	e*)
+		_ip="$(ip address show dev $ID | grep 'inet ' | awk '{print $2}' | cut -f1 -d'/')"
+		echo "$_ip"
+		;;
+	w*)
+		# Dependencies: `wireless_tools`
+		wifi=$(iwgetid | awk -F '"' '{ print $2 }')
+		if [ -n "$wifi" ];then
+			ESSID="$wifi"
+		fi
+		echo "Wi-Fi: $ESSID"
+		;;
+	*)
+		echo "$disconnected" ; sleep 0.5
+		echo "$disconnected2" ; sleep 0.5
+		echo "$disconnected3" ; sleep 0.5
+		;;
+esac

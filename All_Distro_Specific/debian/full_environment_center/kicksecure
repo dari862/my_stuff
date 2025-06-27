@@ -1,0 +1,43 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+app_name="kicksecure"
+extra_apps_="gtk3-nocsd console-common extrepo"
+
+. "/usr/share/my_stuff/os-release"
+if [ "$version_codename" != "bookworm" ];then
+	echo "You need bookworm to install kicksecure."
+	exit 1
+fi
+
+__addgroup="$(my-superuser which addgroup)"
+__adduser="$(my-superuser which adduser)"
+
+full_upgrade_ || continue
+
+say 'Installing package...' 1
+Package_installer_ ${extra_apps_} || continue
+
+my-superuser $__addgroup --system console
+my-superuser $__adduser $USER console
+
+mkdir -p $HOME/.config/autostartscripts
+ln -sf "${_FULL_ENVIRONMENT_LIBDIR}"/kicksecure_phase2/launcher $HOME/.config/autostartscripts/kicksecure_phase2
+touch /tmp/$USER/not_rebooted
+# Copy users config
+say "Setting configs to all users..."
+for d in /home/*; do
+    user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+    if [ -d "$d/.config/myshell" ];then
+		echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0' | my-superuser tee -a "$d/.config/myshell/misc.sh" || continue
+		my-superuser chown -R $user_and_group "$d/.config/myshell/misc.sh" || continue
+	fi
+done
+
+my-superuser echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0' | my-superuser tee -a "/usr/share/my_stuff/system_files/skel/.config/myshell/misc.sh" || continue
+say "Prerequisites for  kicksecure installed successfully."
+say "you need to reboot to contionue kicksecure installion."
+say "you need to reboot to contionue kicksecure installion."
+say "you need to reboot to contionue kicksecure installion."
+say "you need to reboot to contionue kicksecure installion."
+say "you need to reboot to contionue kicksecure installion."
+say "it will contion after login in you new user: $USER ."

@@ -1,0 +1,25 @@
+#!/bin/sh
+# if this line exist script will be part of gui scripts.new_name=Fingerprint_GUI
+
+title_name="Fingerprint gui"
+icon_name="url_downloader"
+icon="/usr/share/my_stuff/icons/${icon_name}.png"
+
+yad --form \
+    --no-buttons \
+    --title="${title_name}" \
+    --window-icon="$icon" \
+    --width=400 \
+    --height=450 \
+    --center \
+    --button="Delete:10" \
+    --button="Enroll:20" \
+    --button="list:30" \
+    --button="Verify:40"
+exval=$?
+case $exval in
+	10) popup_terminal "fprintd-delete $USER";;
+	20) popup_terminal "for finger in {left,right}-{thumb,{index,middle,ring,little}-finger}; do fprintd-enroll -f "$finger" "$USER"; done";;
+	30) popup_terminal "fprintd-list $USER";;
+	40) popup_terminal "fprintd-verify";;
+esac

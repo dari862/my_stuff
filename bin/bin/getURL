@@ -1,0 +1,36 @@
+#!/bin/sh 	
+#getURL '2term' "url"
+#getURL 'download' "url"
+#getURL 'download2' "url" "path"
+#getURL 'head' "url"
+
+mode="${1-}"
+url="${2-}"
+path="${3-}"
+
+if command -v curl >/dev/null;then
+	if [ "${mode}" = "head" ];then
+		curl --head -fsS --max-redirs 0 "${url}" || exit 1
+	elif [ "${mode}" = "2term" ];then
+		curl -fsSL "${url}" || exit 1
+	elif [ "${mode}" = "download2" ];then
+		curl -fSLo "$path" "${url}" --progress-bar || exit 1
+	elif [ "${mode}" = "download" ];then
+		curl -fSLO "${url}" --progress-bar || exit 1
+	elif [ "${mode}" = "latestgit" ];then
+		curl -fsSL "https://api.github.com/repos/${url}/releases/latest" | grep -oP '(?<=browser_download_url": ")[^"]*' | grep "${path}" || exit 1
+	fi
+elif command -v wget >/dev/null;then
+	if [ "${mode}" = "head" ];then
+    	wget -S --spider --max-redirect=0 "${url}" || exit 1
+	elif [ "${mode}" = "2term" ];then
+    	wget -qO- "${url}" || exit 1
+	elif [ "${mode}" = "download2" ];then
+    	wget -q --show-progress -O "$path" "${url}" || exit 1
+	elif [ "${mode}" = "download" ];then
+		file_name="${url##*/}"
+    	wget --show-progress -O "${file_name}" "${url}" || exit 1
+    elif [ "${mode}" = "latestgit" ];then
+		wget -qO- "https://api.github.com/repos/${url}/releases/latest" | grep -oP '(?<=browser_download_url": ")[^"]*' | grep "${path}" || exit 1
+	fi
+fi

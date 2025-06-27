@@ -1,0 +1,4 @@
+#!/bin/sh -e
+app_name="Zed"
+
+flatpak_install ${app_name} dev.zed.Zed

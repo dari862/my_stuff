@@ -1,0 +1,10 @@
+#!/bin/sh
+
+app_name="yabause"
+if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+	app_name="yabause-qt5-git"
+	Distrobox_package_installer_ ${app_name} || continue
+else
+	say 'Installing package...' 1
+	Package_installer_ ${app_name} || continue
+fi

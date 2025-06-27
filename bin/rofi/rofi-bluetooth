@@ -1,0 +1,115 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# Depends on:
+#   repositories: rofi, bluez-utils (contains bluetoothctl)
+if [ ! -d /sys/class/bluetooth ];then
+	echo # No Bluetooth interface
+	exit 0
+fi
+
+# Constants
+
+divider="---------"
+goback="Back"
+
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/networkmenu.rasi"
+
+# A submenu for a specific device that allows connecting, pairing, and trusting
+device_menu() {
+    device=$1
+
+    # Get device name and mac address
+    device_name=$(echo "$device" | cut -d ' ' -f 3-)
+    mac=$(echo "$device" | cut -d ' ' -f 2)
+
+    # Build options
+    if device_connected "$mac";then
+        connected="Connected: yes"
+    else
+        connected="Connected: no"
+    fi
+    paired=$(bluetooth.sh device_paired "$mac")
+    trusted=$(bluetooth.sh device_trusted "$mac")
+    options="$connected\n$paired\n$trusted\n$divider\n$goback\nExit"
+
+    # Open rofi menu, read chosen option
+    chosen="$(printf "$options" | $rofi_command "$device_name")"
+
+    # Match chosen option to command
+    case "$chosen" in
+        "" | "$divider")
+            echo "No option chosen."
+            ;;
+        "$connected")
+           bluetooth.sh toggle_connection "$mac"
+            ;;
+        "$paired")
+            bluetooth.sh toggle_paired "$mac"
+            ;;
+        "$trusted")
+            bluetooth.sh toggle_trust "$mac"
+            ;;
+        "$goback")
+            show_menu
+            ;;
+    esac
+}
+
+# Opens a rofi menu with current bluetooth status and options to connect
+show_menu() {
+    # Get menu options
+    if bluetooth.sh power_on;then
+        power="Power: on"
+
+        # Human-readable names of devices, one per line
+        # If scan is off, will only list paired devices
+        devices=$(bluetoothctl devices | grep Device | cut -d ' ' -f 3-)
+
+        # Get controller flags
+        scan=$(bluetooth.sh scan_on)
+        pairable=$(bluetooth.sh pairable_on)
+        discoverable=$(bluetooth.sh discoverable_on)
+
+        # Options passed to rofi
+        options="$devices\n$divider\n$power\n$scan\n$pairable\n$discoverable\nExit"
+    else
+        power="Power: off"
+        options="$power\nExit"
+    fi
+
+    # Open rofi menu, read chosen option
+    chosen="$(printf "$options" | $rofi_command "Bluetooth")"
+
+    # Match chosen option to command
+    case "$chosen" in
+        "" | "$divider")
+            echo "No option chosen."
+            ;;
+        "$power")
+            bluetooth.sh toggle_power
+            ;;
+        "$scan")
+            bluetooth.sh toggle_scan
+            ;;
+        "$discoverable")
+            bluetooth.sh toggle_discoverable
+            ;;
+        "$pairable")
+            bluetooth.sh toggle_pairable
+            ;;
+        *)
+            device=$(bluetoothctl devices | grep "$chosen")
+            # Open a submenu if a device is selected
+            if [ "$device" ];then device_menu "$device"; fi
+            ;;
+    esac
+}
+
+# Rofi command to pipe into, can add any options here
+rofi_command="rofi -dmenu $* -p -theme ${RASI}"
+
+show_menu

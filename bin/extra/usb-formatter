@@ -1,0 +1,84 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=USB_formatter
+
+script_full_path="$(readlink -f "$0")"
+DIALOG="$(which yad) --center --width 400"
+TITLE="--always-print-result --dialog-sep --window-icon=usb-creator --image=usb-creator --title="
+TITLETEXT="USB Disk Formatter"
+TEXT="--text="
+OKBUTTON="--button=Ok:0 "
+DIALOGZEN="zenity --progress --pulsate --auto-close --auto-kill --no-cancel --window-icon=/usr/share/my_stuff/icons/linux.png --width=450 --height=120"
+TITLEZEN="--title="
+
+if [ "$(id -u)" -ne 0 ];
+then
+    apps_as_root ${script_full_path} $@
+    exit
+fi
+
+if [ "$(id -u)" -ne 0 ];
+then
+    exec my-superuser "$0" "$@" 
+fi
+
+formatmenu () {
+	if [ "$1" = "" ];then
+		$DIALOG $TITLE"$TITLETEXT" $TEXT"\nYou must select a USB key to use. Click OK to return to main menu."
+		mainmenu
+	fi
+	
+	$DIALOG $TITLE"$TITLETEXT" $TEXT"\nThis will completely delete the contents of your USB drive. You will not be able to undo this operation once it starts.\n\nClick OK to continue."
+	
+	if [ $? != 0 ];then
+		mainmenu
+	fi
+	
+	UMDEVS3=`mount | grep $1 | grep 3 | awk '{print $1}'`
+	if [ "$UMDEVS3" != "" ];then
+		umount "$UMDEVS3"
+		sleep 1
+	fi
+	
+	UMDEVS1=`mount | grep $1 | grep 1 | awk '{print $1}'`
+	umount "$UMDEVS1"
+	
+	(mkfs.vfat -F 32 -I -n $2 -v /dev/$1) | $DIALOGZEN $TITLEZEN"$TITLETEXT" $TEXT"\nFormatting the USB key now. \n\nPlease Wait...\n"
+	sleep 1
+	
+	$DIALOG $TITLE"$TITLETEXT" $TEXT"\nUSB key formatting completed. \n\nClick OK to quit." $OKBUTTON
+	
+	exit 0
+}
+
+mainmenu () {
+	DEVS=""
+	DEVS=`ls -l /dev/disk/by-path/*usb* 2>/dev/null | awk -F "/" ' ! /part/ {print $NF}'`
+	if [ "$DEVS" != "" ];then
+		for i in $DEVS; do
+		USBDRIVESIZE=`grep -m 1 "$i" /proc/partitions | awk '{print $3}'`
+		USBDRIVES="$USBDRIVES!$i-$USBDRIVESIZE"
+		done
+	else
+		$DIALOG $TITLE"$TITLETEXT" $OKBUTTON $TEXT"\nNo USB keys found.\n\nPlease insert a USB key and try again."
+		exit 0
+	fi
+	
+	CHOICES=`$DIALOG $TITLE"$TITLETEXT" --form --field="Choose USB key:CB" --field="USB Disk Label" $USBDRIVES --button="Quit:2" --button="Format USB key:1"`
+	ret="$?"
+	
+	if [ "$ret" = "1" ];then
+		USBDRIVE=`echo $CHOICES | cut -d "|" -f 1 | cut -d "-" -f 1`
+		NAMEDISK=`echo $CHOICES | cut -d "|" -f 2 | cut -c1-11`
+		if [ "$NAMEDISK" = "" ];then
+			NAMEDRIVE="USBDISK"
+		else
+			NAMEDRIVE="$NAMEDISK"
+		fi	
+		formatmenu $USBDRIVE $NAMEDRIVE
+	else
+		exit 0
+	fi
+}
+
+mainmenu

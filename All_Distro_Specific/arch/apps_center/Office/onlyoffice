@@ -1,0 +1,5 @@
+#!/bin/sh -e
+app_name="onlyoffice"
+
+say "Installing ${app_name}..." 1
+Package_installer_ onlyoffice

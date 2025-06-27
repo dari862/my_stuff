@@ -1,0 +1,110 @@
+#!/bin/sh
+
+# pipemenu - Variables and functions commonly used in custom scripts
+# for My Stuff Linux.
+
+# License and function descriptions omitted for brevity.
+
+# jgmenu functions
+
+# Associative arrays are not POSIX compliant, so we store menu items in a simple variable.
+menu_content=""
+
+jgmenuItem() {
+    tag="$1"
+    label="$2"
+    command="$3"
+    _jgmenuSetHeader "$tag"
+    menu_content="$menu_content\"$(pangoEscape "$label")\",\"$command\"\n"
+}
+
+jgmenuSeparator() {
+    tag="$1"
+    label="${2-}"
+    _jgmenuSetHeader "$tag"
+    menu_content="$menu_content^sep($(pangoEscape "$label"))\n"
+}
+
+jgmenuSubmenu() {
+    tag="$1"
+    submenu="$2"
+    label="$3"
+    _jgmenuSetHeader "$tag"
+    menu_content="$menu_content\"$(pangoEscape "$label")\",^checkout($submenu)\n"
+}
+
+jgmenuEnd() {
+    printf '%s\n' "$menu_content"
+    menu_content=""
+}
+
+_jgmenuSetHeader() {
+    tag="$1"
+    if [ "$tag" != "root" ] && [ -z "$(echo "$menu_content" | grep "^tag($tag)")" ];then
+        menu_content="$menu_content^tag($tag)\nBack,^back()\n"
+    fi
+}
+
+pangoEscape() {
+    string="$1"
+    string=$(echo "$string" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+    printf '%s' "$string"
+}
+
+# Openbox menu functions
+
+menuStart() {
+    echo '    <openbox_pipe_menu>'
+}
+
+# Usage: menuItem label command
+menuItem() {
+    label="$1"
+    command="$2"
+    echo "        <item label=\"$(OBlabelEscape "$label")\">
+            <action name=\"Execute\">
+                <command>
+                    $(XMLescape "$command")
+                </command>
+            </action>
+        </item>"
+}
+
+menulabel() {
+    label="$1"
+    echo "        <item label=\"$(OBlabelEscape "$label")\"></item>"
+}
+
+menuSeparator() {
+    label="${1-}"
+    if [ "$label" ];then
+        echo "        <separator label=\"$(OBlabelEscape "$label")\"/>"
+    else
+        echo '        <separator/>'
+    fi
+}
+
+menuSubmenu() {
+    id="$1"
+    label="$2"
+    echo "    <menu id=\"$(XMLescape "$id")\" label=\"$(OBlabelEscape "$label")\">"
+}
+
+menuSubmenuEnd() {
+    echo '    </menu>'
+}
+
+menuEnd() {
+    echo '    </openbox_pipe_menu>'
+}
+
+XMLescape() {
+    string="$1"
+    string=$(echo "$string" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/\"/\&quot;/g; s/\x27/\&apos;/g')
+    printf '%s' "$string"
+}
+
+OBlabelEscape() {
+    string=$(XMLescape "$1")
+    printf '%s' "$(echo "$string" | sed 's/_/__/g')"
+}

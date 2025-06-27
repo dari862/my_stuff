@@ -1,0 +1,21 @@
+#!/bin/bash
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/DB"
+. "${Distro_config_file}"
+
+panel_name="${1-}"
+
+if [ "$panel_name" = 'tint2' ];then
+	sed -i "s/_panel_name_=.*/_panel_name_=tint2/g" "${Distro_config_file}"
+elif [ "$panel_name" = 'polybar' ];then
+	sed -i "s/_panel_name_=.*/_panel_name_=polybar/g" "${Distro_config_file}"
+elif [ "$panel_name" = 'xfce4-panel' ];then
+	sed -i "s/_panel_name_=.*/_panel_name_=xfce4-panel/g" "${Distro_config_file}"
+fi
+
+style_changer "default"
+if grep -q " never remove this line menu style are :jgmenu " "${BACKUP_OB_RC_FILE}";then
+	change-ob-menu menu-icons.xml
+fi
+/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/style.sh &

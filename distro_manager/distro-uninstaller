@@ -1,0 +1,98 @@
+#!/bin/sh
+is_it_zero_byte=false
+
+. "/usr/share/my_stuff/never_remove/var_for_distro_uninstaller"
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+
+for backup in icons themes fonts;do
+	my-superuser find /usr/share/${backup} -depth -maxdepth 1 -type l -delete
+	my-superuser mv /usr/share/my_stuff/system_files/backup/${backup} /usr/share/${backup}
+done
+
+if ls /usr/share/my_stuff/system_files/bin/chroot-* >/dev/null 2>&1;then
+	my-superuser rm -rdf /usr/share/my_stuff/system_files/bin/chroot-*
+fi
+
+if grep -q "/usr/share/my_stuff/system_files/bin/chroot-" /usr/share/my_stuff/system_files/doas.conf 2>&1;then
+	my-superuser sed -i '|/usr/share/my_stuff/system_files/bin/chroot-|d' /usr/share/my_stuff/system_files/doas.conf
+	my-superuser sed -i '|/usr/share/my_stuff/system_files/bin/chroot-|d' /etc/doas.conf
+fi
+
+if ls /usr/local/bin/chroot-* >/dev/null 2>&1;then
+	my-superuser rm -rdf /usr/local/bin/chroot-*
+fi
+
+echo "delete all symbolic links in /usr/share/{applications;xsessions;lightdm;man/man1}"
+my-superuser find /usr/share/applications -depth -maxdepth 1 -type l -delete
+my-superuser find /usr/share/xsessions -depth -maxdepth 1 -type l -delete
+my-superuser find /usr/share/lightdm/lightdm.conf.d -depth -maxdepth 1 -type l -delete
+my-superuser find /usr/share/lightdm/lightdm-gtk-greeter.conf.d -depth -maxdepth 1 -type l -delete
+my-superuser find /usr/share/man/man1 -depth -maxdepth 1 -type l -delete
+echo "delete all symbolic links in /etc/xdg/autostart"
+my-superuser find /etc/xdg/autostart -depth -maxdepth 1 -type l -delete
+
+if [ -f "/etc/sysctl.d/90-disable_ipv6.conf" ];then
+	echo "remove ipv6 from sysctl and kernal"
+	my-superuser rm -rdf /etc/sysctl.d/90-disable_ipv6.conf || :
+	my-superuser rm -rdf /boot/grub/${grub_image_name} || :
+	
+	if grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then
+		my-superuser sed -i 's/ipv6.disable=1//g' /etc/default/grub
+	fi
+	if grep 'GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub | grep -q 'ipv6.disable=1';then
+		my-superuser sed -i 's/ipv6.disable=1//g' /etc/default/grub
+	fi
+fi
+
+echo "restoring home dirs"
+for d in /home/*; do
+    [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes 
+    user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+    if [ -d "${d}/.backup"* ];then
+    	my-superuser rm -rdf "$d/.config"
+		my-superuser rm -rdf "$d/.bashrc"
+		my-superuser rm -rdf "$d/.Xresources"
+	
+		my-superuser cp -rf /etc/skel/. $d || my-superuser cp -rf /etc/skel/. $d
+		
+		my-superuser wc -c "$d/.bashrc" | grep "^0" >/dev/null 2>&1 && is_it_zero_byte="true"
+		
+		[ "${is_it_zero_byte}" = "true" ] && my-superuser cp -rf /etc/skel/. "$d"
+		
+		backuped="$(my-superuser ls "$d/.backup"*/.config)"
+		for movethis in ${backuped}; do
+			my-superuser mv "${movethis}" "$d/.config"  >/dev/null 2>&1;
+		done
+		
+		my-superuser rm -rdf "$d/.backup"*/.config
+		
+		backuped="$(my-superuser ls "$d/.backup"*)"
+		for movethis in ${backuped}; do
+			my-superuser mv "${movethis}" "$d"  >/dev/null 2>&1;
+		done
+		my-superuser chown -R $user_and_group "$d"
+		my-superuser rm -rdf "$d/.backup"*
+	fi
+done
+
+echo "switch default xsession to ${switch_default_xsession}."
+my-superuser update-alternatives --set x-session-manager ${switch_default_xsession}
+
+echo "removing Packages"
+Package_remove_ "${List_of_pakages_installed_}"
+
+echo "updating fc-cache"
+my-superuser fc-cache -vf > /dev/null 2>&1
+echo "updating gtk-update"
+my-superuser gtk-update-icon-cache > /dev/null 2>&1
+my-superuser sync > /dev/null 2>&1
+echo "updating grub"
+my-superuser grub-mkconfig -o /boot/grub/grub.cfg > /dev/null 2>&1
+echo "removing /usr/share/my_stuff"
+my-superuser rm -rdf "/usr/share/my_stuff"
+
+echo "delete /usr/bin/my-superuser"
+my-superuser rm -rdf /usr/bin/my-superuser || :
+
+echo "Done"

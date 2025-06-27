@@ -1,0 +1,7 @@
+OBPATH="${XDG_CONFIG_HOME:-"$HOME/.config"}/openbox"
+OBPATH_SKEL='/usr/share/my_stuff/system_files/skel/.config/openbox'
+GLOBAL_OB_RC_FILE="/usr/share/my_stuff/system_files/rc.xml"
+BACKUP_OB_RC_PATH="${WM_config_dir}"
+BACKUP_OB_RC_FILE="${BACKUP_OB_RC_PATH}/rc.xml"
+OB_STYLE_BL="${BACKUP_OB_RC_PATH}/bl"
+OB_STYLE_NORMAL="${BACKUP_OB_RC_PATH}/normal"

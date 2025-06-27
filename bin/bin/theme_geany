@@ -1,0 +1,9 @@
+#!/bin/sh
+geany_config_dir="$HOME/.config/geany"
+geany_theme_dir="${geany_config_dir}/colorschemes"
+if [ $# -eq 0 ];then
+	picked_geany_theme="$(cat "${geany_config_dir}/theme.conf" 2>/dev/null)"	
+else
+	picked_geany_theme="${1}"
+fi
+sed -i "s/color_scheme=.*/color_scheme=${picked_geany_theme}/g" "${geany_config_dir}/geany.conf"

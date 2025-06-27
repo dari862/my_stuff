@@ -1,0 +1,181 @@
+#!/bin/sh
+#===================================================================================
+# UPDATE NOTIFICATION
+# FILE: update_notification
+# DESCRIPTION: Checks updates and show it to user in tint2 taskbar
+#===================================================================================
+# CONFIG
+__arg="${1-}"
+script_name="update-notification"
+
+. "/usr/share/my_stuff/lib/apps/update-notification.conf"
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+
+print_total_updates() { cat "$updates_file" | wc -l; }
+
+set_superuser() { 
+	if [ "$(id -u)" -eq 0 ];then
+		__my_superuser=""
+	else
+		__my_superuser="my-superuser"
+	fi
+}
+
+#=== FUNCTIONs ==================================================================
+# NAME: Massage system
+# all Bold
+#===============================================================================
+
+plain() {
+	#no color
+	mesg=$1; shift
+	printf "\e[1;1m    ${mesg}\e[1;0m\n" "$@" >&1
+}
+
+msg() {
+	# green
+	mesg=$1; shift
+	printf "\e[1;1m\e[1;32m==>\e[1;0m\e[1;1m ${mesg}\e[1;0m\n" "$@" >&1
+}
+
+warning() {
+	# yellow
+	mesg=$1; shift
+	printf "\e[1;1m\e[1;33m==> WARNING:\e[1;0m\e[1;1m ${mesg}\e[1;0m\n" "$@" >&2
+}
+
+update_system () {
+	set_superuser
+	connectiontest
+	Package_update_
+	
+	plain "Checking updates and saving in $updates_file..."
+	printf "" | $__my_superuser tee "$updates_file" > /dev/null 2>&1
+	Upgradeable_Packages_count_ | $__my_superuser tee -a "$updates_file" > /dev/null 2>&1
+
+	# No updates
+	if [ ! -s "$updates_file" ];then
+		msg "NO PENDING UPDATES"
+	# Pending updates
+	else
+		warning "PENDING UPDATES"
+		cat "$updates_file"
+	fi
+}
+
+interactive_upgrade() {
+	update_system
+	printf ""
+	if [ ! -s "$updates_file" ];then
+		printf "Press any key to exit..."
+		read pause
+		exit 0
+	fi
+
+	printf "Press enter to continue upgrade..."
+	read pause
+	printf ""
+	
+	Packages_upgrade_
+	
+	if ! [ $? -eq 0 ];then 
+		read pause 
+		exit 1
+	fi
+
+	printf "" | $__my_superuser tee "$updates_file" > /dev/null 2>&1
+	printf ""
+	printf "Update complete!"
+	read pause
+	exit
+}
+
+send_notifcation_msg () {
+	if [ -s "$updates_file" ];then
+	    UPDATES=$(print_total_updates)
+	    # notify user of updates
+	    if hash notify-send >/dev/null 2>&1;then
+			if [ "$UPDATES" -gt 50 ];then
+		    	notify-send -u critical -i $NOTIFY_ICON \
+				"You really need to update!!" "$UPDATES New packages"
+			elif [ "$UPDATES" -gt 25 ];then
+		    	notify-send -u normal -i $NOTIFY_ICON \
+				"You should update soon" "$UPDATES New packages"
+			elif [ "$UPDATES" -gt 2 ];then
+		    	notify-send -u low -i $NOTIFY_ICON \
+				"$UPDATES New packages"
+			fi
+	    fi		
+	fi
+	exit 0
+}
+
+install_it () {
+	set_superuser	
+	if [ ! -f "/usr/share/my_stuff/system_files/bin/update-notification" ] ;then
+		$__my_superuser ln -sf "$script_full_path" "/usr/share/my_stuff/system_files/bin"
+	fi
+	
+	$__my_superuser ln -sf "$script_full_path" "/etc/cron.$cron_when"	
+	
+	if [ ! -f "$updates_file" ];then 
+		$__my_superuser touch "$updates_file"
+		$__my_superuser chmod a+w "$updates_file"
+	fi
+	
+	exit 
+}
+
+uninstall_it (){
+	set_superuser
+	printf "Deleting symblink /etc/cron.$cron_when/${script_name}..."
+	[ -f "/etc/cron.monthly/${script_name}" ] && $__my_superuser rm "/etc/cron.monthly/${script_name}"
+	[ -f "/etc/cron.weekly/${script_name}" ] && $__my_superuser rm "/etc/cron.weekly/${script_name}"
+	[ -f "/etc/cron.daily/${script_name}" ] && $__my_superuser rm "/etc/cron.daily/${script_name}"
+	[ -f "/etc/cron.hourly/${script_name}" ] && $__my_superuser rm "/etc/cron.hourly/${script_name}"
+	printf "Deleting $updates_file..."
+	$__my_superuser rm -f "$updates_file"
+	exit 
+}
+
+list_update(){
+	# No updates
+	if [ ! -s "$updates_file" ];then
+		msg "NO PENDING UPDATES"
+	# Pending updates
+	else
+		warning "PENDING UPDATES"
+		cat "$updates_file"
+	fi
+	printf "Press any key to continue ..."
+	read pause
+}
+
+#=== FUNCTION ==================================================================
+# NAME: help
+# DESCRIPTION: Show command help
+#===============================================================================
+help() {
+	printf 'Checks updates and show it to user in dunst taskbar
+Usage: ${script_name} -[huc]
+   \e[1m-h\e[0m\tShow command help
+   \e[1m-i\e[0m\tStart interactive upgrade
+   \e[1m-n\e[0m\tOutput message for dunst
+   \e[1m-u\e[0m\tMake update and check for new packages updates
+   \e[1m-I\e[0m\tInstall the script (copy and link to cron.$cron_when)
+   \e[1m-U\e[0m\uninstall the script
+	'
+	exit 0
+}
+
+case "$__arg" in
+	""|-u) update_system;;
+	-i) interactive_upgrade ;;
+	-n) send_notifcation_msg ;;
+	-I) install_it ;;
+	-U) uninstall_it ;;
+	-l) list_update;;
+	-c) print_total_updates;;
+	*) help;;
+esac

@@ -1,0 +1,63 @@
+# Align icons left/right/off
+icon_position = left
+
+# Paths to default icons.
+icon_theme = "Luv-Folders"
+
+# Defines color of the frame around the notification window.
+frame_color = "#faf4ed"
+
+# Define a color for the separator.
+# possible values are:
+#  * auto: dunst tries to find a color fitting to the background;
+#  * foreground: use the same color as the foreground;
+#  * frame: use the same color as the frame;
+#  * anything else will be interpreted as a X color.
+separator_color = "#907aa9"
+
+
+# The transparency of the window.  Range: [0; 100].
+# This option will only work if a compositing window manager is
+# present (e.g. xcompmgr, compiz, etc.).
+transparency = 3
+
+# Position the notification in the top right corner
+origin = top-right
+
+# Offset from the origin
+offset = 10x92
+
+# Defines width in pixels of frame around the notification window.
+frame_width = 6
+
+### Text ###
+
+font = JetBrainsMono 9
+
+# The format of the message.  Possible variables are:
+#   %a  appname
+#   %s  summary
+#   %b  body
+#   %i  iconname (including its path)
+#   %I  iconname (without its path)
+#   %p  progress value if set ([  0%] to [100%]) or nothing
+#   %n  progress value if set without any extra characters
+#   %%  Literal %
+format = "<span size='x-large' font_desc='Cantarell 9' weight='bold' foreground='#575279'>%s</span>\n%b"
+
+# IMPORTANT: colors have to be defined in quotation marks.
+# Otherwise the "#" and following would be interpreted as a comment.
+[urgency_low]
+timeout = 3
+background = "#faf4ed"
+foreground = "#286983"
+
+[urgency_normal]
+timeout = 5
+background = "#faf4ed"
+foreground = "#9893a5"
+
+[urgency_critical]
+timeout = 0
+background = "#faf4ed"
+foreground = "#b4637a"

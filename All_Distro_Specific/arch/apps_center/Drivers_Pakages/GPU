@@ -1,0 +1,133 @@
+#!/bin/sh -e
+my-installer --tweek-needed "Enable_multilib" || continue
+LIBVA_DIR="$HOME/.local/share/linutil/libva"
+MPV_CONF="$HOME/.config/mpv/mpv.conf"
+
+create_X11_intel_conf(){
+	my-superuser mkdir -p /etc/X11/xorg.conf.d/
+	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
+	Section "Device"
+	Identifier  "Intel Graphics"
+	Driver      "Intel"
+	Option      "AccelMethod"  "sna"
+	Option      "TearFree""True"
+	Option      "Tiling""True"
+	Option      "SwapbuffersWait" "True"
+	#Option      "AccelMethod"  "uxa"
+	EndSection
+	EOF
+}
+
+create_X11_intel_conf(){
+	my-superuser mkdir -p /etc/X11/xorg.conf.d/
+	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
+	Section "Device"
+	Identifier  "Intel Graphics"
+	Driver      "Intel"
+	Option      "AccelMethod"  "sna"
+	Option      "TearFree""True"
+	Option      "Tiling""True"
+	Option      "SwapbuffersWait" "True"
+	#Option      "AccelMethod"  "uxa"
+	EndSection
+	EOF
+}
+
+install_intel_drivers(){
+	Package_installer_ xf86-video-intel intel-gpu-tools intel-media-driver || continue
+	#create_X11_intel_conf
+}
+
+install_amd_drivers(){
+	Package_installer_ mesa xf86-video-ati xf86-video-amdgpu vulkan-radeon vkbasalt || continue
+}
+
+checkNvidiaHardware() {
+    # Refer https://nouveau.freedesktop.org/CodeNames.html for model code names
+    model=$(lspci -k | grep -A 2 -E "(VGA|3D)" | grep NVIDIA | sed 's/.*Corporation //;s/ .*//' | cut -c 1-2)
+    case "$model" in
+        GM | GP | GV) return 1 ;;
+        TU | GA | AD) return 0 ;;
+        *) say "Unsupported hardware." && exit 1 ;;
+    esac
+}
+checkIntelHardware() {
+    model=$(grep "model name" /proc/cpuinfo | head -n 1 | cut -d ':' -f 2 | cut -c 2-3)
+    [ "$model" -ge 11 ]
+}
+
+setKernelParam() {
+    PARAMETER="$1"
+    if grep -q "$PARAMETER" /etc/default/grub; then
+        say "NVIDIA modesetting is already enabled in GRUB."
+    else
+        my-superuser sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/\"$/ $PARAMETER\"/" /etc/default/grub
+        say "Added $PARAMETER to /etc/default/grub."
+        my-superuser grub-mkconfig -o /boot/grub/grub.cfg
+    fi
+}
+
+install_nvidia_drivers(){
+	installation_list=""
+	enable_HardwareAcceleration=false
+	open_driver_nvidia=false
+	(checkNvidiaHardware && prompt 'do you want to install nvidia open source driver?' && open_driver_nvidia=true) || :
+	prompt 'do you want to add Cuda Support?' && _cuda_="cuda"
+	prompt 'do you want to setup Hardware Acceleration?' && enable_HardwareAcceleration=true
+	
+	installation_list="$installation_list base-devel dkms ninja meson git"
+    installed_kernels=$("$PACKAGER" -Q | grep -E '^linux(| |-rt|-rt-lts|-hardened|-zen|-lts)[^-headers]' | cut -d ' ' -f 1)
+    for kernel in $installed_kernels; do
+        header="${kernel}-headers"
+        say "adding headers for $kernel to installation list..."
+        installation_list="$installation_list $header"
+    done
+    
+	# Refer https://wiki.archlinux.org/title/NVIDIA for open-dkms or dkms driver selection
+    if [ "$open_driver_nvidia" = true ]; then
+        say "adding nvidia open source driver to installation list..."
+        installation_list="$installation_list nvidia-open-dkms"
+    else
+        say "adding nvidia proprietary driver to installation list..."
+        installation_list="$installation_list nvidia-dkms"
+    fi
+    installation_list="$installation_list nvidia-utils $_cuda_"
+    
+    say "Installing nvidia driver..."
+    Package_installer_ $installation_list
+    
+    if checkIntelHardware; then
+        setKernelParam "ibt=off"
+    fi
+    # Refer https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video_memory_after_suspend
+    setKernelParam "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
+    my-superuser systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+    say "Driver installed successfully."
+    if [ "$enable_HardwareAcceleration" = true ]; then
+        my-installer --tweek-needed "HardwareAcceleration" || continue
+    fi
+    say
+	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
+	say
+	say "NVIDIA Drivers installed you need to reboot your pc."
+}
+
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+	install_nvidia_drivers
+fi
+	
+if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+	install_amd_drivers
+fi
+	
+if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+	install_intel_drivers
+fi
+
+if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
+	say "This is VM"
+fi
+
+say "Creating Check File (GPU_Drivers_ready)"
+my-superuser touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
+my-superuser  /usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"

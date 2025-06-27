@@ -1,0 +1,7 @@
+#!/bin/sh
+
+app_name="git git-gui git-cvs git-svn git-email mercurial subversion subversion-tools bzr bzrtools cvs"
+
+say "Installing ${app_name} ..." 1
+
+Package_installer_ ${app_name} || continue

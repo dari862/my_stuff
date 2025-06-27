@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=URL Downloader
+Comment=GUI for URL Downloader
+Exec=/usr/share/my_stuff/bin/apps/url_downloader
+Icon=/usr/share/my_stuff/icons/url_downloader.png
+Terminal=false
+Categories=Network;Utility;
+Path=
+StartupNotify=false

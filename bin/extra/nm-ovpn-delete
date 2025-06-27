@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+check_4_dependencies_if_installed nmcli sed || exit 1
+
+nmcli conn | sed -n "s/.*\s\+\([0-9a-z\-]\+\)\s\+openvpn.*/\1/p" | while read -r CONN; do
+    nmcli conn delete "$CONN"
+done

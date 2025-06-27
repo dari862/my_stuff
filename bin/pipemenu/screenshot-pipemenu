@@ -1,0 +1,160 @@
+#!/bin/sh
+#    screenshot-pipemenu - a obmenu pipe menu for screenshots
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+HELP='    screenshot-pipemenu a obmenu Pipe Menu for taking screenshots
+    It should normally be called from a obmenu menu.
+
+Options (usually passed from the menu):
+    -h --help   show this message
+
+    If screenshot-pipemenu is called with no options (the usual method),
+    it will output a xml obmenu pipemenu for taking screenshots.
+
+'
+
+########################################################################
+
+# look for a help option somewhere
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+        ;;
+    esac
+done
+
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+# Get $USER images directory
+if type xdg-user-dir >/dev/null 2>&1;then
+    IMGDIR=$(xdg-user-dir PICTURES)
+else
+    IMGDIR="$HOME/Pictures"
+fi
+# test for screenshots dir, create if it doesn't exist
+SCREENSHOTSDIR="$IMGDIR/screenshots"
+mkdir -p "$SCREENSHOTSDIR"
+
+obmenu_options(){
+	# pipemenu
+	menuStart "TintScreenshot" "Take Screenshot"
+	
+	# local Screenshot
+    menuSubmenu 'Screenshooters' 'Screenshooter'
+		menuItem 'Screenshot Now' "my-shots"
+		menuItem 'Screenshot In 5s' "my-shots --delay 5"
+		menuItem 'Screenshot In 10s' "my-shots --delay 10"
+		if command -v slop >/dev/null 2>&1;then
+			menuItem 'Screenshot Area' "my-shots --area"
+		else
+			menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
+		menuItem 'Screenshot Window' "my-shots --win"
+    menuSubmenuEnd
+
+    menuSubmenu 'imgur' 'Imgur - Upload Screenshot'
+	# Upload Screenshot
+    if files-uploader --imgur --test-account >/dev/null 2>&1 ;then
+       	# take screenshot and upload to account (BBCode is returned)
+       	menuSubmenu 'imgur_acct' 'Upload to Account'
+           	menuItem "screenshot Now" "files-uploader --imgur -l"
+           	menuItem "screenshot In 5 secs..." "files-uploader --imgur -l -d 5"
+           	menuItem "screenshot In 10 secs..." "files-uploader --imgur -l -d 10"	
+           	if command -v slop >/dev/null 2>&1;then
+				menuItem "screenshot Select Area" "files-uploader --imgur -l -s"
+			else
+				menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
+			fi
+           	menuItem "screenshot Current Window" "files-uploader --imgur -l -w"
+	   	else
+       	menuItem "Setup Imgur Account" "files-uploader --imgur --register"
+    fi
+    menuSubmenuEnd
+    
+    # take screenshot and upload anonymously (BBCode is returned)
+    menuSubmenu 'imgur_anon' 'Anonymous Upload'
+       	menuItem "screenshot Now" "files-uploader --imgur"
+       	menuItem "screenshot In 5 secs..." "files-uploader --imgur -d 5"
+       	menuItem "screenshot In 10 secs..." "files-uploader --imgur -d 10"
+       	if command -v slop >/dev/null 2>&1;then
+			menuItem "screenshot Select Area" "files-uploader --imgur -s"
+		else
+			menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
+       	menuItem "screenshot Current Window" "files-uploader --imgur -w"
+    menuSubmenuEnd
+    
+    menuEnd
+}
+
+jgmenu_options(){
+	# pipemenu
+	# local Screenshot
+    jgmenuSubmenu 'root' 'takescreenshot' 'scrot Screenshooter'
+    jgmenuItem 'takescreenshot' "Screenshoot Now" "my-shots"
+    jgmenuItem 'takescreenshot' "Screenshoot In 5 secs..." "my-shots --delay 5"
+    jgmenuItem 'takescreenshot' "Screenshoot In 10 secs..." "my-shots --delay 10"
+    if command -v slop >/dev/null 2>&1;then
+		jgmenuItem 'takescreenshot' "Screenshoot Select Area" "my-shots --area"
+	else
+		jgmenuItem 'takescreenshot' 'install slop for Screenshot Area' 'popup_terminal --install slop'
+	fi
+    jgmenuItem 'takescreenshot' "Screenshoot Current Focus" "my-shots --win"
+        	
+    jgmenuSubmenu 'root' 'imgur' 'Imgur - Upload Screenshot'
+	
+	# Upload Screenshot
+    if files-uploader --imgur --test-account;then
+        # take screenshot and upload to account (BBCode is returned)
+        jgmenuSubmenu 'imgur' 'imgur_acct' 'Upload to Account'
+        jgmenuItem 'imgur_acct' "screenshot Now" "files-uploader --imgur -l"
+        jgmenuItem 'imgur_acct' "screenshot In 5 secs..." "files-uploader --imgur -l -d 5"
+        jgmenuItem 'imgur_acct' "screenshot In 10 secs..." "files-uploader --imgur -l -d 10"
+        if command -v slop >/dev/null 2>&1;then
+			jgmenuItem 'imgur_acct' "screenshot Select Area" "files-uploader --imgur -l -s"
+		else
+			jgmenuItem 'imgur_acct' 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
+        jgmenuItem 'imgur_acct' "screenshot Current Window" "files-uploader --imgur -l -w"
+    else
+        jgmenuItem 'imgur' "Setup Imgur Account" "files-uploader --imgur --register"
+    fi
+	
+    # take screenshot and upload anonymously (BBCode is returned)
+    jgmenuSubmenu 'imgur' 'imgur_anon' 'Anonymous Upload'
+        jgmenuItem 'imgur_anon' "screenshot Now" "files-uploader --imgur"
+        jgmenuItem 'imgur_anon' "screenshot In 5 secs..." "files-uploader --imgur -d 5"
+        jgmenuItem 'imgur_anon' "screenshot In 10 secs..." "files-uploader --imgur -d 10"
+        if command -v slop >/dev/null 2>&1;then
+			jgmenuItem 'imgur_anon' "screenshot Select Area" "files-uploader --imgur -s"
+		else
+			jgmenuItem 'imgur_anon' 'install slop for Screenshot Area' 'popup_terminal --install slop'
+		fi
+        jgmenuItem 'imgur_anon' "screenshot Current Window" "files-uploader --imgur -w"
+	jgmenuEnd
+}	
+
+if [ "${1-}" = "--jgmenu" ];then # pipemenu
+	jgmenu_options
+else
+	obmenu_options
+fi
+
+exit 0

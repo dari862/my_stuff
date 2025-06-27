@@ -1,0 +1,42 @@
+#!/bin/sh
+set -e
+torproxy_script_name="torproxy"
+extra_dir="/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/${container_name}"
+temp_dir="$(mktemp -d /tmp/$USER/DockerFile_XXXXXXXXXXXXXXXX)"
+chmod 700 "${temp_dir}"
+
+cp -r "${extra_dir}" "${temp_dir}"
+cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/start-service.sh" "${temp_dir}/${container_name}"
+my-superuser chown root:root -R "${temp_dir}/${container_name}"
+cd "${temp_dir}/${container_name}"
+
+. "/usr/share/my_stuff/lib/env_torproxy.sh"
+my-superuser sed -i "s/__SocksPort=.*/__SocksPort=${__SocksPort}/g" ContainerChecker.sh
+my-superuser sed -i "s/__ControlPort=.*/__ControlPort=$__ControlPort/g" start-service.sh
+
+__format=""
+
+if [ "$(basename $(realpath $(which "CONTAINER_RT")))" = "podman" ];then
+	__format='--format docker'
+fi
+
+CONTAINER_RT build -t torproxy . ${__format} --no-cache \
+	--build-arg __ControlPort="${__ControlPort}" \
+	--build-arg __DNSPort="${__DNSPort}" \
+	--build-arg __SocksPort="${__SocksPort}" \
+	--build-arg __TransPort="${__TransPort}" \
+	--build-arg __GUID="${__GUID}" \
+	--build-arg __UUID="${__UUID}" \
+	--build-arg _TOR_USER="${_TOR_USER}"
+
+run_containers --install ${container_name}
+
+say "ln ${torproxy_script_name} script which rerouter all your trafic to ${container_name} container to bin dir..."
+my-superuser cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy_container" "/usr/share/my_stuff/system_files/bin" || failed_to_run "Failed to ln /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy to /usr/share/my_stuff/system_files/bin"
+my-superuser cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/stop_torproxy_container" "/usr/share/my_stuff/system_files/bin" || failed_to_run "Failed to ln /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy to /usr/share/my_stuff/system_files/bin"
+
+say "${container_name} contain all nessery packages for routing to TOR."
+say
+say "type start_torproxy_container to rerouter all your trafic to ${container_name} container"
+say "type stop_torproxy_container to stop rerouting all your trafic to ${container_name} container"
+say

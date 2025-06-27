@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Colors
+bold="$(tput bold)"
+red="$(tput setaf 1)"
+yellow="$(tput setaf 3)"
+green="$(tput setaf 2)"
+reset="$(tput sgr0)"
+
+# Header
+printf "%s%-20s %-10s %-10s %-10s %-6s %-8s %-s%s\n" "$bold" "Filesystem" "Size" "Used" "Avail" "Use%" "Bar" "Mounted on" "$reset"
+
+# Filter, sort and display
+df -hP | awk 'NR>1 && $1 !~ /tmpfs|udev|devtmpfs|overlay/' | while read -r fs size used avail use mp; do
+    use_num="${use_num##+(0)}"
+    [ -z "$use_num" ] && use_num=0
+    printf "%03d\t%s\t%s\t%s\t%s\t%s\t%s\n" "$use_num" "$fs" "$size" "$used" "$avail" "$use" "$mp"
+done | sort -rn | while IFS="$(printf '\t')" read -r use_num fs size used avail use mp; do
+    # Set color
+    if [ "$use_num" -ge 90 ]; then
+        color="$red"
+    elif [ "$use_num" -ge 60 ]; then
+        color="$yellow"
+    else
+        color="$green"
+    fi
+
+    # Build usage bar
+    bar_len=$((use_num / 5))
+    bar_filled=$(printf "%0.s#" $(seq 1 $bar_len))
+    bar_empty=$(printf "%0.s-" $(seq 1 $((20 - bar_len))))
+    bar="${bar_filled}${bar_empty}"
+
+    # Print
+    printf "%-20s %-10s %-10s %-10s %-6s %s%-20s%s %-s\n" \
+        "$fs" "$size" "$used" "$avail" "$use" "$color" "$bar" "$reset" "$mp"
+done

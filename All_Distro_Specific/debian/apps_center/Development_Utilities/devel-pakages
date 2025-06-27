@@ -1,0 +1,18 @@
+#!/bin/sh
+
+Packages_are="
+	build-essential pkg-config autoconf bison clang 
+	libssl-dev libreadline-dev zlib1g-dev libyaml-dev libreadline-dev libncurses5-dev libffi-dev libgdbm-dev libjemalloc2 
+	libvips imagemagick libmagickwand-dev mupdf mupdf-tools apache2-utils 
+	redis-tools sqlite3 libsqlite3-0 $libmysqlclient debhelper cdbs dh-make diffutils patch gnupg fakeroot lintian devscripts pbuilder dput quilt 
+"
+
+. "/usr/share/my_stuff/os-release"
+
+if [ "$distro_name" = "ubuntu" ];then
+	Packages_are="${Packages_are} libmysqlclient-dev"
+fi
+
+say 'Installing devel-pakages ...' 1
+
+Package_installer_ ${Packages_are} || continue

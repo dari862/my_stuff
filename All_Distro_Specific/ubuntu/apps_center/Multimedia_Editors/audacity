@@ -1,0 +1,3 @@
+#!/bin/sh
+flatpak_install ${app_name} org.audacityteam.Audacity
+

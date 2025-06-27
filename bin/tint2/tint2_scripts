@@ -1,0 +1,19 @@
+#!/bin/sh
+tint2_script_path="/usr/share/my_stuff/bin/not_add_2_path/tint2"
+opt="${1-}"
+opt2="${2-}"
+
+case "$opt" in
+		playing-icons) "${tint2_script_path}"/now-playing -i ;;
+		playing) "${tint2_script_path}"/now-playing ;;
+		cpu-icons) "${tint2_script_path}"/cpu -i ;;
+		cpu) "${tint2_script_path}"/cpu ;;
+		network-icon) "${tint2_script_path}"/tint2_network.sh icon ;;
+		network-status) "${tint2_script_path}"/tint2_network.sh status ;;
+		temp) "${tint2_script_path}"/tint2_temp.sh ;;
+		volume-icon) "${tint2_script_path}"/tint2_volume.sh icon ;;
+		volume-inc) "${tint2_script_path}"/tint2_volume.sh + ;;
+		volume-dec) "${tint2_script_path}"/tint2_volume.sh - ;;
+		volume-mute) "${tint2_script_path}"/tint2_volume.sh 0 ;;
+		volume-percent) "${tint2_script_path}"/tint2_volume.sh percent ;;
+esac

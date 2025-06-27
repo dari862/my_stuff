@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+devel_pakages='tar tree multitail tldr trash-cli unzip cmake make jq patterns-devel-base-devel_basis libgcc_s1-gcc7-32bit glibc-devel-32bit'
+Package_update_
+
+say 'Installing devel-pakages ...' 1
+Package_installer_ "$devel_pakages"
+

@@ -1,0 +1,45 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/env_torproxy.sh"
+check_tor_container(){
+	# Most of this is from
+	# https://trac.torproject.org/projects/tor/wiki/doc/TransparentProxy
+		
+	### set variables
+	# destinations you don't want routed through Tor
+	REAL_CONTAINER_RT="$(readlink -f $(which CONTAINER_RT))"
+	_tor_container=""
+	_tor_container_exit=""
+	__tor_mode=""
+	_tor_container_all="$($REAL_CONTAINER_RT ps -a | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
+	_tor_container_exit="$($REAL_CONTAINER_RT ps -a --filter 'status=exited' | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
+		
+	if [ -z "$_tor_container_all" ];then
+		__tor_mode="create"
+	fi
+	
+	if [ -n "$_tor_container_exit" ];then
+		__tor_mode="start"
+	fi
+	
+	### get the container tor runs in
+	if [ "$__tor_mode" = "create" ];then
+    	echo 'ERROR: tor proxy container not running.'
+    	echo 'running container.'
+    	echo "$REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy"
+    	if ! $REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy;then
+    		echo 'ERROR: failed to create container.'
+    		exit 1
+    	fi
+    	
+    	sleep 1
+	fi
+    
+    _tor_container="$($REAL_CONTAINER_RT ps | awk '/torproxy/ {print $NF; quit}' | head -1)"
+    
+    if [ "$__tor_mode" = "start" ];then
+    	if ! $REAL_CONTAINER_RT start $_tor_container >/dev/null 2>&1;then
+    		echo 'ERROR: failed to run container.'
+    		exit 1
+    	fi
+	fi
+}

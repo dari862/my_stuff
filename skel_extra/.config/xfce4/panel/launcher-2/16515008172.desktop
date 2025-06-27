@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=run
+Comment=run rofi
+Exec=/bin/sh -c "rofi-launcher"
+Icon=
+Path=
+Terminal=false
+StartupNotify=false

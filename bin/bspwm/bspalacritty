@@ -1,0 +1,18 @@
+#!/bin/sh
+CONFIG="$HOME/.config/alacritty/alacritty.yml"
+__mode="${1:-}"
+__extra="${2:-}"
+
+case "$__mode" in
+    --float|-f)
+		alacritty --class 'alacritty-float,alacritty-float' --config-file "$CONFIG" $__extra ;;
+    --full|-s)
+      	alacritty --class 'alacritty-fullscreen,alacritty-fullscreen' --config-file "$CONFIG" \
+			  	-o window.startup_mode="'Fullscreen'" \
+			  	window.padding.x=30 window.padding.y=30 \
+			  	window.opacity=0.95 font.size=14 $__extra
+	;;
+	*)
+		alacritty --config-file "$CONFIG" ${@}
+    ;;
+esac

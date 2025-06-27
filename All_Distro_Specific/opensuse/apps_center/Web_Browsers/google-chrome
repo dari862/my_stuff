@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+say 'Adding Repo...' 1
+add_repo http://dl.google.com/linux/chrome/rpm/stable/x86_64 Google-Chrome
+                
+say 'Updating Repo...' 1
+Package_update_
+                
+say 'Installing package...' 1
+Package_installer_ google-chrome-stable

@@ -1,0 +1,336 @@
+#!/bin/sh
+#    my-installer: a script to install Debian packages in a popup terminal window.
+# # distobox enter gaming -- "pacman -Qi package 1>/dev/null || echo yes"
+
+
+HELP='my-installer: a script to install Debian packages in a popup terminal window.
+
+Usage:  my-installer --install app_name
+
+    -h --help                   show this message and exit
+    --install      <string>    install Debian packages
+    --script    <string>    run installer script
+    --tweek   a script to run Debian Tweeks in a popup terminal window.
+'
+skip_test=""
+source__file_location=false
+# if help option anywhere in args, output $HELP and exit immediately
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+    ;;
+    esac
+done
+
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+
+option="${1-}"
+shift 1
+file_name_="${1-}"
+extra_arg="${1-}"
+__logout=false
+. "/usr/share/my_stuff/lib/common/DB"
+
+pipemenu_creater="/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu"
+
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+
+logout_(){
+	say "${1:-}"
+	say "You need to logout for it to get ready."
+	if prompt "Do you want to logout" 'Y';then
+		__logout=true
+	fi
+}
+
+need_logout(){
+	if [ "$__logout" = true ];then
+		my_session_manager --no-confirm logout
+	fi
+}
+	
+install_as_dependency(){
+	dependency_name="${1-}"
+	dependency_opt="${2-}"
+	dependency_location="$(grep -r "^${dependency_name}$" "${db_dir}" || :)"
+	if [ -n "$dependency_location" ];then
+		dependency_location="$(find /usr/share/my_stuff/bin/my_installer/ -type f -name "${dependency_name}" )"
+		. "${dependency_location}" "${dependency_opt}"
+		remove_from_db "${dependency_name}" "apps"
+		need_logout
+	fi
+}
+
+install_as_dependency_nested(){
+	dependency_name_nested="${1-}"
+	dependency_opt_nested="${2-}"
+	dependency_location_nested="$(grep -r "^${dependency_name_nested}$" "${db_dir}" || :)"
+	if [ -n "$dependency_location_nested" ];then
+		dependency_location_nested="$(find /usr/share/my_stuff/bin/my_installer/ -type f -name "${dependency_name_nested}" )"
+		. "${dependency_location_nested}" "${dependency_opt_nested}"
+		remove_from_db "${dependency_name_nested}" "apps"
+		need_logout
+	fi
+}
+
+install_distrobox(){
+	if [ ! -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+		box_app_name="distrobox"
+		say "install ${box_app_name} ..." 1
+		install_as_dependency_nested "${box_app_name}" "nested"
+		say
+		say "${box_app_name} has been installed successfully."
+		say
+	fi
+}
+
+install_container_software(){
+	if [ ! -L "/usr/share/my_stuff/system_files/bin/CONTAINER_RT" ];then
+		container_software="podman"
+		if [ "${container_software}" = "docker" ];then
+			__newGroup="docker"
+		else
+			__newGroup="podmanusers"
+		fi
+		
+		install_as_dependency "${container_software}"
+		container_software_path="$(which $container_software)"
+	###################################################################
+		if groups | grep -q "${__newGroup}";then
+			my-superuser ln -sf "$container_software_path" "/usr/share/my_stuff/system_files/bin/CONTAINER_RT"
+			my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_containers" "/usr/share/my_stuff/system_files/bin"
+			my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/run_containers" "/usr/share/my_stuff/system_files/bin"
+			[ -f "/usr/share/my_stuff/system_files/Container_Group_${container_software}" ] && my-superuser rm -f "/usr/share/my_stuff/system_files/Container_Group_${container_software}"
+		fi
+	fi
+}
+
+__run_(){
+	__file_location="$(find ${_files_path} -type f -name ${file_name_})"
+	[ ! -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' 'pause' && exit 1
+
+	while true; do # do it until the package is successfully installed or user wants to exit
+		if [ "$TRYAGAIN" ];then # previous try failed
+			say
+			say "There was a problem installing ${file_name_}."
+			say
+			prompt '  Hit any key to try again, or "q" to quit...' Q && break
+		fi
+		TRYAGAIN=true
+		
+		clear
+		say
+		say "INSTALL ${file_name_}."
+		say '------------------------'
+		say "This script will install ${file_name_}."
+		say
+		if [ -z "${needed_app}" ];then
+			prompt '  Run the installer now?' || break
+		fi
+
+		my-superuser true || continue
+		
+		say
+		
+		keep_superuser &
+				
+		clear
+		connectiontest 1 || continue
+
+		say
+
+		if [ "${package_update}" = "true" ];then
+			clear
+			Package_update_ || continue
+		fi
+		
+		clear
+		
+		if [ "${distrobox_install}" = "true" ];then	
+			install_container_software || continue
+			install_distrobox || continue
+		fi
+		if [ "${container_install}" = "true" ];then
+			install_container_software || continue
+		fi
+		
+		if [ "${distrobox_install}" = "true" ];then
+			say 'Deploy distrobox ...' 1
+		elif [ "${container_install}" = "true" ];then
+			say 'Createing container image ...' 1
+		elif [ "${running_chroot}" = "true" ];then
+			say 'Createing Chroot...' 1
+			if ! command -v create_chroot >/dev/null 2>&1;then
+				my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/create_chroot" "/usr/share/my_stuff/system_files/bin" || continue
+			fi
+		elif [ "${running_tweek}" = "true" ];then
+			tweek_title="$(echo ${file_name_} | sed 's/_/ /g')"
+			say "running tweek: ${tweek_title} ..." 1
+		elif [ "${running_fullenv}" = "true" ];then
+			say 'install full environment...' 1
+		fi
+		
+		. "${__file_location}"
+		
+		if [ "${container_install}" = "true" ];then
+			my-superuser touch "${deployed_folder}" || continue
+		fi
+		
+		if [ "${package_install}" = "true" ];then
+			remove_from_db "${file_name_}" "apps" || continue
+			my-superuser "${pipemenu_creater}"/my-install-pipemenu.sh || continue
+		elif [ "${game_install}" = "true" ];then
+			if [ "$file_name_" != "Gaming_Essential_" ];then
+				remove_from_db "${file_name_}" "game" || continue
+				my-superuser "${pipemenu_creater}"/gaming-pipemenu.sh || continue
+			fi
+		elif [ "${distrobox_install}" = "true" ];then
+			remove_from_db "${file_name_}" "distroboxs" || continue
+			my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+		elif [ "${container_install}" = "true" ];then
+			remove_from_db "${file_name_}" "containers" || continue
+			my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+		elif [ "${chroot_install}" = "true" ];then
+			remove_from_db "${file_name_}" "chroots" || continue
+			my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+		elif [ "${running_fullenv}" = "true" ];then
+			remove_from_db "${file_name_}" "fullenv" || continue
+			my-superuser "${pipemenu_creater}"/full_environment-pipemenu.sh || continue
+		elif [ "${running_tweek}" = "true" ];then
+			remove_from_db "${file_name_}" "tweeks" || continue
+			my-superuser "${pipemenu_creater}"/my-tweeks-pipemenu.sh || continue
+		fi
+
+		end_superuser || continue
+		
+		say
+		say
+		say "${file_name_} has been installed successfully."
+		say
+		
+		need_logout
+		
+		[ -z "${needed_app}" ] && say 'Hit any key to exit...' 'pause'
+		break
+	done
+}
+
+remove_from_db(){
+	file_to_remove="${1-}"
+	from_db="${2-}"
+	if [ "${from_db}" = "apps" ];then
+		from_db="$(grep -rw "${file_to_remove}" "${apps_db_path}" | awk -F: '{print $1}' || :)"
+	elif [ "${from_db}" = "game" ];then
+		from_db="$(grep -r "${file_to_remove}" "${gaming_db_path}" | awk -F: '{print $1}' || :)"
+	elif [ "${from_db}" = "distroboxs" ];then
+		from_db="${distrobox_deploy_db_path}"
+	elif [ "${from_db}" = "containers" ];then
+		from_db="${containers_deploy_db_path}"
+	elif [ "${from_db}" = "chroots" ];then
+		from_db="${chroots_deploy_db_path}"
+	elif [ "${from_db}" = "tweeks" ];then
+		from_db="${tweeks_db_path}"
+	elif [ "${from_db}" = "fullenv" ];then
+		from_db="${full_environment_db_path}"
+	fi
+	my-superuser sed -i "/^${file_to_remove}$/d" "${from_db}" || :
+}
+
+
+show_help(){
+    echo "$0: no such option $option" >&2
+    echo
+    echo "#################################################"
+    echo
+    echo "$HELP"
+    exit
+}
+
+_NEW_APPS_LIBDIR="${_APPS_LIBDIR} ${_APPS_EXTRA_LIBDIR}"
+		
+case $option in
+		--install)
+			package_update=true
+			package_install=true
+			_files_path="${_NEW_APPS_LIBDIR}"
+		;;
+		--install-needed)
+			package_update=true
+			package_install=true
+			needed_app="--needed "
+			_files_path="${_NEW_APPS_LIBDIR}"
+		;;
+		--game)
+			package_update=true
+			game_install=true
+			_files_path="${_GAMING_EXTRA_LIBDIR}"
+			if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
+				if [ "$file_name_" != "Gaming_Essential_" ];then
+					say "install Gaming_Essential_ first." 'pause'
+					exit
+				fi
+			fi
+		;;
+		--deploy)
+			package_update=true
+			distrobox_install=true
+			_files_path="${_DISTROBOX_LIBDIR}"
+		;;
+		--container)
+			deployed_folder="${_DEPLOYED_CONTAINERS_LIBDIR}/${file_name_}"
+			package_update=true
+			container_install=true
+			_files_path="${_CONTAINERS_LIBDIR}"
+		;;
+		--tweek) 
+			running_tweek=true
+			_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
+		;;
+		--tweek-needed) 
+			running_tweek=true
+			needed_app="--needed "
+			_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
+		;;
+		--fullenv) 
+			running_fullenv=true
+			_files_path="${_FULL_ENVIRONMENT_LIBDIR}"
+			_files_path="${_FULL_ENVIRONMENT_LIBDIR} ${_FULL_ENVIRONMENT_EXTRA_LIBDIR}"
+		;;
+		--chroot) 
+			running_chroot=true 
+			chroot_install=true
+			_files_path="${_CHROOTS_LIBDIR}"
+		;;
+		*) show_help;;
+esac
+
+if [ "${package_install}" = "true" ];then
+	grep -rq "${file_name_}" "${apps_db_path}" || source__file_location=true
+elif [ "${game_install}" = "true" ];then
+	grep -rq "${file_name_}" "${gaming_db_path}" || source__file_location=true
+elif [ "${distrobox_install}" = "true" ];then
+	grep -rq "${file_name_}" "${distrobox_deploy_db_path}" || source__file_location=true
+elif [ "${container_install}" = "true" ];then
+	grep -rq "${file_name_}" "${containers_deploy_db_path}" || source__file_location=true
+elif [ "${chroot_install}" = "true" ];then
+	grep -rq "${file_name_}" "${chroots_deploy_db_path}" || source__file_location=true
+elif [ "${running_fullenv}" = "true" ];then
+	grep -rq "${file_name_}" "${full_environment_db_path}" || source__file_location=true
+elif [ "${running_tweek}" = "true" ];then
+	grep -rq "${file_name_}" "${tweeks_db_path}" || source__file_location=true
+fi
+
+if [ "${source__file_location}" = "true" ];then
+	say
+	say "${file_name_} already installed successfully."
+	say
+	say 'Hit any key to exit...' 'pause'
+else
+	__run_
+fi
+
+exit 0

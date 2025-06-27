@@ -1,0 +1,10 @@
+#!/bin/sh
+app_name="snapd"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name}
+
+
+my-superuser snap install snapd || my-superuser /usr/bin/snap install snapd || :
+

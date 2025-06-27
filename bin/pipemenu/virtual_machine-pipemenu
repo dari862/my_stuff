@@ -1,0 +1,11 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/pipemenu"
+
+# Pipemenu
+menuStart
+if type -v virtual_machine >/dev/null 2>&1;then
+	menuItem 'virtual_machine' 'virtual_machine'
+else
+	menuItem 'Install any Hypervisors' ':'
+fi
+menuEnd

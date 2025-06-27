@@ -1,0 +1,30 @@
+#!/bin/bash
+# if this line exist script will be part of hub script.
+# Load current theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+if [ "$_panel_name_" = 'polybar' ];then
+	rices_path="/usr/share/my_stuff/system_files/blob/polybar"
+else
+	rices_path="/usr/share/my_stuff/system_files/blob/tint2"
+fi
+
+# Variables to try to define the correct size of the images for your resolution
+monitor_res=$(($(xdpyinfo | awk '/dimensions/{print $2}' | cut -d 'x' -f1) * 17 / $(xdpyinfo | awk '/resolution/{print $2}' | cut -d 'x' -f1)))
+rofi_override="element-icon{size:${monitor_res}px;}"
+
+# List themes in ani
+list_of_rice_theme="$(find "${rices_path}/" -mindepth 1 -maxdepth 1 -type d -printf '%P\n' | sort)"
+
+selected_index=$(printf '%s\n' "${list_of_rice_theme}" | awk -v cur="$ROFI_STYLE" '$0==cur {print NR-1; exit}')
+
+# Show the rofi selection menu.
+selected=$(
+    for rice in ${list_of_rice_theme}; do
+        printf "$rice\0icon\x1f${rices_path}/$rice/preview.jpg\n"
+    done | rofi -dmenu -theme $HOME/.config/rofi/$ROFI_STYLE/RiceSelector.rasi -theme-str "$rofi_override" -selected-row "$selected_index"
+)
+
+# If a valid option was selected, write the value to the configuration file and change theme.
+[ -n "$selected" ] && [ "$selected" != "$ROFI_STYLE" ] && style_changer "${selected}"

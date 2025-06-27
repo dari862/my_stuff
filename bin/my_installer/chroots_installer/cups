@@ -1,0 +1,75 @@
+#!/bin/sh
+_CUPS_NAME="cups"
+CUPS_GUI="chroot-cups-gui"
+ENABLE_CUPS="chroot-cups-enable-web"
+CUPS_CHROOT_NAME="chroot-${_CUPS_NAME}"
+CUPS_CHROOT_DIR="${ROOT_CHROOT_DIR}/${CUPS_CHROOT_NAME}"
+CHROOT_DIR="${CUPS_CHROOT_DIR}"
+
+trap cleanup EXIT # from chroot_functions
+base_chroot_creater
+
+say "Installing $_CUPS_NAME in the chroot..."
+my-superuser chroot "$CUPS_CHROOT_DIR" bash -c "
+	apt install -y cups cups-browsed system-config-printer printer-driver-all hplip ipp-usb sane-airscan
+	adduser $CHROOT_USER lpadmin
+" || failed_to_run "Failed to install ${_CUPS_NAME} in chroot"
+
+say "Creating script to run $_CUPS_NAME from the host..."
+my-superuser tee "$CHROOT_SCRIPT_PATH/${ENABLE_CUPS}" > /dev/null <<- EOF
+#!/bin/sh
+if ! /usr/bin/mountpoint -q "$CUPS_CHROOT_DIR/proc";then
+	/usr/bin/mount --bind "/proc" "$CUPS_CHROOT_DIR/proc"
+fi
+/usr/sbin/chroot "$CUPS_CHROOT_DIR" su - root -c "cupsd"
+EOF
+my-superuser chmod 755 "$CHROOT_SCRIPT_PATH/${ENABLE_CUPS}" || failed_to_run "Failed to set execute permission on launch script"
+
+my-superuser tee "$CHROOT_SCRIPT_PATH/${CUPS_GUI}" > /dev/null <<- EOF
+#!/bin/sh
+if ! /usr/bin/mountpoint -q "$CUPS_CHROOT_DIR/proc";then
+	/usr/bin/mount --bind "/proc" "$CUPS_CHROOT_DIR/proc"
+fi
+/usr/sbin/chroot "$CUPS_CHROOT_DIR" su - $CHROOT_USER -c "export DISPLAY=:0.0 && system-config-printer"
+EOF
+my-superuser chmod 755 "$CHROOT_SCRIPT_PATH/${CUPS_GUI}" || failed_to_run "Failed to set execute permission on launch script"
+
+say "Creating script to run $_CUPS_NAME from the host..."
+my-superuser tee "$LAUNCH_SCRIPT_PATH/${ENABLE_CUPS}" > /dev/null <<- EOF
+#!/bin/sh
+my-superuser "$CHROOT_SCRIPT_PATH/$ENABLE_CUPS"
+EOF
+my-superuser chmod 755 "$LAUNCH_SCRIPT_PATH/${ENABLE_CUPS}" || failed_to_run "Failed to set execute permission on launch script"
+
+my-superuser tee "$LAUNCH_SCRIPT_PATH/${CUPS_GUI}" > /dev/null <<- EOF
+#!/bin/sh
+my-superuser "$CHROOT_SCRIPT_PATH/$CUPS_GUI"
+EOF
+my-superuser chmod 755 "$LAUNCH_SCRIPT_PATH/${CUPS_GUI}" || failed_to_run "Failed to set execute permission on launch script"
+
+if [ -f "/etc/doas.conf" ];then
+	my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${ENABLE_CUPS}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${CUPS_GUI}
+	EOF
+
+	my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${ENABLE_CUPS}
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${CUPS_GUI}
+	EOF
+fi
+
+if [ -d "/etc/sudoers.d" ];then
+	my-superuser tee "/etc/sudoers.d/${CUPS_CHROOT_NAME}" > /dev/null <<- EOF
+	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/${ENABLE_CUPS}
+	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/${CUPS_GUI}
+	EOF
+	my-superuser chmod 400 "/etc/sudoers.d/${CUPS_CHROOT_NAME}"
+fi
+
+my-superuser touch "${_CHROOTS_INSTALLED_LIBDIR}/cups"
+
+say 
+say 
+say "You can now enable $_CUPS_NAME from the chroot using the command: $ENABLE_CUPS"
+say "You can now launch gui $_CUPS_NAME from the chroot using the command: $CUPS_GUI"

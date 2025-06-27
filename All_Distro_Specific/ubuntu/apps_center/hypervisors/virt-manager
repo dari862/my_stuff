@@ -1,0 +1,11 @@
+#!/bin/sh
+my-installer --tweek-needed "Enable_IOMMU_support" || continue
+app_name="virt-manager"
+app_list_virt_manager_="qemu-kvm qemu-system qemu-utils python3 python3-pip libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon virt-manager"
+app_list_quickemu_="bash coreutils ovmf grep jq procps python3 genisoimage usbutils util-linux sed spice-client-gtk swtpm xdg-user-dirs zsync unzip uuid-runtime"
+extra_apps="${app_list_virt_manager_} ${app_list_quickemu_}"
+say 'Installing package...' 1
+	
+Package_installer_ ${extra_apps} || continue
+. "${_APPS_LIBDIR}/hypervisors/virt/post_install_virt_manager.sh"
+

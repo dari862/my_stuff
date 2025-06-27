@@ -1,0 +1,47 @@
+#!/bin/sh
+__arg="${1-}"
+
+interactive_upgrade(){
+	popup_terminal --commands "update-notification -i"
+}
+
+list_update(){
+	popup_terminal --commands "update-notification -l"
+}
+
+print_total_updates(){
+	. "/usr/share/my_stuff/lib/common/WM"
+	. "${Distro_config_file}"
+
+	style="${__arg}"
+
+	. "/usr/share/my_stuff/lib/apps/update-notification.conf"
+	
+	UPDATES=$(cat "$updates_file" | wc -l)
+	
+	update-notification -n
+	
+	case "$polybar_STYLE" in
+			forest*)BAR_ICON="";;
+			*)BAR_ICON="";;
+	esac
+
+	if grep -q "#EXO#" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
+		_output="$UPDATES"
+	elif [ "$UPDATES" -eq 0 ];then
+		_output="$BAR_ICON 0"
+	elif [ "$UPDATES" -eq 1 ];then
+		_output="$BAR_ICON $UPDATES Update"
+	elif [ "$UPDATES" -gt 1 ];then
+		_output="$BAR_ICON $UPDATES Updates"
+	fi
+	
+	echo "$_output"
+}
+
+case $__arg in
+	"") print_total_updates;;
+	--upgrade) interactive_upgrade ;;
+	--list-update) list_update;;
+	*) print_total_updates;;
+esac

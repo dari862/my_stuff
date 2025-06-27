@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : zug
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #FFFFFFFF;
+    background-alt: #FFFFFFFF;
+    foreground:     #6B6251FF;
+    selected:       #000000FF;
+    active:         #B8BB26FF;
+    urgent:         #FB4934FF;
+}

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=GUI TLP
+Comment=GUI TLP using yad
+Icon=/usr/share/my_stuff/system_files/downloaded/envycontrol/logos/light.png
+Exec=yadtlp
+Terminal=false
+Type=Application
+Path=
+StartupNotify=false

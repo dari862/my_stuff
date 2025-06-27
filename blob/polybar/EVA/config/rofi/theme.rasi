@@ -1,0 +1,13 @@
+* {
+
+background:			#101419;
+background-alt:		#61038f;
+foreground:			#cc02f5;
+selected:			#6523b0;
+highlight:			#4f1e87;
+urgent:				#b081e5;
+on:					#9658dd;
+off:				#b081e5;
+img-background: url("/usr/share/my_stuff/blob/polybar/EVA/preview.jpg", width);
+
+}

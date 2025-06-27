@@ -1,0 +1,37 @@
+#!/bin/sh
+## Openbox Pipemenu to change openbox menu style
+
+# Variables and functions
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/openbox"
+
+namespace="http://openbox.org/3.4/rc"
+
+jgmenu_exist=false
+menu_style="openbox"
+
+if command -v jgmenu >/dev/null 2>&1;then
+	jgmenu_exist=true
+	grep -q "<!-- never remove this line menu style are :jgmenu -->" "${BACKUP_OB_RC_FILE}" && menu_style="jgmenu"
+fi
+
+menuStart
+if [ "${menu_style}" = "jgmenu" ];then
+	menuSeparator 'Switch to obmenu'
+	cd "${OBPATH}/Menu"
+	for menu in *.xml;do
+		menuItem "${menu}" "change-ob-menu ${menu}"
+	done
+else
+	cd "${OBPATH}/Menu"
+	for menu in *.xml;do
+		menuItem "${menu}" "change-ob-menu ${menu}"
+	done
+	if [ "${jgmenu_exist}" = true ];then
+		menuSeparator
+		menuSeparator
+		menuItem 'Switch to jgmenu' "change-ob-menu jgmenu"
+	fi
+fi
+menuEnd

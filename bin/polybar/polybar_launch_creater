@@ -1,0 +1,44 @@
+#!/bin/sh
+## Files and Directories
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+polybar_launcher_path="$HOME/.local/bin/polybar_launch"
+config_file_name="config"
+
+if [ -z "$ROFI_STYLE" ] || ( [ "$_panel_name_" = "polybar" ] && [ -z "$polybar_STYLE" ] );then
+	style_picker_rofi
+fi
+
+if [ ! -f "$HOME/.config/polybar/$polybar_STYLE/system.ini" ];then
+	polybar_fixer
+fi
+
+tee "${polybar_launcher_path}" <<- 'EOF' > /dev/null
+#!/bin/sh
+MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
+for mon in ${MONITORS}; do
+EOF
+
+if grep -q "#EXO#" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
+	bar_2_check="main apps bspwmInfo CheckNetwork info monitoring network sec SystemTray sysTray third fourth fifth sixth"
+else
+	case "$polybar_STYLE" in
+		pwidgets)		config_file_name="main"
+						bar_2_check="primary secondary top";;
+		hack*|cuts)		bar_2_check="top bottom";;
+		cynthia|melissa)bar_2_check="bar1 bar2";;
+		karla)			bar_2_check="bar1 bar2 bar3";;
+		pamela|andrea)	bar_2_check="bar1 bar2 bar3 bar4 bar5 bar6";;
+		*)				bar_2_check="main";;
+	esac
+fi
+
+for bar in $bar_2_check;do
+	if grep -q "^\[bar/$bar]" "$HOME/.config/polybar/${polybar_STYLE}/${config_file_name}.ini";then
+		echo "MONITOR=\$MON polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/${config_file_name}.ini\" &" >> "${polybar_launcher_path}"
+	fi
+done
+
+echo 'done' >> "${polybar_launcher_path}"
+chmod +x "${polybar_launcher_path}"

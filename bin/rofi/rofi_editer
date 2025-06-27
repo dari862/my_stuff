@@ -1,0 +1,9 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+my-file-manager "$HOME/.config/rofi/$ROFI_STYLE"
+

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+app_name="YadAppsStore"
+yadstore_dir="/usr/share/my_stuff/${app_name}"
+
+say "Installing ${app_name}..." 1
+
+say "clone https://github.com/dari862/${app_name}.git"
+super_clone_repo "https://github.com/dari862/${app_name}.git" "${yadstore_dir}"
+
+my-superuser ln -sf "${yadstore_dir}"/gui /usr/share/my_stuff/system_files/bin/yadstore
+my-superuser ln -sf "${yadstore_dir}"/tools/yadstoreupdater /usr/share/my_stuff/system_files/updater
+my-superuser ln -sf "${yadstore_dir}"/YadStore.desktop /usr/share/applications

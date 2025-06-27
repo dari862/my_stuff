@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE menu [
+  <!ENTITY openboxconfig "~/.config/openbox">
+]>
+<openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/  file:///usr/share/openbox/menu.xsd">
+  <menu id="root-menu" title="Menu" label="Openbox 3">
+        <item label="Run Program">
+            <action name="Execute">
+                <command>
+                    rofi-runner
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="Terminal">
+            <action name="Execute">
+                <command>
+                    my-terminal-emulator
+                </command>
+            </action>
+        </item>
+        <item label="Web Browser">
+            <action name="Execute">
+                <command>
+                    my-www-browser
+                </command>
+            </action>
+        </item>
+        <item label="File Manager">
+            <action name="Execute">
+                <command>
+                    my-file-manager
+                </command>
+            </action>
+        </item>
+        <item label="Text Editor">
+            <action name="Execute">
+                <command>
+                    my-text-editor
+                </command>
+            </action>
+        </item>
+        <item label="Media Player">
+            <action name="Execute">
+                <command>
+                    my-media-player
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <item label="Quick Screenshot+Upload">
+            <action name="Execute">
+                <command>
+                    files-uploader
+                </command>
+            </action>
+        </item>
+        <separator/>
+    <menu id="applications-utilities" label="Utilities">
+    <menu id="StylePipeMenu" execute="change-style-pipemenu" label="Change Style"/>
+    <menu id="TakeScreenshot" execute="screenshot-pipemenu" label="Take Screenshot"/>
+        <item label="BLOB Themes Manager">
+            <action name="Execute">
+                <command>
+                    style_picker_yad
+                </command>
+            </action>
+        </item>
+        <menu id="SSH" execute="sshconfig-pipemenu" label="SSH"/>
+        <menu id="RemoteDesktop" execute="remote-desktop-pipemenu" label="Remote Desktop"/>
+        <item label="App Finder">
+            <action name="Execute">
+                <command>
+                    rofi-launcher
+                </command>
+            </action>
+        </item>
+    </menu>
+    <menu id="Places" execute="places-pipemenu" label="Places"/>
+    <menu id="RecentFiles" execute="recent-files-pipemenu -rl15" label="Recent Files"/>
+    <separator/>
+    <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/bl'" label="Preferences"/>
+    <menu id="applications-system" label="System">
+        <item label="Quick System Info">
+            <action name="Execute">
+                <command>
+                    sysinfo_script_ --hardware2
+                </command>
+            </action>
+        </item>
+        <separator/>
+        <menu id="Printers" execute="printing-pipemenu" label="Printers"/>
+        <item label="Task Manager (htop)">
+            <action name="Execute">
+                <command>
+                    sysinfo_script_ --process
+                </command>
+            </action>
+        </item>
+        <item label="Gui Package Manager">
+            <action name="Execute">
+                <command>
+                    apps_as_root gui_packagemanager
+                </command>
+            </action>
+        </item>
+        <item label="Login Settings">
+            <action name="Execute">
+                <command>
+                    my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf
+                </command>
+            </action>
+        </item>
+        <item label="Login Interface">
+            <action name="Execute">
+                <command>
+                    lightdm-gtk-greeter-settings-pkexec
+                </command>
+            </action>
+        </item>
+        <item label="GParted Partition Manager">
+            <action name="Execute">
+                <command>
+                    apps_as_root gparted
+                </command>
+            </action>
+        </item>
+        <item label="Set Default Browser">
+            <action name="Execute">
+                <command>
+                    popup_terminal "Select Default Browser" "my-alternatives --set my-www-browser"
+                </command>
+            </action>
+        </item>
+        <item label="Edit Alternatives">
+            <action name="Execute">
+                <command>
+                    edit-alternatives
+                </command>
+            </action>
+        </item>
+    </menu>
+        <separator/>
+        <menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
+        <menu id="DisplayKeybinds" execute="my_stuff-kb-pipemenu" label="Display Keybinds"/>
+        <separator/>
+        <menu id="applications-menu" label="Applications" execute="obamenu.py"/>
+        <separator/>
+        <item label="Lock Screen">
+            <action name="Execute">
+                <command>
+                    my_session_manager lock
+                </command>
+            </action>
+        </item>
+        <item label="Exit">
+            <action name="Execute">
+                <command>
+                    my_session_manager --yad
+                </command>
+            </action>
+        </item>
+    </menu>
+</openbox_menu>

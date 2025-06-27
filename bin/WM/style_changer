@@ -1,0 +1,4 @@
+#!/bin/sh
+style_setter "${1:-}" "${2:-}"
+setbg -r
+panel_launcher --reload

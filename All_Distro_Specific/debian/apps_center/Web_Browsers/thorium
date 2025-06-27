@@ -1,0 +1,10 @@
+#!/bin/sh -e
+app_name="thorium-browser"
+
+say 'Adding Repo...' 1
+getURL '2term' "http://dl.thorium.rocks/debian/dists/stable/thorium.list" | my-superuser tee /etc/apt/sources.list.d/thorium.list >dev/null 2>&1
+
+Package_update_
+
+say "Installing ${app_name}..." 1
+Package_installer_ ${app_name} || continue

@@ -1,0 +1,13 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/WM"
+menuStart
+	menuItem "Backup and Edit Keybinds" "keybinds --edit"
+	menuSeparator
+	menuItem "Display Keybinds in new window" "keybinds --gui"
+	menuSubmenu 'Display_keybinds' 'Display Keybinds in menu'
+		cat "${script_config_path}/openbox_pipemenu"
+	menuSubmenuEnd
+menuEnd
+
+exit 0

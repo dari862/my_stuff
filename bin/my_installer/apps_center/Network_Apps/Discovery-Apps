@@ -1,0 +1,25 @@
+#!/bin/sh
+app_name="avahi-autoipd avahi-daemon avahi-discover gvfs libnss-mdns"
+
+say 'Installing package...' 1
+
+Package_installer_ ${app_name} || continue
+
+clear
+
+nsconf="/etc/nsswitch.conf"
+
+say "Discovery applications installed."
+say "Enabling local hostname resolution in Avahi."
+if [ -f "${nsconf}" ];then
+	if ! grep -q "^hosts: .*mdns_minimal" "${nsconf}";then
+		my-superuser sed -i "/^hosts:/{s/myhostname/myhostname mdns_minimal \[NOTFOUND=return\]/g}" ${nsconf}
+	else
+		say "Local hostname resolution already set."
+	fi
+else
+	say "${nsconf@Q} missing. Skipping."
+	return
+fi
+service_manager enable avahi-daemon.service
+

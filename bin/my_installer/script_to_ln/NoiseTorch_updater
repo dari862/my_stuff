@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+download_url="$(getURL 'latestgit' 'noisetorch/NoiseTorch' 'tgz' | head -n 1)"
+	
+getURL 'download2' "${download_url}" "/tmp/$USER/NoiseTorch.tgz"
+tar -C /tmp/$USER/NoiseTorch -h -xzf /tmp/$USER/NoiseTorch.tgz
+cd /tmp/$USER/NoiseTorch/.local
+my-superuser chown -R root:root "/tmp/$USER/NoiseTorch"
+my-superuser cp -r bin/noisetorch /usr/share/my_stuff/system_files/bin/
+my-superuser cp -r share/applications/noisetorch.desktop /usr/share/my_stuff/system_files/applications
+my-superuser mkdir -p /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps
+my-superuser cp -r share/icons/hicolor/256x256/apps/noisetorch.png /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps
+my-superuser ln -sf /usr/share/my_stuff/system_files/applications/noisetorch.desktop /usr/share/applications
+my-superuser ln -sf /usr/share/my_stuff/system_files/icons/hicolor/256x256/apps/noisetorch.png /usr/share/icons/hicolor/256x256/apps
+my-superuser gtk-update-icon-cache
+my-superuser setcap 'CAP_SYS_RESOURCE=+ep' /usr/share/my_stuff/system_files/bin/noisetorch

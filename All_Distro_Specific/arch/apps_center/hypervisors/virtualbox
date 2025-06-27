@@ -1,0 +1,40 @@
+#!/bin/sh
+my-installer --tweek "Enable_IOMMU_support" || continue
+
+KERNEL=$(uname -r)
+BASE_KERNEL=$(echo "$KERNEL" | cut -d'-' -f1)
+
+say "Detected kernel: $KERNEL" 1
+
+case "$BASE_KERNEL" in
+    linux)
+        say "Adding VirtualBox with host modules for the default Arch kernel to install list..." 1
+        install_list="virtualbox virtualbox-host-modules-arch"
+        ;;
+    linux-lts | linux-zen | linux-hardened)
+        say "Adding VirtualBox with DKMS for custom kernel: $BASE_KERNEL to install list" 1
+        install_list="virtualbox virtualbox-host-dkms ${BASE_KERNEL}-headers"
+        ;;
+    *)
+        say "Unknown or custom kernel detected. Adding VirtualBox with DKMS and generic headers to install list." 1
+        install_list="virtualbox virtualbox-host-dkms linux-headers"
+        ;;
+esac
+
+Package_update_ || failed_to_run "failed to update"
+
+say 'Installing packages...' 1
+Package_installer_ ${install_list} || continue
+
+my-superuser usermod -aG vboxusers $USER 
+
+sudo modprobe vboxdrv
+sudo modprobe vboxnetflt
+sudo modprobe vboxnetadp
+printf "vboxdrv\nvboxnetflt\nvboxnetadp" | my-superuser tee /etc/modules-load.d/virtualbox.conf
+
+say
+say "virtualbox has been installed successfully."
+say
+say 'you need to logout...' 2
+say

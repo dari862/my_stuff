@@ -1,0 +1,207 @@
+#!/bin/bash
+#
+#    conky-manager: My Stuff Conky selection and switcher script
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+########################################################################
+#
+########################################################################
+#
+#   Conkys must be in $CONKYPATH
+#   The name must end with "conky", conkyrc or be "*conky*.conf"
+#
+#   When the dialog opens, any running conkys will be checkmarked.
+#
+#   Click "OK" and all running conkys are stopped, and all checkmarked
+#   conkys are started
+#
+#   To stop a conky just uncheck it, and "OK"
+#
+#   Running conkys are saved to a session file, and can be run with
+#   the "conky-session" script. To start the default conky session at
+#   login, add the following line to autostart:
+#
+#     conky-session &
+#
+#   Different saved-session files can be created by running the script with:
+#
+#           conky-manager -f sessionfilename
+#           conky-manager -z (opens gui entry dialog for filepath)
+#
+########################################################################
+
+CONKYPATH="$HOME/.config/conky"
+SESSIONFILE="$CONKYPATH/conky-sessionfile"
+CONKYDEFAULT="$CONKYPATH/conky.conf"
+
+USAGE2='conky-manager is a Conky selection and switcher script
+which uses yad to generate a graphical user interface.
+
+Usage: conky-manager [OPTION]...FILES
+
+Filenames are considered relative to ~/.config/conky/
+
+When the dialog opens, any running conkys will be checkmarked.
+Click "OK" and all running conkys are stopped, and all
+checkmarked conkys are started.
+
+'
+
+# look for a help option somewhere, then exit
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$USAGE2"
+        exit 0
+        ;;
+    esac
+done
+
+SFNAME=''
+CPATH_REGEX='.*(conky.*\.conf|conky|conkyrc)'
+
+### DIALOG VARIABLES
+DLG="yad --center --undecorated --borders=20 "
+DLGDEC="yad --center --borders=20 "
+TITLE="My Stuff Conky Manager"
+WINICON="--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+APPLY="--button=Apply:0"
+CLOSE="--button=Close:1"
+########## FUNCTIONS ###################################################
+
+# for yad text display of filenames
+pangoEscape() {
+    local string="${1//&/&amp;}"
+    string="${string//</&lt;}"
+    string="${string//>/&gt;}"
+    printf '%s' "$string"
+}
+
+# populates global array runningConkys
+getRunning(){
+    unset runningConkys
+    local pid command CPATH
+    declare -g -A runningConkys
+    while read -r pid; do
+        mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'
+        [[ ${command[0]} = 'conky' ]]  || {
+            echo "$0: pgrep parsing failed: command is not 'conky'" >&2
+            continue
+        }
+        for i in "${!command[@]}"; do
+            [[ ${command[i]} = '-c' ]] && { CPATH="${command[i+1]}"; break;}
+            [[ ${command[i]} = '--config='* ]] && { CPATH="${command[i]#--config=}"; break;}
+        done
+        [[ -z $CPATH ]] && CPATH="$CONKYDEFAULT"
+        [[ $CPATH = /* ]] || CPATH="$HOME/$CPATH" # assume path is relative to $HOME
+        [[ -f $CPATH ]] || {
+            echo "$0: pgrep conky parsing failed: $CPATH is not a file" >&2
+            continue
+        }
+        runningConkys["$CPATH"]=1
+    done < <(pgrep -x 'conky' -u "$USER")
+}
+
+# $1 holds full path to config file
+# returns 0 if a running conky is using that file
+isRunning(){
+    local file=$1
+    [[ ${runningConkys["$file"]} = 1 ]] && return 0
+    return 1
+}
+
+findConkys(){
+    getRunning
+    LISTCONKY=() # global
+    local file name check
+    shopt -s globstar
+    for file in "$CONKYPATH"/**;do
+        [[ -f $file ]] || continue
+        [[ $file =~ ${CPATH_REGEX}$ ]] || continue # ignore other than conky config files
+        name=${file#$CONKYPATH/}
+        if isRunning "$file";then
+            check='TRUE'
+        else
+            check='FALSE'
+        fi
+        LISTCONKY+=("$check" "$(pangoEscape "$name")" "$file")
+    done
+    shopt -u globstar
+}
+
+loadDialog() {
+    local choice retval desktop
+    ## Populate dialog from array, get chosen conky(s)
+    choice=$($DLGDEC $WINICON --list --title="$TITLE" \
+        --text="Session will be saved to:\n <b>$SESSIONFILE</b>" \
+        --checklist --width=400 --height=500 \
+        --column="Select:CHK" --column="Conky Name:TEXT" --column=path:HD "${LISTCONKY[@]}" \
+        --separator='' --print-column=3 \
+        $APPLY --button='Apply+Close':1 $CLOSE \
+        )
+    retval=$?
+
+    if [[ -z $choice ]];then  # No conkys chosen
+            exit
+    fi
+
+    :> "$SESSIONFILE"    # Create/overwrite empty session file
+
+    if type conky-session >/dev/null 2>&1 ;then # conky-session comes in the same package as conky-manager
+        # Find the chosen conkys, add them to SESSIONFILE, then load it.
+        while read -r path
+        do
+            [[ -n $path ]] || continue
+            if isSticky "$path";then
+                echo "${path#$HOME/}" >> "$SESSIONFILE" # put HOME-relative paths in sessionfile for better compatibility with BLOB
+            else
+                if desktop=$( chooseDesktop "$path" );then
+                    echo "D[${desktop}] ${path#$HOME/}" >> "$SESSIONFILE"
+                else
+                    echo "${path#$HOME/}" >> "$SESSIONFILE"
+                fi
+            fi
+        done <<< "$choice"
+        conky-session --kill-running "$SESSIONFILE" # conky-session can handle desktops too
+    else # this code should seldom be needed
+        # kill all conkys
+        if pgrep -x -u "$USER" conky >/dev/null;then
+            killall -u "$USER" conky
+            sleep 0.5 # make sure killed conkys are not running at next iteration of getRunning()
+        fi
+        # Find the chosen conkys, launch them and add them to SESSIONFILE.
+        while read -r path
+        do
+            [[ -n $path ]] || continue
+            echo "${path#$HOME/}" >> "$SESSIONFILE"
+            set -m # enable job control so forked conky is immune to signals
+            # start the conky (adjust the sleep time if required)
+            conky -c "$path" >/dev/null 2>&1 &
+            disown
+            set +m
+            sleep 0.5s
+        done <<< "$choice"
+    fi
+    #   if there is a button that returns 1, it will apply changes and exit
+    (( retval == 1 )) && { exit;}
+}
+
+######## END FUNCTIONS #################################################
+
+while true;do
+    findConkys
+    loadDialog
+done

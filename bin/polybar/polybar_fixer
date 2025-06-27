@@ -1,0 +1,163 @@
+#!/bin/sh
+
+## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
+## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/Distro_Specific/disto_icon"
+
+CARD=""
+BATTERY=""
+ADAPTER=""
+INTERFACE=""
+TemperaturePath=""
+
+## create system.ini file
+create_system_file_ini() {
+	tee $HOME/.config/polybar/system.ini <<- EOF > /dev/null
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; System Variables (Edit according to your system)
+	;;
+	;; Warning : DO NOT DELETE THIS FILE
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; RUN for "BATTERY" : upower -i \$(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]'
+	;;
+	;; RUN for "ADAPTER" : upower -i \$(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]'
+	;;
+	;; RUN for "CARD" : ls -1 /sys/class/backlight/ | head -n 1
+	;;
+	;; RUN for "INTERFACE" ethernet : ip link | awk '/UP/ {print \$2}' | tr -d : | grep -v lo | grep "^e" | head -n 1
+	;;
+	;; RUN for "INTERFACE" wifi : ip link | awk '/UP/ {print \$2}' | tr -d : | grep -v lo | grep "^w" | head -n 1
+	;;
+	;; RUN for "VPN_INTERFACE" : ip link | awk '/UP/ {print \$2}' | tr -d : | grep -v lo | grep "tun" | head -n 1 
+	;;
+	;; RUN for "TemperaturePath" : (for i in /sys/class/hwmon/hwmon*/temp*_input; do echo "\$(<\$(dirname \$i)/name): \$(cat \${i%_*}_label 2>/dev/null || echo \$(basename \${i%_*})) \$(readlink -f \$i)"; done) | grep "coretemp" | grep "temp1" | awk '{print \$5}')
+	;;
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; Polybar Variables For Modules :
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	;;
+	;; adapter = \${system.adapter}
+	;; battery = \${system.battery}
+	;; graphics_card = \${system.graphics_card}
+	;; network_interface = \${system.network_interface}
+	;; vpn_interface = \${system.vpn_interface}
+	;; AC_only_prefix = \${system.AC_only_prefix}
+	;; AC_only_content = \${system.AC_only_content}
+	;; temperature = \${system.temperature}
+	;; distro_icon = \${system.distro_icon}
+	;; distro_name = \${system.distro_name}
+	;; NO_BT_content = \${system.NO_BT_content}
+	;;
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+
+	[system]
+	adapter = $ADAPTER
+	battery = $BATTERY
+	graphics_card = $CARD
+	network_interface = $INTERFACE
+	vpn_interface = $VPN_INTERFACE
+	AC_only_prefix = "  "
+	AC_only_content = " AC only "
+	temperature = $TemperaturePath
+	distro_icon = $distro_icon
+	distro_name = "$distro_name"
+	NO_BT_content = " "
+	workspace_name = "$workspace_name"
+	saved_WM_name = "$saved_WM_name"
+	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	EOF
+}
+
+## Get system variable values for various modules
+get_values() {
+	ADAPTER="$(find /sys/class/power_supply -maxdepth 1 -type l -name "A[CD]*" | head -n1 | xargs basename 2>/dev/null)"
+	BATTERY="$(find /sys/class/power_supply -maxdepth 1 -type l -name "BAT*" | head -n1 | xargs basename 2>/dev/null)"
+	
+	CARD="$(find /sys/class/backlight -maxdepth 1 -type l | head -n1 | xargs basename 2>/dev/null)"
+	
+	INTERFACE="$(ip -o route get 1 2>/dev/null | awk '{print $5}')"
+	
+	if [ -z "${INTERFACE}" ];then
+		E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
+		W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
+		
+		if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
+			INTERFACE="${W_INTERFACE}"
+		elif [ -n "${E_INTERFACE}" ];then
+			INTERFACE="${E_INTERFACE}"
+		else
+			INTERFACE="${W_INTERFACE}"
+		fi
+	fi
+	
+	VPN_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "tun" | head -n 1  )"
+	
+	workspace_name="$(xprop -root _NET_DESKTOP_NAMES | cut -d '=' -f 2 | awk -F' 1"' '{print $1}' | cut -d '"' -f 2 | tr -d '0-9')"
+	[ -z "$workspace_name" ] && workspace_name="empty"	
+	
+	saved_WM_name="$(cat $WM_name_file_path)"
+	
+	#varibale TemperaturePath are set at the end
+	TemperaturePath="$(for i in /sys/class/hwmon/hwmon*/temp*_input; do name_file="$(dirname "$i")/name"; if [ -f "$name_file" ];then name=$(cat "$name_file"); else name=""; fi; label_file="${i%_*}_label"; if [ -f "$label_file" ];then label=$(cat "$label_file"); else label="$(basename "${i%_*}")"; fi; echo "$name: $label $(readlink -f "$i")"; done | grep "coretemp" | grep "temp1" | awk '{print $5}')"
+	if [ -z "$TemperaturePath" ];then
+ 		TemperaturePath="$HOME/.config/polybar/noTemperature"
+ 		echo "noTemp" > "$TemperaturePath"
+ 	fi
+}
+
+# Fix backlight and network modules
+fix_modules() {
+	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
+		if xbacklight -get >/dev/null 2>&1; then
+			find $HOME/.config/polybar -type f -exec sed -i 's|type = internal/backlight|type = internal/xbacklight|g' {} +
+		fi
+		
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ AC_only/ batteryControl/g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ AC_only/ batteryControl/g' {} +
+	fi
+	
+	if ! echo "$INTERFACE" | grep -q "^e";then
+		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ ethernetControl/ networkControl/g' {} +
+		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ ethernetControl/ networkControl/g' {} +
+	fi
+}
+
+remove_modules() {
+	polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g' | cut -c 1-3)
+	string_size_of_polybar_ver="${#polybar_ver}"
+	if [ "$string_size_of_polybar_ver" != 3 ];then
+		if [ "$string_size_of_polybar_ver" = 1 ];then
+			polybar_ver="${polybar_ver}00"
+		elif [ "$string_size_of_polybar_ver" = 2 ];then
+			polybar_ver="${polybar_ver}0"
+		else
+			polybar_ver="$(echo $polybar_ver | cut -c1-3)"
+		fi
+	fi
+
+	if [ "$polybar_ver" -ge "370" ];then
+		find $HOME/.config/polybar -type f -exec sed -i 's/ notray_m/ tray_m/g' {} +
+		#find $HOME/.config/polybar -type f -exec sed -i 's/label-active/label-focused/g' {} +
+ 	fi
+
+ 	find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
+ 	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
+ 	
+ 	if [ -z "$VPN_INTERFACE" ];then
+ 		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ vpn_m/ no_vpn_m/g' {} +
+ 	else
+ 		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ no_vpn_m/ vpn_m/g' {} +
+ 	fi
+}
+
+get_values
+create_system_file_ini
+fix_modules
+remove_modules

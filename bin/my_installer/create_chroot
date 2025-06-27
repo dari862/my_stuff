@@ -1,0 +1,109 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+
+chroot_name="${1-}"
+chroot_path="${INSTALLER_CHROOT_DIR}/${chroot_name}"
+LAUNCH_SCRIPT_PATH="/usr/share/my_stuff/system_files/bin"
+CHROOT_SCRIPT_PATH="/usr/share/my_stuff/system_files/bin/chroots"
+CHROOT_USER="chroot$(logname)"
+
+list_of_chroots(){
+	say "List of chroots are:"
+	say "========================"
+	find "${INSTALLER_CHROOT_DIR}" -maxdepth 1 -type f -exec basename {} \;
+	exit 1
+}
+
+log_error() {
+    echo "[ERROR][$(date)] $0 : $1" >> /tmp/log_error_create_chroot_cleanup
+}
+
+cleanup() {
+    say "Unmounting bind mounts..."
+    my-superuser umount "$CHROOT_DIR/proc" >/dev/null 2>&1 || log_error "Failed to unmount /proc"
+    my-superuser umount "$CHROOT_DIR/sys" >/dev/null 2>&1 || log_error "Failed to unmount /sys"
+    my-superuser umount "$CHROOT_DIR/dev/pts" >/dev/null 2>&1 || log_error "Failed to unmount /dev/pts"
+    my-superuser umount "$CHROOT_DIR/dev" >/dev/null 2>&1 || log_error "Failed to unmount /dev"
+    my-superuser umount "$CHROOT_DIR/run" >/dev/null 2>&1 || log_error "Failed to unmount /run"
+}
+
+base_chroot_creater(){
+	if [ ! -d "${CHROOT_DIR}" ];then
+		say "Creating chroot directory at $CHROOT_DIR..."
+		my-superuser mkdir -p "$CHROOT_DIR" || failed_to_run "Failed to create ${CHROOT_DIR} directory"
+		my-superuser mkdir -p "$CHROOT_SCRIPT_PATH" || failed_to_run "Failed to create ${CHROOT_SCRIPT_PATH} directory"
+		my-superuser chmod 700 "${CHROOT_SCRIPT_PATH}"
+		Package_installer_ debootstrap
+		
+		say "Creating chroot environment in $CHROOT_DIR..."
+		my-superuser debootstrap stable "$CHROOT_DIR" http://deb.debian.org/debian || failed_to_run "Debootstrap failed"
+				
+		say "Creating user $CHROOT_USER inside the chroot..."
+		my-superuser chroot "$CHROOT_DIR" useradd -m "$CHROOT_USER" -s /bin/bash || failed_to_run "Failed to create user in chroot"
+		
+		say "Installing and configer locales in the chroot..."
+		my-superuser chroot "$CHROOT_DIR" bash -c "
+    		apt update && apt install -y locales
+    		sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+    		locale-gen && update-locale LANG=en_US.UTF-8
+		" || failed_to_run "Failed to installing and configer locales in the chroot..."
+		
+		say "Installing unattended-upgrades cron in the chroot..."
+		my-superuser chroot "$CHROOT_DIR" bash -c "
+    		apt install -y unattended-upgrades cron
+    		dpkg-reconfigure --priority=high unattended-upgrades
+		" || failed_to_run "Failed to install unattended-upgrades in chroot"
+		
+		Package_remove_ debootstrap || :
+	fi
+}
+
+chroot_creater(){
+	if [ ! -d "${CHROOT_DIR}" ];then
+		base_chroot_creater
+		say "Mounting necessary filesystems for chroot..."
+		for fs in /proc /sys /dev /dev/pts /run; do
+			if ! mountpoint -q "$CHROOT_DIR$fs";then
+    			my-superuser mount --bind "$fs" "$CHROOT_DIR$fs" || failed_to_run "Failed to mount $fs"
+    		fi
+		done
+			
+		say "Installing dependencies in the chroot..."
+		my-superuser chroot "$CHROOT_DIR" bash -c "
+    		apt update && apt install -y dbus-x11 libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libpci-dev libgl1 libegl1-mesa libgl1-mesa-glx
+		" || failed_to_run "Failed to install required packages in chroot"
+
+		say "Configuring chroot for X11 forwarding..."
+		my-superuser chroot "$CHROOT_DIR" su - $CHROOT_USER -c "echo 'export DISPLAY=:0.0' >> /home/$CHROOT_USER/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
+		my-superuser chroot "$CHROOT_DIR" sh -c "echo 'export DISPLAY=:0.0' >> /etc/skel/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
+	fi
+}
+
+Create_users_to_chroot(){
+	list_of_users_are="$(grep "users:" /etc/group | awk -F: '{print $NF}' | sed 's/,/ /g')"
+	for user2add in ${list_of_users_are};do
+		new_chroot_user="chroot${user2add}"
+		if my-superuser chroot "$CHROOT_DIR" id "${new_chroot_user}" >/dev/null 2>&1;then
+			:
+		else
+			my-superuser chroot "$CHROOT_DIR" useradd -m "${new_chroot_user}" -s /bin/bash
+			my-superuser xhost +local:${new_chroot_user}
+		fi
+	done
+}
+
+if [ -n "${chroot_name}" ];then
+	if [ -f "${chroot_path}" ];then
+		my-superuser mkdir -p "${_CHROOTS_INSTALLED_LIBDIR}"
+		. "${chroot_path}"
+	else
+		say " ERROR: failed to locate chroot: ${chroot_name} "
+		say " ERROR: path: ${INSTALLER_CHROOT_DIR}"
+		say " "
+		list_of_chroots
+	fi
+else
+	list_of_chroots
+fi

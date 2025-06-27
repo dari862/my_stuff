@@ -1,0 +1,83 @@
+favorites=my-www-browser.desktop,my-file-manager.desktop,my-terminal-emulator.desktop,my-text-editor.desktop
+recent=
+button-title=\ Applications
+button-icon=/usr/share/my_stuff/Distro_Specific/icons/xfce-menucraft.svg
+button-single-row=false
+show-button-title=true
+show-button-icon=true
+launcher-show-name=true
+launcher-show-description=true
+launcher-show-tooltip=true
+launcher-icon-size=2
+hover-switch-category=true
+category-show-name=true
+category-icon-size=1
+sort-categories=true
+view-mode=1
+default-category=0
+recent-items-max=10
+favorites-in-recent=true
+position-search-alternate=true
+position-commands-alternate=false
+position-categories-alternate=true
+position-categories-horizontal=false
+stay-on-focus-out=false
+profile-shape=0
+confirm-session-command=true
+menu-width=494
+menu-height=575
+menu-opacity=100
+command-settings=xfce4-settings-manager
+show-command-settings=true
+command-lockscreen=my_session_manager lock
+show-command-lockscreen=true
+command-switchuser=gdmflexiserver
+show-command-switchuser=false
+command-logoutuser=my_session_manager logout
+show-command-logoutuser=false
+command-restart=my_session_manager reboot
+show-command-restart=false
+command-shutdown=my_session_manager shutdown
+show-command-shutdown=false
+command-suspend=my_session_manager suspend
+show-command-suspend=false
+command-hibernate=my_session_manager hibernate
+show-command-hibernate=false
+command-logout=my_session_manager logout
+show-command-logout=true
+command-menueditor=menulibre
+show-command-menueditor=true
+command-profile=mugshot
+show-command-profile=true
+search-actions=5
+
+[action0]
+name=Man Pages
+pattern=#
+command=my-terminal-emulator man %s
+regex=false
+
+[action1]
+name=Web Search
+pattern=?
+command=my-www-browser https://duckduckgo.com/?q=%u
+regex=false
+
+[action2]
+name=Wikipedia
+pattern=!w
+command=my-www-browser https://en.wikipedia.org/wiki/%u
+regex=false
+
+[action3]
+name=Run in Terminal
+pattern=!
+command=my-terminal-emulator %s
+regex=false
+
+[action4]
+name=Open URI
+pattern=^(file|http|https):\\/\\/(.*)$
+command=my-www-browser \\0
+regex=true
+

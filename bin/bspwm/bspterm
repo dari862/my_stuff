@@ -1,0 +1,12 @@
+#!/bin/sh
+__mode="${1:-}"
+__extra="${2:-}"
+
+case "$__mode" in
+    --float|-f)
+		bspalacritty --float "$__extra" ;;
+    --full|-s)
+      	bspalacritty --full "$__extra" ;;
+	*)
+		bspalacritty "$@" ;;
+esac

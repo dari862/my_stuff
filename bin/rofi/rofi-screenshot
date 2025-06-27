@@ -1,0 +1,61 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# Import Current Theme
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/screenshot.rasi"
+
+# Theme Elements
+prompt='Screenshot'
+mesg="Directory :: $(xdg-user-dir PICTURES)/Screenshots"
+
+# Options
+layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+if [ "$layout" = 'YES' ];then
+	shot_now=""
+	shot_area=""
+	shot_win=""
+	shot_after_5sec=""
+	shot_after_10sec=""
+else
+	shot_now=" Capture Desktop"
+	shot_area=" Capture Area"
+	shot_win=" Capture Window"
+	shot_after_5sec=" Capture in 5s"
+	shot_after_10sec=" Capture in 10s"
+fi
+
+# Rofi CMD
+rofi_cmd() {
+	rofi -dmenu \
+		-p "$prompt" \
+		-mesg "$mesg" \
+		-markup-rows \
+		-theme ${RASI}
+}
+
+# Pass variables to rofi dmenu
+run_rofi() {
+	printf "$shot_now\n$shot_area\n$shot_win\n$shot_after_5sec\n$shot_after_10sec" | rofi_cmd
+}
+
+# Actions
+chosen="$(run_rofi)"
+case ${chosen} in
+    $shot_now)
+		my-shots
+        ;;
+    $shot_area)
+		my-shots --area
+        ;;
+    $shot_win)
+		my-shots --win
+        ;;
+    $shot_after_5sec)
+		my-shots --delay 5
+        ;;
+    $shot_after_10sec)
+		my-shots --delay 10
+        ;;
+esac

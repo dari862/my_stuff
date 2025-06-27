@@ -1,0 +1,105 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+
+#===================================================================================
+# FILE: welcome
+# DESCRIPTION: show yad dialog with Openbox welcome text
+# AUTHOR: Leonardo Marco 
+# VERSION: 1.0
+# CREATED: 2021.09.21
+# LICENSE: GNU General Public License v3.0
+#===================================================================================
+. "/usr/share/my_stuff/lib/common/WM"
+if [ ! -f "${script_config_path}/welcome_keybinds" ];then
+	. "/usr/share/my_stuff/system_files/welcome_keybinds" 
+else
+	. "${script_config_path}/welcome_keybinds"
+fi
+
+current_wm_name="$(cat "$WM_name_file_path")"
+field="Show this message on startup"
+
+# Openbox welcome text
+text_openbox="<big><b>Welcome TO My Stuff \!</b></big>\n
+ A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
+ <b> How to open main menu?</b>\n
+   • Right click on desktop and taskbar\n
+   • Right click on left screen border (even if there are maximized windows)\n
+<b> How to exit/power off?</b>\n
+   • <tt>Main menu > Exit</tt>\n
+   • <tt>${Logout}</tt>\n
+<b> How to snap Windows?</b>\n
+   • Middle click on title bar\n
+   • <tt>${Tile_half_screen}</tt>\n
+   • <tt>${Snap_window}</tt>\n
+<b> Search commands</b>		<tt>${Launcher}</tt>\n
+<b> Window always on top</b>		<tt>${always_on_top}</tt>\n
+<b> Kill X server</b>				<tt>${Kill_X}</tt>\n
+<b> Open terminal</b>			<tt>${conky_Terminal}</tt>\n
+<b> Open file manager</b>		<tt>${conky_File_Manager}</tt>\n
+<b> Open web browser</b>		<tt>${conky_Web_Browser}</tt>\n
+<b> Open editor</b>				<tt>${conky_Editor}</tt>\n
+"
+
+# Bspwm welcome text
+text_bspwm="<big><b>Welcome TO My Stuff \!</b></big>\n
+ A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
+ <b> How to open main menu?</b>\n
+   • Right click on desktop and taskbar\n
+   • Right click on left screen border (even if there are maximized windows)\n
+<b> How to exit/power off?</b>\n
+   • <tt>Main menu > Exit</tt>\n
+   • <tt>${Logout}</tt>\n
+<b> How to snap Windows?</b>\n
+   • Middle click on title bar\n
+   • <tt>${Tile_half_screen}</tt>\n
+   • <tt>${Snap_window}</tt>\n
+<b> Search commands</b>		<tt>${Launcher}</tt>\n
+<b> Window always on top</b>		<tt>${always_on_top}</tt>\n
+<b> Kill X server</b>				<tt>${Kill_X}</tt>\n
+<b> Open terminal</b>			<tt>${conky_Terminal}</tt>\n
+<b> Open file manager</b>		<tt>${conky_File_Manager}</tt>\n
+<b> Open web browser</b>		<tt>${conky_Web_Browser}</tt>\n
+<b> Open editor</b>				<tt>${conky_Editor}</tt>\n
+"
+
+# awesome welcome text
+text_awesome="<big><b>Welcome TO My Stuff \!</b></big>\n
+ A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
+ <b> How to open main menu?</b>\n
+   • Right click on desktop and taskbar\n
+   • Right click on left screen border (even if there are maximized windows)\n
+<b> How to exit/power off?</b>\n
+   • <tt>Main menu > Exit</tt>\n
+   • <tt>${Logout}</tt>\n
+<b> How to snap Windows?</b>\n
+   • Middle click on title bar\n
+   • <tt>${Tile_half_screen}</tt>\n
+   • <tt>${Snap_window}</tt>\n
+<b> Search commands</b>		<tt>${Launcher}</tt>\n
+<b> Window always on top</b>		<tt>${always_on_top}</tt>\n
+<b> Kill X server</b>				<tt>${Kill_X}</tt>\n
+<b> Open terminal</b>			<tt>${conky_Terminal}</tt>\n
+<b> Open file manager</b>		<tt>${conky_File_Manager}</tt>\n
+<b> Open web browser</b>		<tt>${conky_Web_Browser}</tt>\n
+<b> Open editor</b>				<tt>${conky_Editor}</tt>\n
+"
+
+case $current_wm_name in
+	openbox)
+		text=${text_openbox}
+	;;
+	bspwm)
+    	text=${text_bspwm}
+    ;;
+esac
+
+# Show yad dialog
+output=$(yad --form --button="OK!gtk-ok!OK:0" --center --undecorated --fixed --borders=30 --window-icon=nautilus --text="$text" --field="$field:CHK" --separator=""  --image=debian-logo)
+
+# Delete simbolic link if not show next time is checked
+if [ "$output" = "FALSE" ];then
+	rm ~/.config/autostartscripts/welcome.sh >/dev/null 2>&1
+fi
+
+

@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+. "/usr/share/my_stuff/lib/common/WM"
+. "${script_config_path}/ncmpcpp_launcher"
+
+NCMPCPP_DIR="$HOME/.config/ncmpcpp"
+if [ "$__mode" = "kitty" ];then
+	case "${1}" in
+		'') popup_terminal "NCMPCPP" "ncmpcpp -q" ;;
+		a*) popup_terminal "NCMPCPP album-art" "ncmpcpp -c \"${NCMPCPP_DIR}/album-art.config\" -q" ;;
+		s*) popup_terminal "NCMPCPP single album-art" "ncmpcpp -c \"${NCMPCPP_DIR}/single.album-art.config\" -q" ;;
+	esac
+elif [ "$__mode" = "ueberzug" ];then
+	export FIFO_UEBERZUG="/tmp/$USER/mpd-ueberzug-${PPID}"
+	
+	cleanup() {
+    	rm "$FIFO_UEBERZUG" 2>/dev/null
+    	rm /tmp/$USER/mpd_cover.jpg 2>/dev/null
+    	pkill -P $$ 2>/dev/null
+    	pkill album-art
+	}
+	
+	pkill -P $$ 2>/dev/null
+	rm "$FIFO_UEBERZUG" 2>/dev/null
+	mkfifo "$FIFO_UEBERZUG" >/dev/null
+	trap cleanup EXIT 2>/dev/null
+	tail --follow "$FIFO_UEBERZUG" | ueberzug layer --silent --parser simple >/dev/null 2>&1 &
+	
+	case "${1}" in
+		'') popup_terminal "NCMPCPP" "ncmpcpp -q" ;;
+		a*) popup_terminal "NCMPCPP album-art" "ncmpcpp -c \"${NCMPCPP_DIR}/album-art.config\" -q" ;;
+		s*) popup_terminal "NCMPCPP single album-art" "ncmpcpp -c \"${NCMPCPP_DIR}/single.album-art.config\" -q" ;;
+	esac
+	
+	cleanup
+fi

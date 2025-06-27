@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com> -->
+<!-- Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 -->
+<!DOCTYPE menu [
+  <!ENTITY icons "/usr/share/my_stuff/icons">
+  <!ENTITY openboxconfig "~/.config/openbox">
+]>
+<openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/  file:///usr/share/openbox/menu.xsd">
+  <menu id="root-menu" title="Menu" label="Openbox 3">
+<!--	<separator label="Main Menu"/>  -->
+		<item icon="&icons;/terminal.png" label="Terminal Emulator">
+			<action name="Execute">
+				<command>my-terminal-emulator</command>
+			</action>
+		</item>
+		<separator/>
+		<item icon="&icons;/filemanager.png" label="File Manager">
+			<action name="Execute">
+				<command>my-file-manager</command>
+			</action>
+		</item>
+		<separator/>
+		<item icon="&icons;/browser.png" label="Web Browser">
+			<action name="Execute">
+				<command>my-www-browser</command>
+			</action>
+		</item>
+		<separator/>
+		<item icon="&icons;/editor.png" label="Text Editor">
+			<action name="Execute">
+				<command>my-text-editor</command>
+			</action>
+		</item>
+		<separator/>
+		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine" icon="&icons;/virtualbox.png"/>
+		<separator/>
+		<menu icon="&icons;/apps.png" id="applications-menu" label="Applications" execute="obamenu.py"/>
+		<separator/>
+		<menu icon="&icons;/shots.png" id="TakeScreenshot" execute="screenshot-pipemenu" label="Screenshot"/>
+		<menu icon="&icons;/root.png" id="apps_as_root-pipemenu" execute="apps_as_root-pipemenu" label="Apps As Root"/>
+		<separator/>
+		<menu icon="&icons;/record.png" id="record-pipemenu" execute="record-pipemenu" label="Screen Recorder"/>
+		<separator/>
+		<separator/>
+		<separator/>
+		<menu icon="&icons;/places.png" id="places-pipemenu" execute="places-pipemenu --recent ~/" label="Places"/>
+		<separator/>
+		<menu icon="&icons;/recents.png" id="ac-recent" execute="recent-files-pipemenu" label="Recent Files"/>
+		<separator/>
+		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
+		<separator/>
+		<menu icon="&icons;/help.png" id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
+		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
+		<separator/>
+		<separator/>
+		<separator/>
+		<item icon="&icons;/sys-lock.png" label="Lock Screen">
+			<action name="Execute">
+				<command>my_session_manager lock</command>
+			</action>
+		</item>
+		<separator/>
+		<menu icon="&icons;/sys-poweroff.png" id="Exit" label="System">
+				<menu icon="&icons;/stats.png" id="SystemPipeMenu" execute="sysinfo-pipemenu" label="Stats"/>
+				<separator/>
+				<item icon="&icons;/sys-exit.png" label="Logout">
+					<action name="Execute">
+						<command>my_session_manager logout</command>
+					</action>
+				</item>
+				<separator/>
+				<item icon="&icons;/sys-sleep.png" label="Suspend">
+					<action name="Execute">
+						<command>my_session_manager suspend</command>
+					</action>
+				</item>
+				<separator/>
+				<item icon="&icons;/sys-reboot.png" label="Reboot">
+					<action name="Execute">
+						<command>my_session_manager reboot</command>
+					</action>
+				</item>
+				<separator/>
+				<item icon="&icons;/sys-poweroff-alt.png" label="Shutdown">
+					<action name="Execute">
+						<command>my_session_manager shutdown</command>
+					</action>
+				</item>
+		</menu>
+	</menu>
+</openbox_menu>
+<!-- vim:sw=2
+-->

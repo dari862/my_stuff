@@ -1,0 +1,15 @@
+/**
+ *
+ * theme : beach
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #141B21FF;
+    background-alt: #141B21FF;
+    foreground:     #93A1A1FF;
+    selected:       #C62A2EFF;
+    active:         #98C379FF;
+    urgent:         #E06C75FF;
+}

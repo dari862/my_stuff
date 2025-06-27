@@ -1,0 +1,5 @@
+_panel_name_="polybar"
+ROFI_STYLE="cyber"
+polybar_STYLE="adaptive"
+conky_sessionfile=".config/conky/openbox-conky.conf"
+tint2_sessionfile="/.config/tint2/adaptive.tint2rc"

@@ -1,0 +1,87 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/WM"
+usr_setup_flag_file="$1"
+backup_date="$(date +'%d-%m-%Y-%HH%mm')"
+backup_file_name=".backup-${backup_date}"
+backup_file_path="${HOME}/${backup_file_name}"
+remove_this_Array="
+.xsessionrc
+.xsession
+.subversion
+.wget-log
+.wget-hsts
+.zcompdump
+.zshrc
+.zshenv
+.zsh_history
+.zcompdump.zwc
+.zshrc.zwc
+.zshenv.zwc
+.zsh_history.zwc
+.bash_logout
+.bash_login
+.bashrc
+.fehbg
+.gnupg
+.gtkrc-2.0
+.dbus
+.ICEauthority
+.profile
+.zprofile
+.xprofile
+"
+move_this_from_config_Array="$(ls /usr/share/my_stuff/system_files/skel/.config) nitrogen $WM_config_name"
+
+#-----------------------------------------------------------##-----------------------------------------------------------#
+
+the_copyed_skel_are_correpted(){
+	wc -c "$HOME/.config/myshell/bash/bashrc.sh" | grep "^0" > /dev/null 2>&1 && return 0
+	#test="$(find ./bin -type f -exec sha256sum {} \; | sort | sha256sum)"
+	#test2="$(find ./bin -type f -exec sha256sum {} \; | sort | sha256sum)"
+	#[ "$test" = "$test2" ] && echo yes
+}
+
+copy_skel_(){
+	cp -rf /usr/share/my_stuff/system_files/skel/. "$HOME"
+	if the_copyed_skel_are_correpted;then
+		return 1
+	fi
+}
+
+#-----------------------------------------------------------##-----------------------------------------------------------#
+
+mkdir -p "${backup_file_path}"
+
+for i in ${remove_this_Array}; do
+	[ -f "${HOME}/${i}" ] && mv "${HOME}/${i}" "${backup_file_path}"  > /dev/null 2>&1
+done
+
+mkdir -p "${backup_file_path}/.config"
+
+for movethis in ${move_this_from_config_Array}; do
+	[ -e "${HOME}/.config/${movethis}" ] && mv "${HOME}/.config/${movethis}" "${backup_file_path}/.config"  > /dev/null 2>&1
+done
+
+copy_skel_ || copy_skel_ || copy_skel_
+
+if the_copyed_skel_are_correpted;then
+	echo "[ERROR] $(basename "$0") : failed: to copy /usr/share/my_stuff/system_files/skel"
+	exit 1
+fi
+
+touch "$usr_setup_flag_file"
+
+cd $HOME
+
+for hf in .bash_histor*;do
+	new_hf="$(echo "$hf" | sed "s/^.//g")"
+	mv $hf .local/share/bash_history/$new_hf > /dev/null 2>&1 || :
+done
+
+mv $HOME/.lesshst $HOME/.cache/lesshst > /dev/null 2>&1 || :
+
+if command -v xfconf-query >/dev/null ;then
+	xfconf-query -c xfwm4 -np /general/theme -t 'string' -s Adwaita
+fi
+
+find "$HOME/.config/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +

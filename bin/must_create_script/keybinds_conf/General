@@ -1,0 +1,37 @@
+##############################
+#;#############################
+#; General
+#;#############################
+##############################
+Run Program=Alt + F2
+Terminal (1)=Super + t
+Web Browser (1)=Super + w
+File Manager (1)=Super + f
+Editor (1)=Super + e
+Media Player (1)=Super + m
+Lock Screen (1)=Super + l
+Logout (1)=Super + x
+Switch Keyboard Languge=Alt + Shift
+Print Screen=Print
+Print Screen area=Alt + Print
+Print Screen with 10s delay=Ctrl + Alt + Print
+Network Menu=Alt+F3
+Kill a Window=Super + Escape
+Execute sysinfo_script_ --process=Alt + s
+Execute volume_controller=Alt + v
+Execute jgmenu_run=Super + space
+Rofi App Launcher=alt + F1
+Color Picker=super + p
+Close App=Alt + q
+Exit=Ctrl + Shift + Escape
+Restart=Ctrl + Shift + BackSpace
+Reconfigure=Ctrl + Shift + R
+Execute music=Alt + z
+Execute rofi-screenshot=Alt + F8
+switch to NextWindow=Alt + Tab
+Main Menu=Super+ space
+Client Menu=Super+ Tab
+Switch Keyboard Languge=Alt + Shift
+Minimize=Alt + F5
+Toggle Maximize=Alt + F6
+#;
