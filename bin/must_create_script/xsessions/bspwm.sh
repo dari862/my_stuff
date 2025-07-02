@@ -9,6 +9,12 @@ if [ -d "/usr/share/my_stuff/bin/pipemenu" ] && command -v jgmenu >/dev/null 2>&
    	PATH="/usr/share/my_stuff/bin/pipemenu:$PATH"
 fi
 
+if [ -d "/usr/share/my_stuff/system_files/binX11" ];then
+	PATH="/usr/share/my_stuff/system_files/binX11:$PATH"
+else
+	echo "ERROR: /usr/share/my_stuff/system_files/bin Does not exist."
+fi
+
 usr_autostart="$usr_confdir/bspwm/bspwmrc"
 default_autostart='/usr/share/my_stuff/system_files/skel/.config/bspwm'
 

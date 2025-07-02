@@ -18,21 +18,6 @@ create_X11_intel_conf(){
 	EOF
 }
 
-create_X11_intel_conf(){
-	my-superuser mkdir -p /etc/X11/xorg.conf.d/
-	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
-	Section "Device"
-	Identifier  "Intel Graphics"
-	Driver      "Intel"
-	Option      "AccelMethod"  "sna"
-	Option      "TearFree""True"
-	Option      "Tiling""True"
-	Option      "SwapbuffersWait" "True"
-	#Option      "AccelMethod"  "uxa"
-	EndSection
-	EOF
-}
-
 install_intel_drivers(){
 	Package_installer_ xf86-video-intel intel-gpu-tools intel-media-driver || continue
 	#create_X11_intel_conf

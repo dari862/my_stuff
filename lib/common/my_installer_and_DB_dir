@@ -22,7 +22,8 @@ _CHROOTS_INSTALLED_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_installe
 INSTALLER_CHROOT_DIR="/usr/share/my_stuff/bin/my_installer/chroots_installer"
 
 pipemenu_output_dir="/usr/share/my_stuff/system_files/pipemenu"
-my_installer_pipemenu_file="${pipemenu_output_dir}/my_installer"
+my_installer_pipemenu_X11_file="${pipemenu_output_dir}/my_installer_X11"
+my_installer_pipemenu_wayland_file="${pipemenu_output_dir}/my_installer_wayland"
 gaming_pipemenu_file="${pipemenu_output_dir}/gaming"
 containers_deployer_pipemenu_file="${pipemenu_output_dir}/containers_deployer"
 my_tweeks_pipemenu_file="${pipemenu_output_dir}/my_tweeks"

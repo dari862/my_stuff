@@ -2,75 +2,46 @@
 
 op__="$1"
 op2__="$2"
-color_="$3"
+wallpaper_layout="${3:-zoom}"
+
+. "/usr/share/my_stuff/lib/common/WM"
 
 wallpapers_dir="/usr/share/my_stuff/my_wallpapers"
 
-old_bg_()
-{
-	# This script does the following:
-	#	Run by itself, set the wallpaper (at X start).
-	#	If given a file, set that as the new wallpaper.
-	#	If given a directory, choose random file in it.
-	#	If wal is installed, also generates a colorscheme.
+Prerequisite() {
+	. "${my_stuff_display_manager_lib_path}"	  
 	
-	# Location of link to wallpaper link.
-	bgloc="${XDG_DATA_HOME:-$HOME/.local/share}/bg"
-	
-	# Configuration files of applications that have their themes changed by pywal.
-	dunstconf="${XDG_CONFIG_HOME:-$HOME/.config}/dunst/dunstrc"
-	zathuraconf="${XDG_CONFIG_HOME:-$HOME/.config}/zathura/zathurarc"
-	
-	# Give -s as parameter to make notifications silent.
-	while getopts "s" o; do case "${o}" in
-		s) silent='1' ;;
-	esac done
-	
-	shift $((OPTIND - 1))
-	
-	trueloc="$(readlink -f "$1")" &&
-	case "$(file --mime-type -b "$trueloc")" in
-		image/* ) ln -sf "$trueloc" "$bgloc" && [ -z "$silent" ] && notify-send -i "$bgloc" "Changing wallpaper..." ;;
-		inode/directory ) ln -sf "$(find "$trueloc" -iregex '.*.\(jpg\|jpeg\|png\|gif\)' -type f | shuf -n 1)" "$bgloc" && [ -z "$silent" ] && notify-send -i "$bgloc" "Random Wallpaper chosen." ;;
-		*) [ -z "$silent" ] && notify-send "🖼️ Error" "Not a valid image or directory." ; exit 1;;
-	esac
-	
-	# If pywal is installed, use it.
-	if command -v wal >/dev/null 2>&1 ;then
-		wal -n -i "$(readlink -f $bgloc)" -o "${XDG_CONFIG_HOME:-$HOME/.config}/wal/postrun" >/dev/null 2>&1
-	# If pywal is removed, return config files to normal.
-	else
-		[ -f "$dunstconf.bak" ] && unlink "$dunstconf" && mv "$dunstconf.bak" "$dunstconf"
-		[ -f "$zathuraconf.bak" ] && unlink "$zathuraconf" && mv "$zathuraconf.bak" "$zathuraconf"
+	if [ "$Display_server_are" = "X11" ];then
+		SETTER="xwallpaper --stretch"
+	elif [ "$Display_server_are" = "wayland" ];then
+		if [ -n "$SWAYSOCK" ];then
+			SETTER="eval ogurictl output '*' --image"
+		elif echo "$DESKTOP_SESSION" | grep -q "sway";then
+			SETTER="swaybg -i"
+		fi
 	fi
-	
-	xwallpaper --zoom "$bgloc"
 }
 
 __restore(){
+	Prerequisite
+	. "${Distro_config_file}"
 	sleep 0.5
-	if livewall --run-live-autorun-enabled;then
+	if livewall --run-live-autorun-enabled >/dev/null 2>&1;then
 		( livewall --run-live ) &
-	elif command -v xwallpaper >/dev/null ;then
-		( sleep 2 && xwallpaper --stretch "$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2 || :)" ) &
 	else
-		( sleep 1 && nitrogen --restore ) &
+		( sleep 2 && $SETTER "$wallpaper_are" ) &
 	fi
 }
 
-style_wall(){
-	op2__="$(find ${wallpapers_dir}/ -type f -name "${op2__}_*" | sort | head -n 1)"
-	save_wall
-}
-
 random_wall(){
+	Prerequisite
 	__Style_name="${op2__}"
 	op2__="$(find ${wallpapers_dir}/ -type f -name "${__Style_name}_*" | shuf -n 1)"
 	N=6
 	random_wall_animation () {
 		N=6
 		ls "${wallpapers_dir}/${__Style_name}_"* | sort -R | tail -$N | while read file; do
-			xwallpaper --stretch $file
+			$SETTER $file
 			sleep 0.1
 		done
 	}
@@ -84,45 +55,20 @@ save_and_restore(){
 }
 
 save_wall(){
-	if [ ! -f "$HOME/.config/nitrogen/nitrogen.cfg" ];then
-		mkdir -p "$HOME/.config/nitrogen"
-		tee "$HOME/.config/nitrogen/nitrogen.cfg" <<- EOF > /dev/null
-		[geometry]
-		posx=654
-		posy=174
-		sizex=508
-		sizey=500
-		
-		[nitrogen]
-		view=icon
-		recurse=true
-		sort=alpha
-		icon_caps=false
-		dirs=
-		EOF
-		sed -i "s|dirs=.*|dirs=${wallpapers_dir};|g" "$HOME/.config/nitrogen/nitrogen.cfg"
+	. "${Distro_config_file}"
+	if [ "$CHK_THEME" = "owl4ce_dark" ] || [ "$CHK_THEME" = "owl4ce_light" ];then
+		sed -i "s|CHK_WALLPAPER_${CHK_MODE}=.*|CHK_WALLPAPER_${CHK_MODE}=\"$op2__\"|" "${Distro_config_file}"
+	else
+		sed -i "s|wallpaper_are=.*|wallpaper_are=\"$op2__\"|" "${Distro_config_file}"
 	fi
-	if command -v xwallpaper >/dev/null ;then
-		mkdir -p "$HOME/.config/nitrogen"
-		tee "$HOME/.config/nitrogen/bg-saved.cfg" <<- EOF > /dev/null
-		[xin_-1]
-		file=$op2__
-		mode=5
-		bgcolor=#000000
-		EOF
-	elif command -v nitrogen >/dev/null ;then
-		nitrogen --save --set-zoom-fill $color_ $op2__
-		sleep 1
-	fi
+	sed -i "s|wallpaper_layout_are=.*|wallpaper_layout_are=\"$wallpaper_layout\"|" "${Distro_config_file}"
 }
 
 main()
 {
 	case $op__ in
 		-r) __restore ;;
-		-o) old_bg_ $op2__ ;;
 		-s) save_wall ;;
-		-S) style_wall ;;
 		-d) random_wall ;;
 		-R) save_and_restore ;;
 		*) pickbg ;;

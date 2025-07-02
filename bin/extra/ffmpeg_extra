@@ -1,0 +1,145 @@
+#!/bin/sh
+
+set -e
+
+MODE=""
+VERBOSE=""
+
+while [ "$1" ]; do
+  case "$1" in
+    -v|--verbose)
+      VERBOSE="-loglevel info"
+      shift
+      ;;
+    -q|--quiet)
+      VERBOSE="-loglevel quiet"
+      shift
+      ;;
+    --help|-h)
+      show_help
+      exit 0
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+show_help() {
+  cat <<EOF
+Usage: $0 [log-level] <command> [args]
+
+Modes:
+  -v, --verbose     Verbose ffmpeg output
+  -q, --quiet       Minimal output
+
+Commands:
+  av1-test <input.mkv>                 Create AV1 test clip
+  merge <video> <audio> [output.mp4]   Merge video & audio
+  extract-video <input> [output]       Extract only video
+  probe <input>                        Show media info
+  play <input>                         Play video
+  fix-pts <input> [output]             Fix presentation timestamps
+  gif-to-frames <input.gif>            Convert GIF to PNG frames
+  concat-ts <filelist.txt> <output>    Concatenate TS files
+  rotate <input> <mode> <output>       Rotate (mode 0–3)
+  trim <start> <input> <end> <output>  Trim media section
+
+Trim example:
+  $0 trim 00:01:30 input.mp4 00:03:45 output_trimmed.mp4
+
+Rotation modes:
+  0 = 90° counter-clockwise and vertical flip
+  1 = 90° clockwise
+  2 = 90° counter-clockwise
+  3 = 90° clockwise and vertical flip
+EOF
+}
+
+auto_output() {
+  name=$(basename "$1")
+  base="${name%.*}"
+  ext="${name##*.}"
+  echo "${base}_$2.$ext"
+}
+
+require_input() {
+  if [ -z "$1" ] || [ ! -f "$1" ]; then
+    echo "Error: Input file '$1' is required and must exist."
+    exit 1
+  fi
+}
+
+COMMAND="$1"
+shift
+
+case "$COMMAND" in
+  av1-test)
+    input="$1"
+    require_input "$input"
+    ffmpeg $VERBOSE -i "$input" -vn -acodec copy audio.ogg
+    sox audio.ogg -r 28k -C 0 audio_trim.ogg trim 0 03:11.2
+    ffmpeg $VERBOSE -i "$input" -vf "crop=3840:1632:0:264,scale=1280:544" \
+      -c:v libaom-av1 -b:v 320k -t 03:11.2 -an video_av1.mkv
+    ffmpeg $VERBOSE -i video_av1.mkv -i audio_trim.ogg -c copy -shortest output_av1_test.mkv
+    ;;
+
+  merge)
+    require_input "$1"
+    require_input "$2"
+    output="${3:-$(auto_output "$1" merged)}"
+    ffmpeg $VERBOSE -i "$1" -i "$2" -c copy "$output"
+    ;;
+
+  extract-video)
+    require_input "$1"
+    output="${2:-$(auto_output "$1" video_only)}"
+    ffmpeg $VERBOSE -i "$1" -an -c copy "$output"
+    ;;
+
+  probe)
+    require_input "$1"
+    ffprobe "$1"
+    ;;
+
+  play)
+    require_input "$1"
+    ffplay "$1"
+    ;;
+
+  fix-pts)
+    require_input "$1"
+    output="${2:-$(auto_output "$1" fixed)}"
+    ffmpeg $VERBOSE -fflags +genpts -i "$1" -r 24 "$output"
+    ;;
+
+  gif-to-frames)
+    require_input "$1"
+    mkdir -p frames
+    ffmpeg $VERBOSE -i "$1" frames/frame_%04d.png
+    ;;
+
+  concat-ts)
+    require_input "$1"
+    ffmpeg $VERBOSE -f concat -safe 0 -i "$1" -c copy "${2:-output_concat.ts}"
+    ;;
+
+  rotate)
+    require_input "$1"
+    ffmpeg $VERBOSE -i "$1" -vf "transpose=$2" "$3"
+    ;;
+
+  trim)
+    start="$1"
+    input="$2"
+    end="$3"
+    output="$4"
+    require_input "$input"
+    ffmpeg $VERBOSE -ss "$start" -to "$end" -i "$input" -c:v libx264 -c:a libmp3lame "$output"
+    ;;
+
+  *)
+    echo "Unknown command '$COMMAND'. Use --help for usage."
+    exit 1
+    ;;
+esac

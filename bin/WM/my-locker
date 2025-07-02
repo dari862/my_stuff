@@ -1,0 +1,109 @@
+#!/bin/sh
+__arg_="${1-}"
+__passed_image_="${2-}"
+__image_full_path_="${__passed_image_}"
+
+. "/usr/share/my_stuff/lib/common/WM"
+
+if pgrep -x "i3lock" > /dev/null 2>&1;then
+	exit
+fi
+
+my_locker_folder="${script_config_path}/locker"
+[ ! -d "$my_locker_folder" ] && cp -r "/usr/share/my_stuff/skel/.config/scriptconfig/locker" "${script_config_path}"
+[ ! -f "$my_locker_folder/config.ini" ] && cp -r "/usr/share/my_stuff/skel/.config/scriptconfig/locker/config.ini" "$my_locker_folder"
+
+. "$my_locker_folder/config.ini"
+
+_desktop_screenshot_as_lockscreen()
+{
+	if [ "$color" = "white" ]; then #white background image and black text
+    	bw="black"
+    	icon="/usr/share/my_stuff/icons/lock/lockdark.png"
+    	param="--inside-color=0000001c --ring-color=0000003e \
+        	--line-color=00000000 --keyhl-color=ffffff80 --ringver-color=ffffff00 \
+        	--separator-color=22222260 --insidever-color=ffffff1c \
+        	--ringwrong-color=ffffff55 --insidewrong-color=ffffff1c \
+        	--verif-color=ffffff00 --wrong-color=ff000000 --time-color=ffffff00 \
+        	--date-color=ffffff00 --layout-color=ffffff00"
+	else
+    	bw="white"
+    	icon="/usr/share/my_stuff/icons/lock/lock.png"
+    	param="--inside-color=ffffff1c --ring-color=ffffff3e \
+        	--line-color=ffffff00 --keyhl-color=00000080 --ringver-color=00000000 \
+        	--separator-color=22222260 --insidever-color=0000001c \
+        	--ringwrong-color=00000055 --insidewrong-color=0000001c \
+        	--verif-color=00000000 --wrong-color=ff000000 --time-color=00000000 \
+        	--date-color=00000000 --layout-color=00000000"
+	fi
+	greyscale_arg=""
+	pixelate_arg=""
+	
+	_path="/tmp/$USER"
+	_name="lockscreen.png"
+	__image_full_path_="${_path}/${_name}"
+	
+	[ "${greyscale}" = "true" ] && greyscale_arg="-level 0%,100%,0.6 -colorspace Gray"
+	[ "${pixelate}" = "true" ] && pixelate_arg="-scale 10% -scale 1000%"
+
+	# If invoked with -d/--desktop, we'll attempt to minimize all windows (ie. show
+	# the desktop) before locking.
+	[ "${minimize_all_windows}" = "true" ] && wmctrl is /usr/bin/wmctrl -k on
+	
+	my-shots --no-notify --no-copy --no-view --win --path "$_path" --name "$_name" --delete
+	
+	# As above, if we were passed -d/--desktop, we'll attempt to restore all windows
+	# after unlocking.
+	[ "${minimize_all_windows}" = "true" ] && wmctrl is /usr/bin/wmctrl -k off
+	
+    convert "$__image_full_path_" $greyscale_arg $pixelate_arg -font "$font" -pointsize 26 -fill "$bw" -gravity center \
+    	-annotate +0+160 "$lock_text" "${icon}" -gravity center -composite "$__image_full_path_"
+}
+
+_usr_image_as_lockscreen()
+{
+	if [ -n "$custom_backgrounds" ];then
+		__image_full_path_="$custom_backgrounds"
+	elif [ -n "$__image_full_path_" ];then
+		__image_full_path_="$__image_full_path_"
+	else
+		. "${Distro_config_file}"
+		__image_full_path_="$wallpaper_are"
+	fi
+	
+	File_type=$(file "$__image_full_path_" | awk '{print $2}')
+	
+	if [ "$File_type" = "PNG" ];then
+  		return 0
+  	else
+		convert "$__image_full_path_" "${my_locker_folder}/converted_image.png"
+		__image_full_path_="${my_locker_folder}/converted_image.png"
+	fi
+}
+
+case "$__arg_" in
+	-s) if [ -z "$__passed_image_" ];then
+			echo "$0: please pick any image."
+			exit 1
+		fi
+		_usr_image_as_lockscreen
+		;;
+	-d) _desktop_screenshot_as_lockscreen ;;
+	-w) _usr_image_as_lockscreen ;;
+	*)	if [ "$backgrounds_type" = "screenshot" ];then
+			_desktop_screenshot_as_lockscreen
+		else
+			_usr_image_as_lockscreen		
+		fi
+		;;
+esac
+
+if [ -n "$__passed_image_" ];then
+	sed -i "s/custom_backgrounds=.*/custom_backgrounds=\"${__image_full_path_}\"/g" "$my_locker_folder/config.ini"
+fi
+
+# try to use i3lock with prepared parameters
+if ! "i3lock -i $__image_full_path_" "$param" >/dev/null 2>&1; then
+    # We have failed, lets get back to stock one
+    i3lock -i "$__image_full_path_"
+fi

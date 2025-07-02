@@ -12,7 +12,7 @@ create_exec_pipemenu(){
 {
 	menuStart
 	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
-	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_file}'" "Install Favourite Packages"
+	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
 	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
 	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
 	create_exec_pipemenu "RunDebianTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Debian Tweeks"
@@ -52,7 +52,7 @@ create_exec_pipemenu(){
 {
 	menuStart
 	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
-	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_file}'" "Install Favourite Packages"
+	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
 	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
 	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
 	create_exec_pipemenu "RunDebianTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Debian Tweeks"
@@ -94,7 +94,7 @@ create_exec_pipemenu(){
 	menuStart
 	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
 	menuSeparator "Install Packages and Debian Tweeks"
-	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_file}'" "Install Favourite Packages"
+	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
 	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
 	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
 	create_exec_pipemenu "RunDebianTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Debian Tweeks"

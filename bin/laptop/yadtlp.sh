@@ -941,7 +941,7 @@ export -f _USB_ALLOWLIST
 
 show_statistics(){
 	if [ "$1" = "complate" ];then
-		tlp_stat="$(apps_as_root --yad $(which tlp-stat))"
+		tlp_stat="$(apps_as_root $(which tlp-stat))"
 	else
 		tlp_stat="$($(which tlp-stat) -c -s -t -r -u)"
 	fi

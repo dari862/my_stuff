@@ -30,7 +30,7 @@ remove_this_Array="
 .zprofile
 .xprofile
 "
-move_this_from_config_Array="$(ls /usr/share/my_stuff/system_files/skel/.config) nitrogen $WM_config_name"
+move_this_from_config_Array="$(ls /usr/share/my_stuff/system_files/skel/.config) $WM_config_name"
 
 #-----------------------------------------------------------##-----------------------------------------------------------#
 

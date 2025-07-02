@@ -11,6 +11,13 @@ fi
 if [ -d "/usr/share/my_stuff/bin/pipemenu" ];then
    	PATH="/usr/share/my_stuff/bin/pipemenu:$PATH"
 fi
+
+if [ -d "/usr/share/my_stuff/system_files/binX11" ];then
+	PATH="/usr/share/my_stuff/system_files/binX11:$PATH"
+else
+	echo "ERROR: /usr/share/my_stuff/system_files/bin Does not exist."
+fi
+
 # Clean up after GDM (GDM sets the number of desktops to one).
 xprop -root -remove _NET_NUMBER_OF_DESKTOPS \
 	-remove _NET_DESKTOP_NAMES \

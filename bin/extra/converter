@@ -1,0 +1,131 @@
+#!/bin/sh
+
+set -e
+
+MODE=""
+VERBOSE=""
+
+while [ "$1" ]; do
+  case "$1" in
+    -v|--verbose)
+      VERBOSE="-loglevel info"
+      shift
+      ;;
+    -q|--quiet)
+      VERBOSE="-loglevel quiet"
+      shift
+      ;;
+    --help|-h)
+      show_help
+      exit 0
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+show_help() {
+  cat <<EOF
+Usage: $0 [log-level] <command> <input> [output]
+
+Modes:
+  -v, --verbose     Verbose ffmpeg output
+  -q, --quiet       Minimal output
+
+Commands:
+  to-webm             Convert video to .webm
+  to-flac             Convert audio to .flac
+  to-mp3              Convert audio to .mp3
+  to-wav              Convert video/audio to .wav
+  to-m4a              Convert audio to .m4a (ALAC)
+  to-gif              Convert video to GIF with palette
+  gif-optimized       High-quality GIF from video
+  gif-to-video        Convert GIF to .mp4 and .webm
+  scale-720           Scale to 720p
+  rescale             Scale to specific height
+  to-ts               Convert to MPEG-TS
+
+If output is omitted, it goes to 'output/<input_basename>.<ext>'
+EOF
+}
+
+auto_output() {
+  mkdir -p output
+  base=$(basename "$1")
+  echo "output/${base%.*}.$2"
+}
+
+require_input() {
+  if [ -z "$1" ] || [ ! -f "$1" ]; then
+    echo "Input file required and must exist."
+    exit 1
+  fi
+}
+
+[ "$1" = "--help" ] || [ "$1" = "-h" ] && show_help && exit 0
+
+cmd="$1"
+input="$2"
+output="${3:-$(auto_output "$input" "${cmd#to-}")}"
+
+require_input "$input"
+
+case "$cmd" in
+  to-webm)
+    ffmpeg $VERBOSE -i "$input" -vf setsar=1:1 "$output"
+    ;;
+
+  to-flac)
+    ffmpeg $VERBOSE -i "$input" -af aformat=s16:44100 "$output"
+    ;;
+
+  to-mp3)
+    ffmpeg $VERBOSE -i "$input" -q:a 5 "$output"
+    ;;
+
+  to-wav)
+    ffmpeg $VERBOSE -i "$input" -f wav -bitexact -vn -acodec pcm_f32le -ar 48000 -ac 1 "$output"
+    ;;
+
+  to-m4a)
+    ffmpeg $VERBOSE -i "$input" -acodec alac "$output"
+    ;;
+
+  to-gif)
+    tmp_palette=$(mktemp --suffix=.png)
+    ffmpeg -y -i "$input" -vf "scale=640:-1:flags=lanczos,palettegen" "$tmp_palette"
+    ffmpeg $VERBOSE -i "$input" -i "$tmp_palette" -filter_complex "scale=640:-1:flags=lanczos[x];[x][1:v]paletteuse" "$output"
+    rm "$tmp_palette"
+    ;;
+
+  gif-optimized)
+    ffmpeg $VERBOSE -i "$input" \
+      -vf "fps=10,scale=360:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
+      -loop 0 "$output"
+    ;;
+
+  gif-to-video)
+    ffmpeg $VERBOSE -i "$input" -b:v 0 -crf 25 -f mp4 -vcodec libx264 -pix_fmt yuv420p "$(auto_output "$input" mp4)"
+    ffmpeg $VERBOSE -i "$input" -c vp9 -b:v 0 -crf 41 "$(auto_output "$input" webm)"
+    ;;
+
+  scale-720)
+    ffmpeg $VERBOSE -i "$input" -vf scale=1280:720 -c:a copy "$output"
+    ;;
+
+  rescale)
+    height="$3"
+    output="${4:-$(auto_output "$input" "scaled.mp4")}"
+    ffmpeg $VERBOSE -i "$input" -vf scale=-2:"$height" "$output"
+    ;;
+
+  to-ts)
+    ffmpeg $VERBOSE -i "$input" -c copy -bsf:v h264_mp4toannexb -f mpegts "$output"
+    ;;
+
+  *)
+    echo "Unknown command '$cmd'. Use --help for usage."
+    exit 1
+    ;;
+esac

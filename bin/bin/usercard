@@ -1,1 +1,2 @@
-../apps/control_center
+#!/bin/bash
+control_center

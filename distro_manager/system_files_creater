@@ -3,6 +3,7 @@ set -e
 __distro_path="/usr/share/my_stuff"
 
 . "${__distro_path}/lib/common/WM"
+. "${__distro_path}/lib/common/common"
 
 machine_type_are="${1:-}"
 
@@ -39,13 +40,33 @@ show_im(){
 	printf '%b' "\\033[1;34m[*] \\033[0m${message}\n"
 }
 
+copy_X11_blob_files(){
+	panel_name="${1:-}"
+	if command -v openbox >/dev/null 2>&1;then
+		for theme in *;do
+			cp -r "${theme}/openboxrctheme" "${__distro_path}/system_files/blob/${panel_name}/${theme}" 
+		done
+	fi
+	for app in dunst openbox rofi;do
+		show_im "copy $app blob and blob_extra to system_files/blob ."
+		if command -v $app >/dev/null 2>&1;then
+			for theme in *;do
+				cp -r "${theme}/config/${app}" "${__distro_path}/system_files/blob/${panel_name}/${theme}/config" 
+			done
+		fi
+	done
+	for theme in *;do
+		cp -r "${theme}/config/x11" "${__distro_path}/system_files/blob/${panel_name}/${theme}/config" 
+	done
+}
+
 create_blob_system_files(){
 	mkdir -p "${__distro_path}/system_files/blob"
-	show_im "copy polybar blob to system_files/blob ."
-	cp -r "${__distro_path}"/blob/polybar "${__distro_path}/system_files/blob" 
 	if command -v polybar >/dev/null 2>&1;then
 		show_im "copy polybar blob_extra to system_files/blob ."
+		cp -r "${__distro_path}"/blob/polybar "${__distro_path}/system_files/blob"
 		cd "${__distro_path}"/blob_extra/polybar
+		copy_X11_blob_files "polybar"
 		for app in alacritty geany bspwm;do
 			show_im "copy tint2 $app blob and blob_extra to system_files/blob ."
 			if command -v $app >/dev/null 2>&1;then
@@ -79,6 +100,7 @@ create_blob_system_files(){
 		show_im "copy tint2 blob and blob_extra to system_files/blob ."
 		cp -r "${__distro_path}"/blob/tint2 "${__distro_path}/system_files/blob" 
 		cd "${__distro_path}"/blob_extra/tint2
+		copy_X11_blob_files "tint2"
 		for app in lxterminal alacritty geany bspwm;do
 			if command -v $app >/dev/null 2>&1;then
 				show_im "copy tint2 $app blob and blob_extra to system_files/blob ."
@@ -100,6 +122,36 @@ create_blob_system_files(){
 			done
 		fi
 	fi
+}
+
+create_applicationsdotdesktop_link(){
+	__application_name="${1:-}"
+	__application_command="${2:-}"
+    if [ -f "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" ];then
+    	cp -r "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop"
+    	ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    else
+    	[ -z "$__application_command" ] && __application_command="${__application_name}"
+    	tee "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	[Desktop Entry]
+		Name=${__application_name}
+		Comment=${__application_name}
+		Exec=${__application_command}
+		Terminal=false
+		Type=Application
+		Icon=flatpak
+		Categories=GTK;
+		MimeType=text/html;text/xml;application/xhtml_xml;
+		StartupNotify=true
+		EOF
+    	ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    fi
+}
+
+copy_all__application_link_in_dir(){
+	__application_link_dir="${1:-}"
+    cp -r "/usr/share/my_stuff/applications_extra/${__application_link_dir}"/* "/usr/share/my_stuff/system_files/applications"
+    ln -sf "/usr/share/my_stuff/system_files/applications/${__application_link_dir}"/* "/usr/share/applications"
 }
 
 ##################################################################################
@@ -144,6 +196,7 @@ mkdir -p "/root/Templates"
 show_im "creating missing dir"
 mkdir -p "${__distro_path}"/bin/my_installer/distrobox_center/Apps
 mkdir -p "${__distro_path}"/bin/my_installer/distrobox_center/Gaming
+[ -d "${__distro_path}"/system_files ] && rm -rdf "${__distro_path}"/system_files
 mkdir -p "${__distro_path}"/system_files
 
 show_im "copy doas.conf to correct location."
@@ -158,7 +211,9 @@ mkdir -p "${__distro_path}"/system_files/auto_completion
 mkdir -p "${__distro_path}"/system_files/applications
 
 show_im "LN essional files"
-mkdir -p "${__distro_path}"/system_files/bin
+mkdir -p "${__distro_path}/system_files/bin"
+mkdir -p "${__distro_path}/system_files/binX11"
+ln -sf "${__distro_path}/bin/binX11"/* "${__distro_path}/system_files/binX11"
 
 if [ "$machine_type_are" = "laptop" ];then 
 	show_im "this is laptop"
@@ -176,6 +231,35 @@ touch "${__distro_path}"/system_files/skel/.config/mpd/database
 mkdir -p "${__distro_path}"/system_files/skel/.local/share/bash_history
 
 show_im "copy extra skell that we need to copy to system_files/skel ."
+if command -v autorandr >/dev/null ;then
+	show_im "copy autorandr skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/autorandr" "${__distro_path}/system_files/skel/.config" 
+fi
+if command -v conky >/dev/null ;then
+	show_im "copy conky skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/conky" "${__distro_path}/system_files/skel/.config"
+	cp -r "${__distro_path}/bin/session_managers_X11_only/conky-session" "${__distro_path}"/system_files/binX11
+	copy_all__application_link_in_dir "conky"
+fi
+if command -v dunst >/dev/null ;then
+	show_im "copy dunst skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/dunst" "${__distro_path}/system_files/skel/.config"
+	cp -r "${__distro_path}/bin/session_managers_X11_only/dunst-session" "${__distro_path}"/system_files/binX11
+fi
+if command -v openbox >/dev/null ;then
+	show_im "copy openbox skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/openbox" "${__distro_path}/system_files/skel/.config" 
+fi
+if command -v rofi >/dev/null ;then
+	show_im "copy rofi skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/rofi" "${__distro_path}/system_files/skel/.config"
+	copy_all__application_link_in_dir "rofi"
+fi
+if command -v xrdb >/dev/null ;then
+	show_im "copy x11 skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/x11" "${__distro_path}/system_files/skel/.config"
+fi
+
 if command -v geany >/dev/null ;then
 	show_im "copy geany skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/geany" "${__distro_path}/system_files/skel/.config" 
@@ -189,7 +273,8 @@ fi
 if command -v nsxiv >/dev/null || command -v sxiv >/dev/null ;then
 	show_im "copy nsxiv skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/nsxiv" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/skel_extra/.config/sxiv" "${__distro_path}/system_files/skel/.config" 
+	cp -r "${__distro_path}/skel_extra/.config/sxiv" "${__distro_path}/system_files/skel/.config"
+	cp -r "${__distro_path}/bin/nsxiv"/* "${__distro_path}"/system_files/binX11
 fi
 
 if command -v viewnior >/dev/null ;then
@@ -225,7 +310,8 @@ fi
 if command -v plank >/dev/null ;then
 	show_im "copy plank skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/plank" "${__distro_path}/system_files/skel/.config" 
-	cp -r "${__distro_path}/skel_extra/.local/share/plank" "${__distro_path}/system_files/skel/.local/share/" 
+	cp -r "${__distro_path}/skel_extra/.local/share/plank" "${__distro_path}/system_files/skel/.local/share/"
+	cp -r "${__distro_path}/bin/session_managers_X11_only/plank-session" "${__distro_path}"/system_files/binX11 
 fi
 
 if command -v xbindkey >/dev/null ;then
@@ -260,13 +346,20 @@ fi
 
 if command -v tint2 >/dev/null ;then
 	show_im "copy tint2 skell file to system_files/skel ."
-	cp -r "${__distro_path}/skel_extra/.config/tint2" "${__distro_path}/system_files/skel/.config" 
+	cp -r "${__distro_path}/skel_extra/.config/tint2" "${__distro_path}/system_files/skel/.config"
+	cp -r "${__distro_path}/bin/session_managers_X11_only/tint2-session" "${__distro_path}"/system_files/binX11
+	copy_all__application_link_in_dir "tint2"
 fi
 
 if command -v xfce4-panel >/dev/null ;then
 	show_im "copy xfce4-panel skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/xfce4" "${__distro_path}/system_files/skel/.config"
 	cp -r "${__distro_path}/skel_extra/.local/share/xfce4" "${__distro_path}/system_files/skel/.local/share/"
+	copy_all__application_link_in_dir "xfce4"
+fi
+
+if command -v xfsettingsd >/dev/null ;then
+	cp -r "${__distro_path}/bin/session_managers_X11_only/xfsettingsd-session" "${__distro_path}"/system_files/binX11
 fi
 
 if command -v lxterminal >/dev/null ;then
@@ -298,27 +391,38 @@ fi
 if command -v polybar >/dev/null ;then
 	show_im "copy polybar skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/polybar" "${__distro_path}/system_files/skel/.config"
+	cp -r "${__distro_path}/bin/session_managers_X11_only/polybar-session" "${__distro_path}"/system_files/binX11
 	
 	if [ -d "${__distro_path}/bin/polybar" ];then
-		ln -sf "${__distro_path}"/bin/polybar/* "${__distro_path}"/system_files/bin
+		ln -sf "${__distro_path}"/bin/polybar/* "${__distro_path}"/system_files/binX11
 	fi
 fi
 
-if command -v polybar >/dev/null ;then
-	show_im "copy polybar skell file to system_files/skel ."
-	cp -r "${__distro_path}/skel_extra/.config/polybar" "${__distro_path}/system_files/skel/.config"
-	
-	if [ -d "${__distro_path}/bin/polybar" ];then
-		ln -sf "${__distro_path}"/bin/polybar/* "${__distro_path}"/system_files/bin
+if command -v yad >/dev/null ;then
+	show_im "copy yad bin to system_files/bin ."
+	if [ -d "${__distro_path}/bin/yad" ];then
+		ln -sf "${__distro_path}"/bin/yad/* "${__distro_path}"/system_files/binX11
 	fi
+	copy_all__application_link_in_dir "yad"
+fi
+
+if [ -d "${__distro_path}/bin/rofi" ];then
+	show_im "rofi bin files to system_files/bin ."
+	ln -sf "${__distro_path}"/bin/rofi/* "${__distro_path}"/system_files/binX11
+fi
+
+if command -v picom >/dev/null ;then
+	show_im "copy picom skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/picom.conf" "${__distro_path}/system_files/skel/.config"
+	cp -r "${__distro_path}/bin/session_managers_X11_only/picom-session" "${__distro_path}"/system_files/binX11
 fi
 
 if [ "$machine_type_are" = "vm" ];then
-	show_im "disable vsync from picom (vsync in virtual machine make issues)"
+	show_im "disable vsync from picom (vsync in virtual machine make issues) and mpv."
 	sed -i "s/^vsync = .*/vsync = false;/g" "${__distro_path}"/system_files/skel/.config/picom.conf
 	sed -i 's/vo=gpu/#vo=gpu/g' "${__distro_path}"/system_files/skel/.config/mpv/mpv.conf
 fi
-
+	
 show_im "LN bin files to system_files/bin ."
 
 if [ -d "${__distro_path}/bin/bin" ];then
@@ -350,11 +454,6 @@ if [ -d "${__distro_path}/bin/apps" ];then
 	! command -v systemctl >/dev/null 2>&1 && rm -f ${__distro_path}/system_files/bin/errcheck
 fi
 
-if [ -d "${__distro_path}/bin/rofi" ];then
-	show_im "rofi bin files to system_files/bin ."
-	ln -sf "${__distro_path}"/bin/rofi/* "${__distro_path}"/system_files/bin
-fi
-
 if [ -d "${__distro_path}/bin/session_managers" ];then
 	show_im "session_managers bin files to system_files/bin ."
 	ln -sf "${__distro_path}"/bin/session_managers/* "${__distro_path}"/system_files/bin
@@ -362,19 +461,67 @@ fi
 
 show_im "nbrowser bin files to system_files/bin ."
 ln -sf "${__distro_path}"/bin/not_add_2_path/nbrowser/nbrowser "${__distro_path}"/system_files/bin
-ln -sf "${__distro_path}"/bin/not_add_2_path/nbrowser/nbrowser.desktop /usr/share/applications
+create_applicationsdotdesktop_link "nbrowser"
 
 if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
 	show_im "laptop stuff."
-	ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/yadtlp.desktop "${__distro_path}"/system_files/applications
-	ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/yadtlp.desktop /usr/share/applications
 	ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/toggletouch "${__distro_path}"/system_files/bin
 	if [ -d "${__distro_path}/bin/laptop" ];then
 		show_im "laptop bin files to system_files/bin ."
 		ln -sf "${__distro_path}"/bin/laptop/* "${__distro_path}"/system_files/bin
 	fi
+	create_applicationsdotdesktop_link "yadtlp"
 fi
 
+if command -v arandr >/dev/null ;then
+	create_applicationsdotdesktop_link "arandr"
+fi
+
+if command -v kvantummanager >/dev/null ;then
+	create_applicationsdotdesktop_link "kvantummanager"
+fi
+
+if command -v lightdm-gtk-greeter-settings-pkexec >/dev/null ;then
+	create_applicationsdotdesktop_link "lightdm-gtk-greeter-settings-pkexec"
+fi
+
+if command -v lxappearance >/dev/null ;then
+	create_applicationsdotdesktop_link "lxappearance"
+fi
+
+if command -v obconf >/dev/null ;then
+	create_applicationsdotdesktop_link "obconf"
+fi
+
+if command -v qt5ct >/dev/null ;then
+	create_applicationsdotdesktop_link "qt5ct"
+fi
+
+if command -v nvim >/dev/null ;then
+	create_applicationsdotdesktop_link "Neovim"
+fi
+
+if command -v docker >/dev/null ;then
+	create_applicationsdotdesktop_link "Docker"
+fi
+
+if command -v google-chrome >/dev/null ;then
+	create_applicationsdotdesktop_link "WhatsApp"
+fi
+
+if command -v flatpak >/dev/null ;then
+	if flatpak list | grep -q pinta;then
+		create_applicationsdotdesktop_link "pinta"
+	fi
+	
+	if flatpak list | grep -q obsidian;then
+		create_applicationsdotdesktop_link "obsidian"
+	fi
+	
+	if flatpak list | grep -q audacity;then
+		create_applicationsdotdesktop_link "audacity"
+	fi
+fi
 show_im "prepares hub script dir"
 "${__distro_path}"/bin/rofi/hub create || show_em "failed to run hub create"
 
@@ -394,13 +541,15 @@ for script_dir in "${__distro_path}"/bin/must_create_script/*;do
 done
 
 show_im "Create keybinds."
-"${__distro_path}"/system_files/bin/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
+"${__distro_path}"/system_files/binX11/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
 
 ln -sf ${__distro_path}/distro_manager/full-upgrade ${__distro_path}/system_files/bin
 
-show_im "Create conky weather icons."
-"${__distro_path}"/bin/not_add_2_path/conky_weather_icon || show_em "failed to run not_add_2_path/conky_weather_icon"
-	
+if command -v conky >/dev/null ;then
+	show_im "Create conky weather icons."
+	"${__distro_path}"/bin/not_add_2_path/conky_weather_icon || show_em "failed to run not_add_2_path/conky_weather_icon"
+fi
+
 create_blob_system_files
 
 show_im "system_files_creater Done."

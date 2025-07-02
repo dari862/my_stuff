@@ -1,0 +1,31 @@
+#!/bin/sh
+greeter_background="${1-}"
+greeter_theme_name="${2-}"
+greeter_icon_theme_name="${3-}"
+greeter_font_name="${4-}"
+greeter_position="${5-}"
+LDMDIR="/usr/share/lightdm/lightdm-gtk-greeter.conf.d"
+LDMnew="$(cd $LDMDIR && ls 50_*.conf | head -1)"
+LDMF="$LDMDIR/$LDMnew"
+restoreLightdmGreeter(){
+   	apps_as_root true
+   	ret="$?"
+	if [ "$ret" = 0 ];then
+		. "/usr/share/my_stuff/lib/common/WM"
+		. "${Distro_config_file}"
+		my-superuser sed -i "s|background = .*|background = ${greeter_background}|g" "$LDMF"
+		my-superuser sed -i "s/theme-name = .*/theme-name = ${greeter_theme_name}/g" "$LDMF"
+		my-superuser sed -i "s/icon-theme-name = .*/icon-theme-name = ${greeter_icon_theme_name}/g" "$LDMF"
+		my-superuser sed -i "s/font-name = .*/font-name = ${greeter_font_name}/g" "$LDMF"
+		my-superuser sed -i "s/position = .*/position = ${greeter_position}/g" "$LDMF"
+		
+		rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+		
+ 	elif [ "$ret" = 1 ];then
+		restoreLightdmGreeter
+	elif [ "$ret" = 2 ];then
+		:
+	fi
+}
+
+restoreLightdmGreeter

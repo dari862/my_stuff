@@ -140,6 +140,30 @@ failed_to_run() {
     exit 1
 }
 
+create_applicationsdotdesktop_link(){
+	__application_name="${1:-}"
+	__application_command="${2:-}"
+    if [ -f "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" ];then
+    	my-superuser cp -r "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop"
+    	my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    else
+    	[ -z "$__application_command" ] && __application_command="${__application_name}"
+    	my-superuser tee "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	[Desktop Entry]
+		Name=${__application_name}
+		Comment=${__application_name}
+		Exec=${__application_command}
+		Terminal=false
+		Type=Application
+		Icon=flatpak
+		Categories=GTK;
+		MimeType=text/html;text/xml;application/xhtml_xml;
+		StartupNotify=true
+		EOF
+    	my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    fi
+}
+
 flatpak_install() {
 	if ! command -v flatpak >/dev/null 2>&1;then
 		say 'Installing flatpak...' 1
@@ -160,23 +184,7 @@ flatpak_install() {
         
     say "Installing package ${__icons_} via flatpak"
     my-superuser flatpak install -y $__repo_ "${__appid}"
-    if [ -f "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" ];then
-    	my-superuser ln -sf "/usr/share/my_stuff/appearance_applications/${__icons_}.desktop" "/usr/share/applications"
-    else
-    	my-superuser tee "/usr/share/my_stuff/system_files/applications/${__icons_}.desktop" <<- EOF >/dev/null 2>&1
-    	[Desktop Entry]
-		Name=${__icons_}
-		Comment=${__icons_}
-		Exec=flatpak run ${__appid}
-		Terminal=false
-		Type=Application
-		Icon=flatpak
-		Categories=GTK;
-		MimeType=text/html;text/xml;application/xhtml_xml;
-		StartupNotify=true
-		EOF
-    	my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/${__icons_}.desktop" "/usr/share/applications"
-    fi
+    create_applicationsdotdesktop_link "${__icons_}" "flatpak run ${__appid}"
 }
 
 copy_from_extra_skel() {

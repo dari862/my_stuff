@@ -1,21 +1,14 @@
 #!/bin/sh
+. "${my_stuff_display_manager_lib_path}"
+
 printf '\n\n  1. Install Lazyvim? \n  2. Install kickstart?\n  3. Install ThePrimeagen config?\n  4. Install kickstart (ChrisTitusTech)?\n\nInsert appropriate number: '
 stty -icanon -echo time 0 min 1
 __choice="$(head -c1)"
 stty icanon echo
 
 Title="Neovim"
-
 app_name="nvim"
-
-extra_apps_="cmake ripgrep fd-find python3-venv luarocks golang-go shellcheck"
-
-# Determine if Wayland or Xorg is being used
-if [ "$XDG_SESSION_TYPE" = "wayland" ];then
-	extra_apps_="$extra_apps_ wl-clipboard"
-else
-	extra_apps_="$extra_apps_ xclip"
-fi
+extra_apps_="cmake ripgrep fd-find python3-venv luarocks golang-go shellcheck $clip_manager_package_name"
 
 say "Installing ${Title} updater and installer..." 1
 my_installer_ln_script "nvim_updater" || failed_to_run "failed to run nvim_updater ."
@@ -23,4 +16,4 @@ my_installer_ln_script "nvim_updater" || failed_to_run "failed to run nvim_updat
 say 'Installing extra packages...' 1
 Package_installer_ ${extra_apps_} || continue
 
-. "/usr/share/my_stuff/bin/my_installer/apps_center/IDE/Neovim_Extra/post_install.sh"
+. "${_APPS_LIBDIR}/IDE/Neovim_Extra/post_install.sh"

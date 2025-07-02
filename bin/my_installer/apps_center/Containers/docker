@@ -42,7 +42,7 @@ if [ ! -f '/usr/share/my_stuff/system_files/Container_Group_docker' ];then
 		echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' | my-superuser tee -a /etc/docker/daemon.json > /dev/null
 	fi
 	
-	my-superuser ln -sf /usr/share/my_stuff/appearance_applications/Docker.desktop /usr/share/applications
+	create_applicationsdotdesktop_link "Docker"
 	
 	echo "${__newGroup}" | my-superuser tee '/usr/share/my_stuff/system_files/Container_Group_docker' > /dev/null 2>&1
 	logout_now "$container_software installed successfully."

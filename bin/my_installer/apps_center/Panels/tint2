@@ -1,9 +1,6 @@
 #!/bin/sh
-
+# X11 only package remove it from my-installer
 app_name="tint2"
-
-###################################################################
-. "/usr/share/my_stuff/lib/common/WM"
 
 say 'Installing package...' 1
 

@@ -1,4 +1,5 @@
 #!/bin/sh
+# X11 only package remove it from my-installer
 
 app_name="YadAppsStore"
 yadstore_dir="/usr/share/my_stuff/${app_name}"

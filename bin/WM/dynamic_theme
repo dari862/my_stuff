@@ -7,8 +7,7 @@ show_em(){
 }
 
 if [ -z "${wallpaper}" ];then
-	pickbg || show_em "no wallpaper were picked."
-	wallpaper="$(cat $HOME/.config/nitrogen/bg-saved.cfg | grep file= | cut -d "=" -f 2 || :)"
+	pickbg
 else
 	wallpaper="$(realpath "${wallpaper}")"
 fi
@@ -26,8 +25,6 @@ fi
 STYLEPATH="${CONFIGPATH}/$style"
 
 setbg -s "${wallpaper}"
-cp -r "$HOME/.config/nitrogen" "${BLOBPATH}/polybar/$style/config"
-cp -r "$HOME/.config/nitrogen" "${BLOBPATH}/tint2/$style/config"
 
 theme_color_creater_output_folder="/tmp/$USER/theme_color_creater_output"
 

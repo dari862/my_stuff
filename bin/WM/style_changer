@@ -1,4 +1,11 @@
 #!/bin/sh
-style_setter "${1:-}" "${2:-}"
+style="${1:-}"
+no_wallpaper_option="${2:-}"
+
+style_setter "${style}" "${no_wallpaper_option}"
 setbg -r
 panel_launcher --reload
+
+if [ "${style}" != "owl4ce_dark" ] || [ "${style}" != "owl4ce_light" ];then
+	dunstify -u normal --replace=699 -i /usr/share/my_stuff/icons/channelmixer.svg "Applying Style : ${style}"
+fi

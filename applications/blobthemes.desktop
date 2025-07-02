@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=BLOB themes manager
-Comment=Save or restore a bundle of GUI theme settings.
-Keywords=openbox;conky;tint2;gtk;wallpaper;preferences;settings;theme;style;appearance;
-Icon=preferences-desktop-theme
-Exec=style_picker_yad
-StartupNotify=false
-Categories=GTK;Settings;DesktopSettings;

@@ -2,6 +2,8 @@
 
 exec >/dev/null 2>&1
 . "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/bin/not_add_2_path/owl4ce/owl4ce_vars.sh"
+
 . "${Distro_config_file}"
 __opt="${1-}"
 
@@ -18,7 +20,7 @@ __wall(){
                                    	-dmenu \
                                    	-mesg 'Select X Wallpaper'
 	)"
-	/usr/share/my_stuff/bin/not_add_2_path/owl4ce/owl4ce_scripts set-wallpaper "$WALLPAPER"
+	/usr/share/my_stuff/bin/not_add_2_path/owl4ce/owl4ce_scripts set-wallpaper "$WALLPAPERS_DIR" "$WALLPAPER"
 }
 
 __rofi_launcher(){

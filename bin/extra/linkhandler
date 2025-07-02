@@ -1,13 +1,19 @@
 #!/bin/sh
 
 # Feed script a url or file location.
-# If an image, it will view in nsxiv,
+# If an image, it will view in my-image-viewer,
 # if a video or gif, it will view in mpv
 # if a music file or pdf, it will download,
 # otherwise it opens link in browser.
+. "${my_stuff_display_manager_lib_path}"
+Display_server_are="wayland"
 
 if [ -z "$1" ];then
-	url="$(xclip -o)"
+	if [ "$Display_server_are" = "wayland" ];then
+		url="$(wl-paste)"
+	else
+		url="$(xclip -o)"
+	fi
 else
 	url="$1"
 fi
@@ -16,7 +22,7 @@ case "$url" in
 	*mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|*youtube.com/shorts*|*youtu.be*|*hooktube.com*|*bitchute.com*|*videos.lukesmith.xyz*|*odysee.com*)
 		setsid -f mpv -quiet "$url" >/dev/null 2>&1 ;;
 	*png|*jpg|*jpe|*jpeg|*gif|*webp)
-		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && nsxiv -a "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
+		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && my-image-viewer "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
 	*pdf|*cbz|*cbr)
 		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && zathura "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
 	*mp3|*flac|*opus|*mp3?source*)

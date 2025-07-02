@@ -80,7 +80,7 @@ fi
 
 say 'Creating applications shortcut...' 1
 
-my-superuser ln -sf ${distro_path}/appearance_applications/Neovim.desktop /usr/share/applications || continue
+create_applicationsdotdesktop_link "Neovim" || continue
 
 clear
 

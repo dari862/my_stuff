@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# X11 only package remove it from my-installer
 app_name="xwallpaper"
 
 say 'Installing package...' 1

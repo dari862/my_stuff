@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# X11 only package remove it from my-installer
 app_name="bspwm"
 extra_apps_="sxhkd"
 

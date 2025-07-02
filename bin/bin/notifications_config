@@ -1,8 +1,11 @@
 #!/bin/sh
 #===================================================================================
+. "${my_stuff_display_manager_lib_path}"
 
-if [ "$(pidof dunst)" ];then
-	my-text-editor ~/.config/dunst/dunstrc && dunst-session restart
+if [ "$Display_server_are" = "openbox" ];then
+	dunst-session edit
+elif [ "$Display_server_are" = "wayland" ];then
+	mako-session edit
 elif [ "$(pidof xfce4-notifyd)" ];then
 	xfce4-notifyd-config
 fi	

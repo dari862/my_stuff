@@ -1,0 +1,83 @@
+#!/bin/bash
+# if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=USB_formatter
+#. "/usr/share/my_stuff/lib/common/WM"
+#. "${Distro_config_file}"
+# -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+popup_terminal(){
+	kitty -T "popup_terminal" -e bash -c "$@"
+}
+
+apps_as_root(){
+	exec sudo "$0" "$@"
+}
+
+script_full_path="$(readlink -f "$0")"
+
+if [ "$(id -u)" -ne 0 ]; then
+    apps_as_root "$0 \"$@\""
+fi
+
+rofi_msg() {
+	__massage="$(printf "$2")"
+    printf "$1" | rofi -dmenu -p "$__massage"
+}
+
+rofi_msg_no_choice() {
+	__massage="$(printf "$1")"
+    rofi -e "$__massage"
+}
+
+formatmenu () {
+    if [ -z "$1" ]; then
+        rofi_msg_no_choice "	Error	\n\n	You must select a USB key to use.	\n	Press Enter to return to main menu.\n	"
+        mainmenu
+        return
+    fi
+
+   erase_choice="$(rofi_msg "yes\nno" "WARNING:\nThis will completely erase /dev/$1.\nProceed? (yes/no)")"
+   
+   if [ "$erase_choice" = "yes" ];then
+     	mount | grep "/dev/$1" | awk '{print $1}' | while read line; do
+        	umount "$line"
+        	sleep 1
+    	done
+    	if popup_terminal "mkfs.vfat -F 32 -I -n \"$2\" -v \"/dev/$1\"";then
+    		rofi_msg_no_choice "	Done	\n\n	USB key formatting completed.	\n	Press Enter to exit.\n	"
+    	else
+    		rofi_msg_no_choice "	Failed	\n\n	USB key formatting failed.	\n	Press Enter to exit.\n	"
+    	fi
+    	exit 0
+    elif [ "$erase_choice" = "no" ];then
+    	exit 0
+    else
+    	mainmenu
+		exit
+   fi
+}
+
+mainmenu () {
+    DEVS=$(ls -l /dev/disk/by-path/*usb* 2>/dev/null | awk -F "/" '!/part/ {print $NF}' | sort -u)
+
+    if [ -z "$DEVS" ]; then
+        rofi_msg_no_choice "	Notice	\n\n	No USB keys found.	\n	Insert a USB key and try again.\n	"
+        exit 0
+    fi
+
+    MENU=""
+    for i in $DEVS; do
+        SIZE=$(grep -m 1 "$i" /proc/partitions | awk '{print $3}')
+        [ -n "$SIZE" ] && MENU="$MENU$i - ${SIZE}KB\n"
+    done
+
+    CHOICE=$(rofi_msg "$MENU" "Select USB Device" | awk '{print $1}')
+    [ -z "$CHOICE" ] && exit 0
+
+    LABEL=$(rofi_msg "" "Enter USB Label (Max 11 chars)")
+    [ -z "$LABEL" ] && LABEL="USBDISK"
+    LABEL="${LABEL:0:11}"
+
+    formatmenu "$CHOICE" "$LABEL"
+}
+
+mainmenu

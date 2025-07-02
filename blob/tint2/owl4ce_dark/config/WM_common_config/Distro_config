@@ -9,11 +9,11 @@ CHK_MODE="artistic"
 
 CHK_OB_BUTTON_STYLE_artistic="Backslash"
 CHK_OB_BUTTON_LOC_artistic="left"
-CHK_WALLPAPER_artistic="owl4ce_dark_wall-01.jpg"
+CHK_WALLPAPER_artistic="/usr/share/my_stuff/my_wallpapers/owl4ce_dark_wall-01.jpg"
 	
 CHK_OB_BUTTON_STYLE_interactive="Nav"
 CHK_OB_BUTTON_LOC_interactive="right"
-CHK_WALLPAPER_interactive="owl4ce_dark_wall-02.jpg"
+CHK_WALLPAPER_interactive="/usr/share/my_stuff/my_wallpapers/owl4ce_dark_wall-02.jpg"
 
 CHK_PANEL_ORT="vertical"
 CHK_PANEL_ORT_V="left"
@@ -22,16 +22,13 @@ CHK_PANEL_ORT_H="bottom"
 if [ "$CHK_MODE" = "artistic" ];then
 	CHK_OB_BUTTON_STYLE="$CHK_OB_BUTTON_STYLE_artistic"
 	CHK_OB_BUTTON_LOC="$CHK_OB_BUTTON_LOC_artistic"
-	CHK_WALLPAPER="$CHK_WALLPAPER_artistic"
+	wallpaper_are="$CHK_WALLPAPER_artistic"
 else
 	CHK_PANEL_ORT="top"
 	CHK_OB_BUTTON_STYLE="$CHK_OB_BUTTON_STYLE_interactive"
 	CHK_OB_BUTTON_LOC="$CHK_OB_BUTTON_LOC_interactive"
-	CHK_WALLPAPER="$CHK_WALLPAPER_interactive"
+	wallpaper_are="$CHK_WALLPAPER_interactive"
 fi
-
+layout_are="zoom"
 tint2_sessionfile="/.config/tint2/${CHK_THEME}/${CHK_PANEL_ORT}.${CHK_MODE}.tint2rc"
-#########################
-WALLPAPERS_DIR="$HOME/.wallpapers"
-OB_BUTTON_STYLE_DIR="$HOME/.themes/Joyful.OBB"
-#########################
+

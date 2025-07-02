@@ -208,7 +208,7 @@ main() {
 			FIRST_RUN=false
 
 			# Display the album art using sxiv
-			if [[ -x `which dunstify &> /dev/null` ]]; then
+			if command -v dunstify >/dev/null 2>&1; then
 				dunstify -u low --replace=69 -I "$COVER" "$(mpc current)" && exit
 			else
 				notify-send -h string:x-canonical-private-synchronous:sys-notify-backlight -u low -i "$COVER" "$(mpc current)" && exit

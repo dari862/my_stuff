@@ -4,7 +4,6 @@
 
 #[ "$(id -u)" -eq 0 ] && { echo "never run script as root. existing.."; exit 1 ;}
 cron_dwall_extra_arg=()
-SETTER=""
 folder_2_convert_2_Dywall=""
 WALSCHEME='dark'
 
@@ -59,45 +58,6 @@ exit_on_signal_SIGTERM() {
 trap exit_on_signal_SIGINT SIGINT
 trap exit_on_signal_SIGTERM SIGTERM
 
-## Prerequisite
-Prerequisite() { 
-    check_4_dependencies_if_installed crontab || exit 1
-	## Choose wallpaper setter						  
-	case "$OSTYPE" in
-		linux*)	
-				if [ -n "$SWAYSOCK" ];then
-					SETTER="eval ogurictl output '*' --image"
-				elif [[ "$DESKTOP_SESSION" =~ ^(MATE|Mate|mate)$ ]];then
-					SETTER="gsettings set org.mate.background picture-filename"
-				elif [[ "$DESKTOP_SESSION" =~ ^(Xfce Session|xfce session|XFCE|xfce|Xubuntu|xubuntu)$ ]];then
-					check_4_dependencies_if_installed xrandr || exit 1
-					SCREEN="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $1}' | tr -d \:)"
-					MONITOR="$(xrandr --listactivemonitors | awk -F ' ' 'END {print $2}' | tr -d \*+)"
-					SETTER="xfconf-query --channel xfce4-desktop --property /backdrop/screen$SCREEN/monitor$MONITOR/workspace0/last-image --set"
-				elif [[ "$DESKTOP_SESSION" =~ ^(LXDE|Lxde|lxde)$ ]];then
-					SETTER="pcmanfm --set-wallpaper"
-				elif [[ "$DESKTOP_SESSION" =~ ^(cinnamon|Cinnamon)$ ]];then
-					SETTER=set_cinnamon
-				elif [[ "$DESKTOP_SESSION" =~ ^(/usr/share/xsessions/plasma|NEON|Neon|neon|PLASMA|Plasma|plasma|KDE|Kde|kde)$ ]];then
-					SETTER=set_kde
-				elif [[ "$DESKTOP_SESSION" =~ GNOME|Ubuntu|Pop|Deepin ]];then
-					SETTER=set_gnome
-				elif [[ "$DESKTOP_SESSION" =~ Pantheon ]];then
-					SETTER=set_pantheon
-				elif [[ "$DESKTOP_SESSION" =~ sway ]];then
-					SETTER="swaybg -i"
-				elif [[ "$DESKTOP_SESSION" =~ ^(PANTHEON|Pantheon|pantheon|GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg|UBUNTU|Ubuntu|ubuntu|DEEPIN|Deepin|deepin|POP|Pop|pop)$ ]];then
-					SETTER="gsettings set org.gnome.desktop.background picture-uri"
-				elif type -p "feh" >/dev/null 2>&1;then
-					SETTER="feh --bg-fill"
-				else 
-					check_4_dependencies_if_installed xwallpaper || exit 1
-					SETTER="xwallpaper --stretch"
-				fi
-				;;
-	esac
-}
-
 ## Usage
 usage() {
 	clear
@@ -113,9 +73,7 @@ usage() {
 
 		Options:
 		  -s                             Name of the style to apply (required)
-		  -h                             Show this help message 
-		  -p                             Use pywal to set wallpaper 
-		  -b                         	 Pass a backend to pywal 
+		  -h                             Show this help message  
 		  -l                          	 Force light color scheme 
 		  -a                          	 Automatically set light/dark color scheme based on GNOME theme or daytime 
 		  -o                             Output wallpaper to file instead of setting it
@@ -129,33 +87,13 @@ usage() {
 
     cat <<- EOF
 		Examples:
-		`basename $0` -s beach                   Set 'beach' style wallpaper
-		`basename $0` -s beach -o ~/.wallpaper   Save 'beach' style wallpaper into file '~/.wallpaper'
-		`basename $0` -p -s sahara               Set 'beach' style wallpaper, and refresh the pywal theme
-		`basename $0` -b colorz -s sahara     	 Set 'sahara' style wallpaper, and refresh the pywal theme with 'colorz' backend
-		`basename $0` -b colorz -s sahara -a     Set 'sahara' style wallpaper, and refresh the pywal theme with 'colorz' backend with automatic light/dark mode
-		`basename $0` -b colorz -s sahara -l     Set 'sahara' style wallpaper, and refresh the pywal theme with 'colorz' backend with forced light mode															 
+		`basename $0` -s beach                   	Set 'beach' style wallpaper
+		`basename $0` -s beach -o ~/.wallpaper   	Save 'beach' style wallpaper into file '~/.wallpaper'
+		`basename $0` -s sahara               		Set 'beach' style wallpaper
+		`basename $0` -s sahara     	 		 	Set 'sahara' style wallpaper, with 'colorz' backend
+		`basename $0` -s sahara -a  			 	Set 'sahara' style wallpaper, with 'colorz' backend with automatic light/dark mode
+		`basename $0` -s sahara -l    			 	Set 'sahara' style wallpaper, with 'colorz' backend with forced light mode															 
 	EOF
-}
-
-## Set wallpaper in kde
-set_kde() {
-	qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
-		var allDesktops = desktops();
-		print (allDesktops);
-		for (i=0;i<allDesktops.length;i++) {
-			d = allDesktops[i];
-			d.wallpaperPlugin = 'org.kde.image';
-			d.currentConfigGroup = Array('Wallpaper',
-										'org.kde.image',
-										'General');
-			d.writeConfig('Image', 'file://"$1"')
-		}"
-}
-
-## Set wallpaper in cinnamon
-set_cinnamon() {
-	 gsettings set org.cinnamon.desktop.background picture-uri "file:///$1"
 }
 
 ## Get Image
@@ -169,41 +107,6 @@ get_img() {
 		FORMAT="jpg"
 	else
 		echo -e ${RED}"[!] Invalid image file, Exiting..."
-		exit_1
-	fi
-}
-
-## Check valid pywal backend
-pywal_backend() {
-	backends=$(wal --backend | tail -n +2 | cut -d ' ' -f 3 | xargs)
-	[[ "$backends" =~ (^| )"$1"($| ) ]] && return 0 || return 1
-}
-
-## Determine light/dark scheme based on GNOME night light or daytime
-pywal_light() {
-	[[ $WALSCHEME == 'light' ]] && return 0
-	if [[ $WALSCHEME == 'auto' ]];then
-		[[ $DESKTOP_SESSION =~ ^(GNOME|Gnome|gnome|Gnome-xorg|gnome-xorg)$ && $(gsettings get org.gnome.desktop.interface gtk-theme) != *"dark"* ]] && return 0
-		(( $HOUR > 6 && $HOUR < 18 )) && return 0
-	fi
-	return 1
-}
-## Set wallpaper with pywal
-pywal_set() {
-	get_img "$1"
-	if ! pywal_backend "$2";then
-		echo -e ${RED}"[!] $2 is not a valid pywal backend. Check valid backends with `wal --backend`. Exiting..."
-		exit_1
-	fi
-	if [[ -x `command -v wal` ]];then
-		local walcmd=(wal --backend "$2" -i "$image.$FORMAT" -n)
-		if pywal_light;then
-			walcmd+=(-l)
-		fi
-		"${walcmd[@]}"
-		set_wallpaper "$1"				
-	else
-		echo -e ${RED}"[!] pywal is not installed on your system, exiting..."
 		exit_1
 	fi
 }
@@ -232,7 +135,7 @@ set_wallpaper() {
 
 	# set wallpaper with setter
 	if [[ -n "$FORMAT" ]];then
-		$SETTER "$image.$FORMAT"
+		setbg -R "$image.$FORMAT"
 	fi
 
 	# make/update dwall cache file
@@ -524,10 +427,7 @@ main() {
 	# get current hour
 	num=$(($HOUR/1))
 	# set wallpaper accordingly
-	if [[ -n "$PYWAL" ]];then
-		_walbackend=${WALBACKEND:-wal}
-		{ pywal_set "$num" "$_walbackend"; reset_color; exit 0; }
-	elif [[ -n "$OUTPUT" ]];then
+	if [[ -n "$OUTPUT" ]];then
 		{ file_set "$num"; reset_color; exit 0; }
 	else
 		{ set_wallpaper "$num"; reset_color; exit 0; }
@@ -546,13 +446,6 @@ while getopts ":dolachiugys:pb:c:z:" opt; do
 	case ${opt} in
 		d)
 			DEBUG=true
-			;;
-		p)
-			PYWAL=true
-			;;
-		b)
-			WALBACKEND=$OPTARG
-			PYWAL=true
 			;;
 		o)
 			OUTPUT=$OPTARG
@@ -632,12 +525,6 @@ if [[ "$create_crontab_" == true ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-s $STYLE")
 	fi
 	
-	if [[ "$WALBACKEND" ]];then
-		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-b $WALBACKEND")
-	elif [[ "$PYWAL" == true ]];then
-		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-p")
-	fi
-	
 	if [[ "$WALSCHEME" == "light" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-l")
 	elif [[ "$WALSCHEME" == "auto" ]];then
@@ -647,7 +534,8 @@ if [[ "$create_crontab_" == true ]];then
 fi
 
 ## Run
-Prerequisite
+check_4_dependencies_if_installed crontab || exit 1
+
 if [[ "$STYLE" ]];then
 	check_style "$STYLE"
 	main	

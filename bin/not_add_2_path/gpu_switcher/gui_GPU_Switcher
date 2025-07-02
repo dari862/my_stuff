@@ -144,7 +144,7 @@ glxinfo_gl_es_version() {
 
 superuser_gpu_switcher(){
 	__arg_="${@}"
-	apps_as_root --yad "$gpu_switcher $__arg_"
+	apps_as_root "$gpu_switcher $__arg_"
 }
 
 run_Integrated_mode_(){
