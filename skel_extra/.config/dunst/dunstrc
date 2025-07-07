@@ -249,7 +249,7 @@ mouse_right_click = close_all
 per_monitor_dpi = false
 
 [log_notifs]
-script = /usr/share/my_stuff/bin/not_add_2_path/dunst_logger.sh
+script = /usr/share/my_stuff/bin/X11/not_add_2_path/dunst/dunst_logger.sh
 
 [shortcuts]
 

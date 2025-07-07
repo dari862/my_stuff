@@ -8,11 +8,6 @@ prompt "  Do you want to set $app_name as default package?"  || set_as_default_p
 say "Installing ${app_name}..." 1
 Package_installer_ ${app_name} ${extra_app_name} || continue
 copy_from_extra_skel ".config/geany" || continue
-
-cd "/usr/share/my_stuff/blob_extra/"
-cd polybar
-for theme in *;do
-	my-superuser cp -r "${theme}/config/geany" "/usr/share/my_stuff/system_files/blob/tint2/${theme}/config" 
-done
+copy_blob_extra_2_system_files_blob "geany" || continue
 
 [ "$set_as_default_package" = true ] && my-alternatives --set "my-text-editor" "${app_name}"

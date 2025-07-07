@@ -30,4 +30,4 @@ imlib_cache_size 0
 gap_x 0
 gap_y 640
 TEXT
-$color${execpi 36000 ~/.config/conky/horical/scripts/horical}${color}
+$color${execpi 36000 conky_scripts horical}${color}

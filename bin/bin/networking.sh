@@ -4,8 +4,8 @@
 
 . "/usr/share/my_stuff/lib/common/WM"
 
-rofi_network_manager_config="${script_config_path}/rofi-network-manager.ini"
-languages_lib_dir="/usr/share/my_stuff/lib/languages/rofi-network-manager"
+_network_manager_script_config="${script_config_path}/network-manager-script.ini"
+languages_lib_dir="/usr/share/my_stuff/lib/languages/network-manager-script"
 SELECTION_PREFIX="~"
 WIRELESS_INTERFACES=($(nmcli device | awk '$2=="wifi" {print $1}'))
 WIRELESS_INTERFACES_PRODUCT=()
@@ -95,7 +95,7 @@ vpn() {
 }
 
 # main
-. "${rofi_network_manager_config}"
+. "${_network_manager_script_config}"
 . "/usr/share/my_stuff/lib/networking_lib.sh"
 
 if [ -f "${languages_lib_dir}/${LANGUAGE}.lang" ];then

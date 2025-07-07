@@ -1,0 +1,2 @@
+#!/bin/sh
+sleep 3; xdotool type "$(xclip -o -selection clipboard)"

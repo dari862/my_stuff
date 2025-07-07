@@ -6,6 +6,7 @@ __opt2="${2-}"
 show_Extra=false
 script_config_path="$HOME/.config/scriptconfig"
 weather_script_config_path="${script_config_path}/weather"
+__weather_lib_path="/usr/share/my_stuff/bin/not_add_2_path/weather"
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "/usr/share/my_stuff/lib/common/API"
@@ -14,7 +15,7 @@ weather_script_config_path="${script_config_path}/weather"
 . "$weather_script_config_path"
 
 if [ -z "$place" ];then
-	. "/usr/share/my_stuff/bin/not_add_2_path/weather/country_list"
+	. "${__weather_lib_path}/country_list"
    	# Geolocate IP:
    	place=$(get_scripts --location)
    	chosen="$(printf "%s" "$country_list" | grep "$place" )"
@@ -113,9 +114,9 @@ if [ "$__opt" = "moon" ];then
 elif [ "$__opt" = "doppler" ];then
 	connectiontest 10 && getdoppler
 elif [ "$mode" = "wttr" ];then
-	. "/usr/share/my_stuff/bin/not_add_2_path/weather/wttr"
+	. "${__weather_lib_path}/wttr"
 	main
 elif [ "$mode" = "openweather" ];then
-	. "/usr/share/my_stuff/bin/not_add_2_path/weather/openweather"
+	. "${__weather_lib_path}/openweather"
 	main
 fi

@@ -1,12 +1,12 @@
 my_stuff_display_manager_lib_path="/usr/share/my_stuff/display_server/X11"
 
 # include my_stuff/bin/bspwm in PATH
-if [ -d "/usr/share/my_stuff/bin/bspwm" ];then
-   	PATH="/usr/share/my_stuff/bin/bspwm:$PATH"
+if [ -d "/usr/share/my_stuff/bin/X11/bspwm" ];then
+   	PATH="/usr/share/my_stuff/bin/X11/bspwm:$PATH"
 fi
 
-if [ -d "/usr/share/my_stuff/bin/pipemenu" ] && command -v jgmenu >/dev/null 2>&1;then
-   	PATH="/usr/share/my_stuff/bin/pipemenu:$PATH"
+if [ -d "/usr/share/my_stuff/bin/X11/pipemenu" ] && command -v jgmenu >/dev/null 2>&1;then
+   	PATH="/usr/share/my_stuff/bin/X11/pipemenu:$PATH"
 fi
 
 if [ -d "/usr/share/my_stuff/system_files/binX11" ];then

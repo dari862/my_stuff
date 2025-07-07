@@ -2,7 +2,7 @@
 Type=Application
 Name=LF
 Comment=terminal file manager written in Go with a heavy inspiration from ranger file manager. 
-Keywords=openbox;conky;tint2;gtk;wallpaper;preferences;settings;theme;style;appearance;
+Keywords=file manager;explorer;finder;browser;folders;directory;directories;partitions;drives;network;devices;rename;move;copy;delete;permissions;home;trash;cli;
 Icon=preferences-desktop-theme
 Exec=popup_terminal lf
 StartupNotify=false

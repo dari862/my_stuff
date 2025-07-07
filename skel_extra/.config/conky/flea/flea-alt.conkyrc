@@ -135,6 +135,6 @@ ${font Roboto Regular:size=16} ${color4}${execi 60 whoami}!${color}${font}
 ${voffset 10}${alignc}Today is${font Roboto Regular:size=22} ${color5}${time %A}${color}${font}, \
 ${time %B} ${font Roboto Regular:size=22}${color2}${time %-d}${color}${font} \
 at ${color1}${font Roboto Regular:size=22}${time %H:%M}${color}${font}
-${voffset 20}${alignc}${font Roboto Regular:thin:size=20}Today will be ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -d}
-${voffset 20}${alignc}${font Roboto Regular:thin:size=16}${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -t}
+${voffset 20}${alignc}${font Roboto Regular:thin:size=20}Today will be ${execi 1800 conky_scripts get_weather -d}
+${voffset 20}${alignc}${font Roboto Regular:thin:size=16}${execi 1800 conky_scripts get_weather -t}
 ]];

@@ -1,0 +1,91 @@
+#!/usr/bin/env sh
+
+exec >/dev/null 2>&1
+. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/bin/not_add_2_path/owl4ce/owl4ce_vars.sh"
+
+. "${Distro_config_file}"
+__opt="${1-}"
+
+cd "$HOME/.config/rofi/$ROFI_STYLE"
+
+__wall(){
+	WALLPAPER="$(
+    	for LS in "$WALLPAPERS_DIR/$CHK_THEME"*; do
+        	[ ! -f "$LS" ] || echo "${LS##*/}"
+    	done | rofi -config "config.rasi" -theme-str '@import "action.rasi"' \
+                                   	-no-show-icons \
+                                   	-no-lazy-grab \
+                                   	-no-plugins \
+                                   	-dmenu \
+                                   	-mesg 'Select X Wallpaper'
+	)"
+	/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts set-wallpaper "$WALLPAPERS_DIR" "$WALLPAPER"
+}
+
+__rofi_launcher(){
+	exec rofi -config "config.rasi" -theme-str '@import "main.rasi"' \
+          	-no-lazy-grab \
+          	-show drun
+}
+
+__BUTTON(){
+	BUTTON="$(for LS in "$OB_BUTTON_STYLE_DIR"/*; do
+              	[ ! -d "$LS" ] || echo "${LS##*/}"
+              done | rofi -config "config.rasi" -theme-str '@import "action.rasi"' \
+                         		-no-show-icons \
+                         		-no-lazy-grab \
+                         		-no-plugins \
+                         		-dmenu \
+                         		-mesg 'Select Window Button-Style')"
+	/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts set-button "$BUTTON"
+}
+
+__center(){
+	rofi_center_modi_path="/usr/share/my_stuff/bin/not_add_2_path/owl4ce/rofi-center-modi"
+	
+	SYSINFO=''
+	SCREENSHOT=''
+	SESSION=''
+	MEDIA=''
+	MUSIC=''
+	
+CUSTOM_MODI="\
+${SYSINFO}:${rofi_center_modi_path}/modi-sysinfo.sh,\
+${SCREENSHOT}:${rofi_center_modi_path}/modi-screenshot.sh,\
+${SESSION}:${rofi_center_modi_path}/modi-session.sh,\
+${MEDIA}:${rofi_center_modi_path}/modi-media.sh,\
+${MUSIC}:${rofi_center_modi_path}/modi-music.sh"
+
+	case "${__opt}" in
+    	sys*) MODI="$SYSINFO"
+    	;;
+    	scr*) MODI="$SCREENSHOT"
+    	;;
+    	ses*) MODI="$SESSION"
+    	;;
+    	med*) MODI="$MEDIA"
+    	;;
+    	mus*) MODI="$MUSIC"
+    	;;
+	esac
+	exec rofi -config "config.rasi" -theme-str '@import "exts.rasi"' \
+          	-modi "$CUSTOM_MODI" \
+          	-no-show-icons \
+          	-no-lazy-grab \
+          	-no-plugins \
+          	-kb-custom-19 '' \
+          	-kb-move-char-back '' \
+          	-kb-move-char-forward '' \
+          	-kb-mode-previous 'Left' \
+          	-kb-mode-next 'Right' \
+          	-show "${MODI:-${SYSINFO}}"
+}
+
+case "${__opt}" in
+	wallpaper) __wall ;;
+	launcher) __rofi_launcher ;;
+	button) __BUTTON ;;
+	*) __center ;;
+esac
+exit ${?}

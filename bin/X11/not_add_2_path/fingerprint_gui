@@ -1,0 +1,14 @@
+#!/bin/sh
+# if this line exist script will be part of gui scripts.new_name=Fingerprint_GUI
+
+title_name="Fingerprint gui"
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+choice=$(printf "Delete\nEnroll\nList\nVerify" | rofi -dmenu -p "$title_name")
+case "$choice" in
+	Delete) popup_terminal "fprintd-delete $USER";;
+	Enroll) popup_terminal "for finger in {left,right}-{thumb,{index,middle,ring,little}-finger}; do fprintd-enroll -f "$finger" "$USER"; done";;
+	List) popup_terminal "fprintd-list $USER";;
+	Verify) popup_terminal "fprintd-verify";;
+esac

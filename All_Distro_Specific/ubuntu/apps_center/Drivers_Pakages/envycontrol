@@ -14,15 +14,15 @@ cd /tmp/$USER
 sudo apt-get -y install ./python3-envycontrol_version.deb
 			
 if [ ! -f "${__distro_path}/system_files/skel/.config/autostartscripts/gpu-switcher-session}" ];then
-	ln -sf "${__distro_path}"/bin/not_add_2_path/gpu_switcher/gpu-switcher-session "${__distro_path}/system_files/skel/.config/autostartscripts"
+	ln -sf "${__distro_path}"/bin/X11/not_add_2_path/gpu_switcher/gpu-switcher-session "${__distro_path}/system_files/skel/.config/autostartscripts"
 fi
   				
 if [ ! -f "${__distro_path}/system_files/bin/gui_GPU_Switcher" ];then
-	ln -sf "${__distro_path}"/bin/not_add_2_path/gpu_switcher/gui_GPU_Switcher "${__distro_path}/system_files/bin"
+	ln -sf "${__distro_path}"/bin/X11/not_add_2_path/gpu_switcher/gui_GPU_Switcher "${__distro_path}/system_files/bin"
 fi
   				
 if [ ! -f "${__distro_path}/system_files/bin/tray_GPU_Switcher" ];then
-	ln -sf "${__distro_path}"/bin/not_add_2_path/gpu_switcher/tray_GPU_Switcher "${__distro_path}/system_files/bin"
+	ln -sf "${__distro_path}"/bin/X11/not_add_2_path/gpu_switcher/tray_GPU_Switcher "${__distro_path}/system_files/bin"
 fi
 EOF
 my-superuser chmod +x /usr/share/my_stuff/system_files/updater/envycontrol

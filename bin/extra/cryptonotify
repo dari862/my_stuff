@@ -1,7 +1,5 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
-
-# rofi adding this for hub file to not use popup_terminal
 ShortName="BAT\nLBC\nTRX\nADA"
 
 if [ ! -d ~/.cache/crypto ];then

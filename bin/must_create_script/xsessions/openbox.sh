@@ -4,12 +4,12 @@ usr_envfile="$usr_confdir/openbox/environment"
 default_autostart="${OBPATH_SKEL}"
 
 # include my_stuff/bin/openbox in PATH
-if [ -d "/usr/share/my_stuff/bin/openbox" ];then
-   	PATH="/usr/share/my_stuff/bin/openbox:$PATH"
+if [ -d "/usr/share/my_stuff/bin/X11/openbox" ];then
+   	PATH="/usr/share/my_stuff/bin/X11/openbox:$PATH"
 fi
 	
-if [ -d "/usr/share/my_stuff/bin/pipemenu" ];then
-   	PATH="/usr/share/my_stuff/bin/pipemenu:$PATH"
+if [ -d "/usr/share/my_stuff/bin/X11/pipemenu" ];then
+   	PATH="/usr/share/my_stuff/bin/X11/pipemenu:$PATH"
 fi
 
 if [ -d "/usr/share/my_stuff/system_files/binX11" ];then

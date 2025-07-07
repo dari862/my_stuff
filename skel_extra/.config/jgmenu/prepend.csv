@@ -32,7 +32,7 @@ Display Keybinds,^pipe(jgmenu_run ob --cmd="my_stuff-kb-pipemenu" --tag="my_stuf
 Applications,^checkout(apps)
 ^sep()
 Lock Screen,my_session_manager lock,system-lock-screen
-Exit,my_session_manager --yad,system-shutdown
+Exit,my_session_manager,system-shutdown
 
 ^tag(bl-utilities)
 Back,^back()

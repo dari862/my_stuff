@@ -132,16 +132,16 @@ ${voffset 6}${color0}${font M+ 1mn:size=24}${time %H:%M}${font}${color}
 ${voffset 30}
 Hello, ${execi 60 whoami}
 
-Today will be ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -d}
+Today will be ${execi 1800 conky_scripts get_weather -d}
 
-${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -t}
+${execi 1800 conky_scripts get_weather -t}
 
 Here is some wise words for You..
 ## If You prefer an editable offline quotes, replace "quote-online" with "quotes-offline"
 ## You can edit the quotes value by editing the "res/quote-offline" file
 ## 600 is the gap between the refresh (in seconds), You can decrease or increase the value by editing the number
 
-${execi 600 /usr/share/my_stuff/bin/conky/quote-online}
+${execi 600 conky_scripts quote-online}
 
 ${image ~/.config/conky/novoselic/res/bg.png -p -1,4}
 ]];

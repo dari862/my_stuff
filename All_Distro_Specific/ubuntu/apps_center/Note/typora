@@ -13,14 +13,4 @@ clear
 say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue
-
-my-superuser cp -r /usr/share/my_stuff/lib/Dev-Env/typora /usr/share/my_stuff/system_files/skel/.config
-
-for d in /home/*; do
-	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-	if [ -d "$d/.config" ];then
-		my-superuser cp -rv /usr/share/my_stuff/system_files/skel/.config/typora "$d/.config"
-		my-superuser chown -R $user_and_group "$d/.config/typora"
-	fi
-done
-
+copy_from_extra_skel ".config/typora" || continue

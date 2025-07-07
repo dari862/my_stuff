@@ -136,7 +136,7 @@ ${offset 150} ${font Bebas Neue Regular:size=16} ${if_running mpd}${mpd_title}${
 ${voffset 10}
 ${offset 150} ${font Bebas Neue Bold:size=14} ${color0}${if_running mpd}${mpd_album}${else}...${endif}\
 
-${if_running mpd}${execi 4 /usr/share/my_stuff/bin/conky/albumart}\
+${if_running mpd}${execi 4 conky_scripts albumart}\
 ${image /tmp/MmdmdmdmdmdmdmdmdmM/cover2.png -p 20,40 -s 120x120}\
 ${else}${image ~/.config/conky/curva/res/mpd-off.png -p 20,40 -s 120x120}${endif} \
 ]];

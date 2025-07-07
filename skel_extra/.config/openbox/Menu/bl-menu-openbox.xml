@@ -156,7 +156,7 @@
         <item label="Exit">
             <action name="Execute">
                 <command>
-                    my_session_manager --yad
+                    my_session_manager
                 </command>
             </action>
         </item>

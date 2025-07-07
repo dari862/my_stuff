@@ -1,0 +1,13 @@
+#!/bin/sh
+conky_script_path="/usr/share/my_stuff/bin/X11/conky"
+opt="${1-}"
+opt2="${2-}"
+
+case "$opt" in
+		get_weather) "${conky_script_path}"/get_weather $opt2 ;;
+		albumart) "${conky_script_path}"/albumart ;;
+		quote-online) "${conky_script_path}"/quote-online ;;
+		quote-offline) "${conky_script_path}"/quote-offline ;;
+		email) "${conky_script_path}"/email ;;
+		horical) "${conky_script_path}"/horical;;
+esac

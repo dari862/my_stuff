@@ -162,7 +162,7 @@ updatedb
 ############
 # terminator
 ############
-if command -v terminator >/dev/null;then
+if command -v terminator >/dev/null 2>&1;then
 	show_im "fix terminator"
 	[ ! -d "/root/.config/terminator" ] && mkdir -p "/root/.config/terminator"
 	[ ! -f "/root/.config/terminator/config" ] && cp -r "${__distro_path}"/skel_extra/.config/terminator/config "/root/.config/terminator"
@@ -184,7 +184,7 @@ fi
 ############
 # Remove "Set as wallpaper" from Thunar Context Menu and replace it with  "Set as wallpaper" from thunar config uac file
 ############
-if command -v thunar >/dev/null;then
+if command -v thunar >/dev/null 2>&1;then
 	show_im "fix thunar"
 	__thunar_wall_plug="$(locate thunar | grep "plugin.so" | grep "wall" | grep -v "\.backup" || :)"
 	[ -f "${__thunar_wall_plug}" ] && [ ! -f "${__thunar_wall_plug}.backup" ] && mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
@@ -213,7 +213,9 @@ mkdir -p "${__distro_path}"/system_files/applications
 show_im "LN essional files"
 mkdir -p "${__distro_path}/system_files/bin"
 mkdir -p "${__distro_path}/system_files/binX11"
-ln -sf "${__distro_path}/bin/binX11"/* "${__distro_path}/system_files/binX11"
+ln -sf "${__distro_path}/bin/X11/bin"/* "${__distro_path}/system_files/binX11"
+ln -sf "${__distro_path}/bin/X11/session_managers/clipboard-manager-session" "${__distro_path}/system_files/binX11"
+ln -sf "${__distro_path}/bin/X11/WM"/* "${__distro_path}/system_files/binX11"
 
 if [ "$machine_type_are" = "laptop" ];then 
 	show_im "this is laptop"
@@ -231,190 +233,190 @@ touch "${__distro_path}"/system_files/skel/.config/mpd/database
 mkdir -p "${__distro_path}"/system_files/skel/.local/share/bash_history
 
 show_im "copy extra skell that we need to copy to system_files/skel ."
-if command -v autorandr >/dev/null ;then
+if command -v autorandr >/dev/null 2>&1;then
 	show_im "copy autorandr skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/autorandr" "${__distro_path}/system_files/skel/.config" 
 fi
-if command -v conky >/dev/null ;then
+if command -v conky >/dev/null 2>&1;then
 	show_im "copy conky skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/conky" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/bin/session_managers_X11_only/conky-session" "${__distro_path}"/system_files/binX11
+	cp -r "${__distro_path}/bin/X11/session_managers/conky-session" "${__distro_path}"/system_files/binX11
 	copy_all__application_link_in_dir "conky"
 fi
-if command -v dunst >/dev/null ;then
+if command -v dunst >/dev/null 2>&1;then
 	show_im "copy dunst skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/dunst" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/bin/session_managers_X11_only/dunst-session" "${__distro_path}"/system_files/binX11
+	cp -r "${__distro_path}/bin/X11/session_managers/dunst-session" "${__distro_path}"/system_files/binX11
 fi
-if command -v openbox >/dev/null ;then
+if command -v openbox >/dev/null 2>&1;then
 	show_im "copy openbox skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/openbox" "${__distro_path}/system_files/skel/.config" 
 fi
-if command -v rofi >/dev/null ;then
+if command -v rofi >/dev/null 2>&1;then
 	show_im "copy rofi skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/rofi" "${__distro_path}/system_files/skel/.config"
 	copy_all__application_link_in_dir "rofi"
 fi
-if command -v xrdb >/dev/null ;then
+if command -v xrdb >/dev/null 2>&1;then
 	show_im "copy x11 skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/x11" "${__distro_path}/system_files/skel/.config"
 fi
 
-if command -v geany >/dev/null ;then
+if command -v geany >/dev/null 2>&1;then
 	show_im "copy geany skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/geany" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v lf >/dev/null ;then
+if command -v lf >/dev/null 2>&1;then
 	show_im "copy lf skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/lf" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v nsxiv >/dev/null || command -v sxiv >/dev/null ;then
+if command -v nsxiv >/dev/null 2>&1 || command -v sxiv >/dev/null 2>&1;then
 	show_im "copy nsxiv skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/nsxiv" "${__distro_path}/system_files/skel/.config"
 	cp -r "${__distro_path}/skel_extra/.config/sxiv" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/bin/nsxiv"/* "${__distro_path}"/system_files/binX11
+	cp -r "${__distro_path}/bin/X11/nsxiv"/* "${__distro_path}"/system_files/binX11
 fi
 
-if command -v viewnior >/dev/null ;then
+if command -v viewnior >/dev/null 2>&1;then
 	show_im "copy viewnior skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/viewnior" "${__distro_path}/system_files/skel/.config"
 fi
 
-if command -v terminator >/dev/null ;then
+if command -v terminator >/dev/null 2>&1;then
 	show_im "copy terminator skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/terminator" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v tmu >/dev/null ;then
+if command -v tmu >/dev/null 2>&1;then
 	show_im "copy tmu skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/tmu" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v pcmanfm >/dev/null ;then
+if command -v pcmanfm >/dev/null 2>&1;then
 	show_im "copy pcmanfm skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/pcmanfm" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v thunar >/dev/null ;then
+if command -v thunar >/dev/null 2>&1;then
 	show_im "copy gigolo skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/Thunar" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v gigolo >/dev/null ;then
+if command -v gigolo >/dev/null 2>&1;then
 	show_im "copy gigolo skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/gigolo" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v plank >/dev/null ;then
+if command -v plank >/dev/null 2>&1;then
 	show_im "copy plank skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/plank" "${__distro_path}/system_files/skel/.config" 
 	cp -r "${__distro_path}/skel_extra/.local/share/plank" "${__distro_path}/system_files/skel/.local/share/"
-	cp -r "${__distro_path}/bin/session_managers_X11_only/plank-session" "${__distro_path}"/system_files/binX11 
+	cp -r "${__distro_path}/bin/X11/session_managers/plank-session" "${__distro_path}"/system_files/binX11 
 fi
 
-if command -v xbindkey >/dev/null ;then
+if command -v xbindkey >/dev/null 2>&1;then
 	show_im "copy xbindkey skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.xbindkeysrc" "${__distro_path}/system_files/skel" 
 fi
 
-if command -v parcellite >/dev/null ;then
+if command -v parcellite >/dev/null 2>&1;then
 	show_im "copy parcellite skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/parcellite" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v clipit >/dev/null ;then
+if command -v clipit >/dev/null 2>&1;then
 	show_im "copy clipit skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/clipit" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v jgmenu >/dev/null ;then
+if command -v jgmenu >/dev/null 2>&1;then
 	show_im "copy jgmenu skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/jgmenu" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v greenclip >/dev/null ;then
+if command -v greenclip >/dev/null 2>&1;then
 	show_im "copy greenclip skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/greenclip.toml" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v zathura >/dev/null ;then
+if command -v zathura >/dev/null 2>&1;then
 	show_im "copy zathura skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/zathura" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v tint2 >/dev/null ;then
+if command -v tint2 >/dev/null 2>&1;then
 	show_im "copy tint2 skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/tint2" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/bin/session_managers_X11_only/tint2-session" "${__distro_path}"/system_files/binX11
+	cp -r "${__distro_path}/bin/X11/session_managers/tint2-session" "${__distro_path}"/system_files/binX11
 	copy_all__application_link_in_dir "tint2"
 fi
 
-if command -v xfce4-panel >/dev/null ;then
+if command -v xfce4-panel >/dev/null 2>&1;then
 	show_im "copy xfce4-panel skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/xfce4" "${__distro_path}/system_files/skel/.config"
 	cp -r "${__distro_path}/skel_extra/.local/share/xfce4" "${__distro_path}/system_files/skel/.local/share/"
 	copy_all__application_link_in_dir "xfce4"
 fi
 
-if command -v xfsettingsd >/dev/null ;then
-	cp -r "${__distro_path}/bin/session_managers_X11_only/xfsettingsd-session" "${__distro_path}"/system_files/binX11
+if command -v xfsettingsd >/dev/null 2>&1;then
+	cp -r "${__distro_path}/bin/X11/session_managers/xfsettingsd-session" "${__distro_path}"/system_files/binX11
 fi
 
-if command -v lxterminal >/dev/null ;then
+if command -v lxterminal >/dev/null 2>&1;then
 	show_im "copy lxterminal skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/lxterminal" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v cava >/dev/null ;then
+if command -v cava >/dev/null 2>&1;then
 	show_im "copy cava skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/cava" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v cmus >/dev/null ;then
+if command -v cmus >/dev/null 2>&1;then
 	show_im "copy cmus skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/cmus" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v alacritty >/dev/null ;then
+if command -v alacritty >/dev/null 2>&1;then
 	show_im "copy alacritty skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/alacritty" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v bspwm >/dev/null ;then
+if command -v bspwm >/dev/null 2>&1;then
 	show_im "copy bspwm skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/bspwm" "${__distro_path}/system_files/skel/.config" 
 	cp -r "${__distro_path}/skel_extra/.config/sxhkd" "${__distro_path}/system_files/skel/.config" 
 fi
 
-if command -v polybar >/dev/null ;then
+if command -v polybar >/dev/null 2>&1;then
 	show_im "copy polybar skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/polybar" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/bin/session_managers_X11_only/polybar-session" "${__distro_path}"/system_files/binX11
+	cp -r "${__distro_path}/bin/X11/session_managers/polybar-session" "${__distro_path}"/system_files/binX11
 	
 	if [ -d "${__distro_path}/bin/polybar" ];then
-		ln -sf "${__distro_path}"/bin/polybar/* "${__distro_path}"/system_files/binX11
+		ln -sf "${__distro_path}"/bin/X11/polybar/* "${__distro_path}"/system_files/binX11
 	fi
 fi
 
-if command -v yad >/dev/null ;then
+if command -v yad >/dev/null 2>&1;then
 	show_im "copy yad bin to system_files/bin ."
 	if [ -d "${__distro_path}/bin/yad" ];then
-		ln -sf "${__distro_path}"/bin/yad/* "${__distro_path}"/system_files/binX11
+		ln -sf "${__distro_path}"/bin/X11/yad/* "${__distro_path}"/system_files/binX11
 	fi
 	copy_all__application_link_in_dir "yad"
 fi
 
 if [ -d "${__distro_path}/bin/rofi" ];then
 	show_im "rofi bin files to system_files/bin ."
-	ln -sf "${__distro_path}"/bin/rofi/* "${__distro_path}"/system_files/binX11
+	ln -sf "${__distro_path}"/bin/X11/rofi/* "${__distro_path}"/system_files/binX11
 fi
 
-if command -v picom >/dev/null ;then
+if command -v picom >/dev/null 2>&1;then
 	show_im "copy picom skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/picom.conf" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/bin/session_managers_X11_only/picom-session" "${__distro_path}"/system_files/binX11
+	cp -r "${__distro_path}/bin/X11/session_managers/picom-session" "${__distro_path}"/system_files/binX11
 fi
 
 if [ "$machine_type_are" = "vm" ];then
@@ -465,51 +467,50 @@ create_applicationsdotdesktop_link "nbrowser"
 
 if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
 	show_im "laptop stuff."
-	ln -sf "${__distro_path}"/bin/not_add_2_path/laptop/toggletouch "${__distro_path}"/system_files/bin
 	if [ -d "${__distro_path}/bin/laptop" ];then
-		show_im "laptop bin files to system_files/bin ."
-		ln -sf "${__distro_path}"/bin/laptop/* "${__distro_path}"/system_files/bin
+		show_im "laptop bin files to system_files/binX11 ."
+		ln -sf "${__distro_path}/bin/X11/laptop"/* "${__distro_path}"/system_files/binX11
 	fi
 	create_applicationsdotdesktop_link "yadtlp"
 fi
 
-if command -v arandr >/dev/null ;then
+if command -v arandr >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "arandr"
 fi
 
-if command -v kvantummanager >/dev/null ;then
+if command -v kvantummanager >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "kvantummanager"
 fi
 
-if command -v lightdm-gtk-greeter-settings-pkexec >/dev/null ;then
+if command -v lightdm-gtk-greeter-settings-pkexec >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "lightdm-gtk-greeter-settings-pkexec"
 fi
 
-if command -v lxappearance >/dev/null ;then
+if command -v lxappearance >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "lxappearance"
 fi
 
-if command -v obconf >/dev/null ;then
+if command -v obconf >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "obconf"
 fi
 
-if command -v qt5ct >/dev/null ;then
+if command -v qt5ct >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "qt5ct"
 fi
 
-if command -v nvim >/dev/null ;then
+if command -v nvim >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "Neovim"
 fi
 
-if command -v docker >/dev/null ;then
+if command -v docker >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "Docker"
 fi
 
-if command -v google-chrome >/dev/null ;then
+if command -v google-chrome >/dev/null 2>&1;then
 	create_applicationsdotdesktop_link "WhatsApp"
 fi
 
-if command -v flatpak >/dev/null ;then
+if command -v flatpak >/dev/null 2>&1;then
 	if flatpak list | grep -q pinta;then
 		create_applicationsdotdesktop_link "pinta"
 	fi
@@ -539,15 +540,20 @@ for script_dir in "${__distro_path}"/bin/must_create_script/*;do
 	cd "${script_dir}"
 	./make || show_em "failed to run make"
 done
+for script_dir in "${__distro_path}"/bin/X11/must_create_script/*;do
+	show_im "running $(basename "$script_dir"). from must_create_script ."
+	cd "${script_dir}"
+	./make || show_em "failed to run make"
+done
 
 show_im "Create keybinds."
 "${__distro_path}"/system_files/binX11/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
 
 ln -sf ${__distro_path}/distro_manager/full-upgrade ${__distro_path}/system_files/bin
 
-if command -v conky >/dev/null ;then
+if command -v conky >/dev/null 2>&1;then
 	show_im "Create conky weather icons."
-	"${__distro_path}"/bin/not_add_2_path/conky_weather_icon || show_em "failed to run not_add_2_path/conky_weather_icon"
+	"${__distro_path}"/bin/X11/not_add_2_path/conky_weather_icon || show_em "failed to run not_add_2_path/conky_weather_icon"
 fi
 
 create_blob_system_files

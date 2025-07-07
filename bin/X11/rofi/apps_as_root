@@ -1,0 +1,80 @@
+#!/bin/sh
+app_2_run_as_root="$1"
+[ -z "$app_2_run_as_root" ] && echo "$0: no arg provided" && exit 1
+shift 1
+Extra_Arg="$@"
+
+rofi_ask_passowrd(){
+	. "/usr/share/my_stuff/lib/common/WM"
+	. "${Distro_config_file}"
+	ask_for_pass() {
+    	rofi -dmenu\
+   			-password\
+   			-i\
+   			-no-fixed-num-lines\
+   			-p "[] Enter Superuser Password, ${USER}: "\
+   			-theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+	}
+	
+	authentication_cancelled() {
+    	rofi -e "Authentication cancelled." -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+    	exit 2
+	}
+	
+	__pass="$(ask_for_pass)"
+	ret="$?"
+	
+	# Exit code 1 = Esc pressed in rofi
+	if [ "$ret" -ne 0 ]; then
+    	authentication_cancelled
+	elif [ -z "$__pass" ]; then
+    	while [ -z "$__pass" ]; do
+        	rofi -e "Empty password."
+        	__pass="$(ask_for_pass)"
+        	ret="$?"
+        	[ "$ret" -ne 0 ] && authentication_cancelled
+    	done
+	fi
+	
+	echo "$__pass"
+	__pass=""
+}
+
+password="$(rofi_ask_passowrd)"
+   	
+ret="$?"
+
+if [ "$ret" = 2 ];then
+	exit 2
+fi
+
+app_2_run_as_root="$(which $app_2_run_as_root)"
+command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+
+if command -v doas >/dev/null 2>&1;then
+	expect <<-EOF
+	# don't mind the man behind the curtain
+	log_user 0
+	
+	# spawn doas operation
+	spawn doas $command_2_run
+	
+	# send password and execute command
+	expect {
+			"doas*password:" {
+				send -- "$password\r"
+				expect \r
+				log_user 1
+				expect eof
+			}
+	}
+	EOF
+else
+	if echo "$password" | my-superuser -S true >/dev/null 2>&1;then
+		my-superuser ${command_2_run}
+		return 0
+	else
+		yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --title Alert --text="\n  password was incorrect."
+		return 1
+	fi
+fi

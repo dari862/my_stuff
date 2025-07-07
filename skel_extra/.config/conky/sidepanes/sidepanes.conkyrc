@@ -133,7 +133,7 @@ ${voffset 5}${offset 75} ${time %a %-d %B at %H:%M}
 
 ${image ~/.config/conky/sidepanes/res/weather.png -p 10,112 -s 72x72}
 ${offset 75} Weather
-${voffset 5}${offset 75} Today Will Be ${execi 1800 /usr/share/my_stuff/bin/conky/get_weather -d}
+${voffset 5}${offset 75} Today Will Be ${execi 1800 conky_scripts get_weather -d}
 
 ${image ~/.config/conky/sidepanes/res/wifi.png -p 10,176 -s 72x72}
 ${offset 75} Wifi
@@ -141,14 +141,14 @@ ${voffset 5}${offset 75} ${wireless_essid}
 
 ${image ~/.config/conky/sidepanes/res/email.png -p 10,240 -s 72x72}
 ${offset 75} Email
-${voffset 5}${offset 75} ${execi 600 /usr/share/my_stuff/bin/conky/email} Unread Email
+${voffset 5}${offset 75} ${execi 600 conky_scripts email} Unread Email
 
 ${voffset 362}
 ${offset 170} ${font Roboto Regular:size=12} ${if_running mpd}${mpd_title}${else}Music${endif}\
 ${voffset 7}
 ${offset 167} ${font Roboto Regular:Bold:size=12} ${if_running mpd}${mpd_artist}${else}Is not playing${endif}
 \
-${if_running mpd}${execi 4 /usr/share/my_stuff/bin/conky/albumart}\
+${if_running mpd}${execi 4 conky_scripts albumart}\
 ${image /tmp/MmdmdmdmdmdmdmdmdmM/cover2.png -p 40,610 -s 120x120}\
 ${else}${image ~/.config/conky/sidepanes/res/mpd-off.png -p 40,610 -s 120x120}${endif} 
 ]];

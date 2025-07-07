@@ -178,24 +178,6 @@ rofi_menu(){
 	esac
 }
 
-yad_menu(){
-	opt_=""
-	yad --title "Exit" --close-on-unfocus --undecorated --center --on-top --borders=10 --window-icon=system-log-out \
-       		--button=" _Logout!system-log-out!Logout":10 \
-       		--button=" L_ock Screen!system-lock-screen!":20 \
-       		--button=" _Suspend!system-suspend!":30 \
-       		--button=" Re_boot!system-reboot!":40 \
-       		--button=" _Power Off!system-shutdown!":50
-     case $? in
-    	10) opt_="logout";;
-     	20) opt_="lock";;
-      	30) opt_="suspend";;
-      	40) opt_="reboot";;
-      	50) opt_="shutdown";;
-      	*) exit 0;;
-    esac
-}
-
 help_menu(){
 	echo "
 Powermenu
@@ -225,9 +207,6 @@ if on_graphical_session;then
 		show_menu="rofi"
 	elif  [ "$opt_" = "--rofi" ];then	
 		show_menu="rofi"
-	elif  [ "$opt_" = "--yad" ];then		
-		show_menu="yad"
-		confirm_it=false
 	elif  [ "$opt_" = "--tty" ];then		
 		show_menu="tty"
 		confirm_it=false
@@ -246,8 +225,6 @@ if  [ "$show_menu" = "rofi" ];then
 	. "${Distro_config_file}"
 	layout="$(grep 'USE_ICON' "$HOME/.config/rofi/$ROFI_STYLE"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 	rofi_menu
-elif  [ "$show_menu" = "yad" ];then		
-	yad_menu
 elif  [ "$show_menu" = "tty" ];then		
 	tty_menu
 elif  [ "$confirm_it" = "true" ];then		

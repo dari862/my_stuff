@@ -7,11 +7,6 @@ say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue
 copy_from_extra_skel ".config/alacritty" || continue
-
-say 'Copy Files from  blob_extra...' 1
-cd "/usr/share/my_stuff/blob_extra/polybar" || continue
-for theme in *;do
-	my-superuser cp -r "${theme}/config/alacritty" "/usr/share/my_stuff/system_files/blob/polybar/${theme}/config" || continue
-done
+copy_blob_extra_2_system_files_blob "alacritty" || continue
 
 [ "$set_as_default_package" = true ] && my-alternatives --set "my-terminal-emulator" "${app_name}"

@@ -129,5 +129,5 @@ conky.text = [[
 ${image ~/.config/conky/claypool/res/bg.png -p 0,0}
 ${voffset 4}${font Roboto Regular:size=42}${alignr}${time %H:%M}${font Roboto Regular:size=12}        
 ${voffset 10}${alignr}${time %A %-d %B %Y}         
-${voffset 8}${alignr}${color0}${execi 600 /usr/share/my_stuff/bin/conky/email} unread email         
+${voffset 8}${alignr}${color0}${execi 600 conky_scripts email} unread email         
 ]];

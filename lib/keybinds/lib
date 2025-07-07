@@ -158,7 +158,7 @@ EOF
 	append_xbindkey_shortcut "Volume" "volume_controller" "$Volume"
 	append_xbindkey_shortcut "htop task manager" "sysinfo_script_ --process" "$htop_task_manager"
 	append_xbindkey_shortcut "Lock Screen" "my_session_manager --no-confirm lock" "$xbindkeysrc_Lock_Screen"
-	append_xbindkey_shortcut "Logout" "my_session_manager --yad" "$xbindkeysrc_Logout"
+	append_xbindkey_shortcut "Logout" "my_session_manager" "$xbindkeysrc_Logout"
 	append_xbindkey_shortcut "Kill a Window" "xkill" "$Kill_a_Window"
 	append_xbindkey_shortcut "Print Screen" "my-shots" "$Print_Screen"
 	append_xbindkey_shortcut "Print Screen area" "my-shots --area" "$Print_Screen_area"

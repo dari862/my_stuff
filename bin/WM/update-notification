@@ -157,11 +157,11 @@ list_update(){
 # DESCRIPTION: Show command help
 #===============================================================================
 help() {
-	printf 'Checks updates and show it to user in dunst taskbar
+	printf 'Checks updates and show it to user in notification
 Usage: ${script_name} -[huc]
    \e[1m-h\e[0m\tShow command help
    \e[1m-i\e[0m\tStart interactive upgrade
-   \e[1m-n\e[0m\tOutput message for dunst
+   \e[1m-n\e[0m\tOutput message for notification
    \e[1m-u\e[0m\tMake update and check for new packages updates
    \e[1m-I\e[0m\tInstall the script (copy and link to cron.$cron_when)
    \e[1m-U\e[0m\uninstall the script

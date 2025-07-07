@@ -27,13 +27,8 @@ if [ ! -z "${vim_extra}" ];then
 		
 		# Disable update notification popup in starter config
 		my-superuser sed -i 's/checker = { enabled = true }/checker = { enabled = true, notify = false }/g' "${nvim_skel_path}"/lua/config/lazy.lua || continue
+		copy_from_extra_skel ".config/neovim" || continue
 		
-		# Make everything match the terminal transparency
-		my-superuser mkdir -p "${nvim_skel_path}"/plugin/after
-		my-superuser cp -r /usr/share/my_stuff/lib/Dev-Env/neovim/transparency.lua "${nvim_skel_path}"/plugin/after/ || continue
-		
-		# Enable default extras
-		my-superuser cp -r /usr/share/my_stuff/lib/Dev-Env/neovim/lazyvim.json "${nvim_skel_path}"/lazyvim.json || continue
 	elif [ "${vim_extra}" = "kickstart" ];then
 		my-superuser mkdir -p ${nvim_skel_path}
 		getURL '2term' https://raw.githubusercontent.com/nvim-lua/kickstart.nvim/master/init.lua | my-superuser tee ${nvim_skel_path}/init.lua >/dev/null 2>&1 || continue
@@ -50,7 +45,7 @@ if [ ! -z "${vim_extra}" ];then
 		cd harpoon
 		my-superuser git fetch
 		my-superuser git checkout harpoon2
-		copy_from_extra_skel ".config/nvim"
+		copy_from_extra_skel ".config/nvim" || continue
 	elif [ "${vim_extra}" = "kickstart_titus" ];then
 		super_clone_repo https://github.com/ChrisTitusTech/neovim.git /tmp/ChrisTitusTech_neovim || continue
 		my-superuser rm -rdf /tmp/ChrisTitusTech_neovim/titus-kickstart/nvim || continue

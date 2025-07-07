@@ -132,7 +132,7 @@ ${voffset 4}${font Nexa Rust Handmade:size=42}${alignc}${time %H.%M}${font Bebas
 ${voffset 14}${alignc}${time %A %-d %B %Y}
 ${voffset 34}${font Nexa Rust Script L:size=22}${alignc}Hello ${execi 600 whoami}
 
-${voffset 4}${font Bebas Neue:size=16}${alignc}${color0}email ${color}${execi 600 /usr/share/my_stuff/bin/conky/email} unread
+${voffset 4}${font Bebas Neue:size=16}${alignc}${color0}email ${color}${execi 600 conky_scripts email} unread
 ${image ~/.config/conky/whitewalls/res/separator.png -p 25,280}
 ${voffset 24}${font Bebas Neue:size=16}${alignc}${color0}wifi ${color}${wireless_essid}
 ${image ~/.config/conky/whitewalls/res/separator.png -p 25,348}

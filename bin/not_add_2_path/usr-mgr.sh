@@ -138,9 +138,8 @@ check_bkp_folder() {
 }
 
 gen_pass() {
-  l=$1
-  [ "$l" = "" ] && l=9
-  tr -dc A-Za-z0-9 < /dev/urandom | head -c ${l} | xargs
+	LC_ALL=C tr -dc "-_A-Z-a-z-0-9" < /dev/urandom |
+		dd ibs=1 obs=1 count="${1:-9}" 2>/dev/null
 }
 
 create_user() {
