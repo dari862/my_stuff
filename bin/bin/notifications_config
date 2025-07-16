@@ -6,6 +6,4 @@ if [ "$Display_server_are" = "openbox" ];then
 	dunst-session edit
 elif [ "$Display_server_are" = "wayland" ];then
 	mako-session edit
-elif [ "$(pidof xfce4-notifyd)" ];then
-	xfce4-notifyd-config
 fi	

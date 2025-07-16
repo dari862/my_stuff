@@ -37,7 +37,6 @@ saveStyle(){
 	POLYBAR_AND_ROFI="$HOME/$WM_config_dir_name"
 	GTK2="$HOME/.config/gtk-2.0"
 	GTK3="$HOME/.config/gtk-3.0"
-	GTK3x="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-notifyd.xml"
 	PLANK_CACHE="$HOME/.cache/plank.conf"
 	PLANK="$HOME/.config/plank"
 	DUNSTDir="$HOME/.config/dunst"
@@ -76,10 +75,7 @@ saveStyle(){
     for d in "${GTKTHEMES[@]}";do
     	cp -r "$d" "$CONFIG_DIR/config"
     done
-    GTK3x_conf_dir="$CONFIG_DIR/config/xfce4/xfconf/xfce-perchannel-xml"
-    mkdir -p "${GTK3x_conf_dir}"
-    cp "$GTK3x" "${GTK3x_conf_dir}"
-    
+
 	# getTint
     if pgrep -a tint2 >/dev/null 2>&1;then
     	tint2_sessionfile_file="$CONFIG_DIR/config/tint2/tint2-sessionfile"

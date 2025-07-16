@@ -103,7 +103,9 @@ prompt() {
 		answer="$(head -c1)"
 		stty icanon echo
 		echo
-        	
+		
+        [ -z "$answer" ] && answer="$default"
+        
 		case "$answer" in
 			[Yy]) echo; return 0 ;;
 			[Nn]) echo; return 1 ;;
@@ -127,11 +129,12 @@ end_superuser() {
 }
 
 Distrobox_package_installer_() {
+	_Distrobox_packages2install="$*"
 	say "Updaing gaming distrobox ..." 1
 	distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syy --noconfirm" || exit 1	
 	clear
-	say "Installing $@ ..." 1
-    distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syu $@ --noconfirm" || exit 1
+	say "Installing $_Distrobox_packages2install ..." 1
+    distrobox enter --name "gaming" -- "yay -q --noprogressbar -Syu $_Distrobox_packages2install --noconfirm" || exit 1
 }
 
 failed_to_run() {
@@ -183,7 +186,7 @@ flatpak_install() {
     fi
         
     say "Installing package ${__icons_} via flatpak"
-    my-superuser flatpak install -y $__repo_ "${__appid}"
+    my-superuser flatpak install -y "$__repo_" "${__appid}"
     create_applicationsdotdesktop_link "${__icons_}" "flatpak run ${__appid}"
 }
 
@@ -211,14 +214,14 @@ copy_blob_extra_2_system_files_blob(){
 	say 'Copy Files from  blob_extra...' 1
 	package2copy="${1:-}"
 	copycache="${2:-}"
-	cd "/usr/share/my_stuff/blob_extra/tint2"
-	if [ -d "default/config/${package2copy}" ]
+	cd "/usr/share/my_stuff/blob_extra/tint2" || failed_to_run 'cd to /usr/share/my_stuff/blob_extra/tint2 ...' 1
+	if [ -d "default/config/${package2copy}" ];then
 		for theme in *;do
 			my-superuser cp -r "${theme}/config/${package2copy}" "/usr/share/my_stuff/system_files/blob/tint2/${theme}/config"
 		done
 	fi
-	cd "/usr/share/my_stuff/blob_extra/polybar"
-	if [ -d "default/config/${package2copy}" ]
+	cd "/usr/share/my_stuff/blob_extra/polybar" || failed_to_run 'cd to /usr/share/my_stuff/blob_extra/tint2 ...' 1
+	if [ -d "default/config/${package2copy}" ];then
 		for theme in *;do
 			my-superuser cp -r "${theme}/config/${package2copy}" "/usr/share/my_stuff/system_files/blob/polybar/${theme}/config"
 			[ "$copycache" = "cache" ] && my-superuser cp -r "${theme}/cache" "/usr/share/my_stuff/system_files/blob/tint2/${theme}"

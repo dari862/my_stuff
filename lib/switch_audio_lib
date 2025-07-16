@@ -1,0 +1,21 @@
+#!/bin/sh
+
+sink_name=""
+
+switch_2_sink(){
+	sink_name=$(printf "%s" "$sink_data" | grep -w "$selected_sink" | awk -F'|' '{print $2}' | sed 's/^ *//;s/ *$//')
+	pactl set-default-sink "$sink_name"
+	
+	# Move all playing streams to the new sink
+	pactl list short sink-inputs | while read -r input_id _; do
+    	pactl move-sink-input "$input_id" "$sink_name"
+	done
+	
+	notify-send "Audio Output Switched" "Now using: $selected_sink"
+}
+
+sink_data=$(pactl list sinks | awk '
+    $1 == "Sink" && $2 ~ /^#/ { sink_id = ""; desc = "" }
+    $1 == "Name:" { sink_id = $2 }
+    $1 == "Description:" { desc = substr($0, index($0,$2)); print desc " | " sink_id }
+')

@@ -148,7 +148,7 @@ ${offset 170} ${font Roboto Regular:size=12} ${if_running mpd}${mpd_title}${else
 ${voffset 7}
 ${offset 167} ${font Roboto Regular:Bold:size=12} ${if_running mpd}${mpd_artist}${else}Is not playing${endif}
 \
-${if_running mpd}${execi 4 conky_scripts albumart}\
-${image /tmp/MmdmdmdmdmdmdmdmdmM/cover2.png -p 40,610 -s 120x120}\
+${if_running mpd}${execi 4 albumart_creater}\
+${image /tmp/MmdmdmdmdmdmdmdmdmM/cover_image.png -p 40,610 -s 120x120}\
 ${else}${image ~/.config/conky/sidepanes/res/mpd-off.png -p 40,610 -s 120x120}${endif} 
 ]];

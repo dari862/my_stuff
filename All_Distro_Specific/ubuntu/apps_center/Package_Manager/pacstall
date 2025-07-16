@@ -1,0 +1,5 @@
+#!/bin/sh
+app_name="pacstall"
+say "Installing ${app_name}..." 1
+
+sudo bash -c "$(getURL '2term' "https://pacstall.dev/q/install")" || continue

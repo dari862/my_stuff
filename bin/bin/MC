@@ -3,14 +3,6 @@
 # Set the player
 [ -n "$(pgrep spotify)" ] && Control="spotify" || Control="MPD"
 
-# Here the cover image will be saved.
-Cover="/tmp/$USER/cover.png"
-# if cover not found in metadata use this instead
-bkpCover="/usr/share/my_stuff/lib/fallback.webp"
-# mpd music directory for mpd clients.
-mpddir="$HOME/Music"
-LAST_SONG_FILE="/tmp/$USER/last_song.txt"
-
 case $Control in
     MPD)
         case $1 in
@@ -43,21 +35,6 @@ case $Control in
                 ;;
             --player)
                 echo "$Control"
-                ;;
-            --cover)
-                current_song=$(mpc current -f "%title%-%artist%")
-				last_song=""
-				[ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
-
-				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ];then
-					ffmpeg -i "$mpddir/$(mpc current -f %file%)" "${Cover}" -y >/dev/null 2>&1 || cp $bkpCover $Cover
-					echo "$current_song" > "$LAST_SONG_FILE"
-				fi
-
-				echo "$Cover"
-                ;;
-            nccover)
-                ffmpeg -i "$mpddir"/"$(mpc current -f %file%)" "${Cover}" -y >/dev/null 2>&1 || cp $bkpCover $Cover
                 ;;
             --position)
                 position=$(mpc status %currenttime%)
@@ -122,23 +99,6 @@ case $Control in
                 ;;
             --player)
                 echo "$Control"
-                ;;
-            --cover)
-                current_song="$(playerctl --player="$Control" metadata --format '{{title}}-{{artist}}')"
-				last_song=""
-				[ -f "$LAST_SONG_FILE" ] && last_song=$(cat "$LAST_SONG_FILE")
-
-				if [ "$current_song" != "$last_song" ] || [ ! -f "$Cover" ];then
-					albumart="$(playerctl --player="$Control" metadata mpris:artUrl | sed -e 's/open.spotify.com/i.scdn.co/g')"
-					if playerctl --player="$Control" metadata mpris:artUrl;then
-						getURL 'download2' "$albumart" "$Cover"
-					else
-						cp $bkpCover $Cover
-					fi
-				echo "$current_song" > "$LAST_SONG_FILE"
-				fi
-
-				echo "$Cover"
                 ;;
             --position)
                 position=$(playerctl --player="$Control" position --format "{{ duration(position) }}")

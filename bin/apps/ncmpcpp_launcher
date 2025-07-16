@@ -14,7 +14,7 @@ elif [ "$__mode" = "ueberzug" ];then
 	
 	cleanup() {
     	rm "$FIFO_UEBERZUG" 2>/dev/null
-    	rm /tmp/$USER/mpd_cover.jpg 2>/dev/null
+    	rm /tmp/$USER/cover_image.jpg 2>/dev/null
     	pkill -P $$ 2>/dev/null
     	pkill album-art
 	}

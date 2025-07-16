@@ -1,0 +1,81 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/common/WM"
+. "${script_config_path}/ncmpcpp_launcher"
+
+enable_send_notification="${1:-}"
+enable_online="${2:-}"
+
+Temp_path="/tmp/$USER"
+Temp_Cover_path="${Temp_path}/cover_image.png"
+
+music_library="$HOME/Music"
+album_dir="${music_library}/album_cover"
+
+mkdir -p "$album_dir"
+
+if [ -e "$Temp_Cover_path" ];then
+	rm -rdf "$Temp_Cover_path"
+fi
+
+convert_file() {
+	convert "${album_dir}/$album" -resize "60x60" "${album_dir}/$album" && cover_path="${album_dir}/$album" || cover_path="$_fallback_icon"
+}
+
+find_cover_image() {
+    # First we check if the audio file has an embedded album art
+    file="$(mpc --format %file% current)"
+    album="$(mpc --format %album% current)"
+    found_covers="$(find "$album_dir" -type d -exec find {} -maxdepth 1 -type f \
+    -iregex ".*/.*\(${album}\|cover\|folder\|artwork\|front\).*[.]\\(jpe?g\|png\|gif\|bmp\)" \; )"
+    cover_path="$(echo "$found_covers" | head -n1)"
+    if [ -z "$cover_path" ];then
+    	ext="$(echo "$file" | sed 's/^.*\.//')"
+    	if [ "$ext" = "flac" ];then
+        	metaflac --export-picture-to="${album_dir}/$album" "$(mpc --format "$music_library"/%file% current)" >/dev/null 2>&1 && convert_file && return || :
+    	else
+        	ffmpeg -y -i "$(mpc --format "$music_library"/%file% | head -n 1)" "${album_dir}/$album" >/dev/null 2>&1 && convert_file && return || :
+    	fi
+    fi
+    cover_path="$_fallback_icon"
+}
+
+get_cover_online() {
+    # Check if connected to internet
+    ping -q -c 1 -W 1 api.deezer.com || return 1
+	album="$(mpc --format %album% current)"
+	
+    # If the current playing song ends with .mp3 or something similar, remove
+    # it before searching for the album art because including the file extension
+    # reduces the chance of good results in the search query
+    QUERY=$(mpc current | sed 's/\.[^.]*$//' | iconv -t ascii//TRANSLIT -f utf8)
+
+    # Try to get the album cover online from api.deezer.com
+    API_URL="https://api.deezer.com/search/autocomplete?q=$QUERY" && API_URL=${API_URL//' '/'%20'}
+    # Extract the albumcover from the json returned
+    
+    JSON=$(getURL '2term' "$API_URL")
+    ALBUM=$(echo "$JSON" | jq -r '.tracks.data[0].album.picture_big' | sed 's/null//');
+    ARTIST=$(echo "$JSON" | jq -r '.tracks.data[0].artist.picture_big' | sed 's/null//');
+    IMG_URL="${ALBUM:-$ARTIST}"
+    
+    getURL 'download2' "$IMG_URL" "${album_dir}/$album" && convert "${album_dir}/$album" -resize "60x60" "${album_dir}/$album" || return 1
+	cover_path="${album_dir}/$album"
+}
+
+send_notification_() {
+	if command -v dunstify >/dev/null 2>&1; then
+		dunstify -u low --replace=69 -i "$Temp_Cover_path" "$(mpc current)" && exit
+	else
+		notify-send -h string:x-canonical-private-synchronous:sys-notify-backlight -u low -i "$Temp_Cover_path" "$(mpc current)" && exit
+	fi
+}
+
+if [ "$enable_online" = "--online" ];then
+	get_cover_online || find_cover_image
+else
+	find_cover_image
+fi
+
+cp -r "$cover_path" "$Temp_path"
+
+[ "$enable_send_notification" = "--send-notification" ] && send_notification_

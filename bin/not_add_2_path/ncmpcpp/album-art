@@ -28,9 +28,9 @@ font_width=
 
 main() {
     kill_previous_instances >/dev/null 2>&1
-    find_cover_image        >/dev/null 2>&1
+    albumart_creater --send-notification
+    cover_path="/tmp/$USER/cover_image.png"
     display_cover_image     2>/dev/null
-    send_notification_ncmpcpp
     detect_window_resizes   >/dev/null 2>&1
 }
 
@@ -43,47 +43,6 @@ kill_previous_instances() {
             kill -15 "$pid"
         fi 
     done
-}
-
-send_notification_ncmpcpp() {
-	if command -v dunstify >/dev/null 2>&1; then
-		dunstify -u low --replace=69 -i "$cover_path" "$(mpc current)" && exit
-	else
-		notify-send -h string:x-canonical-private-synchronous:sys-notify-backlight -u low -i "$COVER" "$(mpc current)" && exit
-	fi	
-}
-
-find_cover_image() {
-
-    # First we check if the audio file has an embedded album art
-    ext="$(mpc --format %file% current | sed 's/^.*\.//')"
-    if [ "$ext" = "flac" ];then
-        # since FFMPEG cannot export embedded FLAC art we use metaflac
-        metaflac --export-picture-to=/tmp/$USER/mpd_cover.jpg \
-            "$(mpc --format "$music_library"/%file% current)" &&
-            cover_path="/tmp/$USER/mpd_cover.jpg" && return
-    else
-        ffmpeg -y -i "$(mpc --format "$music_library"/%file% | head -n 1)" \
-            /tmp/$USER/mpd_cover.jpg &&
-            cover_path="/tmp/$USER/mpd_cover.jpg" && return
-    fi
-
-    # If no embedded art was found we look inside the music file's directory
-    album="$(mpc --format %album% current)"
-    file="$(mpc --format %file% current)"
-    album_dir="${file%/*}"
-    album_dir="$music_library/$album_dir"
-    found_covers="$(find "$album_dir" -type d -exec find {} -maxdepth 1 -type f \
-    -iregex ".*/.*\(${album}\|cover\|folder\|artwork\|front\).*[.]\\(jpe?g\|png\|gif\|bmp\)" \; )"
-    cover_path="$(echo "$found_covers" | head -n1)"
-    if [ -n "$cover_path" ];then
-        return
-    fi
-
-    # If we still failed to find a cover image, we use the fallback
-    if [ -z "$cover_path" ];then
-        cover_path="$_fallback_icon"
-    fi
 }
 
 display_cover_image() {
@@ -245,6 +204,7 @@ send_to_ueberzug() {
 }
 
 send_to_kitty() {
+	cover_width_in_terminal=$(((cover_width_in_terminal * 4) / 5))
 	printf '\033_Ga=d\033\\'
 	#<width>x<height>@<x>x<y>        
     kitty +kitten icat --clear

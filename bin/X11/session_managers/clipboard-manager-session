@@ -48,7 +48,7 @@ stop() {
 # DESCRIPTION: start clipboard-manager
 #===================================================================================
 start() {
-  pidof -q ${clipboard_manager_command} || ${clipboard_manager_command} &
+  pidof -q ${clipboard_manager_command} || (sleep ${sleep_time} && ${clipboard_manager_command}) &
 }
 
 

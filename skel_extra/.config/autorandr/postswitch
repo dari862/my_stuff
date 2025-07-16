@@ -8,10 +8,6 @@ if [ "$_panel_name_" = "polybar" ];then
    polybar-session restart
 fi
 
-if [ "$_panel_name_" = "xfce4" ];then
-	xfce4-panel-session restart
-fi 
-
 if [ "$_panel_name_" = "tint2" ];then
 	tint2-session restart
 fi 

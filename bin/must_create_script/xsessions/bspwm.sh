@@ -1,6 +1,5 @@
-my_stuff_display_manager_lib_path="/usr/share/my_stuff/display_server/X11"
+export my_stuff_display_manager_lib_path="/usr/share/my_stuff/display_server/X11"
 
-# include my_stuff/bin/bspwm in PATH
 if [ -d "/usr/share/my_stuff/bin/X11/bspwm" ];then
    	PATH="/usr/share/my_stuff/bin/X11/bspwm:$PATH"
 fi

@@ -604,8 +604,8 @@
     Remove this entry if it conflicts with some app's configuration. -->
   <applications>
     <application class="*" type="normal">
-      <focus>yes</focus>
       <decor>yes</decor>
+      <focus>yes</focus>
     </application>
 	
 	<!-- no decorations for my_session_manager yad, even with "classic" theme -->

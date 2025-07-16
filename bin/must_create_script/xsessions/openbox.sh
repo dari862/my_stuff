@@ -1,9 +1,8 @@
-my_stuff_display_manager_lib_path="/usr/share/my_stuff/display_server/X11"
+export my_stuff_display_manager_lib_path="/usr/share/my_stuff/display_server/X11"
 usr_autostart="$usr_confdir/openbox/autostart"
 usr_envfile="$usr_confdir/openbox/environment"
 default_autostart="${OBPATH_SKEL}"
 
-# include my_stuff/bin/openbox in PATH
 if [ -d "/usr/share/my_stuff/bin/X11/openbox" ];then
    	PATH="/usr/share/my_stuff/bin/X11/openbox:$PATH"
 fi

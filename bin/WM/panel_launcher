@@ -1,76 +1,29 @@
 #!/bin/bash
 . "/usr/share/my_stuff/lib/common/WM"
 . "${Distro_config_file}"
-		
-if [ "$_panel_name_" = "polybar" ];then 
-	# Start volume control
-	audio-session stop 3 &
-	
-	# Start network manager
-	nm-applet-session stop 3 &
-	
-	# Lauch xsettingsd daemon
-	xfsettingsd-session stop 3 &
-	
-	power-manager-session stop
-elif [ "$_panel_name_" =  "tint2" ];then
-	# Start clipboard-manager
-	clipboard-manager-session stop 3 &
 
-	# Start volume control
-	audio-session stop 3 &
-	
-	# Start network manager
-	nm-applet-session stop 3 &
-	
-	power-manager-session stop
-fi
+clipboard-manager-session stop &
+audio-session stop
+power-manager-session stop
+
+sleep 0.5
 	
 if [ "${1-}" = "--reload" ] || [ "${1-}" = "-r" ];then
 	polybar-session stop
-	xfce4-panel-session stop
 	tint2-session stop
 fi
 
-# Start Conky
 conky-session restart &
-		
-## Notification Daemon
 dunst-session restart &
+#plank-session restart &
+power-manager-session daemon &
 
-## Launch Plank
-#plank-session
-		
 if [ "$_panel_name_" = "polybar" ];then 
-	# Enable power management
-	power-manager-session daemon &
-	
-	# Start polybar
 	polybar_workspace_fixer
-   	polybar-session restart &
+   	polybar-session start
 elif [ "$_panel_name_" =  "tint2" ];then
-	# Start volume control
-	audio-session start &
-
-	# Enable power management
-	power-manager-session start &
-	
-	# panel - taskbar, system tray, battery, clock
-	tint2-session restart &
-elif [ "$_panel_name_" =  "xfce4-panel" ];then
-   	# Lauch xsettingsd daemon
-	xfsettingsd-session start &
-
-	# Start volume control
-	audio-session start &
-	
-	# Start network manager
-	nm-applet-session start &
-	
-	# Enable power management
-	power-manager-session xfce_start &
-	
-	# Start xfce4-panel
-   	xfce4-panel-session restart &
+	audio-session start
+	tint2-session start
 fi
-	
+
+clipboard-manager-session start &

@@ -35,8 +35,7 @@ stop() {
 # DESCRIPTION: start audio app
 #===================================================================================
 start() {
-	sleep 2
-	pidof -q ${audio_app} || ${audio_app} &
+	pidof -q ${audio_app} || (sleep ${sleep_time} && ${audio_app} ) &
 }
 
 

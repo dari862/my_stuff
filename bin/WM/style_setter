@@ -54,9 +54,9 @@ OB_themeing(){
 }
 
 Set_Style_(){
-	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "/usr/share/my_stuff/skel/.config/dunst/global" "$HOME/.config/dunst"
-	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "/usr/share/my_stuff/skel/.config/dunst/experimental" "$HOME/.config/dunst"
-	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "/usr/share/my_stuff/skel/.config/dunst/theme.dunstrc" "$HOME/.config/dunst"
+	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "/usr/share/my_stuff/skel_extra/.config/dunst/global" "$HOME/.config/dunst"
+	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "/usr/share/my_stuff/skel_extra/.config/dunst/experimental" "$HOME/.config/dunst"
+	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "/usr/share/my_stuff/skel_extra/.config/dunst/theme.dunstrc" "$HOME/.config/dunst"
 	cat $HOME/.config/dunst/global $HOME/.config/dunst/theme.dunstrc > $HOME/.config/dunst/dunstrc
 	OB_themeing
 }

@@ -1,0 +1,179 @@
+* { font-family: hack, "Menlo", "Monaco", "Consolas", "Liberation Mono"; }
+
+body { background: #222; color: #c0c0c0; margin: 5%; }
+
+h1, h2, h3, h4, h5, h6 { padding: 0; color: #90b0d1; font-weight: normal; }
+
+h1 { color: #6688aa; margin: 1em 0 0 0; padding-top: 1em; border-top: 2px solid #111; font-weight: bold; font-size: 1.75em; }
+
+header h1 { border: none; padding-top: 0; font-size: 3em; }
+
+h2 { color: #9a9557; margin: 2.5em 0 1em 0; font-size: 1.3em; }
+
+h1 + h2 { margin-top: 1em; }
+
+h2 kbd { color: #9a9557; }
+
+a { color: #528b8b; background: #000; outline: none; }
+
+a:focus, a:hover, a:visited { color: #528b8b; background: #000; outline: none; }
+
+blockquote { background: #333; color: #e2e2e2; margin: 4px 0px; padding: 1px 18px; display: inline-block; }
+
+blockquote strong > em { color: #87ceeb; font-style: normal; }
+
+blockquote strong > em:before { content: "\f421"; margin-right: 10px; }
+
+blockquote.caveat strong > em { color: #c80; font-style: normal; }
+
+blockquote.caveat strong > em:before { content: "\f421"; }
+
+::-webkit-scrollbar, ::-webkit-scrollbar-track { background: #222; border: 0; border-radius: 0; }
+
+::-webkit-scrollbar-thumb { background: #111; border-radius: 0; }
+
+::-webkit-calendar-picker-indicator { color: #000; }
+
+#toc { position: fixed; right: 0; top: 0; min-height: 500px; max-height: 100%; max-width: 40%; padding: 5px; overflow: scroll; background: linear-gradient(to bottom, black 0%, rgba(34, 34, 34, 0) 10%, rgba(34, 34, 34, 0) 100%); }
+
+#toc details { display: block; font-size: 0.85em; }
+
+#toc details > summary { list-style: none; }
+
+#toc details > summary > strong { font-weight: bold; color: #9a9557; background: none; font-size: 1.1em; }
+
+#toc details > summary strong > a.heading { color: #c0c0c0; text-decoration: none; background: none; }
+
+#toc details > summary > strong { padding: 0 0 0.3em 0; color: #c0c0c0; }
+
+#toc details > summary::-webkit-details-marker { display: none; }
+
+#toc details > summary:before { color: #9a9557; content: "\f1183"; font-size: large; }
+
+#toc .link { float: right; text-decoration: none; background: none; }
+
+#toc .link:focus, #toc .link:hover, #toc .link:visited { float: right; text-decoration: none; background: none; }
+
+#toc .link:before { content: "\f44c"; margin-left: 0.25em; }
+
+#toc h3 { margin: 8px 60px 8px 8px; text-align: right; }
+
+#toc #hide { position: fixed; right: 10px; top: 8px; display: block; width: 40px; }
+
+#toc #toggle { position: fixed; right: 10px; top: 8px; display: block; width: 40px; opacity: 0; }
+
+#toc #hide:before { content: "\f205"; font-size: 2em; }
+
+#toc #toggle:checked ~ #hide:before { content: "\f204"; }
+
+#toc #toggle:checked ~ #full { display: block; overflow: scroll; }
+
+#toc #full { display: none; clear: both; background-color: #131313; padding: 10px; }
+
+#toc #full ul { list-style: none; margin: 0; padding-left: 0; }
+
+#toc #full li { padding: 0 1em; text-indent: -1em; margin: 0; }
+
+#toc #full li a { color: #6688aa; text-decoration: none; background: none; padding: 0 0 0.5em 0.5em; }
+
+#toc #full li a.heading { color: #9a9557; font-weight: bold; }
+
+#toc #full li:before { content: "\e691"; font-size: 1.25em; padding-right: 5px; color: #c0c0c0; }
+
+/* tables */
+table { background: #1e1e1e; }
+
+table code { background-color: #000; }
+
+table td:first-of-type:has(> code) { min-width: 15%; max-width: 30%; background: #000; text-align: center; padding: 0.8em; font-size: large; font-weight: bold; }
+
+table td { padding: 0.5em 0.5em 1em 0.5em; vertical-align: middle; }
+
+table td code { padding: 2px 4px; }
+
+table td strong { color: #9a9557; padding: 0.2em; background: #121212; }
+
+table thead { background: #101010; color: #8181a6; }
+
+table thead th { padding: 0.3em; }
+
+table tbody td { line-height: 2em; }
+
+table.special td:first-of-type:has(> code) { width: 20%; vertical-align: top; }
+
+#refs { list-style: none; margin-left: 0; margin-right: 0; padding-left: 0; }
+
+#refs li { padding: 0 1em; text-indent: -1em; margin: 0; }
+
+#refs li:before { color: #9a9557; content: "\f1183"; font-size: x-large; }
+
+#refs a { margin: 0 0.25em; padding: 2px; text-decoration: none; font-weight: bold; background: #000; }
+
+#refs code { background-color: #aa4450; color: #000; font-size: small; font-weight: bold; padding: 0 2px; }
+
+#refs code:before { content: "\f1755"; margin-right: 6px; }
+
+/* icons */
+.bash:before { content: "\ebca"; }
+
+.shebang:before { content: "\f1183"; }
+
+.rip:before { content: "\f0ba2"; color: #666; font-size: x-large; }
+
+.git:before { content: "\f02a2"; color: #9a9557; font-size: x-large; }
+
+/* code */
+.highlight table td { padding: 5px; }
+
+.highlight table pre { margin: 0; }
+
+code { background-color: #111; color: #f8f8f2; }
+
+p > code { padding: 1px 5px; }
+
+pre { background-color: #111; padding: 1em; overflow: auto; word-break: normal; }
+
+.highlight .w { color: #f8f8f2; }
+
+.highlight .err { color: #272822; background-color: #aa4450; }
+
+.highlight .c, .highlight .c1, .highlight .cd, .highlight .cm, .highlight .cs { color: #555; }
+
+.highlight .cp, .highlight .nt { color: #878758; }
+
+.highlight .o { color: #90b0d1; }
+
+.highlight .ow, .highlight .p, .highlight .pi { color: #f8f8f2; }
+
+.highlight .gi { color: #ff9800; }
+
+.highlight .gd { color: #ff6a6a; }
+
+.highlight .gh { color: #87ceeb; background-color: #000; font-weight: 700; }
+
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv { color: #68a; }
+
+.highlight .kc, .highlight .kd, .highlight .kt, .highlight .nc, .highlight .no { color: #719611; }
+
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .sh, .highlight .sx { color: #8181a6; }
+
+.highlight .na, .highlight .sr { color: #87ceeb; }
+
+.highlight .se, .highlight .si { color: #90b0d1; }
+
+.highlight .nn { color: #9a9557; }
+
+.highlight .il, .highlight .m, .highlight .mb, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo, .highlight .mx, .highlight .ss { color: #c80; }
+
+/* responsive */
+@media (max-width: 850px) { body { font-size: 0.8em; } h1 { font-size: 1.5em; } header h1 { font-size: 2.5em; } #toc { max-width: 80%; } table td { line-height: 2em; } table td:first-child:has(> code) { padding: 1em; word-wrap: break-word; font-size: 0.8em; font-size: 1em; } #refs kbd { font-size: x-small; } }
+
+@font-face { font-family: "hack"; font-style: normal; font-weight: 400; src: url("fonts/hack1.ttf") format("truetype"); }
+
+@font-face { font-family: "hack"; font-style: normal; font-weight: 700; src: url("fonts/hack2.ttf") format("truetype"); }
+
+@font-face { font-family: "hack"; font-style: italic; font-weight: 400; src: url("fonts/hack3.ttf") format("truetype"); }
+
+@font-face { font-family: "hack"; font-style: italic; font-weight: 700; src: url("fonts/hack4.ttf") format("truetype"); }
+
+/*# sourceMappingURL=main.css.map */

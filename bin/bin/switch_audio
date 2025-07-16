@@ -1,0 +1,23 @@
+#!/bin/sh
+. "/usr/share/my_stuff/lib/switch_audio_lib"
+sink_number="${1:-}"
+
+numbered_sink_data=$(printf "%s\n" "$sink_data" | awk -F'|' '{print $1}' | nl -s'. ')
+
+if [ -z "$sink_number" ];then
+	printf "%s\n" "$numbered_sink_data"
+	printf "%s\n" "Which sink do you want to pick:"
+	stty -icanon
+	sink_number=$(dd ibs=1 count=1 2>/dev/null)
+	stty icanon
+	printf '\n'
+fi
+
+case "$sink_number" in
+	[0-9]*) : ;;
+	*)exit 1 ;;
+esac
+
+selected_sink="$(printf "%s\n" "$numbered_sink_data" | awk -F" ${sink_number}. " '{if ($0 ~ " " ENVIRON["sink_number"] ". ") print $2}' | tr -d '\n')"
+
+switch_2_sink

@@ -75,12 +75,6 @@ create_blob_system_files(){
 				done
 			fi
 		done
-		if command -v xfce4-panel >/dev/null 2>&1;then
-			show_im "copy tint2 xfce4-panel blob and blob_extra to system_files/blob ."
-			for theme in *;do
-				cp -r "${theme}/config/xfce4" "${__distro_path}/system_files/blob/polybar/${theme}/config" 
-			done
-		fi
 		if command -v plank >/dev/null 2>&1;then
 			show_im "copy tint2 plank blob and blob_extra to system_files/blob ."
 			for theme in *;do
@@ -109,12 +103,6 @@ create_blob_system_files(){
 				done
 			fi
 		done
-		if command -v xfce4-panel >/dev/null 2>&1;then
-			for theme in *;do
-				show_im "copy tint2 xfce4-panel blob and blob_extra to system_files/blob ."
-				cp -r "${theme}/config/xfce4" "${__distro_path}/system_files/blob/tint2/${theme}/config" 
-			done
-		fi
 		if command -v jgmenu >/dev/null 2>&1;then
 			show_im "copy tint2 jgmenu blob_extra to system_files/blob ."
 			for theme in *;do
@@ -353,17 +341,6 @@ if command -v tint2 >/dev/null 2>&1;then
 	copy_all__application_link_in_dir "tint2"
 fi
 
-if command -v xfce4-panel >/dev/null 2>&1;then
-	show_im "copy xfce4-panel skell file to system_files/skel ."
-	cp -r "${__distro_path}/skel_extra/.config/xfce4" "${__distro_path}/system_files/skel/.config"
-	cp -r "${__distro_path}/skel_extra/.local/share/xfce4" "${__distro_path}/system_files/skel/.local/share/"
-	copy_all__application_link_in_dir "xfce4"
-fi
-
-if command -v xfsettingsd >/dev/null 2>&1;then
-	cp -r "${__distro_path}/bin/X11/session_managers/xfsettingsd-session" "${__distro_path}"/system_files/binX11
-fi
-
 if command -v lxterminal >/dev/null 2>&1;then
 	show_im "copy lxterminal skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/lxterminal" "${__distro_path}/system_files/skel/.config" 
@@ -395,20 +372,20 @@ if command -v polybar >/dev/null 2>&1;then
 	cp -r "${__distro_path}/skel_extra/.config/polybar" "${__distro_path}/system_files/skel/.config"
 	cp -r "${__distro_path}/bin/X11/session_managers/polybar-session" "${__distro_path}"/system_files/binX11
 	
-	if [ -d "${__distro_path}/bin/polybar" ];then
+	if [ -d "${__distro_path}/bin/X11/polybar" ];then
 		ln -sf "${__distro_path}"/bin/X11/polybar/* "${__distro_path}"/system_files/binX11
 	fi
 fi
 
 if command -v yad >/dev/null 2>&1;then
 	show_im "copy yad bin to system_files/bin ."
-	if [ -d "${__distro_path}/bin/yad" ];then
+	if [ -d "${__distro_path}/bin/X11/yad" ];then
 		ln -sf "${__distro_path}"/bin/X11/yad/* "${__distro_path}"/system_files/binX11
 	fi
 	copy_all__application_link_in_dir "yad"
 fi
 
-if [ -d "${__distro_path}/bin/rofi" ];then
+if [ -d "${__distro_path}/bin/X11/rofi" ];then
 	show_im "rofi bin files to system_files/bin ."
 	ln -sf "${__distro_path}"/bin/X11/rofi/* "${__distro_path}"/system_files/binX11
 fi
@@ -467,7 +444,7 @@ create_applicationsdotdesktop_link "nbrowser"
 
 if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
 	show_im "laptop stuff."
-	if [ -d "${__distro_path}/bin/laptop" ];then
+	if [ -d "${__distro_path}/bin/X11/laptop" ];then
 		show_im "laptop bin files to system_files/binX11 ."
 		ln -sf "${__distro_path}/bin/X11/laptop"/* "${__distro_path}"/system_files/binX11
 	fi
@@ -524,7 +501,7 @@ if command -v flatpak >/dev/null 2>&1;then
 	fi
 fi
 show_im "prepares hub script dir"
-"${__distro_path}"/bin/rofi/hub create || show_em "failed to run hub create"
+"${__distro_path}"/bin/X11/rofi/hub create || show_em "failed to run hub create"
 
 show_im "prepares gui scripts dir"
 "${pipemenu_creater}"/gui-apps-pipemenu || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu"

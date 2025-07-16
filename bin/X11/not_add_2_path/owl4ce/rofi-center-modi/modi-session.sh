@@ -30,7 +30,7 @@ case "${@}" in
     ;;
     "$B"     ) prompt "$B_" "my_session_manager --no-confirm reboot"
     ;;
-    "$C"     ) my_session_manager --no-confirm lock
+    "$C"     ) prompt "$C_" "my_session_manager --no-confirm lock"
     ;;
     "$D"     ) prompt "$D_" "my_session_manager --no-confirm suspend"
     ;;

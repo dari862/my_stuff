@@ -10,8 +10,6 @@
 		BAR='polybar'
 	elif pidof tint2 >/dev/null 2>&1;then
 		BAR='tint2'
-	elif pidof xfce4-panel >/dev/null 2>&1;then
-		BAR='xfce4-panel'
 	fi
 	
 	if command -v polybar >/dev/null 2>&1;then
@@ -24,12 +22,6 @@
 		tint2_installed=true
 	else
 		tint2_installed=false
-	fi
-	
-	if command -v xfce4-panel >/dev/null 2>&1;then
-		xfce4_installed=true
-	else
-		xfce4_installed=false
 	fi
 	
 	# Generate menu
@@ -45,10 +37,6 @@
 		menuItem "Use Tint2 as your panel/taskbar" "panel_changer tint2"
 		fi
 		
-		if [ "$BAR" != 'xfce4-panel' ] && [ "$xfce4_installed" = true ];then
-		menuItem "Use xfce4-panel as your panel/taskbar" "panel_changer xfce4-panel"
-		fi
-		
 		if [ "$polybar_installed" = false ];then
 			menuItem 'Install Polybar' "popup_terminal --install polybar"
 		fi
@@ -57,9 +45,6 @@
 			menuItem 'Install Tint2' "popup_terminal --install tint2"
 		fi
 		
-		if [ "$xfce4_installed" = false ];then
-			menuItem 'Install xfce4-panel' "popup_terminal --install xfce4-panel"
-		fi	
 		menuEnd
 	}
 	

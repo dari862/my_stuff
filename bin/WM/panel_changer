@@ -10,8 +10,6 @@ if [ "$panel_name" = 'tint2' ];then
 	sed -i "s/_panel_name_=.*/_panel_name_=tint2/g" "${Distro_config_file}"
 elif [ "$panel_name" = 'polybar' ];then
 	sed -i "s/_panel_name_=.*/_panel_name_=polybar/g" "${Distro_config_file}"
-elif [ "$panel_name" = 'xfce4-panel' ];then
-	sed -i "s/_panel_name_=.*/_panel_name_=xfce4-panel/g" "${Distro_config_file}"
 fi
 
 style_changer "default"

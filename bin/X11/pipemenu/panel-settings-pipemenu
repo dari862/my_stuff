@@ -15,13 +15,6 @@ if [ "$_panel_name_" = "polybar" ];then
 	menuSubmenu 'ChangePolybarStyle' 'Change Polybar Style'
 	cat "${style_pipemenu_file}"
 	menuSubmenuEnd
-elif [ "$_panel_name_" = "xfce4-panel" ];then
-	menuStart "Xfce4PanelMenu" "xfce4-panel"
-	menuItem 'GUI Xfce4-Panel Config Tool' "xfce4-panel -p"
-	menuItem 'Open Your Xfce4-Panel Folder' "my-file-manager ~/.config/xfce4/"
-	menuItem 'How to configure xfce4-panel?' 'my-www-browser "https://docs.xfce.org/xfce/xfce4-panel/start"'
-	menuItem 'Restart' "xfce4-panel-session restart"
-	menuItem 'Stop' "xfce4-panel-session stop"
 elif [ "$_panel_name_" = "tint2" ];then
 	HELP='    tint2-pipemenu an Openbox Pipe Menu for tint2 manipulation
     	It should normally be called from an openbox menu.

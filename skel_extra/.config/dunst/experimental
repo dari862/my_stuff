@@ -1,0 +1,2 @@
+[log_notifs]
+script = /usr/share/my_stuff/bin/X11/not_add_2_path/dunst/dunst_logger.sh

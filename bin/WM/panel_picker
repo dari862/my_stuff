@@ -21,15 +21,6 @@ else
 	spliter1=""
 fi
 
-if command -v xfce4-panel >/dev/null 2>&1
-then
-	xfce4_in_rofi="xfce4-panel"
-	count=$((count + 1))
-	_picked_panel_="xfce4-panel"
-else
-	spliter2=""
-fi
-	
 if command -v tint2 >/dev/null 2>&1
 then
 	tint2_in_rofi="tint2"
@@ -38,7 +29,7 @@ then
 fi
 
 if [ "$count" -gt 1 ];then
-	_picked_panel_="$(echo "${polybar_in_rofi}${spliter1}${xfce4_in_rofi}${spliter2}${tint2_in_rofi}" | \
+	_picked_panel_="$(echo "${polybar_in_rofi}${spliter1}${tint2_in_rofi}" | \
 	rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' -no-click-to-exit -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi)"
 fi
 

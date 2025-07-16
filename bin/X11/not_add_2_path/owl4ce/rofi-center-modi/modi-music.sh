@@ -5,7 +5,7 @@ exec 2>/dev/null
 ROW_ICON_FONT='feather 12'
 MSG_ICON_FONT='feather 48'
 MUSIC_PLAYER="$(cat "${script_config_path}/owl4ce_music_player")"
-CHK_MPD_PORT="$(awk -F'"' '/port/ {print $2}' "$HOME/.config/mpd/mpd.conf")"
+CHK_MPD_PORT="$(awk -F'"' '/^port/ {print $2}' "$HOME/.config/mpd/mpd.conf")"
 
 A_='' A="<span font_desc='${ROW_ICON_FONT}' weight='bold'>${A_}</span>   Previous"
 B_='' B="<span font_desc='${ROW_ICON_FONT}' weight='bold'>${B_}</span>   Playback"
