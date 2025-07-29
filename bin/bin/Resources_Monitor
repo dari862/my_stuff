@@ -19,7 +19,7 @@ get_ips() {
 		echo "$(ip -br l | awk '$1 !~ "lo" { print $1}')"
 		exit 1
 	elif [ "$opt2" = "external_IP" ];then
-		_ip="$(get_scripts --public)"
+		_ip="$(get_public_ip)"
 	else
   		_ip="$(ip a l ${opt2} | awk '/inet/ {print $2}')"
   	fi

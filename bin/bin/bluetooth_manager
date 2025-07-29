@@ -1,0 +1,3 @@
+#!/bin/sh
+
+command -v blueman-manager >/dev/null 2>&1 && blueman-manager 

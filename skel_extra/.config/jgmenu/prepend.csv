@@ -31,8 +31,8 @@ Display Keybinds,^pipe(jgmenu_run ob --cmd="my_stuff-kb-pipemenu" --tag="my_stuf
 ^sep()
 Applications,^checkout(apps)
 ^sep()
-Lock Screen,my_session_manager lock,system-lock-screen
-Exit,my_session_manager,system-shutdown
+Lock Screen,my_session_manager_menu lock,system-lock-screen
+Exit,my_session_manager_menu,system-shutdown
 
 ^tag(bl-utilities)
 Back,^back()

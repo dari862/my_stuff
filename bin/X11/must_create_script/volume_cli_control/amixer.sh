@@ -16,6 +16,10 @@ inc_volume() {
 	amixer -Mq set Master,0 5%+ unmute
 }
 
+print_icon() {
+	echo "$icon_string"
+}
+
 # Decrease Volume
 dec_volume() {
 	amixer -Mq set Master,0 5%- unmute

@@ -608,8 +608,8 @@
       <focus>yes</focus>
     </application>
 	
-	<!-- no decorations for my_session_manager yad, even with "classic" theme -->
-    <application name="my_session_manager">
+	<!-- no decorations for my_session_manager_menu, even with "classic" theme -->
+    <application name="my_session_manager_menu">
       <decor>no</decor>
       <focus>yes</focus>
       <layer>above</layer>

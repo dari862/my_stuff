@@ -1,20 +1,49 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/WM"
-. "${script_config_path}/email"
+set -e
+CONKY_EMAIl_FILE="$GNUPGHOME/conkey_email"
 
-# Get unread count using imapfilter
-unread_count=$(imapfilter -u "$USERNAME" -p "$PASSWORD" -s "$IMAP_SERVER" << EOF
-    lselect "$MAILBOX"
-    get "messages:unseen"
-EOF
-)
+IMAP_PORT=993
 
-# Extract the number (imapfilter output might have extra info)
-unread_count=$(echo "$unread_count" | grep -oE '[0-9]+' | head -n 1)
+# Create encrypted credentials file
+create_creds_file() {
+  printf "Email: "
+  read email
+  passman add "email/$email"
+  printf "%s" "$email" > "$CONKY_EMAIl_FILE"
+  exit
+}
 
-# Default to 0 if no count found (to avoid errors in Conky)
-if [ -z "$unread_count" ]; then
-  unread_count=0
-fi
+# Print unread email count
+print_unread_email_count() {
+  if [ ! -f "$CONKY_EMAIl_FILE" ]; then
+    Unread_Email_count="NaN"
+    return
+  fi
 
-echo "$unread_count"
+  EMAIL=$(cat "$CONKY_EMAIl_FILE")
+
+  case "$EMAIL" in
+    *gmail.com)   IMAP_SERVER="imap.gmail.com" ;;
+    *outlook.com|*hotmail.com) IMAP_SERVER="imap-mail.outlook.com" ;;
+    *)            IMAP_SERVER="imap.example.com" ;;
+  esac
+
+  response=$(curl -s --url "imaps://$IMAP_SERVER/INBOX" \
+    --request "SEARCH UNSEEN" \
+    --user "$EMAIL:$(passman show email/$EMAIL)")
+
+  [ $? -ne 0 ] && {
+    Unread_Email_count="NaN"
+    return
+  }
+
+  Unread_Email_count=$(echo "$response" | tr -cd '0-9 ' | wc -w)
+  [ -z "$Unread_Email_count" ] && Unread_Email_count=0
+}
+
+case "$1" in
+  --create|-c) create_creds_file ;;
+  *) print_unread_email_count ;;
+esac
+
+printf '%s' "$Unread_Email_count"

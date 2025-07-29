@@ -1,16 +1,10 @@
 #!/bin/sh
-#===================================================================================
-# FILE: clipboard-manager-session
-# DESCRIPTION: manage clipboard-manager processes for start, restart and stop all clipboard-manager instances
-# AUTHOR: Leonardo Marco
-# VERSION: 1.0
-# CREATED: 2020.04.09
-# LICENSE: GNU General Public License v3.0
-#===================================================================================
 
 sleep_time="${2:-0}"
-
-if command -v diodon >/dev/null 2>&1;then
+if command -v xfce4-clipman >/dev/null 2>&1;then
+	clipboard_manager_name="xfce4-clipman"
+	clipboard_manager_command="setsid xfce4-clipman"
+elif command -v diodon >/dev/null 2>&1;then
 	clipboard_manager_name="diodon"
 	clipboard_manager_command="exec diodon"
 elif command -v parcellite >/dev/null 2>&1;then
@@ -20,9 +14,6 @@ elif command -v clipmenud >/dev/null 2>&1;then
 	clipboard_manager_name="clipmenud"
 	clipboard_manager_command="exec clipmenud"
 	export CM_LAUNCHER="rofi"
-elif command -v xfce4-clipman >/dev/null 2>&1;then
-	clipboard_manager_name="xfce4-clipman"
-	clipboard_manager_command="xfce4-clipman"
 elif command -v greenclip >/dev/null 2>&1;then
 	clipboard_manager_name="greenclip"
 	clipboard_manager_command="greenclip daemon"
@@ -31,28 +22,25 @@ else
 	clipboard_manager_command="clipmanager"
 fi
 
-
-#=== FUNCTION ======================================================================
-# NAME: stop
-# DESCRIPTION: stop all clipboard-manager process
-#===================================================================================
 stop() {
-	for prosses2kill in diodon parcellite clipmanager xfce4-clipman greenclip;do
-		( sleep $sleep_time && kill_process.sh $prosses2kill ) &
+	for prosses in diodon parcellite clipmanager xfce4-clipman greenclip;do
+		pidof -q ${prosses} && prosses2kill="$prosses2kill $prosses"
 	done
+	
+	for kill in ${prosses2kill};do
+		kill_process.sh $kill &
+	done
+	
+	wait
 }
 
-
-#=== FUNCTION ======================================================================
-# NAME: start
-# DESCRIPTION: start clipboard-manager
-#===================================================================================
 start() {
-  pidof -q ${clipboard_manager_command} || (sleep ${sleep_time} && ${clipboard_manager_command}) &
+	if ! pidof -q ${clipboard_manager_command};then
+		sleep ${sleep_time}
+		${clipboard_manager_command} &
+	fi
 }
 
-
-# EXEC ACTION ACCORDING $1
 case "${1}" in
 	""|restart)
 		stop

@@ -1,2 +1,3 @@
 #!/bin/sh
+app_name="Pinta"
 flatpak_install ${app_name} com.github.PintaProject.Pinta

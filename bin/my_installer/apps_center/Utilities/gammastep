@@ -6,7 +6,7 @@ say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue
 
-latlong=$(get_scripts --latlong)
+latlong=$(get_latlong)
 lat_=${latlong%,*}
 long_=${latlong#*,}
 

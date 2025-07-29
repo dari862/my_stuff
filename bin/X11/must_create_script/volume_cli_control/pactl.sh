@@ -17,8 +17,13 @@ set_volume() {
 	SINK=$( pactl list short sinks | sed -e 's,^\([0-9][0-9]*\)[^0-9].*,\1,' | head -n 1 )
 	current_volume="$(pactl list sinks | grep '^[[:space:]]Volume:' | head -n $(( SINK + 1 )) | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,')"
 }
+
 print_volume() {
 	echo "$current_volume"
+}
+
+print_icon() {
+	echo "$icon_string"
 }
 
 # Get status

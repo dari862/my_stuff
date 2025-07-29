@@ -1,0 +1,210 @@
+#!/bin/sh
+#
+# simple API manager.
+
+gpg_add() {
+	mode="${1:-}"
+	if [ -z "$API_key" ];then
+	    sread api  "Enter API"
+		sread api2 "Enter API (again)"
+	else
+		api="$API_key"
+	fi
+	
+    # Disable this check as we dynamically populate the two
+    # APIs using the 'sread()' function.
+    # shellcheck disable=2154
+    [ "$api" = "$api2" ] || die "APIs do not match"
+    
+    # Mimic the use of an array for storing arguments by... using
+    # the function's argument list. This is very apt isn't it?
+    if [ "$APIman_KEYID" ]; then
+        set -- --trust-model always -aer "$APIman_KEYID"
+    else
+        set -- -c
+    fi
+
+    # Use 'gpg' to store the API in an encrypted file.
+    # A heredoc is used here instead of a 'printf' to avoid
+    # leaking the API through the '/proc' filesystem.
+    #
+    # Heredocs are sometimes implemented via temporary files,
+    # however this is typically done using 'mkstemp()' which
+    # is more secure than a leak in '/proc'.
+    if [ -z "$mode" ];then
+		"$gpg" "$@" -o "$name.${_ext}" <<-EOF &&
+			$api
+		EOF
+	else
+		"$gpg" -y "$@" -o "$name.${_ext}" <<-EOF &&
+			$api
+		EOF
+	fi
+    printf '%s\n' "Saved '$name' to the store."
+}
+
+gpg_edit() {
+	sread api  "Enter API (current:$(gpg_show))"
+    sread api2 "Enter API (again)"
+    # Disable this check as we dynamically populate the two
+    # APIs using the 'sread()' function.
+    # shellcheck disable=2154
+    [ "$api" = "$api2" ] || die "APIs do not match"
+    gpg_add force
+}
+
+gpg_del() {
+    yn "Delete API file '$name'?" && {
+        rm -f "$name.${_ext}"
+    }
+}
+
+gpg_show() {
+    "$gpg" -dq "$name.${_ext}"
+}
+
+gpg_list() {
+	printf '%s\n' "list of encrpted API files:"
+	printf '%s\n' "============================"
+    find . -type f -name \*.gpg | sed 's/..//;s/\.gpg$//'
+    printf '\n%s\n' "list of plain text API files:"
+	printf '%s\n' "============================"
+	find . -type f -name \*.txt | sed 's/..//;s/\.txt$//'
+}
+
+yn() {
+    printf '%s [y/n]: ' "$1"
+
+    # Enable raw input to allow for a single byte to be read from
+    # stdin without needing to wait for the user to press Return.
+    stty -icanon
+
+    # Read a single byte from stdin using 'dd'. POSIX 'read' has
+    # no support for single/'N' byte based input from the user.
+    answer=$(dd ibs=1 count=1 2>/dev/null)
+
+    # Disable raw input, leaving the terminal how we *should*
+    # have found it.
+    stty icanon
+
+    printf '\n'
+
+    # Handle the answer here directly, enabling this function's
+    # return status to be used in place of checking for '[yY]'
+    # throughout this program.
+    glob "$answer" '[yY]'
+}
+
+sread() {
+    printf '%s: ' "$2"
+
+    # Disable terminal printing while the user inputs their
+    # API. POSIX 'read' has no '-s' flag which would
+    # effectively do the same thing.
+    stty -echo
+    read -r "$1"
+    stty echo
+
+    printf '\n'
+}
+
+glob() {
+    # This is a simple wrapper around a case statement to allow
+    # for simple string comparisons against globs.
+    #
+    # Example: if glob "Hello World" '* World'; then
+    #
+    # Disable this warning as it is the intended behavior.
+    # shellcheck disable=2254
+    case $1 in $2) return 0; esac; return 1
+}
+
+die() {
+    printf 'error: %s.\n' "$1" >&2
+    exit 1
+}
+
+usage() { printf %s "\
+simple API manager.
+
+=> [a]dd  [name] - Create a new API entry.
+=> [e]dit [name] - Edit a API entry.
+=> [d]el  [name] - Delete a API entry.
+=> [l]ist        - List all entries.
+=> [s]how [name] - Show API for an entry.
+
+Using a key pair:  export APIman_KEYID=XXXXXXXX
+Store location:    export APIman_DIR=~/.local/share/APIman
+"
+exit 0
+}
+
+main() {
+    : "${APIman_DIR:=${XDG_DATA_HOME:=$HOME/.local/share}/APIs}"
+
+    # Look for both 'gpg' and 'gpg2',
+    # preferring 'gpg2' if it is available.
+    command -v gpg  >/dev/null 2>&1 && gpg=gpg
+    command -v gpg2 >/dev/null 2>&1 && gpg=gpg2
+
+    [ "$gpg" ] ||
+        die "GPG not found"
+
+    mkdir -p "$APIman_DIR" ||
+        die "Couldn't create API directory"
+
+    cd "$APIman_DIR" ||
+        die "Can't access API directory"
+
+    glob "$command" '[aeds]*' && [ -z "$name" ] &&
+        die "Missing [name] argument"
+	
+	[ -f "$name.gpg" ] && _ext="gpg"
+	[ -f "$name.txt" ] && _ext="txt"
+	
+    glob "$command" '[eds]*' && [ ! -f "$name.${_ext}" ] &&
+        die "API file '$name' doesn't exist"
+
+    glob "$command" 'a*' && [ -f "$name.gpg" ] &&
+        die "API file '$name' already exists"
+        
+    glob "$command" 't*' && [ -f "$name.txt" ] &&
+        die "API file '$name' already exists"
+
+    # Set 'GPG_TTY' to the current 'TTY' if it
+    # is unset. Fixes a somewhat rare `gpg` issue.
+    export GPG_TTY=${GPG_TTY:-$(tty)}
+
+    # Restrict permissions of any new files to
+    # only the current user.
+    umask 077
+
+    # Ensure that we leave the terminal in a usable
+    # state on exit or Ctrl+C.
+    [ -t 1 ] && trap 'stty echo icanon' INT EXIT
+
+    case $command in
+        a*) gpg_add            ;;
+        t*) txt_add            ;;
+        p*) gpg_add "$API_key" ;;
+        e*) gpg_edit           ;;
+        d*) gpg_del            ;;
+        s*) gpg_show           ;;
+        l*) gpg_list           ;;
+        *)  usage              ;;
+    esac
+}
+
+# Ensure that debug mode is never enabled to
+# prevent the API from leaking.
+set +x
+
+# Ensure that globbing is globally disabled
+# to avoid insecurities with word-splitting.
+set -f
+
+command="${1:-}"
+name="${2:-}"
+API_key="${3:-}"
+
+[ "$command" ] || usage && main "$@"

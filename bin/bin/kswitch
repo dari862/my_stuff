@@ -1,24 +1,20 @@
 #!/bin/sh
 set -e
-stop_at_next_target=false
-new_lang=""
-active_lang=$(setxkbmap -query | grep layout | sed 's/layout.* //g')
+. "/usr/share/my_stuff/lib/common/WM"
 
-case "$active_lang" in
-	*,*) active_lang="us" ;;
-esac
+if [ "$(cat "${script_config_path}/kb_layout.ini" | wc -l)" = 1 ];then
+	set_kb_layout 1
+fi
 
-langs="$(locale -a | grep "_" | sed 's/en_US/us_US/' | awk -F_ '{print $1}')"
+if ! grep -q "us" "${script_config_path}/kb_layout.ini";then
+	. /etc/default/keyboard
+	mkdir -p "${script_config_path}"
+	echo "$XKBLAYOUT" > "${script_config_path}/kb_layout.ini"
+fi
 
-for lang in $langs;do
-	if [ "$lang" = "$active_lang" ];then
-		stop_at_next_target=true
-	elif [ "$stop_at_next_target" = true ];then
-		new_lang="$lang"
-		break
-	fi
-done
+current_kb="$(setxkbmap -query | grep -oP 'layout:\s*\K\w+')"
+next_kb="$(awk "/$current_kb/{p=1}p" "${script_config_path}/kb_layout.ini" | sed -n 2p)"
+[ -z "$next_kb" ] && next_kb="us"
 
-[ -z "$new_lang" ] && new_lang="$(echo "$langs" | awk '{print $1}')"
-
-setxkbmap "$new_lang"
+notify-send "⌨  Keyboard/language module" "$(printf "%s" "\- Current layout: $current_kb")"
+setxkbmap "$next_kb"

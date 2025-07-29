@@ -1,111 +1,99 @@
-#!/bin/sh -e
-# Function to display the menu
+#!/bin/bash
+set -e  # exit on error and unset variables
+
 check_4_dependencies_if_installed openssl || exit 1
 
-show_menu() {
-    printf "%b\n" "========================================================"
-    printf "%b\n" " File/Directory Encryption/Decryption"
-    printf "%b\n" "========================================================"
-    printf "%b\n" "How to use:-"
-    printf "%b\n" "if you encrypt or decrypt a file include new file name for successful operation"
-    printf "%b\n" "if you encrypt or decrypt a folder include new directory name for successful operation"
-    printf "%b\n" "========================================================"
-    printf "%b\n" "1. Encrypt a file or directory"
-    printf "%b\n" "2. Decrypt a file or directory"
-    printf "%b\n" "3. Exit"
-    printf "%b\n" "========================================================"
+# Display usage instructions
+usage() {
+    echo "Usage:"
+    echo "  $0 encrypt <input_file|input_folder> [output_file|output_folder]"
+    echo "  $0 decrypt <input_file|input_folder> [output_file|output_folder]"
+    exit 1
 }
-# Function to encrypt a file
-encrypt_file() {
-    printf "%b" "Enter the path to the file or directory to encrypt (INPUT_PATH): "
-    read -r INPUT_PATH
-    if [ ! -e "$INPUT_PATH" ]; then
-        printf "%b\n" "Path does not exist!"
-        return
-    fi
-    
-    printf "%b" "Enter the path for the encrypted file or directory (OUTPUT_PATH): "
-    read -r OUTPUT_PATH
-    printf "%b" "Enter the encryption password: "
-    read -r PASSWORD
-    if [ -d "$INPUT_PATH" ]; then
-        # Encrypt each file in the directory
-        find "$INPUT_PATH" -type f | while read -r FILE; do
-            REL_PATH="${FILE#"$INPUT_PATH"/}"
-            OUTPUT_FILE="$OUTPUT_PATH/$REL_PATH.enc"
-            mkdir -p "$(dirname "$OUTPUT_FILE")"
-            if [ "$(openssl enc -aes-256-cbc -salt -pbkdf2 -in "$FILE" -out "$OUTPUT_FILE" -k "$PASSWORD")" -eq 0 ]; then
-                printf "%b\n" "Encrypted: $OUTPUT_FILE"
+
+die() {
+    printf 'error: %s.\n' "$1" >&2
+    exit 1
+}
+
+sread() {
+    printf '%s: ' "$2"
+    stty -echo
+    read -r "$1"
+    stty echo
+    printf '\n'
+}
+
+get_password() {
+	while :; do
+		sread password  "Enter ${mode}sion password"
+		[ "$mode" = "decrypt" ] && break
+		sread password2 "Enter password (again)"
+		[ "$password" = "$password2" ] && break || echo "Passwords do not match. Try again."
+	done
+	unset password2
+}
+
+# Process files/folders securely with OpenSSL
+process_openssl() {
+    input=$2
+    output=$3
+
+	get_password
+
+    openssl_cmd="openssl enc -aes-256-cbc -pbkdf2"
+    [ "$mode" = "encrypt" ] && openssl_cmd="$openssl_cmd -salt"
+    [ "$mode" = "decrypt" ] && openssl_cmd="$openssl_cmd -d"
+
+    if [ -d "$input" ]; then
+        [ -z "$output" ] && output="${input}_${mode}ed"
+        find "$input" -type f | while IFS= read -r file; do
+            rel_path=${file#"$input"/}
+            out_file="$output/$rel_path"
+            [ "$mode" = "encrypt" ] && out_file="$out_file.enc" || out_file=${out_file%.enc}
+            mkdir -p "$(dirname "$out_file")"
+
+            if printf "%s" "$password" | $openssl_cmd -in "$file" -out "$out_file" -pass stdin; then
+                echo "${mode^}ed: $out_file"
             else
-                printf "%b\n" "Failed to encrypt: $FILE"
+                echo "Failed to $mode: $file" >&2
             fi
         done
     else
-        # Encrypt a single file
-        if [ -d "$OUTPUT_PATH" ]; then
-            printf "%b\n" "Output path must be a file for single file encryption."
-            return
-        fi
-        mkdir -p "$(dirname "$OUTPUT_PATH")"
-        if [ "$(openssl enc -aes-256-cbc -salt -pbkdf2 -in "$INPUT_PATH" -out "$OUTPUT_PATH" -k "$PASSWORD")" -eq 0 ]; then
-            printf "%b\n" "Encrypted: $OUTPUT_PATH"
+        [ -z "$output" ] && {
+            output="$input"
+            [ "$mode" = "encrypt" ] && output="$input.enc" || output=${input%.enc}
+        }
+        [ -d "$output" ] && {
+            echo "Error: Output must be a file when processing a single file." >&2
+            exit 1
+        }
+        mkdir -p "$(dirname "$output")"
+
+        if printf "%s" "$password" | $openssl_cmd -in "$input" -out "$output" -pass stdin; then
+            echo "${mode^}ed: $output"
         else
-            printf "%b\n" "Failed to encrypt: $INPUT_PATH"
+            echo "Failed to $mode: $input" >&2
         fi
     fi
 }
-# Function to decrypt a file
-decrypt_file() {
-    printf "%b" "Enter the path to the file or directory to decrypt: "
-    read -r INPUT_PATH
-    if [ ! -e "$INPUT_PATH" ]; then
-        printf "%b\n" "Path does not exist!"
-        return
-    fi
-    printf "%b" "Enter the path for the decrypted file or directory: "
-    read -r OUTPUT_PATH
-    printf "%b" "Enter the decryption password: "
-    read -r PASSWORD
-    if [ -d "$INPUT_PATH" ]; then
-        # Decrypt each file in the directory
-        find "$INPUT_PATH" -type f -name '*.enc' | while read -r FILE; do
-            REL_PATH="${FILE#"$INPUT_PATH"/}"
-            OUTPUT_FILE="$OUTPUT_PATH/${REL_PATH%.enc}"
-            mkdir -p "$(dirname "$OUTPUT_FILE")"
-            if [ "$(openssl enc -aes-256-cbc -d -pbkdf2 -in "$FILE" -out "$OUTPUT_FILE" -k "$PASSWORD")" -eq 0 ]; then
-                printf "%b\n" "Decrypted: $OUTPUT_FILE"
-            else
-                printf "%b\n" "Failed to decrypt: $FILE"
-            fi
-        done
-    else
-        # Decrypt a single file
-        if [ -d "$OUTPUT_PATH" ]; then
-            printf "%b\n" "Output path must be a file for single file decryption."
-            return
-        fi
-        mkdir -p "$(dirname "$OUTPUT_PATH")"
-        if [ "$(openssl enc -aes-256-cbc -d -pbkdf2 -in "$INPUT_PATH" -out "$OUTPUT_PATH" -k "$PASSWORD")" -eq 0 ]; then
-            printf "%b\n" "Decrypted: $OUTPUT_PATH"
-        else
-            printf "%b\n" "Failed to decrypt: $INPUT_PATH"
-        fi
-    fi
-}
-main(){
-    clear
-    while true; do
-        show_menu
-        printf "%b" "Enter your choice: "
-        read -r CHOICE
-        case $CHOICE in
-            1) encrypt_file ;;
-            2) decrypt_file ;;
-            3) printf "%b\n" "Exiting..."; exit 0 ;;
-            *) printf "%b\n" "Invalid choice. Please try again." ;;
-        esac
-        printf "%b\n" "Press [Enter] to continue..."
-        read -r _
-    done
-}
-main
+
+[ $# -lt 2 ] && usage
+
+command=$1
+input=$2
+output=${3:-}
+
+case "$command" in
+    e*)
+		mode="encrypt"
+        process_openssl "$command" "$input" "$output"
+        ;;
+    d*)
+		mode="decrypt"
+        process_openssl "$command" "$input" "$output"
+        ;;
+    *)
+        usage
+        ;;
+esac

@@ -1,6 +1,6 @@
 _panel_name_="tint2"
 ROFI_STYLE="default"
-polybar_STYLE=""
+tint2_STYLE="launchy"
 conky_sessionfile=".config/conky/cliff/cliff.conkyrc"
 tint2_sessionfile="/.config/tint2/launchy/launchy.tint2rc"
 wallpaper_are="/usr/share/my_stuff/my_wallpapers/launchy_wall-01.jpg"

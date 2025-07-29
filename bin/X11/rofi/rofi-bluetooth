@@ -2,7 +2,10 @@
 # if this line exist script will be part of hub script.
 # Depends on:
 #   repositories: rofi, bluez-utils (contains bluetoothctl)
-if [ ! -d /sys/class/bluetooth ];then
+
+if command -v blueman-manager >/dev/null 2>&1;then
+	exit 0
+elif [ ! -d /sys/class/bluetooth ];then
 	echo # No Bluetooth interface
 	exit 0
 fi

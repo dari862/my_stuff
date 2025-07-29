@@ -1390,7 +1390,7 @@ _save_settings(){
 }
 
 _restore_default_value(){
-	pkexec cp -r "/usr/share/${Custom_distro_dir_name}/lib/tlp-defaults/tlp-${__tlp_version_}.conf" /etc/tlp.conf
+	popup_terminal --superuser "copy tlp.conf" "cp -r \"/usr/share/${Custom_distro_dir_name}/lib/tlp-defaults/tlp-${__tlp_version_}.conf\" /etc/tlp.conf"
 	exval=$?
 	case $exval in
         	0) yad --form --width="200" --height="100" --field="$0 restored config to default value:LBL" >/dev/null 2>&1;;

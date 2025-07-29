@@ -66,30 +66,30 @@
 		<menu icon="&icons;/exit3.png" id="Exit" label="Exit">
 				<item icon="&icons;/lock.png" label="Lock Screen">
 					<action name="Execute">
-						<command>my_session_manager lock</command>
+						<command>my_session_manager_menu lock</command>
 					</action>
 				</item>
 				<item icon="&icons;/exit2.png" label="Logout">
 					<action name="Execute">
-						<command>my_session_manager logout</command>
+						<command>my_session_manager_menu logout</command>
 					</action>
 				</item>
 				<separator/>
 				<item icon="&icons;/exit.png" label="Suspend">
 					<action name="Execute">
-						<command>my_session_manager suspend</command>
+						<command>my_session_manager_menu suspend</command>
 					</action>
 				</item>
 				<separator/>
 				<item icon="&icons;/restart.png" label="Reboot">
 					<action name="Execute">
-						<command>my_session_manager reboot</command>
+						<command>my_session_manager_menu reboot</command>
 					</action>
 				</item>
 				<separator/>
 				<item icon="&icons;/exit3.png" label="Shutdown">
 					<action name="Execute">
-						<command>my_session_manager shutdown</command>
+						<command>my_session_manager_menu shutdown</command>
 					</action>
 				</item>
 		</menu>

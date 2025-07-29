@@ -1,13 +1,16 @@
 #!/bin/sh
-set -u
-debug_mode=false
-. "/usr/share/my_stuff/lib/common/WM"
-. "${script_config_path}/clipmanager/config.ini" 
+set -eu
+debug_mode="false"
+[ "${1:-}" = "-d" ] && debug_mode="true"
 
-_script="$(basename "${0}")"
+. "/usr/share/my_stuff/lib/common/WM"
+. "${script_config_path}/clipmanager/config.ini"
+pid_file_dir="${clip_path}/process_ids"
+_script_name="$(basename "${0}")"
+current_script_pid="$$"
 
 _log() {
-	printf '[\033[94m%s\033[0m] %s' "${_script}" "${1}" | xargs >&2
+	[ "${debug_mode}" = true ] && printf '[\033[94m%s\033[0m] %s' "${_script_name}" "${1}" | xargs >&2
 }
 
 _usage() {
@@ -15,83 +18,68 @@ _usage() {
     exit 1
 }
 
-[ "${#}" -gt 0 ] && _usage
-
-mkdir -p "${clip_path}"
-
-_iteration_debug() {
+process_clipboard() {
     # target test of current selection
-    _tc="$(xclip -selection clipboard -o -t TARGETS)"
-    _tcec="${?}"
-    _log "TARGETS check exited with: ${_tcec}"
+    _tc="$(xclip -selection clipboard -o -t TARGETS 2>/dev/null || echo "" )"
 
-    if [ "${_tcec}" -ne 0 ];then
-        # on empty wait for any selection
-        _log "Waiting on initial selection with: ${_utf8}"
+    if [ -z "${_tc}" ];then
+       	# on empty wait for any selection
+       	_log "Waiting on initial selection with: ${_utf8}"
 
-        # take ownership of clipboard so we block the loop and wait for someone to take ownership
-        # if this fails probably X connection is lost, so exit the script
-        xclip -verbose -in -selection clipboard -t "${_utf8}" /dev/null || exit 3
+       	# take ownership of clipboard so we block the loop and wait for someone to take ownership
+       	# if this fails probably X connection is lost, so exit the script
+       	xclip -verbose -in -selection clipboard -t "${_utf8}" /dev/null || exit 3
+    elif ! echo "$_tc" | grep -q "x-special/gnome-copied-files";then
+       	_log "Available clipboard targets: $_tc"
+       	_log "Preferred targets: ${_pref}"
+       	_log "Default targets: ${_utf8}"
+
+       	# join both lists together, and print first item of targets occuring in _pref
+       	_match="$(printf '%s\n%s\n%s\n' "${_tc}" "${_pref}" "${_utf8}" | grep -v '^\s*$' | awk 'a[$0]++' | head -n1)"
+
+       	if [ -n "${_match}" ];then
+           	_log "Clipboard content dumped to temp file"
+
+           	# put clipboard content into temp file
+           	xclip -verbose -out -selection clipboard -t "${_match}" > "${_out}"
+           	_log "xclip out exited"
+
+           	if [ "${_match}" = "${_utf8}" ];then
+               	cat "${_out}" >> "${_history}"
+               	_log "Appended content to history: $_history"
+           	fi
+
+           	# read temp file, take ownership of clipboard and wait for pastes
+           	# after something else is copied, xclip loses ownership and exits, and another iteration begins
+           	xclip -verbose -in -selection clipboard -t "${_match}" "${_out}"
+           	_log "Clipboard re-injected, waiting for next change"
+       	else
+           	_log "No matching target found. Sleeping..."
+           	sleep 1
+       	fi
     else
-        _log "Clipboard targets: ${_tc}"
-        _log "Preferred targets: ${_pref}"
-        _log "Default targets: ${_utf8}"
-
-        # join both lists together, and print first item of targets occuring in _pref
-        _match="$(printf '%s\n%s\n%s\n' "${_tc}" "${_pref}" "${_utf8}" | grep -v '^\s*$' | awk 'a[$0]++' | head -n1)"
-
-        if [ -n "${_match}" ];then
-            _log "Matched target: ${_match}"
-
-            # put clipboard content into temp file
-            xclip -verbose -out -selection clipboard -t "${_match}" > "${_out}"
-            _log "xclip out exited"
-
-            if [ "${_match}" = "${_utf8}" ];then
-                printf '%s\n' "$(cat "${_out}")" >> "${_history}"
-                _log "Added to history ${_history}"
-            fi
-
-            # read temp file, take ownership of clipboard and wait for pastes
-            # after something else is copied, xclip loses ownership and exits, and another iteration begins
-            xclip -verbose -in -selection clipboard -t "${_match}" "${_out}"
-            _log "xclip in exited"
-        else
-            _log "Unable to match targets"
-            sleep 1
-        fi
+		# need fixing does not work
+    	_log "Waiting for clipboard change..." #  after Thunar-style copy
+		xclip -verbose -in -selection clipboard -t "$_utf8" /dev/null || exit 3
     fi
 }
 
-_iteration() {
-    _tc="$(xclip -selection clipboard -o -t TARGETS)"
-    _tcec="${?}"
-    if [ "${_tcec}" -ne 0 ];then
-        xclip -verbose -in -selection clipboard -t "${_utf8}" /dev/null 2>/dev/null || exit 3
-    else
-        _match="$(printf '%s\n%s\n%s\n' "${_tc}" "${_pref}" "${_utf8}" | grep -v '^\s*$' | awk 'a[$0]++' | head -n1)"
+mkdir -p "${pid_file_dir}"
 
-        if [ -n "${_match}" ];then
-            xclip -verbose -out -selection clipboard -t "${_match}" 2>/dev/null > "${_out}"
-            if [ "${_match}" = "${_utf8}" ];then
-                printf '%s\n' "$(cat "${_out}")" >> "${_history}"
-            fi
-            xclip -verbose -in -selection clipboard -t "${_match}" "${_out}" 2>/dev/null
-        else
-            sleep 1
-        fi
-    fi
-}
+_log "Cleaning up previous processes..."
+for pid_file in "$pid_file_dir"/*; do
+    [ -f "$pid_file" ] || continue
+    pid="$(basename "$pid_file")"
+    kill "$pid" >/dev/null 2>&1 || true
+    rm -f "$pid_file"
+done
 
-if [ "${debug_mode}" = true ];then
-	_log "${_script} @ $(readlink /proc/$$/exe)"
-	while true;do
-    	_log "Start"
-    	_iteration_debug
-    	_log "End"
-	done
-else
-	while true;do
-    	_iteration
-	done
-fi
+printf '%s' "$current_script_pid" > "${pid_file_dir}/$current_script_pid"
+trap 'rm -f "${pid_file_dir}/$current_script_pid"' EXIT
+
+_log "Starting ${_script_name} with PID $current_script_pid from $(readlink /proc/$current_script_pid/exe)"
+while true;do
+   	_log "== Iteration Start =="
+   	process_clipboard
+   	_log "== Iteration End =="
+done

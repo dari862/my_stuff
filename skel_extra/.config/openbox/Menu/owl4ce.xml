@@ -90,7 +90,7 @@
 
     <item label="Restart UI" icon="&icons;/restart-ui.png">
       <action name="Execute">
-        <command>my_session_manager reload</command>
+        <command>my_session_manager_menu reload</command>
       </action>
     </item>
 
@@ -98,7 +98,7 @@
 
     <item label="Lock" icon="&icons;/lock.png">
       <action name="Execute">
-        <command>my_session_manager --no-confirm lock</command>
+        <command>my_session_manager_cli lock</command>
       </action>
     </item>
 
@@ -106,7 +106,7 @@
 
     <item label="Exit Openbox" icon="&icons;/logout.png">
       <action name="Execute">
-        <command>my_session_manager --no-confirm logout</command>
+        <command>my_session_manager_cli logout</command>
       </action>
     </item>
   </menu>

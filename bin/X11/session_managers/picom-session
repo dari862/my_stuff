@@ -1,32 +1,14 @@
 #!/bin/sh
-#===================================================================================
-# FILE: picom-session
-# DESCRIPTION: manage picom processes for start, restart and stop all picom instances
-# AUTHOR: Leonardo Marco
-# VERSION: 1.0
-# CREATED: 2020.04.09
-# LICENSE: GNU General Public License v3.0
-#===================================================================================
-
 picom_path="$HOME/.config/picom.conf"
 
-#=== FUNCTION ======================================================================
-# NAME: stop
-# DESCRIPTION: stop all picom process
-#===================================================================================
 stop() {	
 	kill_process.sh picom
+	wait
 }
 
-
-#=== FUNCTION ======================================================================
-# NAME: start
-# DESCRIPTION: run picom
-#===================================================================================
 start() {
   	if ! pidof -q picom ;then
   		exec picom --daemon --config "$picom_path" &
-  		#exec picom -b --experimental-backends --config "$picom_path" &
 	fi
 }
 
@@ -37,7 +19,7 @@ toggle() {
 		start
 	fi
 }
-# EXEC ACTION ACCORDING $1
+
 case "${1}" in
 	""|restart)
 		stop

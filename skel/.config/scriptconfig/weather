@@ -1,8 +1,9 @@
 #!/bin/bash
 #### User configurables:  ################################################
 
-# Choose wttr or openweather:
+# Choose wttr or openweather or auto:
 #mode="wttr"
+#mode="auto"
 mode="openweather"
 
 # Either set the location manually here, or leave it empty and script will attempts to get a geolocation from the IP address.

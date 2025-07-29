@@ -1,7 +1,0 @@
-#!/bin/sh
-
-# Configuration
-USERNAME="your_gmail_address@gmail.com"
-PASSWORD="your_gmail_password_or_app_password"  # IMPORTANT: Use App Password if 2FA is enabled
-IMAP_SERVER="imap.gmail.com"
-MAILBOX="INBOX"

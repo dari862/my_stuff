@@ -1,5 +1,5 @@
 
-get_wm() {
+get_wm_X11() {
             # xprop can be used to grab the window manager's properties
             # which contains the window manager's name under '_NET_WM_NAME'.
             #
@@ -48,9 +48,6 @@ get_wm() {
             # support all window managers (including non-conforming and
             # Wayland) though it's a lot more complicated!
 
-            # Don't display window manager if X isn't running.
-            [ "$DISPLAY" ] || return
-
             # This is a two pass call to xprop. One call to get the window
             # manager's ID and another to print its properties.
 
@@ -81,5 +78,4 @@ get_wm() {
                     wm=${wm%%\"*}
                 ;;
             esac
-    log wm "$wm" >&6
 }

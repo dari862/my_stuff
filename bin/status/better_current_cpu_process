@@ -1,0 +1,144 @@
+#!/bin/bash
+
+# Multi-core CPU Monitor with Icons, Colors, Polybar Mode, Averages, Bars, and Top Process
+
+ICON=""
+CPU_DIR="/tmp/cpu_cores"
+mkdir -p "$CPU_DIR"
+
+# Defaults
+SHOW_ICON=false
+POLYBAR_MODE=false
+SHOW_AVG=false
+SHOW_BARS=false
+SHOW_TOP=false
+
+# Thresholds
+LOW=30
+MEDIUM=70
+
+# ANSI Colors
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+RESET='\033[0m'
+
+# Unicode bar characters (8 levels)
+BARS=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
+
+# Parse args
+for arg in "$@"; do
+  case "$arg" in
+    -i|--icon) SHOW_ICON=true ;;
+    --polybar) POLYBAR_MODE=true ;;
+    --avg) SHOW_AVG=true ;;
+    --bars) SHOW_BARS=true ;;
+    --top) SHOW_TOP=true ;;
+  esac
+done
+
+output=""
+total_usage=0
+core_count=0
+
+# Top CPU process
+if $SHOW_TOP; then
+  top_process=$(ps -eo pid,comm,%cpu --sort=-%cpu | awk 'NR==2 {printf "%s[%s]: %.1f%%", $2, $1, $3}')
+  if $SHOW_ICON; then
+    top_output="$ICON $top_process  "
+  else
+    top_output="$top_process  "
+  fi
+  output+="$top_output"
+fi
+
+# CPU core loop
+while read -r line; do
+  core_id=$(echo "$line" | awk '{print $1}')
+  values=($line)
+  unset values[0]
+
+  user=${values[0]}
+  nice=${values[1]}
+  system=${values[2]}
+  idle=${values[3]}
+  iowait=${values[4]}
+  irq=${values[5]}
+  softirq=${values[6]}
+  steal=${values[7]}
+
+  idle_all=$((idle + iowait))
+  non_idle=$((user + nice + system + irq + softirq + steal))
+  total=$((idle_all + non_idle))
+
+  core_file="$CPU_DIR/$core_id"
+  if [[ -f "$core_file" ]]; then
+    read -r prev_total < "$core_file"
+    read -r prev_idle < <(tail -n 1 "$core_file")
+
+    diff_total=$((total - prev_total))
+    diff_idle=$((idle_all - prev_idle))
+
+    if [[ "$diff_total" -gt 0 ]]; then
+      usage=$(((1000 * (diff_total - diff_idle) / diff_total + 5) / 10))
+    else
+      usage=0
+    fi
+  else
+    usage="?"
+  fi
+
+  {
+    echo "$total"
+    echo "$idle_all"
+  } > "$core_file"
+
+  if [[ "$usage" != "?" ]]; then
+    total_usage=$((total_usage + usage))
+    core_count=$((core_count + 1))
+  fi
+
+  # Select color
+  if [[ "$usage" == "?" || "$POLYBAR_MODE" == true ]]; then
+    color=""; reset=""
+  elif [[ "$usage" -lt $LOW ]]; then
+    color=$GREEN; reset=$RESET
+  elif [[ "$usage" -lt $MEDIUM ]]; then
+    color=$YELLOW; reset=$RESET
+  else
+    color=$RED; reset=$RESET
+  fi
+
+  # Bar character
+  if [[ "$SHOW_BARS" == true && "$usage" != "?" ]]; then
+    bar_index=$((usage * 8 / 100))
+    [[ $bar_index -gt 7 ]] && bar_index=7
+    bar_char="${BARS[$bar_index]}"
+    usage_display="${core_id}: ${bar_char} ${usage}%"
+  else
+    usage_display="${core_id}: ${usage}%"
+  fi
+
+  if $SHOW_ICON; then
+    output+="${color}${ICON} ${usage_display}${reset}  "
+  else
+    output+="${color}${usage_display}${reset}  "
+  fi
+done < <(grep '^cpu[0-9]\+' /proc/stat)
+
+# Average
+if $SHOW_AVG && [[ $core_count -gt 0 ]]; then
+  avg=$(((total_usage + core_count / 2) / core_count))
+  avg_label="Avg: ${avg}%"
+  if [[ "$POLYBAR_MODE" == false ]]; then
+    if [[ $avg -lt $LOW ]]; then color=$GREEN
+    elif [[ $avg -lt $MEDIUM ]]; then color=$YELLOW
+    else color=$RED; fi
+    avg_output="${color}${ICON} ${avg_label}${RESET}  "
+  else
+    avg_output="${ICON} ${avg_label}  "
+  fi
+  output="$avg_output$output"
+fi
+
+echo -e "$output"

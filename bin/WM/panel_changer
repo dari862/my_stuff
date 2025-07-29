@@ -16,4 +16,4 @@ style_changer "default"
 if grep -q " never remove this line menu style are :jgmenu " "${BACKUP_OB_RC_FILE}";then
 	change-ob-menu menu-icons.xml
 fi
-/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/style.sh &
+/usr/share/my_stuff/bin/X11/not_add_2_path/create_pipemenu/style.sh &

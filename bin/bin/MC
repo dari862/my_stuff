@@ -66,6 +66,18 @@ case $Control in
             --random)
                 mpc -q random
                 ;;
+            --now-playing)
+				playing="   "
+				paused="  "
+				stopped="  "
+				status=$(mpc status | sed -n 's/^\[\([^])]*\)\].*$/\1/p')
+            	song=$(mpc current)
+                case "$status" in
+  					playing) echo "$playing$song";;
+  					paused)  echo "$paused$song";;
+  					*)       echo "$stopped$song";;
+				esac
+                ;;
         esac
         ;;
     *)

@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TEMP_DIR="/tmp/$USER/GRUB_background"
 BACKGROUND_IMAGE="background.jpg"
@@ -13,8 +12,27 @@ if [ ! -f "$BACKGROUND_IMAGE_PATH" ];then
     exit 1
 fi
 
+if [ "$XDG_SESSION_TYPE" = "x11" ] || ps aux | grep -q Xorg || loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type | awk -F= '{print $2}' | grep -q x11 >/dev/null 2>&1;then
+	Display_server_are="X11"
+else
+	Display_server_are="wayland"
+fi
+
 # Determine screen resolution
-SCREEN_WIDTH="$(xrandr | awk '/\*/ {print $1; exit}' | cut -d 'x' -f1)"
+if [ "$Display_server_are" = "X11" ];then
+	SCREEN_WIDTH="$(xrandr | awk '/\*/ {print $1; exit}' | cut -d 'x' -f1)"
+elif [ "$Display_server_are" = "wayland" ];then
+    if command -v swaymsg >/dev/null 2>&1; then
+        SCREEN_WIDTH=$(swaymsg -t get_outputs | jq -r '.[0].current_mode.width')
+    elif command -v hyprctl >/dev/null 2>&1; then
+        SCREEN_WIDTH=$(hyprctl monitors -j | jq -r '.[0].width')
+    elif command -v wlr-randr >/dev/null 2>&1; then
+        SCREEN_WIDTH=$(wlr-randr | awk '/current mode/ {print $3; exit}' | cut -d 'x' -f1)
+    elif command -v wayland-info >/dev/null 2>&1; then
+        SCREEN_WIDTH=$(wayland-info | awk '/current_mode/ {print $2; exit}' | cut -d 'x' -f1)
+    fi
+fi
+
 case "$SCREEN_WIDTH" in
     [0-9]|1[0-9][0-9][0-9]) SCREEN_RES="1920x1080" ;;
     2[0-5][0-9][0-9]) SCREEN_RES="2560x1440" ;;

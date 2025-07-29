@@ -2,8 +2,8 @@
 . "/usr/share/my_stuff/lib/common/WM"
 . "${Distro_config_file}"
 
-clipboard-manager-session stop &
-audio-session stop
+clipboard-manager-session stop
+#audio-session stop
 power-manager-session stop
 
 sleep 0.5
@@ -16,14 +16,15 @@ fi
 conky-session restart &
 dunst-session restart &
 #plank-session restart &
-power-manager-session daemon &
 
 if [ "$_panel_name_" = "polybar" ];then 
 	polybar_workspace_fixer
    	polybar-session start
+   	power-manager-session restart &
 elif [ "$_panel_name_" =  "tint2" ];then
-	audio-session start
+	#audio-session start
 	tint2-session start
+	power-manager-session start 3 &
 fi
 
-clipboard-manager-session start &
+clipboard-manager-session start 3 &

@@ -1,0 +1,48 @@
+#!/bin/sh
+
+ICON=""
+CPU_DIR="/tmp/cpu_cores"
+mkdir -p "$CPU_DIR"
+TMP_FILE=$(mktemp "${CPU_DIR}/output_of_proc_stat-XXXXXXXX")
+
+total_usage=0
+core_count=0
+grep '^cpu[0-9]\+' /proc/stat > "$TMP_FILE"
+
+while IFS= read -r line; do
+  set -- $line
+  core_id=$1
+  shift
+
+  idle_all=$(( $4 + $5 ))
+  non_idle=$(( $1 + $2 + $3 + $6 + $7 + $8 ))
+  total=$(( idle_all + non_idle ))
+
+  core_file="$CPU_DIR/$core_id"
+
+  if [ -f "$core_file" ]; then
+    read prev_total prev_idle < "$core_file"
+    diff_total=$(( total - prev_total ))
+    diff_idle=$(( idle_all - prev_idle ))
+
+    if [ "$diff_total" -gt 0 ]; then
+      usage=$(( (100 * (diff_total - diff_idle)) / diff_total ))
+    else
+      usage=0
+    fi
+
+    total_usage=$(( total_usage + usage ))
+    core_count=$(( core_count + 1 ))
+  fi
+
+  # Save current values
+  printf '%s %s\n' "$total" "$idle_all" > "$core_file"
+done < "$TMP_FILE"
+rm -f "$TMP_FILE"
+
+if [ "$core_count" -gt 0 ]; then
+  avg=$(( (total_usage + core_count / 2) / core_count ))
+  printf '%s  %s%%\n' "$ICON" "$avg"
+else
+  printf '%s  ?%%\n' "$ICON"
+fi

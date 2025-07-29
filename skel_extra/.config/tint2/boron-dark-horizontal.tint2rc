@@ -112,7 +112,7 @@ border_color_pressed = #000000 0
 
 #-------------------------------------
 # Panel
-panel_items = PTSCP
+panel_items = PTSCPEEEEE
 panel_size = 100% 30
 panel_margin = 0 0
 panel_padding = 6 0 0
@@ -241,8 +241,8 @@ clock_background_id = 5
 clock_tooltip = %A %F
 clock_tooltip_timezone =
 #Show calendar
-clock_lclick_command = distro_scripts --calendar
-clock_rclick_command = distro_scripts --beepmein
+clock_lclick_command = cal-popup --popup
+clock_rclick_command = beepmein_gui --standalone
 clock_mclick_command =
 clock_uwheel_command =
 clock_dwheel_command =
@@ -261,8 +261,8 @@ bat2_format =
 battery_padding = 2 0
 battery_background_id = 0
 battery_hide = 96
-battery_lclick_command = distro_scripts --power_settings
-battery_rclick_command = get_scripts --notify-batt-stat
+battery_lclick_command = power_manager_settings
+battery_rclick_command = batt_notifcation -n
 battery_mclick_command =
 battery_uwheel_command =
 battery_dwheel_command =
@@ -286,8 +286,8 @@ button = new
 button_icon = /usr/share/my_stuff/Distro_Specific/icons/linux.svg
 button_text =
 button_tooltip = Main Menu
-button_lclick_command = distro_scripts --launcher
-button_rclick_command = distro_scripts --runner
+button_lclick_command = rofi-launcher
+button_rclick_command = rofi-runner
 button_mclick_command =
 button_uwheel_command =
 button_dwheel_command =
@@ -303,7 +303,7 @@ button_icon = /usr/share/my_stuff/icons/exit/light/poweroff.png
 #button_icon = system-shutdown-symbolic
 button_text =
 button_tooltip = Logout/Shutdown...
-button_lclick_command = distro_scripts --powermenu
+button_lclick_command = my_session_manager_menu
 button_rclick_command =
 button_mclick_command =
 button_uwheel_command =
@@ -313,3 +313,127 @@ button_padding = 6 2
 button_background_id = 5
 button_centered = 1
 button_max_icon_size = 20
+
+
+#-------------------------------------
+# Executor 1
+execp = new
+execp_command = volume_cli_control --get
+execp_interval = 0
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Volume
+execp_lclick_command = volume_cli_control --toggle
+execp_rclick_command = volume_cli_control --toggle-mic
+execp_mclick_command = volume_controller
+execp_uwheel_command = volume_cli_control --inc
+execp_dwheel_command = volume_cli_control --dec
+execp_font = Sans normal 10
+execp_font_color = #ECECEC 100
+execp_padding = 10 0
+execp_background_id = 5
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 2
+execp = new
+execp_command = disto_brightness_controller
+execp_interval = 0
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Brightness
+execp_lclick_command = 
+execp_rclick_command = 
+execp_mclick_command = 
+execp_uwheel_command = disto_brightness_controller --inc
+execp_dwheel_command = disto_brightness_controller --dec
+execp_font = Sans normal 10
+execp_font_color = #ECECEC 100
+execp_padding = 10 0
+execp_background_id = 5
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 3
+execp = new
+execp_command = bluetooth.sh
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Bluetooth
+execp_lclick_command = rofi-bluetooth
+execp_rclick_command = bluetooth_manager
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = Sans normal 10
+execp_font_color = #ECECEC 100
+execp_padding = 10 0
+execp_background_id = 5
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 4
+execp = new
+execp_command = get_network
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Networks
+execp_lclick_command = rofi-network-manager
+execp_rclick_command = nm-connection-editor
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = Sans normal 10
+execp_font_color = #ECECEC 100
+execp_padding = 10 0
+execp_background_id = 5
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 5
+execp = new
+execp_command = get_battery
+execp_interval = 10
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Battery
+execp_lclick_command = power_manager_settings
+execp_rclick_command = power_manager_settings
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = Sans normal 10
+execp_font_color = #ECECEC 100
+execp_padding = 10 0
+execp_background_id = 5
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+# End of config
+

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 rm_command="$(builtin command -v rm)"
-trash_dir="${XDG_DATA_HOME:-$HOME/.local/share}/Trash"
+trash_dir="${XDG_DATA_HOME:-$HOME/.local/share}/trash_it"
 trash_files="$trash_dir/files"
 trash_info="$trash_dir/info"
 

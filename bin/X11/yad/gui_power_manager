@@ -65,4 +65,4 @@ update_ini "poweroff_time" "$poweroff_time_val"
 update_ini "brightness_level" "$brightness_level_val"
 update_ini "lock_screen_on_idle" "$lock_screen_on_idle_val"
 
-power-manager-session reload-daemon
+power-manager-session restart

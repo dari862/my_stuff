@@ -112,7 +112,7 @@ send_notification(){
 
 set_user_interface()
 {
-	my_session_manager reload
+	my_session_manager_menu reload
 	dunst-session restart
 	tint2-session restart
 }

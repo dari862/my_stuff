@@ -194,8 +194,8 @@ bat2_format =
 battery_padding = 0 0
 battery_background_id = 0
 battery_hide = 101
-battery_lclick_command = distro_scripts --power_settings
-battery_rclick_command = get_scripts --notify-batt-stat
+battery_lclick_command = power_manager_settings
+battery_rclick_command = batt_notifcation -n
 battery_mclick_command = 
 battery_uwheel_command = 
 battery_dwheel_command = 
@@ -214,7 +214,7 @@ separator_padding = 0 8
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = tint2_scripts playing-icons
+execp_command = MC --now-playing
 execp_interval = 4
 execp_has_icon = 0
 execp_cache_icon = 1

@@ -201,7 +201,7 @@ check_4_envycontrol() {
 
 create_pipemenu(){
 	__distro_path="/usr/share/my_stuff"
-	pipemenu_creater="${__distro_path}/bin/not_add_2_path/create_pipemenu"
+	pipemenu_creater="${__distro_path}/bin/X11/not_add_2_path/create_pipemenu"
 	
 	say "Running script for creating preferences pipemenu."
 	"${pipemenu_creater}"/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"

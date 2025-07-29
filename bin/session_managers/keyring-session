@@ -1,46 +1,27 @@
 #!/bin/sh
-#===================================================================================
-# FILE: dunst-session
-# DESCRIPTION: manage keyring processes for start, restart and stop all keyring instances
-# AUTHOR: Leonardo Marco
-# VERSION: 1.0
-# CREATED: 2020.04.09
-# LICENSE: GNU General Public License v3.0
-#===================================================================================
+
 polkit_gnome_path="/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1"
 xfce_polkit_path="/usr/lib/xfce-polkit/xfce-polkit"
 
-	if [ -f "${polkit_gnome_path}" ];then
-  		# GNOME PolicyKit authentication
-		keyring_name="polkit-gnome-authentication-agent-1"
-		keyring_path="/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1"
-	elif [ -f "${xfce_polkit_path}" ];then
-		## polkit agent
-		keyring_name="xfce-polkit"
-		keyring_path="/usr/lib/xfce-polkit/xfce-polkit"
-	else
-		echo "${polkit_gnome_path} not found. install policykit gnome or xfce-polkit"
-	fi
+if [ -f "${polkit_gnome_path}" ];then
+	keyring_name="polkit-gnome-authentication-agent-1"
+	keyring_path="/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1"
+elif [ -f "${xfce_polkit_path}" ];then
+	keyring_name="xfce-polkit"
+	keyring_path="/usr/lib/xfce-polkit/xfce-polkit"
+else
+	echo "${polkit_gnome_path} not found. install policykit gnome or xfce-polkit"
+fi
 
-#=== FUNCTION ======================================================================
-# NAME: stop
-# DESCRIPTION: stop all keyring process
-#===================================================================================
 stop() {
 	kill_process.sh "$keyring_name"
+	wait
 }
 
-
-#=== FUNCTION ======================================================================
-# NAME: start
-# DESCRIPTION: load keyring
-#===================================================================================
 start() {
 	pidof -q ${keyring_path} || ${keyring_path} &
 }
 
-
-# EXEC ACTION ACCORDING $1
 case "${1}" in
 	""|restart)
 		stop

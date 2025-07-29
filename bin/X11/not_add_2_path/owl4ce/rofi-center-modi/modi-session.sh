@@ -26,17 +26,17 @@ prompt()
 }
 
 case "${@}" in
-    "$A"     ) prompt "$A_" "my_session_manager --no-confirm shutdown"
+    "$A"     ) prompt "$A_" "my_session_manager_cli shutdown"
     ;;
-    "$B"     ) prompt "$B_" "my_session_manager --no-confirm reboot"
+    "$B"     ) prompt "$B_" "my_session_manager_cli reboot"
     ;;
-    "$C"     ) prompt "$C_" "my_session_manager --no-confirm lock"
+    "$C"     ) prompt "$C_" "my_session_manager_cli lock"
     ;;
-    "$D"     ) prompt "$D_" "my_session_manager --no-confirm suspend"
+    "$D"     ) prompt "$D_" "my_session_manager_cli suspend"
     ;;
-    "$E"     ) prompt "$E_" "my_session_manager --no-confirm hibernate"
+    "$E"     ) prompt "$E_" "my_session_manager_cli hibernate"
     ;;
-    "$F"     ) prompt "$F_" 'my_session_manager --no-confirm logout'
+    "$F"     ) prompt "$F_" 'my_session_manager_cli logout'
     ;;
     "$Y"|"$Z") eval "exec ${ROFI_INFO#\#} >&2"
     ;;

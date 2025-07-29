@@ -1,0 +1,76 @@
+#!/bin/sh
+# scripts list are from https://github.com/NapoleonWils0n/ffmpeg-scripts
+# === Config ===
+script_name="${1:-}"
+shift
+ffmpeg_scripts_path="/usr/share/my_stuff/bin/ffmpeg_scripts"
+
+# === Colors ===
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# === Functions ===
+print_error() {
+    printf "${RED}Error:${NC} %s\n" "$1" >&2
+}
+
+print_info() {
+    printf "${YELLOW}%s${NC}\n" "$1"
+}
+
+list_scripts() {
+    {
+        printf "Script\tDescription\n"
+        printf "------\t-----------\n"
+        for f in *; do
+            [ -f "$f" ] || continue
+            desc="$(sed -n '5p' "$f" 2>/dev/null | tr -d '\r')"
+            printf "%s\t%s\n" "$f" "$desc"
+        done
+    } | column -t -s $'\t'
+}
+
+# === Main ===
+
+cd "$ffmpeg_scripts_path" || {
+    print_error "Cannot change directory to '$ffmpeg_scripts_path'"
+    exit 1
+}
+
+# If script is given and exists
+if [ -n "$script_name" ] && [ -f "$script_name" ]; then
+    if [ -x "$script_name" ]; then
+        "./$script_name" "$@"
+        exit $?
+    else
+        print_error "'$script_name' is not executable."
+        exit 1
+    fi
+fi
+
+# No valid script passed — use fzf if available
+if command -v fzf >/dev/null 2>&1; then
+    print_info "No script provided. Launching fuzzy selector..."
+    selected_script="$(for f in *; do
+        [ -f "$f" ] || continue
+        desc="$(sed -n '5p' "$f" 2>/dev/null | tr -d '\r')"
+        printf "%s\t%s\n" "$f" "$desc"
+    done | fzf --with-nth=1,2 --delimiter='\t' --prompt='Select script: ' | cut -f1)"
+
+    if [ -n "$selected_script" ]; then
+        if [ -x "$selected_script" ]; then
+            "./$selected_script" "$@"
+        else
+            print_error "'$selected_script' is not executable."
+        fi
+    else
+        print_info "No script selected."
+    fi
+else
+    print_error "$script_name script not found:"
+    print_info "Available scripts:"
+    printf "\n"
+    list_scripts
+fi

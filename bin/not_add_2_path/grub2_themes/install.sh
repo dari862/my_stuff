@@ -7,12 +7,30 @@ if [ "$(id -u)" -ne 0 ];then
     exit 1
 fi
 
+if [ "$XDG_SESSION_TYPE" = "x11" ] || ps aux | grep -q Xorg || loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type | awk -F= '{print $2}' | grep -q x11 >/dev/null 2>&1;then
+	Display_server_are="X11"
+else
+	Display_server_are="wayland"
+fi
+
 THEME_DIR="/usr/share/grub/themes"
 SCRIPT_DIR="$(dirname "$(readlink -m "${0}")")"
 background_path="${SCRIPT_DIR}/common/background.jpg"
 custom_background_path="${SCRIPT_DIR}/background.jpg"
 logoicon="$distro_name"
-screen="$(xrandr | grep '\*' | awk '{print $1}' | head -n1 | awk -Fx '{print $1}')"
+if [ "$Display_server_are" = "X11" ];then
+	screen="$(xrandr | awk '/\*/ {print $1; exit}' | cut -d 'x' -f1)"
+elif [ "$Display_server_are" = "wayland" ];then
+    if command -v swaymsg >/dev/null 2>&1; then
+        screen=$(swaymsg -t get_outputs | jq -r '.[0].current_mode.width')
+    elif command -v hyprctl >/dev/null 2>&1; then
+        screen=$(hyprctl monitors -j | jq -r '.[0].width')
+    elif command -v wlr-randr >/dev/null 2>&1; then
+        screen=$(wlr-randr | awk '/current mode/ {print $3; exit}' | cut -d 'x' -f1)
+    elif command -v wayland-info >/dev/null 2>&1; then
+        screen=$(wayland-info | awk '/current_mode/ {print $2; exit}' | cut -d 'x' -f1)
+    fi
+fi
 if [ -z "${screen}" ] || [ "${screen}" -le '1920' ];then
 	screen="1080p"
 elif [ "${screen}" -le '2560' ];then

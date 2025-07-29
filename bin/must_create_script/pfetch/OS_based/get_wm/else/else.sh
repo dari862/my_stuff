@@ -1,5 +1,5 @@
 
-get_wm() {
+get_wm_X11() {
             # xprop can be used to grab the window manager's properties
             # which contains the window manager's name under '_NET_WM_NAME'.
             #
@@ -47,9 +47,6 @@ get_wm() {
             # Neofetch use a combination of 'xprop' and 'ps' parsing to
             # support all window managers (including non-conforming and
             # Wayland) though it's a lot more complicated!
-
-            # Don't display window manager if X isn't running.
-            [ "$DISPLAY" ] || return
 		while read -r ps_line; do
                         case $ps_line in
                             (*catwm*)     wm=catwm ;;
@@ -64,5 +61,4 @@ get_wm() {
                     done <<-EOF
                         $(ps x)
 					EOF
-    log wm "$wm" >&6
 }

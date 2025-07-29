@@ -1,0 +1,18 @@
+#!/bin/sh
+
+. "/etc/os-release"
+app_name="ghostty"
+
+os_name="$(echo "$ID" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')_${VERSION_ID}"
+
+download_key "key" "https://download.opensuse.org/repositories/home:clayrisser:${VERSION_CODENAME}/${os_name}/Release.key" "/etc/apt/trusted.gpg.d/home_clayrisser_${VERSION_CODENAME}_${app_name}.gpg"
+
+echo "deb http://download.opensuse.org/repositories/home:/clayrisser:/${VERSION_CODENAME}/${os_name}/ /" | my-superuser tee "/etc/apt/sources.list.d/home_clayrisser_${VERSION_CODENAME}_${app_name}.list"
+
+Package_update_
+clear
+
+say "Installing ${app_name}..." 1
+
+Package_installer_ ${app_name} || continue
+

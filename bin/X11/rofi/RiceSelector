@@ -6,8 +6,10 @@
 
 if [ "$_panel_name_" = 'polybar' ];then
 	rices_path="/usr/share/my_stuff/system_files/blob/polybar"
+	current_style="${polybar_STYLE}"
 else
 	rices_path="/usr/share/my_stuff/system_files/blob/tint2"
+	current_style="${tint2_STYLE}"
 fi
 
 # Variables to try to define the correct size of the images for your resolution
@@ -17,7 +19,7 @@ rofi_override="element-icon{size:${monitor_res}px;}"
 # List themes in ani
 list_of_rice_theme="$(find "${rices_path}/" -mindepth 1 -maxdepth 1 -type d -printf '%P\n' | sort)"
 
-selected_index=$(printf '%s\n' "${list_of_rice_theme}" | awk -v cur="$ROFI_STYLE" '$0==cur {print NR-1; exit}')
+selected_index=$(printf '%s\n' "${list_of_rice_theme}" | awk -v cur="$current_style" '$0==cur {print NR-1; exit}')
 
 # Show the rofi selection menu.
 selected=$(
@@ -27,4 +29,4 @@ selected=$(
 )
 
 # If a valid option was selected, write the value to the configuration file and change theme.
-[ -n "$selected" ] && [ "$selected" != "$ROFI_STYLE" ] && style_changer "${selected}"
+[ -n "$selected" ] && [ "$selected" != "$current_style" ] && style_changer "${selected}"

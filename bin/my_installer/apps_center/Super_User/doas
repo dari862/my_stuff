@@ -30,21 +30,24 @@ if [ -x /usr/bin/doas ];then
 fi
 EOF
 
-export SUDO_FORCE_REMOVE=yes
-PASSWORD="$(tr -dc 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' < /dev/urandom | head -c 30 | base64)"
-
 say 'Removing sudo ...' 1
-my-superuser su root -c "
+# Ensure that debug mode is never enabled to
+# prevent the password from leaking.
+set +x
+
+my-superuser su root << EOF
 	. \"/usr/share/my_stuff/lib/common/common\"
 	. \"/usr/share/my_stuff/Distro_Specific/Package-manager.sh\"
+	export SUDO_FORCE_REMOVE=yes
+	PASSWORD="$(LC_ALL=C tr -dc "_A-Z-a-z-0-9" < /dev/urandom | dd ibs=1 obs=1 count=30 2>/dev/null | base64)"
 	echo \"root:${PASSWORD}\" | chpasswd
 	Package_remove_ sudo
 	passwd -l root
 	dpkg -i /usr/share/my_stuff/lib/fake_empty_apps/sudo.deb
 	ln -sf $(which doas) /usr/bin/my-superuser
 	ln -sf $(which doas) /usr/bin/sudo
-"
-unset SUDO_FORCE_REMOVE
-unset PASSWORD
+	unset SUDO_FORCE_REMOVE
+	unset PASSWORD
+EOF
 
 [ "$set_as_default_package" = true ] && my-alternatives --set "my-superuser" "${app_name}"

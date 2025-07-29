@@ -1,7 +1,7 @@
 #!/bin/sh
+. "/usr/share/my_stuff/lib/common/WM"
 
-API_path="/usr/share/my_stuff/lib/common/API"
-OPENAI_KEY=$(cat "${API_path}/${OPENAI}" 2>/dev/null || :)
+OPENAI_KEY="$(myAPIman show openai)"
 
 # Error handler function
 handle_error() {
@@ -208,8 +208,7 @@ done
 
 # Check if the OpenAI API key is set
 if [ -z "$OPENAI_KEY" ];then
-    echo "You need to set your OpenAI API key to ${API_path}/${OPENAI}"
-    exit 1
+    myAPIman add openai || exit 1
 fi
 
 # Set defaults if no prompt is provided
@@ -243,7 +242,7 @@ else
     # Chat or completions request
     if [ "$CONTEXT" = true ];then
         # Handle chat history
-        chat_history_file="${API_path}/chat_history.json"
+        chat_history_file="${script_config_path}/chat_history.json"
         message="{\"role\": \"user\", \"content\": \"$prompt\"}"
         if [ -s "$chat_history_file" ];then
             chat_history=$(cat "$chat_history_file")

@@ -1,30 +1,15 @@
 #!/bin/sh
-#===================================================================================
-# FILE: tint2-session
-# DESCRIPTION: manage tint2 processes for start, restart and stop all tint2 instances
-# AUTHOR: Leonardo Marco
-# VERSION: 1.0
-# CREATED: 2020.04.09
-# LICENSE: GNU General Public License v3.0
-#===================================================================================
 
 config_dir="$HOME/.config"
 tint2_config="${config_dir}/tint2"
 . "/usr/share/my_stuff/lib/common/WM"
 . "${Distro_config_file}"
 
-#=== FUNCTION ======================================================================
-# NAME: stop
-# DESCRIPTION: stop all tint2 process
-#===================================================================================
 stop() {
 	kill_process.sh tint2
+	wait
 }
 
-#=== FUNCTION ======================================================================
-# NAME: start
-# DESCRIPTION: start tint2
-#===================================================================================
 start() {
 	for theme in $tint2_sessionfile
 	do
@@ -33,7 +18,6 @@ start() {
 	done
 }
 
-# EXEC ACTION ACCORDING $1
 case "${1}" in
 	""|restart)
 		stop

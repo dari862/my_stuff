@@ -1,0 +1,71 @@
+#!/bin/sh
+## Commands Executed By Openbox Powermenu
+
+## Rofi #############################################
+. "/usr/share/my_stuff/lib/common/WM"
+. "${my_stuff_display_manager_lib_path}"
+. "${Distro_config_file}"
+
+opt_="${1-}"
+opt2_="${2-}"
+confirm_it="true"
+
+confirmation_dialog(){
+	if [ "$layout" = "YES" ];then
+		yes=''
+		no=''
+	else
+		yes=' Yes'
+		no=' No'
+	fi
+	
+	ans="$(printf '%s\n' "$yes" "$no" | rofi -dmenu -p 'Confirmation' -mesg 'Are you Sure?' -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi)"
+	
+	if [ "$ans" = "$yes" ];then
+		return
+	else
+		exit
+	fi
+}
+
+## Options #############################################
+layout="$(grep 'USE_ICON' "$HOME/.config/rofi/$ROFI_STYLE"/powermenu.rasi | cut -d'=' -f2 | tr -d '[:blank:],*/')"
+
+rofi_command="rofi -theme $HOME/.config/rofi/$ROFI_STYLE/powermenu.rasi"
+uptime=$(uptime -p | sed -e 's/up //g')
+	
+## Buttons
+if [ "$layout" = "YES" ];then
+	shutdown=""
+	reboot=""
+	lock=""
+	suspend=""
+	logout=""
+else
+	shutdown=" Shutdown"
+	reboot=" Restart"
+	lock=" Lock"
+	suspend=" Sleep"
+	logout=" Logout"
+fi
+
+chosen="$(printf '%s\n' "$lock" "$suspend" "$logout" "$reboot" "$shutdown" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
+
+if [ "$opt_" = "--no-confirm" ] || [ "$opt_" = "-n" ] ;then
+	opt_="${opt2_}"
+else
+	[ "$confirm_it" = true ] && confirmation_dialog
+fi
+
+case "$chosen" in
+  	"$shutdown") my_session_manager_cli shutdown --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+   	"$reboot") my_session_manager_cli reboot --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+   	"$lock") my_session_manager_cli lock ;;
+   	"$suspend") my_session_manager_cli suspend ;;
+   	"$logout") my_session_manager_cli logout ;;
+   	hibernate) my_session_manager_cli hibernate --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+	hybrid-Sleep) my_session_manager_cli hybrid-Sleep --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+	moniter_off) my_session_manager_cli moniter_off ;;
+	reload) my_session_manager_cli reload ;;
+	*) exit 0;;
+esac

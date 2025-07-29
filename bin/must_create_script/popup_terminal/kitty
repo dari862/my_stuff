@@ -71,6 +71,10 @@ run_popup_fullscreen_mode(){
 }
 
 run_popup_normal_mode(){
+	kitty -T "${arg_}" -e my-superuser bash -c "${file_name_}"
+}
+
+run_popup_normal_normal_superuser_mode(){
 	kitty -T "${arg_}" -e bash -c "${file_name_}"
 }
 
@@ -92,5 +96,6 @@ case $arg_ in
 		--super-user-editor) run_editor_with_super_user ;;
 		--full) run_popup_fullscreen_mode ;;
 		--geometry) run_popup_normal_mode_geometry ;;
+		--superuser) run_popup_normal_normal_superuser_mode ;;
 		*) run_popup_normal_mode;;
 esac

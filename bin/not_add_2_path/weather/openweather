@@ -181,9 +181,9 @@ parse_weather_for_conky_vision(){
 	ln -sf "${forecast3_realpath}" "${cache_folder}/forecast-3.png"
 	ln -sf "${forecast4_realpath}" "${cache_folder}/forecast-4.png"
 }
-appid=$(cat "${API_path}/${weather}" || :)
 
-if [ -z "$appid" ];then
+
+if ! appid="$(myAPIman show openweather)";then
 	echo "No API key." 
    	echo "Weather information unavailable. Get one from http://openweathermap.org/api" 
    	echo "or switch mode to 'wttr' in $weather_script_config_path" 

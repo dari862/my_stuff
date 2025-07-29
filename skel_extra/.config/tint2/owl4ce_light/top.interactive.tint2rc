@@ -455,7 +455,7 @@ separator_padding = 0 0
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = tint2_scripts temp
+execp_command = get_cpu_temp
 execp_interval = 1
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -524,7 +524,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 4
 execp = new
-execp_command = tint2_scripts network-icon
+execp_command = network_status --icon
 execp_interval = 1
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -547,7 +547,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 5
 execp = new
-execp_command = tint2_scripts network-status
+execp_command = network_status --status
 execp_interval = 1
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -570,18 +570,18 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 6
 execp = new
-execp_command = tint2_scripts volume-icon
+execp_command = volume_cli_control --icon
 execp_interval = 1
 execp_has_icon = 0
 execp_cache_icon = 0
 execp_continuous = 0
 execp_markup = 0
 execp_tooltip = [L] Toggle Audio Mute [S] Audio Volume +/-
-execp_lclick_command = tint2_scripts volume-mute
+execp_lclick_command = volume_cli_control --toggle
 execp_rclick_command = 
 execp_mclick_command = 
-execp_uwheel_command = tint2_scripts volume-inc
-execp_dwheel_command = tint2_scripts volume-dec
+execp_uwheel_command = volume_cli_control --inc
+execp_dwheel_command = volume_cli_control --dec
 execp_font = Material Bold 10
 execp_font_color = #f9f9f9 100
 execp_padding = 5 0
@@ -593,7 +593,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 7
 execp = new
-execp_command = tint2_scripts volume-percent
+execp_command = volume_cli_control --get
 execp_interval = 1
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -603,8 +603,8 @@ execp_tooltip = [S] Audio Volume +/-
 execp_lclick_command = 
 execp_rclick_command = 
 execp_mclick_command = 
-execp_uwheel_command = tint2_scripts volume-inc
-execp_dwheel_command = tint2_scripts volume-dec
+execp_uwheel_command = volume_cli_control --inc
+execp_dwheel_command = volume_cli_control --dec
 execp_font = Iosevka 8.5
 execp_font_color = #373e4d 80
 execp_padding = 6 0

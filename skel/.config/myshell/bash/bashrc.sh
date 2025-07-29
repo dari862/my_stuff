@@ -139,11 +139,3 @@ for bashplugin in ${bashplugins[@]}; do
   	fi
 done
 # ---------------------------------  Extra  ----------------------------------
-
-if [ "$vim_mode_enabled" = true ];then
-	set -o vi
-	# Use `bind` to detect mode changes
-	bind 'set show-mode-in-prompt on'
-	bind 'set vi-ins-mode-string \1\e[0;32m>\e[0m '
-	bind 'set vi-cmd-mode-string \1\e[0;31m<\e[0m '
-fi

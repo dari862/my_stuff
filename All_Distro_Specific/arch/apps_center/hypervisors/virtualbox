@@ -28,9 +28,9 @@ Package_installer_ ${install_list} || continue
 
 my-superuser usermod -aG vboxusers $USER 
 
-sudo modprobe vboxdrv
-sudo modprobe vboxnetflt
-sudo modprobe vboxnetadp
+my-superuser modprobe vboxdrv
+my-superuser modprobe vboxnetflt
+my-superuser modprobe vboxnetadp
 printf "vboxdrv\nvboxnetflt\nvboxnetadp" | my-superuser tee /etc/modules-load.d/virtualbox.conf
 
 say

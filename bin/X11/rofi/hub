@@ -5,15 +5,15 @@
 . "/usr/share/my_stuff/lib/common/openbox"
 
 _hub_script_dir="/usr/share/my_stuff/system_files/hub_script"
-ls_bin="/usr/bin/ls"
 opt___="${1-}"
+
 if [ "$opt___" = "create" ];then
 	# need superuser here
 	mkdir -p "${_hub_script_dir}"
-	_script_for_hub="$(grep -R "^# if this line exist script will be part of hub script." "/usr/share/my_stuff/system_files/bin" | awk -F: '{print $1}')"
-	for script in ${_script_for_hub};do
-		cp -rf "$script" "${_hub_script_dir}"
-	done
+	_script_for_hub="$(grep -RI "^# if this line exist script will be part of hub script." "/usr/share/my_stuff/bin" | awk -F: '{print $1}')"
+		for script in ${_script_for_hub};do
+			ln -sf "$script" "${_hub_script_dir}"
+		done
 	exit
 elif [ -n "$opt___" ];then
 	shift 1
@@ -33,7 +33,7 @@ full_script_path=""
 
 list_scripts_hub()
 {
-	$ls_bin $_hub_script_dir
+	\ls $_hub_script_dir
 }
 
 scripts_hub()
@@ -53,19 +53,16 @@ scripts_hub()
 execuite_scripts_()
 {
 	if [ -f "${full_script_path}" ];then
-		run_this_in_popup_="'ani-cli' 'sparky-usb-formatter'"
-		
+		run_this_in_popup_="'mytv' 'usb-formatter'"
 		if echo "${run_this_in_popup_}" | grep -q "${script_name_}";then
-			run_it_in_popup_="" #run it in popup
-		else
-			run_it_in_popup_=$(grep -e "popup" -e "yad" -e "rofi" "${full_script_path}" || :) # check if it contain yad popup or rofi if yes then dont run in popup
-		fi
-		
-		if [ -z "$run_it_in_popup_" ]
-		then
 			popup_terminal "${full_script_path};read -p 'Press enter to continue'"
 		else
-			"${full_script_path}"
+			if grep -E "popup|yad|rofi" "${full_script_path}";then
+				"${full_script_path}"
+			else
+				echo "this script (${full_script_path}) does not exist"
+				help
+			fi
 		fi
 	else
 		echo "this script (${full_script_path}) does not exist"

@@ -2,6 +2,7 @@
 . "/usr/share/my_stuff/lib/common/common"
 . "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 . "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "${my_stuff_display_manager_lib_path}"
 
 chroot_name="${1-}"
 chroot_path="${INSTALLER_CHROOT_DIR}/${chroot_name}"
@@ -27,6 +28,7 @@ cleanup() {
     my-superuser umount "$CHROOT_DIR/dev/pts" >/dev/null 2>&1 || log_error "Failed to unmount /dev/pts"
     my-superuser umount "$CHROOT_DIR/dev" >/dev/null 2>&1 || log_error "Failed to unmount /dev"
     my-superuser umount "$CHROOT_DIR/run" >/dev/null 2>&1 || log_error "Failed to unmount /run"
+    [ "${Display_server_are}" = "wayland" ] && my-superuser umount "$CHROOT_DIR/run/user/$(id -u)" >/dev/null 2>&1 || :
 }
 
 base_chroot_creater(){
@@ -69,15 +71,38 @@ chroot_creater(){
     			my-superuser mount --bind "$fs" "$CHROOT_DIR$fs" || failed_to_run "Failed to mount $fs"
     		fi
 		done
-			
+		
+		if [ "${Display_server_are}" = "wayland" ];then
+        	WAYLAND_RUN_DIR="/run/user/$(id -u)"
+        	CHROOT_WAYLAND_RUN_DIR="$CHROOT_DIR$WAYLAND_RUN_DIR"
+        	my-superuser mkdir -p "$CHROOT_WAYLAND_RUN_DIR"
+        	my-superuser mount --bind "$WAYLAND_RUN_DIR" "$CHROOT_WAYLAND_RUN_DIR" || failed_to_run "Failed to bind-mount Wayland socket directory"
+		fi
 		say "Installing dependencies in the chroot..."
 		my-superuser chroot "$CHROOT_DIR" bash -c "
     		apt update && apt install -y dbus-x11 libgtk-3-0 libdbus-glib-1-2 libx11-xcb1 libpci-dev libgl1 libegl1-mesa libgl1-mesa-glx
 		" || failed_to_run "Failed to install required packages in chroot"
-
-		say "Configuring chroot for X11 forwarding..."
-		my-superuser chroot "$CHROOT_DIR" su - $CHROOT_USER -c "echo 'export DISPLAY=:0.0' >> /home/$CHROOT_USER/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
-		my-superuser chroot "$CHROOT_DIR" sh -c "echo 'export DISPLAY=:0.0' >> /etc/skel/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
+		
+		if [ "${Display_server_are}" = "X11" ];then
+			say "Configuring chroot for X11 forwarding..."
+			my-superuser chroot "$CHROOT_DIR" su - $CHROOT_USER -c "echo 'export DISPLAY=:0.0' >> /home/$CHROOT_USER/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
+			my-superuser chroot "$CHROOT_DIR" sh -c "echo 'export DISPLAY=:0.0' >> /etc/skel/.bashrc" || failed_to_run "Failed to set X11 forwarding in chroot"
+			
+		elif [ "${Display_server_are}" = "wayland" ];then
+			say "Configuring chroot for Wayland forwarding..."
+        	# Remove any existing DISPLAY export
+        	my-superuser chroot "$CHROOT_DIR" sed -i '/export DISPLAY/d' /home/$CHROOT_USER/.bashrc /etc/skel/.bashrc || :
+	
+        	# Add WAYLAND_DISPLAY and MOZ_ENABLE_WAYLAND to user bashrc
+        	my-superuser chroot "$CHROOT_DIR" bash -c "
+            	echo 'export WAYLAND_DISPLAY=wayland-0' >> /home/$CHROOT_USER/.bashrc
+            	echo 'export MOZ_ENABLE_WAYLAND=1' >> /home/$CHROOT_USER/.bashrc
+        	"
+        	my-superuser chroot "$CHROOT_DIR" bash -c "
+            	echo 'export WAYLAND_DISPLAY=wayland-0' >> /etc/skel/.bashrc
+            	echo 'export MOZ_ENABLE_WAYLAND=1' >> /etc/skel/.bashrc
+        	"
+        fi
 	fi
 }
 
@@ -89,7 +114,7 @@ Create_users_to_chroot(){
 			:
 		else
 			my-superuser chroot "$CHROOT_DIR" useradd -m "${new_chroot_user}" -s /bin/bash
-			my-superuser xhost +local:${new_chroot_user}
+			[ "${Display_server_are}" = "X11" ] && my-superuser xhost +local:${new_chroot_user}
 		fi
 	done
 }

@@ -11,6 +11,10 @@ print_volume() {
 	echo "$current_volume"
 }
 
+print_icon() {
+	echo "$icon_string"
+}
+
 # Get status
 am_muted() {
 	if [ "$(pulsemixer --get-mute)" -eq 1 ];then

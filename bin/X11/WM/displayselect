@@ -190,7 +190,7 @@ postrun() {
 	if [ "$run_create_script" = true ];then
 		create_script
 		execute_command "$display_script"
-		my_session_manager --no-confirm reload
+		my_session_manager_cli reload
 		dunst-session restart
 	fi
 	notify-send "💻 $postrun_title" "$postrun_massage"

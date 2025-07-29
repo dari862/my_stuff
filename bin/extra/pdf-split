@@ -1,67 +1,144 @@
-#!/bin/sh
-# extract range of pages from a PDF
-set -euo
-pass=""
-__echo_pdf_file="$@"
+#!/bin/bash
+
+set -euo pipefail
 
 check_4_dependencies_if_installed qpdf || exit 1
 
-help(){
-	echo "pdfsplit:"
-	echo ""
-	echo ""
-	echo "########"
-	echo "pdfsplit (pdf file to split) "
-	echo ""
-	echo ""
-	echo "########"
-	echo "pdfsplit (pdf file to split) (range)"
-	echo ""
-	echo ""
-	echo "########"
-	echo "pdfsplit (pdf file to split) (range) (-p)"
-	exit 0
+usage() {
+  cat <<EOF
+Usage:
+
+  Extract pages:
+    $0 extract input.pdf page_range
+
+  Merge PDFs:
+    $0 merge output.pdf input1.pdf [input2.pdf ...]
+
+  Encrypt PDF:
+    $0 encrypt input.pdf
+
+Examples:
+  $0 extract input.pdf 3-7
+  $0 merge merged.pdf part1.pdf part2.pdf
+  $0 encrypt confidential.pdf
+
+EOF
+  exit 1
 }
 
-if [ $# -eq 0 ];then
-	help
+prompt_password() {
+  local prompt_msg="$1"
+  local pw
+  read -rsp "$prompt_msg" pw
+  echo
+  printf "%s" "$pw"
+}
+
+check_file_exists() {
+  if [ ! -f "$1" ]; then
+    echo "❌ File not found: $1"
+    exit 1
+  fi
+}
+
+is_encrypted() {
+  qpdf --show-encryption "$1" &>/dev/null
+}
+
+handle_extract() {
+  local INPUT="$1"
+  local PAGES="$2"
+
+  check_file_exists "$INPUT"
+
+  local BASENAME="${INPUT%.*}"
+  local OUTPUT="${BASENAME}_extracted.pdf"
+
+  if [ -f "$OUTPUT" ]; then
+    echo "⚠️ Output file '$OUTPUT' already exists. Overwrite? (y/N)"
+    read -r confirm
+    [[ "$confirm" != "y" ]] && exit 1
+  fi
+
+  if is_encrypted "$INPUT"; then
+	PASSWORD=$(prompt_password "🔐 Enter password for encrypted PDF: ")
+    qpdf --password="$PASSWORD" "$INPUT" --pages "$INPUT" "$PAGES" -- "$OUTPUT"
+  else
+    qpdf "$INPUT" --pages "$INPUT" "$PAGES" -- "$OUTPUT"
+  fi
+
+  echo "✅ Extracted pages [$PAGES] to '$OUTPUT'"
+}
+
+handle_merge() {
+  local INPUTS=("$@")
+  first_file="$1"
+  name="${first_file%.*}"
+  OUTPUT_PDF="${name}_merged.pdf"
+
+  for f in "${INPUTS[@]}"; do
+    check_file_exists "$f"
+  done
+
+  if [ -f "$OUTPUT" ]; then
+    echo "⚠️ Output file '$OUTPUT' already exists. Overwrite? (y/N)"
+    read -r confirm
+    [[ "$confirm" != "y" ]] && exit 1
+  fi
+
+  qpdf --empty --pages "${INPUTS[@]}" -- "$OUTPUT"
+  echo "✅ Merged PDFs into '$OUTPUT'"
+}
+
+handle_encrypt() {
+  local INPUT="$1"
+  check_file_exists "$INPUT"
+
+  local BASENAME="${INPUT%.*}"
+  local OUTPUT="${BASENAME}_encrypted.pdf"
+
+  if [ -f "$OUTPUT" ]; then
+    echo "⚠️ Output file '$OUTPUT' already exists. Overwrite? (y/N)"
+    read -r confirm
+    [[ "$confirm" != "y" ]] && exit 1
+  fi
+
+  USER_PW=$(prompt_password "🔒 Enter user password: ")
+  OWNER_PW=$(prompt_password "🔒 Enter owner password: ")
+
+  if [ -z "$USER_PW" ] || [ -z "$OWNER_PW" ]; then
+    echo "❌ Both user and owner passwords are required."
+    exit 1
+  fi
+
+  qpdf --encrypt "$USER_PW" "$OWNER_PW" 256 -- "$INPUT" "$OUTPUT"
+  echo "🔐 Encrypted '$INPUT' as '$OUTPUT'"
+}
+
+
+# Entry Point
+if [ "$#" -lt 2 ]; then
+  usage
 fi
 
-pdf_part_of_at="$(echo "${__echo_pdf_file}" | sed 's/.pdf.*/.pdf/' || :)"
-if [ -z ${pdf_part_of_at} ];then
-  	echo "ERROR: please add .pdf to end of file. Exiting."
-  	exit 3
-fi
+COMMAND="$1"
+shift
 
-IN="$(echo $pdf_part_of_at | "$(grep -Eo -e '/[^>]+')" || echo $pdf_part_of_at | rev | awk '{print $1}' | rev)"
-if [ -z ${IN} ];then
-  	echo "ERROR: No input file specified. Exiting."
-  	exit 3
-elif ! [ -f "${IN}" ];then
-  	echo "ERROR: Input ${IN@Q} not found. Exiting."
-  	exit 3
-fi
-OUT="${IN%.*_%d.pdf}"
+case "$COMMAND" in
+  extract)
+    [ "$#" -ne 2 ] && usage
+    handle_extract "$@"
+    ;;
+  merge)
+    [ "$#" -lt 2 ] && usage
+    handle_merge "$@"
+    ;;
+  encrypt)
+    [ "$#" -ne 1 ] && usage
+    handle_encrypt "$1"
+    ;;
+  *)
+    usage
+    ;;
+esac
 
-if [ $# -eq 1 ];then
-	qpdf --split-pages ${IN} ${OUT}
-else
-	range="$(echo "${__echo_pdf_file}" | "$(grep -Eo '[0-9:-]+')" || :)"
-	if [ -z ${range} ];then
-		echo "ERROR: Range is empty. Exiting."
-		exit 3
-	fi
-
-	check_4_pass="$(echo "${__echo_pdf_file}" | grep -o -E ' -p | -P | -password ' || :)"
-	
-	if [ ${check_4_pass} ];then
-		printf "pass: "
-		stty -echo
-		read pass
-		stty echo
-		if [ ${pass} ];then
-			decryption_arg="--password=$pass --decrypt"
-		fi
-	fi
-	qpdf --empty --pages ${decryption_arg} ${IN} ${range} -- ${OUT}
-fi

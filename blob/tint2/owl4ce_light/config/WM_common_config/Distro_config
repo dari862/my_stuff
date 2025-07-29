@@ -1,7 +1,7 @@
 #!/bin/sh
 _panel_name_="tint2"
 ROFI_STYLE="modi"
-polybar_STYLE=""
+tint2_STYLE="owl4ce_light"
 conky_sessionfile=""
 
 CHK_THEME="owl4ce_light"

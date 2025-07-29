@@ -9,7 +9,7 @@ set_time_(){
 
 set_time_zone(){
 	if [ -z "$__timezone" ];then
-		__timezone="$(get_scripts --timezone)"
+		__timezone="$(get_timezone)"
 	fi
 	
 	echo "Using ${__timezone} as time zone."

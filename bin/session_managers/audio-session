@@ -1,12 +1,4 @@
 #!/bin/sh
-#===================================================================================
-# FILE: audio-session
-# DESCRIPTION: manage audio processes for start, restart and stop all audio instances
-# AUTHOR: Leonardo Marco
-# VERSION: 1.0
-# CREATED: 2020.04.09
-# LICENSE: GNU General Public License v3.0
-#===================================================================================
 
 sleep_time="${2:-0}"
 
@@ -21,25 +13,15 @@ else
 	exit 1
 fi
 
-#=== FUNCTION ======================================================================
-# NAME: stop
-# DESCRIPTION: stop all audio process
-#===================================================================================
 stop() {
-	sleep $sleep_time && kill_process.sh ${audio_app}
+	kill_process.sh ${audio_app}
+	wait
 }
 
-
-#=== FUNCTION ======================================================================
-# NAME: start
-# DESCRIPTION: start audio app
-#===================================================================================
 start() {
 	pidof -q ${audio_app} || (sleep ${sleep_time} && ${audio_app} ) &
 }
 
-
-# EXEC ACTION ACCORDING $1
 case "${1}" in
 	""|restart)
 		stop

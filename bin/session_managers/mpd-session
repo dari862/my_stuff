@@ -1,28 +1,11 @@
 #!/bin/sh
-#===================================================================================
-# FILE: dunst-session
-# DESCRIPTION: manage mpd processes for start, restart and stop all mpd instances
-# AUTHOR: Leonardo Marco
-# VERSION: 1.0
-# CREATED: 2020.04.09
-# LICENSE: GNU General Public License v3.0
-#===================================================================================
-
 mpdconf_path="$HOME/.config/mpd/mpd.conf"
 
-#=== FUNCTION ======================================================================
-# NAME: stop
-# DESCRIPTION: stop all mpd process
-#===================================================================================
 stop() {
 	mpd --kill || kill_process.sh mpd
+	wait
 }
 
-
-#=== FUNCTION ======================================================================
-# NAME: start
-# DESCRIPTION: load mpd with config file
-#===================================================================================
 start() {
 	if [ ! -f "$HOME/.config/mpd/mpd.db" ];then
 		( sleep 1 && cd ~/Music/ && mpc -q add * ) &
@@ -30,7 +13,6 @@ start() {
 	pidof -q mpd || mpd ${mpdconf_path} &
 }
 
-# EXEC ACTION ACCORDING $1
 case "${1}" in
 	""|restart)
 		stop

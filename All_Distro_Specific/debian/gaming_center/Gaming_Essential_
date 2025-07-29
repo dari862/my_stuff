@@ -21,7 +21,7 @@ fi
 
 if ! dpkg -q steam-launcher 2>/dev/null;then
 	download_key "download" "https://repo.steampowered.com/steam/archive/stable/steam.gpg" "/usr/share/keyrings/steam.gpg"
-	sudo tee /etc/apt/sources.list.d/steam-stable.list <<- 'EOF' >/dev/null 2>&1
+	my-superuser tee /etc/apt/sources.list.d/steam-stable.list <<- 'EOF' >/dev/null 2>&1
 	deb [arch=amd64,i386 signed-by=/usr/share/keyrings/steam.gpg] https://repo.steampowered.com/steam/ stable steam
 	deb-src [arch=amd64,i386 signed-by=/usr/share/keyrings/steam.gpg] https://repo.steampowered.com/steam/ stable steam
 	EOF
@@ -59,4 +59,4 @@ flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue
 say "Creating Check File (Gaming_ready)"
 my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
 my-superuser touch /usr/share/my_stuff/system_files/Gaming_ready
-/usr/share/my_stuff/bin/not_add_2_path/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+/usr/share/my_stuff/bin/X11/not_add_2_path/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"

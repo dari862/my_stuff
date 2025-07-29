@@ -1,3 +1,4 @@
 #!/bin/sh
+app_name="Obsidian"
 flatpak_install ${app_name} md.obsidian.Obsidian
 

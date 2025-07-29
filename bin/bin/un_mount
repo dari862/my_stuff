@@ -106,7 +106,7 @@ __mount() {
                 return 1
             fi
         fi
-        sudo mount $mount_options "$1" "$dir"
+        my-superuser mount $mount_options "$1" "$dir"
     fi
 }
 
@@ -115,7 +115,7 @@ __unmount() {
     if (( udisks )); then
         udisksctl unmount --block-device "$1"
     else
-        sudo umount "$1"
+        my-superuser umount "$1"
     fi
 }
 
@@ -125,7 +125,7 @@ get_luks_child() {
 }
 
 get_luks_header_information() {
-    sudo sh -c "cryptsetup luksDump '$1' | less"
+    my-superuser sh -c "cryptsetup luksDump '$1' | less"
 }
 
 action_eject() {
@@ -145,7 +145,7 @@ action_eject() {
             udisksctl power-off -b "$1"
             retval=$?
         else
-            sudo eject "$1"
+            my-superuser eject "$1"
             retval=$?
         fi
         if (( retval == 0 )); then
@@ -218,7 +218,7 @@ action_unlock() {
         udisksctl unlock --block-device "$1"
         retval=$?
     else
-        sudo cryptsetup open --type luks -v "$1" "luks-${1##*/}"
+        my-superuser cryptsetup open --type luks -v "$1" "luks-${1##*/}"
         retval=$?
     fi
     (( retval != 0 )) && enter_to_continue
@@ -231,7 +231,7 @@ action_lock() {
         udisksctl lock --block-device "$1"
         retval=$?
     else
-        sudo cryptsetup close --type luks "$1"
+        my-superuser cryptsetup close --type luks "$1"
         retval=$?
     fi
     (( retval != 0 )) && enter_to_continue

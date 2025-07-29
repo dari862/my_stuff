@@ -1,8 +1,0 @@
-account $fulladdr
-tls on
-user $login
-host $imap
-port $iport
-timeout 10
-delivery maildir $maildir/$fulladdr/INBOX
-passwordeval pass $passprefix$fulladdr

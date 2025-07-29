@@ -43,29 +43,29 @@
 		<separator/>
 		<item label="Lock Screen">
 			<action name="Execute">
-				<command>my_session_manager lock</command>
+				<command>my_session_manager_menu lock</command>
 			</action>
 		</item>
 		<menu id="Exit" label="System">
 				<menu id="SystemPipeMenu" execute="sysinfo-pipemenu" label="Stats"/>
 				<item label="Logout">
 					<action name="Execute">
-						<command>my_session_manager logout</command>
+						<command>my_session_manager_menu logout</command>
 					</action>
 				</item>
 				<item label="Suspend">
 					<action name="Execute">
-						<command>my_session_manager suspend</command>
+						<command>my_session_manager_menu suspend</command>
 					</action>
 				</item>
 				<item label="Reboot">
 					<action name="Execute">
-						<command>my_session_manager reboot</command>
+						<command>my_session_manager_menu reboot</command>
 					</action>
 				</item>
 				<item label="Shutdown">
 					<action name="Execute">
-						<command>my_session_manager shutdown</command>
+						<command>my_session_manager_menu shutdown</command>
 					</action>
 				</item>
 		</menu>

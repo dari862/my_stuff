@@ -25,6 +25,8 @@ run_options() {
                 exit;;
             a)  INFO=1
                 ;;
+            n)  INFO=2
+                ;;
             \?) echo "error: Invalid option"
                 exit;;
         esac
@@ -34,9 +36,12 @@ run_options() {
 
 run_options "$@"
 
+current_power="$(upower -i "$BAT")"
+
 if [ $INFO -eq 1 ];then
-    upower -i "$BAT"
+    echo "$current_power"
+elif [ $INFO -eq 2 ];then
+    notify-send "$(echo "$current_power" | grep --color=never -E 'state|to\ full|to\ empty|percentage')"
 else
-    upower -i "$BAT" | \
-    grep --color=never -E 'state|to\ full|to\ empty|percentage'
+    echo "$current_power" | grep --color=never -E 'state|to\ full|to\ empty|percentage'
 fi

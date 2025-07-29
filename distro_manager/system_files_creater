@@ -12,8 +12,7 @@ if [ -z "${machine_type_are}" ];then
 	machine_type_are="$(check_machine_type)"
 fi
 
-_hub_script_dir="${__distro_path}/system_files/hub_script"
-pipemenu_creater="${__distro_path}/bin/not_add_2_path/create_pipemenu"
+pipemenu_creater="${__distro_path}/bin/X11/not_add_2_path/create_pipemenu"
 
 PATH="${__distro_path}/bin/bin:$PATH"
 
@@ -426,6 +425,11 @@ if [ -d "${__distro_path}/bin/extra" ];then
 	ln -sf "${__distro_path}"/bin/extra/* "${__distro_path}"/system_files/bin
 fi
 
+if [ -d "${__distro_path}/bin/status" ];then
+	show_im "status bin files to system_files/bin ."
+	ln -sf "${__distro_path}"/bin/status/* "${__distro_path}"/system_files/bin
+fi
+
 if [ -d "${__distro_path}/bin/apps" ];then
 	show_im "apps bin files to system_files/bin ."
 	ln -sf "${__distro_path}"/bin/apps/* "${__distro_path}"/system_files/bin
@@ -439,7 +443,7 @@ if [ -d "${__distro_path}/bin/session_managers" ];then
 fi
 
 show_im "nbrowser bin files to system_files/bin ."
-ln -sf "${__distro_path}"/bin/not_add_2_path/nbrowser/nbrowser "${__distro_path}"/system_files/bin
+ln -sf "${__distro_path}"/bin/X11/not_add_2_path/nbrowser/nbrowser "${__distro_path}"/system_files/bin
 create_applicationsdotdesktop_link "nbrowser"
 
 if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
@@ -500,8 +504,6 @@ if command -v flatpak >/dev/null 2>&1;then
 		create_applicationsdotdesktop_link "audacity"
 	fi
 fi
-show_im "prepares hub script dir"
-"${__distro_path}"/bin/X11/rofi/hub create || show_em "failed to run hub create"
 
 show_im "prepares gui scripts dir"
 "${pipemenu_creater}"/gui-apps-pipemenu || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu"
@@ -534,5 +536,8 @@ if command -v conky >/dev/null 2>&1;then
 fi
 
 create_blob_system_files
+
+show_im "prepares hub script dir"
+"${__distro_path}"/bin/X11/rofi/hub create || show_em "failed to run hub create"
 
 show_im "system_files_creater Done."

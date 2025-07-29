@@ -1,0 +1,347 @@
+#!/bin/sh
+#
+# simple password manager.
+
+gen_random() {
+    
+    # Generate a password by reading '/dev/urandom' with the
+    # 'tr' command to translate the random bytes into a
+    # configurable character set.
+    #
+    # The 'dd' command is then used to read only the desired
+    # password length.
+    #
+    # Regarding usage of '/dev/urandom' instead of '/dev/random'.
+    # See: https://www.2uo.de/myths-about-urandom
+    pass=$(LC_ALL=C tr -dc "${PASH_PATTERN:-_A-Z-a-z-0-9}" < /dev/urandom |
+        dd ibs=1 obs=1 count="${PASH_LENGTH:-50}" 2>/dev/null)
+    
+    [ "$pass" ] || die "Failed to generate a ${_gpg_type_name}"
+}
+
+gpg_add_gen() {
+	gen_random
+    gpg_add
+}
+
+gpg_add_man() {
+    # 'sread()' is a simple wrapper function around 'read'
+    # to prevent user input from being printed to the terminal.
+    sread pass  "Enter ${_gpg_type_name}"
+    sread pass2 "Enter ${_gpg_type_name} (again)"
+
+    # Disable this check as we dynamically populate the two
+    # passwords using the 'sread()' function.
+    # shellcheck disable=2154
+    [ "$pass" = "$pass2" ] || die "${_gpg_type_name} do not match"
+    
+    # otp filter
+    if [ "$_otp" = true ];then 		
+  		otp_type=""
+  		otp_secret=""
+  		otp_digits=""
+  		otp_algorithm=""
+  		otp_period=""
+  		otp_counter=""
+  		
+  		if ! echo "$pass" | grep -Eiq '^otpauth://(totp|hotp)/[^%:]+(:|%3A)[^?]+\?secret=';then
+  			pass=$(printf '%s' "$pass" | tr '[:lower:]' '[:upper:]')
+    		if echo "$pass" | base32 --decode >/dev/null 2>/dev/null; then
+      			yn "Is this HOTP?" && {
+      				otp_type=""
+          			sread otp_counter "Initial counter value [default 0]: "
+          			[ -z "$counter" ] && counter=0 ;;
+      			} || otp_type="--totp"
+    		else
+      			die "Invalid secret or URL"
+    		fi
+  		else
+    		decoded_uri=$(printf '%b' "$(printf '%s' "$pass" | sed 's/+/ /g;s/%/\\x/g')")
+  			otp_type=$(echo "$decoded_uri" | sed -n 's|^otpauth://\([^/]*\)/.*|\1|p')
+  			params=$(echo "$decoded_uri" | sed -n 's|^.*?\(.*\)$|\1|p')
+			
+  			[ -z "$otp_type" ] || [ -z "$params" ] && die "Invalid OTP URI"
+			
+  			IFS='&'
+  			for pair in $params; do
+    			key=$(echo "$pair" | cut -d= -f1)
+    			value=$(echo "$pair" | cut -d= -f2-)
+    			case "$key" in
+      			secret) [ -n "$value" ] && otp_secret="$(printf '%s' "$value" | tr '[:lower:]' '[:upper:]')" || die "Missing secret in URI"  ;;
+      			digits) [ -n "$value" ] && otp_digits=" --digits=$value" ;;
+      			algorithm) [ -n "$value" ] && lower_algo=" --algorithm=$(echo "$value" | tr '[:upper:]' '[:lower:]')" ;;
+      			period) [ -n "$value" ] && otp_period=" --time-step-size=$value" ;;
+      			counter) [ -n "$value" ] && otp_counter=" --counter=$value" || die "Missing HOTP counter" ;;
+    			esac
+  			done
+  		fi
+  		pass="$OATH -b ${otp_type}${lower_algo}${otp_period}${otp_counter}${otp_digits} $otp_secret"
+	fi
+    gpg_add
+}
+
+gpg_edit() {
+	sread pass  "Enter ${_gpg_type_name} (current:$(gpg_show))"
+    sread pass2 "Enter ${_gpg_type_name} (again)"
+    # Disable this check as we dynamically populate the two
+    # passwords using the 'sread()' function.
+    # shellcheck disable=2154
+    [ "$pass" = "$pass2" ] || die "${_gpg_type_name} do not match"
+    gpg_add -y
+}
+
+gpg_add() {
+	extra_arg="${1:-}"
+    # Mimic the use of an array for storing arguments by... using
+    # the function's argument list. This is very apt isn't it?
+    if [ "$PASH_KEYID" ]; then
+        set -- --trust-model always -aer "$PASH_KEYID"
+    else
+        set -- -c
+    fi
+
+    # Use 'gpg' to store the password in an encrypted file.
+    # A heredoc is used here instead of a 'printf' to avoid
+    # leaking the password through the '/proc' filesystem.
+    #
+    # Heredocs are sometimes implemented via temporary files,
+    # however this is typically done using 'mkstemp()' which
+    # is more secure than a leak in '/proc'.
+    "$gpg" "${extra_arg}" "$@" -o "$name.gpg" <<-EOF &&
+		$pass
+	EOF
+    printf '%s\n' "Saved '$name' to the store."
+}
+
+gpg_del() {
+    yn "Delete $_gpg_type file '$name'?" && {
+        rm -f "$name.gpg"
+
+        # Remove empty parent directories of a password
+        # entry. It's fine if this fails as it means that
+        # another entry also lives in the same directory.
+        rmdir -p "${name%/*}" 2>/dev/null || :
+    }
+}
+
+gpg_show() {
+    "$gpg" -dq "$name.gpg"
+}
+
+otp_show() {
+  if ! cmd=$(gpg_show);then
+  	die "Failed to decrypt secret"
+  fi
+  
+  $cmd || die "Failed to generate OTP"
+  
+  if ! echo "$cmd" | grep -q "\-\-totp"; then
+    new_counter=$(( otp_counter + 1 ))
+    pass="$(echo "$cmd" | sed -E "s/([&?]counter=)[0-9]+/\1$new_counter/")"
+    gpg_add -y || die "Failed to update HOTP counter"
+  fi
+}
+
+gpg_copy() {
+    # Disable warning against word-splitting as it is safe
+    # and intentional (globbing is disabled).
+    # shellcheck disable=2086
+    : "${PASH_CLIP:=xclip -sel c}"
+
+    # Wait in the background for the password timeout and
+    # clear the clipboard when the timer runs out.
+    #
+    # If the 'sleep' fails, kill the script. This is the
+    # simplest method of aborting from a subshell.
+    [ "$PASH_TIMEOUT" != off ] && {
+        printf 'Clearing clipboard in "%s" seconds.\n' "${PASH_TIMEOUT:=15}"
+
+        sleep "$PASH_TIMEOUT" || kill 0
+        $PASH_CLIP </dev/null
+    } &
+
+    gpg_show | $PASH_CLIP
+}
+
+gpg_list() {
+    find . -type f -name \*.gpg | sed 's/..//;s/\.gpg$//'
+}
+
+gpg_tree() {
+    command -v tree >/dev/null 2>&1 ||
+        die "'tree' command not found"
+
+    tree --noreport | sed 's/\.gpg$//'
+}
+
+yn() {
+    printf '%s [y/n]: ' "$1"
+
+    # Enable raw input to allow for a single byte to be read from
+    # stdin without needing to wait for the user to press Return.
+    stty -icanon
+
+    # Read a single byte from stdin using 'dd'. POSIX 'read' has
+    # no support for single/'N' byte based input from the user.
+    answer=$(dd ibs=1 count=1 2>/dev/null)
+
+    # Disable raw input, leaving the terminal how we *should*
+    # have found it.
+    stty icanon
+
+    printf '\n'
+
+    # Handle the answer here directly, enabling this function's
+    # return status to be used in place of checking for '[yY]'
+    # throughout this program.
+    glob "$answer" '[yY]'
+}
+
+sread() {
+    printf '%s: ' "$2"
+
+    # Disable terminal printing while the user inputs their
+    # password. POSIX 'read' has no '-s' flag which would
+    # effectively do the same thing.
+    stty -echo
+    read -r "$1"
+    stty echo
+
+    printf '\n'
+}
+
+glob() {
+    # This is a simple wrapper around a case statement to allow
+    # for simple string comparisons against globs.
+    #
+    # Example: if glob "Hello World" '* World'; then
+    #
+    # Disable this warning as it is the intended behavior.
+    # shellcheck disable=2254
+    case $1 in $2) return 0; esac; return 1
+}
+
+die() {
+    printf 'error: %s.\n' "$1" >&2
+    exit 1
+}
+
+usage() { printf %s "\
+simple password manager.
+
+=> [a]dd  [name] - Create a new password entry.
+=> [c]opy [name] - Copy entry to the clipboard.
+=> [e]dit [name] - Edit a password entry.
+=> [d]el  [name] - Delete a password entry.
+=> [s]how [name] - Show password for an entry.
+=> [l]ist        - List all entries.
+=> [t]ree        - List all entries in a tree.
+
+=> otp [a]dd  [name] - Create a new otp entry.
+=> otp [c]opy [name] - Copy entry to the clipboard.
+=> otp [e]dit [name] - Edit a otp entry.
+=> otp [d]el  [name] - Delete a otp entry.
+=> otp [s]how [name] - Show (otp secret) for an entry.
+=> otp [n]ow  [name] - Show otp for an entry.
+
+Using a key pair:  export PASH_KEYID=XXXXXXXX
+Password length:   export PASH_LENGTH=50
+Password pattern:  export PASH_PATTERN=_A-Z-a-z-0-9
+Store location:    export PASH_DIR=~/.local/share/pash
+Clipboard tool:    export PASH_CLIP='xclip -sel c'
+Clipboard timeout: export PASH_TIMEOUT=15 ('off' to disable)
+"
+exit 0
+}
+
+main() {
+    : "${PASH_DIR:=${XDG_DATA_HOME:=$HOME/.local/share}/pash}"
+
+    # Look for both 'gpg' and 'gpg2',
+    # preferring 'gpg2' if it is available.
+    command -v gpg  >/dev/null 2>&1 && gpg=gpg
+    command -v gpg2 >/dev/null 2>&1 && gpg=gpg2
+
+    [ "$gpg" ] ||
+        die "GPG not found"
+
+    mkdir -p "$PASH_DIR" ||
+        die "Couldn't create password directory"
+
+    cd "$PASH_DIR" ||
+        die "Can't access password directory"
+
+    glob "$command" '[aecds]*' && [ -z "$name" ] &&
+        die "Missing [name] argument"
+
+    glob "$command" '[ecds]*' && [ ! -f "$name.gpg" ] &&
+        die "${_gpg_type} file '$name' doesn't exist"
+
+    glob "$command" 'a*' && [ -f "$name.gpg" ] &&
+        die "${_gpg_type} file '$name' already exists"
+	
+	if [ "$_otp" = true ];then
+		glob "$command" '[gtl]*' && die "Invalid argument for otp"
+	else
+		glob "$command" '[n]*' && die "Invalid argument for pass"
+	fi
+	
+    glob "$name" '*/*' && glob "$name" '*../*' &&
+        die "Category went out of bounds"
+
+    glob "$name" '/*' &&
+        die "Category can't start with '/'"
+
+    glob "$name" '*/*' && { mkdir -p "${name%/*}" ||
+        die "Couldn't create category '${name%/*}'"; }
+
+    # Set 'GPG_TTY' to the current 'TTY' if it
+    # is unset. Fixes a somewhat rare `gpg` issue.
+    export GPG_TTY=${GPG_TTY:-$(tty)}
+
+    # Restrict permissions of any new files to
+    # only the current user.
+    umask 077
+
+    # Ensure that we leave the terminal in a usable
+    # state on exit or Ctrl+C.
+    [ -t 1 ] && trap 'stty echo icanon' INT EXIT
+    
+	case $command in
+		a*) gpg_add_man  ;;
+		g*) gpg_add_gen  ;;
+		c*) gpg_copy ;;
+		e*) gpg_edit ;;
+		d*) gpg_del  ;;
+		s*) gpg_show ;;
+		n*) otp_show ;;
+		l*) gpg_list ;;
+		t*) gpg_tree ;;
+		*)  usage
+	esac	
+}
+
+# Ensure that debug mode is never enabled to
+# prevent the password from leaking.
+set +x
+
+# Ensure that globbing is globally disabled
+# to avoid insecurities with word-splitting.
+set -f
+
+_otp=false
+_gpg_type="Pass"
+_gpg_type_name="Password"
+command="${1:-}"
+post_name=""
+if [ "$command" = "otp" ];then
+	_otp=true
+	shift
+	command="${1:-}"
+	_gpg_type="OTP"
+	_gpg_type_name="Secret/url"
+	post_name="_otp"
+fi
+name="${2:-}${post_name}"
+
+[ "$command" ] || usage && main "$@"

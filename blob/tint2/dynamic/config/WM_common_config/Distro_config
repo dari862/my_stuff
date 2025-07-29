@@ -1,6 +1,6 @@
 _panel_name_="tint2"
 ROFI_STYLE="default"
-polybar_STYLE=""
+tint2_STYLE="dynamic"
 conky_sessionfile=".config/conky/BL-Beryllium-conky.conf"
 tint2_sessionfile="/.config/tint2/dynamic.tint2rc"
 wallpaper_are="/usr/share/my_stuff/my_wallpapers/dynamic_wall-01.jpg"

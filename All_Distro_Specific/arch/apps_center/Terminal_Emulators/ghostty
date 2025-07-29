@@ -1,5 +1,5 @@
 #!/bin/sh
-app_name="ghostty"
+app_name="ghostty-git"
 set_as_default_package=true
 prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
 

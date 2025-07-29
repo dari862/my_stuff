@@ -149,14 +149,14 @@
         <item label="Lock Screen">
             <action name="Execute">
                 <command>
-                    my_session_manager lock
+                    my_session_manager_menu lock
                 </command>
             </action>
         </item>
         <item label="Exit">
             <action name="Execute">
                 <command>
-                    my_session_manager
+                    my_session_manager_menu
                 </command>
             </action>
         </item>

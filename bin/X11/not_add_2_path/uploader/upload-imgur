@@ -116,8 +116,7 @@ elif command -v wget >/dev/null 2>&1;then
 	}
 fi
 #### CLIENT SECRET ###
-. "/usr/share/my_stuff/lib/common/API"
-CLIENT_SECRET="$(cat "${API_path}/${imgur}" 2>/dev/null || :)"
+CLIENT_SECRET="$(myAPIman show imgur || :)"
 
 ### Get script args ####################################################
 function getargs(){
@@ -528,11 +527,11 @@ function get_oauth2_client_secrets(){
 
     # write credentials to imgur.conf
     # sed: change line containing <string> to <stringvar>
-    C_ID_LINE="CLIENT_ID="\""${C_ID}\""
-    sed -i "s/^CLIENT_ID.*/${C_ID_LINE}/" "${SETTINGS_FILE}"
-    mkdir -p "${API_path}"
-    echo "$C_SECRET_LINE" > "${API_path}/${imgur}"
-    source "${SETTINGS_FILE}"
+    CLIENT_ID="${C_ID}"
+    sed -i "s/^CLIENT_ID.*/CLIENT_ID=\"${CLIENT_ID}\"/" "${SETTINGS_FILE}"
+    
+    CLIENT_SECRET="${C_SECRET}"
+    myAPIman add imgur "${CLIENT_SECRET}"
 }
 
 function load_access_token() {

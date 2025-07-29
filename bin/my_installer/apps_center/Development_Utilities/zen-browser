@@ -1,0 +1,4 @@
+#!/bin/sh -e
+app_name="devtoolbox"
+
+flatpak_install ${app_name} me.iepure.devtoolbox

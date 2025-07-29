@@ -7,6 +7,9 @@ current_volume=""
 if [ "$1" = "--get" ];then
 	set_volume
 	print_volume
+elif [ "$1" = "--icon" ];then
+	set_volume
+	print_icon
 elif [ "$1" = "--inc" ];then
 	inc_volume
 	set_volume

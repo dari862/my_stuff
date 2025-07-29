@@ -1,6 +1,6 @@
 _panel_name_="tint2"
 ROFI_STYLE="default"
-polybar_STYLE=""
+tint2_STYLE="helium_flatish_grey"
 conky_sessionfile=".config/conky/BL-Grey-conky.conf"
 tint2_sessionfile="/.config/tint2/grey.tint2rc"
 wallpaper_are="/usr/share/my_stuff/my_wallpapers/helium_flatish_grey_wall-01.png"

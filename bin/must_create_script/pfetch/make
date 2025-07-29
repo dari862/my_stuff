@@ -245,6 +245,7 @@ case $os in
 
     (*)
         has_package xprop && get_wm_path="OS_based/get_wm/else/xprop.sh" || get_wm_path="OS_based/get_wm/else/else.sh"
+        get_wm_path="$get_wm_path OS_based/get_wm/else/wayland.sh OS_based/get_wm/else/picker.sh"
     ;;
 esac
 
@@ -482,11 +483,11 @@ esac
 get_ascii_tail_path="OS_based/get_ascii/0tail.sh"
 
 
-cat "head.sh" "$get_os_path" "$get_os_Windows_wsl_path" "$get_kernel_path" "$get_host_path" "$get_uptime_path" "$get_pkgs_path" "$get_memory_path" "$get_wm_path" "$get_ascii_head_path" "$get_ascii_path" "$get_ascii_tail_path" "tail.sh" | tee "$pfetch_path" >/dev/null 2>&1
+cat "head.sh" "$get_os_path" "$get_os_Windows_wsl_path" "$get_kernel_path" "$get_host_path" "$get_uptime_path" "$get_pkgs_path" "$get_memory_path" $get_wm_path "$get_ascii_head_path" "$get_ascii_path" "$get_ascii_tail_path" "tail.sh" | tee "$pfetch_path" >/dev/null 2>&1
 
 # Username is retrieved by first checking '$USER' with a fallback
 if [ -n "$USER" ];then
-	user="${USER}"
+	user="\${USER}"
 else
 	user="\$(id -un)"
 fi

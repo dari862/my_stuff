@@ -30,6 +30,7 @@
 check_4_dependencies_if_installed yad jq xdotool convert || exit 1
 
 export API_URL="https://api.imgbb.com/"   # used by run_browser()
+#@#export BL_YAD_INCLUDES='/usr/lib/bunsen/common/yad-includes'
 export IMG_VIEWER   # used by show_image()
 
 USR_CFG_DIR="$HOME/.config/image-upload/imgbb"
@@ -86,8 +87,7 @@ do
 done
 
 #### API Key ###
-. "/usr/share/my_stuff/lib/common/API"
-CLIENT_API_KEY="$(cat "${API_path}/${imgbb}" 2>/dev/null || :)"
+CLIENT_API_KEY="$(myAPIman show imgbb || :)"
 
 #### YAD ###
 DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
@@ -398,9 +398,7 @@ function get_client_api_key(){
         fi
     fi
 
-    # write credentials to api file
-    mkdir -p "${API_path}"
-    echo "$CLIENT_API_KEY" > "${API_path}/${imgbb}"
+    myAPIman add imgbb "${CLIENT_API_KEY}"
 
     xdotool key ctrl+shift+w  # close browser window
     xdotool set_desktop "${curr_desktop}"

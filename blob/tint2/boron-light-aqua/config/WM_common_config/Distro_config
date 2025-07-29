@@ -1,6 +1,6 @@
 _panel_name_="tint2"
 ROFI_STYLE="default"
-polybar_STYLE=""
+tint2_STYLE="boron-light-aqua"
 conky_sessionfile=".config/conky/BL-Boron-conky.conf"
 tint2_sessionfile="/.config/tint2/boron-light-vertical.tint2rc"
 wallpaper_are="/usr/share/my_stuff/my_wallpapers/boron-light-aqua_wall-01.png"

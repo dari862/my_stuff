@@ -1,16 +1,8 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=USB_formatter
-#. "/usr/share/my_stuff/lib/common/WM"
-#. "${Distro_config_file}"
-# -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
-popup_terminal(){
-	kitty -T "popup_terminal" -e bash -c "$@"
-}
-
-apps_as_root(){
-	exec sudo "$0" "$@"
-}
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
 
 script_full_path="$(readlink -f "$0")"
 
@@ -20,12 +12,12 @@ fi
 
 rofi_msg() {
 	__massage="$(printf "$2")"
-    printf "$1" | rofi -dmenu -p "$__massage"
+    printf "$1" | rofi -dmenu -p "$__massage" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
 }
 
 rofi_msg_no_choice() {
 	__massage="$(printf "$1")"
-    rofi -e "$__massage"
+    rofi -e "$__massage" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
 }
 
 formatmenu () {

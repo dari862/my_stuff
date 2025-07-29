@@ -62,7 +62,7 @@ border_color = #888888 20
 # Panel
 panel_monitor = all
 panel_position = top center horizontal
-panel_items = LTSC
+panel_items = LTSCEEEEE
 panel_size = 100% 30
 panel_margin = 0 -1
 panel_padding = 0 0
@@ -150,8 +150,8 @@ time1_font = Sans bold 11
 clock_font_color = #b5b5b5 100
 clock_padding = 12 4
 clock_background_id = 0
-clock_lclick_command = distro_scripts --calendar
-clock_rclick_command = distro_scripts --calendar
+clock_lclick_command = cal-popup --popup
+clock_rclick_command = cal-popup --popup
 
 # Tooltips
 tooltip = 1
@@ -179,4 +179,126 @@ battery_font_color = #b5b5b5 100
 battery_padding = 2 0
 battery_background_id = 0
 
+
+#-------------------------------------
+# Executor 1
+execp = new
+execp_command = volume_cli_control --get
+execp_interval = 0
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Volume
+execp_lclick_command = volume_cli_control --toggle
+execp_rclick_command = volume_cli_control --toggle-mic
+execp_mclick_command = volume_controller
+execp_uwheel_command = volume_cli_control --inc
+execp_dwheel_command = volume_cli_control --dec
+execp_font = Sans normal 9
+execp_font_color = #b5b5b5 100
+execp_padding = 10 0
+execp_background_id = 0
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 2
+execp = new
+execp_command = disto_brightness_controller
+execp_interval = 0
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Brightness
+execp_lclick_command = 
+execp_rclick_command = 
+execp_mclick_command = 
+execp_uwheel_command = disto_brightness_controller --inc
+execp_dwheel_command = disto_brightness_controller --dec
+execp_font = Sans normal 9
+execp_font_color = #b5b5b5 100
+execp_padding = 10 0
+execp_background_id = 0
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 3
+execp = new
+execp_command = bluetooth.sh
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Bluetooth
+execp_lclick_command = rofi-bluetooth
+execp_rclick_command = bluetooth_manager
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = Sans normal 9
+execp_font_color = #b5b5b5 100
+execp_padding = 10 0
+execp_background_id = 0
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 4
+execp = new
+execp_command = get_network
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Networks
+execp_lclick_command = rofi-network-manager
+execp_rclick_command = nm-connection-editor
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = Sans normal 9
+execp_font_color = #b5b5b5 100
+execp_padding = 10 0
+execp_background_id = 0
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 5
+execp = new
+execp_command = get_battery
+execp_interval = 10
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Battery
+execp_lclick_command = power_manager_settings
+execp_rclick_command = power_manager_settings
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = Sans normal 9
+execp_font_color = #b5b5b5 100
+execp_padding = 10 0
+execp_background_id = 0
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
 # End of config
+

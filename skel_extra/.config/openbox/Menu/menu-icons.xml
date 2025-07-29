@@ -56,7 +56,7 @@
 		<separator/>
 		<item icon="&icons;/sys-lock.png" label="Lock Screen">
 			<action name="Execute">
-				<command>my_session_manager lock</command>
+				<command>my_session_manager_menu lock</command>
 			</action>
 		</item>
 		<separator/>
@@ -65,25 +65,25 @@
 				<separator/>
 				<item icon="&icons;/sys-exit.png" label="Logout">
 					<action name="Execute">
-						<command>my_session_manager logout</command>
+						<command>my_session_manager_menu logout</command>
 					</action>
 				</item>
 				<separator/>
 				<item icon="&icons;/sys-sleep.png" label="Suspend">
 					<action name="Execute">
-						<command>my_session_manager suspend</command>
+						<command>my_session_manager_menu suspend</command>
 					</action>
 				</item>
 				<separator/>
 				<item icon="&icons;/sys-reboot.png" label="Reboot">
 					<action name="Execute">
-						<command>my_session_manager reboot</command>
+						<command>my_session_manager_menu reboot</command>
 					</action>
 				</item>
 				<separator/>
 				<item icon="&icons;/sys-poweroff-alt.png" label="Shutdown">
 					<action name="Execute">
-						<command>my_session_manager shutdown</command>
+						<command>my_session_manager_menu shutdown</command>
 					</action>
 				</item>
 		</menu>

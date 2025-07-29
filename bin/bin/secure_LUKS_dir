@@ -1,0 +1,136 @@
+#!/bin/sh
+
+# Unified LUKS container script with keyfile support (local or USB)
+
+# ===== CONFIGURATION =====
+CONTAINER="secure.img"
+MAPPER_NAME="secure_container"
+MOUNT_POINT="/mnt/secure"
+KEYFILE="secure.key"
+USB_LABEL="SECUREKEY"      # Label of the USB drive that contains the keyfile
+KEYFILE_PATH_ON_USB="secure.key"  # Path on USB to the keyfile
+SIZE_MB=1024               # Container size in MB
+# ==========================
+
+# Helper: locate USB-mounted keyfile
+find_usb_keyfile() {
+    for mnt in "/media/$USER"/* "/run/media/$USER"/*; do
+        if [ -f "$mnt/$KEYFILE_PATH_ON_USB" ] && [ "$(basename "$mnt")" = "$USB_LABEL" ]; then
+            printf "%s/%s" "$mnt" "$KEYFILE_PATH_ON_USB"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Setup new encrypted container
+setup_container() {
+    if [ -f "$CONTAINER" ]; then
+        printf "❌ %s already exists. Delete it first if you want to recreate." "$CONTAINER"
+        exit 1
+    fi
+
+    printf "📁 Creating %s MB container..." "$SIZE_MB"
+    dd if=/dev/zero of="$CONTAINER" bs=1M count="$SIZE_MB" status=progress
+
+    # Keyfile option
+    printf "🔐 Choose keyfile location:"
+    printf "  1) Local keyfile (%s)" "$KEYFILE"
+    printf "  2) USB keyfile (must be mounted with label: %s)" "$USB_LABEL"
+    printf '%s' "Select [1 or 2]: "
+    read -r choice
+
+    if [ "$choice" = "2" ]; then
+        KEYFILE=$(find_usb_keyfile)
+        if [ -z "$KEYFILE" ]; then
+            printf "❌ Could not find keyfile on USB labeled '%s'." "$USB_LABEL"
+            exit 1
+        fi
+        printf "✅ Using keyfile: %s" "$KEYFILE"
+    else
+        printf "🔑 Creating local keyfile..."
+        dd if=/dev/urandom of="$KEYFILE" bs=512 count=1
+        chmod 600 "$KEYFILE"
+        printf "✅ Created local keyfile: %s" "$KEYFILE"
+    fi
+
+    printf "🔒 Setting up LUKS container..."
+    my-superuser cryptsetup luksFormat "$CONTAINER" "$KEYFILE"
+
+    printf "🔓 Opening encrypted container..."
+    my-superuser cryptsetup open "$CONTAINER" "$MAPPER_NAME" --key-file "$KEYFILE"
+
+    printf "🧹 Formatting ext4..."
+    my-superuser mkfs.ext4 /dev/mapper/"$MAPPER_NAME"
+
+    printf "📂 Mounting to %s..." "$MOUNT_POINT"
+    my-superuser mkdir -p "$MOUNT_POINT"
+    my-superuser mount /dev/mapper/"$MAPPER_NAME" "$MOUNT_POINT"
+
+    printf "✅ Setup complete! Volume mounted at %s" "$MOUNT_POINT"
+}
+
+# Mount the encrypted container
+mount_container() {
+    if mountpoint -q "$MOUNT_POINT"; then
+        printf "🔁 Already mounted at %s" "$MOUNT_POINT"
+        exit 0
+    fi
+
+    # Try USB first
+    KEYFILE_LOCAL="$KEYFILE"
+    KEYFILE_USB=$(find_usb_keyfile)
+
+    if [ -f "$KEYFILE_LOCAL" ]; then
+        KEYFILE_TO_USE="$KEYFILE_LOCAL"
+        printf "🔐 Using local keyfile"
+    elif [ -f "$KEYFILE_USB" ]; then
+        KEYFILE_TO_USE="$KEYFILE_USB"
+        printf "🔐 Using keyfile from USB: %s" "$KEYFILE_TO_USE"
+    else
+        printf "❌ No keyfile found locally or on USB."
+        exit 1
+    fi
+
+    printf "🔓 Unlocking container..."
+    my-superuser cryptsetup open "$CONTAINER" "$MAPPER_NAME" --key-file "$KEYFILE_TO_USE" || exit 1
+
+    printf "📂 Mounting to %s..." "$MOUNT_POINT"
+    my-superuser mkdir -p "$MOUNT_POINT"
+    my-superuser mount /dev/mapper/"$MAPPER_NAME" "$MOUNT_POINT"
+
+    printf "✅ Mounted at %s" "$MOUNT_POINT"
+}
+
+# Unmount the container
+unmount_container() {
+    printf "📤 Unmounting %s..." "$MOUNT_POINT"
+    my-superuser umount "$MOUNT_POINT" || {
+        printf "❌ Failed to unmount. Is it in use?"
+        exit 1
+    }
+
+    printf "🔒 Closing encrypted container..."
+    my-superuser cryptsetup close "$MAPPER_NAME" || {
+        printf "❌ Failed to close encrypted volume."
+        exit 1
+    }
+
+    printf "✅ Secure container unmounted and locked."
+}
+
+# ===== MAIN =====
+case "$1" in
+    setup)
+        setup_container
+        ;;
+    mount)
+        mount_container
+        ;;
+    unmount)
+        unmount_container
+        ;;
+    *)
+        printf "Usage: %s {setup|mount|unmount}" "$0"
+        ;;
+esac

@@ -1,38 +1,19 @@
 #!/bin/sh
-#===================================================================================
-# FILE: dunst-session
-# DESCRIPTION: manage dunst processes for start, restart and stop all dunst instances
-# AUTHOR: Leonardo Marco
-# VERSION: 1.0
-# CREATED: 2020.04.09
-# LICENSE: GNU General Public License v3.0
-#===================================================================================
-
 dunstrc_path="$HOME/.config/dunst/dunstrc"
 
 __edit() {
 	pidof -q dunst && my-text-editor "$dunstrc_path"
 }
 
-#=== FUNCTION ======================================================================
-# NAME: stop
-# DESCRIPTION: stop all dunst process
-#===================================================================================
 stop() {
 	kill_process.sh dunst
+	wait
 }
 
-
-#=== FUNCTION ======================================================================
-# NAME: start
-# DESCRIPTION: load dunst with config file
-#===================================================================================
 start() {
 	pidof -q dunst || exec dunst -config ${dunstrc_path} 2>/tmp/$USER/dunst_error &
 }
 
-
-# EXEC ACTION ACCORDING $1
 case "${1}" in
 	""|restart)
 		stop

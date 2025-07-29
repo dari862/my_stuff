@@ -11,7 +11,7 @@ my-superuser cp -rf ${_APPS_EXTRA_LIBDIR}/Islamic/prayer-times_Extra/config/auto
 
 location="$(cat /etc/timezone | awk -F/ '{print $2}')"
 reg_location="$(cat /etc/timezone | awk -F/ '{print $1}')"
-latlong=$(get_scripts --latlong)
+latlong=$(get_latlong)
 lat_=${latlong%,*}
 long_=${latlong#*,}
 

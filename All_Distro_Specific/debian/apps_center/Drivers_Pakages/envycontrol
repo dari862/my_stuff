@@ -11,7 +11,7 @@ download_url="$(getURL 'latestgit' 'bayasdev/envycontrol' 'deb')"
  				
 getURL 'download2' "${download_url}" "/tmp/$USER/python3-envycontrol_version.deb"
 cd /tmp/$USER
-sudo apt-get -y install ./python3-envycontrol_version.deb
+my-superuser apt-get -y install ./python3-envycontrol_version.deb
 			
 if [ ! -f "${__distro_path}/system_files/skel/.config/autostartscripts/gpu-switcher-session}" ];then
 	ln -sf "${__distro_path}"/bin/X11/not_add_2_path/gpu_switcher/gpu-switcher-session "${__distro_path}/system_files/skel/.config/autostartscripts"

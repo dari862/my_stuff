@@ -52,8 +52,8 @@ Execute mpc prev=XF86AudioPrev
 Execute mpc next=XF86AudioNext
 #;Brightness Control
 #;#########
-Execute distro_scripts --brightnesShift + inc=XF86MonBrightnessUp
-Execute distro_scripts --brightnesShift + dec=XF86MonBrightnessDown
+Execute disto_brightness_controllerShift + inc=XF86MonBrightnessUp
+Execute disto_brightness_controllerShift + dec=XF86MonBrightnessDown
 #;Launch Applications
 #;#########
 Execute show_menu_=Shift + space

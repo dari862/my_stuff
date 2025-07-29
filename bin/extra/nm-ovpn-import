@@ -3,6 +3,8 @@ set -euo pipefail
 
 check_4_dependencies_if_installed grep nmcli || exit 1
 
+trap 'unset VPN_PASS' EXIT
+
 show_error() {
   local red=$'\033[0;91m'
   local nc=$'\033[0m'
@@ -21,8 +23,8 @@ show_info() {
   else
     echo -e "${green}${*}${nc}"
   fi
-} 
- 
+}
+
 ask_question() {
   local blue=$'\033[0;94m'
   local nc=$'\033[0m'
@@ -31,14 +33,11 @@ ask_question() {
   echo "${var}"
 }
 
-ask_secret() {
+ask_password() {
   local blue=$'\033[0;94m'
   local nc=$'\033[0m'
   local var
-  stty -echo echonl
-  read -r -p "${blue}$*${nc} " var
-  stty echo -echonl
-  echo "${var}"
+  read -rs -p "${blue}$*${nc} " VPN_PASS
 }
 
 show_success() {
@@ -69,9 +68,11 @@ TMP_DIR="$(mktemp -d)"
 mkdir -p "${TMP_DIR}"
 trap 'rm -rf "${TMP_DIR}"; exit' INT TERM ERR EXIT
 
+set +x
+
 # Prompt for the VPN username.
 VPN_USER=$(ask_question "Username:")
-VPN_PASS=$(ask_secret "Password:")
+ask_password
 echo
 
 for VPN_CONFIG in "$@"; do
@@ -96,8 +97,12 @@ for VPN_CONFIG in "$@"; do
   nmcli connection import type openvpn file "${TMP_DIR}/${VPN_NAME}"
   nmcli connection modify "${VPN_NAME}" +vpn.data "username = ${VPN_USER}"
   if [[ -n "${VPN_PASS}" ]];then
-    nmcli connection modify "${VPN_NAME}" +vpn.secrets "password = ${VPN_PASS}"
+      nmcli connection modify "${VPN_NAME}" +vpn.secrets "$(cat <<EOF
+password=${VPN_PASS}
+EOF
+)"
   fi
 done
 
+unset VPN_PASS
 show_success "Done!"

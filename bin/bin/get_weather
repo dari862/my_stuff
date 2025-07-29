@@ -3,21 +3,27 @@
 __opt="${1-}"
 __opt2="${2-}"
 
+. "/usr/share/my_stuff/lib/common/WM"
+
 show_Extra=false
-script_config_path="$HOME/.config/scriptconfig"
 weather_script_config_path="${script_config_path}/weather"
 __weather_lib_path="/usr/share/my_stuff/bin/not_add_2_path/weather"
-
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/API"
 
 [ ! -f "$weather_script_config_path" ] && cp -r "/usr/share/my_stuff/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
 . "$weather_script_config_path"
 
+if [ "$mode" = "auto" ];then
+	if myAPIman show openweather >/dev/null 2>&1;then
+		mode="openweather"
+	else
+		mode="wttr"
+	fi
+fi
+
 if [ -z "$place" ];then
 	. "${__weather_lib_path}/country_list"
    	# Geolocate IP:
-   	place=$(get_scripts --location)
+   	place=$(get_geolocation)
    	chosen="$(printf "%s" "$country_list" | grep "$place" )"
 	
 	# Set continent code and radar code.

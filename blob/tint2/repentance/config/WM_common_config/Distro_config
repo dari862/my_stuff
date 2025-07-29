@@ -1,6 +1,6 @@
 _panel_name_="tint2"
 ROFI_STYLE="default"
-polybar_STYLE=""
+tint2_STYLE="repentance"
 conky_sessionfile=".config/conky/sidekick/sidekick.conkyrc"
 tint2_sessionfile="/.config/tint2/repentance/repentance.tint2rc"
 wallpaper_are="/usr/share/my_stuff/my_wallpapers/repentance_wall-01.png"
