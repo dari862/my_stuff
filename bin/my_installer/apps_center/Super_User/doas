@@ -15,6 +15,7 @@ if [ -f "/etc/doas.conf" ];then
 	my-superuser rm -rdf "/etc/doas.conf"
 fi
 
+# work on this
 Package_installer_ expect || continue
 
 my-superuser ln -sf /usr/share/my_stuff/bin/doas/doasedit /usr/share/my_stuff/system_files/bin

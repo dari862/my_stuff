@@ -941,7 +941,7 @@ export -f _USB_ALLOWLIST
 
 show_statistics(){
 	if [ "$1" = "complate" ];then
-		tlp_stat="$(apps_as_root $(which tlp-stat))"
+		tlp_stat="$(apps_as_root "tlp-stat")"
 	else
 		tlp_stat="$($(which tlp-stat) -c -s -t -r -u)"
 	fi
@@ -1382,7 +1382,7 @@ _save_settings(){
 			fi
 	done
 	if [ -f "${__check_file}" ];then
-		apps_as_root true && my-superuser cp -r "${__temp_config_path}" "${__config_path}"
+		apps_as_root cp -r "${__temp_config_path}" "${__config_path}"
 	fi
 	
 	unset __Yad_Output_array_

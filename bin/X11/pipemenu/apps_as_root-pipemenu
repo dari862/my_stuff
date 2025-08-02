@@ -1,17 +1,15 @@
 #!/bin/sh
 ## Openbox Pipemenu to change openbox menu style
 # Variables and functions
-
-apps_as_root_cmd="apps_as_root"
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
 menuStart
-	menuItem 'Terminal (my-terminal-emulator)' "${apps_as_root_cmd} my-terminal-emulator"
-	menuItem 'File Manager (my-file-manager)' "${apps_as_root_cmd} my-file-manager"
-	menuItem 'Text Editor (my-text-editor)' "${apps_as_root_cmd} my-text-editor"
-	menuItem 'File Manager CLI (lf)' "${apps_as_root_cmd} $(which popup_terminal) lf"
-	menuItem 'Text Editor CLI (my-cli-editor)' "${apps_as_root_cmd} $(which popup_terminal) --commands $(which $CLI_EDITER) $HOME"
-	menuItem 'Appearance Settings' "${apps_as_root_cmd} $(which appearance_settings_)"
-	[ "$(command -v qt5ct)" ] && menuItem 'QT5 Settings' "${apps_as_root_cmd} qt5ct"
-	[ "$(command -v kvantummanager)" ] && menuItem 'kvantum Manager' "${apps_as_root_cmd} kvantummanager"
+	menuItem 'Terminal (my-terminal-emulator)' "apps_as_root my-terminal-emulator"
+	menuItem 'File Manager (my-file-manager)' "apps_as_root my-file-manager"
+	menuItem 'Text Editor (my-text-editor)' "apps_as_root my-text-editor"
+	menuItem 'File Manager CLI (lf)' "apps_as_root popup_terminal $(which lf)"
+	menuItem 'Text Editor CLI (my-cli-editor)' "apps_as_root popup_terminal --commands $(which $CLI_EDITER) $HOME"
+	menuItem 'Appearance Settings' "apps_as_root appearance_settings_"
+	[ "$(command -v qt5ct)" ] && menuItem 'QT5 Settings' "apps_as_root qt5ct"
+	[ "$(command -v kvantummanager)" ] && menuItem 'kvantum Manager' "apps_as_root kvantummanager"
 menuEnd

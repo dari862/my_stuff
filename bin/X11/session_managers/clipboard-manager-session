@@ -23,7 +23,7 @@ else
 fi
 
 stop() {
-	for prosses in diodon parcellite clipmanager xfce4-clipman greenclip;do
+	for prosses in diodon parcellite clipmanager xfce4-clipman greenclip yadclip;do
 		pidof -q ${prosses} && prosses2kill="$prosses2kill $prosses"
 	done
 	
@@ -41,6 +41,13 @@ start() {
 	fi
 }
 
+start_gui() {
+	if ! pidof -q yadclip;then
+		sleep ${sleep_time}
+		yadclip &
+	fi
+}
+
 case "${1}" in
 	""|restart)
 		stop
@@ -48,6 +55,10 @@ case "${1}" in
 	;;
 	start)
 		start		
+	;;
+	start-gui)	
+		start
+		start_gui	
 	;;
 	stop)	
 		stop	

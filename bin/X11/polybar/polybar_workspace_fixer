@@ -48,6 +48,9 @@ if [ "$run_change_module_" = "true" ];then
 	elif [ "$current_WM_name" = "openbox" ];then
 		WS_module_name=""
 		change_module_internal_ "xworkspaces"
+	elif [ "$current_WM_name" = "dwm" ];then
+		WS_module_name=""
+		change_module_internal_ "xworkspaces"
 	fi
 	change_module_ "${pre_module_name}${WS_module_name}NameWorkspace"
 fi

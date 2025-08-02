@@ -1,0 +1,14 @@
+#!/bin/sh
+distro_path="/usr/share/my_stuff/system_files"
+copyparty_Dir="${distro_path}/downloaded/copyparty"
+download_url="https://github.com/9001/copyparty/releases/latest/download/copyparty-sfx.py"
+
+getURL 'download2' "$download_url" "/tmp/$USER/copyparty-sfx.py"
+
+my-superuser mkdir -p "$copyparty_Dir"
+cd "$copyparty_Dir"
+
+my-superuser chown root:root "/tmp/$USER/copyparty-sfx.py"
+my-superuser mv -f "/tmp/$USER/copyparty-sfx.py" .
+my-superuser chmod +x copyparty-sfx.py
+my-superuser ln -sf "${copyparty_Dir}/copyparty-sfx.py" "${distro_path}/bin/quran"

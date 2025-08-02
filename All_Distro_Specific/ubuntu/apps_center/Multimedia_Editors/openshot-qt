@@ -1,7 +1,6 @@
 #!/bin/sh
-app_name="openshot"
+app_name="openshot-qt"
 
 say 'Installing package...' 1
 
 Package_installer_ ${app_name} || continue
-

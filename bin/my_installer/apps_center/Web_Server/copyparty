@@ -1,0 +1,7 @@
+#!/bin/sh
+
+app_name="copyparty"
+Title="Copyparty"
+
+say "Installing ${Title} updater and installer..." 1
+my_installer_ln_script "copyparty_updater" || failed_to_run "failed to run copyparty_updater."

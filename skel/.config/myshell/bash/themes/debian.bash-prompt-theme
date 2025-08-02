@@ -1,13 +1,4 @@
 #!/bin/bash
-
-if [ "$vim_mode_enabled" = true ];then
-	set -o vi
-	# Use `bind` to detect mode changes
-	bind 'set show-mode-in-prompt on'
-	bind 'set vi-ins-mode-string \1\e[0;32m>\e[0m '
-	bind 'set vi-cmd-mode-string \1\e[0;31m<\e[0m '
-fi
-
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
@@ -33,11 +24,25 @@ fi
 # Set a two-line prompt. If accessing via ssh include 'ssh-session' message.
 if [[ -n "$SSH_CLIENT" ]];then ssh_message="-ssh_session"; fi
 
-if [ "$color_prompt" = yes ];then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]${ssh_message}:\[\033[01;34m\]\w\[\033[00m\]\$ '
+if [ "$vim_mode_enabled" = true ];then
+	set -o vi
+	# Use `bind` to detect mode changes
+	bind 'set show-mode-in-prompt on'
+	bind 'set vi-ins-mode-string \1\e[0;32m[ins]\e[0m '
+	bind 'set vi-cmd-mode-string \1\e[0;31m[cmd]\e[0m '
+	if [ "$color_prompt" = yes ];then
+    	PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]${ssh_message}:\[\033[01;34m\]\w\[\033[00m\]\$ '
+	else
+    	PS1='${debian_chroot:+($debian_chroot)}\u@\h${ssh_message}:\w\$ '
+	fi
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h${ssh_message}:\w\$ '
+	if [ "$color_prompt" = yes ];then
+    	PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]${ssh_message}:\[\033[01;34m\]\w\[\033[00m\]\$ '
+	else
+    	PS1='${debian_chroot:+($debian_chroot)}\u@\h${ssh_message}:\w\$ '
+	fi
 fi
+
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir

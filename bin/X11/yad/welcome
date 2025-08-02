@@ -92,6 +92,9 @@ case $current_wm_name in
 	bspwm)
     	text=${text_bspwm}
     ;;
+    dwm)
+    	text=${text_bspwm}
+    ;;
 esac
 
 # Show yad dialog

@@ -21,10 +21,10 @@ if [ "$_panel_name_" = "polybar" ];then
 	polybar_workspace_fixer
    	polybar-session start
    	power-manager-session restart &
+   	clipboard-manager-session start 3 &
 elif [ "$_panel_name_" =  "tint2" ];then
 	#audio-session start
 	tint2-session start
 	power-manager-session start 3 &
+	clipboard-manager-session start-gui 3 &
 fi
-
-clipboard-manager-session start 3 &

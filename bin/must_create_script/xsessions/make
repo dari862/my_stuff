@@ -15,4 +15,9 @@ echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | tee -a "$xsessions_path"/bspwm 
 echo "echo 'bspwm' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
 cat "bspwm.sh" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
 
+cat "main" | tee "$xsessions_path"/dwm > /dev/null 2>&1
+echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | tee -a "$xsessions_path"/dwm > /dev/null 2>&1
+echo "echo 'dwm' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | tee -a "$xsessions_path"/dwm > /dev/null 2>&1
+cat "dwm.sh" | tee -a "$xsessions_path"/dwm > /dev/null 2>&1
+
 chmod +x "$xsessions_path"/*

@@ -1,5 +1,6 @@
 #!/bin/sh
 # Variables and functions
+# work on this
 # work on trap
 icons_dir="/usr/share/my_stuff/icons/dunst"
 

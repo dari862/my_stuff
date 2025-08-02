@@ -1,8 +1,15 @@
 #!/bin/sh
-app_2_run_as_root="$1"
-[ -z "$app_2_run_as_root" ] && echo "$0: no arg provided" && exit 1
-shift 1
-Extra_Arg="$@"
+set -eu
+
+locate_command="${1:-}"
+shift
+__arg="$@"
+
+_command="$(which $locate_command)"
+_full_command="$_command $__arg"
+
+HISTFILE=/dev/null
+set +x
 
 rofi_ask_passowrd(){
 	. "/usr/share/my_stuff/lib/common/WM"
@@ -16,48 +23,33 @@ rofi_ask_passowrd(){
    			-theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
 	}
 	
-	authentication_cancelled() {
-    	rofi -e "Authentication cancelled." -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
-    	exit 2
-	}
+	while :; do
+		password="$(ask_for_pass)"
+		[ $? -ne 0 ] && (
+			rofi -e "Authentication cancelled." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/askpass.rasi"
+			return 2
+		)
+		[ -n "$password" ] && break
+		rofi -e "Empty password." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/askpass.rasi"
+	done
 	
-	__pass="$(ask_for_pass)"
-	ret="$?"
-	
-	# Exit code 1 = Esc pressed in rofi
-	if [ "$ret" -ne 0 ]; then
-    	authentication_cancelled
-	elif [ -z "$__pass" ]; then
-    	while [ -z "$__pass" ]; do
-        	rofi -e "Empty password."
-        	__pass="$(ask_for_pass)"
-        	ret="$?"
-        	[ "$ret" -ne 0 ] && authentication_cancelled
-    	done
-	fi
-	
-	echo "$__pass"
-	__pass=""
+	printf '%s\n' "$password"
+	unset password
 }
 
-password="$(rofi_ask_passowrd)"
-   	
-ret="$?"
-
-if [ "$ret" = 2 ];then
+password="$(rofi_ask_passowrd)" || ( 
+	unset password
 	exit 2
-fi
-
-app_2_run_as_root="$(which $app_2_run_as_root)"
-command_2_run="${app_2_run_as_root} ${Extra_Arg}"
+)
 
 if command -v doas >/dev/null 2>&1;then
+	# work on this
 	expect <<-EOF
 	# don't mind the man behind the curtain
 	log_user 0
 	
 	# spawn doas operation
-	spawn doas $command_2_run
+	spawn doas $_full_command
 	
 	# send password and execute command
 	expect {
@@ -70,11 +62,7 @@ if command -v doas >/dev/null 2>&1;then
 	}
 	EOF
 else
-	if echo "$password" | my-superuser -S true >/dev/null 2>&1;then
-		my-superuser ${command_2_run}
-		return 0
-	else
-		yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --title Alert --text="\n  password was incorrect."
-		return 1
-	fi
+	sudo -S $_full_command >/dev/null 2>&1 <<-EOF || (rofi -e "Superuser password was incorrect." -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi && return 1)
+	$password
+	EOF
 fi

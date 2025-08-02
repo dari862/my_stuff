@@ -145,7 +145,7 @@ create_exec_pipemenu(){
 	menuItem "Display" "arandr"
 	
 	menuSeparator "SYSTEM PREFERENCES"
-	menuItem "GUI Package Manager" "apps_as_root gui_packagemanager"
+	menuItem "GUI Package Manager" "gui_packagemanager"
 	menuItem "Check Pending Updates" "update-notification -n"
 	menuItem "Alternatives" "edit-alternatives"
 	menuItem "Power Management" "power_manager_settings"

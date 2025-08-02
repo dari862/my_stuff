@@ -50,7 +50,7 @@ Quick System Info,sysinfo_script_ --hardware2
 Printers,^pipe(jgmenu_run ob --cmd="printing-pipemenu" --tag="bl-printing-pipemenu"),printer
 Task Manager (htop),sysinfo_script_ --process,htop
 Install Favourite Packages,^pipe(jgmenu_run ob --cmd="my-install-pipemenu" --tag="my-install-pipemenu")
-GUI Package Manager,sh -c 'apps_as_root gui_packagemanager',gui_packagemanager
+GUI Package Manager,sh -c 'gui_packagemanager',gui_packagemanager
 Login Settings,apps_as_root my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf,lightdm-settings
 Login Interface,lightdm-gtk-greeter-settings-pkexec,lightdm-settings
 GParted Partition Manager,apps_as_root gparted,gparted

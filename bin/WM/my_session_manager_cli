@@ -17,6 +17,8 @@ _logout(){
 		openbox --exit
 	elif [ "$current_wm_name" = "bspwm" ];then
 		bspc quit
+	elif [ "$current_wm_name" = "dwm" ];then	
+		kill_process.sh dwm
 	elif [ "$current_wm_name" = "i3" ];then
 		i3-msg exit
 	elif [ "$current_wm_name" = "qtile" ];then
@@ -34,6 +36,9 @@ _reload(){
 		openbox --reconfigure &
 	elif [ "$current_wm_name" = "bspwm" ];then
 		bspc --restart
+	elif [ "$current_wm_name" = "dwm" ];then	
+		#kill_process.sh dwm
+		:
 	elif [ "$current_wm_name" = "i3" ];then
 		i3-msg restart
 	elif [ "$current_wm_name" = "qtile" ];then

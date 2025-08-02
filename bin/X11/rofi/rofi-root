@@ -26,27 +26,25 @@ options="$terminal\n$files\n$editor\n$clifm\n$vim"
 chosen="$(printf "$options" | rofi -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
 case $chosen in
     $terminal)
-        app_2_run_as_root="my-terminal-emulator"
-		Extra_Arg=""
+        command_2_run="my-terminal-emulator"
+        _extra_arg=""
         ;;
     $files)
-        app_2_run_as_root="my-file-manager"
-		Extra_Arg=""
+        command_2_run="my-file-manager"
+        _extra_arg=""
         ;;
     $editor)
-        app_2_run_as_root="my-text-editor"
-		Extra_Arg=""
+        command_2_run="my-text-editor"
+        _extra_arg=""
         ;;
     $clifm)
-        app_2_run_as_root="popup_terminal"
-		Extra_Arg="lf"
+        command_2_run="popup_terminal" 
+         _extra_arg="$(which lf)"
         ;;
     $vim)
-        app_2_run_as_root="popup_terminal"
-        Extra_Arg="$(which $CLI_EDITER)"
+        command_2_run="popup_terminal" 
+        _extra_arg="$(which $CLI_EDITER)"
         ;;
 esac
 
-command_2_run="${app_2_run_as_root} ${Extra_Arg}"
-
-[ -n "${command_2_run}" ] && apps_as_root "${command_2_run}"
+[ -n "${command_2_run}" ] && apps_as_root "${command_2_run}" "$_extra_arg"

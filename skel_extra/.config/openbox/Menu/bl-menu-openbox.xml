@@ -100,7 +100,7 @@
         <item label="Gui Package Manager">
             <action name="Execute">
                 <command>
-                    apps_as_root gui_packagemanager
+                    gui_packagemanager
                 </command>
             </action>
         </item>

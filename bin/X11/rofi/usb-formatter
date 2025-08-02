@@ -7,7 +7,7 @@
 script_full_path="$(readlink -f "$0")"
 
 if [ "$(id -u)" -ne 0 ]; then
-    apps_as_root "$0 \"$@\""
+    apps_as_root "$0" "$@"
 fi
 
 rofi_msg() {

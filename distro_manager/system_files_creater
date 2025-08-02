@@ -366,6 +366,11 @@ if command -v bspwm >/dev/null 2>&1;then
 	cp -r "${__distro_path}/skel_extra/.config/sxhkd" "${__distro_path}/system_files/skel/.config" 
 fi
 
+if command -v dwm >/dev/null 2>&1;then
+	show_im "copy dwm skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.config/dwm" "${__distro_path}/system_files/skel/.config"
+fi
+
 if command -v polybar >/dev/null 2>&1;then
 	show_im "copy polybar skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/polybar" "${__distro_path}/system_files/skel/.config"

@@ -9,10 +9,17 @@ pid_file_dir="${clip_path}/process_ids"
 _script_name="$(basename "${0}")"
 current_script_pid="$$"
 
-_log() {
-	[ "${debug_mode}" = true ] && printf '[\033[94m%s\033[0m] %s' "${_script_name}" "${1}" | xargs >&2
-}
-
+if [ "${debug_mode}" = true ];then
+	_log() {
+		printf '[\033[94m%s\033[0m] %s' "${_script_name}" "${1}" | xargs >&2
+	}
+else
+	exec 3>&1 # show output if redirected to  >&3
+	exec >/dev/null 2>&1 # show nothing
+	_log() {
+		:
+	}
+fi
 _usage() {
     _log "Invalid arguments."
     exit 1
@@ -45,6 +52,7 @@ process_clipboard() {
            	_log "xclip out exited"
 
            	if [ "${_match}" = "${_utf8}" ];then
+           		[ -f "${_history}" ] && printf "\n" >> "${_history}"
                	cat "${_out}" >> "${_history}"
                	_log "Appended content to history: $_history"
            	fi
@@ -58,9 +66,11 @@ process_clipboard() {
            	sleep 1
        	fi
     else
-		# need fixing does not work
-    	_log "Waiting for clipboard change..." #  after Thunar-style copy
-		xclip -verbose -in -selection clipboard -t "$_utf8" /dev/null || exit 3
+    	# work on this
+		#_log "Waiting for clipboard change..." #  after Thunar-style copy
+		#xclip -verbose -in -selection clipboard -t "$_utf8" /dev/null || exit 3
+		# work on above issue are: above xclip command take ownership of clipboard
+		sleep 1
     fi
 }
 

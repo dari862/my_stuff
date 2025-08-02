@@ -1,0 +1,3 @@
+#!/bin/sh
+app_name="frog"
+flatpak_install ${app_name} com.github.tenderowl.frog
