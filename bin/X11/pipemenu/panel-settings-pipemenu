@@ -6,7 +6,7 @@
 . "${Distro_config_file}"
 
 if [ "$_panel_name_" = "polybar" ];then
-	[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/X11/not_add_2_path/create_pipemenu/style.sh
+	[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu/style.sh
 	menuStart "PolybarMenu" "Polybar"
 	menuItem 'Open Your polybar Folder' "my-file-manager ~/.config/polybar/"
 	menuItem 'How to configure Polybar?' 'my-www-browser "https://github.com/polybar/polybar/wiki" "https://wiki.archlinux.org/title/Polybar"'

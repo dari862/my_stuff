@@ -1,6 +1,6 @@
 #!/bin/sh
-conky_path="/usr/share/my_stuff/bin/X11/conky"
-tint2_path="/usr/share/my_stuff/bin/X11/tint2"
+conky_path="/usr/share/my_stuff/bin/X11/yad/conky"
+tint2_path="/usr/share/my_stuff/bin/X11/yad/tint2"
 
 tint2manager(){
 	${tint2_path}/tint2-manager

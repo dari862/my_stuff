@@ -1,13 +1,8 @@
 #!/bin/sh -e
 . "/usr/share/my_stuff/Distro_Specific/info"
-if [ "$PACKAGER" = "apt-get" ];then
-	xz_package_name="xz-utils"
-else
-	xz_package_name="xz"
-fi
 
-DEPENDENCIES="${xz_package_name} gzip bzip2 jq"
-check_4_dependencies_if_installed ${DEPENDENCIES}
+DEPENDENCIES="xz gzip bzip2 jq"
+check_4_dependencies_if_installed ${DEPENDENCIES} || exit 1
 
 RC='\033[0m'
 RED='\033[31m'

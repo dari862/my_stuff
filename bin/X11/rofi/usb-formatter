@@ -1,30 +1,32 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=USB_formatter
-. "/usr/share/my_stuff/lib/common/WM"
-. "${Distro_config_file}"
-
-script_full_path="$(readlink -f "$0")"
+__user="${1:-}"
+popup_terminal_command="${2:-}"
 
 if [ "$(id -u)" -ne 0 ]; then
-    apps_as_root "$0" "$@"
+    apps_as_root "$0" "$USER $(which popup_terminal)"
+    exit
 fi
+
+. "/usr/share/my_stuff/lib/common/WM"
+. "/home/$__user/$Distro_config_dir_name"
 
 rofi_msg() {
 	__massage="$(printf "$2")"
-    printf "$1" | rofi -dmenu -p "$__massage" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+    printf "$1" | rofi -dmenu -p "$__massage" -theme "/home/$__user/.config/rofi/$ROFI_STYLE"/runner.rasi
 }
 
 rofi_msg_no_choice() {
 	__massage="$(printf "$1")"
-    rofi -e "$__massage" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+    rofi -e "$__massage" -theme "/home/$__user/.config/rofi/$ROFI_STYLE"/runner.rasi
 }
 
 formatmenu () {
     if [ -z "$1" ]; then
         rofi_msg_no_choice "	Error	\n\n	You must select a USB key to use.	\n	Press Enter to return to main menu.\n	"
         mainmenu
-        return
+        exit 0
     fi
 
    erase_choice="$(rofi_msg "yes\nno" "WARNING:\nThis will completely erase /dev/$1.\nProceed? (yes/no)")"
@@ -34,7 +36,7 @@ formatmenu () {
         	umount "$line"
         	sleep 1
     	done
-    	if popup_terminal "mkfs.vfat -F 32 -I -n \"$2\" -v \"/dev/$1\"";then
+    	if $popup_terminal_command "mkfs.vfat -F 32 -I -n \"$2\" -v \"/dev/$1\"" >/dev/null 2>&1;then
     		rofi_msg_no_choice "	Done	\n\n	USB key formatting completed.	\n	Press Enter to exit.\n	"
     	else
     		rofi_msg_no_choice "	Failed	\n\n	USB key formatting failed.	\n	Press Enter to exit.\n	"
@@ -49,7 +51,7 @@ formatmenu () {
 }
 
 mainmenu () {
-    DEVS=$(ls -l /dev/disk/by-path/*usb* 2>/dev/null | awk -F "/" '!/part/ {print $NF}' | sort -u)
+    DEVS=$(ls -l /dev/disk/by-id/*usb* 2>/dev/null | awk -F "/" '!/part/ {print $NF}' | sort -u)
 
     if [ -z "$DEVS" ]; then
         rofi_msg_no_choice "	Notice	\n\n	No USB keys found.	\n	Insert a USB key and try again.\n	"

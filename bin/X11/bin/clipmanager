@@ -8,6 +8,9 @@ debug_mode="false"
 pid_file_dir="${clip_path}/process_ids"
 _script_name="$(basename "${0}")"
 current_script_pid="$$"
+_out="${clip_path}/xclip.out"
+
+mkdir -p "${history_path}"
 
 if [ "${debug_mode}" = true ];then
 	_log() {
@@ -20,6 +23,7 @@ else
 		:
 	}
 fi
+
 _usage() {
     _log "Invalid arguments."
     exit 1
@@ -52,8 +56,9 @@ process_clipboard() {
            	_log "xclip out exited"
 
            	if [ "${_match}" = "${_utf8}" ];then
-           		[ -f "${_history}" ] && printf "\n" >> "${_history}"
-               	cat "${_out}" >> "${_history}"
+           		newfilename="$(date +'%m%d-%H%M%S%6N')"
+           		_history="${history_path}/${newfilename}"
+               	cp "${_out}" "${_history}"
                	_log "Appended content to history: $_history"
            	fi
 

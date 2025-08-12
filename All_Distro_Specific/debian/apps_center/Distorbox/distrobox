@@ -3,7 +3,7 @@ box_app_name="distrobox"
 box_app_location="$(find ${_APPS_LIBDIR}/ -name ${box_app_name})"
 must_create_file(){
 	create_applicationsdotdesktop_link "distrogui"
-	my-superuser ln -sf "/usr/share/my_stuff/bin/${Display_server_are}/not_add_2_path/distrogui" /usr/share/my_stuff/system_files/bin
+	[ -f "/usr/share/my_stuff/bin/${Display_server_are}/yad/distrobox/distrogui" ] && my-superuser ln -sf "/usr/share/my_stuff/bin/${Display_server_are}/yad/distrobox/distrogui" /usr/share/my_stuff/system_files/bin
 	my-superuser touch '/usr/share/my_stuff/system_files/Distrobox_ready'
 }
 

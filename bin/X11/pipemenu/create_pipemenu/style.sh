@@ -23,4 +23,7 @@ for style in ${styles}; do
 	menuItem "${count}. ${better_style_name}" "style_changer ${style}"
 	count=$(($count+1))
 done
+menuSeparator "| Menus |"
+menuItem "Rofi" "RiceSelector"
+menuItem "yad" "style_picker"
 } > "${style_pipemenu_file}"

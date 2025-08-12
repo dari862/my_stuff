@@ -15,7 +15,7 @@ if [ "${menu_name}" = "jgmenu" ];then
 		sed -i 's|.*<!-- never remove this line menu style are .*|        <action name="Execute"><startupnotify><enabled>false</enabled><name>jgmenu</name></startupnotify><command>jgmenu_run</command></action> <!-- never remove this line menu style are :jgmenu -->|' "${BACKUP_OB_RC_FILE}"
 		sed -i 's|.*<!-- never remove this line menu style are .*|        <action name="Execute"><startupnotify><enabled>false</enabled><name>jgmenu</name></startupnotify><command>jgmenu_run</command></action> <!-- never remove this line menu style are :jgmenu -->|' "${OBPATH}/rc.xml"
 		
-		openbox --reconfigure
+		reconfigure-openbox
 	else
 		echo "[ERROR] $0 : failed to grep obmenu in ${BACKUP_OB_RC_FILE} ."
 	fi
@@ -26,7 +26,7 @@ else
 			sed -i 's|.*<!-- never remove this line menu style are .*|        <action name="ShowMenu"><menu>root-menu</menu></action> <!-- never remove this line menu style are :obmenu -->|' "${OBPATH}/rc.xml" 
 		fi
 		ln -sf "${OBPATH}/Menu/${menu_name}" "${OBPATH}/menu.xml" 
-		openbox --reconfigure
+		reconfigure-openbox
 	else
 		echo "[ERROR] $0 : ${OBPATH}/Menu/${menu_name} does not exist."
 	fi

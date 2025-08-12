@@ -34,7 +34,7 @@ extra_arg="${1-}"
 __logout=false
 . "/usr/share/my_stuff/lib/common/DB"
 
-pipemenu_creater="/usr/share/my_stuff/bin/X11/not_add_2_path/create_pipemenu"
+pipemenu_creater="/usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu"
 
 . "/usr/share/my_stuff/lib/common/common"
 . "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"

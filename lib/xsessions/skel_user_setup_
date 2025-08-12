@@ -84,4 +84,7 @@ if command -v xfconf-query >/dev/null ;then
 	xfconf-query -c xfwm4 -np /general/theme -t 'string' -s Adwaita
 fi
 
+chmod 700 "$HOME/.local/share/APIs/" "$HOME/.local/share/gnupg/"
+chmod 600 "$HOME/.local/share/gnupg/gpg-agent.conf"
+
 find "$HOME/.config/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +

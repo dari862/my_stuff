@@ -1485,7 +1485,7 @@ create_sxhkd_tmp_file(){
 	append_sxhkd "$Rofi_App_Launcher" "rofi-launcher" "Rofi App Launcher"
 	append_sxhkd "$Rofi_App_Runner" "rofi-runner" "Rofi App Runner"
 	append_sxhkd "$Rofi_Network_Menu" "rofi-network-manager" "Rofi Network Menu"
-	append_sxhkd "$Rofi_Themes_Menu" "style_picker_rofi" "Rofi Themes Menu"
+	append_sxhkd "$Rofi_Themes_Menu" "RiceSelector" "Rofi Themes Menu"
 	append_sxhkd "$Rofi_rofi_screenshot" "rofi-screenshot" 'Rofi Menus/Applets'
 	append_sxhkd "$Rofi_rofi_music" "rofi-music" "Rofi control music"
 	append_sxhkd "$Rofi_rofi_windows" "rofi-windows" "Rofi control windows"

@@ -112,7 +112,7 @@ send_notification(){
 
 set_user_interface()
 {
-	my_session_manager_menu reload
+	my_session_manager_cli reload
 	dunst-session restart
 	tint2-session restart
 }
@@ -295,7 +295,7 @@ __set_button(){
 	GTK_THEME_NAME="$(awk -F= '/^gtk-theme-name=/{print $2}' $HOME/.config/gtk-3.0/settings.ini)"
 	sed_openbox_theme_name "openbox${GTK_THEME_NAME}${BUTTON}"
 	sed_Distro_config "CHK_OB_BUTTON_STYLE_${CHK_MODE}" "${BUTTON}"
-	openbox --reconfigure &
+	reconfigure-openbox &
 }
 
 ___button(){
@@ -307,6 +307,7 @@ ___button(){
             	sed_openbox_rc_titleLayout "LIMC"
             	sed_Distro_config "CHK_OB_BUTTON_LOC_${CHK_MODE}" "right"
         	fi
+        	reconfigure-openbox &
     	;;
     	d*) CHK_OB_DECOR_LINE="$(grep -m1 -Fno '<application class="*" type="normal">' "$OB_CONFIG")"
         	CHK_OB_DECOR_LINE="$((${CHK_OB_DECOR_LINE%%:*}+1))"
@@ -319,11 +320,9 @@ ___button(){
             	sed_openbox_decor "${CHK_OB_DECOR_LINE}" "no"
         	fi
 	
-        	ARGS='--restart'
+        	restart-openbox &
     	;;
 	esac
-	
-	openbox --reconfigure ${ARGS} &
 }
 
 ___mode(){

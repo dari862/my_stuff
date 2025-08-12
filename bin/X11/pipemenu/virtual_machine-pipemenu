@@ -6,6 +6,9 @@ menuStart
 if type -v virtual_machine >/dev/null 2>&1;then
 	menuItem 'virtual_machine' 'virtual_machine'
 else
-	menuItem 'Install any Hypervisors' ':'
+	list_of_Hypervisors="$(/usr/share/my_stuff/bin/my_installer/apps_center/hypervisors/virt/virtual_machine)"
+	for hy in $list_of_Hypervisors;do
+		menuItem "install $hy" "popup_terminal --install $hy"
+	done
 fi
 menuEnd

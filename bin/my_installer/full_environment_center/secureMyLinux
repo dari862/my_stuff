@@ -1,0 +1,11 @@
+#!/bin/sh
+
+app_name="secureMyLinux"
+secureMyLinux_dir="/usr/share/my_stuff/never_remove/${app_name}"
+
+say "clone https://github.com/dari862/${app_name}.git"
+super_clone_repo "https://github.com/dari862/${app_name}.git" "${secureMyLinux_dir}"
+
+say "Installing ${app_name}..." 1
+my-superuser ln -sf "${secureMyLinux_dir}"/secureMyLinux.sh /usr/share/my_stuff/system_files/bin/secureMyLinux
+my-superuser /usr/share/my_stuff/system_files/bin/secureMyLinux --full

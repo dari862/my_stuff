@@ -120,7 +120,7 @@ if [ "$_panel_name_" = 'polybar' ];then
 fi
 
 if pgrep openbox >/dev/null 2>&1;then
-	openbox --reconfigure || show_em "failed to run openbox --reconfigure "
+	reconfigure-openbox || show_em "failed to run reconfigure-openbox "
 fi
 
 reload_gtk23 || show_em "failed to run reload_gtk23"

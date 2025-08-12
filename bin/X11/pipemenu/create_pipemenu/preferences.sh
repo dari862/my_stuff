@@ -24,7 +24,7 @@ create_exec_pipemenu(){
     	menuSeparator
     	menuItem "WM Preferences" "obconf --config-file &openboxconfig;/rc.xml"
     	menuSeparator
-    	menuItem "Reconfigure" "openbox --reconfigure"
+    	menuItem "Reconfigure" "reconfigure-openbox"
     	menuItem "Restart" "restart-openbox"
 	menuSubmenuEnd
 	create_exec_pipemenu "Compositor" "compositor-pipemenu" "Compositor"
@@ -66,7 +66,7 @@ create_exec_pipemenu(){
     	menuItem "Edit rc.xml" "my-text-editor &openboxconfig;/rc.xml"
     	menuItem "Edit autostart" "my-text-editor &openboxconfig;/autostart"
     	menuSeparator
-    	menuItem "Reconfigure" "openbox --reconfigure"
+    	menuItem "Reconfigure" "reconfigure-openbox"
     	menuItem "Restart" "restart-openbox"
 	menuSubmenuEnd
 	
@@ -109,7 +109,7 @@ create_exec_pipemenu(){
     	menuItem "Edit Openbox config file rc.xml" "my-text-editor &openboxconfig;/rc.xml"
     	menuItem "How to configure Openbox?" "my-www-browser \"http://openbox.org/wiki/Help:Contents\" \"https://wiki.archlinux.org/index.php/openbox\""
     	menuSeparator
-    	menuItem "Reload Openbox configuration" "openbox --reconfigure"
+    	menuItem "Reload Openbox configuration" "reconfigure-openbox"
     	menuItem "Restart Openbox" "restart-openbox"
 	menuSubmenuEnd
 	
@@ -119,7 +119,7 @@ create_exec_pipemenu(){
     	menuItem "Hide/show icons in menu" "bash -c 'if grep -q icon_hide=\" &openboxconfig;/menu.xml;then sed -i \"s/icon_hide=\"/icon=\"/g\" &openboxconfig;/menu.xml; else sed -i \"s/icon=\"/icon_hide=\"/g\" &openboxconfig;/menu.xml; fi'"
     	menuItem "How to configure menu.xml?" "my-www-browser \"http://openbox.org/wiki/Help:Menus\" \"https://wiki.archlinux.org/index.php/openbox#Menus\""
     	menuSeparator
-    	menuItem "Reload Menu" "openbox --reconfigure"
+    	menuItem "Reload Menu" "reconfigure-openbox"
 	menuSubmenuEnd
 	
 	create_exec_pipemenu "CompositingPipeMenu" "compositor-pipemenu" "Compositor"
@@ -135,7 +135,7 @@ create_exec_pipemenu(){
     	menuItem "Edit Openbox rc.xml" "my-text-editor &openboxconfig;/rc.xml"
     	menuItem "How to configure Openbox shortcuts?" "my-www-browser \"http://openbox.org/wiki/Help:Bindings\""
     	menuSeparator
-    	menuItem "Reload shortcuts" "openbox --reconfigure"
+    	menuItem "Reload shortcuts" "reconfigure-openbox"
 	menuSubmenuEnd
 	
 	menuItem "GTK Appearance" "appearance_settings_"

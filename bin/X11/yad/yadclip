@@ -1,5 +1,6 @@
 #!/bin/sh
 yad --notification \
+	--class="yadclip" \
 	--image="clipit-trayicon" \
 	--icon-size=22 \
 	--command="rofi-clip" \

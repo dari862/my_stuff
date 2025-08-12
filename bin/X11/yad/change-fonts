@@ -56,7 +56,7 @@
 		if [ "$FONT" ];then
 			sed -i 's/font_var "'.*'"/font_var "'"$FNAME"'"/g' ${odir}
 			sed -i 's/size_var "'.*'"/size_var "'"$FSIZE"'"/g' ${odir}
-			openbox --reconfigure
+			reconfigure-openbox
 		else
 			exit 0
 		fi

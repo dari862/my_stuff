@@ -147,7 +147,7 @@ remove_modules() {
 		#find $HOME/.config/polybar -type f -exec sed -i 's/label-active/label-focused/g' {} +
  	fi
 
- 	find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
+ 	[ ! -f "/usr/share/my_stuff/system_files/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
  	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
  	if [ -z "$VPN_INTERFACE" ];then

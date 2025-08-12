@@ -43,8 +43,6 @@ CONKYDEFAULT="$CONKYPATH/conky.conf"
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
 
-check_4_dependencies_if_installed yad || exit 1
-
 loadChooser(){
     if type style-manager >/dev/null 2>&1;then
         menuItem "Conky Manager" "style-manager --conkymanager"

@@ -41,8 +41,9 @@ password="$(rofi_ask_passowrd)" || (
 	unset password
 	exit 2
 )
-
-if command -v doas >/dev/null 2>&1;then
+if ! command -v expect >/dev/null 2>&1 && command -v doas >/dev/null 2>&1;then
+	popup_terminal --superuser "$_full_command"
+elif command -v doas >/dev/null 2>&1;then
 	# work on this
 	expect <<-EOF
 	# don't mind the man behind the curtain

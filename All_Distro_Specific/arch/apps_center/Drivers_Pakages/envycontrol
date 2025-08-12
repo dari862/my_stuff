@@ -5,13 +5,13 @@ say "Installing ${app_name}..." 1
 Package_installer_ ${app_name} || continue
   				
 if [ ! -f "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/gpu-switcher-session}" ];then
-	ln -sf /usr/share/my_stuff/bin/X11/not_add_2_path/gpu_switcher/gpu-switcher-session "/usr/share/my_stuff/system_files/skel/.config/autostartscripts"
+	ln -sf /usr/share/my_stuff/bin/X11/yad/gpu_switcher/gpu-switcher-session "/usr/share/my_stuff/system_files/skel/.config/autostartscripts"
 fi
   				
 if [ ! -f "/usr/share/my_stuff/system_files/bin/gui_GPU_Switcher" ];then
-	ln -sf /usr/share/my_stuff/bin/X11/not_add_2_path/gpu_switcher/gui_GPU_Switcher "/usr/share/my_stuff/system_files/bin"
+	ln -sf /usr/share/my_stuff/bin/X11/yad/gpu_switcher/gui_GPU_Switcher "/usr/share/my_stuff/system_files/bin"
 fi
   				
 if [ ! -f "/usr/share/my_stuff/system_files/bin/tray_GPU_Switcher" ];then
-	ln -sf /usr/share/my_stuff/bin/X11/not_add_2_path/gpu_switcher/tray_GPU_Switcher "/usr/share/my_stuff/system_files/bin"
+	ln -sf /usr/share/my_stuff/bin/X11/yad/gpu_switcher/tray_GPU_Switcher "/usr/share/my_stuff/system_files/bin"
 fi

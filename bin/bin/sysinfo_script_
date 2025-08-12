@@ -18,7 +18,7 @@ case $opt in
 		;;
 		--autostart) popup_terminal 'if [ -f "/usr/lib/x86_64-linux-gnu/openbox-xdg-autostart" ];then /usr/lib/x86_64-linux-gnu/openbox-xdg-autostart --list; else /usr/lib/i386-linux-gnu/openbox-xdg-autostart --list; fi; read'
 		;;
-		--memory) popup_terminal 'my-superuser /usr/share/my_stuff/bin/bin/ps_mem' 
+		--memory) popup_terminal --superuser '/usr/share/my_stuff/bin/bin/ps_mem' 
 		;;
 		--process) popup_terminal htop 
 		;;

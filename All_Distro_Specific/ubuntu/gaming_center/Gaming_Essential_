@@ -37,4 +37,4 @@ flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue
 say "Creating Check File (Gaming_ready)"
 my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
 my-superuser touch /usr/share/my_stuff/system_files/Gaming_ready
-/usr/share/my_stuff/bin/X11/not_add_2_path/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+/usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"

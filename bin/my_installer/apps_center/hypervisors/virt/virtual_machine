@@ -8,4 +8,6 @@ elif type -v virtualbox >/dev/null 2>&1;then
 	virtualbox &
 elif type -v vmplayer >/dev/null 2>&1;then
 	vmplayer &
+else
+	echo "vmplayer virtualbox virt-manager"
 fi

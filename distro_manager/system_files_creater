@@ -12,7 +12,7 @@ if [ -z "${machine_type_are}" ];then
 	machine_type_are="$(check_machine_type)"
 fi
 
-pipemenu_creater="${__distro_path}/bin/X11/not_add_2_path/create_pipemenu"
+pipemenu_creater="${__distro_path}/bin/X11/pipemenu/create_pipemenu"
 
 PATH="${__distro_path}/bin/bin:$PATH"
 
@@ -209,6 +209,12 @@ if [ "$machine_type_are" = "laptop" ];then
 	touch "${__distro_path}"/system_files/this_is_laptop
 fi
 
+if dmesg | grep -qi bluetooth || lsusb 2>/dev/null | grep -qi bluetooth || [ -d "/sys/class/bluetooth" ];then
+	show_im "has bluetooth"
+	touch "${__distro_path}"/system_files/has_bluetooth
+	cp -r "${__distro_path}/bin/not_add_2_path/session_managers/bt-session" "${__distro_path}/system_files/bin"
+fi
+
 show_im "copy skell file to system_files/skel ."
 cp -r "${__distro_path}/skel" "${__distro_path}/system_files"
 mkdir -p "${__distro_path}/system_files/skel/${WM_config_dir_name}"
@@ -387,6 +393,14 @@ if command -v yad >/dev/null 2>&1;then
 		ln -sf "${__distro_path}"/bin/X11/yad/* "${__distro_path}"/system_files/binX11
 	fi
 	copy_all__application_link_in_dir "yad"
+	if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
+		show_im "yad laptop stuff."
+		if [ -d "${__distro_path}/bin/X11/yad/laptop" ];then
+			show_im "laptop bin files to system_files/binX11 ."
+			ln -sf "${__distro_path}/bin/X11/yad/laptop"/* "${__distro_path}"/system_files/binX11
+		fi
+		create_applicationsdotdesktop_link "yadtlp"
+	fi
 fi
 
 if [ -d "${__distro_path}/bin/X11/rofi" ];then
@@ -438,8 +452,12 @@ fi
 if [ -d "${__distro_path}/bin/apps" ];then
 	show_im "apps bin files to system_files/bin ."
 	ln -sf "${__distro_path}"/bin/apps/* "${__distro_path}"/system_files/bin
-	! command -v systemctl >/dev/null 2>&1 && rm -f "${__distro_path}"/system_files/bin/yautostart
-	! command -v systemctl >/dev/null 2>&1 && rm -f ${__distro_path}/system_files/bin/errcheck
+	if ! command -v systemctl >/dev/null 2>&1;then
+		rm -f "${__distro_path}"/system_files/bin/yautostart
+		rm -f "${__distro_path}"/system_files/bin/errcheck
+		rm -f "${__distro_path}"/system_files/bin/bootman
+		rm -f "${__distro_path}"/system_files/bin/change_dns
+	fi
 fi
 
 if [ -d "${__distro_path}/bin/session_managers" ];then
@@ -457,7 +475,6 @@ if [ -f "${__distro_path}/system_files/this_is_laptop" ];then
 		show_im "laptop bin files to system_files/binX11 ."
 		ln -sf "${__distro_path}/bin/X11/laptop"/* "${__distro_path}"/system_files/binX11
 	fi
-	create_applicationsdotdesktop_link "yadtlp"
 fi
 
 if command -v arandr >/dev/null 2>&1;then
@@ -511,7 +528,7 @@ if command -v flatpak >/dev/null 2>&1;then
 fi
 
 show_im "prepares gui scripts dir"
-"${pipemenu_creater}"/gui-apps-pipemenu || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu"
+"${pipemenu_creater}"/gui-apps-pipemenu-dir || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu-dir"
 
 ##################################################################################
 

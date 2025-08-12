@@ -6,6 +6,7 @@ then
   echo "Making $HOME/.config"
   mkdir $HOME/.config
 fi
+
 if [[ ! -d "$HOME/.config/distrogui" ]]
 then
   echo "Making $HOME/.config/distrogui"

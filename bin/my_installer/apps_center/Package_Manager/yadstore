@@ -2,7 +2,7 @@
 # X11 only package remove it from my-installer
 
 app_name="YadAppsStore"
-yadstore_dir="/usr/share/my_stuff/${app_name}"
+yadstore_dir="/usr/share/my_stuff/never_remove/${app_name}"
 
 say "Installing ${app_name}..." 1
 

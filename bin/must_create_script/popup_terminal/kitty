@@ -71,15 +71,15 @@ run_popup_fullscreen_mode(){
 }
 
 run_popup_normal_mode(){
-	kitty -T "${arg_}" -e my-superuser bash -c "${file_name_}"
-}
-
-run_popup_normal_normal_superuser_mode(){
 	kitty -T "${arg_}" -e bash -c "${file_name_}"
 }
 
 run_popup_normal_mode_geometry(){
 	kitty -T "${Title}" -e bash -c "${file_name_}"
+}
+
+run_popup_normal_normal_superuser_mode(){
+	kitty -T "${arg_}" -e my-superuser bash -c "${file_name_}"
 }
 
 case $arg_ in

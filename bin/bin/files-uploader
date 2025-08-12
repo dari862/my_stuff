@@ -7,6 +7,7 @@
 
 # var
 . "/usr/share/my_stuff/display_server/X11"
+
 __to_where_="${1-}"
 shift 1
 __arg_="$@"
@@ -21,7 +22,7 @@ Arguments:
 no arg will run --imgur as default.
 
 "
-where_to_script_path="/usr/share/my_stuff/bin/${Display_server_are}/not_add_2_path/uploader"
+where_to_script_path="/usr/share/my_stuff/bin/${Display_server_are}/yad/uploader"
 
 # Get $USER images directory
 if type xdg-user-dir >/dev/null 2>&1;then

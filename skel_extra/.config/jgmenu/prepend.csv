@@ -38,7 +38,6 @@ Exit,my_session_manager_menu,system-shutdown
 Back,^back()
 Change Style,^pipe(jgmenu_run ob --cmd="change-style-pipemenu" --tag="StylePipeMenu")
 Take Screenshot,^pipe(jgmenu_run ob --cmd="screenshot-pipemenu" --tag="screenshot-pipemenu")
-BLOB Themes Manager,(style_picker_yad)
 SSH,^pipe(jgmenu_run ob --cmd="sshconfig-pipemenu" --tag="sshconfig-pipemenu")
 Remote Desktop,^pipe(jgmenu_run ob --cmd="remote-desktop-pipemenu" --tag="remote-desktop-pipemenu")
 App Finder,rofi-launcher

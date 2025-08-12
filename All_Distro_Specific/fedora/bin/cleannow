@@ -5,4 +5,13 @@ echo "cleaning dnf"
 my-superuser dnf clean -a
 my-superuser dnf tidy
 my-superuser dnf cc -a
+if command -v podman >/dev/null 2>&1;then
+	echo "Clean up old up unused podman images, volumes, flatpak packages"
+    podman image prune -af
+    podman volume prune -f
+fi
+if command -v flatpak >/dev/null 2>&1;then
+	echo "Clean up old unused flatpak packages"
+    flatpak uninstall --unused
+fi
 echo "dnf cleaned."

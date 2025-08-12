@@ -32,15 +32,14 @@ gpg_add() {
     # however this is typically done using 'mkstemp()' which
     # is more secure than a leak in '/proc'.
     if [ -z "$mode" ];then
-		"$gpg" "$@" -o "$name.${_ext}" <<-EOF &&
+		"$gpg" "$@" -o "$name.${_ext}" <<-EOF && printf '%s\n' "Saved '$name' to the store."
 			$api
 		EOF
 	else
-		"$gpg" -y "$@" -o "$name.${_ext}" <<-EOF &&
+		"$gpg" -y "$@" -o "$name.${_ext}" <<-EOF && printf '%s\n' "Saved '$name' to the store."
 			$api
 		EOF
 	fi
-    printf '%s\n' "Saved '$name' to the store."
 }
 
 gpg_edit() {
@@ -59,8 +58,12 @@ gpg_del() {
     }
 }
 
-gpg_show() {
-    "$gpg" -dq "$name.${_ext}"
+show_api() {
+	if [ "$_ext" = "gpg" ];then
+    	"$gpg" -dq "$name.${_ext}"
+    elif [ "$_ext" = "txt" ];then
+    	cat "$name.${_ext}"
+    fi
 }
 
 gpg_list() {
@@ -162,6 +165,8 @@ main() {
 	[ -f "$name.gpg" ] && _ext="gpg"
 	[ -f "$name.txt" ] && _ext="txt"
 	
+	glob "$command" '[c]*' && ([ -f "$name.${_ext}" ] && exit || exit 1)
+        
     glob "$command" '[eds]*' && [ ! -f "$name.${_ext}" ] &&
         die "API file '$name' doesn't exist"
 
@@ -189,8 +194,9 @@ main() {
         p*) gpg_add "$API_key" ;;
         e*) gpg_edit           ;;
         d*) gpg_del            ;;
-        s*) gpg_show           ;;
+        s*) show_api           ;;
         l*) gpg_list           ;;
+        c*) check_api          ;;
         *)  usage              ;;
     esac
 }

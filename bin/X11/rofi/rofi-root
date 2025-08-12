@@ -3,9 +3,9 @@
 
 . "/usr/share/my_stuff/lib/common/WM"
 . "${Distro_config_file}"
+RASI="$HOME/.config/rofi/$ROFI_STYLE"
+layout="$(grep 'USE_ICON' "${RASI}/confirm.rasi" | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 
-# Apps
-layout="$(grep 'USE_ICON' ${RASI} | cut -d'=' -f2 | tr -d '[:blank:],*/')"
 if [ "$layout" = 'YES' ];then
 	terminal=""
 	files=""
@@ -19,32 +19,14 @@ else
 	clifm=" LF"
 	vim=" CLI Editor"
 fi
-# Variable passed to rofi
+
 options="$terminal\n$files\n$editor\n$clifm\n$vim"
+chosen="$(printf "$options" | rofi -theme "${RASI}/runner.rasi" -dmenu -selected-row 0)"
 
-# Functions
-chosen="$(printf "$options" | rofi -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
 case $chosen in
-    $terminal)
-        command_2_run="my-terminal-emulator"
-        _extra_arg=""
-        ;;
-    $files)
-        command_2_run="my-file-manager"
-        _extra_arg=""
-        ;;
-    $editor)
-        command_2_run="my-text-editor"
-        _extra_arg=""
-        ;;
-    $clifm)
-        command_2_run="popup_terminal" 
-         _extra_arg="$(which lf)"
-        ;;
-    $vim)
-        command_2_run="popup_terminal" 
-        _extra_arg="$(which $CLI_EDITER)"
-        ;;
+    $terminal) apps_as_root "my-terminal-emulator" ;;
+    $files) apps_as_root "my-file-manager" ;;
+    $editor) apps_as_root "my-text-editor" ;;
+    $clifm) popup_terminal --superuser "$(which lf)" ;;
+    $vim) popup_terminal --superuser "$(which $CLI_EDITER)" ;;
 esac
-
-[ -n "${command_2_run}" ] && apps_as_root "${command_2_run}" "$_extra_arg"

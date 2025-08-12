@@ -4,4 +4,13 @@
 echo "cleaning apt"
 my-superuser apt-get -y autoremove
 my-superuser apt-get -y autoclean
+if command -v podman >/dev/null 2>&1;then
+	echo "Clean up old up unused podman images, volumes, flatpak packages"
+    podman image prune -af
+    podman volume prune -f
+fi
+if command -v flatpak >/dev/null 2>&1;then
+	echo "Clean up old unused flatpak packages"
+    flatpak uninstall --unused
+fi
 echo "apt cleaned."

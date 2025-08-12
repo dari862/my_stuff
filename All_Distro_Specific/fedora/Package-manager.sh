@@ -1,10 +1,12 @@
 Package_installer_(){
 	my-superuser dnf install -y --non-interactive "$@"
 }
+
 Package_update_(){
 	say 'Updating sources...' 1
 	my-superuser dnf update -y
 }
+
 full_upgrade_(){
 	say 'Full upgrade your system...' 1
 	current_version=$(rpm -E '%{fedora}')
@@ -16,8 +18,7 @@ full_upgrade_(){
 		cat <<- EOF > "$HOME/.config/autostartscripts/full_upgrade_"
 		#!/bin/sh
 		set -e
-		. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
-		popup_terminal "my-superuser dnf autoremove && my-superuser dnf system-upgrade reboot"
+		popup_terminal --superuser 'dnf autoremove && rm -rf "$HOME/.config/autostartscripts/full_upgrade_" && my-superuser dnf system-upgrade reboot'
 		EOF
 		chmod +x "$HOME/.config/autostartscripts/full_upgrade_"
 		say "Rebooting to apply the upgrade..."
@@ -27,12 +28,15 @@ full_upgrade_(){
 	
 	my-superuser dnf distro-sync -y
 }
+
 Package_remove_(){
 	my-superuser dnf remove -y "$@"
 }
+
 Package_list_(){
 	:
 }
+
 Upgradeable_Packages_count_(){
 	dnf updateinfo -q --list | wc -l
 }

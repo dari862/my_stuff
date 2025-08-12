@@ -1,0 +1,18 @@
+#!/bin/sh
+# X11 only package remove it from my-installer
+#hide_it#
+app_name="dwm"
+extra_apps_="build-essential libx11-dev libxft-dev libxinerama-dev"
+
+say 'Installing package...' 1
+
+Package_installer_ ${extra_apps_} || continue
+
+say 'Building dwm...' 1
+my-superuser ${_APPS_EXTRA_LIBDIR}/Windows_Manager/dwm_Extra/build.sh || continue
+
+say 'Add my_stuff_bspwm to /usr/share/xsessions...' 1
+ln -sf "/usr/share/my_stuff/lib/xsessions/my_stuff_dwm.desktop" /usr/share/xsessions
+say
+copy_from_extra_skel ".config/dwm"
+

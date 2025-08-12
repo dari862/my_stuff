@@ -377,7 +377,7 @@ yad --plug=$KEY --tabnum=1 --borders=10 \
 --field="<b>>>></b>:LBL" "" \
 --field="<b>$KERN</b>:LBL" "" \
 --field="<b>$RESOLUTION</b>:LBL" "" \
---field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal 'my-superuser /usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
+--field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal --superuser '/usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
 --field=" Package-Manager!package-manager-icon!:FBTN" "$gui_package_manager" \
 --field=" Package-Manager updater!software-update!:FBTN" "$gui_package_manager_update" \
 --field=" ARandr!system-terminal!:FBTN" "arandr" \
@@ -442,7 +442,7 @@ yad --plug=$KEY --tabnum=7 --borders=20 \
 yad --plug=$KEY --tabnum=8 --borders=0 --text="$SYSTEM_DESC" --columns=2 --align="center" --form --scroll \
 --field="<b>$SETTINGS</b>:LBL" " " \
 --field="System Settings:FBTN" "hub s" \
---field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal 'my-superuser /usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
+--field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal --superuser '/usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
 --field="$MONITORS:LBL" "" \
 --field="ARandr:FBTN" "arandr" \
 --field="LXRandR:FBTN" "lxrandr" \

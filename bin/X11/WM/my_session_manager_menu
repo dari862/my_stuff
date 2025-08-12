@@ -6,9 +6,7 @@
 . "${my_stuff_display_manager_lib_path}"
 . "${Distro_config_file}"
 
-opt_="${1-}"
-opt2_="${2-}"
-confirm_it="true"
+chosen="${1-}"
 
 confirmation_dialog(){
 	if [ "$layout" = "YES" ];then
@@ -49,20 +47,18 @@ else
 	logout=" Logout"
 fi
 
-chosen="$(printf '%s\n' "$lock" "$suspend" "$logout" "$reboot" "$shutdown" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
-
-if [ "$opt_" = "--no-confirm" ] || [ "$opt_" = "-n" ] ;then
-	opt_="${opt2_}"
-else
-	[ "$confirm_it" = true ] && confirmation_dialog
+if [ -z "$chosen" ];then
+	chosen="$(printf '%s\n' "$lock" "$suspend" "$logout" "$reboot" "$shutdown" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
 fi
 
+confirmation_dialog
+
 case "$chosen" in
-  	"$shutdown") my_session_manager_cli shutdown --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
-   	"$reboot") my_session_manager_cli reboot --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
-   	"$lock") my_session_manager_cli lock ;;
-   	"$suspend") my_session_manager_cli suspend ;;
-   	"$logout") my_session_manager_cli logout ;;
+  	"$shutdown"|shutdown) my_session_manager_cli shutdown --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+   	"$reboot"|reboot) my_session_manager_cli reboot --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+   	"$lock"|lock) my_session_manager_cli lock ;;
+   	"$suspend"|suspend) my_session_manager_cli suspend ;;
+   	"$logout"|logout) my_session_manager_cli logout ;;
    	hibernate) my_session_manager_cli hibernate --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
 	hybrid-Sleep) my_session_manager_cli hybrid-Sleep --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
 	moniter_off) my_session_manager_cli moniter_off ;;

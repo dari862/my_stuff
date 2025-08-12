@@ -503,7 +503,8 @@ Launch_YAD_(){
     	done
 		style_changer "$(cat $CURSESSION)"
 		if . "$FPATH/lightdm-gtk-greeter.conf";then
-    		setLightdmGreeter "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position"
+    		apps_as_root "setLightdmGreeter" "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position" \
+    			|| rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
     	fi
     	restoreSettings   
 	}

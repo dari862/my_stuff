@@ -13,7 +13,7 @@ __weather_lib_path="/usr/share/my_stuff/bin/not_add_2_path/weather"
 . "$weather_script_config_path"
 
 if [ "$mode" = "auto" ];then
-	if myAPIman show openweather >/dev/null 2>&1;then
+	if myAPIman check openweather >/dev/null 2>&1;then
 		mode="openweather"
 	else
 		mode="wttr"

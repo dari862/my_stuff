@@ -10,6 +10,7 @@ WM_name_file_path="$WM_config_dir/$WM_name_file_name"
 
 display_script="$WM_config_dir/screenlayout.sh"
 
+Distro_config_dir_name="$WM_config_dir_name/${Distro_config_file_name}"
 Distro_config_file="$WM_config_dir/${Distro_config_file_name}"
 
 script_config_path="$HOME/.config/$scriptconfig_name"

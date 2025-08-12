@@ -3,7 +3,7 @@
 # === Config ===
 script_name="${1:-}"
 shift
-ffmpeg_scripts_path="/usr/share/my_stuff/bin/ffmpeg_scripts"
+ffmpeg_scripts_path="/usr/share/my_stuff/bin/extra/ffmpeg_scripts"
 
 # === Colors ===
 RED='\033[0;31m'

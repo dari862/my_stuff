@@ -1,0 +1,73 @@
+#!/bin/bash
+set -e
+
+opt="${1:-}"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+info()	{ printf "${GREEN}[INFO]${NC} %s\n" "$*"; }
+warn()	{ printf "${YELLOW}[WARN]${NC} %s\n" "$*"; }
+error()   { printf "${RED}[ERROR]${NC} %s\n" "$*"; }
+
+usage() {
+	printf "Usage: %s [COMMAND] [OPTIONS]\n\n" "$0"
+	printf "Commands:\n"
+	printf "  this-boot			Show journal logs from this boot"
+	printf "  last-boot			Show journal logs from last boot"
+	printf "  bios				Boot into BIOS/UEFI screen (asks for confirmation)"
+	printf "  update-firmware	Refresh and apply firmware updates (auto-confirmed)"
+	printf "\nOptions:\n"
+	printf "  help				Show this help message\n\n"
+}
+
+if [ -z "$opt" ]; then
+	if ! command -v fzf >/dev/null 2>&1; then
+		error "'fzf' is not installed. Please install it or pass a command manually."
+		exit 1
+	fi
+	COMMANDS="this-boot			Show journal logs from this boot\nlast-boot			Show journal logs from last boot\nbios				Boot into BIOS/UEFI screen (asks for confirmation)\nupdate-firmware	Refresh and apply firmware updates (auto-confirmed)"
+	printf "Select a command to run:\n" >&2
+	opt=$(printf "$COMMANDS" | fzf --prompt="> " --height=10 --reverse --border | awk -F'\t' '{print $1}')
+	[ -z "$opt" ] && exit
+fi
+
+case "$opt" in
+	bios)
+		info "Attempting to reboot into BIOS/UEFI setup..."
+		if [ -d /sys/firmware/efi ]; then
+			printf "${YELLOW}[CONFIRM]${NC} Are you sure you want to reboot into BIOS/UEFI now? (y/N): "
+			read -r reply
+			case "$reply" in
+				[Yy]*) systemctl reboot --firmware-setup ;;
+				*) warn "Operation cancelled."; return 1 ;;
+			esac
+		else
+			warn "Rebooting to legacy BIOS from OS is not supported."
+		fi
+		;;
+	this-boot)
+		info "Showing journal logs from this boot..."
+		journalctl -b 0
+		;;
+	last-boot)
+		info "Showing journal logs from last boot..."
+		journalctl -b -1
+		;;
+	update-firmware)
+		info "Refreshing firmware sources..."
+		fwupdmgr refresh --force
+		info "Checking for firmware updates..."
+		fwupdmgr get-updates
+		info "Applying firmware updates with auto-confirmation..."
+		fwupdmgr update --yes
+		;;
+	*)
+		error "Unknown command: $opt"
+		usage
+		exit 1
+		;;
+esac

@@ -7,7 +7,7 @@ polybar_launcher_path="$HOME/.local/bin/polybar_launch"
 config_file_name="config"
 
 if [ -z "$ROFI_STYLE" ] || ( [ "$_panel_name_" = "polybar" ] && [ -z "$polybar_STYLE" ] );then
-	style_picker_rofi
+	RiceSelector
 fi
 
 if [ ! -f "$HOME/.config/polybar/$polybar_STYLE/system.ini" ];then
