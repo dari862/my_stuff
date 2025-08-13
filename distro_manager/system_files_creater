@@ -226,6 +226,12 @@ touch "${__distro_path}"/system_files/skel/.config/mpd/database
 mkdir -p "${__distro_path}"/system_files/skel/.local/share/bash_history
 
 show_im "copy extra skell that we need to copy to system_files/skel ."
+if service_manager is-active sshd; then
+	show_im "copy bash zsh theme for SSH skell file to system_files/skel ."
+	cp -r "${__distro_path}/skel_extra/.bash_profile" "${__distro_path}/system_files/skel/" 
+	cp -r "${__distro_path}/skel_extra/.zprofile" "${__distro_path}/system_files/skel/" 
+fi
+
 if command -v autorandr >/dev/null 2>&1;then
 	show_im "copy autorandr skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/autorandr" "${__distro_path}/system_files/skel/.config" 
@@ -294,7 +300,8 @@ fi
 
 if command -v thunar >/dev/null 2>&1;then
 	show_im "copy gigolo skell file to system_files/skel ."
-	cp -r "${__distro_path}/skel_extra/.config/Thunar" "${__distro_path}/system_files/skel/.config" 
+	cp -r "${__distro_path}/skel_extra/.config/Thunar" "${__distro_path}/system_files/skel/.config"
+	cp -r "${__distro_path}/skel_extra/.config/xfce4" "${__distro_path}/system_files/skel/.config"
 fi
 
 if command -v gigolo >/dev/null 2>&1;then
@@ -456,7 +463,6 @@ if [ -d "${__distro_path}/bin/apps" ];then
 		rm -f "${__distro_path}"/system_files/bin/yautostart
 		rm -f "${__distro_path}"/system_files/bin/errcheck
 		rm -f "${__distro_path}"/system_files/bin/bootman
-		rm -f "${__distro_path}"/system_files/bin/change_dns
 	fi
 fi
 

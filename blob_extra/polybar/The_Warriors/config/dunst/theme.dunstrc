@@ -25,7 +25,7 @@ transparency = 0
 origin = top-right
 
 # Offset from the origin
-offset = 10x44
+offset = (10, 44)
 
 # Defines width in pixels of frame around the notification window.
 # Set to 0 to disable.

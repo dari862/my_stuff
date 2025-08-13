@@ -13,6 +13,6 @@ fi
 WAYLAND_SOCKET="/run/user/$(id -u)/wayland-0"
 CHROOT_WAYLAND_SOCKET="/usr/share/my_stuff/system_files/chroots/chroot-browsers/run/user/$(id -u)/wayland-0"
 
-/ usr/bin/mkdir -p "$(dirname "${CHROOT_WAYLAND_SOCKET}")"
+/usr/bin/mkdir -p "$(dirname "${CHROOT_WAYLAND_SOCKET}")"
 /usr/bin/mount --bind "${WAYLAND_SOCKET}" "${CHROOT_WAYLAND_SOCKET}"
 /usr/sbin/chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" su - "${current_user}" -c "export MOZ_ENABLE_WAYLAND=1 WAYLAND_DISPLAY=wayland-0 && firefox"

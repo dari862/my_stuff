@@ -39,4 +39,5 @@
   <property name="misc-parallel-copy-mode" type="string" value="THUNAR_PARALLEL_COPY_MODE_ALWAYS"/>
   <property name="misc-confirm-close-multiple-tabs" type="bool" value="false"/>
   <property name="last-splitview-separator-position" type="int" value="452"/>
+  <property name="misc-volume-management" type="bool" value="false"/>
 </channel>

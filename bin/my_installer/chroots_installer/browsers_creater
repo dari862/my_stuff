@@ -20,17 +20,20 @@ end_of_chroot_creater(){
 	
 	if [ -f "/etc/doas.conf" ];then
 		my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
-		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}
+		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-wayland
+		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-X11
 		EOF
 	
 		my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
-		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}
+		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-wayland
+		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-X11
 		EOF
 	fi
 	
 	if [ -d "/etc/sudoers.d" ];then
 		my-superuser tee "/etc/sudoers.d/chroot_${APP_NAME}" > /dev/null <<- EOF
-		%users ALL=(ALL) NOPASSWD: ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}
+		%users ALL=(ALL) NOPASSWD: ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-wayland
+		%users ALL=(ALL) NOPASSWD: ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-X11
 		EOF
 		my-superuser chmod 400 "/etc/sudoers.d/chroot_${APP_NAME}"
 	fi

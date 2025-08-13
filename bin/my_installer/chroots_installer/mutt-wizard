@@ -1,0 +1,84 @@
+#!/bin/bash
+set -e
+# debian missing goimapnotify pam-gnupg abook urlview
+# arch   missing pam-gnupg abook urlview
+MUTT_CHROOT_NAME="mutt-wizard"
+MUTT_CHROOT_DIR="${ROOT_CHROOT_DIR}/${MUTT_CHROOT_NAME}"
+CHROOT_DIR="${MUTT_CHROOT_DIR}"
+MW_REPO="https://github.com/LukeSmithxyz/mutt-wizard.git"
+PRE_MUTT_LAUNCHER="chroot-${MUTT_CHROOT_NAME}"
+MUTT_LAUNCHER="chroot-neomutt"
+
+trap cleanup EXIT # from chroot_functions
+base_chroot_creater
+
+say "==> Copying DNS info..."
+my-superuser cp /etc/resolv.conf "$MUTT_CHROOT_DIR/etc/resolv.conf"
+
+say "==> Exporting xterm-kitty terminfo from host..."
+infocmp xterm-kitty > "$MUTT_CHROOT_DIR"/tmp/xterm-kitty.terminfo
+
+say "==> Entering chroot to install ${MUTT_CHROOT_NAME}..."
+
+my-superuser chroot "$MUTT_CHROOT_DIR" /bin/bash <<-EOC
+set -e
+echo "[*] Inside chroot."
+apt update
+apt install -y build-essential neomutt git nano curl isync msmtp pass gettext ca-certificates lynx notmuch cron mpop
+
+echo "[*] Cloning mutt-wizard..."
+cd /tmp
+git clone $MW_REPO
+cd mutt-wizard
+make install
+
+useradd -m -s /bin/bash chroot
+
+echo "export TERM=xterm-kitty" >> /root/.bashrc
+su - chroot -c 'tic /tmp/xterm-kitty.terminfo'
+
+rm -rdf /tmp/xterm-kitty.terminfo /tmp/mutt-wizard
+EOC
+
+say "Creating launcher script: $MUTT_LAUNCHER"
+my-superuser tee "$CHROOT_SCRIPT_PATH/${PRE_MUTT_LAUNCHER}" > /dev/null <<- EOF
+#!/bin/sh
+current_user="chroot\$(/usr/bin/logname)"
+if /usr/sbin/chroot "$MUTT_CHROOT_DIR" id "\${current_user}" >/dev/null 2>&1; then
+    :
+else
+    /usr/sbin/chroot "$MUTT_CHROOT_DIR" useradd -m "\${current_user}" -s /bin/bash
+fi
+if ! /usr/bin/mountpoint -q "$MUTT_CHROOT_DIR/proc";then
+	/usr/bin/mount --bind "/proc" "$MUTT_CHROOT_DIR/proc"
+fi
+/usr/sbin/chroot "$MUTT_CHROOT_DIR" /bin/su - chroot
+EOF
+my-superuser chmod +x "$CHROOT_SCRIPT_PATH/${PRE_MUTT_LAUNCHER}" || failed_to_run "Failed to set execute permission on pre-launch script:$CHROOT_SCRIPT_PATH/${PRE_MUTT_LAUNCHER}"
+my-superuser tee "$LAUNCH_SCRIPT_PATH/${MUTT_LAUNCHER}" > /dev/null <<- EOF
+#!/bin/sh
+my-superuser "$CHROOT_SCRIPT_PATH/$PRE_MUTT_LAUNCHER"
+EOF
+my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/${MUTT_LAUNCHER}" || failed_to_run "Failed to set execute permission on pre-launch script:$LAUNCH_SCRIPT_PATH/${MUTT_LAUNCHER}"
+if [ -f "/etc/doas.conf" ];then
+	my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${MUTT_LAUNCHER}
+	EOF
+
+	my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${MUTT_LAUNCHER}
+	EOF
+fi
+
+if [ -d "/etc/sudoers.d" ];then
+	my-superuser tee "/etc/sudoers.d/${MUTT_CHROOT_NAME}" > /dev/null <<- EOF
+	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/${MUTT_LAUNCHER}
+	EOF
+	my-superuser chmod 400 "/etc/sudoers.d/${MUTT_CHROOT_NAME}"
+fi
+
+my-superuser touch "${_CHROOTS_INSTALLED_LIBDIR}/${MUTT_CHROOT_NAME}"
+
+say
+say "Done! You can enter the chroot with: $MUTT_LAUNCHER"
+say "and run 'mw init' to configure ${MUTT_CHROOT_NAME}."

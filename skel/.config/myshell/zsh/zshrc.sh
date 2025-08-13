@@ -1,9 +1,15 @@
 #!/bin/zsh
-if [[ -n $SSH_CONNECTION ]] && [[ -z $ZSH_THEME ]];then
-	ZSH_THEME="headline"
+unsetopt PROMPT_SP 2>/dev/null
+
+if [[ -z $ZSH_THEME ]];then
+  ZSH_THEME="pure"
 fi
 
-pfetch
+if [[ -n $SSH_THEME ]];then
+  ZSH_THEME="${SSH_THEME}"
+fi
+
+command -v pfetch &>/dev/null && pfetch
 
 fpath+=("$ZDOTDIR/completion")
 
@@ -61,6 +67,7 @@ HISTFILE=$ZDOTDIR/zsh_history
 HIST_STAMPS=mm/dd/yyyy
 HISTSIZE=5000
 SAVEHIST=5000
+HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..|doas reboot|my-superuser reboot)"
 HISTDUP=erase
 ZLE_RPROMPT_INDENT=0
 WORDCHARS=${WORDCHARS//\/}

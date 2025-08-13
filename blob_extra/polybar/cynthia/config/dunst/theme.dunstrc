@@ -25,7 +25,7 @@ transparency = 4
 origin = top-right
 
 # Offset from the origin
-offset = 10x92
+offset = (10, 92)
 
 # Defines width in pixels of frame around the notification window.
 frame_width = 6

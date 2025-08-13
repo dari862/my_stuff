@@ -30,7 +30,16 @@ my-superuser tee "$CHROOT_SCRIPT_PATH/${CUPS_GUI}" > /dev/null <<- EOF
 if ! /usr/bin/mountpoint -q "$CUPS_CHROOT_DIR/proc";then
 	/usr/bin/mount --bind "/proc" "$CUPS_CHROOT_DIR/proc"
 fi
-/usr/sbin/chroot "$CUPS_CHROOT_DIR" su - $CHROOT_USER -c "export DISPLAY=:0.0 && system-config-printer"
+. "\${my_stuff_display_manager_lib_path}"
+if [ "$Display_server_are" = "X11" ];then
+	/usr/sbin/chroot "$CUPS_CHROOT_DIR" su - $CHROOT_USER -c "export DISPLAY=:0.0 && system-config-printer"
+elif [ "$Display_server_are" = "wayland" ];then
+	WAYLAND_SOCKET_PATH="\$XDG_RUNTIME_DIR/\$WAYLAND_DISPLAY"
+	cp --preserve "\$WAYLAND_SOCKET_PATH" "$CUPS_CHROOT_DIR$WAYLAND_SOCKET_PATH"
+	mount --bind "\$WAYLAND_SOCKET_PATH" "$CUPS_CHROOT_DIR$WAYLAND_SOCKET_PATH"
+	chroot "$CUPS_CHROOT_DIR" su - "$CHROOT_USER" -c "export WAYLAND_DISPLAY=$WAYLAND_DISPLAY && system-config-printer"
+	
+fi
 EOF
 my-superuser chmod 755 "$CHROOT_SCRIPT_PATH/${CUPS_GUI}" || failed_to_run "Failed to set execute permission on launch script"
 

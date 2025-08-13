@@ -11,7 +11,7 @@ esac
 
 iatest=$(expr index "$-" i)
 
-pfetch
+command -v pfetch &>/dev/null && pfetch
 
 # ------------------------------- variables -----------------------------------
 bashplugins=(
@@ -31,8 +31,12 @@ if [ -z "${debian_chroot:-}" ] && [ -r "/etc/debian_chroot" ];then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-if [[ -n $SSH_CONNECTION ]] || [[ -z $BASH_THEME ]];then
-  BASH_THEME="debian"
+if [[ -z $BASH_THEME ]];then
+  BASH_THEME="pure"
+fi
+
+if [[ -n $SSH_THEME ]];then
+  BASH_THEME="${SSH_THEME}"
 fi
 
 if [[ -f "$BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme" ]];then
@@ -45,8 +49,8 @@ fi
 # Expand the history size
 export HISTFILESIZE=10000
 export HISTSIZE=500
-
-HISTFILE=$BASHDOTDIR/bash_history
+export HISTIGNORE="ls:cd:pwd:exit:sudo reboot:history:cd -:cd ..:doas reboot:my-superuser reboot"
+export HISTFILE=$BASHDOTDIR/bash_history
 
 # Don't put duplicate lines in the history and do not add lines that start with a space
 export HISTCONTROL=erasedups:ignoredups:ignorespace
