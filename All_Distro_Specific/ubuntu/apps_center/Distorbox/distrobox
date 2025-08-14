@@ -11,6 +11,6 @@ if command -v $box_app_name >/dev/null 2>&1;then
 	must_create_file
 else
 	install_as_dependency "podman"
-	Package_installer_ ${box_app_name} || failed_to_run "failed to install ${box_app_name}"
+	Package_installer_ "${box_app_name}" || failed_to_run "failed to install ${box_app_name}"
 	must_create_file
 fi

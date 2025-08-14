@@ -1,5 +1,5 @@
 Package_installer_(){
-	my-superuser zypper install -y "$@"
+	my-superuser zypper install -y $@
 }
 
 Package_update_(){
@@ -13,7 +13,7 @@ full_upgrade_(){
 }
 
 Package_remove_(){
-	my-superuser zypper remove -y "$@"
+	my-superuser zypper remove -y $@
 }
 Package_list_(){
 	:

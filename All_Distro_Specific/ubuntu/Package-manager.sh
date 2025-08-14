@@ -1,7 +1,7 @@
 if command -v nala >/dev/null 2>&1;then
 	package_manger="nala"
 	Package_installer_(){
-		my-superuser nala install -y "$@"
+		my-superuser nala install -y $@
 	}
 	Package_update_(){
 		my-superuser nala update
@@ -19,7 +19,7 @@ if command -v nala >/dev/null 2>&1;then
 else
 	package_manger="apt-get"
 	Package_installer_(){
-		my-superuser apt-get install -y "$@"
+		my-superuser apt-get install -y $@
 	}
 	Package_update_(){
 		say 'Updating sources...' 1

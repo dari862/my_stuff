@@ -2,4 +2,4 @@
 
 app_name="l3afpad"
 say 'Installing l3afpad...' 1
-Package_installer_ ${app_name} || continue
+Package_installer_ "${app_name}" || continue

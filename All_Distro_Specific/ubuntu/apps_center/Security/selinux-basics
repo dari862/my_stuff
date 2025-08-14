@@ -5,7 +5,7 @@ extra_apps_="selinux-policy-default auditd"
 
 say 'Installing package...' 1
 
-Package_installer_ ${app_name} {extra_apps_} || continue
+Package_installer_ "${app_name} ${extra_apps_}" || continue
 
 say "Activating SELinux." 1
 my-superuser selinux-activate

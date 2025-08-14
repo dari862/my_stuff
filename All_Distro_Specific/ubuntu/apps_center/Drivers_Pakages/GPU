@@ -20,7 +20,7 @@ create_X11_intel_conf(){
 }
 
 install_intel_drivers(){
-	Package_installer_ xserver-xorg-video-intel intel-gpu-tools intel-media-va-driver|| continue
+	Package_installer_ "xserver-xorg-video-intel intel-gpu-tools intel-media-va-driver" || continue
 	#create_X11_intel_conf
 }
 
@@ -40,7 +40,7 @@ install_nvidia_drivers(){
 	
 	Package_update_ || continue
 
-	Package_installer_ nvidia-driver nvidia-utils nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_ || continue
+	Package_installer_ "nvidia-driver nvidia-utils nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_" || continue
 	
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."

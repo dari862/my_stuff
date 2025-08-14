@@ -7,5 +7,5 @@ if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
 	Distrobox_package_installer_ ${app_name} || continue
 else
 	say 'Installing package...' 1
-	Package_installer_ ${app_name} ${extra_apps_}|| continue
+	Package_installer_ "${app_name} ${extra_apps_}"|| continue
 fi

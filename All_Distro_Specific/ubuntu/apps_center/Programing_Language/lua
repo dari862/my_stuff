@@ -2,7 +2,7 @@
 app_name="lua5.4"
 extra_app="build-essential libreadline-dev unzip liblua5.4-dev"
 say "Installing ${app_name}..." 1
-Package_installer_ ${app_name} ${extra_app} || continue
+Package_installer_ "${app_name}" ${extra_app} || continue
 
 say "Installing luarocks..." 1
 cd "/tmp/$USER"

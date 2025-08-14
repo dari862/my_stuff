@@ -6,6 +6,6 @@ prompt "  Do you want to set $app_name as default package?"  || set_as_default_p
 
 say 'Installing package...' 1
 
-Package_installer_ ${app_name} || continue
+Package_installer_ "${app_name}" || continue
 	
 [ "$set_as_default_package" = true ] && my-alternatives --set "my-image-viewer" "${app_name}"

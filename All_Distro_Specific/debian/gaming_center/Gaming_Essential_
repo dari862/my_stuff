@@ -33,7 +33,7 @@ clear
 Package_update_
 
 Package_installer_ libcec6 xboxdrv || continue     
-Package_installer_ mangohud goverlay gamemode $SHELL_EXT lutris || continue                
+Package_installer_ "mangohud goverlay gamemode $SHELL_EXT lutris" || continue                
 Package_installer_ --install-recommends winehq-staging || continue     
 Package_installer_ wine wine64 wine-binfmt || continue     
 

@@ -5,7 +5,7 @@ extra_apps_="sxhkd"
 
 say 'Installing package...' 1
 
-Package_installer_ ${app_name} ${extra_apps_} || continue
+Package_installer_ "${app_name} ${extra_apps_}" || continue
 
 say 'Add my_stuff_bspwm to /usr/share/xsessions...' 1
 my-superuser ln -sf "/usr/share/my_stuff/lib/xsessions/my_stuff_bspwm.desktop" /usr/share/xsessions

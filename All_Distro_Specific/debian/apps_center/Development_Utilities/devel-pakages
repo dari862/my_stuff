@@ -15,4 +15,4 @@ fi
 
 say 'Installing devel-pakages ...' 1
 
-Package_installer_ ${Packages_are} || continue
+Package_installer_ "${Packages_are}" || continue

@@ -79,7 +79,7 @@ install_nvidia_drivers(){
     installation_list="$installation_list nvidia-utils $_cuda_"
     
     say "Installing nvidia driver..."
-    Package_installer_ $installation_list
+    Package_installer_ "$installation_list"
     
     if checkIntelHardware; then
         setKernelParam "ibt=off"

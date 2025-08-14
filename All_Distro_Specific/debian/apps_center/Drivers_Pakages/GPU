@@ -41,7 +41,7 @@ install_nvidia_drivers(){
 	echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | my-superuser tee /etc/apt/sources.list.d/nvidia-drivers.list > /dev/null 2>&1
 	
 	Package_update_  || continue
-	Package_installer_ nvidia-driver nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_ || continue
+	Package_installer_ "nvidia-driver nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_" || continue
 	
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."

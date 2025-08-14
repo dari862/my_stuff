@@ -4,7 +4,7 @@ app_name="iwd network-manager-openvpn network-manager-openvpn-gnome openssh-serv
 
 say 'Installing package...' 1
 
-Package_installer_ ${app_name} || continue
+Package_installer_ "${app_name}" || continue
 
 nmconf="/etc/NetworkManager/NetworkManager.conf"
 say "Networking applications installed."

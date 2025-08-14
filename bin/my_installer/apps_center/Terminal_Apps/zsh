@@ -5,7 +5,7 @@ extra_apps_="zsh-autosuggestions zsh-syntax-highlighting"
 
 say 'Installing package...' 1
 
-Package_installer_ ${app_name} ${extra_apps_} || continue
+Package_installer_ "${app_name} ${extra_apps_}" || continue
 
 if prompt '  Make ZSH default shell? ' 'Y';then
 	current_user="$USER"

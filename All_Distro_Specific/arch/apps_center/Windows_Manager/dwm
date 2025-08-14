@@ -6,7 +6,7 @@ extra_apps_="base-devel libx11 libxft libxinerama"
 
 say 'Installing package...' 1
 
-Package_installer_ ${extra_apps_} || continue
+Package_installer_ "${extra_apps_}" || continue
 
 say 'Building dwm...' 1
 my-superuser ${_APPS_EXTRA_LIBDIR}/Windows_Manager/dwm_Extra/build.sh || continue

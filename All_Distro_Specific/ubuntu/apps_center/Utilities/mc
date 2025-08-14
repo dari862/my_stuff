@@ -4,5 +4,5 @@ app_name="mc"
 
 say 'Installing package...' 1
 
-Package_installer_ ${app_name} || continue
+Package_installer_ "${app_name}" || continue
 

@@ -7,7 +7,7 @@ else
 fi
 
 Package_installer_(){
-	${package_manger} --noconfirm -S "$@"
+	${package_manger} --noconfirm -S $@
 }
 Package_update_(){
 	say 'Updating sources...' 1

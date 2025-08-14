@@ -5,7 +5,7 @@ extra_apps_="build-essential linux-headers-$(uname -r)"
 my-installer --tweek "Enable_IOMMU_support" || continue
 
 say "Installing ${extra_apps_}..." 1
-Package_installer_ ${extra_apps_} || continue
+Package_installer_ "${extra_apps_}" || continue
 
 clear
 say 'Downloading VMware-Player-Full.bundle...' 1

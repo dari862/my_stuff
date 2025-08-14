@@ -6,6 +6,6 @@ app_list_quickemu_="bash coreutils ovmf grep jq procps python3 genisoimage usbut
 extra_apps="${app_list_virt_manager_} ${app_list_quickemu_}"
 say 'Installing package...' 1
 	
-Package_installer_ ${extra_apps} || continue
+Package_installer_ "${extra_apps}" || continue
 . "${_APPS_LIBDIR}/hypervisors/virt/post_install_virt_manager.sh"
 

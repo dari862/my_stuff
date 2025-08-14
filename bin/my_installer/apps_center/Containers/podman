@@ -4,7 +4,7 @@ __newGroup="podmanusers"
 		
 if [ ! -f '/usr/share/my_stuff/system_files/Container_Group_podman' ];then
 	say "install container software ..." 1
-	Package_installer_ ${app_name} || continue
+	Package_installer_ "${app_name}" || continue
 	
 	clear
 	

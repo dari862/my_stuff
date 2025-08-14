@@ -14,6 +14,6 @@ say "Installing ${Title} updater and installer..." 1
 my_installer_ln_script "nvim_updater" || failed_to_run "failed to run nvim_updater ."
 
 say 'Installing extra packages...' 1
-Package_installer_ ${extra_apps_} || continue
+Package_installer_ "${extra_apps_}" || continue
 
 . "${_APPS_LIBDIR}/IDE/Neovim_Extra/post_install.sh"

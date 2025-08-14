@@ -1,5 +1,5 @@
 Package_installer_(){
-	my-superuser dnf install -y --non-interactive "$@"
+	my-superuser dnf install -y --non-interactive $@
 }
 
 Package_update_(){
@@ -30,7 +30,7 @@ full_upgrade_(){
 }
 
 Package_remove_(){
-	my-superuser dnf remove -y "$@"
+	my-superuser dnf remove -y $@
 }
 
 Package_list_(){

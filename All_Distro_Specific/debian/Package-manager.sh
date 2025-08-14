@@ -21,7 +21,7 @@ else
 fi
 
 Package_installer_(){
-	my-superuser "${package_manger}" install -y "$@"
+	my-superuser "${package_manger}" install -y $@
 }
 
 full_upgrade_(){
@@ -34,7 +34,7 @@ Packages_upgrade_(){
 }
 
 Package_remove_(){
-	my-superuser "${package_manger}" purge -y "$@"
+	my-superuser "${package_manger}" purge -y $@
 }
 
 download_key(){

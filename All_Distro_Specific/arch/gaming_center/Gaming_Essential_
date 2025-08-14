@@ -10,7 +10,7 @@ extra_apps="wine dbus git gnutls lib32-gnutls base-devel gtk2 gtk3 lib32-gtk2 li
 
 say "Installing ${app_name} packages..." 1
 
-Package_installer_ ${extra_apps} || continue
+Package_installer_ "${extra_apps}" || continue
             
             
             

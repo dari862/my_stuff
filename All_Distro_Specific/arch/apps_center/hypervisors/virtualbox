@@ -24,7 +24,7 @@ esac
 Package_update_ || failed_to_run "failed to update"
 
 say 'Installing packages...' 1
-Package_installer_ ${install_list} || continue
+Package_installer_ "${install_list}" || continue
 
 my-superuser usermod -aG vboxusers $USER 
 

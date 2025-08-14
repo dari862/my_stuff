@@ -15,7 +15,7 @@ __adduser="$(my-superuser which adduser)"
 full_upgrade_ || continue
 
 say 'Installing package...' 1
-Package_installer_ ${extra_apps_} || continue
+Package_installer_ "${extra_apps_}" || continue
 
 my-superuser $__addgroup --system console
 my-superuser $__adduser $USER console

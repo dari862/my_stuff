@@ -36,7 +36,7 @@ install_nvidia_drivers(){
 	
 	Package_update_ || continue
 
-	Package_installer_ nvidia xorg-x11-drv-nvidia nvidia-settings $akmod_nvidia $_cuda_ || continue
+	Package_installer_ "nvidia xorg-x11-drv-nvidia nvidia-settings $akmod_nvidia $_cuda_" || continue
 	
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."

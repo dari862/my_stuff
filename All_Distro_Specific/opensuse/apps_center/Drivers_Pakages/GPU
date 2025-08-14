@@ -38,7 +38,7 @@ install_nvidia_drivers(){
 	
 	Package_update_ || continue
 
-	Package_installer_ nvidia nvidia-utils nvidia-settings $akmod_nvidia $_cuda_ $dkms_nvidia || continue
+	Package_installer_ "nvidia nvidia-utils nvidia-settings $akmod_nvidia $_cuda_ $dkms_nvidia" || continue
 	
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
