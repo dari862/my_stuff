@@ -635,12 +635,6 @@ Set_scaling() {
 	show_massage "GREEN" "All monitor scalings have been set to ${new_scaling_resolution}."
 	postrun_massage="All monitor scalings have been set to ${new_scaling_resolution}."
 	run_create_script=true
-
-	if command -v autorandr >/dev/null 2>&1;then
-		mkdir -p "$HOME/.config/autorandr"
-		echo "$new_scaling_resolution" > $HOME/.config/autorandr/scale
-		execute_command "autorandr -s $monitor_configuration >/dev/null 2>&1"
-	fi
 }
 
 disable_monitor() {

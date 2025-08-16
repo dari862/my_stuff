@@ -52,8 +52,11 @@ for d in /home/*/ ; do
 	my-superuser ln -sf "${_GAMING_EXTRA_LIBDIR}/Steam_fix" "$d" && my-superuser chown $user_and_group "$d"/Steam_fix
 done
 
-flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue     
-flatpak_install "bottles" "com.usebottles.bottles" "nonflathub" || continue     
+install_as_dependency pacstall || continue
+pacstall_install protonplus || continue
+pacstall_install bottles || continue
+
+flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue      
 flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     
 
 say "Creating Check File (Gaming_ready)"

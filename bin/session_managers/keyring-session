@@ -22,7 +22,20 @@ start() {
 	pidof -q ${keyring_path} || ${keyring_path} &
 }
 
+init_(){
+	if [ -d "/etc/xdg/autostart/" ];then
+		list_of_polkit="$(grep -r "polkit" "/etc/xdg/autostart/" | awk -F: '{print $1}' | sort -u)"
+		for polkit in $list_of_polkit;do
+			grep -q "Hidden=true" "$polkit" || exit
+		done
+	fi
+	start
+}
+
 case "${1}" in
+	init)
+		init_		
+	;;
 	""|restart)
 		stop
 		start		

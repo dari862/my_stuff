@@ -5,11 +5,5 @@ if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
 	Distrobox_package_installer_ ${app_name} || continue
 else
 	say 'Installing package...' 1
-	lsb_release -r | grep '20.04' && \
-  	getURL 'download2' 'https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_buster_6128731.deb' "/tmp/$USER/openrgb.deb" \
-  	|| getURL 'download2' 'https://openrgb.org/releases/release_0.7/openrgb_0.7_amd64_bullseye_6128731.deb' "/tmp/$USER/openrgb.deb"
-
-	install_deb ./openrgb.deb
-	
-	rm -f openrgb.deb
+	pacstall_install openrgb-git || continue
 fi

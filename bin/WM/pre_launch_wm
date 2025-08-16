@@ -39,7 +39,7 @@ fi
 setbg -r
 
 # Start keyring	
-keyring-session start &
+keyring-session init &
 
 ## Start Music Player Daemon
 mpd-session start &

@@ -92,6 +92,9 @@ my-superuser grub-mkconfig -o /boot/grub/grub.cfg > /dev/null 2>&1
 echo "removing /usr/share/my_stuff"
 my-superuser rm -rdf "/usr/share/my_stuff"
 
+echo "running myautorandr.sh"
+my-superuser /usr/share/my_stuff/bin/X11/not_add_2_path/myautorandr.sh uninstall || echo "failed to run myautorandr.sh uninstaller"
+
 echo "delete /usr/bin/my-superuser"
 my-superuser rm -rdf /usr/bin/my-superuser || :
 

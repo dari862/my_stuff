@@ -94,3 +94,10 @@ Package_cleanup() {
 __dpkg_configure() {
     my-superuser dpkg --configure -a
 }
+
+pacstall_install(){
+	packages="$@"
+	for package in $packages;do 
+		pacstall -I $package
+	done
+}

@@ -30,8 +30,11 @@ Package_installer_ wine wine64 wine-binfmt || continue
 
 Package_installer_ steam || continue
 
-flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue     
-flatpak_install "bottles" "com.usebottles.bottles" "nonflathub" || continue     
+install_as_dependency pacstall || continue
+pacstall_install protonplus || continue
+pacstall_install bottles || continue
+
+flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue        
 flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     
 
 say "Creating Check File (Gaming_ready)"

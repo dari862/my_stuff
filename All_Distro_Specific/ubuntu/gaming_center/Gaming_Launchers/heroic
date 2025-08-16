@@ -6,8 +6,5 @@ if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
 	Distrobox_package_installer_ ${app_name} || continue
 else
 	say 'Installing package...' 1
-  	cd "$(mktemp -d)"
-	download_url="$(getURL 'latestgit' 'Heroic-Games-Launcher/HeroicGamesLauncher' 'deb')"
-	getURL 'download' "${download_url}"
-	install_deb ./heroic_*.deb
+  	pacstall_install heroic-games-launcher-deb || continue
 fi
