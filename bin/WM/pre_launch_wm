@@ -35,7 +35,7 @@ else
 	displayselect auto "noninteractive"
 fi
 
-displayselect watch
+displayselect watch &
 
 # Set wallpaper
 setbg -r
