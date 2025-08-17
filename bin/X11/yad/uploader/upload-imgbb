@@ -160,7 +160,7 @@ function settings_conf(){
 		
 		# Local file settings
 		# User directory to save image:
-		FILE_DIR="$(xdg-user-dir PICTURES)/screenshots"
+		FILE_DIR="$(xdg-user-dir PICTURES)/Screenshots"
 		FILE_NAME="imgbb-%Y_%m_%d-%H:%M:%S"
 		# possible formats are png | jpg | tif | gif | bmp | webp
 		FILE_FORMAT="png"
