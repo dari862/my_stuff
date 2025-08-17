@@ -35,13 +35,9 @@ install_nvidia_drivers(){
 	_kernel_open_dkms_=""
 	prompt '  do you want to add Cuda Support?' && _cuda_="cuda"
 	prompt 'do you want to install opensource nvidia-kernel?' && _kernel_open_dkms_="nvidia-kernel-open-dkms"
-	. "/usr/share/my_stuff/os-release"
-	
-	download_key "gpg" "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" "/usr/share/keyrings/nvidia-drivers.gpg"
-	echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | my-superuser tee /etc/apt/sources.list.d/nvidia-drivers.list > /dev/null 2>&1
-	
+
 	Package_update_  || continue
-	Package_installer_ "nvidia-driver nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_" || continue
+	Package_installer_ "nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
 	
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
