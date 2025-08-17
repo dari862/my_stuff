@@ -49,7 +49,7 @@ else
     IMGDIR="$HOME/Pictures"
 fi
 # test for screenshots dir, create if it doesn't exist
-SCREENSHOTSDIR="$IMGDIR/screenshots"
+SCREENSHOTSDIR="$IMGDIR/Screenshots"
 mkdir -p "$SCREENSHOTSDIR"
 
 obmenu_options(){
