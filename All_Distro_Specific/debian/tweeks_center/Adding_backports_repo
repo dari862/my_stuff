@@ -6,13 +6,16 @@ if [ "n/a" = "$dist" ];then
     dist=testing
 fi
 
+what_2_grep="${dist}-backports"
 if [ -f "/etc/apt/sources.list" ];then
+	mirror="http://deb.debian.org/debian/"
+	mirror_security="http://security.debian.org/debian-security"
 	apt_sources_file_path="/etc/apt/sources.list"
-elif [ -f /etc/apt/sources.list ];then
-	apt_sources_file_path="/etc/apt/sources.list"
+	deb_lines_nonfree=$(grep -E "^(deb|deb-src) (${mirror}|${mirror_security})" "${apt_sources_file_path}" | grep -v "$what_2_grep" )
+elif [ -f "/etc/apt/sources.list.d/debian.sources" ];then
+	apt_sources_file_path="/etc/apt/sources.list.d/debian.sources"
+	deb_lines_nonfree=$(grep "Components: " "${apt_sources_file_path}" | grep -v "$what_2_grep" )
 fi
-
-deb_lines_backports=$(egrep -E "^(deb|deb-src) (${mirror}|${mirror_security})" "$apt_sources_file_path" | grep -v ${dist}-backports)
 
 if [ -z "$deb_lines_backports" ];then # enabled
 	exit 0 
@@ -21,7 +24,7 @@ elif [ "$1" = "--is-enable" ];then # disabled and only check
 fi
 
 for l in $deb_lines_backports; do
-	my-superuser sed -i "s\\^$l$\\$l ${dist}-backports\\" "$apt_sources_file_path"
+	my-superuser sed -i "s\\^$l$\\$l ${what_2_grep}\\" "$apt_sources_file_path"
 done
 my-superuser apt-get update
 my-superuser ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install /usr/share/my_stuff/system_files/bin
