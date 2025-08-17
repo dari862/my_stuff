@@ -5,7 +5,14 @@ dist=$(lsb_release -cs)
 if [ "n/a" = "$dist" ];then
     dist=testing
 fi
-deb_lines_backports=$(egrep -E "^(deb|deb-src) (${mirror}|${mirror_security})" /etc/apt/sources.list | grep -v ${dist}-backports)
+
+if [ -f "/etc/apt/sources.list" ];then
+	apt_sources_file_path="/etc/apt/sources.list"
+elif [ -f /etc/apt/sources.list ];then
+	apt_sources_file_path="/etc/apt/sources.list"
+fi
+
+deb_lines_backports=$(egrep -E "^(deb|deb-src) (${mirror}|${mirror_security})" "$apt_sources_file_path" | grep -v ${dist}-backports)
 
 if [ -z "$deb_lines_backports" ];then # enabled
 	exit 0 
@@ -14,7 +21,7 @@ elif [ "$1" = "--is-enable" ];then # disabled and only check
 fi
 
 for l in $deb_lines_backports; do
-	my-superuser sed -i "s\\^$l$\\$l ${dist}-backports\\" /etc/apt/sources.list
+	my-superuser sed -i "s\\^$l$\\$l ${dist}-backports\\" "$apt_sources_file_path"
 done
 my-superuser apt-get update
 my-superuser ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install /usr/share/my_stuff/system_files/bin
