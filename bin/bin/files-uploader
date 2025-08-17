@@ -31,7 +31,7 @@ else
     IMGDIR="$HOME/Pictures"
 fi
 # test for screenshots dir, create if it doesn't exist
-SCROTSDIR="$IMGDIR/screenshots"
+SCROTSDIR="$IMGDIR/Screenshots"
 mkdir -p "$SCROTSDIR"
 
 case "${__to_where_}" in
