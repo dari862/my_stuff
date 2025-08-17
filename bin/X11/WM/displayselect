@@ -680,6 +680,19 @@ help(){
 	exit
 }
 
+watch_for_device_hot_plugs(){
+	MODE="noninteractive"
+	udevadm monitor --subsystem-match=drm --property | \
+	while read -r line; do
+	    if echo "$line" | grep -q "HOTPLUG=1"; then
+	        export DISPLAY=:0
+	        export XAUTHORITY=/home/$USER/.Xauthority
+	        sleep 1
+	        auto_detect_displays
+	    fi
+	done
+}
+
 monitor_list=$(detect_connected_monitors)
 monitor_array=$(echo "$monitor_list" | tr '\n' ' ')
 number_of_monitors=$(echo "$monitor_list" | wc -l)
@@ -695,6 +708,7 @@ if [ "$MODE" = "rofi"  ];then
 	OPT__="$(rofi_menu "displays options:" "$rofi_choose" | cut -d '.' -f 1)"
 else
 	case $Menu_ in
+		watch) OPT__=0 ;;
 		auto) OPT__=1 ;;
 		Set_scaling) OPT__=2 ;;
 		manage_arrangement) OPT__=3 ;;
@@ -714,6 +728,7 @@ else
 fi
 
 case $OPT__ in
+	0) watch_for_device_hot_plugs ;;
 	1) auto_detect_displays ;;
 	2) Set_scaling ;;
 	3) manage_arrangement ;;
