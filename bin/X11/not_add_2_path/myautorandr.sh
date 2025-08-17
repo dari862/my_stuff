@@ -24,7 +24,7 @@ pre_check() {
 
 backup_if_exists() {
 	file=$1
-	[ -e "$file" ] && cp -v "$file" "${file}.bak_$(date +%Y%m%d%H%M%S)"
+	[ -e "$file" ] && cp -v "$file" "${file}.bak_$(date +%Y%m%d%H%M%S)" || :
 
 }
 	
