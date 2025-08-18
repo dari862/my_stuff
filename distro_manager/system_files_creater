@@ -225,13 +225,6 @@ mkdir -p "${__distro_path}"/system_files/skel/.config/mpd/playlists
 touch "${__distro_path}"/system_files/skel/.config/mpd/database
 mkdir -p "${__distro_path}"/system_files/skel/.local/share/bash_history
 
-show_im "copy extra skell that we need to copy to system_files/skel ."
-if service_manager is-active sshd; then
-	show_im "copy bash zsh theme for SSH skell file to system_files/skel ."
-	cp -r "${__distro_path}/skel_extra/.bash_profile" "${__distro_path}/system_files/skel/" 
-	cp -r "${__distro_path}/skel_extra/.zprofile" "${__distro_path}/system_files/skel/" 
-fi
-
 if command -v conky >/dev/null 2>&1;then
 	show_im "copy conky skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/conky" "${__distro_path}/system_files/skel/.config"
