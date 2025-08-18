@@ -1,1 +1,0 @@
-.config/myshell/bash/bash_profile_4_SSH
