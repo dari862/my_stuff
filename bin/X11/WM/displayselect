@@ -12,10 +12,12 @@ elif [ "$MODE" = "pass" ];then
 	pass_arg="${3:-}"
 fi
 
+postrun_massage=""
+postrun_title=""
 list_commands=""
-run_create_script=false
 OPT__=""
 choice=""
+run_create_script=false
 create_display_script=true
 
 show_massage(){
@@ -94,7 +96,7 @@ confirm_action() {
 	else
 		confirm="$(rofi_menu "$action. Are you sure?" "Yes|No")"
 	fi
-	echo $confirm
+	
 	if echo "$confirm" | grep -qE '^[Yy]'; then
 		return 0
 	else
@@ -130,14 +132,6 @@ Invalid_selection(){
 add_command() {
 	command="$1"
 	list_commands="$command\n$list_commands"
-}
-
-create_script() {
-	if [ "$create_display_script" = true ];then
-		echo '#!/bin/sh' > "$display_script"
-		echo -e "$list_commands" >> "$display_script"
-		chmod +x "$display_script"
-	fi
 }
 
 execute_command() {
@@ -186,10 +180,15 @@ get_unique_resolutions() {
 	printf "%b\n" "$filtered_standard_resolutions\n$remaining_resolutions" | head -n 10
 }
 
+create_script() {
+	echo '#!/bin/sh' > "$display_script"
+	echo -e "$list_commands" >> "$display_script"
+	chmod +x "$display_script"
+}
+
 postrun() {
 	if [ "$run_create_script" = true ];then
-		create_script
-		execute_command "$display_script"
+		[ "$create_display_script" = true ] && create_script && execute_command "$display_script"
 		my_session_manager_cli reload
 		dunst-session restart
 	fi
