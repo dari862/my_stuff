@@ -38,7 +38,11 @@ install_nvidia_drivers(){
 
 	Package_update_  || continue
 	Package_installer_ "nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
-	
+
+	if ! ls /dev/nvidia* >/dev/null 2>&1;then
+		my-superuser nvidia-smi >/dev/null 2>&1
+	fi
+
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
 	say
