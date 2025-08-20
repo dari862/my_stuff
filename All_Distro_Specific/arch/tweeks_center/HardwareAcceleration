@@ -1,24 +1,45 @@
 #!/bin/sh
 
-if grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment && grep -q "MOZ_DISABLE_RDD_SANDBOX=1" /etc/environment; then # enabled
+if grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment && grep -q "MOZ_DISABLE_RDD_SANDBOX=1" /etc/environment && grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment; then # enabled
 	exit 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
 	exit 1
 fi
 
-Package_installer_ libva-nvidia-driver
-mkdir -p "$HOME/.local/share/linutil"
-if [ -d "$LIBVA_DIR" ]; then
-	rm -rf "$LIBVA_DIR"
+Packages_2_install=""
+add_nvidia=false
+add_amd=false
+add_intel=false
+
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+    say "Nvidia detected."
+	Packages_2_install="nvidia nvidia-utils libva libva-utils nvidia-vaapi-driver" || continue
 fi
-say "Cloning libva from https://github.com/intel/libva in ${LIBVA_DIR}"
-git clone --branch=v2.22-branch --depth=1 https://github.com/intel/libva "$LIBVA_DIR"
-mkdir -p "$LIBVA_DIR/build"
-cd "$LIBVA_DIR/build" && arch-meson .. -Dwith_legacy=nvctrl && ninja
-my-superuser ninja install
-my-superuser sed -i '/^MOZ_DISABLE_RDD_SANDBOX/d' "/etc/environment"
-my-superuser sed -i '/^LIBVA_DRIVER_NAME/d' "/etc/environment"
-printf "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1" | my-superuser tee -a /etc/environment >/dev/null
+
+if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+    say "AMD detected."
+	Packages_2_install="mesa libva-mesa-driver mesa-vdpau libva-utils" || continue
+fi
+
+if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+    say "Intel detected."
+	Packages_2_install="intel-media-driver libva-intel-driver libva-utils" || continue
+fi
+
+say "Installing Packages..."
+Package_installer_ "$Packages_2_install"
+
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+    ENV_FILE="/etc/environment"
+    # Remove old entries if they exist
+    my-superuser sed -i '/^__NV_PRIME_RENDER_OFFLOAD/d' "$ENV_FILE" || :
+    my-superuser sed -i '/^__GLX_VENDOR_LIBRARY_NAME/d' "$ENV_FILE" || :
+    my-superuser sed -i '/^__VK_LAYER_PATH/d' "$ENV_FILE" || :
+    my-superuser sed -i '/^MOZ_DISABLE_RDD_SANDBOX/d' "/etc/environment" || :
+    my-superuser sed -i '/^LIBVA_DRIVER_NAME/d' "/etc/environment" || :
+    printf "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1\n__NV_PRIME_RENDER_OFFLOAD=1\n__GLX_VENDOR_LIBRARY_NAME=nvidia\n__VK_LAYER_PATH=/usr/share/vulkan/implicit_layer.d" | my-superuser tee -a /etc/environment >/dev/null
+fi
+
 say "Hardware Acceleration setup completed successfully."
 if prompt "enable Hardware Acceleration in MPV player" 'Y'; then
 	mkdir -p "$HOME/.config/mpv"
