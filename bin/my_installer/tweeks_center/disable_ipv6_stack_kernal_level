@@ -3,9 +3,9 @@
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
 
 if grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then # enabled
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 
 if ! grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then
@@ -22,4 +22,4 @@ if ! grep 'GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub | grep -q 'ipv6.disabl
 		my-superuser sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"\(.*\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\1 ipv6.disable=1\"/' /etc/default/grub
 	fi
 fi
-my-superuser update-grub
+grub_updater_function

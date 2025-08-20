@@ -1,6 +1,6 @@
 #!/bin/sh
 
-my-installer --tweek-needed "enable_universe_multiverse" || continue
+tweek_as_dependency "enable_universe_multiverse" || continue
 
 app_name="GPU Drivers"
 

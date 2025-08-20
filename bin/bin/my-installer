@@ -65,6 +65,18 @@ install_as_dependency(){
 	fi
 }
 
+tweek_as_dependency(){
+	dependency_name="${1-}"
+	dependency_opt="${2-}"
+	dependency_location="$(grep -r "^${dependency_name}$" "${tweeks_db_path}" || :)"
+	if [ -n "$dependency_location" ];then
+		dependency_location="$(find /usr/share/my_stuff/bin/my_installer/ -type f -name "${dependency_name}" )"
+		. "${dependency_location}" "${dependency_opt}"
+		remove_from_db "${dependency_name}" "apps"
+		need_logout
+	fi
+}
+
 install_as_dependency_nested(){
 	dependency_name_nested="${1-}"
 	dependency_opt_nested="${2-}"
@@ -288,11 +300,6 @@ case $option in
 		;;
 		--tweek) 
 			running_tweek=true
-			_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
-		;;
-		--tweek-needed) 
-			running_tweek=true
-			needed_app="--needed "
 			_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
 		;;
 		--fullenv) 

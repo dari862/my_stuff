@@ -1,8 +1,8 @@
 #!/bin/sh
 
-my-installer --tweek-needed "Adding_contrib_nonfree" || continue
-my-installer --tweek-needed "Adding_nonfree_repo" || continue
-my-installer --tweek-needed "Adding_nonfree_firmware_repo" || continue
+tweek_as_dependency "Adding_contrib" || continue
+tweek_as_dependency "Adding_nonfree_repo" || continue
+tweek_as_dependency "Adding_nonfree_firmware_repo" || continue
 
 app_name="GPU Drivers"
 

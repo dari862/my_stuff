@@ -2,9 +2,9 @@
 app_name="zram-tools"
 
 if lsmod | grep -q zram && ls /sys/block/zram*/comp_algorithm >/dev/null 2>&1 && ls /sys/block/zram*/disksize >/dev/null 2>&1;then
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 
 say "Installing ${app_name}..." 1

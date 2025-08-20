@@ -1,5 +1,5 @@
 #!/bin/sh -e
-my-installer --tweek-needed "Enable_multilib" || continue
+tweek_as_dependency "Enable_multilib" || continue
 LIBVA_DIR="$HOME/.local/share/linutil/libva"
 MPV_CONF="$HOME/.config/mpv/mpv.conf"
 
@@ -48,7 +48,7 @@ setKernelParam() {
     else
         my-superuser sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/\"$/ $PARAMETER\"/" /etc/default/grub
         say "Added $PARAMETER to /etc/default/grub."
-        my-superuser grub-mkconfig -o /boot/grub/grub.cfg
+        grub_updater_function
     fi
 }
 
@@ -89,7 +89,7 @@ install_nvidia_drivers(){
     my-superuser systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
     say "Driver installed successfully."
     if [ "$enable_HardwareAcceleration" = true ]; then
-        my-installer --tweek-needed "HardwareAcceleration" || continue
+        tweek_as_dependency "HardwareAcceleration" || continue
     fi
     say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."

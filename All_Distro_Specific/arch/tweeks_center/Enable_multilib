@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if grep -q "^\s*\[multilib\]" /etc/pacman.conf; then # enabled
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 
 echo "[multilib]" | my-superuser tee -a /etc/pacman.conf

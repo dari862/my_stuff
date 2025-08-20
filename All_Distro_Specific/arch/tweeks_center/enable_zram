@@ -2,9 +2,9 @@
 app_name="zram-generator"
 
 if lsmod | grep -q zram && [ -f "/etc/systemd/zram-generator.conf.d/zram.conf" ];then
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 
 say "Installing ${app_name}..." 1

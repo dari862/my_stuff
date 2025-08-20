@@ -234,34 +234,6 @@ copy_blob_extra_2_system_files_blob(){
 	done
 }
 
-if command_exist git;then
-    clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        echo "git clone ${getthis}"
-        git clone --depth=1 "${getthis}" "${getto}"
-    }
-    super_clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        say "git clone ${getthis} to ${getto}" 1
-        my-superuser git clone --depth=1 "${getthis}" "${getto}"
-    }
-elif command_exist svn;then
-    clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        echo "svn clone ${getthis}"
-        svn clone --depth=1 "${getthis}" "${getto}"
-    }
-    super_clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        say "git clone ${getthis} to ${getto}" 1
-        my-superuser svn clone --depth=1 "${getthis}" "${getto}"
-    }
-fi
-
 my_installer_ln_script() {
 	script_name="${1}"
 	my-superuser mkdir -p /usr/share/my_stuff/system_files/updater
@@ -291,3 +263,31 @@ grub_updater_function() {
 		fi
 	fi
 }
+
+if command_exist git;then
+    clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        echo "git clone ${getthis}"
+        git clone --depth=1 "${getthis}" "${getto}"
+    }
+    super_clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        say "git clone ${getthis} to ${getto}" 1
+        my-superuser git clone --depth=1 "${getthis}" "${getto}"
+    }
+elif command_exist svn;then
+    clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        echo "svn clone ${getthis}"
+        svn clone --depth=1 "${getthis}" "${getto}"
+    }
+    super_clone_repo() {
+        getthis="${1:-}"
+        getto="${2:-}"
+        say "git clone ${getthis} to ${getto}" 1
+        my-superuser svn clone --depth=1 "${getthis}" "${getto}"
+    }
+fi

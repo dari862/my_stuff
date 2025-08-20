@@ -47,6 +47,6 @@ case "${1}" in
 		stop	
 	;;
 	*)	
-		echo "Usage: keyring-session [start|stop|restart]"
+		echo "Usage: polkit-session [start|stop|restart]"
 	;;
 esac

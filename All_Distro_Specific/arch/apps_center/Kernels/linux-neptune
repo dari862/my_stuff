@@ -10,16 +10,14 @@ installKernel() {
     fi
     if [ -f /etc/default/grub ]; then
         say "Updating GRUB..."
-    if ! grep -q '^UPDATEDEFAULT=' /etc/default/grub; then
-        echo 'UPDATEDEFAULT=yes' | my-superuser tee -a /etc/default/grub
-    else
-        my-superuser sed -i 's/^UPDATEDEFAULT=.*/UPDATEDEFAULT=yes/' /etc/default/grub
-    fi
-    if [ -f /boot/grub/grub.cfg ]; then
-        my-superuser grub-mkconfig -o /boot/grub/grub.cfg
-    else
-        say "${RED}GRUB configuration file not found. Run grub-mkconfig manually."
-    fi
+    	if ! grep -q '^UPDATEDEFAULT=' /etc/default/grub; then
+        	echo 'UPDATEDEFAULT=yes' | my-superuser tee -a /etc/default/grub
+    	else
+        	my-superuser sed -i 's/^UPDATEDEFAULT=.*/UPDATEDEFAULT=yes/' /etc/default/grub
+    	fi
+    	if ! grub_updater_function;then
+        	say "${RED}GRUB configuration file not found. Run grub-mkconfig manually."
+    	fi
     else
         say "${RED}GRUB not detected. Manually set your bootloader to use linux-neptune."
     fi

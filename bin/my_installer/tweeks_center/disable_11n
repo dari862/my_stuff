@@ -2,9 +2,9 @@
 iwlwificonf="/etc/modprobe.d/iwlwifi.conf"
 
 if find /etc/modprobe.d/ -type f -exec grep -q "^options iwlwifi .*11n_disable=1.*" {} +;then # enabled
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 
 echo 'options iwlwifi 11n_disable=1' | my-superuser tee -a ${iwlwificonf}

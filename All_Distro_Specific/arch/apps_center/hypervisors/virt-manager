@@ -1,5 +1,5 @@
 #!/bin/sh -e
-my-installer --tweek-needed "Enable_IOMMU_support" || continue
+tweek_as_dependency "Enable_IOMMU_support" || continue
 
 app_name="virt-manager"
 extra_apps_="qemu-emulators-full swtpm qemu-desktop libvirt dmidecode dnsmasq iptables-nft "

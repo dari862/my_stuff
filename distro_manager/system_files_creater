@@ -239,7 +239,7 @@ fi
 if command -v openbox >/dev/null 2>&1;then
 	show_im "copy openbox skell file to system_files/skel ."
 	cp -r "${__distro_path}/skel_extra/.config/openbox" "${__distro_path}/system_files/skel/.config"
-	[ ! -f "/var/lib/openbox/debian-menu.xml" ] && [ -f "/etc/xdg/openbox/menu.xml" ] && cp -r "/etc/xdg/openbox/menu.xml" "/var/lib/openbox/debian-menu.xml"
+	[ -d "/var/lib/openbox" ] && [ ! -f "/var/lib/openbox/debian-menu.xml" ] && [ -f "/etc/xdg/openbox/menu.xml" ] && cp -r "/etc/xdg/openbox/menu.xml" "/var/lib/openbox/debian-menu.xml"
 fi
 if command -v rofi >/dev/null 2>&1;then
 	show_im "copy rofi skell file to system_files/skel ."

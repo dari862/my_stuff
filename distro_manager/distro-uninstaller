@@ -86,9 +86,8 @@ echo "updating fc-cache"
 my-superuser fc-cache -vf > /dev/null 2>&1
 echo "updating gtk-update"
 my-superuser gtk-update-icon-cache > /dev/null 2>&1
-my-superuser sync > /dev/null 2>&1
 echo "updating grub"
-my-superuser grub-mkconfig -o /boot/grub/grub.cfg > /dev/null 2>&1
+grub_updater_function
 echo "removing /usr/share/my_stuff"
 my-superuser rm -rdf "/usr/share/my_stuff"
 

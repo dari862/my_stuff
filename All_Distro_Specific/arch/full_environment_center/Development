@@ -1,6 +1,7 @@
 #!/bin/sh
+tweek_as_dependency "Enable_multilib" || continue
+
 app_name="Development Environment"
-my-installer --tweek-needed "Enable_multilib" || continue
 
 say "Installing $app_name packages..." 1
 install_as_dependency httpie

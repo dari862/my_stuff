@@ -2,9 +2,9 @@
 lightdmconf="/etc/lightdm/lightdm.conf"
 
 if grep -q "^autologin-user=" "${lightdmconf}";then # enabled
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 
 my-superuser sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}

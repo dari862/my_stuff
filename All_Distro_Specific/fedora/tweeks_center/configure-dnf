@@ -1,8 +1,8 @@
 #!/bin/sh -e
 if grep -q "fastestmirror=True" /etc/dnf/dnf.conf && grep -q "defaultyes=True" /etc/dnf/dnf.conf && grep -q "max_parallel_downloads=10" /etc/dnf/dnf.conf;then # enabled
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 say "Configuring  DNF..."
 my-superuser sed -i '/^max_parallel_downloads=/c\max_parallel_downloads=10' /etc/dnf/dnf.conf || echo 'max_parallel_downloads=10' >> /etc/dnf/dnf.conf

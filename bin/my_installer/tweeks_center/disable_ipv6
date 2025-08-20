@@ -3,9 +3,9 @@
 disable_ipv6_conf="/etc/sysctl.d/90-disable_ipv6.conf"
 
 if [ -f "${disable_ipv6_conf}" ];then # enabled
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 fi
 

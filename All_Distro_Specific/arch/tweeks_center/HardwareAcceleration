@@ -1,9 +1,9 @@
 #!/bin/sh
 
 if grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment && grep -q "MOZ_DISABLE_RDD_SANDBOX=1" /etc/environment && grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment; then # enabled
-	exit 0 
+	return 0 
 elif [ "$1" = "--is-enable" ];then # disabled and only check
-	exit 1
+	return 1
 fi
 
 Packages_2_install=""
