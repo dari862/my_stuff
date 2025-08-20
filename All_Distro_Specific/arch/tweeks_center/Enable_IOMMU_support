@@ -49,7 +49,7 @@ enable_IOMMU_support(){
 		fi
 	fi
 	echo "grub edited to enable IOMMU."
-	my-superuser grub-mkconfig -o /boot/grub/grub.cfg
+	grub_updater_function
 }
 
 check_if_host_ready_for_virt(){
