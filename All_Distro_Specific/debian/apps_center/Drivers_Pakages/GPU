@@ -6,6 +6,27 @@ my-installer --tweek-needed "Adding_nonfree_firmware_repo" || continue
 
 app_name="GPU Drivers"
 
+Packages_2_install=""
+add_nvidia=false
+add_amd=false
+add_intel=false
+
+if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
+	say "This is VM"
+fi
+
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+	add_nvidia=true
+fi
+
+if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+	add_amd=true
+fi
+
+if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+	add_intel=true
+fi
+
 create_X11_intel_conf(){
 	my-superuser mkdir -p /etc/X11/xorg.conf.d/
 	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
@@ -22,12 +43,11 @@ create_X11_intel_conf(){
 }
 
 install_intel_drivers(){
-	Package_installer_ xserver-xorg-video-intel intel-gpu-tools intel-media-va-driver || continue
-	#create_X11_intel_conf
+	Packages_2_install="xserver-xorg-video-intel intel-gpu-tools intel-media-va-driver" || continue
 }
 
 install_amd_drivers(){
-	Package_installer_ libgl1-mesa-dri xserver-xorg-video-ati xserver-xorg-video-amdgpu mesa-vulkan-drivers vkbasalt || continue
+	Packages_2_install="libgl1-mesa-dri xserver-xorg-video-ati xserver-xorg-video-amdgpu mesa-vulkan-drivers vkbasalt" || continue
 }
 
 install_nvidia_drivers(){
@@ -36,12 +56,7 @@ install_nvidia_drivers(){
 	prompt '  do you want to add Cuda Support?' && _cuda_="cuda"
 	prompt 'do you want to install opensource nvidia-kernel?' && _kernel_open_dkms_="nvidia-kernel-open-dkms"
 
-	Package_update_  || continue
-	Package_installer_ "nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
-
-	if ! ls /dev/nvidia* >/dev/null 2>&1;then
-		my-superuser nvidia-smi >/dev/null 2>&1
-	fi
+	Packages_2_install="nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
 
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
@@ -49,20 +64,29 @@ install_nvidia_drivers(){
 	say "NVIDIA Drivers installed you need to reboot your pc."
 }
 
-if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+if [ "$add_nvidia" = true ];then
 	install_nvidia_drivers
 fi
 	
-if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+if [ "$add_amd" = true ];then
 	install_amd_drivers
 fi
 	
-if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+if [ "$add_intel" = true ];then
 	install_intel_drivers
 fi
 
-if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
-	say "This is VM"
+Package_installer_ "$Packages_2_install"
+
+if [ "$add_nvidia" = true ];then
+	if ! ls /dev/nvidia* >/dev/null 2>&1;then
+		my-superuser nvidia-smi >/dev/null 2>&1
+	fi
+fi
+
+if [ "$add_intel" = true ];then
+	#create_X11_intel_conf
+	:
 fi
 
 say "Creating Check File (GPU_Drivers_ready)"
