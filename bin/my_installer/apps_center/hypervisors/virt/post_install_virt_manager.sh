@@ -41,8 +41,6 @@
 			exit 1
 		fi
 
-		my-superuser virsh net-start default 
-		my-superuser virsh net-autostart default 
 		interface_name="$(my-superuser nmcli device status | awk '{print $1}' | head -2 | tail -1 )"
 		my-superuser virsh net-start default
 		my-superuser virsh net-autostart default
