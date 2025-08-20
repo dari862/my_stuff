@@ -123,7 +123,7 @@ keep_superuser() {
 }
 
 end_superuser() {
-    if command -v doas >/dev/null 2>&1;then
+    if command_exist doas;then
         doas -L
     fi
 }
@@ -168,7 +168,7 @@ create_applicationsdotdesktop_link(){
 }
 
 flatpak_install() {
-	if ! command -v flatpak >/dev/null 2>&1;then
+	if ! command_exist flatpak;then
 		say 'Installing flatpak...' 1
 		install_as_dependency flatpak
 	fi
@@ -234,7 +234,7 @@ copy_blob_extra_2_system_files_blob(){
 	done
 }
 
-if command -v git >/dev/null 2>&1;then
+if command_exist git;then
     clone_repo() {
         getthis="${1:-}"
         getto="${2:-}"
@@ -247,7 +247,7 @@ if command -v git >/dev/null 2>&1;then
         say "git clone ${getthis} to ${getto}" 1
         my-superuser git clone --depth=1 "${getthis}" "${getto}"
     }
-elif command -v svn >/dev/null 2>&1;then
+elif command_exist svn;then
     clone_repo() {
         getthis="${1:-}"
         getto="${2:-}"
@@ -268,4 +268,26 @@ my_installer_ln_script() {
 	my-superuser mkdir -p /usr/share/my_stuff/system_files/downloaded
 	my-superuser ln -sf "/usr/share/my_stuff/bin/my_installer/script_to_ln/${script_name}" "/usr/share/my_stuff/system_files/updater"
 	"/usr/share/my_stuff/system_files/updater/${script_name}" 
+}
+command_exist() {
+	commad_2_check="${1:-}"
+	command -v "$commad_2_check" >/dev/null 2>&1 && return 0 || return 1
+}
+
+grub_updater_function() {
+	say "update grub"
+	my-superuser sync
+	if command_exist update-grub; then
+		my-superuser update-grub
+	elif command_exist grub-mkconfig; then
+		my-superuser grub-mkconfig -o /boot/grub/grub.cfg
+	elif command_exist zypper || command_exist transactional-update; then
+		my-superuser grub2-mkconfig -o /boot/grub2/grub.cfg
+	elif command_exist dnf || command_exist rpm-ostree; then
+		if [ -f "/boot/grub2/grub.cfg" ]; then
+			my-superuser grub2-mkconfig -o /boot/grub2/grub.cfg
+		elif [ -f "/boot/efi/EFI/fedora/grub.cfg" ]; then
+			my-superuser grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+		fi
+	fi
 }
