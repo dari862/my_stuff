@@ -68,3 +68,6 @@ fi
 say "Creating Check File (GPU_Drivers_ready)"
 my-superuser touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
 my-superuser  /usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+
+say "enable Hardware Acceleration."
+my-installer --tweek "HardwareAcceleration" || continue
