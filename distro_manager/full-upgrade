@@ -17,8 +17,8 @@ fi
 . "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 x_session_picker_path="/usr/share/my_stuff/system_files/bin/xsessions/openbox"
 
-usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g')"
-usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g')"
+usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g' || :)"
+usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g' || :)"
 usr_flag_setup_path="${usr_flag_setup_dir}/${usr_flag_setup_name}"
 getURL_path="$(which getURL)"
 
@@ -54,7 +54,7 @@ print_purple() {
 
 __upgrade_current_repo_(){
 	  print_purple "==> status"
-	  __git_status="$($__SUPER_USER git status 2>&1 | grep 'fatal: unknown index entry format')"
+	  __git_status="$($__SUPER_USER git status 2>&1 | grep 'fatal: unknown index entry format' || :)"
 	  if [ -n "$__git_status" ];then
 	  	$__SUPER_USER rm -f .git/index
 	  	$__SUPER_USER git status || :
@@ -90,7 +90,7 @@ Updating_Distro(){
 	print_purple "==> Fetching Distro repo."
 	$__SUPER_USER git remote set-url origin https://github.com/dari862/my_stuff.git >/dev/null 2>&1
 	$__SUPER_USER git fetch >/dev/null 2>&1
-	if $(git status | grep -q "^Your branch is up to date");then
+	if $(git status | grep -q "^Your branch is up to date" || :);then
 		print_GREEN "==> Distro is up to date." 
 	else
 		print_purple "==> Updating Distro."
