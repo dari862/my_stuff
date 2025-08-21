@@ -14,6 +14,8 @@ Usage:  my-installer --install app_name
 '
 skip_test=""
 source__file_location=false
+check_tweek=false
+
 # if help option anywhere in args, output $HELP and exit immediately
 for i in "$@"
 do

@@ -1,11 +1,15 @@
-#!/bin/sh -e
+#!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 if grep -q "fastestmirror=True" /etc/dnf/dnf.conf && grep -q "defaultyes=True" /etc/dnf/dnf.conf && grep -q "max_parallel_downloads=10" /etc/dnf/dnf.conf;then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	say "Configuring  DNF..."
+	${_SUPERUSER} sed -i '/^max_parallel_downloads=/c\max_parallel_downloads=10' /etc/dnf/dnf.conf || echo 'max_parallel_downloads=10' >> /etc/dnf/dnf.conf
+	echo "fastestmirror=True" | ${_SUPERUSER} tee -a /etc/dnf/dnf.conf > /dev/null
+	echo "defaultyes=True" | ${_SUPERUSER} tee -a /etc/dnf/dnf.conf > /dev/null            
+	${_SUPERUSER} "$PACKAGER" -y install dnf-plugins-core
 fi
-say "Configuring  DNF..."
-my-superuser sed -i '/^max_parallel_downloads=/c\max_parallel_downloads=10' /etc/dnf/dnf.conf || echo 'max_parallel_downloads=10' >> /etc/dnf/dnf.conf
-echo "fastestmirror=True" | my-superuser tee -a /etc/dnf/dnf.conf > /dev/null
-echo "defaultyes=True" | my-superuser tee -a /etc/dnf/dnf.conf > /dev/null            
-my-superuser "$PACKAGER" -y install dnf-plugins-core

@@ -1,16 +1,17 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 disable_ipv6_conf="/etc/sysctl.d/90-disable_ipv6.conf"
 
 if [ -f "${disable_ipv6_conf}" ];then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	echo "net.ipv6.conf.all.disable_ipv6 = 1" | ${_SUPERUSER} tee "${disable_ipv6_conf}" >/dev/null 2>&1
+	echo "net.ipv6.conf.default.disable_ipv6 = 1" | ${_SUPERUSER} tee -a "${disable_ipv6_conf}" >/dev/null 2>&1
+	echo "net.ipv6.conf.lo.disable_ipv6 = 1" | ${_SUPERUSER} tee -a "${disable_ipv6_conf}" >/dev/null 2>&1
+		
+	${_SUPERUSER} sysctl -p "${disable_ipv6_conf}"
 fi
-fi
-
-echo "net.ipv6.conf.all.disable_ipv6 = 1" | my-superuser tee "${disable_ipv6_conf}" >/dev/null 2>&1
-echo "net.ipv6.conf.default.disable_ipv6 = 1" | my-superuser tee -a "${disable_ipv6_conf}" >/dev/null 2>&1
-echo "net.ipv6.conf.lo.disable_ipv6 = 1" | my-superuser tee -a "${disable_ipv6_conf}" >/dev/null 2>&1
-	
-my-superuser sysctl -p "${disable_ipv6_conf}"

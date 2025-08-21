@@ -76,11 +76,15 @@ create_gaming_db() {
 create_tweeks_db() {
 	say "create DB for tweeks."
 	
+	check_tweek=true
+	
 	[ -f "${tweeks_db_path}" ] && rm -rf "${tweeks_db_path}"
 	touch "${tweeks_db_path}"
 
 	find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
-		. "${tweek}" --is-enable || basename "$tweek" >> "${tweeks_db_path}"
+		tweek_enabled=false
+		. "${tweek}"
+		[ "$tweek_enabled" = false ] && basename "$tweek" >> "${tweeks_db_path}"
 	done
 }
 

@@ -1,51 +1,53 @@
 #!/bin/sh
-
-if grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment && grep -q "MOZ_DISABLE_RDD_SANDBOX=1" /etc/environment && grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment; then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
-fi
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 Packages_2_install=""
 add_nvidia=false
 add_amd=false
 add_intel=false
 
-if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
-    say "Nvidia detected."
-	Packages_2_install="nvidia nvidia-utils libva libva-utils nvidia-vaapi-driver" || continue
-fi
-
-if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
-    say "AMD detected."
-	Packages_2_install="mesa libva-mesa-driver mesa-vdpau libva-utils" || continue
-fi
-
-if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
-    say "Intel detected."
-	Packages_2_install="intel-media-driver libva-intel-driver libva-utils" || continue
-fi
-
-say "Installing Packages..."
-Package_installer_ "$Packages_2_install"
-
-if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
-    ENV_FILE="/etc/environment"
-    # Remove old entries if they exist
-    my-superuser sed -i '/^__NV_PRIME_RENDER_OFFLOAD/d' "$ENV_FILE" || :
-    my-superuser sed -i '/^__GLX_VENDOR_LIBRARY_NAME/d' "$ENV_FILE" || :
-    my-superuser sed -i '/^__VK_LAYER_PATH/d' "$ENV_FILE" || :
-    my-superuser sed -i '/^MOZ_DISABLE_RDD_SANDBOX/d' "/etc/environment" || :
-    my-superuser sed -i '/^LIBVA_DRIVER_NAME/d' "/etc/environment" || :
-    printf "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1\n__NV_PRIME_RENDER_OFFLOAD=1\n__GLX_VENDOR_LIBRARY_NAME=nvidia\n__VK_LAYER_PATH=/usr/share/vulkan/implicit_layer.d" | my-superuser tee -a /etc/environment >/dev/null
-fi
-
-say "Hardware Acceleration setup completed successfully."
-if prompt "enable Hardware Acceleration in MPV player" 'Y'; then
-	mkdir -p "$HOME/.config/mpv"
-	if [ -f "$MPV_CONF" ]; then
-		sed -i '/^hwdec/d' "$MPV_CONF"
+if grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment && grep -q "MOZ_DISABLE_RDD_SANDBOX=1" /etc/environment && grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment; then # enabled
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+		say "Nvidia detected."
+		Packages_2_install="nvidia nvidia-utils libva libva-utils nvidia-vaapi-driver" || continue
 	fi
-	printf "hwdec=auto" | tee -a "$MPV_CONF" >/dev/null
-	say "MPV Hardware Acceleration enabled successfully."
+
+	if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+		say "AMD detected."
+		Packages_2_install="mesa libva-mesa-driver mesa-vdpau libva-utils" || continue
+	fi
+
+	if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+		say "Intel detected."
+		Packages_2_install="intel-media-driver libva-intel-driver libva-utils" || continue
+	fi
+
+	say "Installing Packages..."
+	Package_installer_ "$Packages_2_install"
+
+	if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+		ENV_FILE="/etc/environment"
+		# Remove old entries if they exist
+		${_SUPERUSER} sed -i '/^__NV_PRIME_RENDER_OFFLOAD/d' "$ENV_FILE" || :
+		${_SUPERUSER} sed -i '/^__GLX_VENDOR_LIBRARY_NAME/d' "$ENV_FILE" || :
+		${_SUPERUSER} sed -i '/^__VK_LAYER_PATH/d' "$ENV_FILE" || :
+		${_SUPERUSER} sed -i '/^MOZ_DISABLE_RDD_SANDBOX/d' "/etc/environment" || :
+		${_SUPERUSER} sed -i '/^LIBVA_DRIVER_NAME/d' "/etc/environment" || :
+		printf "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1\n__NV_PRIME_RENDER_OFFLOAD=1\n__GLX_VENDOR_LIBRARY_NAME=nvidia\n__VK_LAYER_PATH=/usr/share/vulkan/implicit_layer.d" | ${_SUPERUSER} tee -a /etc/environment >/dev/null
+	fi
+
+	say "Hardware Acceleration setup completed successfully."
+	if prompt "enable Hardware Acceleration in MPV player" 'Y'; then
+		mkdir -p "$HOME/.config/mpv"
+		if [ -f "$MPV_CONF" ]; then
+			sed -i '/^hwdec/d' "$MPV_CONF"
+		fi
+		printf "hwdec=auto" | tee -a "$MPV_CONF" >/dev/null
+		say "MPV Hardware Acceleration enabled successfully."
+	fi
 fi

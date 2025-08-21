@@ -1,11 +1,14 @@
-#!/bin/sh -e
-if [ ! -e /etc/yum.repos.d/rpmfusion-free.repo ] || [ ! -e /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
-fi
+#!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
-my-superuser "$PACKAGER" install "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm
-my-superuser "$PACKAGER" config-manager --enable fedora-cisco-openh264
-my-superuser "$PACKAGER" config-manager --set-enabled rpmfusion-nonfree-updates
-my-superuser "$PACKAGER" config-manager --set-enabled rpmfusion-free-updates
+if [ ! -e /etc/yum.repos.d/rpmfusion-free.repo ] || [ ! -e /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then # enabled
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	${_SUPERUSER} "$PACKAGER" install "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora)".noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"$(rpm -E %fedora)".noarch.rpm
+	${_SUPERUSER} "$PACKAGER" config-manager --enable fedora-cisco-openh264
+	${_SUPERUSER} "$PACKAGER" config-manager --set-enabled rpmfusion-nonfree-updates
+	${_SUPERUSER} "$PACKAGER" config-manager --set-enabled rpmfusion-free-updates
+fi

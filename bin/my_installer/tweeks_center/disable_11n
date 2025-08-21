@@ -1,10 +1,17 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 iwlwificonf="/etc/modprobe.d/iwlwifi.conf"
 
 if find /etc/modprobe.d/ -type f -exec grep -q "^options iwlwifi .*11n_disable=1.*" {} +;then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	if [ -f "$iwlwificonf" ];then
+		echo 'options iwlwifi 11n_disable=1' | ${_SUPERUSER} tee ${iwlwificonf}
+	else
+		echo 'options iwlwifi 11n_disable=1' | ${_SUPERUSER} tee -a ${iwlwificonf}
+	fi
 fi
-
-echo 'options iwlwifi 11n_disable=1' | my-superuser tee -a ${iwlwificonf}

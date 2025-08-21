@@ -1,11 +1,13 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 pulseconfig="/etc/pulse/default.pa"
 
-if [ ! -f ${pulseconfig} ] || grep -q "#load-module module-suspend-on-idle" "${pulseconfig}";then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+if [ ! -f "${pulseconfig}" ] || grep -q "#load-module module-suspend-on-idle" "${pulseconfig}";then # enabled
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	${_SUPERUSER} sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}
 fi
-
-my-superuser sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}

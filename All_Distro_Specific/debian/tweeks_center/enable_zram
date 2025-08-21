@@ -1,26 +1,28 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 app_name="zram-tools"
 
 if lsmod | grep -q zram && ls /sys/block/zram*/comp_algorithm >/dev/null 2>&1 && ls /sys/block/zram*/disksize >/dev/null 2>&1;then
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
-fi
-
-say "Installing ${app_name}..." 1
-
-Package_installer_ "${app_name}" || continue
-if [ -f "/etc/default/zramswap" ];then
-	my-superuser sed -i 's/#ALGO=/ALGO=/g' /etc/default/zramswap || continue
-	my-superuser sed -i 's/#PERCENT=/PERCENT=/g' /etc/default/zramswap || continue
-	my-superuser sed -i 's/#PRIORITY=/PRIORITY=/g' /etc/default/zramswap || continue
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
 else
-	my-superuser tee /etc/default/zramswap <<- EOF > /dev/null
-	PERCENT=50
-	ZRAM_DEVICES=1
-	ALGO=zstd
-	PRIORITY=100
-	EOF
-fi
-service_manager enable zramswap || continue
+	say "Installing ${app_name}..." 1
 
+	Package_installer_ "${app_name}" || continue
+	if [ -f "/etc/default/zramswap" ];then
+		${_SUPERUSER} sed -i 's/#ALGO=/ALGO=/g' /etc/default/zramswap || continue
+		${_SUPERUSER} sed -i 's/#PERCENT=/PERCENT=/g' /etc/default/zramswap || continue
+		${_SUPERUSER} sed -i 's/#PRIORITY=/PRIORITY=/g' /etc/default/zramswap || continue
+	else
+		${_SUPERUSER} tee /etc/default/zramswap <<- EOF > /dev/null
+		PERCENT=50
+		ZRAM_DEVICES=1
+		ALGO=zstd
+		PRIORITY=100
+		EOF
+	fi
+	service_manager enable zramswap || continue
+fi

@@ -1,31 +1,34 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 dist=$(lsb_release -cs)
 if [ "n/a" = "$dist" ];then
     dist=testing
-fi
-
-what_2_grep="${dist}-backports"
-if [ -f "/etc/apt/sources.list" ];then
-	mirror="http://deb.debian.org/debian/"
-	mirror_security="http://security.debian.org/debian-security"
-	apt_sources_file_path="/etc/apt/sources.list"
-	line_2_sed=$(grep -E "^(deb|deb-src) (${mirror}|${mirror_security})" "${apt_sources_file_path}" | grep -v "$what_2_grep" )
-elif [ -f "/etc/apt/sources.list.d/debian.sources" ];then
-	apt_sources_file_path="/etc/apt/sources.list.d/debian.sources"
-	line_2_sed=$(grep "Components: " "${apt_sources_file_path}" | grep -v "$what_2_grep" )
+else
+	what_2_grep="${dist}-backports"
+	if [ -f "/etc/apt/sources.list" ];then
+		mirror="http://deb.debian.org/debian/"
+		mirror_security="http://security.debian.org/debian-security"
+		apt_sources_file_path="/etc/apt/sources.list"
+		line_2_sed=$(grep -E "^(deb|deb-src) (${mirror}|${mirror_security})" "${apt_sources_file_path}" | grep -v "$what_2_grep" )
+	elif [ -f "/etc/apt/sources.list.d/debian.sources" ];then
+		apt_sources_file_path="/etc/apt/sources.list.d/debian.sources"
+		line_2_sed=$(grep "Components: " "${apt_sources_file_path}" | grep -v "$what_2_grep" )
+	fi
 fi
 
 if [ -z "$line_2_sed" ];then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	printf '%s\n' "$line_2_sed" | while IFS= read -r l; do
+		${_SUPERUSER} sed -i "s\\^$l$\\$l ${what_2_grep}\\" "$apt_sources_file_path"
+	done
+
+	Package_update_
+
+	${_SUPERUSER} ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install /usr/share/my_stuff/system_files/bin
+	${_SUPERUSER} ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install_auto_completion /usr/share/my_stuff/system_files/auto_completion/backports_install
 fi
-
-printf '%s\n' "$line_2_sed" | while IFS= read -r l; do
-	my-superuser sed -i "s\\^$l$\\$l ${what_2_grep}\\" "$apt_sources_file_path"
-done
-
-Package_update_
-
-my-superuser ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install /usr/share/my_stuff/system_files/bin
-my-superuser ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install_auto_completion /usr/share/my_stuff/system_files/auto_completion/backports_install

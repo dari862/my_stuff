@@ -1,10 +1,13 @@
 #!/bin/sh
-if grep -q 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf >/dev/null 2>&1 || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ];then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
-fi
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
-echo "net.core.default_qdisc=fq" | my-superuser tee /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
-echo "net.ipv4.tcp_congestion_control=bbr" | my-superuser tee -a /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
-my-superuser sysctl -p
+if ( [ -f "/etc/sysctl.conf" ] && grep -q 'net.ipv4.tcp_congestion_control = bbr' /etc/sysctl.conf ) || [ -f "/etc/sysctl.d/10-custom-kernel-bbr.conf" ];then # enabled
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	echo "net.core.default_qdisc=fq" | ${_SUPERUSER} tee /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
+	echo "net.ipv4.tcp_congestion_control=bbr" | ${_SUPERUSER} tee -a /etc/sysctl.d/10-custom-kernel-bbr.conf > /dev/null 2>&1
+	${_SUPERUSER} sysctl -p
+fi

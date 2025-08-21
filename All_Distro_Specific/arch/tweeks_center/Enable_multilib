@@ -1,11 +1,14 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 
 if grep -q "^\s*\[multilib\]" /etc/pacman.conf; then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	echo "[multilib]" | ${_SUPERUSER} tee -a /etc/pacman.conf
+	echo "Include = /etc/pacman.d/mirrorlist" | ${_SUPERUSER} tee -a /etc/pacman.conf
+	Package_update_
 fi
-
-echo "[multilib]" | my-superuser tee -a /etc/pacman.conf
-echo "Include = /etc/pacman.d/mirrorlist" | my-superuser tee -a /etc/pacman.conf
-Package_update_

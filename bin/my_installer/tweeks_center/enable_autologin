@@ -1,12 +1,15 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 lightdmconf="/etc/lightdm/lightdm.conf"
 
 if grep -q "^autologin-user=" "${lightdmconf}";then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	${_SUPERUSER} sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}
+	${_SUPERUSER} sed -i "s/^#autologin-user-timeout=/autologin-user-timeout=/g" ${lightdmconf}
+	${_SUPERUSER} sed -i "s/^autologin-user=.*$/autologin-user=${USER}/g" ${lightdmconf}
 fi
-
-my-superuser sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}
-my-superuser sed -i "s/^#autologin-user-timeout=/autologin-user-timeout=/g" ${lightdmconf}
-my-superuser sed -i "s/^autologin-user=.*$/autologin-user=${USER}/g" ${lightdmconf}

@@ -1,24 +1,25 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
-isgtkdark=$([ -f "${gtksettings}" ] && grep ^gtk-application-prefer-dark-theme= "${gtksettings}" | cut -d"=" -f2)
+isgtkdark="$(grep \"^gtk-application-prefer-dark-theme=\" "${gtksettings}" | cut -d"=" -f2 || :)"
 
-if test "${isgtkdark}";then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
+if [ -n "${isgtkdark}" ];then # enabled
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	say "Setting global dark theme for gtk applications."
+	if grep -q "^gtk-application-prefer-dark-theme=" "${gtksettings}";then
+		sed -i "s/^gtk-application-prefer-dark-theme=${isgtkdark}$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
+	else
+		if [ -f "${gtksettings}" ];then
+			echo "" >> "${gtksettings}"
+		else
+			mkdir -p "$(dirname "${gtksettings}")" && touch "${gtksettings}"
+		fi
+		echo "[Settings]" >> "${gtksettings}"
+		echo "gtk-application-prefer-dark-theme=1" >> "${gtksettings}"
+	fi
 fi
-fi
-
-  say "Setting global dark theme for gtk applications."
-  if grep -q ^gtk-application-prefer-dark-theme= "${gtksettings}";then
-    sed -i "s/^gtk-application-prefer-dark-theme=${isgtkdark}$/gtk-application-prefer-dark-theme=1/g" "${gtksettings}"
-  else
-    if [ -f "${gtksettings}" ];then
-      echo "" >> "${gtksettings}"
-    else
-      mkdir -p "$(dirname "${gtksettings}")" && touch "${gtksettings}"
-    fi
-    echo "[Settings]" >> "${gtksettings}"
-    echo "gtk-application-prefer-dark-theme=1" >> "${gtksettings}"
-  fi

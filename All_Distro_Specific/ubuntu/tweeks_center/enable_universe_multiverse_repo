@@ -1,12 +1,15 @@
 #!/bin/sh
-if grep -qE " universe| multiverse" /etc/apt/sources.list;then # enabled
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
-fi
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
-Package_installer_ software-properties-common
-enable_repo universe
-enable_repo multiverse
-		
-Package_update_
+if grep -qE " universe| multiverse" /etc/apt/sources.list;then # enabled
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	Package_installer_ software-properties-common
+	enable_repo universe
+	enable_repo multiverse
+			
+	Package_update_
+fi

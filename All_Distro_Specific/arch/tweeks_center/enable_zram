@@ -1,22 +1,25 @@
 #!/bin/sh
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 app_name="zram-generator"
 
 if lsmod | grep -q zram && [ -f "/etc/systemd/zram-generator.conf.d/zram.conf" ];then
-	return 0 
-elif [ "$1" = "--is-enable" ];then # disabled and only check
-	return 1
-fi
+	tweek_enabled=true 
+elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
+	tweek_enabled=false
+else
+	say "Installing ${app_name}..." 1
 
-say "Installing ${app_name}..." 1
-
-Package_installer_ "${app_name}" || continue
-my-superuser mkdir -p /etc/systemd/zram-generator.conf.d/
-if [ ! -f "/etc/systemd/zram-generator.conf.d/zram.conf" ];then
-	my-superuser tee /etc/systemd/zram-generator.conf.d/zram.conf <<- EOF > /dev/null
-	[zram0]
-	zram-size = ram / 2
-	compression-algorithm = zstd
-	EOF
+	Package_installer_ "${app_name}" || continue
+	${_SUPERUSER} mkdir -p /etc/systemd/zram-generator.conf.d/
+	if [ ! -f "/etc/systemd/zram-generator.conf.d/zram.conf" ];then
+		${_SUPERUSER} tee /etc/systemd/zram-generator.conf.d/zram.conf <<- EOF > /dev/null
+		[zram0]
+		zram-size = ram / 2
+		compression-algorithm = zstd
+		EOF
+	fi
+	command -v systemctl >/dev/null 2>&1 && ${_SUPERUSER} systemctl daemon-reexec || continue
+	service_manager enable systemd-zram-setup@zram0.service || continue
 fi
-command -v systemctl >/dev/null 2>&1 && my-superuser systemctl daemon-reexec || continue
-service_manager enable systemd-zram-setup@zram0.service || continue
