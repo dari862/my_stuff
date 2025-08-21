@@ -22,8 +22,7 @@ picom-session start &
 # Set keyboard settings to 250ms delay and 25cps (characters per second)
 xset r rate 250 25
 # Alias for: Super key (win) = Control_Left+Tab
-if command -v xcape >/dev/null 2>&1
-then
+if command -v xcape >/dev/null 2>&1;then
 	xcape -e "Super_L=Control_L|Tab" 									
 	xcape -e 'Super_L=Alt_L|F1' &
 	xcape -e 'Super_R=Alt_L|F1' &
@@ -33,7 +32,7 @@ fi
 [ -f ~/.Xmodmap ] && xmodmap ~/.Xmodmap &							
 
 # Touchpad settings
-if [ -f /sys/module/battery/initstate ] || [ -d /proc/acpi/battery/BAT0 ];then
+if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 	# Configure touchpad
 	synclient VertEdgeScroll=1 HorizEdgeScroll=1 TapButton1=1 2>/dev/null	
 	# Disable touchpad while typing
@@ -42,3 +41,4 @@ fi
 
 #### START APPLICATIONS ###############################################################################
 /usr/share/my_stuff/bin/WM/post_launch_wm
+/usr/share/my_stuff/bin/X11/WM/extra_post_launch_wm

@@ -41,7 +41,7 @@ displayselect watch &
 setbg -r
 
 # Start keyring	
-#polkit-session init &
+#polkit-session start &
 
 ## Start Music Player Daemon
 mpd-session start &

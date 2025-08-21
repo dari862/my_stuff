@@ -132,3 +132,4 @@ fi
 bspfloat 5 &
 
 /usr/share/my_stuff/bin/WM/post_launch_wm
+/usr/share/my_stuff/bin/X11/WM/extra_post_launch_wm

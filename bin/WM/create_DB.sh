@@ -80,9 +80,7 @@ create_tweeks_db() {
 	touch "${tweeks_db_path}"
 
 	find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
-	if ! ${tweek} --is-enable;then
-		basename "$tweek" >> "${tweeks_db_path}"
-	fi
+		. "${tweek}" --is-enable || basename "$tweek" >> "${tweeks_db_path}"
 	done
 }
 

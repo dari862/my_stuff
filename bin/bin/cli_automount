@@ -1,0 +1,67 @@
+#!/bin/sh -e
+if [ "$(id -u)" -ne 0 ]; then
+    show_m "❌ This script must be run as root (use sudo)."
+    exit 1
+fi
+
+if command -v fzf >/dev/null 2>&1; then
+    use_fzf=true
+else
+	use_fzf=false
+fi
+
+arg="${1:-}"
+
+. "/usr/share/my_stuff/lib/automount_lib"
+
+show_m() {
+    __massage="${1:-}"
+    printf '%s\n' "$__massage"
+}
+
+Parse_arguments
+fill_unmounted_devices_var
+
+for dev in ${unmounted_devices};do
+	size=$(lsblk -nbo SIZE "$dev" | head -n1)
+	size_gb=$((size / 1024 / 1024 / 1024))
+	printf "%s (%s GB)\n" "$dev" "$size_gb"
+done
+
+selected_line=""
+if [ "$use_fzf" = true ]; then
+	selected_line=$(printf '%s\n' "${unmounted_devices}" | fzf --prompt="Select device to mount: ")
+else
+	show_m "📦 Select device to mount:"
+	i=1
+	printf '%s\n' "$unmounted_devices" | while IFS= read -r device; do
+		show_m "  [$i] $device"
+		i=$((i + 1))
+	done
+	printf "Enter the number of the device to mount: "
+	read -r idx
+	case "$idx" in
+		''|*[!0-9]*) show_m "❌ Invalid selection." ; exit 1;;
+	esac
+	selected_line=$(printf '%s\n' "$unmounted_devices" | awk "NR == $((idx))")
+fi
+
+get_uuid_and_fs_type
+
+mount_path=""
+printf '%s\n' "Enter mount point (blank = auto-generate): "
+read -r mount_path
+
+check_mount_path_and_fs_type
+
+show_m ""
+show_m "🔍 Planned Actions:"
+show_m "------------------"
+show_m "Selected Device : $device_path"
+show_m "UUID            : $uuid"
+show_m "Filesystem Type : $fs_type"
+show_m "Mount Point     : $mount_path"
+show_m "Mount Options   : $options"
+show_m "fstab Entry     : UUID=$uuid $mount_path $fs_type $options 0 2"
+
+run_automount

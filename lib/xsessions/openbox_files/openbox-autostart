@@ -31,13 +31,13 @@ elif test -f $AUTOSTART.sh;then
     sh $AUTOSTART.sh
 fi
 
-if which xdg-autostart >/dev/null 2>/dev/null; then
-   CMD=xdg-autostart
-   mkdir -p "$HOME/.config/autostart"
-else
-   CMD=/usr/share/my_stuff/lib/xsessions/openbox_files/openbox-xdg-autostart
-fi
+#if which xdg-autostart >/dev/null 2>/dev/null; then
+#   CMD=xdg-autostart
+#   mkdir -p "$HOME/.config/autostart"
+#else
+#   CMD=/usr/share/my_stuff/lib/xsessions/openbox_files/openbox-xdg-autostart
+#fi
 # Run the XDG autostart stuff.  These are found in /etc/xdg/autostart and
 # in $HOME/.config/autostart.  This requires PyXDG to be installed.
 # See openbox-xdg-autostart --help for more details.
-exec $CMD "$@"
+#exec $CMD "$@"

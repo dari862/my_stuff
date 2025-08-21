@@ -1,0 +1,4 @@
+#!/bin/sh
+eval $(/usr/bin/gnome-keyring-daemon --start --components=secrets,ssh)
+start-pulseaudio-x11 &
+xdg-user-dirs-update &

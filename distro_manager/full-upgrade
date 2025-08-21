@@ -66,7 +66,7 @@ __upgrade_current_repo_(){
       $__SUPER_USER git stash  || print_RED "git stash failed... "
       
       print_purple "==> Pulling"
-      $__SUPER_USER git pull
+      $__SUPER_USER git pull  || print_RED "git pull failed... "
 }
 
 update_packages(){
@@ -110,7 +110,8 @@ Updating_Distro(){
     			[ ! -f "$f" ] && continue
     			if [ "$skel_modified" = true ];then
 					$__SUPER_USER rm -f "${f}"
-    			elif [ "$blob_modified" = true ];then
+				fi
+    			if [ "$blob_modified" = true ];then
 					user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 					if [ -d "$d/.config/blob" ];then
 						$__SUPER_USER cp -r "/usr/share/my_stuff/system_files/blob"/* "$d/.config/blob"
