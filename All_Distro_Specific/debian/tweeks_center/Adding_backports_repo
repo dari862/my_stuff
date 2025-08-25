@@ -1,6 +1,7 @@
 #!/bin/sh
 _SUPERUSER="my-superuser"
 [ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+. "/usr/share/my_stuff/lib/common/Distro_path"
 
 dist=$(lsb_release -cs)
 if [ "n/a" = "$dist" ];then
@@ -29,6 +30,6 @@ else
 
 	Package_update_
 
-	${_SUPERUSER} ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install /usr/share/my_stuff/system_files/bin
-	${_SUPERUSER} ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install_auto_completion /usr/share/my_stuff/system_files/auto_completion/backports_install
+	command -v bash >/dev/null 2>&1 && ${_SUPERUSER} ln -s "${__distro_path_disabled_completion}"/bash/backports_install_auto_completion "${__distro_path_enabled_completion}"/bash
+	command -v zsh >/dev/null 2>&1 && ${_SUPERUSER} ln -s "${__distro_path_disabled_completion}"/zsh/backports_install_auto_completion "${__distro_path_enabled_completion}"/zsh
 fi

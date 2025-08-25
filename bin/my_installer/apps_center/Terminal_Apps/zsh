@@ -11,3 +11,16 @@ if prompt '  Make ZSH default shell? ' 'Y';then
 	current_user="$USER"
 	my-superuser chsh -s $(command -v zsh) "$current_user"
 fi
+
+mkdir -p "$__distro_path_enabled_completion"/zsh
+		
+ln -sf "$__distro_path_disabled_completion"/zsh/repobin.zsh "$__distro_path_enabled_completion"/zsh/repobin.zsh
+ln -sf "$__distro_path_disabled_completion"/zsh/_zap "$__distro_path_enabled_completion"/zsh/_zap
+		
+command -v backports_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/zsh/backports_install.zsh "$__distro_path_enabled_completion"/zsh/backports_install.zsh
+command -v kali_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/zsh/kali_install_auto_completion.zsh "$__distro_path_enabled_completion"/zsh/kali_install_auto_completion.zsh
+command -v parrot_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/zsh/parrot_install_auto_completion.zsh "$__distro_path_enabled_completion"/zsh/parrot_install_auto_completion.zsh
+if command -v fzf >/dev/null 2>&1;then
+	ln -sf "$__distro_path_disabled_completion"/zsh/key-bindings.zsh "$__distro_path_enabled_completion"/zsh/key-bindings.zsh
+	ln -sf "$__distro_path_disabled_completion"/zsh/completion.zsh "$__distro_path_enabled_completion"/zsh/completion.zsh
+fi

@@ -25,10 +25,9 @@ if [ ! -f "${Distro_config_file}" ];then
 fi
 
 #### START SETTINGS  #################################################################################
-
-# Exec first script screenlayout found
-if [ "$(ls -A ~/.screenlayout >/dev/null 2>&1)" ];then
-	"$(ls ~/.screenlayout/*.sh | head -1)"
+dotscreenlayout_profile="$(ls ~/.screenlayout/*.sh 2>/dev/null | head -1 || :)"
+if [ -n "$dotscreenlayout_profile" ];then
+	"$dotscreenlayout_profile"
 elif [ -f "$display_script" ];then
 	"$display_script"
 else

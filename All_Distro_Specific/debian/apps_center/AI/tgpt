@@ -1,3 +1,4 @@
 #!/bin/sh
-say 'Installing tgpt ...' 1
-my_installer_ln_script "tgpt_updater" || failed_to_run "failed to run tgpt_updater ."
+app_name="copyparty"
+say "Installing ${app_name}..." 1
+repobin --sudo install aandrew-me/tgpt || failed_to_run "failed to run ${app_name} ."

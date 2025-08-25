@@ -1,0 +1,7 @@
+#!/bin/sh
+# Install vim and add zellij distro
+__choice=""
+say "Installing ${app_name}..." 1
+repobin --sudo --mode full install zellij-org/zellij || failed_to_run "failed to run ${app_name} ."
+
+copy_from_extra_skel ".config/zellij" || continue

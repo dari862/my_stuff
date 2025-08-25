@@ -1,4 +1,5 @@
 #!/bin/sh
+app_name="virtualbox"
 my-installer --tweek "Enable_virtualization" || continue
 
 say 'Installing package...' 1
@@ -16,8 +17,4 @@ my-superuser modprobe vboxnetadp
 
 my-superuser usermod -aG vboxusers $USER 
 
-say
-say "virtualbox has been installed successfully."
-say
-say 'you need to logout...' 2
-say
+. "${_APPS_LIBDIR}/hypervisors/virt/post_virtual_install.sh"

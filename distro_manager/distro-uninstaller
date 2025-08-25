@@ -4,19 +4,20 @@ is_it_zero_byte=false
 . "/usr/share/my_stuff/never_remove/var_for_distro_uninstaller"
 . "/usr/share/my_stuff/lib/common/common"
 . "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
 
 for backup in icons themes fonts;do
 	my-superuser find /usr/share/${backup} -depth -maxdepth 1 -type l -delete
 	my-superuser mv /usr/share/my_stuff/system_files/backup/${backup} /usr/share/${backup}
 done
 
-if ls /usr/share/my_stuff/system_files/bin/chroot-* >/dev/null 2>&1;then
-	my-superuser rm -rdf /usr/share/my_stuff/system_files/bin/chroot-*
+if ls "$CHROOT_SCRIPT_PATH"/chroot-* >/dev/null 2>&1;then
+	my-superuser rm -rdf "$CHROOT_SCRIPT_PATH"/chroot-*
 fi
 
-if grep -q "/usr/share/my_stuff/system_files/bin/chroot-" /usr/share/my_stuff/system_files/doas.conf 2>&1;then
-	my-superuser sed -i '|/usr/share/my_stuff/system_files/bin/chroot-|d' /usr/share/my_stuff/system_files/doas.conf
-	my-superuser sed -i '|/usr/share/my_stuff/system_files/bin/chroot-|d' /etc/doas.conf
+if grep -q "$CHROOT_SCRIPT_PATH/chroot-" /usr/share/my_stuff/system_files/doas.conf 2>&1;then
+	my-superuser sed -i "|$CHROOT_SCRIPT_PATH/chroot-|d" /usr/share/my_stuff/system_files/doas.conf
+	my-superuser sed -i "|$CHROOT_SCRIPT_PATH/chroot-|d" /etc/doas.conf
 fi
 
 if ls /usr/local/bin/chroot-* >/dev/null 2>&1;then

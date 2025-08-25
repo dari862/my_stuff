@@ -91,6 +91,9 @@ install_nvidia_drivers(){
     if [ "$enable_HardwareAcceleration" = true ]; then
         tweek_as_dependency "HardwareAcceleration" || continue
     fi
+    say "enable drm."
+	printf "options nvidia-drm modeset=1" | my-superuser tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	my-superuser mkinitcpio -p linux
     say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
 	say

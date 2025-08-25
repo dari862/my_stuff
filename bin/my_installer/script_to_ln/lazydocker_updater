@@ -1,9 +1,0 @@
-#!/bin/sh
-distro_path="/usr/share/my_stuff/system_files"
-PATH="${distro_path}/bin:$PATH"
-cd "/tmp/$USER"
-download_url=$(getURL 'latestgit' "jesseduffield/lazydocker" 'Linux_x86_64.tar.gz')
-getURL 'download2' "$download_url" "lazydocker.tar.gz"
-tar -xf lazydocker.tar.gz lazydocker
-my-superuser install lazydocker ${distro_path}/bin
-rm lazydocker.tar.gz lazydocker

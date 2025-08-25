@@ -38,6 +38,7 @@ __logout=false
 
 pipemenu_creater="/usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu"
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 . "/usr/share/my_stuff/lib/common/common"
 . "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 

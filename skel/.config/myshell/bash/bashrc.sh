@@ -16,7 +16,6 @@ command -v pfetch &>/dev/null && pfetch
 # ------------------------------- variables -----------------------------------
 bashplugins=(
 keychain
-bash_completion
 thefuck
 kitty_auto_complete
 fzf
@@ -139,4 +138,12 @@ for bashplugin in ${bashplugins[@]}; do
     		echo "plugin '$bashplugin' not found"
   	fi
 done
+# ---------------------------------  completion  ----------------------------------
+if [ -d "/usr/share/my_stuff/system_files/completion/bash" ];then
+	for f in "/usr/share/my_stuff/system_files/completion/bash"/*;do
+		[ -f "$f" ] && source $f
+	done
+fi
+
 # ---------------------------------  Extra  ----------------------------------
+  

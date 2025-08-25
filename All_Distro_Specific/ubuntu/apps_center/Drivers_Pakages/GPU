@@ -42,6 +42,10 @@ install_nvidia_drivers(){
 
 	Package_installer_ "nvidia-driver nvidia-utils nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_" || continue
 	
+	say "Enable drm."
+	printf "options nvidia-drm modeset=1" | my-superuser tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	my-superuser update-initramfs -u
+	
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
 	say

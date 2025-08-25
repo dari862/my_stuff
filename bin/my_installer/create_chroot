@@ -7,7 +7,6 @@
 chroot_name="${1-}"
 chroot_path="${INSTALLER_CHROOT_DIR}/${chroot_name}"
 LAUNCH_SCRIPT_PATH="/usr/share/my_stuff/system_files/bin"
-CHROOT_SCRIPT_PATH="/usr/share/my_stuff/system_files/bin/chroots"
 CHROOT_USER="chroot$(logname)"
 
 list_of_chroots(){

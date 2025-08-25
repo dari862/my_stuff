@@ -22,3 +22,4 @@ for value in libvirt libvirt_guest; do
 done
 
 . "${_APPS_LIBDIR}/hypervisors/virt/post_install_virt_manager.sh"
+. "${_APPS_LIBDIR}/hypervisors/virt/post_virtual_install.sh"

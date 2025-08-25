@@ -1,0 +1,13 @@
+#. "/usr/share/my_stuff/lib/common/Distro_path"
+# futur work grep -rI "/usr/share/my_stuff" | grep -v ":. \"/usr/share/"
+__distro_path_root="/usr/share/my_stuff"
+__distro_path_system_files="${__distro_path_root}/system_files"
+__distro_path_bin="${__distro_path_system_files}/bin"
+
+__distro_path_external="/usr/share/my_stuff/external"
+__distro_path_updater="${__distro_path_external}/updater"
+__distro_path_downloaded="${__distro_path_external}/downloaded"
+__distro_path_git="${__distro_path_external}/git"
+
+__distro_path_disabled_completion="/usr/share/my_stuff/lib/auto_completion"
+__distro_path_enabled_completion="/usr/share/my_stuff/system_files/completion"

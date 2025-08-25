@@ -2,7 +2,8 @@
 #    printing-pipemenu an Openbox pipemenu for configuring printing
 
 . "/usr/share/my_stuff/lib/common/pipemenu"
-ROOT_CHROOT_DIR="/usr/share/my_stuff/system_files/chroots"
+. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+
 _CUPS_NAME="cups"
 CUPS_CHROOT_NAME="chroot-${_CUPS_NAME}"
 CUPS_GUI="chroot-cups-gui"

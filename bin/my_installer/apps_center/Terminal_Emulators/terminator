@@ -10,7 +10,7 @@ copy_from_extra_skel ".config/terminator" || continue
 say 'Fix terminator' 1 
 
 [ ! -d "/root/.config/terminator" ] && my-superuser mkdir -p "/root/.config/terminator"
-[ ! -f "/root/.config/terminator/config" ] && my-superuser cp -r "${__distro_path}"/skel_extra/.config/terminator/config "/root/.config/terminator"
+[ ! -f "/root/.config/terminator/config" ] && my-superuser cp -r "${__distro_path_root}"/skel_extra/.config/terminator/config "/root/.config/terminator"
 
 if my-superuser grep -q 'always_on_top =' "/root/.config/terminator/config";then
 	my-superuser sed -i "s/always_on_top =.*/always_on_top = True/g" "/root/.config/terminator/config"

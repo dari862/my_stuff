@@ -1,13 +1,8 @@
 #!/bin/sh
-
-app_name="virtual_machine"
-
-if type -v virt-manager >/dev/null 2>&1;then
+if command -v "virt-manager" >/dev/null 2>&1;then
 	virt-manager &
-elif type -v virtualbox >/dev/null 2>&1;then
+elif command -v "virtualbox" >/dev/null 2>&1;then
 	virtualbox &
-elif type -v vmplayer >/dev/null 2>&1;then
+elif command -v "vmplayer" >/dev/null 2>&1;then
 	vmplayer &
-else
-	echo "vmplayer virtualbox virt-manager"
 fi

@@ -7,10 +7,4 @@ if ! shopt -oq posix;then
   elif [ -f /etc/bash_completion ];then
     . /etc/bash_completion
   fi
-  
-  if [ -d "/usr/share/my_stuff/system_files/auto_completion" ];then
-  	for f in /usr/share/my_stuff/system_files/auto_completion/*;do
-  		[ -f "$f" ] && source $f
-  	done
-  fi
 fi

@@ -1,4 +1,5 @@
 #!/bin/sh
+app_name="virtualbox"
 my-installer --tweek "Enable_IOMMU_support" || continue
 virtualbox_version="$(getURL '2term' "https://download.virtualbox.org/virtualbox/LATEST.TXT" | cut -d '.' -f1,2)"
 ep_url="https://download.virtualbox.org/virtualbox/${virtualbox_version}.0/Oracle_VirtualBox_Extension_Pack-${virtualbox_version}.0.vbox-extpack"
@@ -28,8 +29,4 @@ else
 	failed_to_run "failed to download Extension pack."
 fi
 
-say
-say "virtualbox has been installed successfully."
-say
-say 'you need to logout...' 2
-say
+. "${_APPS_LIBDIR}/hypervisors/virt/post_virtual_install.sh"

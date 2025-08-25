@@ -1,7 +1,7 @@
 #!/bin/sh
 
 app_name="secureMyLinux"
-secureMyLinux_dir="/usr/share/my_stuff/never_remove/${app_name}"
+secureMyLinux_dir="$__distro_path_git/${app_name}"
 
 say "clone https://github.com/dari862/${app_name}.git"
 super_clone_repo "https://github.com/dari862/${app_name}.git" "${secureMyLinux_dir}"

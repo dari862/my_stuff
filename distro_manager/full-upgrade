@@ -15,6 +15,8 @@ fi
 
 . "/usr/share/my_stuff/lib/common/common"
 . "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+
 x_session_picker_path="/usr/share/my_stuff/system_files/bin/xsessions/openbox"
 
 usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g' || :)"
@@ -70,7 +72,7 @@ __upgrade_current_repo_(){
 }
 
 update_packages(){
-	cd "/usr/share/my_stuff/system_files/updater"
+	cd "$__distro_path_updater"
 	updaters_list="$(ls)"
 	first_updater_file="$(echo "$updaters_list" | head -n 1)"
 	if [ -f "${updaters_list}" ];then
@@ -192,7 +194,7 @@ print_purple "==> clean package repository and remove orphan packages"
 Package_remove_ || :
 print_GREEN "==> orphan packages removed "
 
-if [ -d "/usr/share/my_stuff/system_files/updater" ];then
+if [ -d "$__distro_path_updater" ];then
 	print_purple "==> updating packages(s)."
 	update_packages
 	print_GREEN "==> updating packages(s) completed. "

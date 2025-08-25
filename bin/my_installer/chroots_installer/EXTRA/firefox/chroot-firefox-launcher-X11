@@ -1,13 +1,13 @@
 #!/bin/sh
 current_user="chroot$(/usr/bin/logname)"
-if /usr/sbin/chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" id "${current_user}" >/dev/null 2>&1;then
+if /usr/sbin/chroot "$ROOT_CHROOT_DIR/chroot-browsers" id "${current_user}" >/dev/null 2>&1;then
 	:
 else
-	/usr/sbin/chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" useradd -m "${current_user}" -s /bin/bash
+	/usr/sbin/chroot "$ROOT_CHROOT_DIR/chroot-browsers" useradd -m "${current_user}" -s /bin/bash
 	/usr/bin/xhost +local:${current_user}
 fi
 
-if ! /usr/bin/mountpoint -q "/usr/share/my_stuff/system_files/chroots/chroot-browsers/proc";then
-	/usr/bin/mount --bind "/proc" "/usr/share/my_stuff/system_files/chroots/chroot-browsers/proc"
+if ! /usr/bin/mountpoint -q "$ROOT_CHROOT_DIR/chroot-browsers/proc";then
+	/usr/bin/mount --bind "/proc" "$ROOT_CHROOT_DIR/chroot-browsers/proc"
 fi
-/usr/sbin/chroot "/usr/share/my_stuff/system_files/chroots/chroot-browsers" su - "${current_user}" -c "export DISPLAY=:0.0 && firefox"
+/usr/sbin/chroot "$ROOT_CHROOT_DIR/chroot-browsers" su - "${current_user}" -c "export DISPLAY=:0.0 && firefox"

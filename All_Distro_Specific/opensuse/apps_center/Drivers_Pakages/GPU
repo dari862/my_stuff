@@ -39,7 +39,9 @@ install_nvidia_drivers(){
 	Package_update_ || continue
 
 	Package_installer_ "nvidia nvidia-utils nvidia-settings $akmod_nvidia $_cuda_ $dkms_nvidia" || continue
-	
+	say "enable drm."
+	printf "options nvidia-drm modeset=1" | my-superuser tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	my-superuser mkinitcpio -p linux
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
 	say

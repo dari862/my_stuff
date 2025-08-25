@@ -1,13 +1,15 @@
 #!/bin/sh
 set -e
-[ -e "/usr/share/my_stuff/system_files/git/quickemu" ] && my-superuser rm -rdf /usr/share/my_stuff/system_files/git/quickemu
-[ -e "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop" ] && my-superuser rm -rdf "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop"
+. "/usr/share/my_stuff/lib/common/Distro_path"
 
-super_clone_repo https://github.com/quickemu-project/quickemu.git /usr/share/my_stuff/system_files/git/quickemu
-my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickemu" "/usr/share/my_stuff/system_files/bin"
-my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickget" "/usr/share/my_stuff/system_files/bin"
-my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/quickreport" "/usr/share/my_stuff/system_files/bin"
-my-superuser ln -sf "/usr/share/my_stuff/system_files/git/quickemu/chunkcheck" "/usr/share/my_stuff/system_files/bin"
+[ -e "$__distro_path_git/quickemu" ] && my-superuser rm -rdf "$__distro_path_git"/quickemu
+[ -e "$__distro_path_external/applications/quickemu_gui.desktop" ] && my-superuser rm -rdf "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop"
+
+super_clone_repo https://github.com/quickemu-project/quickemu.git "$__distro_path_git"/quickemu
+my-superuser ln -sf "$__distro_path_git/quickemu/quickemu" "/usr/share/my_stuff/system_files/bin"
+my-superuser ln -sf "$__distro_path_git/quickemu/quickget" "/usr/share/my_stuff/system_files/bin"
+my-superuser ln -sf "$__distro_path_git/quickemu/quickreport" "/usr/share/my_stuff/system_files/bin"
+my-superuser ln -sf "$__distro_path_git/quickemu/chunkcheck" "/usr/share/my_stuff/system_files/bin"
 my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/quickemu_gui" "/usr/share/my_stuff/system_files/bin"
 	
 my-superuser tee "/usr/share/my_stuff/system_files/applications/quickemu_gui.desktop" <<- EOF > /dev/null

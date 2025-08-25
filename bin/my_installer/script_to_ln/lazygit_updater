@@ -1,9 +1,0 @@
-#!/bin/sh
-distro_path="/usr/share/my_stuff/system_files"
-PATH="${distro_path}/bin:$PATH"
-cd "/tmp/$USER"
-download_url=$(getURL 'latestgit' "jesseduffield/lazygit" 'Linux_x86_64.tar.gz')
-getURL 'download2' "$download_url" "lazygit.tar.gz"
-tar -xf lazygit.tar.gz lazygit
-my-superuser install lazygit ${distro_path}/bin
-rm lazygit.tar.gz lazygit

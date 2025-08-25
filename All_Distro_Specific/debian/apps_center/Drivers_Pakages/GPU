@@ -57,7 +57,11 @@ install_nvidia_drivers(){
 	prompt 'do you want to install opensource nvidia-kernel?' && _kernel_open_dkms_="nvidia-kernel-open-dkms"
 
 	Packages_2_install="nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
-
+	
+	say "Enable drm."
+	printf "options nvidia-drm modeset=1" | my-superuser tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	my-superuser update-initramfs -u
+		
 	say
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
 	say

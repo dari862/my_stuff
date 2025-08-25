@@ -8,3 +8,4 @@ say 'Installing package...' 1
 	
 Package_installer_ "${extra_apps}" || continue
 . "${_APPS_LIBDIR}/hypervisors/virt/post_install_virt_manager.sh"
+. "${_APPS_LIBDIR}/hypervisors/virt/post_virtual_install.sh"

@@ -1,5 +1,6 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
 
 platfrom_name=""
 REPLY="${1-}"
@@ -32,8 +33,8 @@ install_parrot() {
 
 create_install_script() {
 	my-superuser ln -s "${_FULL_ENVIRONMENT_LIBDIR}"/Cybersecurity_Extra/${platfrom_name}_install /usr/share/my_stuff/system_files/bin
-    my-superuser mkdir -p /usr/share/my_stuff/lib/auto_completion/
-    my-superuser ln -s /usr/share/my_stuff/lib/auto_completion/${platfrom_name}_install /usr/share/my_stuff/system_files/auto_completion/
+    command -v bash >/dev/null 2>&1 && my-superuser ln -s "${__distro_path_disabled_completion}"/bash/"${platfrom_name}_install_auto_completion" "${__distro_path_enabled_completion}"/bash
+    command -v zsh >/dev/null 2>&1 && my-superuser ln -s "${__distro_path_disabled_completion}"/zsh/"${platfrom_name}_install_auto_completion" "${__distro_path_enabled_completion}"/zsh
 }
 
 ##############################################################################################

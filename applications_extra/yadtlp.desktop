@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=GUI TLP
 Comment=GUI TLP using yad
-Icon=/usr/share/my_stuff/system_files/downloaded/envycontrol/logos/light.png
+Icon=unity-power-panel
 Exec=yadtlp.sh
 Terminal=false
 Type=Application

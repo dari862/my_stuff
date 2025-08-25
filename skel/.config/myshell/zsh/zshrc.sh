@@ -11,7 +11,7 @@ fi
 
 command -v pfetch &>/dev/null && pfetch
 
-fpath+=("$ZDOTDIR/completion")
+fpath+=("/usr/share/my_stuff/system_files/completion/zsh")
 
 # --------- theme Applyer ------
 # Configure color-scheme

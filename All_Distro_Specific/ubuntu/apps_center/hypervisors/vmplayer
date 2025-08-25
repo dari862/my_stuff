@@ -14,3 +14,4 @@ my-superuser chmod +x /tmp/VMware-Player-Full.bundle
 my-superuser chown root:root /tmp/VMware-Player-Full.bundle
 say 'Installing VMware-Player-Full.bundle...' 1
 my-superuser /tmp/VMware-Player-Full.bundle
+. "${_APPS_LIBDIR}/hypervisors/virt/post_virtual_install.sh"

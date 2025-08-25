@@ -15,9 +15,10 @@ distrobbox_script_installer_path="/usr/share/my_stuff/bin/my_installer/distrobox
 
 _containers_center_path="/usr/share/my_stuff/bin/my_installer/containers_center"
 _CONTAINERS_LIBDIR="${_containers_center_path}"
-_DEPLOYED_CONTAINERS_LIBDIR="/usr/share/my_stuff/system_files/deployed_containers/deployed"
+_DEPLOYED_CONTAINERS_LIBDIR="/usr/share/my_stuff/deployed_containers/deployed"
 
-ROOT_CHROOT_DIR="/usr/share/my_stuff/system_files/chroots"
+ROOT_CHROOT_DIR="/usr/share/my_stuff/main_chroots"
+CHROOT_SCRIPT_PATH="$ROOT_CHROOT_DIR/bin"
 _CHROOTS_INSTALLED_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_installer/installed"
 INSTALLER_CHROOT_DIR="/usr/share/my_stuff/bin/my_installer/chroots_installer"
 

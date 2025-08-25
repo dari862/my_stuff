@@ -2,11 +2,5 @@
 # Install vim and add localsend distro
 
 app_name="localsend"
-distro_path="/usr/share/my_stuff/system_files"
-skel_path="${distro_path}/skel"
-localsend_skel_path="${skel_path}/.config/localsend"
-
-__choice=""
-
-say "Installing ${app_name} updater and installer..." 1
-my_installer_ln_script "localsend_updater" || failed_to_run "failed to run localsend_updater ."
+say "Installing ${app_name}..." 1
+repobin --sudo --mode deb install localsend/localsend || failed_to_run "failed to run ${app_name} ."
