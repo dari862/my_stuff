@@ -1,6 +1,7 @@
 #!/bin/sh
 ## Openbox Pipemenu For Picom Compositor
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 check_4_dependencies_if_installed picom || exit 1
 
 # User's config dir
@@ -40,7 +41,7 @@ check_blur=$(cat $dir/picom.conf | grep 'method =' | head -n1 | cut -d'=' -f2 | 
 ##-- Edit config ---------------------
 if [ "$1" = '--edit' ];then # Edit picom settings
     if [ ! -f "$HOME/.config/picom.conf" ];then
-        cp '/usr/share/my_stuff/system_files/skel/.config/picom.conf' "$HOME/.config/picom.conf"
+        cp "${__distro_path_root}/system_files/skel/.config/picom.conf" "$HOME/.config/picom.conf"
     fi
     if hash exo-open >/dev/null 2>&1;then
         exo-open "$HOME/.config/picom.conf"

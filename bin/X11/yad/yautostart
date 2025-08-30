@@ -2,6 +2,8 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=Autostart_Manager
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
+
 case $LANG in
  	pl*)
  		TITLE="Edytor autostartu XDG"
@@ -93,7 +95,7 @@ done
 
 unset xdg_autostart_list
 
-cat $get_autostart_apps_ | yad --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --width=640 --height=500 --title="$TITLE" --image="gtk-execute" --uri-handler=xdg-open \
+cat $get_autostart_apps_ | yad --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --width=640 --height=500 --title="$TITLE" --image="gtk-execute" --uri-handler=xdg-open \
 								--text="$DESC" --list --print-all --bool-fmt="t" \
 								--checklist --column="$ENABLE:CHK" --column="$FILE:HD" --column="$NAME" --column="$COMMENT" --tooltip-column=4 $CANCEL $OK > $yad_results
 if [ "$?" -eq 10 ];then

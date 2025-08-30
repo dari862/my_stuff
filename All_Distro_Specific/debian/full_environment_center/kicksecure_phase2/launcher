@@ -1,4 +1,5 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 popup_terminal "${_FULL_ENVIRONMENT_LIBDIR}"/kicksecure_phase2/script

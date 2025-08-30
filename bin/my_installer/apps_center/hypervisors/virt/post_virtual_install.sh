@@ -1,4 +1,4 @@
-my-superuser cp -r "${_APPS_LIBDIR}/hypervisors/virt/virtual_machine" "/usr/share/my_stuff/system_files/bin"
+my-superuser cp -r "${_APPS_LIBDIR}/hypervisors/virt/virtual_machine" "${__distro_path_root}/system_files/bin"
 say
 say "$app_name has been installed successfully."
 say

@@ -24,6 +24,7 @@
 #
 ########################################################################
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 TINT2PATH="$HOME/.config/tint2"
 
 HELP="tint2-edit is a script to edit selected tint2 config files
@@ -44,7 +45,7 @@ Multiple tint2s can be chosen.
 ### DIALOG VARIABLES
 DLGDEC="yad --center  --borders=20 --width=400 --height=500 "
 TITLE="My Stuff Tint2 Edit"
-WINICON="--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+WINICON="--window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
 OK="--button=OK:0"
 CANCEL="--button=gtk-cancel:1"
 

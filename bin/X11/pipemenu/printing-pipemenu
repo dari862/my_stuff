@@ -1,8 +1,9 @@
 #!/bin/sh
 #    printing-pipemenu an Openbox pipemenu for configuring printing
 
-. "/usr/share/my_stuff/lib/common/pipemenu"
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 _CUPS_NAME="cups"
 CUPS_CHROOT_NAME="chroot-${_CUPS_NAME}"

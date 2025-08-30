@@ -1,5 +1,6 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 usr_setup_flag_file="$1"
 backup_date="$(date +'%d-%m-%Y-%HH%mm')"
 backup_file_name=".backup-${backup_date}"
@@ -30,7 +31,7 @@ remove_this_Array="
 .zprofile
 .xprofile
 "
-move_this_from_config_Array="$(ls /usr/share/my_stuff/system_files/skel/.config) $WM_config_name"
+move_this_from_config_Array="$(ls ${__distro_path_root}/system_files/skel/.config) $WM_config_name"
 
 #-----------------------------------------------------------##-----------------------------------------------------------#
 
@@ -42,7 +43,7 @@ the_copyed_skel_are_correpted(){
 }
 
 copy_skel_(){
-	cp -rf /usr/share/my_stuff/system_files/skel/. "$HOME"
+	cp -rf ${__distro_path_root}/system_files/skel/. "$HOME"
 	if the_copyed_skel_are_correpted;then
 		return 1
 	fi
@@ -65,7 +66,7 @@ done
 copy_skel_ || copy_skel_ || copy_skel_
 
 if the_copyed_skel_are_correpted;then
-	echo "[ERROR] $(basename "$0") : failed: to copy /usr/share/my_stuff/system_files/skel"
+	echo "[ERROR] $(basename "$0") : failed: to copy ${__distro_path_root}/system_files/skel"
 	exit 1
 fi
 
@@ -88,3 +89,5 @@ chmod 700 "$HOME/.local/share/APIs/" "$HOME/.local/share/gnupg/"
 chmod 600 "$HOME/.local/share/gnupg/gpg-agent.conf"
 
 find "$HOME/.config/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
+find "$HOME/.config/". -type f -exec sed -i "s|(((distro_path_root)))|${__distro_path_root}|g" {} +
+find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_enabled_completion)))|${__distro_path_enabled_completion}|g" {} +

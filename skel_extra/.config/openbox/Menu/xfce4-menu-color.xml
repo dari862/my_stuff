@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE menu [
-  <!ENTITY icons "/usr/share/my_stuff/icons">
+  <!ENTITY icons "(((distro_path_root)))/icons">
   <!ENTITY openboxconfig "~/.config/openbox">
 ]>
 <openbox_menu xmlns="http://openbox.org/"
@@ -53,7 +53,7 @@
 		
         <separator/>
 
-		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
 	
 		<menu id="info" execute="sysinfo-pipemenu --more" label="System info" icon="&icons;/stats.png"/>
 		

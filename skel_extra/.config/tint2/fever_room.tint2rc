@@ -259,7 +259,7 @@ tooltip_font = Sans normal 9.0
 
 # Show Root Menu
 button = new
-button_icon = /usr/share/my_stuff/Distro_Specific/icons/linux.svg
+button_icon = (((distro_path_root)))/Distro_Specific/icons/linux.svg
 button_text =
 button_tooltip = Main Menu
 button_lclick_command = rofi-launcher
@@ -275,7 +275,7 @@ button_max_icon_size = 28
 
 # Exit dialog
 button = new
-button_icon = /usr/share/my_stuff/icons/exit/light/poweroff.png
+button_icon = (((distro_path_root)))/icons/exit/light/poweroff.png
 #button_icon = system-shutdown
 button_text =
 button_tooltip = Logout/Shutdown...

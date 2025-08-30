@@ -164,7 +164,7 @@ ac_disconnected_cmd =
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = echo '/usr/share/my_stuff/Distro_Specific/icons/user.svg'
+execp_command = echo '(((distro_path_root)))/Distro_Specific/icons/user.svg'
 execp_interval = 0
 execp_has_icon = 1
 execp_cache_icon = 1

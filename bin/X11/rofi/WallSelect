@@ -3,7 +3,8 @@
 
 # Set some variables
 # Load current theme
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 if echo "$polybar_STYLE" | grep -q "panels/" ;then
@@ -11,7 +12,7 @@ if echo "$polybar_STYLE" | grep -q "panels/" ;then
 else
 	ROFI_STYLE_NAME="$(echo "$polybar_STYLE" | cut -d'/' -f2-)"
 fi
-wall_dir="/usr/share/my_stuff/my_wallpapers"
+wall_dir="${__distro_path_root}/my_wallpapers"
 temp_dir="/tmp/$USER/walls/$ROFI_STYLE_NAME"
 # Create cache dir if not exists
 mkdir -p "${temp_dir}"

@@ -1,9 +1,10 @@
 #!/bin/sh
 #===================================================================================
+. "/usr/share/my_stuff/lib/common/Distro_path"
 if command -v lxappearance >/dev/null ;then
 	if [ "$HOME" = "/root" ];then
 		lxappearance
 	else
-		lxappearance && /usr/share/my_stuff/system_files/bin/reload_gtk23
+		lxappearance && ${__distro_path_root}/system_files/bin/reload_gtk23
 	fi
 fi	

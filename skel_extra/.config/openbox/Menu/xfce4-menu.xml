@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE menu [
-  <!ENTITY icons "/usr/share/my_stuff/icons/openbox-menu">
+  <!ENTITY icons "(((distro_path_root)))/icons/openbox-menu">
   <!ENTITY openboxconfig "~/.config/openbox">
 ]>
 <openbox_menu xmlns="http://openbox.org/"
@@ -50,7 +50,7 @@
         </item>
         <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="obamenu.py" />		
         <separator/>
-        <menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
+        <menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
 		<menu id="info" execute="sysinfo-pipemenu --more" label="System info" icon="&icons;/stats.png"/>		
 		
 		<menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources" icon="&icons;/help2.png"/>

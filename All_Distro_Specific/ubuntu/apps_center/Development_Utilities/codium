@@ -3,7 +3,7 @@ app_name="codium"
 
 say "add Repo..." 1
 download_key "gpg" "https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg" "/usr/share/keyrings/vscodium-archive-keyring.gpg"
-echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' | my-superuser tee /etc/apt/sources.list.d/vscodium.list
+add_repo "vscodium" 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main'
 
 say "Update Repo..." 1
 Package_update_

@@ -2,8 +2,9 @@
 # if this line exist script will be part of gui scripts.new_name=Control_Center
 # if this line exist script will be part of hub script.
 #
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 
 if hash btop 2>/dev/null;then
         BTOP="btop"
@@ -313,7 +314,7 @@ maindialog(){
 # cleanup
 trap "rm -f $res1 $res3 $res4 $res5 $res6 $res7 $res8 $res9 $res10 $res11 $res12 $out" EXIT
 
-. "/usr/share/my_stuff/os-release"
+. "${__distro_path_root}/os-release"
 # system uptime
 UPT=$(uptime -p | sed -e 's/^up //' -e 's/ day/d/' -e 's/ hour/h/' -e 's/ minute/m/' -e 's/s//g')
 
@@ -377,7 +378,7 @@ yad --plug=$KEY --tabnum=1 --borders=10 \
 --field="<b>>>></b>:LBL" "" \
 --field="<b>$KERN</b>:LBL" "" \
 --field="<b>$RESOLUTION</b>:LBL" "" \
---field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal --superuser '/usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
+--field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal --superuser \"${__distro_path_root}/bin/not_add_2_path/usr-mgr.sh\"" \
 --field=" Package-Manager!package-manager-icon!:FBTN" "$gui_package_manager" \
 --field=" Package-Manager updater!software-update!:FBTN" "$gui_package_manager_update" \
 --field=" ARandr!system-terminal!:FBTN" "arandr" \
@@ -409,7 +410,7 @@ yad --plug=$KEY --tabnum=3 --borders=20 --uri-handler=my-text-editor \
 --field="$AUTOSTART_RESET:FBTN" "cp ${OBPATH_SKEL}/autostart ${OBPATH}/" \
 > $res3 &
 #--field=":LBL" "" \
-yad --plug=$KEY --tabnum=4 --borders=20 --text="$LOOK_DESC" --icons --read-dir=/usr/share/my_stuff/appearance_applications --item-width=80 \
+yad --plug=$KEY --tabnum=4 --borders=20 --text="$LOOK_DESC" --icons --read-dir=${__distro_path_root}/appearance_applications --item-width=80 \
 > $res4 &
 
 # MOTYWY
@@ -442,7 +443,7 @@ yad --plug=$KEY --tabnum=7 --borders=20 \
 yad --plug=$KEY --tabnum=8 --borders=0 --text="$SYSTEM_DESC" --columns=2 --align="center" --form --scroll \
 --field="<b>$SETTINGS</b>:LBL" " " \
 --field="System Settings:FBTN" "hub s" \
---field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal --superuser '/usr/share/my_stuff/bin/not_add_2_path/usr-mgr.sh'" \
+--field=" $USERS_MSM!system-config-users!:FBTN" "popup_terminal --superuser \"${__distro_path_root}/bin/not_add_2_path/usr-mgr.sh\"" \
 --field="$MONITORS:LBL" "" \
 --field="ARandr:FBTN" "arandr" \
 --field="LXRandR:FBTN" "lxrandr" \
@@ -454,7 +455,7 @@ yad --plug=$KEY --tabnum=8 --borders=0 --text="$SYSTEM_DESC" --columns=2 --align
 > $res8 &
 # HELP
 yad --plug=$KEY --tabnum=9 \
---image=/usr/share/icons/hicolor/128x128/apps//usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-justify=center --uri-handler=my-text-editor --text="$HELP_TXT" \
+--image=/usr/share/icons/hicolor/128x128/apps/${__distro_path_root}/Distro_Specific/icons/linux.svg --text-justify=center --uri-handler=my-text-editor --text="$HELP_TXT" \
 --form --columns="4" \
 --field="www:FBTN" "my-text-editor https://maboxlinux.org" \
 --field="forum:FBTN" "my-text-editor https://forum.maboxlinux.org" \
@@ -474,7 +475,7 @@ yad --notebook --tab-pos="left" --key=$KEY \
     --tab="<i>$COMPOSITOR</i>" \
     --tab="$SYSTEM" \
     --tab="$HELP"\
-    --title="$TITLE" --image=/usr/share/my_stuff/icons/linux.png \
+    --title="$TITLE" --image=${__distro_path_root}/icons/linux.png \
     --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  --no-buttons > $out &
 }
 

@@ -2,9 +2,9 @@
 # if this line exist script will be part of hub script.
 
 set -e
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 err(){
-	. "/usr/share/my_stuff/lib/common/WM"
+	. "${__distro_path_root}/lib/common/WM"
 	. "${Distro_config_file}"
 	__message="${1:-}"
 	rofi -e "Alert (Somthing went wrong!!):\n ${__message}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi && exit 1		

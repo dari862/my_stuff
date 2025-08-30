@@ -351,7 +351,7 @@ headline_precmd() {
     if (( ${#_HEADLINE_INFO_LEFT} ));then
       _headline_part JOINT "$HEADLINE_USER_TO_HOST" left
     fi
-    _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str" left
+    _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str$SSH_MESS" left
   fi
   if (( ${#path_str} ));then
     if (( ${#_HEADLINE_INFO_LEFT} ));then

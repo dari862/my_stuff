@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-cd "/usr/share/my_stuff/bin/my_installer/containers_installer/Extra/${container_name}/"
+cd "${__distro_path_root}/bin/my_installer/containers_installer/Extra/${container_name}/"
 
 __format=""
 

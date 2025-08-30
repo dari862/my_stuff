@@ -45,7 +45,7 @@ jgmenu can use xml pipemenus written for Openbox, or csv pipemenus.
     for Openbox will also run fine in jgmenu).
     
     CSV pipemenus use the menu generation functions provided in
-    /usr/share/my_stuff/lib/common/pipemenu and have entries like:
+    ${__distro_path_root}/lib/common/pipemenu and have entries like:
     
     	jgmenuItem 'takescreenshot' "Screenshot Now" "my-shots"
 
@@ -62,7 +62,7 @@ jgmenu can use xml pipemenus written for Openbox, or csv pipemenus.
         
     The first element is the label, the second is the command to be run.
     
-Please see the first section of /usr/share/my_stuff/lib/common
+Please see the first section of ${__distro_path_root}/lib/common
 for all the menu generation functions, both jgmenu and openbox.
     
 Recent Files Pipemenu

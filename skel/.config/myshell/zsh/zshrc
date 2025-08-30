@@ -18,8 +18,6 @@ MichaelAquilina/zsh-auto-notify
 
 # ---------------------------------   Theme  -----------------------------------
 ZSH_THEME="pure"
-SSH_THEME=""
-[[ -n $SSH_CONNECTION ]] && SSH_THEME="headline"
 
 # ---------------------------------  source  -----------------------------------
 source $ZDOTDIR/zshrc.sh

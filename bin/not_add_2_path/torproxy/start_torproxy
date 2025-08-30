@@ -1,2 +1,3 @@
 #!/bin/sh
-my-superuser /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy start
+. "/usr/share/my_stuff/lib/common/Distro_path"
+my-superuser ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy start

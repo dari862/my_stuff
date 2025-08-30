@@ -10,33 +10,31 @@ say "Installing ${app_name}..." 1
 Package_installer_ "${app_name} ${extra_apps_}" || continue
 clear
 
-[ -d "/usr/share/my_stuff/system_files/skel/.emacs.d" ] && my-superuser rm -rdf /usr/share/my_stuff/system_files/skel/.emacs.d
+[ -d "${__distro_path_root}/system_files/skel/.emacs.d" ] && my-superuser rm -rdf ${__distro_path_root}/system_files/skel/.emacs.d
 
-super_clone_repo "https://github.com/hlissner/doom-emacs" "/usr/share/my_stuff/system_files/skel/.emacs.d" || continue
-if ! grep -qr 'export PATH=$PATH:$HOME/.emacs.d/bin'  "/usr/share/my_stuff/system_files/skel/.config/myshell";then
-	echo "export PATH=$PATH:$HOME/.emacs.d/bin" | my-superuser tee -a "/usr/share/my_stuff/system_files/skel/.config/myshell/profile" > /dev/null 2>&1
-	echo "alias emacs=\"emacsclient -c -a 'emacs'\"" | my-superuser tee -a "/usr/share/my_stuff/system_files/skel/.config/myshell/aliases-if-command.sh" > /dev/null 2>&1
+super_clone_repo "https://github.com/hlissner/doom-emacs" "${__distro_path_root}/system_files/skel/.emacs.d" || continue
+if ! grep -qr 'export PATH=$PATH:$HOME/.emacs.d/bin'  "${__distro_path_root}/system_files/skel/.config/myshell";then
+	echo "export PATH=$PATH:$HOME/.emacs.d/bin" | my-superuser tee -a "${__distro_path_root}/system_files/skel/.config/myshell/profile" > /dev/null 2>&1
+	echo "alias emacs=\"emacsclient -c -a 'emacs'\"" | my-superuser tee -a "${__distro_path_root}/system_files/skel/.config/myshell/aliases-if-command.sh" > /dev/null 2>&1
 fi
 
-if [ ! -f "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/doom_daemon" ];then
-	my-superuser tee -a "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/doom_daemon" <<- 'EOF' > /dev/null
+if [ ! -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/doom_daemon" ];then
+	my-superuser tee -a "${__distro_path_root}/system_files/skel/.config/autostartscripts/doom_daemon" <<- 'EOF' > /dev/null
 	#!/bin/sh
 	# start doom daemon
 	doom-session &
 	EOF
-	my-superuser chmod +x "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/doom_daemon"
+	my-superuser chmod +x "${__distro_path_root}/system_files/skel/.config/autostartscripts/doom_daemon"
 fi
 
-my-superuser ln -sf ${_APPS_LIBDIR}/IDE/Doom-Emacs_Extra/doom-session /usr/share/my_stuff/system_files/bin
-my-superuser cp -r ${_APPS_LIBDIR}/IDE/Doom-Emacs_Extra/emacsclient.desktop /usr/share/my_stuff/system_files/applications
-my-superuser ln -sf /usr/share/my_stuff/system_files/applications/emacsclient.desktop /usr/share/applications
+create_applicationsdotdesktop_link "emacsclient" "emacsclient"
 
 for d in /home/*; do
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g) 
 	[ -d "$d/.emacs.d" ] && my-superuser rm -rdf "$d/.emacs.d"
-	my-superuser cp -rv /usr/share/my_stuff/system_files/skel/.emacs.d "$d/"
+	my-superuser cp -rv ${__distro_path_root}/system_files/skel/.emacs.d "$d/"
 	echo "export PATH=$PATH:$HOME/.emacs.d/bin" | my-superuser tee -a "$d/.config/myshell/profile" > /dev/null 2>&1
-	my-superuser cp -rv "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/doom_daemon" "$d/.config/autostartscripts/doom_daemon"
+	my-superuser cp -rv "${__distro_path_root}/system_files/skel/.config/autostartscripts/doom_daemon" "$d/.config/autostartscripts/doom_daemon"
 	my-superuser chown -R $user_and_group "$d/"
 done
 

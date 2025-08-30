@@ -1,5 +1,6 @@
 #!/bin/sh -e
-. "/usr/share/my_stuff/Distro_Specific/info"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/Distro_Specific/info"
 
 DEPENDENCIES="xz gzip bzip2 jq"
 check_4_dependencies_if_installed ${DEPENDENCIES} || exit 1

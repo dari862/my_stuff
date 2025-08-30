@@ -10,5 +10,5 @@
     active: #61b33e;
     urgent: #e71c5b;
 
-    img-background: url("/usr/share/my_stuff/blob/polybar/karla/rofi.jpg", width);
+    img-background: url("(((distro_path_root)))/blob/polybar/karla/rofi.jpg", width);
 }

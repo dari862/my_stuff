@@ -1,0 +1,17 @@
+#!/bin/sh
+app_name="wezterm"
+set_as_default_package=true
+prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false
+
+download_key "key" "https://apt.fury.io/wez/gpg.key" "/usr/share/keyrings/wezterm-fury.gpg" || continue
+add_repo "wezterm" "deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *"
+
+Package_update_
+clear
+
+say 'Installing package...' 1
+
+Package_installer_ "${app_name}" || continue
+copy_from_extra_skel ".config/wezterm" || continue
+
+[ "$set_as_default_package" = true ] && my-alternatives --set "my-terminal-emulator" "${app_name}"

@@ -1,10 +1,11 @@
 #!/bin/sh
 set -eu
+. "/usr/share/my_stuff/lib/common/Distro_path"
 
-IMAGES_2_SKIP_distrobox="$(cd /usr/share/my_stuff/bin/my_installer/distrobox_center && ls || :)"
-IMAGES_2_SKIP_containers="$(cd /usr/share/my_stuff/bin/my_installer/containers_center && ls || :)"
+IMAGES_2_SKIP_distrobox="$(cd "${__distro_path_root}"/bin/my_installer/distrobox_center && ls || :)"
+IMAGES_2_SKIP_containers="$(cd "${__distro_path_root}"/bin/my_installer/containers_center && ls || :)"
 IMAGES_2_SKIP="$IMAGES_2_SKIP_distrobox $IMAGES_2_SKIP_containers"
-IMAGES_2_UPDATE="$(find /usr/share/my_stuff/bin/my_installer/containers_installer -type f -name debian-upgrade.sh  | awk -F'/Extra/' '{print $2}' | cut -d'/' -f1 | tr '\n' ' ' || :)"
+IMAGES_2_UPDATE="$(find "${__distro_path_root}"/bin/my_installer/containers_installer -type f -name debian-upgrade.sh  | awk -F'/Extra/' '{print $2}' | cut -d'/' -f1 | tr '\n' ' ' || :)"
 ALL_IMAGES_NAME_2_SKIP="$IMAGES_2_SKIP $IMAGES_2_UPDATE"
 
 echo "=== Starting images update ==="

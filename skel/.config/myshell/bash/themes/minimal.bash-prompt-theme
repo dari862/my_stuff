@@ -1,13 +1,13 @@
 #!/bin/bash
 
 if [ "$vim_mode_enabled" = true ];then
-	PS1=$'\uf0a9 \[\e]0;\w\a\]'
+	PS1=$SSH_MESS$'\uf0a9 \[\e]0;\w\a\]'
 	set -o vi
 	# Use `bind` to detect mode changes
 	bind 'set show-mode-in-prompt on'
 	bind 'set vi-ins-mode-string \1\e[0;32m[ins]\e[0m '
 	bind 'set vi-cmd-mode-string \1\e[0;31m[cmd]\e[0m '
 else
-	PS1=$'\uf0a9 \[\e]0;\w\a\]'
+	PS1=$SSH_MESS$'\uf0a9 \[\e]0;\w\a\]${SSH_MESS}'
 fi
 

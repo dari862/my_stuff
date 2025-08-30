@@ -3,7 +3,7 @@
 app_name="polychromatic"
 extra_apps_="openrazer-meta"
 
-if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+if [ -f "${__distro_path_root}/system_files/Distrobox_ready" ];then
 	Distrobox_package_installer_ ${app_name} || continue
 else
 	say 'Installing package...' 1

@@ -20,6 +20,7 @@
 #
 ########################################################################
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 check_4_dependencies_if_installed yad jq xprop wmctrl xdotool || exit 1
 
 USR_CFG_DIR="$HOME/.config/image-upload/imgur"
@@ -743,7 +744,7 @@ function switch_to_browser(){   # switch to new browser tab
 ######## End OAuth Functions ###########################################
 
 ######## YAD ###########################################################
-DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --fixed"
+DIALOG="yad --center --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --fixed"
 TITLE="--title=Image BBCode"
 T="--text="
 DELETE="--button=Delete:2"
@@ -769,8 +770,8 @@ TEST=0                      # Flag to test if user has Imgur account
 export -f run_browser       # to be used as YAD button command
 export -f switch_to_browser # used by run_browser
 
-if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null;then
-    echo -e "\nError: Failed to source yad-includes in /usr/share/my_stuff/lib/common" >&2
+if ! . "${__distro_path_root}/lib/common/yad-includes" 2> /dev/null;then
+    echo -e "\nError: Failed to source yad-includes in ${__distro_path_root}/lib/common" >&2
     exit 1
 elif ! . "${SETTINGS_FILE}" 2> /dev/null;then
     echo -e "\nError: Failed to source ${SETTINGS_FILE} in ${USR_CFG_DIR}/" >&2

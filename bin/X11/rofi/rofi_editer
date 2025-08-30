@@ -2,7 +2,8 @@
 # if this line exist script will be part of hub script.
 
 # Import Current Theme
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 my-file-manager "$HOME/.config/rofi/$ROFI_STYLE"

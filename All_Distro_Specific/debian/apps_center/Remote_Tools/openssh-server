@@ -7,7 +7,7 @@ say 'Installing package...' 1
 Package_installer_ "${app_name}" || continue
 
 say "Setting up SSH..."
-my-superuser ln -sf "${_APPS_LIBDIR}/Remote_Tools/Extra/manage_ssh.sh" "/usr/share/my_stuff/system_files/bin" || continue
+my-superuser ln -sf "${_APPS_LIBDIR}/Remote_Tools/Extra/manage_ssh.sh" "${__distro_path_root}/system_files/bin" || continue
 
 say "Enable SSH service..."
 service_manager "enable" "$SSH_SERVICE"

@@ -1,9 +1,10 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 app_name="kicksecure"
 extra_apps_="gtk3-nocsd console-common extrepo"
 
-. "/usr/share/my_stuff/os-release"
+. "${__distro_path_root}/os-release"
 if [ "$version_codename" != "bookworm" ];then
 	echo "You need bookworm to install kicksecure."
 	exit 1
@@ -33,7 +34,7 @@ for d in /home/*; do
 	fi
 done
 
-my-superuser echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0' | my-superuser tee -a "/usr/share/my_stuff/system_files/skel/.config/myshell/misc.sh" || continue
+my-superuser echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libgtk3-nocsd.so.0' | my-superuser tee -a "${__distro_path_root}/system_files/skel/.config/myshell/misc.sh" || continue
 say "Prerequisites for  kicksecure installed successfully."
 say "you need to reboot to contionue kicksecure installion."
 say "you need to reboot to contionue kicksecure installion."

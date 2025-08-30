@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
-target_path="/usr/share/my_stuff/system_files/bin/popup_terminal"
-popup_terminal_create_path="/usr/share/my_stuff/bin/must_create_script/popup_terminal"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+target_path="${__distro_path_root}/system_files/bin/popup_terminal"
+popup_terminal_create_path="${__distro_path_root}/bin/must_create_script/popup_terminal"
 
 for term in kitty alacritty terminator urxvt;do
 	command -v "$term" > /dev/null 2>&1 && terminal="$term" && break

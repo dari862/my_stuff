@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
-target_path="/usr/share/my_stuff/system_files/bin/service_manager"
-init_create_path="/usr/share/my_stuff/bin/must_create_script/init"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+target_path="${__distro_path_root}/system_files/bin/service_manager"
+init_create_path="${__distro_path_root}/bin/must_create_script/init"
 # openrc
 if command -v rc-service > /dev/null 2>&1;then
 	ln -sf "${init_create_path}/openrc" "${target_path}"

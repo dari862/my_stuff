@@ -2,8 +2,6 @@
 
 stop() {
 	kill_process.sh polybar 2>/dev/null	
-	while pgrep -u $(id -u) -x polybar >/dev/null; do sleep 1; done
-	wait
 }
 
 start() {

@@ -1,8 +1,8 @@
 #!/bin/sh
 # Usage: menuItem label command
 
-
-. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/pipemenu"
 
 # Pipemenu
 menuStart
@@ -42,13 +42,13 @@ menuSubmenu 'help_Tint2' 'Tint2'
 	menuItem 'Tint2 Wiki: Configuration' 'my-www-browser https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md'
 	menuItem 'Tint2 Forum Thread' 'my-www-browser https://forums.bunsenlabs.org/viewtopic.php?id=254'
 	menuItem 'Tint2 man page' 'popup_terminal --man tint2'
-	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
 menuSubmenuEnd
 menuSubmenu 'help_Conky' 'Conky'
 	menuItem 'Conky Wiki' 'my-www-browser https://github.com/brndnmtthws/conky/wiki'
 	menuItem 'Conky Archive' 'my-www-browser https://web.archive.org/web/20160325091248/https://crunchbang.org/forums/viewtopic.php?pid=371424'
 	menuItem 'Conky man pages' 'popup_terminal --man conky'
-	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
 menuSubmenuEnd
 menuSeparator
 menuSubmenu 'help_Theme_Resources' 'Theme Resources'
@@ -64,10 +64,10 @@ menuItem 'rofi' 'popup_terminal --man rofi'
 menuItem 'xrandr' 'popup_terminal --man xrandr'
 menuSeparator
 menuSubmenu 'help_my_stuff_Help_Files' 'My Stuff Help Files'
-	menuItem 'How to Edit Menu' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="How to Edit the Menu" --filename="/usr/share/my_stuff/lib/docs/menu.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About BLOB' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About BLOB" --filename="/usr/share/my_stuff/lib/docs/blob.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="/usr/share/my_stuff/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About My Stuff Autostart' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Autostart" --filename="/usr/share/my_stuff/lib/docs/blautostart.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About My Stuff Alternatives' 'yad --button="OK":0 --center --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Alternatives" --filename="/usr/share/my_stuff/lib/docs/alternatives.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'How to Edit Menu' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="How to Edit the Menu" --filename="${__distro_path_root}/lib/docs/menu.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About BLOB' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About BLOB" --filename="${__distro_path_root}/lib/docs/blob.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About My Stuff Autostart' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Autostart" --filename="${__distro_path_root}/lib/docs/blautostart.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About My Stuff Alternatives' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Alternatives" --filename="${__distro_path_root}/lib/docs/alternatives.txt" --width=900 --height=700 --fontname=Monospace'
 menuSubmenuEnd
 menuEnd

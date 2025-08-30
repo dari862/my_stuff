@@ -42,6 +42,8 @@
 #
 ########################################################################
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
+
 CONKYPATH="$HOME/.config/conky"
 SESSIONFILE="$CONKYPATH/conky-sessionfile"
 CONKYDEFAULT="$CONKYPATH/conky.conf"
@@ -77,7 +79,7 @@ CPATH_REGEX='.*(conky.*\.conf|conky|conkyrc)'
 DLG="yad --center --undecorated --borders=20 "
 DLGDEC="yad --center --borders=20 "
 TITLE="My Stuff Conky Manager"
-WINICON="--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+WINICON="--window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
 APPLY="--button=Apply:0"
 CLOSE="--button=Close:1"
 ########## FUNCTIONS ###################################################

@@ -13,8 +13,10 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/openbox"
+
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 
 HELP='    screenshot-pipemenu a obmenu Pipe Menu for taking screenshots
     It should normally be called from a obmenu menu.
@@ -40,7 +42,7 @@ do
     esac
 done
 
-. "/usr/share/my_stuff/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/pipemenu"
 
 # Get $USER images directory
 if type xdg-user-dir >/dev/null 2>&1;then

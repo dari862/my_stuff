@@ -10,12 +10,12 @@ CHROOT_DIR="${BROWSERS_CHROOT_DIR}"
 
 create_default_chroot_browser(){
 	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}" "${LAUNCH_SCRIPT_PATH}" || failed_to_run "Failed to set execute permission on launch script"
-	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}.desktop" "/usr/share/applications" || failed_to_run "Failed to set execute permission on launch script"
+	create_applicationsdotdesktop_link "${chroot_default_browser_name}" || failed_to_run "Failed to create_applicationsdotdesktop_link ${chroot_default_browser_name}"
 }
 
 end_of_chroot_creater(){	
 	say "Creating launch script to run $APP_NAME from the host..."
-	my-superuser ln -sf "${extra_chroot_browser}/${SCRIPT_NAME}.desktop" "/usr/share/applications" || failed_to_run "Failed to set execute permission on launch script"
+	create_applicationsdotdesktop_link "${SCRIPT_NAME}" || failed_to_run "Failed to create_applicationsdotdesktop_link ${SCRIPT_NAME}"
 	my-superuser ln -sf "${extra_chroot_browser}/${SCRIPT_NAME}" "${LAUNCH_SCRIPT_PATH}" || failed_to_run "Failed to set execute permission on launch script"
 	
 	if [ -f "/etc/doas.conf" ];then
@@ -24,7 +24,7 @@ end_of_chroot_creater(){
 		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-X11
 		EOF
 	
-		my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+		my-superuser tee -a "${__distro_path_root}/system_files/doas.conf" > /dev/null <<- EOF
 		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-wayland
 		permit persist :users as root cmd ${extra_chroot_browser}/${LAUNCHER_SCRIPT_NAME}-X11
 		EOF

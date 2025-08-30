@@ -9,7 +9,7 @@ elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and
 else
 	cpu_are=""
 	HVE=""
-	virtualization_ready_file="/usr/share/my_stuff/system_files/virtualization_ready"
+	virtualization_ready_file="${__distro_path_root}/system_files/virtualization_ready"
 
 	yes_or_no(){
 		MSG="${1-}"

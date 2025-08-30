@@ -1,14 +1,17 @@
 #!/bin/sh
+
+. "/usr/share/my_stuff/lib/common/Distro_path"
+
 init_color_temperature_adjuster() {
 	create_config_file(){
-		[ -f "/usr/share/my_stuff/system_files/skel/.config/${_command}/${_config_name}" ] && return
+		[ -f "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" ] && return
 		latlong=$(get_latlong)
 		lat_="${latlong%,*}"
 		long_="${latlong#*,}"
 		
-		mkdir -p "/usr/share/my_stuff/system_files/skel/.config/${_command}"
+		mkdir -p "${__distro_path_root}/system_files/skel/.config/${_command}"
 		
-		tee "/usr/share/my_stuff/system_files/skel/.config/${_command}/${_config_name}" <<-EOF > /dev/null 2>&1
+		tee "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" <<-EOF > /dev/null 2>&1
 			[general]
 			temp-day=5700
 			temp-night=3600
@@ -23,8 +26,8 @@ init_color_temperature_adjuster() {
 	}
 	
 	create_tray_gammastep(){
-		[ -f "/usr/share/my_stuff/system_files/bin/tray_gammastep" ] && return
-		tee "/usr/share/my_stuff/system_files/bin/tray_gammastep" <<-EOF > /dev/null 2>&1
+		[ -f "${__distro_path_root}/system_files/bin/tray_gammastep" ] && return
+		tee "${__distro_path_root}/system_files/bin/tray_gammastep" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
 		yad --notification \
 			--image="gtk-zoom-fit" \
@@ -32,17 +35,17 @@ init_color_temperature_adjuster() {
 			--command="color_temperature_adjuster_gui" \
 			--text="Gammastep"
 		EOF
-		chmod +x tee "/usr/share/my_stuff/system_files/bin/tray_gammastep"
+		chmod +x tee "${__distro_path_root}/system_files/bin/tray_gammastep"
 	}
 	
 	create_daemon_file(){
-		[ -f "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/${_command}.sh" ] && return
-		tee "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/${_command}.sh" <<-EOF > /dev/null 2>&1
+		[ -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" ] && return
+		tee "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
 		/usr/bin/${_command}
 		tray_gammastep
 		EOF
-		chmod +x "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/${_command}.sh"
+		chmod +x "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh"
 	}
 	
 	create_config_file
@@ -53,8 +56,8 @@ init_color_temperature_adjuster() {
 		[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
 		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 		# Create config folders if no exists
-		d="$d/.config/autostart"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/${_command}.sh" "$d" && chown -R $user_and_group "$d"
-		d="$d/.config/redshift"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "/usr/share/my_stuff/system_files/skel/.config/${_command}/${_config_name}" "$d" && chown -R $user_and_group "$d"
+		d="$d/.config/autostart"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" "$d" && chown -R $user_and_group "$d"
+		d="$d/.config/redshift"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" "$d" && chown -R $user_and_group "$d"
 	done
 }
 
@@ -98,9 +101,9 @@ if [ "$_mode" = "init" ];then
 	init_color_temperature_adjuster && exit 0
 	exit 1
 else
-	[ ! -f "/usr/share/my_stuff/system_files/skel/.config/autostartscripts/${_command}.sh" ] && echo "File does not exist: /usr/share/my_stuff/system_files/skel/.config/autostartscripts/${_command}.sh" && exit_now=true
-	[ ! -f "/usr/share/my_stuff/system_files/bin/tray_gammastep" ] && echo "File does not exist: /usr/share/my_stuff/system_files/bin/tray_gammastep" && exit_now=true
-	[ ! -f "/usr/share/my_stuff/system_files/skel/.config/${_command}/${_config_name}" ] && echo "File does not exist: /usr/share/my_stuff/system_files/skel/.config/${_command}/${_config_name}" && exit_now=true
+	[ ! -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" ] && echo "File does not exist: ${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" && exit_now=true
+	[ ! -f "${__distro_path_root}/system_files/bin/tray_gammastep" ] && echo "File does not exist: ${__distro_path_root}/system_files/bin/tray_gammastep" && exit_now=true
+	[ ! -f "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" ] && echo "File does not exist: ${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" && exit_now=true
 	if [ "$exit_now" = true ];then
 		echo "Run my-superuser color_temperature_adjuster_gui --init"
 		exit 1
@@ -111,7 +114,7 @@ _Enabled="$(pgrep -l ${_command} >/dev/null 2>&1 && echo TRUE || echo FALSE)"
 _Autostart="$(service_manager is-enable ${_name}.service && echo TRUE || echo FALSE)"
 
 [ ! -d "$HOME/.config/${_name}" ] && mkdir -p "$HOME/.config/${_name}"
-[ ! -f "$HOME/.config/${_name}/${_config_name}" ] && cp -r "/usr/share/my_stuff/system_files/skel/.config/${_command}/${_config_name}" "$HOME/.config/${_name}/${_config_name}"
+[ ! -f "$HOME/.config/${_name}/${_config_name}" ] && cp -r "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" "$HOME/.config/${_name}/${_config_name}"
 
 Set_(){
 	_lat="$(grep "lat=" "$HOME/.config/${_name}/${_config_name}" | awk -F= '{print $2}')"

@@ -13,7 +13,7 @@
 ## More information about this can be found at: http://openbox.org/wiki/Help:Autostart
 
 #### Pre Launch      #################################################################################
-/usr/share/my_stuff/bin/WM/pre_launch_wm
+(((distro_path_root)))/bin/WM/pre_launch_wm
 
 # Start compositor
 picom-session start &
@@ -32,7 +32,7 @@ fi
 [ -f ~/.Xmodmap ] && xmodmap ~/.Xmodmap &							
 
 # Touchpad settings
-if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
+if [ -f "(((distro_path_root)))/system_files/this_is_laptop" ];then
 	# Configure touchpad
 	synclient VertEdgeScroll=1 HorizEdgeScroll=1 TapButton1=1 2>/dev/null	
 	# Disable touchpad while typing
@@ -40,5 +40,5 @@ if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
 fi
 
 #### START APPLICATIONS ###############################################################################
-/usr/share/my_stuff/bin/WM/post_launch_wm
-/usr/share/my_stuff/bin/X11/WM/extra_post_launch_wm
+(((distro_path_root)))/bin/WM/post_launch_wm
+(((distro_path_root)))/bin/X11/WM/extra_post_launch_wm

@@ -2,6 +2,6 @@
 Exec=distrogui
 Type=Application
 Name=DistroGUI
-Icon=/usr/share/my_stuff/icons/dg-icon.svg
+Icon=(((distro_path_root)))/icons/dg-icon.svg
 Categories=Application;
 Terminal=false

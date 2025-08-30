@@ -1,4 +1,6 @@
 #!/bin/sh
+
+. "/usr/share/my_stuff/lib/common/Distro_path"
 NVIDIA_VENDOR="NVIDIA Corporation"
 AMD_VENDOR="AMD"
 SOFTWARE_VENDOR="Mesa/X.org"
@@ -32,7 +34,7 @@ case $(glxinfo_vendor) in
 esac
 
 yad --notification \
-	--image="/usr/share/my_stuff/icons/GPU_ICONS/${gpu_vendor_icon}.svg" \
+	--image="${__distro_path_root}/icons/GPU_ICONS/${gpu_vendor_icon}.svg" \
 	--icon-size=22 \
 	--command="gpu-switcher-session gui" \
 	--text="GPU Switcher"

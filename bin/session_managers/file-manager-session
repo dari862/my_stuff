@@ -12,7 +12,6 @@ fi
 
 stop() {
 	kill_process.sh $file_manager_name
-	wait
 }
 
 start() {

@@ -1,5 +1,6 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 . "/usr/share/my_stuff/lib/common/Distro_path"
 
 platfrom_name=""
@@ -7,7 +8,7 @@ REPLY="${1-}"
 
 install_kali(){
 	# include_kali
-	echo "deb [arch=amd64 signed-by=/usr/share/keyrings/kali-archive-keyring.asc] https://http.kali.org/kali kali-rolling main non-free contrib" | my-superuser tee /etc/apt/sources.list.d/kali.list > /dev/null 2>&1
+	add_repo "kali" "deb [arch=amd64 signed-by=/usr/share/keyrings/kali-archive-keyring.asc] https://http.kali.org/kali kali-rolling main non-free contrib"
 	echo 'Package: *' | my-superuser tee /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
 	echo 'Pin: release a=kali-rolling' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
 	echo 'Pin-Priority: 50' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref  > /dev/null 2>&1
@@ -23,7 +24,7 @@ install_kali(){
 
 install_parrot() {
 	# include_parrot
-    echo "deb https://deb.parrotsec.org/parrot parrot main contrib non-free" | my-superuser tee /etc/apt/sources.list.d/parrot.list > /dev/null 2>&1
+    add_repo "parrot" "deb https://deb.parrotsec.org/parrot parrot main contrib non-free"
     echo 'Package: *' | my-superuser tee /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
     echo 'Pin: release a=parrot' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
     echo 'Pin-Priority: 50' | my-superuser tee -a /etc/apt/preferences.d/${platfrom_name}.pref > /dev/null 2>&1
@@ -32,7 +33,7 @@ install_parrot() {
 }
 
 create_install_script() {
-	my-superuser ln -s "${_FULL_ENVIRONMENT_LIBDIR}"/Cybersecurity_Extra/${platfrom_name}_install /usr/share/my_stuff/system_files/bin
+	my-superuser ln -s "${_FULL_ENVIRONMENT_LIBDIR}"/Cybersecurity_Extra/${platfrom_name}_install ${__distro_path_root}/system_files/bin
     command -v bash >/dev/null 2>&1 && my-superuser ln -s "${__distro_path_disabled_completion}"/bash/"${platfrom_name}_install_auto_completion" "${__distro_path_enabled_completion}"/bash
     command -v zsh >/dev/null 2>&1 && my-superuser ln -s "${__distro_path_disabled_completion}"/zsh/"${platfrom_name}_install_auto_completion" "${__distro_path_enabled_completion}"/zsh
 }
@@ -50,13 +51,13 @@ case "$REPLY" in
 		platfrom_name="kali"
 		install_kali
 		create_install_script
-		kali_install #script at /usr/share/my_stuff/bin/bin to install kali packages
+		kali_install #script at ${__distro_path_root}/bin/bin to install kali packages
 	;;
 	2|p|P)
 		platfrom_name="parrot"
 		install_parrot
 		create_install_script
-		parrot_install #script at /usr/share/my_stuff/bin/bin to install parrot packages
+		parrot_install #script at ${__distro_path_root}/bin/bin to install parrot packages
 	;;
 	*)
 		echo "$0: no such install option $REPLY"

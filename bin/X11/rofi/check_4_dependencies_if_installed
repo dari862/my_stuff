@@ -1,8 +1,9 @@
 #!/bin/sh
+. "/usr/share/my_stuff/lib/common/Distro_path"
 dependencies_not_installed=""
 not_installed_apps_are=""
-. "/usr/share/my_stuff/lib/common/common"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 
 on_terminal(){
 	if [ ! -t 1 ];then
@@ -47,7 +48,7 @@ if [ -n "${dependencies_not_installed}" ];then
 			_pem "Missing dependencies, please install: ${dependencies_not_installed%??}."
 			Do_want_to_install_dependencies || return 1
 	else
-		. "/usr/share/my_stuff/lib/common/WM"
+		. "${__distro_path_root}/lib/common/WM"
 		. "${Distro_config_file}"
 		rofi -e "Missing dependencies, please install : ${not_installed_apps_are}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi && return 1
 	fi

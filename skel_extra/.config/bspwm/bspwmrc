@@ -3,7 +3,7 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
 #### Pre Launch      #################################################################################
-/usr/share/my_stuff/bin/WM/pre_launch_wm
+(((distro_path_root)))/bin/WM/pre_launch_wm
 
 # Start compositor
 picom-session start &
@@ -131,5 +131,5 @@ fi
 # Start bspwm scripts
 bspfloat 5 &
 
-/usr/share/my_stuff/bin/WM/post_launch_wm
-/usr/share/my_stuff/bin/X11/WM/extra_post_launch_wm
+(((distro_path_root)))/bin/WM/post_launch_wm
+(((distro_path_root)))/bin/X11/WM/extra_post_launch_wm

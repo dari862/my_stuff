@@ -54,8 +54,8 @@ done
 [[ ${missing_commands[0]} ]] && error_exit "This script requires the following commands: ${missing_commands[*]}
 Please install the packages containing the missing commands
 and rerun the script."
-
-. "/usr/share/my_stuff/lib/common/yad-includes"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/yad-includes"
 
 #####FUNCTIONS#####
 

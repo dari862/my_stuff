@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 rofi -config "$HOME/.config/rofi/dunst_action.rasi" -no-show-icons -no-lazy-grab -no-plugins -dmenu -mesg 'Context Menu'

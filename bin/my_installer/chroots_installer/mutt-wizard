@@ -65,7 +65,7 @@ if [ -f "/etc/doas.conf" ];then
 	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${MUTT_LAUNCHER}
 	EOF
 
-	my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+	my-superuser tee -a "${__distro_path_root}/system_files/doas.conf" > /dev/null <<- EOF
 	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/${MUTT_LAUNCHER}
 	EOF
 fi

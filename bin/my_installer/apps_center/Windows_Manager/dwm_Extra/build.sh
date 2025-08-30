@@ -1,5 +1,7 @@
 #!/bin/sh
 set -e
+. "/usr/share/my_stuff/lib/common/Distro_path"
+
 __opt="${1:-}"
 __user="${2:-}"
 
@@ -7,12 +9,12 @@ __download_only(){
 	SudoHOME="/home/$__user"
 	if [ -d "$SudoHOME/Desktop/my_stuff" ];then
 		base_dir="$SudoHOME/Desktop/my_stuff"
-	elif [ -d "/usr/share/my_stuff" ];then
-		base_dir="/usr/share/my_stuff"
+	elif [ -d "${__distro_path_root}" ];then
+		base_dir="${__distro_path_root}"
 	else
 		base_dir="/tmp/temp_distro_installer_dir/my_stuff"
 	fi
-
+	
 	. "${base_dir}/lib/common/common"
 	mkdir -p "/tmp/root"
 	clone_repo "https://github.com/umrian/dwm" "/tmp/root/dwm" || ( rm -rdf "/tmp/root/dwm" && exit 1 )

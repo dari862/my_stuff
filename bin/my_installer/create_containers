@@ -1,13 +1,14 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/common"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/common"
 if [ "${1-}" = "--upate" ];then
-	"/usr/share/my_stuff/bin/my_installer/update-containers.sh"
+	"${__distro_path_root}/bin/my_installer/update-containers.sh"
 	exit
 else
 	container_name="${1-}"
 fi
 
-containers_installer_path="/usr/share/my_stuff/bin/my_installer/containers_installer"
+containers_installer_path="${__distro_path_root}/bin/my_installer/containers_installer"
 container_path="${containers_installer_path}/${container_name}"
 
 list_of_containers(){

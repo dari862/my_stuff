@@ -1,28 +1,28 @@
 #!/bin/sh
-_APPS_LIBDIR="/usr/share/my_stuff/bin/my_installer/apps_center"
-_APPS_EXTRA_LIBDIR="/usr/share/my_stuff/Distro_Specific/apps_center"
-_GAMING_LIBDIR="/usr/share/my_stuff/bin/my_installer/gaming_center"
-_GAMING_EXTRA_LIBDIR="/usr/share/my_stuff/Distro_Specific/gaming_center"
-_TWEEKS_LIBDIR='/usr/share/my_stuff/bin/my_installer/tweeks_center'
-_TWEEKS_EXTRA_LIBDIR="/usr/share/my_stuff/Distro_Specific/tweeks_center"
-_FULL_ENVIRONMENT_LIBDIR='/usr/share/my_stuff/bin/my_installer/full_environment_center'
-_FULL_ENVIRONMENT_EXTRA_LIBDIR="/usr/share/my_stuff/Distro_Specific/full_environment_center"
+_APPS_LIBDIR="${__distro_path_root}/bin/my_installer/apps_center"
+_APPS_EXTRA_LIBDIR="${__distro_path_root}/Distro_Specific/apps_center"
+_GAMING_LIBDIR="${__distro_path_root}/bin/my_installer/gaming_center"
+_GAMING_EXTRA_LIBDIR="${__distro_path_root}/Distro_Specific/gaming_center"
+_TWEEKS_LIBDIR="${__distro_path_root}/bin/my_installer/tweeks_center"
+_TWEEKS_EXTRA_LIBDIR="${__distro_path_root}/Distro_Specific/tweeks_center"
+_FULL_ENVIRONMENT_LIBDIR="${__distro_path_root}/bin/my_installer/full_environment_center"
+_FULL_ENVIRONMENT_EXTRA_LIBDIR="${__distro_path_root}/Distro_Specific/full_environment_center"
 
-_CHROOTS_LIBDIR='/usr/share/my_stuff/bin/my_installer/chroots_center'
+_CHROOTS_LIBDIR="${__distro_path_root}/bin/my_installer/chroots_center"
 
-_DISTROBOX_LIBDIR="/usr/share/my_stuff/bin/my_installer/distrobox_center"
-distrobbox_script_installer_path="/usr/share/my_stuff/bin/my_installer/distrobox_installer" # used to source file
+_DISTROBOX_LIBDIR="${__distro_path_root}/bin/my_installer/distrobox_center"
+distrobbox_script_installer_path="${__distro_path_root}/bin/my_installer/distrobox_installer" # used to source file
 
-_containers_center_path="/usr/share/my_stuff/bin/my_installer/containers_center"
+_containers_center_path="${__distro_path_root}/bin/my_installer/containers_center"
 _CONTAINERS_LIBDIR="${_containers_center_path}"
-_DEPLOYED_CONTAINERS_LIBDIR="/usr/share/my_stuff/deployed_containers/deployed"
+_DEPLOYED_CONTAINERS_LIBDIR="${__distro_path_root}/deployed_containers/deployed"
 
-ROOT_CHROOT_DIR="/usr/share/my_stuff/main_chroots"
+ROOT_CHROOT_DIR="${__distro_path_root}/main_chroots"
 CHROOT_SCRIPT_PATH="$ROOT_CHROOT_DIR/bin"
-_CHROOTS_INSTALLED_LIBDIR="/usr/share/my_stuff/bin/my_installer/chroots_installer/installed"
-INSTALLER_CHROOT_DIR="/usr/share/my_stuff/bin/my_installer/chroots_installer"
+_CHROOTS_INSTALLED_LIBDIR="${__distro_path_root}/bin/my_installer/chroots_installer/installed"
+INSTALLER_CHROOT_DIR="${__distro_path_root}/bin/my_installer/chroots_installer"
 
-pipemenu_output_dir="/usr/share/my_stuff/system_files/pipemenu"
+pipemenu_output_dir="${__distro_path_root}/system_files/pipemenu"
 my_installer_pipemenu_X11_file="${pipemenu_output_dir}/my_installer_X11"
 my_installer_pipemenu_wayland_file="${pipemenu_output_dir}/my_installer_wayland"
 gaming_pipemenu_file="${pipemenu_output_dir}/gaming"

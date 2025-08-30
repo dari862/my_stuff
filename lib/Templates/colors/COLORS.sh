@@ -1,19 +1,9 @@
 #!/bin/bash
-
-#####################################
-#                                   #
-#  @author      : 00xWolf           #
-#    GitHub    : @mmsaeed509       #
-#    Developer : Mahmoud Mohamed   #
-#  﫥  Copyright : Mahmoud Mohamed   #
-#                                   #
-#####################################
-
 ## ------------ COLORS ------------ ##
 
 #
 # you can load the colors like `. /path/to/fileColor`
-# eg `. /usr/share/exodia/COLORS.sh`
+
 
 # Reset #
 RESET_COLOR='\033[0m' # Text Reset

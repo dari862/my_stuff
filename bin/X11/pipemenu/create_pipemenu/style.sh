@@ -1,13 +1,14 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/pipemenu"
-. "/usr/share/my_stuff/lib/common/openbox"
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/openbox"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 if [ "$_panel_name_" = 'polybar' ];then
-	dir="/usr/share/my_stuff/system_files/blob/polybar"
+	dir="${__distro_path_root}/system_files/blob/polybar"
 else
-	dir="/usr/share/my_stuff/system_files/blob/tint2"
+	dir="${__distro_path_root}/system_files/blob/tint2"
 fi
 
 styles="$(find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name "default" ! -name "dynamic" -exec basename {} \; | sort)"

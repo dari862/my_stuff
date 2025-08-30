@@ -81,8 +81,8 @@ if [[ -n "$no_sensors" ]];then
   	--list --tree --tree-expanded --no-selection --column="Sensor" --column="Value" &
   	_Sensors_tab_='--tab="Sensors"'
 fi
-
-. "/usr/share/my_stuff/os-release"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/os-release"
 # Main dialog
 TXT="<b>Hardware system information</b>\\n\\n"
 TXT+="\\tOS: $distro_desc on $hostname\\n"

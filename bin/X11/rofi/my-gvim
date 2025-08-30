@@ -19,15 +19,16 @@
 #  /usr/bin/vim.* starting with the letter 'g' like /etc/alternatives/gvim or
 #  gnome-text-editor actually invoke GUI mode (without using the -g option).
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 GVIM="$(readlink -e /etc/alternatives/gvim)"
-SELF="/usr/share/my_stuff/bin/bin/my-gvim"
+SELF="${__distro_path_root}/bin/bin/my-gvim"
 case $GVIM in
 "")
     ERROR="gvim is missing or not installed."
     RX="Install vim-gnome, vim-gtk, or vim-athena."
     if [ "$DISPLAY" ];then
         TEXT="<big>$ERROR</big>\n\n$RX"
-        . "/usr/share/my_stuff/lib/common/WM"
+        . "${__distro_path_root}/lib/common/WM"
 		. "${Distro_config_file}"
 		rofi -e "$TEXT" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
     else

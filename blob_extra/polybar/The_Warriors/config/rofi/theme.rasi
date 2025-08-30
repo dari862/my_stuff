@@ -8,6 +8,6 @@ highlight:			#BE00CD;
 urgent:				#AC0000;
 on:					#9c0598;
 off:				#AC0000;
-img-background: url("/usr/share/my_stuff/blob/polybar/The_Warriors/preview.jpg", width);
+img-background: url("(((distro_path_root)))/blob/polybar/The_Warriors/preview.jpg", width);
 
 }

@@ -6,7 +6,7 @@ prompt "  Do you want to set $app_name as default package?"  || set_as_default_p
 
 ###################################################################
 
-Disto_path="/usr/share/my_stuff"
+Disto_path="${__distro_path_root}"
 
 say "Installing ${app_name}..." 1
 

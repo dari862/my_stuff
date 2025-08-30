@@ -2,11 +2,12 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=Style_Manager
 
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 . "${Distro_config_file}"
 
-GLOBALBLOBPATH="/usr/share/my_stuff/system_files/blob"
+GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
 BLOBPATH="$HOME/.config"
 CURSESSION="$WM_config_dir/tint2_style"
 
@@ -129,9 +130,9 @@ Launch_YAD_(){
 	### END CONFIGS VARIABLES
 	
 	### DIALOG VARIABLES
-	DIALOG="yad --center --undecorated --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
-	DIALOGDEC="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
-	yadWarning="yad --center  --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --title Alert  --button='Ok:1' --button='Cancel:0' --text"
+	DIALOG="yad --center --undecorated --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
+	DIALOGDEC="yad --center  --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
+	yadWarning="yad --center  --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --title Alert  --button='Ok:1' --button='Cancel:0' --text"
 	TITLE="BLOB Config Manager"
 	CANCEL="--button=Cancel:1"
 	EXIT="--button=Quit:1"

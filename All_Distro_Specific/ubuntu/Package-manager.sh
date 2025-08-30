@@ -115,3 +115,9 @@ pacstall_install(){
 		pacstall -I $package
 	done
 }
+
+add_repo() {
+	repo_name="${1:-}"
+	repo_value="${2:-}"
+	printf '%s\n' "${repo_value}" | my-superuser tee -a "/etc/apt/sources.list.d/${repo_name}.list" > /dev/null 2>&1
+}

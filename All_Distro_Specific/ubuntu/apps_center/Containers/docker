@@ -1,0 +1,50 @@
+#!/bin/sh
+pre_app_name="ca-certificates"
+app_name="docker-ce"
+extra_apps_="docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras"
+__newGroup="docker"
+
+if [ ! -f "${__distro_path_root}/system_files/Container_Group_docker" ];then	
+	say "Installing ${pre_app_name} ..." 1
+	Package_installer_ "${pre_app_name}" || continue
+
+	if [ ! -f /etc/apt/keyrings/docker.asc ];then
+		. "${__distro_path_root}/os-release"
+		my-superuser install -m 0755 -d /etc/apt/keyrings
+		download_key "download" "https://download.docker.com/linux/ubuntu/gpg" "/etc/apt/keyrings/docker.asc"
+	fi
+	
+	if [ ! -f /etc/apt/sources.list.d/docker.list ];then
+		# Add the repository to Apt sources:
+		add_repo "docker" "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$distro_name $version_codename stable"
+	fi
+	
+	Package_update_
+	
+	clear
+	
+	say "Installing ${app_name}..." 1
+	
+	Package_installer_ "${app_name} ${extra_apps_}" || continue
+	
+	my-superuser usermod -aG docker ${USER} || :
+	service_manager enable docker.service || :
+	service_manager enable containerd.service || :
+	
+	my-superuser gpasswd -a ${USER} docker || :
+	my-superuser service docker restart
+	
+	if ! grep -q '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' /etc/docker/daemon.json;then
+		# Limit log size to avoid running out of disk
+		echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' | my-superuser tee -a /etc/docker/daemon.json > /dev/null
+	fi
+	
+	create_applicationsdotdesktop_link "Docker"
+	
+	echo "${__newGroup}" | my-superuser tee "${__distro_path_root}/system_files/Container_Group_docker" > /dev/null 2>&1
+	logout_now "$container_software installed successfully."
+else	
+	if ! groups | grep -q "${__newGroup}";then
+		logout_now "$container_software installed successfully."
+	fi
+fi	

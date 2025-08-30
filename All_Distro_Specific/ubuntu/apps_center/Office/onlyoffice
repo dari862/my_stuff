@@ -1,0 +1,21 @@
+#!/bin/sh
+app_name="onlyoffice-desktopeditors"
+
+say 'add onlyoffice sources...' 1
+mkdir -p -m 700 ~/.gnupg
+gpg --no-default-keyring --keyring gnupg-ring:~/.gnupg/onlyoffice.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys CB2DE8E5
+chmod 644 ~/.gnupg/onlyoffice.gpg
+my-superuser chown root:root ~/.gnupg/onlyoffice.gpg
+my-superuser mv ~/.gnupg/onlyoffice.gpg /usr/share/keyrings/onlyoffice.gpg
+add_repo "onlyoffice" 'deb [signed-by=/usr/share/keyrings/onlyoffice.gpg] https://download.onlyoffice.com/repo/debian squeeze main'
+
+Package_update_
+
+say 'Installing package...' 1
+
+Package_installer_ "${app_name}" || continue
+
+
+
+
+

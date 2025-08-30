@@ -1,16 +1,17 @@
 #!/bin/sh -e
 # if this line exist script will be part of gui scripts.new_name=Script_Hub
 
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 
-_hub_script_dir="/usr/share/my_stuff/system_files/hub_script"
+_hub_script_dir="${__distro_path_root}/system_files/hub_script"
 opt___="${1-}"
 
 if [ "$opt___" = "create" ];then
 	# need superuser here
 	mkdir -p "${_hub_script_dir}"
-	_script_for_hub="$(grep -RI "^# if this line exist script will be part of hub script." "/usr/share/my_stuff/bin" | awk -F: '{print $1}')"
+	_script_for_hub="$(grep -RI "^# if this line exist script will be part of hub script." "${__distro_path_root}/bin" | awk -F: '{print $1}')"
 		for script in ${_script_for_hub};do
 			ln -sf "$script" "${_hub_script_dir}"
 		done

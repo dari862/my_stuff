@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 sleep_time="${2:-0}"
 
 stop(){
@@ -13,13 +14,12 @@ stop(){
 			fi
 		done
 	fi
-	wait
 }
 
 start() {
 	sleep $sleep_time 
 	kill_process.sh xfce4-power-manager
-	pgrep -f my_power_manager 2>/dev/null || setsid my_power_manager &
+	( pgrep -f my_power_manager 2>/dev/null || setsid my_power_manager ) &
 }
 
 case "${1}" in

@@ -1,5 +1,6 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 rofi_command() {
 	rofi -no-config -no-lazy-grab  -dmenu -i -p '' -sep '|' -theme "$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"

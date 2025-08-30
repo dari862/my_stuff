@@ -12,7 +12,8 @@ applications="$HOME/.local/share/applications/lobster" # Used for external menus
 images_cache_dir="$tmp_dir/lobster-images"             # Used for storing downloaded images of movie covers
 
 ### user conf ###
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${script_config_path}/My_TV/movie.conf"
 
 histfile="$data_dir/lobster_history.txt"

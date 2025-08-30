@@ -1,10 +1,10 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=URL_Downloader
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 title_name="URL Downloader"
 icon_name="url_downloader"
-icon="/usr/share/my_stuff/icons/${icon_name}.png"
+icon="${__distro_path_root}/icons/${icon_name}.png"
 
 download_it()
 {

@@ -159,7 +159,7 @@ EOF
 	append_xbindkey_shortcut "htop task manager" "sysinfo_script_ --process" "$htop_task_manager"
 	append_xbindkey_shortcut "Lock Screen" "my_session_manager_cli lock" "$xbindkeysrc_Lock_Screen"
 	append_xbindkey_shortcut "Logout" "my_session_manager_cli logout" "$xbindkeysrc_Logout"
-	append_xbindkey_shortcut "Kill a Window" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse" "$Kill_a_Window"
+	append_xbindkey_shortcut "Kill a Window" "${__distro_path_root}/bin/X11/not_add_2_path/kill_window_with_mouse" "$Kill_a_Window"
 	append_xbindkey_shortcut "Print Screen" "my-shots" "$Print_Screen"
 	append_xbindkey_shortcut "Print Screen area" "my-shots --area" "$Print_Screen_area"
 	append_xbindkey_shortcut "Print Screen with 10s delay" "my-shots --delay 10" "$Print_Screen_with_10s_delay"
@@ -1380,7 +1380,7 @@ EOF
     generate_openbox_keybind "$Restart" "Restart"
     generate_openbox_keybind "$Reconfigure" "Reconfigure"
     generate_openbox_keybind "$Openbox_Close" "Close"
-    generate_openbox_keybind "$Execute_window_kill" "Execute" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse"
+    generate_openbox_keybind "$Execute_window_kill" "Execute" "${__distro_path_root}/bin/X11/not_add_2_path/kill_window_with_mouse"
     echo "<!--  Screenshot Keys -->"
     generate_openbox_keybind "$Print_Screen" "Execute" "my-shots"
     generate_openbox_keybind "$Execute_ac_shots_delay_5" "Execute" "my-shots --delay 5"
@@ -1535,7 +1535,7 @@ create_sxhkd_tmp_file(){
 		echo "##---------- Bspwm ----------##" >> "$temp_sxhkd_file_path"
 		append_sxhkd "$Close_App" "bspc node -{c,k}" "Close App"
 		append_sxhkd "$Reload_Keybindings" "pkill -USR1 -x sxhkd" "Reload Keybindings"
-		append_sxhkd "$kill_window" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse" "kill window"
+		append_sxhkd "$kill_window" "${__distro_path_root}/bin/X11/not_add_2_path/kill_window_with_mouse" "kill window"
 		append_sxhkd "$Restart_bspwm" "bspc wm -r" "Restart bspwm"
 		append_sxhkd "$Quit_bspwm" "bspc quit" "Quit bspwm"
 		append_sxhkd "$Split_horizontal_vertical_or_cancel" "bspc node -p {east,south,cancel}" "Split horizontal, vertical or cancel"
@@ -1813,7 +1813,7 @@ sed_lxterminal(){
 }
 
 create_pipemenu_file(){
-	. "/usr/share/my_stuff/lib/common/pipemenu"
+	. "${__distro_path_root}/lib/common/pipemenu"
 	
 	tee "${temp_openbox_pipemenu_file_path}" <<- EOF >/dev/null
 	Switch_Keyboard_Languge="${Switch_Keyboard_Languge}"
@@ -2013,7 +2013,7 @@ create_pipemenu_file(){
 		[ -n "${Restart}" ] && menuItem "${Restart}	-	Restart" "xdotool key ${Restart}"
 		[ -n "${Reconfigure}" ] && menuItem "${Reconfigure}	-	Reconfigure" "xdotool key ${Reconfigure}"
 		[ -n "${Openbox_Close}" ] && menuItem "${Openbox_Close}	-	Openbox_Close" "xdotool key ${Openbox_Close}"
-		[ -n "${Execute_window_kill}" ] && menuItem "${Execute_window_kill}	-	kill prosses with curser" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse"
+		[ -n "${Execute_window_kill}" ] && menuItem "${Execute_window_kill}	-	kill prosses with curser" "${__distro_path_root}/bin/X11/not_add_2_path/kill_window_with_mouse"
   		
 		
 		menuSeparator "Screenshot Keys"

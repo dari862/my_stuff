@@ -9,9 +9,10 @@
 # CREATED: 2021.09.21
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 if [ ! -f "${script_config_path}/welcome_keybinds" ];then
-	. "/usr/share/my_stuff/system_files/welcome_keybinds" 
+	. "${__distro_path_root}/system_files/welcome_keybinds" 
 else
 	. "${script_config_path}/welcome_keybinds"
 fi

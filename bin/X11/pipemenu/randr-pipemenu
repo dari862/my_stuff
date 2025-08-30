@@ -159,7 +159,7 @@ done < <(get_xrandr_info)
 echo "<separator label=\"Shortcuts\" />"
 echo "<item label=\"Automatic\">"
 echo "<action name=\"execute\">"
-echo "<command>xrandr --auto</command>"
+echo "<command>displayselect auto noninteractive</command>"
 echo "</action>"
 echo "</item>"
 

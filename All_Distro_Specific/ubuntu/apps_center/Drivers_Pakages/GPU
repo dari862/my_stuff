@@ -34,9 +34,9 @@ install_nvidia_drivers(){
 	prompt '  do you want to add Cuda Support?' && _cuda_="nvidia-cuda-toolkit"
 	prompt 'do you want to install opensource nvidia-kernel?' && _kernel_open_dkms_="nvidia-dkms"
 	
-	. "/usr/share/my_stuff/os-release"
+	. "${__distro_path_root}/os-release"
 	download_key "gpg" "https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/3bf863cc.pub" "/usr/share/keyrings/nvidia-drivers.gpg"
-	echo "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /" | my-superuser tee /etc/apt/sources.list.d/nvidia-drivers.list > /dev/null 2>&1
+	add_repo "nvidia" "deb [signed-by=/usr/share/keyrings/nvidia-drivers.gpg] https://developer.download.nvidia.com/compute/cuda/repos/$distro_name_and_ver_/x86_64/ /"
 	
 	Package_update_ || continue
 
@@ -68,7 +68,7 @@ if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];the
 	say "This is VM"
 fi
 
-my-superuser  /usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+my-superuser  ${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
 
 say "Creating Check File (GPU_Drivers_ready)"
-my-superuser touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
+my-superuser touch ${__distro_path_root}/system_files/GPU_Drivers_ready

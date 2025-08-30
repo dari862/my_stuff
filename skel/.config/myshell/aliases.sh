@@ -1,19 +1,4 @@
 #######################################################
-# MACHINE SPECIFIC ALIAS'S
-#######################################################
-
-# Alias's for SSH
-# alias SERVERNAME='ssh YOURWEBSITE.com -l USERNAME -p PORTNUMBERHERE'
-
-# Alias's to change the directory
-alias web='cd /var/www/html'
-
-# Alias's to mount ISO files
-# mount -o loop /home/NAMEOFISO.iso /home/ISOMOUNTDIR/
-# umount /home/NAMEOFISO.iso
-# (Both commands done as root only.)
-
-#######################################################
 # GENERAL ALIAS'S
 #######################################################
 # To temporarily bypass an alias, we precede the command with a \
@@ -23,15 +8,12 @@ alias web='cd /var/www/html'
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# alias to show the date
-alias da='date "+%Y-%m-%d %A %T %Z"'
-
 # Alias's to modified commands
 alias cp='cp -iv'
 alias mv='mv -iv'
 alias mkdir='mkdir -pv'
 alias ps='ps auxf'
-alias ping='ping -c 10'
+alias ping4='ping -c 4'
 alias less='less -R'
 alias cls='clear'
 alias multitail='multitail --no-repeat -c'
@@ -94,9 +76,6 @@ alias countfiles="for t in files links directories; do echo \`find . -type \${t:
 # To see if a command is aliased, a file, or a built-in command
 alias checkcommand="type -t"
 
-# Show open ports
-alias openports='netstat -nape --inet'
-
 # Alias's for safe and forced reboots
 alias rebootsafe='my-superuser shutdown -r now'
 alias rebootforce='my-superuser shutdown -r -n now'
@@ -113,14 +92,6 @@ alias df='df -hT'
 alias du='du -h'
 alias mountedinfo='df'
 
-# Alias's for archives
-alias mktar='tar -cvf'
-alias mkbz2='tar -cvjf'
-alias mkgz='tar -cvzf'
-alias untar='tar -xvf'
-alias unbz2='tar -xvjf'
-alias ungz='tar -xvzf'
-
 # Show all logs in /var/log
 alias logs="my-superuser find /var/log -type f -exec file {} \; | grep 'text' | cut -d' ' -f1 | sed -e's/:$//g' | grep -v '[0-9]$' | xargs tail -f"
 
@@ -136,21 +107,11 @@ alias ports="ss -lntu"
 alias sports="my-superuser ss -lntu"
 
 # These common commands are just too long! Abbreviate them.
-alias ping4="ping -c4"
 alias getpass="openssl rand -base64 20"
 alias www="python -m SimpleHTTPServer 8000"
 alias qf="find . |grep"
 alias ka="killall"
-alias g="git"
-alias sdn="shutdown -h now"
-alias e="$EDITOR"
-alias v="$EDITOR"
 alias pdf="zathura"
-
-# Git
-alias gcm='git commit -m'
-alias gcam='git commit -a -m'
-alias gcad='git commit -a --amend'
 
 # my trash script
 alias rm='trash_it'
@@ -162,6 +123,8 @@ alias trim_all='my-superuser fstrim -va'
 alias cleanup_ram="my-superuser sh -c 'sync; echo 3 >/proc/sys/vm/drop_caches'"
 
 # my-superuser not required for some system commands
-for command in mount umount sv apt updatedb su shutdown poweroff reboot freshclam; do
+for command in mount umount sv apt updatedb shutdown poweroff reboot; do
 	alias $command="my-superuser $command"
 done; unset command
+
+alias ff="fzf --preview 'bat --style=numbers --color=always {}'"

@@ -6,7 +6,8 @@ if ! command -v setxkbmap >/dev/null;then
 	exit 1
 fi
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 opt__="${1-h}"

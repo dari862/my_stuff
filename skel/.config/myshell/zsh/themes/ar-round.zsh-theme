@@ -34,4 +34,4 @@ function git_prompt_info() {
 
 # Left and right prompt
 PROMPT='$(git_prompt_info) ${user_symbol} '
-RPROMPT='${background_jobs} ${non_zero_return_value} ${dir_path}'
+RPROMPT='${background_jobs} ${non_zero_return_value} ${SSH_MESS} ${dir_path}'

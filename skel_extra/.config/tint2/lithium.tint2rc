@@ -2,7 +2,7 @@
 # TINT2 CONFIG FILE "lithium.tint2rc"
 #
 ## My Stuff User config files
-## All default My Stuff user config files are located in /usr/share/my_stuff/skel.
+## All default My Stuff user config files are located in (((distro_path_root)))/skel.
 ## The script skel_user_setup_ copies them to the user $HOME directory on first login.
 ## See more info with command 'skel_user_setup_ --help'
 #
@@ -283,7 +283,7 @@ tooltip_font = Sans normal 10
 
 # Show Root Menu (BL-flame icon)
 button = new
-button_icon = /usr/share/my_stuff/Distro_Specific/icons/linux.svg
+button_icon = (((distro_path_root)))/Distro_Specific/icons/linux.svg
 button_text =
 button_tooltip = Main Menu
 button_lclick_command = rofi-launcher
@@ -299,7 +299,7 @@ button_max_icon_size = 28
 
 # Exit dialog (Power icon)
 button = new
-#button_icon = /usr/share/my_stuff/icons/exit/light/poweroff.png
+#button_icon = (((distro_path_root)))/icons/exit/light/poweroff.png
 button_icon = system-shutdown-symbolic
 button_text =
 button_tooltip = Logout/Shutdown...

@@ -1,20 +1,20 @@
-export my_stuff_display_manager_lib_path="/usr/share/my_stuff/display_server/X11"
+export my_stuff_display_manager_lib_path="${__distro_path_root}/display_server/X11"
 usr_autostart="$usr_confdir/openbox/autostart"
 usr_envfile="$usr_confdir/openbox/environment"
 default_autostart="${OBPATH_SKEL}"
 
-if [ -d "/usr/share/my_stuff/bin/X11/openbox" ];then
-   	PATH="/usr/share/my_stuff/bin/X11/openbox:$PATH"
+if [ -d "${__distro_path_root}/bin/X11/openbox" ];then
+   	PATH="${__distro_path_root}/bin/X11/openbox:$PATH"
 fi
 	
-if [ -d "/usr/share/my_stuff/bin/X11/pipemenu" ];then
-   	PATH="/usr/share/my_stuff/bin/X11/pipemenu:$PATH"
+if [ -d "${__distro_path_root}/bin/X11/pipemenu" ];then
+   	PATH="${__distro_path_root}/bin/X11/pipemenu:$PATH"
 fi
 
-if [ -d "/usr/share/my_stuff/system_files/binX11" ];then
-	PATH="/usr/share/my_stuff/system_files/binX11:$PATH"
+if [ -d "${__distro_path_root}/system_files/binX11" ];then
+	PATH="${__distro_path_root}/system_files/binX11:$PATH"
 else
-	echo "ERROR: /usr/share/my_stuff/system_files/bin Does not exist."
+	echo "ERROR: ${__distro_path_root}/system_files/bin Does not exist."
 fi
 
 # Clean up after GDM (GDM sets the number of desktops to one).
@@ -32,4 +32,4 @@ xprop -root -remove _NET_NUMBER_OF_DESKTOPS \
 test -r "$usr_envfile" && . "$usr_envfile" || echo "$0: cannot source $usr_envfile" >&2
 
 # Run Openbox, and have it run the autostart stuff
-exec /usr/bin/openbox --config-file "${usr_confdir}/openbox/rc.xml" --startup "/usr/share/my_stuff/lib/xsessions/openbox_files/openbox-autostart OPENBOX" "$@"	
+exec /usr/bin/openbox --config-file "${usr_confdir}/openbox/rc.xml" --startup "${__distro_path_root}/lib/xsessions/openbox_files/openbox-autostart OPENBOX" "$@"	

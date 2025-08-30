@@ -1,9 +1,10 @@
 #!/bin/sh
 # scripts list are from https://github.com/NapoleonWils0n/ffmpeg-scripts
 # === Config ===
+. "/usr/share/my_stuff/lib/common/Distro_path"
 script_name="${1:-}"
 shift
-ffmpeg_scripts_path="/usr/share/my_stuff/bin/extra/ffmpeg_scripts"
+ffmpeg_scripts_path="${__distro_path_root}/bin/extra/ffmpeg_scripts"
 
 # === Colors ===
 RED='\033[0;31m'

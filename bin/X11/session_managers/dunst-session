@@ -7,7 +7,6 @@ __edit() {
 
 stop() {
 	kill_process.sh dunst
-	wait
 }
 
 start() {

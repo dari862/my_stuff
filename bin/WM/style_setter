@@ -1,4 +1,5 @@
 #!/bin/bash
+. "/usr/share/my_stuff/lib/common/Distro_path"
 __opt_="${1:-}"
 __opt2_="${2:-}"
 no_wall=false
@@ -13,16 +14,16 @@ elif [ "$__opt2_" = '--no-wall' ];then
 else
 	style="${__opt_}"
 fi
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/openbox"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 . "${Distro_config_file}"
 
 show_em(){
 	echo "[ERROR] $0 : $1"
 }
 
-GLOBALBLOBPATH="/usr/share/my_stuff/system_files/blob"
-GLOBALDYNAMICBLOBPATH="/usr/share/my_stuff/blob_dynamic/dynamic_theme"
+GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
+GLOBALDYNAMICBLOBPATH="${__distro_path_root}/blob_dynamic/dynamic_theme"
 CONFIG_PATH="$HOME/.config"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
@@ -54,9 +55,9 @@ OB_themeing(){
 }
 
 Set_Style_(){
-	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "/usr/share/my_stuff/skel_extra/.config/dunst/global" "$HOME/.config/dunst"
-	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "/usr/share/my_stuff/skel_extra/.config/dunst/experimental" "$HOME/.config/dunst"
-	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "/usr/share/my_stuff/skel_extra/.config/dunst/theme.dunstrc" "$HOME/.config/dunst"
+	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/global" "$HOME/.config/dunst"
+	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/experimental" "$HOME/.config/dunst"
+	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/theme.dunstrc" "$HOME/.config/dunst"
 	cat $HOME/.config/dunst/global $HOME/.config/dunst/theme.dunstrc > $HOME/.config/dunst/dunstrc
 	OB_themeing
 }

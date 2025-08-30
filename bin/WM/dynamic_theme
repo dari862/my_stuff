@@ -1,4 +1,5 @@
 #!/bin/sh
+. "/usr/share/my_stuff/lib/common/Distro_path"
 wallpaper="${1:-}"
 
 show_em(){
@@ -12,7 +13,7 @@ else
 	wallpaper="$(realpath "${wallpaper}")"
 fi
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 style="dynamic"
@@ -28,7 +29,7 @@ setbg -s "${wallpaper}"
 
 theme_color_creater_output_folder="/tmp/$USER/theme_color_creater_output"
 
-/usr/share/my_stuff/bin/WM/dynamic_theme_scripts/theme_color_creater "${style}" "$theme_color_creater_output_folder" "${wallpaper}" || show_em "failed to run system_default_colors"
+${__distro_path_root}/bin/WM/dynamic_theme_scripts/theme_color_creater "${style}" "$theme_color_creater_output_folder" "${wallpaper}" || show_em "failed to run system_default_colors"
 
 blob_dunstrc_theme_path="${STYLEPATH}/config/dunst"
 mkdir -p "$blob_dunstrc_theme_path"
@@ -52,6 +53,7 @@ if [ "$_panel_name_" = 'polybar' ];then
 elif [ "$_panel_name_" = 'tint2' ];then
 	echo "/.config/tint2/${style}.tint2rc" > "${STYLEPATH}/config/tint2/tint2-sessionfile"
 	cp -r "${theme_color_creater_output_folder}/colors-tint2rc.conf" "$HOME/.config/tint2/${style}.tint2rc"
+	sed -i "s/(((distro_path_root)))/${__distro_path_root}/g" "$HOME/.config/tint2/${style}.tint2rc"
 	sed -i "s|greeter_background=.*|greeter_background=\"${wallpaper}\"|g" "$STYLEPATH/$style/lightdm-gtk-greeter.conf"
 fi
 	

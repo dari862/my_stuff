@@ -4,7 +4,8 @@
 # Calculator for use with rofi.
 # Copying to the clipboard requires xclip
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 copy_to_clipboard() {

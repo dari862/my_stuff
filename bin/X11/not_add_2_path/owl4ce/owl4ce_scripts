@@ -1,10 +1,10 @@
 #!/bin/sh
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 exec 3>&1 # show output if redirected to  >&3 
 exec >/dev/null 2>&1 # show nothing
 
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_vars.sh"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_vars.sh"
 
 . "${Distro_config_file}"
 
@@ -101,11 +101,11 @@ send_notification(){
 	_ttt="${5-}"
 	if [ -z "$_ttt" ];then
 		dunstify "$_SUMMARY" "$_BODY" -h string:synchronous:$_header \
-              	-i "/usr/share/my_stuff/icons/eyecandy/${_icon}" \
+              	-i "${__distro_path_root}/icons/eyecandy/${_icon}" \
               	-u low
     else
     	dunstify "$_SUMMARY" "$_BODY" -h string:synchronous:$_header \
-              	-i "/usr/share/my_stuff/icons/eyecandy/${_icon}" \
+              	-i "${__distro_path_root}/icons/eyecandy/${_icon}" \
               	-t $_ttt
     fi
 }

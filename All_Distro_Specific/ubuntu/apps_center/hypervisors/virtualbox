@@ -8,11 +8,11 @@ file_location="${temp_dir}/VirtualBox_Extension_Pack.vbox-extpack"
 extra_apps_="linux-headers-$(uname -r) dkms virtualbox-$virtualbox_version"
 
 say 'Installing package...' 1
-. "/usr/share/my_stuff/os-release"
+. "${__distro_path_root}/os-release"
 Package_installer_ gnupg2 || failed_to_run "to install gnupg2"
 download_key "gpg" "https://www.virtualbox.org/download/oracle_vbox_2016.asc" "/etc/apt/trusted.gpg.d/vbox.gpg"
 download_key "gpg" "https://www.virtualbox.org/download/oracle_vbox.asc" "/etc/apt/trusted.gpg.d/oracle_vbox.gpg"
-echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $version_codename contrib" | my-superuser tee /etc/apt/sources.list.d/virtualbox.list > /dev/null 2>&1
+add_repo "virtualbox" "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $version_codename contrib"
 
 Package_update_ || failed_to_run "failed to update"
 

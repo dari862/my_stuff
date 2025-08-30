@@ -5,13 +5,11 @@ if [[ -z $ZSH_THEME ]];then
   ZSH_THEME="pure"
 fi
 
-if [[ -n $SSH_THEME ]];then
-  ZSH_THEME="${SSH_THEME}"
-fi
+[[ -n $SSH_CONNECTION ]] && SSH_MESS="-ssh"
 
 command -v pfetch &>/dev/null && pfetch
 
-fpath+=("/usr/share/my_stuff/system_files/completion/zsh")
+fpath+=("(((distro_path_root)))/system_files/completion/zsh")
 
 # --------- theme Applyer ------
 # Configure color-scheme

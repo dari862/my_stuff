@@ -4,7 +4,7 @@ app_name="typora"
 Package_update_
 
 download_key "gpg" "https://typora.io/linux/public-key.asc" "/usr/share/keyrings/typora.gpg"
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/typora.gpg] https://typora.io/linux ./" | my-superuser tee /etc/apt/sources.list.d/typora.list
+add_repo "typora" "deb [arch=amd64 signed-by=/usr/share/keyrings/typora.gpg] https://typora.io/linux ./"
 
 Package_update_
 

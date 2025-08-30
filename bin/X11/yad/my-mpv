@@ -4,6 +4,7 @@
 
 # wrapper for mpv to enable use as alternative for my-media-player
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 MPV_PROFILE=my-pseudo-gui
 
 check_4_dependencies_if_installed mpv || exit 1
@@ -50,7 +51,7 @@ run_video_using_mpv(){
 
 if [ -z "$@" ];then
 	icon_name="yad-mpv"
-	icon="/usr/share/my_stuff/icons/${icon_name}.png"
+	icon="${__distro_path_root}/icons/${icon_name}.png"
 		
     MPVFILE="$(yad --form --window-icon="${icon}" --title="yad-mpv" --width=500 --height=100 --button="OK!gtk-ok!OK:0" --button="close!gtk-cancel!close:1" --separator=" " --text="yad-mpv\n\nSelect the files you would like to play or input a url to play.\n\n\n" --field="File(s)":MFL "" )"
     case $? in

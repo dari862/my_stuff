@@ -6,6 +6,6 @@ clear
 	
 say 'Installing package...' 1
 	
-echo 'deb [signed-by=/usr/share/keyrings/xanmod-archive-keyring.gpg] http://deb.xanmod.org releases main' | my-superuser tee /etc/apt/sources.list.d/xanmod-kernel.list >/dev/null 2>&1
+add_repo "xanmod-kernel" 'deb [signed-by=/usr/share/keyrings/xanmod-archive-keyring.gpg] http://deb.xanmod.org releases main'
 download_key "download" "https://dl.xanmod.org/archive.key" "/usr/share/keyrings/xanmod-archive-keyring.gpg"
 Package_update_ && Package_installer_ linux-xanmod-x64v3

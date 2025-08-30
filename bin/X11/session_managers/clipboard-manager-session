@@ -26,7 +26,7 @@ stop() {
 	for prosses in diodon parcellite clipmanager xfce4-clipman greenclip;do
 		pidof -q ${prosses} && prosses2kill="$prosses2kill $prosses"
 	done
-	
+		
 	for kill in ${prosses2kill};do
 		kill_process.sh $kill &
 	done
@@ -34,8 +34,6 @@ stop() {
 	if pgrep -f "yad.*--class=yadclip" >/dev/null 2>&1;then
 		pkill -f "yad.*--class=yadclip" >/dev/null 2>&1
 	fi
-	
-	wait
 }
 
 start() {

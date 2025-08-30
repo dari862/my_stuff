@@ -1,5 +1,9 @@
-#!/bin/sh -e
-app_name="onlyoffice"
+#!/bin/sh
+app_name="onlyoffice-bin"
+say 'Installing package...' 1
+Package_installer_ "${app_name}" || continue
 
-say "Installing ${app_name}..." 1
-Package_installer_ onlyoffice
+
+
+
+

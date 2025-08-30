@@ -4,12 +4,9 @@
 # for examples
 # -------------------------------  Checks  -----------------------------------
 # If not running interactively, don't do anything
-case $- in
-    *i*) ;;
-      *) return;;
-esac
+[[ $- != *i* ]] && return
 
-iatest=$(expr index "$-" i)
+[[ -n $SSH_CONNECTION ]] && SSH_MESS="-ssh"
 
 command -v pfetch &>/dev/null && pfetch
 
@@ -23,6 +20,17 @@ mise
 command-not-found
 lesspipe
 )
+# Add all defined plugins to fpath. This must be done
+# before running compinit.
+if command -v zoxide >/dev/null 2>&1;then
+	bashplugin+=(zoxide)
+else
+	bashplugin+=(z)
+fi
+
+if command -v npm >/dev/null 2>&1;then
+	bashplugin+=(npm)
+fi
 
 # -------------------------------   Prompt  -----------------------------------
 # set variable identifying the chroot you work in (used in the prompt below)
@@ -34,17 +42,17 @@ if [[ -z $BASH_THEME ]];then
   BASH_THEME="pure"
 fi
 
-if [[ -n $SSH_THEME ]];then
-  BASH_THEME="${SSH_THEME}"
-fi
-
 if [[ -f "$BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme" ]];then
   		source "$BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme"
 else
     	echo "BASH theme: $BASH_THEME not found"
 fi
 
-# --------------------------------- SETTINGS ----------------------------------
+# --------------------------------- Settings ----------------------------------
+
+# --------------------------------- History ----------------------------------
+# Allow ctrl-S for history navigation (with ctrl-R)
+stty -ixon
 # Expand the history size
 export HISTFILESIZE=10000
 export HISTSIZE=500
@@ -54,19 +62,14 @@ export HISTFILE=$BASHDOTDIR/bash_history
 # Don't put duplicate lines in the history and do not add lines that start with a space
 export HISTCONTROL=erasedups:ignoredups:ignorespace
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
-
-# Causes bash to append to history instead of overwriting it so if you start a new terminal, you have old session history
-shopt -s histappend
-PROMPT_COMMAND='history -a'
-
-# Source global definitions
-if [ -f /etc/bashrc ];then
-	. /etc/bashrc
-fi
-
+# Better history management
+shopt -s histappend              # Append to history, don't overwrite
+shopt -s checkwinsize            # Check window size after each command
+shopt -s cdspell                 # Autocorrect typos in path names when using cd
+shopt -s dirspell                # Correct directory name typos
+shopt -s autocd                  # Type directory name to cd
+shopt -s nocaseglob              # Case-insensitive globbing
+shopt -s extglob                 # Extended pattern matching
 # The command shopt -s globstar in bash enables the use of the globstar pattern (**) for filename expansion.
 # By default, the * wildcard in bash only matches files within the current directory level.
 # The ** pattern, also known as globstar, allows matching files across multiple subdirectories within a directory tree.
@@ -75,14 +78,13 @@ fi
 # ls dir/* - This will only list files directly inside the "dir" directory.
 # With globstar enabled (shopt -s globstar):
 # ls dir/**/*.txt - This will list all .txt files within the "dir" directory and all its subdirectories.
-
 shopt -s globstar
 
 # Disable the bell
-if [[ "$iatest" -gt 0 ]];then bind "set bell-style visible"; fi
+if [[ "$(expr index "$-" i)" -gt 0 ]];then bind "set bell-style visible"; fi
 
-# Allow ctrl-S for history navigation (with ctrl-R)
-[[ $- == *i* ]] && stty -ixon
+# Immediately write history
+PROMPT_COMMAND='history -a'
 
 # ---------------------------------   binds  ----------------------------------
 # below line make bash when pressing ctrl+f runs commnad zi .
@@ -119,18 +121,6 @@ if [ -f "$My_shell_DIR"/functions.sh ];then
 fi
 
 # ------------------------------- BASH PLUGINS Applyer --------------------------
-# Add all defined plugins to fpath. This must be done
-# before running compinit.
-if command -v zoxide >/dev/null 2>&1;then
-	bashplugin+=(zoxide)
-else
-	bashplugin+=(z)
-fi
-
-if command -v npm >/dev/null 2>&1;then
-	bashplugin+=(npm)
-fi
-
 for bashplugin in ${bashplugins[@]}; do
 	if builtin test -f $BASHDOTDIR/plugins/${bashplugin}.plugin.bash;then
   		source $BASHDOTDIR/plugins/${bashplugin}.plugin.bash
@@ -138,9 +128,10 @@ for bashplugin in ${bashplugins[@]}; do
     		echo "plugin '$bashplugin' not found"
   	fi
 done
+
 # ---------------------------------  completion  ----------------------------------
-if [ -d "/usr/share/my_stuff/system_files/completion/bash" ];then
-	for f in "/usr/share/my_stuff/system_files/completion/bash"/*;do
+if [ -d "(((distro_path_root)))/system_files/completion/bash" ];then
+	for f in "(((distro_path_root)))/system_files/completion/bash"/*;do
 		[ -f "$f" ] && source $f
 	done
 fi

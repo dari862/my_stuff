@@ -3,7 +3,7 @@ app_name="github-desktop"
 
 say "add Repo..." 1
 download_key "gpg" 'https://apt.packages.shiftkey.dev/gpg.key' '/usr/share/keyrings/shiftkey-packages.gpg'
-echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/shiftkey-packages.gpg] https://apt.packages.shiftkey.dev/ubuntu/ any main' '/etc/apt/sources.list.d/shiftkey-packages.list'
+add_repo "shiftkey-packages" 'deb [arch=amd64 signed-by=/usr/share/keyrings/shiftkey-packages.gpg] https://apt.packages.shiftkey.dev/ubuntu/ any main'
 
 say "Update Repo..." 1
 Package_update_

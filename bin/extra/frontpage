@@ -1,5 +1,6 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 
 tmp_dir="$(mktemp -d /tmp/$USER/frontpage_XXXXX)"
 input="${script_config_path}/frontpage-bookmarks"  # File containing your text

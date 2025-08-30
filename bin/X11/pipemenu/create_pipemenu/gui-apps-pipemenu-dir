@@ -1,9 +1,10 @@
 #!/bin/sh
-gui_scripts_dir="/usr/share/my_stuff/system_files/gui_scripts"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+gui_scripts_dir="${__distro_path_root}/system_files/gui_scripts"
 mkdir -p "${gui_scripts_dir}"
 
 mkdir -p "${gui_scripts_dir}"
-_script_for_dir="$(grep -R "# if this line exist script will be part of gui scripts." "/usr/share/my_stuff/system_files/bin" "/usr/share/my_stuff/system_files/binX11" "/usr/share/my_stuff/system_files/binWayland" 2>/dev/null | awk -F: '{print $1}')"
+_script_for_dir="$(grep -R "# if this line exist script will be part of gui scripts." "${__distro_path_root}/system_files/bin" "${__distro_path_root}/system_files/binX11" "${__distro_path_root}/system_files/binWayland" 2>/dev/null | awk -F: '{print $1}')"
 for script in ${_script_for_dir};do
 	new_name="$(grep "# if this line exist script will be part of gui scripts." "$script" | awk -F= '{print $2}')"
 	base_name="$(basename "$new_name")"

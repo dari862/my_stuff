@@ -2,7 +2,7 @@
 my-installer --install-needed "GPU" || continue
 
 app_name="Gaming Essential"
-. "/usr/share/my_stuff/os-release"
+. "${__distro_path_root}/os-release"
 distro_name_and_ver_3=$(printf "%s" "$distro_name_and_ver_2" | cut -c1 | tr '[:lower:]' '[:upper:]')$(printf "%s" "$distro_name_and_ver_2" | cut -c2-)
 
 SHELL_EXT="$(which gnome-shell >/dev/null 2>&1 && echo gnome-shell-extension-gamemode)"
@@ -11,7 +11,7 @@ say 'add new repo ...' 1
 [ ! -d "/etc/apt/keyrings" ] && my-superuser mkdir -pm755 /etc/apt/keyrings
 if ! dpkg -q lutris 2>/dev/null;then
 	download_key "gpg" "https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_3/Release.key" "/usr/share/keyrings/lutris.gpg"
-	echo "deb [signed-by=/usr/share/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_3/ ./" | my-superuser tee /etc/apt/sources.list.d/lutris.list > /dev/null 2>&1
+	add_repo "lutris" "deb [signed-by=/usr/share/keyrings/lutris.gpg] https://download.opensuse.org/repositories/home:/strycore/$distro_name_and_ver_3/ ./"
 fi
 
 if ! dpkg -q winehq-staging 2>/dev/null;then
@@ -41,8 +41,8 @@ Package_installer_ libavcodec59 steam-installer mesa-vulkan-drivers libglx-mesa0
 Package_installer_ libgl1-mesa-dri:amd64 libgl1-mesa-dri:i386  libgl1-mesa-glx:amd64 libgl1-mesa-glx:i386 steam-launcher || continue     
 my-superuser service dnsmasq restart || continue     
 my-superuser service resolvconf restart || continue     
-my-superuser mkdir -p "/usr/share/my_stuff/system_files/skel/Desktop" || continue     
-my-superuser ln -s ${_GAMING_EXTRA_LIBDIR}/Steam_fix /usr/share/my_stuff/system_files/skel/Desktop || continue     
+my-superuser mkdir -p "${__distro_path_root}/system_files/skel/Desktop" || continue     
+my-superuser ln -s ${_GAMING_EXTRA_LIBDIR}/Steam_fix ${__distro_path_root}/system_files/skel/Desktop || continue     
 for d in /home/*/ ; do
    	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
@@ -60,6 +60,6 @@ flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue
 flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     
 
 say "Creating Check File (Gaming_ready)"
-my-superuser rm -rf /usr/share/my_stuff/system_files/GPU_Drivers_ready
-my-superuser touch /usr/share/my_stuff/system_files/Gaming_ready
-/usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+my-superuser rm -rf ${__distro_path_root}/system_files/GPU_Drivers_ready
+my-superuser touch ${__distro_path_root}/system_files/Gaming_ready
+${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"

@@ -4,6 +4,6 @@ Comment=Manage Docker containers with LazyDocker
 Exec=my-terminal-emulator -e lazydocker
 Terminal=false
 Type=Application
-Icon=/usr/share/my_stuff/icons/Docker.png
+Icon=(((distro_path_root)))/icons/Docker.png
 Categories=GTK;
 StartupNotify=false

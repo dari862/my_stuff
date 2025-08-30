@@ -6,12 +6,13 @@
 # need atleast one: slop, imagemagick, miam
 # optional: xclip, grabc (for use with color picker)
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 # export running directory variables for use later
 export YADSHOT_PATH="$(readlink -f $0)"
 export RUNNING_DIR="$(dirname ${YADSHOT_PATH})"
-if [ -f "/usr/share/my_stuff/icons/yadshot.svg" ];then
-    export ICON_PATH="/usr/share/my_stuff/icons/yadshot.svg"
+if [ -f "${__distro_path_root}/icons/yadshot.svg" ];then
+    export ICON_PATH="${__distro_path_root}/icons/yadshot.svg"
 else
     export ICON_PATH="gtk-fullscreen"
 fi

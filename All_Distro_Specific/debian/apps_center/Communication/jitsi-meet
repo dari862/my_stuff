@@ -3,7 +3,7 @@ app_name="jitsi-meet"
 
 say 'Add Repo...' 1
 download_key "gpg" 'https://download.jitsi.org/jitsi-key.gpg.key' '/usr/share/keyrings/jitsi-keyring.gpg'
-echo 'deb [signed-by=/usr/share/keyrings/jitsi-keyring.gpg] https://download.jitsi.org stable/' | my-superuser tee /etc/apt/sources.list.d/jitsi-stable.list > /dev/null
+add_repo "jitsi-stable" 'deb [signed-by=/usr/share/keyrings/jitsi-keyring.gpg] https://download.jitsi.org stable/'
 
 say 'Update Repo...' 1
 Package_update_

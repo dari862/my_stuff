@@ -6,11 +6,12 @@ set -e
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
-machine_type_are="${1:-}"
-
-if [ -z "${machine_type_are}" ];then
+if [ ! -f "${__distro_path_root}/never_remove/machine_type" ];then
 	. "${__distro_path_root}/lib/common/machine_type"
 	machine_type_are="$(check_machine_type)"
+	printf '%s' "$machine_type_are" | tee "${__distro_path_root}/never_remove/machine_type" >/dev/null 2>&1
+else
+	machine_type_are="$(cat "${__distro_path_root}/never_remove/machine_type")"
 fi
 
 pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
@@ -115,12 +116,12 @@ create_blob_system_files(){
 create_applicationsdotdesktop_link(){
 	__application_name="${1:-}"
 	__application_command="${2:-}"
-    if [ -f "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" ];then
-    	cp -r "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop"
-    	ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    if [ -f "${__distro_path_root}/applications_extra/${__application_name}.desktop" ];then
+    	cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
+    	ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
     else
     	[ -z "$__application_command" ] && __application_command="${__application_name}"
-    	tee "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	tee "${__distro_path_root}/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
     	[Desktop Entry]
 		Name=${__application_name}
 		Comment=${__application_name}
@@ -132,14 +133,14 @@ create_applicationsdotdesktop_link(){
 		MimeType=text/html;text/xml;application/xhtml_xml;
 		StartupNotify=true
 		EOF
-    	ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    	ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
     fi
 }
 
 copy_all__application_link_in_dir(){
 	__application_link_dir="${1:-}"
-    cp -r "/usr/share/my_stuff/applications_extra/${__application_link_dir}"/* "/usr/share/my_stuff/system_files/applications"
-    ln -sf "/usr/share/my_stuff/system_files/applications/${__application_link_dir}"/* "/usr/share/applications"
+    cp -r "${__distro_path_root}/applications_extra/${__application_link_dir}"/* "${__distro_path_root}/system_files/applications"
+    ln -sf "${__distro_path_root}/system_files/applications/${__application_link_dir}"/* "/usr/share/applications"
 }
 
 create_auto_completion_files(){
@@ -595,5 +596,9 @@ create_blob_system_files
 
 show_im "prepares hub script dir"
 "${__distro_path_root}"/bin/X11/rofi/hub create || show_em "failed to run hub create"
+
+show_im "sed (((distro_path_root)) to ${__distro_path_root} ."
+sed_distro_path_root_var_2_correct_value "${__distro_path_root}/system_files/skel"
+sed_distro_path_root_var_2_correct_value "${__distro_path_root}/system_files/blob"
 
 show_im "system_files_creater Done."

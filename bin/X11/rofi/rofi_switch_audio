@@ -1,6 +1,7 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/switch_audio_lib"
-. "/usr/share/my_stuff/lib/common/WM"
+. "${__distro_path_root}/lib/switch_audio_lib"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 selected_sink=$(printf "%s\n" "$sink_data" | awk -F'|' '{print $1}' | rofi -dmenu -p "Select audio output:" -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi)

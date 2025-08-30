@@ -3,10 +3,11 @@
 # The famous "get a menu of emojis to copy" script.
 
 # Get user selection via dmenu from emoji file.
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-chosen=$(cut -d ';' -f1 /usr/share/my_stuff/lib/emoji/* | rofi -dmenu -i -l 30 -theme "$HOME/.config/rofi/$ROFI_STYLE/confirm.rasi" | sed "s/ .*//")
+chosen=$(cut -d ';' -f1 "${__distro_path_root}"/lib/emoji/* | rofi -dmenu -i -l 30 -theme "$HOME/.config/rofi/$ROFI_STYLE/confirm.rasi" | sed "s/ .*//")
 
 # Exit if none chosen.
 [ -z "$chosen" ] && exit

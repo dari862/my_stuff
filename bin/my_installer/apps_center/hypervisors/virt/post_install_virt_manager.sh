@@ -70,19 +70,19 @@
 		if [ "$install_quickemu" = "true" ];then
 			. "${_APPS_LIBDIR}/hypervisors/virt/quickemu_installer"
 		else
-			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/quickemu_installer" /usr/share/my_stuff/system_files/bin
+			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/quickemu_installer" ${__distro_path_root}/system_files/bin
 		fi
 		
 		if [ "$install_QuickPassthrough" = "true" ];then
 			. "${_APPS_LIBDIR}/hypervisors/virt/QuickPassthrough_installer"
 		else
-			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/QuickPassthrough_installer" /usr/share/my_stuff/system_files/bin
+			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/QuickPassthrough_installer" ${__distro_path_root}/system_files/bin
 		fi
 		
 		if [ "$auto_windows_vm" = "true" ];then
 			. "${_APPS_LIBDIR}/hypervisors/virt/windows_vm_installer"
 		else
-			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/windows_vm_installer" /usr/share/my_stuff/system_files/bin
+			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/windows_vm_installer" ${__distro_path_root}/system_files/bin
 		fi
 
 		# end

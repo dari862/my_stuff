@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE menu [
-  <!ENTITY icons "/usr/share/my_stuff/icons/eyecandy">
-  <!ENTITY owl4ce_scripts_path "/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts">
+  <!ENTITY icons "(((distro_path_root)))/icons/eyecandy">
+  <!ENTITY owl4ce_scripts_path "(((distro_path_root)))/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts">
 ]>
 <openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/  file:///usr/share/openbox/menu.xsd">
   <menu id="root-menu" title="Menu" label="Openbox 3">
@@ -46,7 +46,7 @@
 
 	<menu id="monitor-settings" execute="randr-pipemenu" label="Monitor Settings" icon="&icons;/monitor-settings.png"/>
 
-    <menu id="advanced-settings" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Advanced Settings" icon="&icons;/advanced-settings.png"/>
+    <menu id="advanced-settings" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/ac'" label="Advanced Settings" icon="&icons;/advanced-settings.png"/>
 
     <separator/>
     <separator label="SESSIONS"/>

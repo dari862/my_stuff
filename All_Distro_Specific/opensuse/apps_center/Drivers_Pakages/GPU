@@ -65,5 +65,5 @@ if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];the
 fi
 
 say "Creating Check File (GPU_Drivers_ready)"
-my-superuser touch /usr/share/my_stuff/system_files/GPU_Drivers_ready
-my-superuser  /usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+my-superuser touch ${__distro_path_root}/system_files/GPU_Drivers_ready
+my-superuser  ${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"

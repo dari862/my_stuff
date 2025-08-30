@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Color files
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 # Change colors

@@ -1,12 +1,12 @@
 #!/bin/bash
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 ## Commands Executed By Openbox Powermenu
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/pipemenu"
 . "${Distro_config_file}"
 
 if [ "$_panel_name_" = "polybar" ];then
-	[ ! -f "${style_pipemenu_file}" ] && /usr/share/my_stuff/bin/X11/pipemenu/create_pipemenu/style.sh
+	[ ! -f "${style_pipemenu_file}" ] && ${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/style.sh
 	menuStart "PolybarMenu" "Polybar"
 	menuItem 'Open Your polybar Folder' "my-file-manager ~/.config/polybar/"
 	menuItem 'How to configure Polybar?' 'my-www-browser "https://github.com/polybar/polybar/wiki" "https://wiki.archlinux.org/title/Polybar"'

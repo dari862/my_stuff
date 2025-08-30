@@ -15,7 +15,6 @@ fi
 
 stop() {
 	kill_process.sh "$keyring_name"
-	wait
 }
 
 start() {

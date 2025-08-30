@@ -1,7 +1,7 @@
 #!/bin/sh
 
 app_name="heroic"
-if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+if [ -f "${__distro_path_root}/system_files/Distrobox_ready" ];then
 	app_name="heroic-games-launcher-bin"
 	Distrobox_package_installer_ ${app_name} || continue
 else

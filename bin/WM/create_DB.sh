@@ -6,12 +6,12 @@ opt="${1-}"
 
 # Import necessary libraries
 . "/usr/share/my_stuff/lib/common/Distro_path"
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/DB"
-. "/usr/share/my_stuff/lib/common/openbox"
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
-. "/usr/share/my_stuff/lib/common/common"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/DB"
+. "${__distro_path_root}/lib/common/openbox"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 
 # Helper function to check if a command is installed
 is_installed() {
@@ -105,7 +105,7 @@ create_distrobox_deploy_db() {
 	say "create DB for distrobox."
 	list_of_deploys=$(find "${_DISTROBOX_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 
-	if [ -f '/usr/share/my_stuff/system_files/Distrobox_ready' ];then
+	if [ -f "${__distro_path_root}/system_files/Distrobox_ready" ];then
 		for deploy in $list_of_deploys; do
 			if ! distrobox list | grep -q " ${deploy} ";then
 				echo "$deploy" >> "${distrobox_deploy_db_path}"
@@ -123,7 +123,7 @@ create_containers_deploy_db() {
 	say "create DB for containers."
 	list_of_containers=$(find "${_CONTAINERS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 
-	if [ -f '/usr/share/my_stuff/system_files/bin/CONTAINER_RT' ];then
+	if [ -f "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then
 		for container in $list_of_containers; do
 			if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ];then
 				echo "$container" >> "${containers_deploy_db_path}"

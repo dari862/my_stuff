@@ -2,7 +2,7 @@
 # if this line exist script will be part of hub script.
 
 # Simple script to generate a script file in my scripts directory
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 scripts_folder_="$HOME/script"
 ans="${1-}"
 if [ -z "$ans" ];then
@@ -27,6 +27,6 @@ fi
 if [ -e "$scripts_folder_/$ans" ];then
 	$CLI_EDITER "$file"
 else
-	cp -r "/usr/share/my_stuff/lib/Templates/ShellScripting/sh.sh" "$file"
+	cp -r "${__distro_path_root}/lib/Templates/ShellScripting/sh.sh" "$file"
 	$CLI_EDITER "$file"
 fi

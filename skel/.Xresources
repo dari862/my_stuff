@@ -56,7 +56,7 @@ URxvt.depth: 32
 
 ! Clickble URLs
 URxvt.perl-ext-common: default,matcher
-URxvt.url-launcher: /usr/share/my_stuff/bin/apps/my-www-browser
+URxvt.url-launcher: (((distro_path_root)))/bin/apps/my-www-browser
 URxvt.matcher.button: 3
 
 ! Custom colourscheme, see http://terminal.sexy/ for more ideas.

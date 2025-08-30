@@ -13,11 +13,12 @@ if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 	exit 0
 fi
 
-. "/usr/share/my_stuff/lib/common/common"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
 . "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/Distro_path"
 
-x_session_picker_path="/usr/share/my_stuff/system_files/bin/xsessions/openbox"
+x_session_picker_path="${__distro_path_root}/system_files/bin/xsessions/openbox"
 
 usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g' || :)"
 usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g' || :)"
@@ -30,7 +31,7 @@ update_full_upgrade_script(){
 	$__SUPER_USER mkdir -p /tmp/root/disto_updater
 	$__SUPER_USER $getURL_path 'download2' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade "/tmp/root/disto_updater/full-upgrade"
 	$__SUPER_USER chmod +x "/tmp/root/disto_updater/full-upgrade"
-	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "/usr/share/my_stuff/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
+	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
 		print_purple "==> running new version of full-upgrade. "
@@ -85,7 +86,7 @@ update_packages(){
 
 Updating_Distro(){
 	print_purple "==> checking Distro for update."
-	cd "/usr/share/my_stuff"
+	cd "${__distro_path_root}"
 	
 	blob_modified=false
 	skel_modified=false
@@ -116,9 +117,9 @@ Updating_Distro(){
     			if [ "$blob_modified" = true ];then
 					user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 					if [ -d "$d/.config/blob" ];then
-						$__SUPER_USER cp -r "/usr/share/my_stuff/system_files/blob"/* "$d/.config/blob"
+						$__SUPER_USER cp -r "${__distro_path_root}/system_files/blob"/* "$d/.config/blob"
 					else
-						$__SUPER_USER cp -r "/usr/share/my_stuff/system_files/blob" "$d/.config"
+						$__SUPER_USER cp -r "${__distro_path_root}/system_files/blob" "$d/.config"
 					fi
 					$__SUPER_USER chown -R "$user_and_group" "$d"
 				fi
@@ -132,7 +133,7 @@ Updating_Distro(){
 }
 
 Updating_opt(){
-	cd "/usr/share/my_stuff/opt/git/"
+	cd "${__distro_path_root}/opt/git/"
 	__git_dir_to_update_="$(ls)"
 	first__git_dir_to_update_file="$(echo "$__git_dir_to_update_" | head -n 1)"
 	if [ -d "${first__git_dir_to_update_file}" ];then
@@ -149,7 +150,7 @@ Updating_opt(){
 post_updating(){
 	create_new_os_release_file
 	print_purple "==> running system_files_creater."
-	$__SUPER_USER /usr/share/my_stuff/distro_manager/system_files_creater
+	$__SUPER_USER ${__distro_path_root}/distro_manager/system_files_creater
 }
 
 create_new_os_release_file(){
@@ -164,7 +165,7 @@ create_new_os_release_file(){
 		version_codename="${VERSION_CODENAME}"
 		VERSION_ID="$VERSION_ID"
 	fi
-	$__SUPER_USER tee "/usr/share/my_stuff/os-release" <<- EOF > /dev/null 2>&1
+	$__SUPER_USER tee "${__distro_path_root}/os-release" <<- EOF > /dev/null 2>&1
 	version_="$version_"
 	distro_name="$distro_name"
 	distro_desc="$distro_desc"
@@ -202,7 +203,7 @@ fi
 
 Updating_Distro
 
-if [ -d "/usr/share/my_stuff/opt/git" ];then
+if [ -d "${__distro_path_root}/opt/git" ];then
 	print_purple "==> updating git repository(s)."
 	Updating_opt
 	print_GREEN "==> fully git repository(s) updated."

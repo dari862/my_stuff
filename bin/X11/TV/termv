@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${script_config_path}/My_TV/termv.conf"
 
 check_4_dependencies_if_installed mpv jq $use_external_menu || exit 1

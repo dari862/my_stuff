@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${script_config_path}/ncmpcpp_launcher"
 
 NCMPCPP_DIR="$HOME/.config/ncmpcpp"

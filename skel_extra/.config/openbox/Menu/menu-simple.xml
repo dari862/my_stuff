@@ -37,7 +37,7 @@
 		<separator/>
 		<menu id="places-pipemenu" execute="places-pipemenu --recent ~/" label="Places"/>
 		<menu id="ac-recent" execute="recent-files-pipemenu" label="Recent Files"/>
-		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/ac'" label="Preferences"/>
+		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/ac'" label="Preferences"/>
 		<menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
 		<menu id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
 		<separator/>

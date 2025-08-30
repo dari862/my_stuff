@@ -14,8 +14,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # These functions can be used in user scripts too, by first sourcing this file, eg:
-# if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null;then
-#     echo $"Error: Failed to locate yad-includes in /usr/share/my_stuff/lib/common" >&2
+# if ! . "${__distro_path_root}/lib/common/yad-includes" 2> /dev/null;then
+#     echo $"Error: Failed to locate yad-includes in ${__distro_path_root}/lib/common" >&2
 #     exit 1
 # fi
 
@@ -30,7 +30,7 @@
 # Unset options with 0, eg:
 # yad_common_args+=(--center=0)
 
-yad_common_args=('--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg' '--center' '--borders=20')
+yad_common_args=("--window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg" '--center' '--borders=20')
 yad_popup_args=('--undecorated' '--fixed' '--on-top')
 
 # Call these functions as shorthand for simple popups etc.

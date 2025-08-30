@@ -1,12 +1,12 @@
 #!/bin/sh
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 op__="$1"
 op2__="$2"
 wallpaper_layout="${3:-zoom}"
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "${__distro_path_root}/lib/common/WM"
 
-wallpapers_dir="/usr/share/my_stuff/my_wallpapers"
+wallpapers_dir="${__distro_path_root}/my_wallpapers"
 
 Prerequisite() {
 	. "${my_stuff_display_manager_lib_path}"	  

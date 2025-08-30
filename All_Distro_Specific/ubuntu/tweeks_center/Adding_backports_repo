@@ -11,7 +11,7 @@ else
 	enable_repo backports
 		
 	Package_update_
-	${_SUPERUSER} ln -s /usr/share/my_stuff/Distro_Specific/tweeks_center/Extra/backports_install /usr/share/my_stuff/system_files/bin
+	${_SUPERUSER} ln -s ${__distro_path_root}/Distro_Specific/tweeks_center/Extra/backports_install ${__distro_path_root}/system_files/bin
 	command -v bash >/dev/null 2>&1 && ${_SUPERUSER} ln -s "${__distro_path_disabled_completion}"/bash/backports_install_auto_completion "${__distro_path_enabled_completion}"/bash
 	command -v zsh >/dev/null 2>&1 && ${_SUPERUSER} ln -s "${__distro_path_disabled_completion}"/zsh/backports_install_auto_completion "${__distro_path_enabled_completion}"/zsh
 fi

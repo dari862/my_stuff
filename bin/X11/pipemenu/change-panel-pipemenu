@@ -2,8 +2,9 @@
 ## Openbox Pipemenu to change openbox styles
 
 # Variables and functions
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/pipemenu"
 
 	# Check which bar is running
 	if pidof polybar >/dev/null 2>&1;then

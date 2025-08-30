@@ -1,20 +1,22 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
 set -e
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 
+pass_arg=""
 OPT__="${1:-}"
 MODE="${2:-}"
 if [ "$Menu_" = "rofi" ];then
 	Menu_="rofi"
 	. "${Distro_config_file}"
 elif [ "$MODE" = "pass" ];then
+	MODE="noninteractive"
 	pass_arg="${3:-}"
 fi
 
 postrun_message=""
 postrun_title=""
-OPT__=""
 choice=""
 
 RC='\033[0m'
@@ -576,6 +578,7 @@ help(){
 }
 
 watch_for_device_hot_plugs(){
+	MODE="noninteractive"
 	cooldown=4
 	last_event_time=0
 	
@@ -586,8 +589,8 @@ watch_for_device_hot_plugs(){
 	
         	# If last event was more than cooldown seconds ago, print "changed"
         	if [ "$time_diff" -ge "$cooldown" ]; then
+            	export XAUTHORITY="/home/$USER/.Xauthority"
             	export DISPLAY=:0
-	        	export XAUTHORITY="/home/$USER/.Xauthority"
 	        	sleep 1
 	        	auto_detect_displays
             	last_event_time=$now

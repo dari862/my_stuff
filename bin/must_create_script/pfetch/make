@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
-
-pfetch_path="/usr/share/my_stuff/system_files/bin/pfetch"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+pfetch_path="${__distro_path_root}/system_files/bin/pfetch"
 
 # This is just a simple wrapper around 'command -v' to avoid
 # spamming '>/dev/null' throughout this function. This also guards

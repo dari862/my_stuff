@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/env_torproxy.sh"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/env_torproxy.sh"
 
-RULES="/usr/share/my_stuff/system_files/tor-router.save"
+RULES="${__distro_path_root}/system_files/tor-router.save"
 
 is_nftables_installed=false
 is_iptables_installed=false

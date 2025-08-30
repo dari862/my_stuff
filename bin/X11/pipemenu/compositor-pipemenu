@@ -3,7 +3,8 @@
 dir="$HOME/.config/"
 
 # Variables and functions
-. "/usr/share/my_stuff/lib/common/pipemenu"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/pipemenu"
 
 ##-- various checks ---------------------
 check_backend=$(cat $dir/picom.conf | grep "backend = " | head -n1 | cut -d'=' -f2 | tr -d ';,[:blank:],"')

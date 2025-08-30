@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/env_torproxy.sh"
+. "${__distro_path_root}/lib/env_torproxy.sh"
 start_tor_chroot_script_name="start-tor-chroot.sh"
 _TOR_NAME="tor"
 TOR_CHROOT_NAME="chroot-${_TOR_NAME}"
@@ -47,7 +47,7 @@ EOF
 
 say "cp start-service.sh in the chroot..."
 
-my-superuser cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/start-service.sh" "${TOR_CHROOT_DIR}/usr/bin/start-service.sh"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/start-service.sh" "${TOR_CHROOT_DIR}/usr/bin/start-service.sh"
 my-superuser sed -i "s/__ControlPort=.*/__ControlPort=$__ControlPort/g" "${TOR_CHROOT_DIR}/usr/bin/start-service.sh"
 
 say "Change permission of $TOR_CHROOT_NAME in the chroot..."
@@ -68,14 +68,14 @@ EOF
 my-superuser chmod +x "$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name" || failed_to_run "Failed to set execute permission on launch script"
 
 say "ln ${torproxy_script_name} script which rerouter all your trafic to chroot to bin dir..."
-my-superuser cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy" "/usr/share/my_stuff/system_files/bin" || failed_to_run "Failed to ln /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy to /usr/share/my_stuff/system_files/bin"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
 
-my-superuser sed -i "s/__GUID=.*/__GUID=$__GUID/g" "/usr/share/my_stuff/system_files/bin/torproxy"
-my-superuser sed -i "s/__UUID=.*/__UUID=$__UUID/g" "/usr/share/my_stuff/system_files/bin/torproxy"
-my-superuser sed -i "s/__ControlPort=.*/__ControlPort=$__ControlPort/g" "/usr/share/my_stuff/system_files/bin/torproxy"
-my-superuser sed -i "s/__DNSPort=.*/__DNSPort=$__DNSPort/g" "/usr/share/my_stuff/system_files/bin/torproxy"
-my-superuser sed -i "s/__SocksPort=.*/__SocksPort=$__SocksPort/g" "/usr/share/my_stuff/system_files/bin/torproxy"
-my-superuser sed -i "s/__TransPort=.*/__TransPort=$__TransPort/g" "/usr/share/my_stuff/system_files/bin/torproxy"
+my-superuser sed -i "s/__GUID=.*/__GUID=$__GUID/g" "${__distro_path_root}/system_files/bin/torproxy"
+my-superuser sed -i "s/__UUID=.*/__UUID=$__UUID/g" "${__distro_path_root}/system_files/bin/torproxy"
+my-superuser sed -i "s/__ControlPort=.*/__ControlPort=$__ControlPort/g" "${__distro_path_root}/system_files/bin/torproxy"
+my-superuser sed -i "s/__DNSPort=.*/__DNSPort=$__DNSPort/g" "${__distro_path_root}/system_files/bin/torproxy"
+my-superuser sed -i "s/__SocksPort=.*/__SocksPort=$__SocksPort/g" "${__distro_path_root}/system_files/bin/torproxy"
+my-superuser sed -i "s/__TransPort=.*/__TransPort=$__TransPort/g" "${__distro_path_root}/system_files/bin/torproxy"
 
 my-superuser tee "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" > /dev/null <<- EOF
 #!/bin/sh
@@ -85,38 +85,38 @@ my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/$start_tor_chroot_script_name" || fai
 
 my-superuser tee "$LAUNCH_SCRIPT_PATH/start_torproxy" > /dev/null <<- EOF
 #!/bin/sh
-my-superuser /usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy
+my-superuser ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy
 EOF
 my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/start_torproxy" || failed_to_run "Failed to set execute permission on launch script"
 
 my-superuser tee "$LAUNCH_SCRIPT_PATH/stop_torproxy" > /dev/null <<- EOF
 #!/bin/sh
-my-superuser /usr/share/my_stuff/bin/not_add_2_path/torproxy/stop_torproxy
+my-superuser ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy
 EOF
 my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/stop_torproxy" || failed_to_run "Failed to set execute permission on launch script"
 
-my-superuser cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy" "/usr/share/my_stuff/system_files/bin" || failed_to_run "Failed to ln /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy to /usr/share/my_stuff/system_files/bin"
-my-superuser cp -r "/usr/share/my_stuff/bin/not_add_2_path/torproxy/stop_torproxy" "/usr/share/my_stuff/system_files/bin" || failed_to_run "Failed to ln /usr/share/my_stuff/bin/not_add_2_path/torproxy/torproxy to /usr/share/my_stuff/system_files/bin"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
 
 if [ -f "/etc/doas.conf" ];then
 	my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
 	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name
-	permit persist :users as root cmd /usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy
-	permit persist :users as root cmd /usr/share/my_stuff/bin/not_add_2_path/torproxy/stop_torproxy
+	permit persist :users as root cmd ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy
+	permit persist :users as root cmd ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy
 	EOF
 
-	my-superuser tee -a "/usr/share/my_stuff/system_files/doas.conf" > /dev/null <<- EOF
+	my-superuser tee -a "${__distro_path_root}/system_files/doas.conf" > /dev/null <<- EOF
 	permit persist :users as root cmd $CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name
-	permit persist :users as root cmd /usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy
-	permit persist :users as root cmd /usr/share/my_stuff/bin/not_add_2_path/torproxy/stop_torproxy
+	permit persist :users as root cmd ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy
+	permit persist :users as root cmd ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy
 	EOF
 fi
 
 if [ -d "/etc/sudoers.d" ];then
 	my-superuser tee "/etc/sudoers.d/${TOR_CHROOT_NAME}" > /dev/null <<- EOF
 	%users ALL=(ALL) NOPASSWD: $CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name
-	%users ALL=(ALL) NOPASSWD: /usr/share/my_stuff/bin/not_add_2_path/torproxy/start_torproxy
-	%users ALL=(ALL) NOPASSWD: /usr/share/my_stuff/bin/not_add_2_path/torproxy/stop_torproxy
+	%users ALL=(ALL) NOPASSWD: ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy
+	%users ALL=(ALL) NOPASSWD: ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy
 	EOF
 	my-superuser chmod 400 "/etc/sudoers.d/${TOR_CHROOT_NAME}"
 fi

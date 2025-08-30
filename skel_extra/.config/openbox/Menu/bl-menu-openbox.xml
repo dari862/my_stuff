@@ -72,7 +72,7 @@
 		<menu id="Places" execute="places-pipemenu" label="Places"/>
 		<menu id="RecentFiles" execute="recent-files-pipemenu -rl15" label="Recent Files"/>
 		<separator/>
-		<menu id="preferences" execute="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/bl'" label="Preferences"/>
+		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/bl'" label="Preferences"/>
 		<menu id="applications-system" label="System">
 			<item label="Quick System Info">
 				<action name="Execute">

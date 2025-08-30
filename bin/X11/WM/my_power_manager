@@ -1,109 +1,100 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/common/WM"
 
-ini_file_="my_power_manager.ini"
-ini_path="$script_config_path/$ini_file_"
-default_ini="/usr/share/my_stuff/lib/$ini_file_"
+# Load shared environment/config
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 
-if [ ! -f "$ini_path" ];then
-	cp -r "$default_ini" "$script_config_path"
-fi
+# Paths
+conf_file="my_power_manager.conf"
+usr_conf_path="$script_config_path/$conf_file"
+global_conf_ini="${__distro_path_root}/lib/$conf_file"
 
-my_power_manager_daemon(){
-	xset s 0 0 >/dev/null 2>&1
-	xset -dpms >/dev/null 2>&1
-	xset s off -dmps >/dev/null 2>&1
-	xset dpms 0 0 0 >/dev/null 2>&1
-	
-	set_brightness_on_idle(){
-		if [ "$only_one_display" = "true" ];then
-			this_is_n_activate_display=$(xrandr -q | grep " connected" | awk '{print $1;}')
-			xrandr --output $this_is_n_activate_display --brightness 0.5
-		else
-			while [ "$n" -le "$max_n" ];
-			do
-				this_is_n_activate_display=$(xrandr -q | grep " connected" | awk '{print $1;}' | head -n $n | tail -l)
-				xrandr --output $this_is_n_activate_display --brightness 0.5
-				n=$(($n+1))
-			done
-		fi
-	}
-	
-	min_var_is_(){
-  		minval=$1
-  		for i in $*
-  		do
-    		if [ "$i" -le "$minval" ] && [ "$i" -gt 0 ];then
-      		minval=$i
-    		fi
-  		done
-	}
-	
-	idle=false
-	max_n=$(xrandr -q | grep "connected" | wc | awk '{print $1;}')
-	n=1
-	if [ "$max_n" -eq 1 ];then
-		only_one_display="true"
-	fi
+# Ensure configuration file exists
+[ ! -f "$usr_conf_path" ] && cp "$global_conf_ini" "$script_config_path" || :
 
-	. "$default_ini"
-	idleAfterMillis=$((idleAfter*1000))
-	
-	min_var_is_ $idleAfter $turnoff_moniter_time $logout_time $suspend_time $hibernate_time $poweroff_time
-	
-	min_time_is=$minval
-	
-	if [ "$min_time_is" -lt "$idleAfter" ];then
-		difference_time=$((idleAfter-min_time_is))
-	else
-		difference_time=0
-	fi
-	
-	while true; do
-  	idleTimeMillis=$(xprintidle)
-  	idleTime=$((idleTimeMillis/1000))
-  	time_to_sleep=$((idleAfter-difference_time-idleTime))
-  	[ "$time_to_sleep" -le 0 ] && time_to_sleep=0
-  	
-  	
-  	if [ "$turnoff_moniter_time" -gt 0 ] && [ "$turnoff_moniter_time" -ge "$idleTime" ];then
-			my_session_manager_cli moniter_off
-  	fi
-  	
-  	if [ "$logout_time" -gt 0 ] && [ "$logout_time" -le "$idleTime" ];then
-			my_session_manager_cli logout
-  	fi 
-  	
-  	if [ "$suspend_time" -gt 0 ] && [ "$suspend_time" -le "$idleTime" ];then
-			my_session_manager_cli suspend
-  	fi
-  	
-  	if [ "$hibernate_time" -gt 0 ] && [ "$hibernate_time" -le "$idleTime" ];then
-			my_session_manager_cli hibernate
-  	fi
-  	
-  	if [ "$poweroff_time" -gt 0 ] && [ "$poweroff_time" -le "$idleTime" ];then
-			my_session_manager_cli shutdown
-  	fi
-	
-  	if [ "$idleAfter" -gt 0 ] && [ "$idle" = false ] && [ "$idleTimeMillis" -gt "$idleAfterMillis" ];then
-    	[ "$brightness_level" -ne 0 ] && set_brightness_on_idle
-		[ "$lock_screen_on_idle" = "true" ] && my_session_manager_cli lock
-    	idle=true
-  	fi
-  	
-  	[ "$idle" = "false" ] && sleep "$time_to_sleep"
-	
-  	if [ "$idle" = true ];then
-    	while [ "$idleTimeMillis" -gt "$idleAfterMillis" ]
-    	do
-    		sleep $min_time_is
-		idleTimeMillis=$(xprintidle)
-    	done
-    	idle=false
-  	fi
-	done
+# Load configuration (only once)
+. "$usr_conf_path"
+
+# Trap to restore DPMS on exit
+trap "xset s on +dpms; exit" INT TERM
+
+# Disable screen saver and DPMS
+xset s 0 0 >/dev/null 2>&1
+xset -dpms >/dev/null 2>&1
+xset s off >/dev/null 2>&1
+xset dpms 0 0 0 >/dev/null 2>&1
+
+# Helper: Set brightness for all displays
+set_brightness_on_idle() {
+    # Detect displays once number of display some time changes if one of mointer get disconnected
+    displays=$(xrandr --query | awk '/ connected/ {print $1}')
+    num_displays=$(echo "$displays" | wc -l)
+    only_one_display=false
+    [ "$num_displays" -eq 1 ] && only_one_display=true
+    for display in $displays; do
+        xrandr --output "$display" --brightness 0.5
+    done
 }
 
-my_power_manager_daemon
+# Helper: Find minimum value > 0
+min_var_is() {
+    minval=$1
+    shift
+    for val in "$@"; do
+        [ "$val" -gt 0 ] && [ "$val" -lt "$minval" ] && minval=$val
+    done
+    echo "$minval"
+}
+
+# Helper: Perform action if time threshold is reached
+check_action() {
+    action_time=$1
+    command=$2
+    [ "$action_time" -gt 0 ] && [ "$idleTime" -ge "$action_time" ] && my_session_manager_cli "$command" || :
+}
+
+# Convert idleAfter to ms
+idleAfterMillis=$((idleAfter * 1000))
+
+# Find the shortest trigger time
+min_time_is=$(min_var_is "$idleAfter" "$turnoff_monitor_time" "$logout_time" "$suspend_time" "$hibernate_time" "$poweroff_time")
+
+# Calculate offset
+difference_time=$((idleAfter - min_time_is))
+[ "$difference_time" -lt 0 ] && difference_time=0
+
+# Main loop
+idle=false
+while true; do
+    idleTimeMillis=$(xprintidle)
+    idleTime=$((idleTimeMillis / 1000))
+    time_to_sleep=$((idleAfter - difference_time - idleTime))
+    [ "$time_to_sleep" -lt 1 ] && time_to_sleep=1
+
+    # Check each power action
+    check_action "$turnoff_monitor_time" "monitor_off"
+    check_action "$logout_time" "logout"
+    check_action "$suspend_time" "suspend"
+    check_action "$hibernate_time" "hibernate"
+    check_action "$poweroff_time" "shutdown"
+
+    # Handle idle screen state
+    if [ "$idleAfter" -gt 0 ] && [ "$idle" = false ] && [ "$idleTimeMillis" -gt "$idleAfterMillis" ]; then
+        [ "$brightness_level" -ne 0 ] && set_brightness_on_idle
+        [ "$lock_screen_on_idle" = "true" ] && my_session_manager_cli lock
+        idle=true
+    fi
+
+    # Sleep $min_time_is until next expected action since nothing will happend before this
+    if [ "$idle" = false ];then
+        sleep "$min_time_is"
+    else
+        # If idle, wait until activity resumes
+        while [ "$(xprintidle)" -gt "$idleAfterMillis" ]; do
+            # so we above check at correct time
+            sleep "$min_time_is"
+        done
+        idle=false
+    fi
+done

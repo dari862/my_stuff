@@ -1,7 +1,7 @@
 # My Stuff Main Menu
 
 ## My Stuff User config files
-## All default My Stuff user config files are located in /usr/share/my_stuff/skel.
+## All default My Stuff user config files are located in (((distro_path_root)))/skel.
 ## The script skel_user_setup_ copies them to the user $HOME directory on first login.
 ## See more info with command 'skel_user_setup_ --help'
 
@@ -23,7 +23,7 @@ Utilities,^checkout(bl-utilities),applications-utilities
 Places,^pipe(jgmenu_run ob --cmd="places-pipemenu" --tag="places-pipemenu"),folder
 Recent Files,^pipe(jgmenu_run ob --cmd="recent-files-pipemenu -rl15" --tag="bl-recent-files-pipemenu")
 ^sep()
-Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat /usr/share/my_stuff/system_files/pipemenu/bl'" --tag="preferences-system")
+Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/bl'" --tag="preferences-system")
 System,^checkout(bl-system),applications-system
 ^sep()
 Help &amp; Resources,^pipe(jgmenu_run ob --cmd="help-menu-openbox" --tag="help-contents")

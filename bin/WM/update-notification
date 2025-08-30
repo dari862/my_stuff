@@ -5,20 +5,21 @@
 # DESCRIPTION: Checks updates and show it to user in tint2 taskbar
 #===================================================================================
 # CONFIG
+. "/usr/share/my_stuff/lib/common/Distro_path"
 __arg="${1-}"
 script_name="update-notification"
 
-. "/usr/share/my_stuff/lib/apps/update-notification.conf"
-. "/usr/share/my_stuff/lib/common/common"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/apps/update-notification.conf"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 
 print_total_updates() { cat "$updates_file" | wc -l; }
 
 set_superuser() { 
 	if [ "$(id -u)" -eq 0 ];then
-		__my_superuser=""
+		_SUPERUSER=""
 	else
-		__my_superuser="my-superuser"
+		_SUPERUSER="my-superuser"
 	fi
 }
 
@@ -51,8 +52,8 @@ update_system () {
 	Package_update_
 	
 	plain "Checking updates and saving in $updates_file..."
-	printf "" | $__my_superuser tee "$updates_file" > /dev/null 2>&1
-	Upgradeable_Packages_count_ | $__my_superuser tee -a "$updates_file" > /dev/null 2>&1
+	printf "" | $_SUPERUSER tee "$updates_file" > /dev/null 2>&1
+	Upgradeable_Packages_count_ | $_SUPERUSER tee -a "$updates_file" > /dev/null 2>&1
 
 	# No updates
 	if [ ! -s "$updates_file" ];then
@@ -84,7 +85,7 @@ interactive_upgrade() {
 		exit 1
 	fi
 
-	printf "" | $__my_superuser tee "$updates_file" > /dev/null 2>&1
+	printf "" | $_SUPERUSER tee "$updates_file" > /dev/null 2>&1
 	printf ""
 	printf "Update complete!"
 	read pause
@@ -113,15 +114,15 @@ send_notifcation_msg () {
 
 install_it () {
 	set_superuser	
-	if [ ! -f "/usr/share/my_stuff/system_files/bin/update-notification" ] ;then
-		$__my_superuser ln -sf "$script_full_path" "/usr/share/my_stuff/system_files/bin"
+	if [ ! -f "${__distro_path_root}/system_files/bin/update-notification" ] ;then
+		$_SUPERUSER ln -sf "$script_full_path" "${__distro_path_root}/system_files/bin"
 	fi
 	
-	$__my_superuser ln -sf "$script_full_path" "/etc/cron.$cron_when"	
+	$_SUPERUSER ln -sf "$script_full_path" "/etc/cron.$cron_when"	
 	
 	if [ ! -f "$updates_file" ];then 
-		$__my_superuser touch "$updates_file"
-		$__my_superuser chmod a+w "$updates_file"
+		$_SUPERUSER touch "$updates_file"
+		$_SUPERUSER chmod a+w "$updates_file"
 	fi
 	
 	exit 
@@ -130,12 +131,12 @@ install_it () {
 uninstall_it (){
 	set_superuser
 	printf "Deleting symblink /etc/cron.$cron_when/${script_name}..."
-	[ -f "/etc/cron.monthly/${script_name}" ] && $__my_superuser rm "/etc/cron.monthly/${script_name}"
-	[ -f "/etc/cron.weekly/${script_name}" ] && $__my_superuser rm "/etc/cron.weekly/${script_name}"
-	[ -f "/etc/cron.daily/${script_name}" ] && $__my_superuser rm "/etc/cron.daily/${script_name}"
-	[ -f "/etc/cron.hourly/${script_name}" ] && $__my_superuser rm "/etc/cron.hourly/${script_name}"
+	[ -f "/etc/cron.monthly/${script_name}" ] && $_SUPERUSER rm "/etc/cron.monthly/${script_name}"
+	[ -f "/etc/cron.weekly/${script_name}" ] && $_SUPERUSER rm "/etc/cron.weekly/${script_name}"
+	[ -f "/etc/cron.daily/${script_name}" ] && $_SUPERUSER rm "/etc/cron.daily/${script_name}"
+	[ -f "/etc/cron.hourly/${script_name}" ] && $_SUPERUSER rm "/etc/cron.hourly/${script_name}"
 	printf "Deleting $updates_file..."
-	$__my_superuser rm -f "$updates_file"
+	$_SUPERUSER rm -f "$updates_file"
 	exit 
 }
 

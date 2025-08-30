@@ -1,11 +1,11 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
 # Default Values
-
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 
 _network_manager_script_config="${script_config_path}/network-manager-script.ini"
-languages_lib_dir="/usr/share/my_stuff/lib/languages/network-manager-script"
+languages_lib_dir="${__distro_path_root}/lib/languages/network-manager-script"
 SELECTION_PREFIX="~"
 WIRELESS_INTERFACES=($(nmcli device | awk '$2=="wifi" {print $1}'))
 WIRELESS_INTERFACES_PRODUCT=()
@@ -96,7 +96,7 @@ vpn() {
 
 # main
 . "${_network_manager_script_config}"
-. "/usr/share/my_stuff/lib/networking_lib.sh"
+. "${__distro_path_root}/lib/networking_lib.sh"
 
 if [ -f "${languages_lib_dir}/${LANGUAGE}.lang" ];then
 	. "${languages_lib_dir}/${LANGUAGE}.lang"

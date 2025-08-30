@@ -1,7 +1,7 @@
 #!/bin/sh
 
 download_key "gpg" "https://updates.signal.org/desktop/apt/keys.asc" "/usr/share/keyrings/signal-desktop-keyring.gpg"
-echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' | my-superuser tee /etc/apt/sources.list.d/signal-xenial.list
+add_repo "signal-xenial" 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main'
 
 Package_update_
 clear

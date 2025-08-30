@@ -11,7 +11,7 @@ copy_from_extra_skel ".config/polybar" || continue
 
 say 'Copy bin from polybar...' 1
 # distro 
-if [ -d "/usr/share/my_stuff/bin/X11/polybar" ];then
-	my-superuser ln -sf "/usr/share/my_stuff/bin/X11/polybar/"* "/usr/share/my_stuff/system_files/bin" || continue
+if [ -d "${__distro_path_root}/bin/X11/polybar" ];then
+	my-superuser ln -sf "${__distro_path_root}/bin/X11/polybar/"* "${__distro_path_root}/system_files/bin" || continue
 fi
 polybar_launch_creater || continue

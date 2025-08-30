@@ -1,6 +1,5 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+[ "$(id -u)" -eq 0 ] && return
 
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
 isgtkdark="$(grep \"^gtk-application-prefer-dark-theme=\" "${gtksettings}" | cut -d"=" -f2 || :)"

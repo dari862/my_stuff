@@ -9,7 +9,7 @@ When you log in to an X session, a "session manager" is chosen from the
 With simple systems like My Stuff it's usual to have a user "autostart" file to run
 things like desktop panels and utilities.
 
-The session manager '/usr/share/my_stuff/system_files/bin/xsessions/openbox' runs a window manager (openbox by default),
+The session manager "${__distro_path_root}/system_files/bin/xsessions/openbox" runs a window manager (openbox by default),
 sets openbox to use ~/.config/openbox/rc.xml as its config file,
 and runs the user autostart file ~/.config/openbox/autostart.
 

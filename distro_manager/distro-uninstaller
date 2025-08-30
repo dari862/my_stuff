@@ -1,22 +1,23 @@
 #!/bin/sh
 is_it_zero_byte=false
 
-. "/usr/share/my_stuff/never_remove/var_for_distro_uninstaller"
-. "/usr/share/my_stuff/lib/common/common"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/never_remove/var_for_distro_uninstaller"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 for backup in icons themes fonts;do
 	my-superuser find /usr/share/${backup} -depth -maxdepth 1 -type l -delete
-	my-superuser mv /usr/share/my_stuff/system_files/backup/${backup} /usr/share/${backup}
+	my-superuser mv ${__distro_path_root}/system_files/backup/${backup} /usr/share/${backup}
 done
 
 if ls "$CHROOT_SCRIPT_PATH"/chroot-* >/dev/null 2>&1;then
 	my-superuser rm -rdf "$CHROOT_SCRIPT_PATH"/chroot-*
 fi
 
-if grep -q "$CHROOT_SCRIPT_PATH/chroot-" /usr/share/my_stuff/system_files/doas.conf 2>&1;then
-	my-superuser sed -i "|$CHROOT_SCRIPT_PATH/chroot-|d" /usr/share/my_stuff/system_files/doas.conf
+if grep -q "$CHROOT_SCRIPT_PATH/chroot-" ${__distro_path_root}/system_files/doas.conf 2>&1;then
+	my-superuser sed -i "|$CHROOT_SCRIPT_PATH/chroot-|d" ${__distro_path_root}/system_files/doas.conf
 	my-superuser sed -i "|$CHROOT_SCRIPT_PATH/chroot-|d" /etc/doas.conf
 fi
 
@@ -89,11 +90,11 @@ echo "updating gtk-update"
 my-superuser gtk-update-icon-cache > /dev/null 2>&1
 echo "updating grub"
 grub_updater_function
-echo "removing /usr/share/my_stuff"
-my-superuser rm -rdf "/usr/share/my_stuff"
+echo "removing ${__distro_path_root}"
+my-superuser rm -rdf "${__distro_path_root}"
 
 echo "running myautorandr.sh"
-my-superuser /usr/share/my_stuff/bin/X11/not_add_2_path/myautorandr.sh uninstall || echo "failed to run myautorandr.sh uninstaller"
+my-superuser ${__distro_path_root}/bin/X11/not_add_2_path/myautorandr.sh uninstall || echo "failed to run myautorandr.sh uninstaller"
 
 echo "delete /usr/bin/my-superuser"
 my-superuser rm -rdf /usr/bin/my-superuser || :

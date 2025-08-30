@@ -2,6 +2,7 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=pmxkcd
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 pmrm=$(which rm)
 pmkl=$(which kill)
 json_get_var() {
@@ -128,8 +129,8 @@ pmxkcd_menu (){
 	pmxkcd_dir="${HOME}/Pictures/xkcd"
 	pmxkcd_ttl="PMXKCD"
 	pmxkcd_cls="$pmxkcd_ttl"
-	pmxkcd_ico="/usr/share/my_stuff/icons/pmxkcd_icon.png"
-	pmxkcd_log="/usr/share/my_stuff/icons/pmxkcd_logo.png"
+	pmxkcd_ico="${__distro_path_root}/icons/pmxkcd_icon.png"
+	pmxkcd_log="${__distro_path_root}/icons/pmxkcd_logo.png"
 	pmxkcd_main=$(yad --width="300" --height="225" --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="$pmxkcd_log" --title="$pmxkcd_ttl" --buttons-layout=center --button="Current!gtk-new!View Current XKCD Comic:2" --button="Random!gtk-refresh!View Random XKCD Comic:3" --button="Exit!gtk-quit!Exit PMXKCD:1")
 	pmxkcd_main=$?
 	case "$pmxkcd_main" in

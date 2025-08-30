@@ -8,6 +8,6 @@ highlight:			#539e06;
 urgent:				#6DDE00;
 on:					#00fa5c;
 off:				#6DDE00;
-img-background: url("/usr/share/my_stuff/blob/polybar/Hacker_Den/preview.jpg", width);
+img-background: url("(((distro_path_root)))/blob/polybar/Hacker_Den/preview.jpg", width);
 
 }

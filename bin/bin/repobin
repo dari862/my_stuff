@@ -15,6 +15,7 @@ repobin --sudo --mode deb install bayasdev/envycontrol
 }
 set -e
 
+
 if [ "$(id -u)" -e 0 ]; then
 	script_runs_as_superuser=true
 else
@@ -52,13 +53,14 @@ if [[ "$repobinMODE" == "deb" ]];then
 	extension="deb"
 fi
 
-[[ "$script_runs_as_superuser" == true ]] && USE_SUDO=true
-
-if [[ "$USE_SUDO" == true ]]; then
-	__distro_path_root="/usr/share/my_stuff"
-	__distro_path_bin="/usr/share/my_stuff/system_files/bin"
-	__distro_path_downloaded="/usr/share/my_stuff/external/downloaded"
+if [[ "$script_runs_as_superuser" == true ]]; then
+	#. "/usr/share/my_stuff/lib/common/Distro_path"
+	USE_SUDO=false
+	__distro_path_root="${__distro_path_root}"
+	__distro_path_bin="${__distro_path_root}/system_files/bin"
+	__distro_path_downloaded="${__distro_path_root}/external/downloaded"
 	__distro_path_neverremove="${__distro_path_root}/never_remove"
+	
 	BIN_DIR="${__distro_path_downloaded}"
 	CONFIG_FILE="${__distro_path_neverremove}/installs.json"
 	[ -d "$BIN_DIR" ] && mkdir -p "$BIN_DIR"
@@ -70,12 +72,7 @@ else
 	CONFIG_FILE="${CONFIG_DIR}/installs.json"
 	[ -d "$BIN_DIR" ] && mkdir -p "$BIN_DIR"
 	[ -d "$CONFIG_FILE" ] && mkdir -p "$CONFIG_FILE"
-fi
-
-if [[ "$script_runs_as_superuser" == true ]]; then
-	__superuser="sudo"
-elif [[ ! -w "$BIN_DIR" && "$USE_SUDO" == true ]]; then
-	__superuser="sudo"
+	[[ "$USE_SUDO" == true ]] && __superuser="sudo"
 fi
 
 # Detect system info
@@ -102,24 +99,24 @@ err()  { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
 
 safe_mv() {
   [[ -n "${extension}" ]] && extension=".${extension}"
-  "$__superuser" mv "$tmpfile" "$BIN_DIR/${bin_name}${extension}"
-  "$__superuser" chmod +x "$BIN_DIR/${bin_name}${extension}"
+  $__superuser mv "$tmpfile" "$BIN_DIR/${bin_name}${extension}"
+  $__superuser chmod +x "$BIN_DIR/${bin_name}${extension}"
 }
 
 Installing_deb() {
-  "$__superuser" apt-get install -y "./${tmpfile}"
+  $__superuser apt-get install -y "./${tmpfile}"
 }
 
 mv_appimage() {
-  [ -d "${bin_name}.${extension}" ] && "$__superuser" rm -rdf "${bin_name}.${extension}"
+  [ -d "${bin_name}.${extension}" ] && $__superuser rm -rdf "${bin_name}.${extension}"
   safe_mv "$extension"
   
   cd "$BIN_DIR"
   
-  if "$__superuser" ./"${bin_name}.${extension}" --appimage-extract;then
-    "$__superuser" rm -rf "${bin_name}.${extension}"
-	"$__superuser" mv "squashfs-root" "${bin_name}.${extension}"
-    "$__superuser" ln -sf "${bin_name}.${extension}/AppRun" "${bin_name}"
+  if $__superuser ./"${bin_name}.${extension}" --appimage-extract;then
+    $__superuser rm -rf "${bin_name}.${extension}"
+	$__superuser mv "squashfs-root" "${bin_name}.${extension}"
+    $__superuser ln -sf "${bin_name}.${extension}/AppRun" "${bin_name}"
   fi
 }
 
@@ -158,9 +155,9 @@ extract_and_find_binary() {
     safe_mv
   elif [[ "$repobinMODE" == "full" ]];then
       found_bin=$(find "$tmpdir" -type f -perm -111 | grep -vE '(\.so|\.dll|\.dylib)$' | head -n1 || :)
-	  "$__superuser" mv "$tmpdir" "$BIN_DIR/core_${bin_name}"
-	  "$__superuser" chmod +x "${found_bin}"
-	  "$__superuser" ln -sf "${found_bin}" "${BIN_DIR}"
+	  $__superuser mv "$tmpdir" "$BIN_DIR/core_${bin_name}"
+	  $__superuser chmod +x "${found_bin}"
+	  $__superuser ln -sf "${found_bin}" "${BIN_DIR}"
   fi
   rm -rf "$tmpdir"
 }
@@ -341,7 +338,7 @@ install() {
   fi
   
   if [[ "$USE_SUDO" == true ]]; then
-	"$__superuser" ln -sf "$BIN_DIR/${bin_name}${extension}" "$__distro_path_bin"
+	$__superuser ln -sf "$BIN_DIR/${bin_name}${extension}" "$__distro_path_bin"
   fi
   config["$repo"]="$version|$extension"
   log "Installed $bin_name@$version"
@@ -403,7 +400,7 @@ remove_installed() {
   local target="$BIN_DIR/$bin_name"
 
   if [[ -f "$target" ]]; then
-    "$__superuser" rm -f "$target"
+    $__superuser rm -f "$target"
     log "Removed binary: $target"
   else
     warn "Binary file not found: $target"

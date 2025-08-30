@@ -8,8 +8,8 @@ say 'Adding Repo...' 1
 download_key "download" "https://repository.mullvad.net/deb/mullvad-keyring.asc" "/usr/share/keyrings/mullvad-keyring.asc"
 
 # Add the Mullvad repository server to apt
-. "/usr/share/my_stuff/os-release"
-echo "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=$( dpkg --print-architecture )] https://repository.mullvad.net/deb/stable $version_codename main" | my-superuser tee /etc/apt/sources.list.d/mullvad.list
+. "${__distro_path_root}/os-release"
+add_repo "mullvad" "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=$( dpkg --print-architecture )] https://repository.mullvad.net/deb/stable $version_codename main"
 
 Package_update_
 

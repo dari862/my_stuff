@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
+. "/usr/share/my_stuff/lib/common/Distro_path"
 exec 2>/dev/null
-. "/usr/share/my_stuff/lib/common/WM"
+. "${__distro_path_root}/lib/common/WM"
 
 ROW_ICON_FONT='feather 12'
 MSG_ICON_FONT='feather 48'
@@ -18,19 +19,19 @@ case "$MUSIC_PLAYER" in
 esac
 
 case "${@}" in
-    "$A") /usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music prev
+    "$A") ${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music prev
     ;;
-    "$B") /usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music toggle
+    "$B") ${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music toggle
     ;;
-    "$C") /usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music next
+    "$C") ${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music next
     ;;
-    "$D") /usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music stop
+    "$D") ${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music stop
     ;;
     "$E") mpc -p "$CHK_MPD_PORT" single -q
     ;;
 esac
 
-MESSAGE="$(/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music title)"
+MESSAGE="$(${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music title)"
 
 if [ "${#MESSAGE}" -gt 8 ]; then
     MESSAGE="<span size='xx-small'>$(printf '%.9s\n' "$MESSAGE")..</span>"
@@ -43,7 +44,7 @@ fi
 printf '%b\n' '\0use-hot-keys\037true' '\0markup-rows\037true' "\0message\037${MESSAGE}" \
               "$A" "$B" "$C" "$D" "$E"
 
-[ -n "$(/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music status)" ] && P_A='1' || P_U='1'
+[ -n "$(${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts music status)" ] && P_A='1' || P_U='1'
 
 case "$MUSIC_PLAYER" in
     mpd) STATUS="$(mpc -p "$CHK_MPD_PORT" status)"

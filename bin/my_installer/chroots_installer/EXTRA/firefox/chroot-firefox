@@ -1,3 +1,3 @@
 #!/bin/sh
 . "${my_stuff_display_manager_lib_path}"
-my-superuser "/usr/share/my_stuff/bin/my_installer/chroots_installer/EXTRA/firefox/chroot-firefox-launcher-${Display_server_are}"
+my-superuser "${__distro_path_root}/bin/my_installer/chroots_installer/EXTRA/firefox/chroot-firefox-launcher-${Display_server_are}"

@@ -1,12 +1,13 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/common"
-. "/usr/share/my_stuff/Distro_Specific/Package-manager.sh"
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 . "${my_stuff_display_manager_lib_path}"
 
 chroot_name="${1-}"
 chroot_path="${INSTALLER_CHROOT_DIR}/${chroot_name}"
-LAUNCH_SCRIPT_PATH="/usr/share/my_stuff/system_files/bin"
+LAUNCH_SCRIPT_PATH="${__distro_path_root}/system_files/bin"
 CHROOT_USER="chroot$(logname)"
 
 list_of_chroots(){

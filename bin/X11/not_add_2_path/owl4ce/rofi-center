@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 exec >/dev/null 2>&1
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_vars.sh"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_vars.sh"
 
 . "${Distro_config_file}"
 __opt="${1-}"
@@ -20,7 +20,7 @@ __wall(){
                                    	-dmenu \
                                    	-mesg 'Select X Wallpaper'
 	)"
-	/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts set-wallpaper "$WALLPAPERS_DIR" "$WALLPAPER"
+	${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts set-wallpaper "$WALLPAPERS_DIR" "$WALLPAPER"
 }
 
 __rofi_launcher(){
@@ -38,11 +38,11 @@ __BUTTON(){
                          		-no-plugins \
                          		-dmenu \
                          		-mesg 'Select Window Button-Style')"
-	/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts set-button "$BUTTON"
+	${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts set-button "$BUTTON"
 }
 
 __center(){
-	rofi_center_modi_path="/usr/share/my_stuff/bin/X11/not_add_2_path/owl4ce/rofi-center-modi"
+	rofi_center_modi_path="${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/rofi-center-modi"
 	
 	SYSINFO=''
 	SCREENSHOT=''

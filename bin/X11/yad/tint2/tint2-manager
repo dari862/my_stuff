@@ -34,6 +34,7 @@
 #
 ########################################################################
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 TINT2PATH="$HOME/.config/tint2"
 TINT2DEFAULT="$TINT2PATH/tint2rc" # tint2 will create this if it doesn't exist
 SESSIONFILE="$TINT2PATH/tint2-sessionfile"
@@ -84,7 +85,7 @@ done
 DLG="yad --center --undecorated --borders=20 "
 DLGDEC="yad --center --borders=20 "
 TITLE="My Stuff Tint2 Manager"
-WINICON="--window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+WINICON="--window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
 OK="--button=OK:0"
 APPLY="--button=Apply:0"
 CANCEL="--button=gtk-cancel:1"

@@ -2,10 +2,11 @@
 
 run_tweeks_script_="popup_terminal"
 
-. "/usr/share/my_stuff/lib/common/pipemenu"
-. "/usr/share/my_stuff/lib/common/DB"
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
-. "/usr/share/my_stuff/Distro_Specific/info"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/DB"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+. "${__distro_path_root}/Distro_Specific/info"
 
 TWEEKS="$(cat "${tweeks_db_path}")"
 

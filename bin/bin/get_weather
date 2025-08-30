@@ -3,13 +3,14 @@
 __opt="${1-}"
 __opt2="${2-}"
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 
 show_Extra=false
 weather_script_config_path="${script_config_path}/weather"
-__weather_lib_path="/usr/share/my_stuff/bin/not_add_2_path/weather"
+__weather_lib_path="${__distro_path_root}/bin/not_add_2_path/weather"
 
-[ ! -f "$weather_script_config_path" ] && cp -r "/usr/share/my_stuff/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
+[ ! -f "$weather_script_config_path" ] && cp -r "${__distro_path_root}/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
 . "$weather_script_config_path"
 
 if [ "$mode" = "auto" ];then

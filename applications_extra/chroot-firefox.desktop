@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=Chroot Browser (Default Browser)
+Name=Chroot Browser (firefox)
 Comment=Browse the World Wide Web
 GenericName=Web Browser
 X-GNOME-FullName=firefox Web Browser
-Exec=/usr/share/my_stuff/bin/my_installer/chroots_installer/EXTRA/firefox/chroot-browser
+Exec=(((__distro_path_root)))/bin/my_installer/chroots_installer/EXTRA/firefox/chroot-firefox
 erminal=false
 X-MultipleArgs=false
 Type=Application

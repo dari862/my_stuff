@@ -1,6 +1,6 @@
 styles_db_path="${WM_config_dir}/styles_db"
 
-db_dir="/usr/share/my_stuff/system_files/DB"
+db_dir="${__distro_path_root}/system_files/DB"
 tweeks_db_path="${db_dir}/tweeks_db"
 full_environment_db_path="${db_dir}/full_environment_db"
 apps_db_path="${db_dir}/apps_db"

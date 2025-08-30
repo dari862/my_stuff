@@ -2,6 +2,7 @@
 # my-alternatives: A script to manage My Stuff alternatives.
 # Licensed under the GNU General Public License, version 3 or later.
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
@@ -14,7 +15,7 @@ else
 fi
 
 my_superuser_path="/usr/bin/my-superuser"
-my_alternatives_path="/usr/share/my_stuff/system_files/bin"
+my_alternatives_path="${__distro_path_root}/system_files/bin"
 ACTION="${1-}"
 alt_package="${2-}"
 MYALTS="my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide"

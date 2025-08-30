@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 locate_command="${1:-}"
 shift
 __arg="$@"
@@ -12,7 +12,7 @@ HISTFILE=/dev/null
 set +x
 
 rofi_ask_passowrd(){
-	. "/usr/share/my_stuff/lib/common/WM"
+	. "${__distro_path_root}/lib/common/WM"
 	. "${Distro_config_file}"
 	ask_for_pass() {
     	rofi -dmenu\
@@ -44,7 +44,7 @@ password="$(rofi_ask_passowrd)" || (
 if ! command -v expect >/dev/null 2>&1 && command -v doas >/dev/null 2>&1;then
 	popup_terminal --superuser "$_full_command"
 elif command -v doas >/dev/null 2>&1;then
-	# work on this
+	# work on this : remove expect
 	expect <<-EOF
 	# don't mind the man behind the curtain
 	log_user 0

@@ -357,7 +357,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Button 1
 button = new
-button_icon = /usr/share/my_stuff/Distro_Specific/icons/user.svg
+button_icon = (((distro_path_root)))/Distro_Specific/icons/user.svg
 button_text = 
 button_tooltip = Application Launcher
 button_lclick_command = rofi-launcher

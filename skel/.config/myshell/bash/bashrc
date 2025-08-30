@@ -10,8 +10,6 @@ vim_mode_enabled=true
 
 # ---------------------------------  Theme  -----------------------------------
 BASH_THEME="pure"
-SSH_THEME=""
-[[ -n $SSH_CONNECTION ]] && SSH_THEME="debian"
 
 # -------------------------------  main file  ---------------------------------
 source "$BASHDOTDIR/bashrc.sh"

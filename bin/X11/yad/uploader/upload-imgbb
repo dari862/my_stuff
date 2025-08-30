@@ -27,6 +27,7 @@
 #
 ########################################################################
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 check_4_dependencies_if_installed yad jq xdotool convert || exit 1
 
 export API_URL="https://api.imgbb.com/"   # used by run_browser()
@@ -90,7 +91,7 @@ done
 CLIENT_API_KEY="$(myAPIman show imgbb || :)"
 
 #### YAD ###
-DIALOG="yad --center --borders=20 --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg"
+DIALOG="yad --center --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
 TITLE="--title=Image BBCode"
 T="--text="
 DELETE="--button=Delete:2"
@@ -220,7 +221,7 @@ function make_thumbnail(){
 
 function delete_local(){    # delete local screenshot; don't delete if '--file' was script arg.
     local message msg ret
-    source "/usr/share/my_stuff/lib/common/yad-includes"
+    source "${__distro_path_root}/lib/common/yad-includes"
 
     if (( F_FLAG == 0));then    # local file wasn't uploaded, so don't offer to delete it
         message="\n\tMove local screenshot image to 'Trash'?\n\n\t${img_file}\n"
@@ -539,8 +540,8 @@ function main(){
 
     [[ -z "${IMG_VIEWER}" ]] && IMG_VIEWER="my-www-browser"
 
-    if ! . "/usr/share/my_stuff/lib/common/yad-includes" 2> /dev/null;then
-        echo "Error: Failed to source yad-includes in /usr/share/my_stuff/lib/common" >&2
+    if ! . "${__distro_path_root}/lib/common/yad-includes" 2> /dev/null;then
+        echo "Error: Failed to source yad-includes in ${__distro_path_root}/lib/common" >&2
         exit 1
     elif ! . "${SETTINGS_FILE}" 2> /dev/null;then
         echo "Error: Failed to source ${SETTINGS_FILE} in ${USR_CFG_DIR}/" >&2

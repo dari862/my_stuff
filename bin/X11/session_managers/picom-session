@@ -3,7 +3,6 @@ picom_path="$HOME/.config/picom.conf"
 
 stop() {	
 	kill_process.sh picom
-	wait
 }
 
 start() {

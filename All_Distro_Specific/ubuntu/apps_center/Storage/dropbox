@@ -8,7 +8,7 @@ my-superuser mkdir -p "$__distro_path_downloaded"/dropbox
 cd "$__distro_path_downloaded"/dropbox
 getURL '2term' https://linux.dropboxstatic.com/packages/dropbox.py | my-superuser tee dropbox.py >/dev/null 2>&1 || continue
 my-superuser chmod +x dropbox.py || continue
-my-superuser ln -sf "$__distro_path_downloaded"/dropbox/dropbox.py /usr/share/my_stuff/system_files/bin/dropbox || continue
+my-superuser ln -sf "$__distro_path_downloaded"/dropbox/dropbox.py ${__distro_path_root}/system_files/bin/dropbox || continue
 
 my-superuser mkdir -p "$__distro_path_updater"
 my-superuser tee "$__distro_path_updater"/dropbox_updater <<- 'EOF' > /dev/null

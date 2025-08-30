@@ -5,7 +5,7 @@
 # Usage: connectiontest [attempts]
 # If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
 connectiontest() {
-	getURL_path="/usr/share/my_stuff/system_files/bin/getURL"
+	getURL_path="${__distro_path_root}/system_files/bin/getURL"
     TEXT_CHECKING='Checking internet connection...'
     TEXT_FAILED='Internet connection test failed!'
     TEXT_ASK_RETRY='\n\nThis script requires a working internet connection. Please configure your internet connection, then hit "Enter" to continue, else hit "q" to quit.'
@@ -146,12 +146,13 @@ failed_to_run() {
 create_applicationsdotdesktop_link(){
 	__application_name="${1:-}"
 	__application_command="${2:-}"
-    if [ -f "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" ];then
-    	my-superuser cp -r "/usr/share/my_stuff/applications_extra/${__application_name}.desktop" "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop"
-    	my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    if [ -f "${__distro_path_root}/applications_extra/${__application_name}.desktop" ];then
+    	my-superuser cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
+    	my-superuser sed -i "s/(((distro_path_root)))/${__distro_path_root}/g" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
+    	my-superuser ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
     else
     	[ -z "$__application_command" ] && __application_command="${__application_name}"
-    	my-superuser tee "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	my-superuser tee "${__distro_path_root}/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
     	[Desktop Entry]
 		Name=${__application_name}
 		Comment=${__application_name}
@@ -163,7 +164,40 @@ create_applicationsdotdesktop_link(){
 		MimeType=text/html;text/xml;application/xhtml_xml;
 		StartupNotify=true
 		EOF
-    	my-superuser ln -sf "/usr/share/my_stuff/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    	my-superuser ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    fi
+}
+
+create_applicationsdotdesktop_4_xsessions(){
+	__application_name="${1:-}"
+	__application_command="${2:-}"
+	
+	if [ "$(id -u)" -eq 0 ];then
+		_SUPERUSER_2_use=""
+	else
+		if command_exist my-superuser;then
+			_SUPERUSER_2_use="my-superuser"
+		elif command_exist sudo;then
+			_SUPERUSER_2_use="sudo"
+		elif command_exist doas;then
+			_SUPERUSER_2_use="doas"
+		fi
+	fi
+	
+	$_SUPERUSER_2_use mkdir -p "${__distro_path_system_files}/xsessions_applicationsdotdesktop"
+    if [ ! -f "${__distro_path_system_files}/xsessions_applicationsdotdesktop/${pre_distro_xsessions_desktop_file_name}${__application_name}.desktop" ];then
+    	$_SUPERUSER_2_use tee "${__distro_path_system_files}/xsessions_applicationsdotdesktop/${pre_distro_xsessions_desktop_file_name}${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+		[Desktop Entry]
+		Name=My Stuff ${__application_name}
+		Comment=Log in to a ${pre_distro_xsessions_desktop_title} ${__application_name} session
+		Exec=${__distro_path_system_files}/bin/xsessions/${__application_command}
+		TryExec=${__distro_path_system_files}/bin/xsessions/${__application_command}
+		Icon=${__application_name}
+		Type=Xsession
+		EOF
+    fi
+    if [ ! -f "/usr/share/xsessions/${pre_distro_xsessions_desktop_file_name}${__application_name}.desktop" ];then
+    	$_SUPERUSER_2_use ln -sf "${__distro_path_system_files}/xsessions_applicationsdotdesktop/${pre_distro_xsessions_desktop_file_name}${__application_name}.desktop" "/usr/share/xsessions"
     fi
 }
 
@@ -190,6 +224,26 @@ flatpak_install() {
     create_applicationsdotdesktop_link "${__icons_}" "flatpak run ${__appid}"
 }
 
+sed_distro_path_root_var_2_correct_value(){
+	__path_2_sed="${1:-}"
+	
+	if [ "$(id -u)" -eq 0 ];then
+		_SUPERUSER_2_use=""
+	else
+		if command_exist my-superuser;then
+			_SUPERUSER_2_use="my-superuser"
+		elif command_exist sudo;then
+			_SUPERUSER_2_use="sudo"
+		elif command_exist doas;then
+			_SUPERUSER_2_use="doas"
+		fi
+	fi
+	
+	if grep -rIq "(((distro_path_root)))" "${__path_2_sed}";then
+		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((distro_path_root)))|${__distro_path_root}|g" {} +
+	fi
+}
+
 copy_from_extra_skel() {
     __copythis="${1:-}"
     __basename=$(basename "$__copythis")
@@ -200,12 +254,14 @@ copy_from_extra_skel() {
         __copythere="$__dirname"
     fi
 
-    my-superuser cp -r "/usr/share/my_stuff/skel_extra/${__copythis}" "/usr/share/my_stuff/system_files/skel/${__copythere}"
-
+    my-superuser cp -r "${__distro_path_root}/skel_extra/${__copythis}" "${__distro_path_root}/system_files/skel/${__copythere}"
+    
+	sed_distro_path_root_var_2_correct_value "${__distro_path_root}/system_files/skel"
+	
     for d in /home/*/; do
         [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue
         user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-        my-superuser cp -r "/usr/share/my_stuff/system_files/skel/${__copythis}" "$d/${__copythis}"
+        my-superuser cp -r "${__distro_path_root}/system_files/skel/${__copythis}" "$d/${__copythis}"
         my-superuser chown -R "$user_and_group" "$d"
     done
 }
@@ -214,22 +270,25 @@ copy_blob_extra_2_system_files_blob(){
 	say 'Copy Files from  blob_extra...' 1
 	package2copy="${1:-}"
 	copycache="${2:-}"
-	cd "/usr/share/my_stuff/blob_extra/tint2" || failed_to_run 'cd to /usr/share/my_stuff/blob_extra/tint2 ...' 1
+	cd "${__distro_path_root}/blob_extra/tint2" || failed_to_run "cd to ${__distro_path_root}/blob_extra/tint2 ..." 1
 	if [ -d "default/config/${package2copy}" ];then
 		for theme in *;do
-			my-superuser cp -r "${theme}/config/${package2copy}" "/usr/share/my_stuff/system_files/blob/tint2/${theme}/config"
+			my-superuser cp -r "${theme}/config/${package2copy}" "${__distro_path_root}/system_files/blob/tint2/${theme}/config"
 		done
 	fi
-	cd "/usr/share/my_stuff/blob_extra/polybar" || failed_to_run 'cd to /usr/share/my_stuff/blob_extra/tint2 ...' 1
+	cd "${__distro_path_root}/blob_extra/polybar" || failed_to_run "cd to ${__distro_path_root}/blob_extra/tint2 ..." 1
 	if [ -d "default/config/${package2copy}" ];then
 		for theme in *;do
-			my-superuser cp -r "${theme}/config/${package2copy}" "/usr/share/my_stuff/system_files/blob/polybar/${theme}/config"
-			[ "$copycache" = "cache" ] && my-superuser cp -r "${theme}/cache" "/usr/share/my_stuff/system_files/blob/tint2/${theme}"
+			my-superuser cp -r "${theme}/config/${package2copy}" "${__distro_path_root}/system_files/blob/polybar/${theme}/config"
+			[ "$copycache" = "cache" ] && my-superuser cp -r "${theme}/cache" "${__distro_path_root}/system_files/blob/tint2/${theme}"
 		done
 	fi
+	
+	sed_distro_path_root_var_2_correct_value "${__distro_path_root}/system_files/blob"
+	
 	for d in /home/*; do
 		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-		my-superuser cp -rf "/usr/share/my_stuff/system_files/blob"/* "$d/.config/blob"
+		my-superuser cp -rf "${__distro_path_root}/system_files/blob"/* "$d/.config/blob"
 		my-superuser chown -R "$user_and_group" "$d"
 	done
 }

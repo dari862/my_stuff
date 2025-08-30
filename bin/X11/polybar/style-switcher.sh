@@ -1,6 +1,7 @@
 #!/bin/sh
 # Color files
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 style_name=""
@@ -121,7 +122,7 @@ then
 		sed -i "s|ROFI_STYLE=.*|ROFI_STYLE=$style_name|g" "${Distro_config_file}"
 		
 		# Change wallpaper
-		setbg -R /usr/share/my_stuff/my_wallpapers/"$bg"
+		setbg -R ${__distro_path_root}/my_wallpapers/"$bg"
 		
 		# Restarting polybar
 		polybar_launch_creater
@@ -338,7 +339,7 @@ then
 	new_style="${1-}"
 	style_name="panels/${new_style}"
 	bg="panels_${new_style}.jpg"
-	if  [ -f "/usr/share/my_stuff/my_wallpapers/${bg}" ];then
+	if  [ -f "${__distro_path_root}/my_wallpapers/${bg}" ];then
 		change_panel
 	else
 		cat <<- _EOF_

@@ -15,7 +15,8 @@ esac
 
 check_4_dependencies_if_installed rofi || exit 1
 
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 NBROWSER_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nbrowser"

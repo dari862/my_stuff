@@ -4,7 +4,7 @@ app_name="vim"
 extra_apps_="nodejs"
 
 ###################################################################
-Disto_path="/usr/share/my_stuff"
+Disto_path="${__distro_path_root}"
 RC_FILE_Path="${Disto_path}/lib/apps/vim"
 CONF_FILE_NAME="vimrc"
 

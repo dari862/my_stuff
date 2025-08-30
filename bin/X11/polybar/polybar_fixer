@@ -2,8 +2,9 @@
 
 ## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/Distro_Specific/disto_icon"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/Distro_Specific/disto_icon"
 
 CARD=""
 BATTERY=""
@@ -88,7 +89,7 @@ get_values() {
 		E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
 		W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
 		
-		if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
+		if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then
 			INTERFACE="${W_INTERFACE}"
 		elif [ -n "${E_INTERFACE}" ];then
 			INTERFACE="${E_INTERFACE}"
@@ -114,7 +115,7 @@ get_values() {
 
 # Fix backlight and network modules
 fix_modules() {
-	if [ -f "/usr/share/my_stuff/system_files/this_is_laptop" ];then
+	if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then
 		if xbacklight -get >/dev/null 2>&1; then
 			find $HOME/.config/polybar -type f -exec sed -i 's|type = internal/backlight|type = internal/xbacklight|g' {} +
 		fi
@@ -147,7 +148,7 @@ remove_modules() {
 		#find $HOME/.config/polybar -type f -exec sed -i 's/label-active/label-focused/g' {} +
  	fi
 
- 	[ ! -f "/usr/share/my_stuff/system_files/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
+ 	[ ! -f "${__distro_path_root}/system_files/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
  	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
  	if [ -z "$VPN_INTERFACE" ];then

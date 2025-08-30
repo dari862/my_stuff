@@ -1,15 +1,14 @@
-#!/bin/sh
 usr_confdir="${XDG_CONFIG_HOME:-$HOME/.config}"
 usr_locl_share_dir="$HOME/.local/share"
 usr_setup_flag_file="$usr_locl_share_dir/usr-flag-setup"
 usr_xsessionrc="$HOME/.xsessionrc"
 usr_resources="$HOME/.config/x11/xresources"
-xsessions_lib_path="/usr/share/my_stuff/lib/xsessions"
+xsessions_lib_path="${__distro_path_root}/lib/xsessions"
 
-if [ -d "/usr/share/my_stuff/system_files/bin" ];then
-	PATH="/usr/share/my_stuff/system_files/bin:$PATH"
+if [ -d "${__distro_path_root}/system_files/bin" ];then
+	PATH="${__distro_path_root}/system_files/bin:$PATH"
 else
-	echo "ERROR: /usr/share/my_stuff/system_files/bin Does not exist."
+	echo "ERROR: ${__distro_path_root}/system_files/bin Does not exist."
 fi
 
 # This section is only executed on first boot.

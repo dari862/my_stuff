@@ -1,6 +1,7 @@
 #!/bin/sh
 # if this line exist script will be part of gui scripts.new_name=GPU_Switcher
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 NVIDIA_VENDOR="NVIDIA Corporation"
 AMD_VENDOR="AMD"
 SOFTWARE_VENDOR="Mesa/X.org"
@@ -76,8 +77,8 @@ show_information() {
         --fixed \
         --width 500 \
         --title "Mux Icon: ${vendor}"\
-        --image "/usr/share/my_stuff/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
-        --window-icon "/usr/share/my_stuff/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
+        --image "${__distro_path_root}/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
+        --window-icon "${__distro_path_root}/icons/GPU_ICONS/${gpu_vendor_icon}.svg"\
         --button="yad-close:0"\
         --button="Return!device_pci:${program}" \
         --text "<small>you can close the notification icon by middle clicking it</small>" \

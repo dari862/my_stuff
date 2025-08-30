@@ -3,7 +3,7 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
 #### Pre Launch      #################################################################################
-/usr/share/my_stuff/bin/WM/pre_launch_wm
+(((distro_path_root)))/bin/WM/pre_launch_wm
 
 userresources="$HOME/.Xresources"
 usermodmap="$HOME/.Xmodmap"
@@ -48,4 +48,4 @@ done &
 # Start compositor
 picom-session start &
 
-/usr/share/my_stuff/bin/WM/post_launch_wm
+(((distro_path_root)))/bin/WM/post_launch_wm

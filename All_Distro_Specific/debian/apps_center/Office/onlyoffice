@@ -7,7 +7,7 @@ gpg --no-default-keyring --keyring gnupg-ring:~/.gnupg/onlyoffice.gpg --keyserve
 chmod 644 ~/.gnupg/onlyoffice.gpg
 my-superuser chown root:root ~/.gnupg/onlyoffice.gpg
 my-superuser mv ~/.gnupg/onlyoffice.gpg /usr/share/keyrings/onlyoffice.gpg
-echo 'deb [signed-by=/usr/share/keyrings/onlyoffice.gpg] https://download.onlyoffice.com/repo/debian squeeze main' | my-superuser tee /etc/apt/sources.list.d/onlyoffice.list > /dev/null 2>&1
+add_repo "onlyoffice" 'deb [signed-by=/usr/share/keyrings/onlyoffice.gpg] https://download.onlyoffice.com/repo/debian squeeze main'
 
 Package_update_
 

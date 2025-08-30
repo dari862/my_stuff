@@ -1,7 +1,7 @@
 #!/bin/sh
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 if [ -z "$1" ];then
-	. "/usr/share/my_stuff/lib/common/pipemenu"
+	. "${__distro_path_root}/lib/common/pipemenu"
 	
 	menuStart "scalinglistmenu" "Pick scaling."
 	menuItem "50 %" "$0 50"

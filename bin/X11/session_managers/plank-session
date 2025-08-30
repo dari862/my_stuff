@@ -7,7 +7,6 @@ check_run_plank_="$(cat ${plank_config} 2>/dev/null)"
 
 stop() {
 	kill_process.sh plank
-	wait
 }
 
 start() {

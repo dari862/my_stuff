@@ -3,7 +3,7 @@ app_name="code"
 
 say "Configuring repositories..."
 download_key "gpg" "https://packages.microsoft.com/keys/microsoft.asc" "/usr/share/keyrings/vscode-keyring.gpg"
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/vscode-keyring.gpg] http://packages.microsoft.com/repos/vscode stable main" | my-superuser tee /etc/apt/sources.list.d/vscode.list > /dev/null 2>&1
+add_repo "vscode" "deb [arch=amd64 signed-by=/usr/share/keyrings/vscode-keyring.gpg] http://packages.microsoft.com/repos/vscode stable main"
 
 Package_update_
 

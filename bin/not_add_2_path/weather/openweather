@@ -133,7 +133,7 @@ parse_weather_for_conky_vision(){
 	WEATHER_INFO=$(cat "${weatherreport}")
 	forecast=$(cat "${forecastreport}")
 	cache_folder="$HOME/.cache/conky-vision"
-	image_folder="/usr/share/my_stuff/system_files/conky_weather_icons/openweather"
+	image_folder="${__distro_path_root}/system_files/conky_weather_icons/openweather"
 
 	mkdir -p "${cache_folder}"
 		

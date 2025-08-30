@@ -2,7 +2,8 @@
 # if this line exist script will be part of hub script.
 
 set -e
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 opt="${1-h}"

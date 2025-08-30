@@ -4,7 +4,8 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
 ## Cover art script for ncmpcpp
-. "/usr/share/my_stuff/lib/common/WM"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
 . "${script_config_path}/ncmpcpp_launcher"
 
 # SETTINGS

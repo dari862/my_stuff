@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 HELP="    beepmein-pipemenu a beepmein pipe menu for jgmenu
 
 Usage: (standalone) beepmein-pipemenu | jgmenu --vsimple --at-pointer
@@ -161,7 +162,7 @@ List_Alarms_2_Remove(){
 	
 	yad_results=$(mktemp --tmpdir beepmein-tab2.XXXXXXXX) 
 
-	cat $queue_tmp_file_ | yad --window-icon=/usr/share/my_stuff/Distro_Specific/icons/linux.svg --width=640 --height=500 --title="List Alarms" --image="gtk-execute" --uri-handler=xdg-open \
+	cat $queue_tmp_file_ | yad --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --width=640 --height=500 --title="List Alarms" --image="gtk-execute" --uri-handler=xdg-open \
 								--list --print-all --bool-fmt="t" --checklist --column="check" --column="Job" --column="Time"\
 								--button=Cancel:1 --button=OK:10 > $yad_results
 								
@@ -251,7 +252,7 @@ use_yad_(){
 	yad --notebook --tab-pos="left" --key=$KEY \
     --tab="Set Alarms" \
     --tab="Set sounds" \
-    --title="$title" --image=/usr/share/my_stuff/icons/linux.png \
+    --title="$title" --image=${__distro_path_root}/icons/linux.png \
     --width="720" --height="420" --image-on-top --text-justify=right --text="$MCC"  --no-buttons > $out &
 }
 

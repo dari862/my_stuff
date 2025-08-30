@@ -3,7 +3,7 @@
 app_name="ghostty"
 
 download_key "key" "https://download.opensuse.org/repositories/home:clayrisser:bookworm/Debian_12/Release.key" "/etc/apt/trusted.gpg.d/home_clayrisser_bookworm_ghostty.gpg"
-echo 'deb http://download.opensuse.org/repositories/home:/clayrisser:/bookworm/Debian_12/ /' | my-superuser tee /etc/apt/sources.list.d/home_clayrisser_bookworm_ghostty.list
+add_repo "home_clayrisser_bookworm_ghostty" 'deb http://download.opensuse.org/repositories/home:/clayrisser:/bookworm/Debian_12/ /'
 
 Package_update_
 clear

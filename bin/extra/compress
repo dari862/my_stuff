@@ -1,0 +1,16 @@
+#!/bin/sh
+case $1 in
+	*.tar.*)
+		name="${1%.*}"
+		ext="${1#*.tar}"; shift
+		tar cvf "$name" "$@"
+		case $ext in
+			.gz) gzip -9r "$name" ;;
+			.bz2) bzip2 -9zv "$name";;
+		esac
+	;;
+	*.gz) shift; gzip -9rk "$@" ;;
+	*.zip) zip -9r "$@" ;;
+	*.7z) 7z a -mx9 "$@" ;;
+	*) printf "estensione non valida/non supportata"
+esac

@@ -2,8 +2,9 @@
 ## change openbox menu style
 
 # Variables and functions
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/openbox"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 
 # Change menu file & reload OB
 menu_name="${1-}"

@@ -1,7 +1,8 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
+. "/usr/share/my_stuff/lib/common/Distro_path"
 __mode="${1:-}"
-scripts_path="/usr/share/my_stuff/bin/X11/TV"
+scripts_path="${__distro_path_root}/bin/X11/TV"
 
 on_terminal(){
 	if [ ! -t 1 ];then
@@ -11,7 +12,7 @@ on_terminal(){
 
 if [ -z "${__mode}" ];then
 	if ! on_terminal;then
-		. "/usr/share/my_stuff/lib/common/WM"
+		. "${__distro_path_root}/lib/common/WM"
 		. "${Distro_config_file}"
 		selected_mode="$(printf "1. Youtube|2. ancli|3. Moive/TV-Show|4. IP-TV" | rofi -sep '|' -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
 	else

@@ -4,6 +4,6 @@ Comment=System activity from btop
 Exec=popup_terminal btop
 Terminal=false
 Type=Application
-Icon=/usr/share/my_stuff/icons/Activity.png
+Icon=htop
 Categories=GTK;
 StartupNotify=false

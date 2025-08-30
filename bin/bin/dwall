@@ -2,6 +2,8 @@
 ## Dynamic Wallpaper : Set wallpapers according to current time.
 ## Created to work better with job schedulers (cron)
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
+
 #[ "$(id -u)" -eq 0 ] && { echo "never run script as root. existing.."; exit 1 ;}
 cron_dwall_extra_arg=()
 folder_2_convert_2_Dywall=""
@@ -14,9 +16,9 @@ REDBG="$(printf '\033[41m')"  GREENBG="$(printf '\033[42m')"  ORANGEBG="$(printf
 MAGENTABG="$(printf '\033[45m')"  CYANBG="$(printf '\033[46m')"  WHITEBG="$(printf '\033[47m')" BLACKBG="$(printf '\033[40m')"
 
 ## Wallpaper directory
-dwall_script="/usr/share/my_stuff/bin/bin/dwall"
+dwall_script="${__distro_path_root}/bin/bin/dwall"
 wallpapers_folder_name="Dynamic_wallpapers"
-DIR="/usr/share/my_stuff/system_files/${wallpapers_folder_name}"
+DIR="${__distro_path_root}/system_files/${wallpapers_folder_name}"
 HOUR="$(date +%k)"
 
 ## Wordsplit in ZSH
@@ -287,7 +289,7 @@ YES_OR_NO()
 }
 
 Download_wallpapers_now(){
-	. "/usr/share/my_stuff/lib/common/common"
+	. "${__distro_path_root}/lib/common/common"
 	check_4_dependencies_if_installed git || exit 1
 	mkdir -p /tmp/$USER/dynamic_wallpapers
 	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"

@@ -1,5 +1,7 @@
 #!/bin/bash
 set -euo pipefail
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 check_4_dependencies_if_installed blkid grep mkswap swapoff swapon || exit 1
 
@@ -54,32 +56,32 @@ function set_swap_on {
   local swapdir
   swapdir="$(dirname "${SWAPFILE}")"
   if [ "${swapdir}" != '/' ] && ! [ -d "${swapdir}" ];then
-    mkdir -p "${swapdir}"
+    ${_SUPERUSER} mkdir -p "${swapdir}"
   fi
 
   # Create swapfile if it doesn't exist.
   if ! [ -f "${SWAPFILE}" ];then
     show_info "Creating ${SWAPFILE@Q}"
-    dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
-    sync
+    ${_SUPERUSER} dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
+    ${_SUPERUSER} sync
   fi
 
   # Set permissions.
   if [[ "$(stat -c "%a" "${SWAPFILE}")" != 600 ]];then
     show_info "Setting ${SWAPFILE@Q} permissions"
-    chmod 0600 "${SWAPFILE}"
+    ${_SUPERUSER} chmod 0600 "${SWAPFILE}"
   fi
 
   # Create UUID.
-  if ! blkid -o value "${SWAPFILE}" | grep -q "^swap$";then
+  if ! ${_SUPERUSER} blkid -o value "${SWAPFILE}" | grep -q "^swap$";then
     show_info "Setting ${SWAPFILE@Q} UUID"
-    mkswap -U clear "${SWAPFILE}"
+    ${_SUPERUSER} mkswap -U clear "${SWAPFILE}"
   fi
 
   # Check if swap partition active. If not run
-  if ! swapon --show | grep -q "^${SWAPFILE}\s";then
+  if ! ${_SUPERUSER} swapon --show | grep -q "^${SWAPFILE}\s";then
     show_info "Activating ${SWAPFILE@Q}"
-    swapon "${SWAPFILE}"
+    ${_SUPERUSER} swapon "${SWAPFILE}"
   fi
 }
 
@@ -91,19 +93,19 @@ function set_swap_off {
   fi
 
   # Disable swap partition if it is active.
-  if swapon --show | grep -q "^${SWAPFILE}\s";then
+  if ${_SUPERUSER} swapon --show | grep -q "^${SWAPFILE}\s";then
     show_info "Flushing cache"
-    sync
-    [ -e /proc/sys/vm/drop_caches ] && echo 3 > /proc/sys/vm/drop_caches
-    sync
+    ${_SUPERUSER} sync
+    [ -e /proc/sys/vm/drop_caches ] && echo 3 | ${_SUPERUSER} tee /proc/sys/vm/drop_caches >/dev/null 2>&1
+    ${_SUPERUSER} sync
     show_info "Deactivating ${SWAPFILE@Q}"
-    swapoff "${SWAPFILE}"
+    ${_SUPERUSER} swapoff "${SWAPFILE}"
   fi
 
   # Delete swap file if it exists.
   if [ -f "${SWAPFILE}" ];then
     show_info "Deleting ${SWAPFILE@Q}"
-    rm "${SWAPFILE}"
+    ${_SUPERUSER} rm "${SWAPFILE}"
   fi
 }
 
@@ -156,18 +158,10 @@ SWAPSIZE="${SWAPSIZE:-8192}"
 
 case "${1}" in
   on)
-    if [ ${EUID} -eq 0 ];then
-      set_swap_on
-    else
-      my-superuser bash -c "SWAPSIZE=${SWAPSIZE}; SWAPFILE=${SWAPFILE}; source ${ROOT}/globals; $(declare -f set_swap_on); set_swap_on"
-    fi
+    set_swap_on
     ;;
   off)
-    if [ ${EUID} -eq 0 ];then
-      set_swap_off
-    else
-      my-superuser bash -c "SWAPSIZE=${SWAPSIZE}; SWAPFILE=${SWAPFILE}; source ${ROOT}/globals; $(declare -f set_swap_off); set_swap_off"
-    fi
+    set_swap_off
     ;;
   help)
     print_usage

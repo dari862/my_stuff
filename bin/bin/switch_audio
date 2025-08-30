@@ -1,5 +1,6 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/switch_audio_lib"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/switch_audio_lib"
 sink_number="${1:-}"
 
 numbered_sink_data=$(printf "%s\n" "$sink_data" | awk -F'|' '{print $1}' | nl -s'. ')

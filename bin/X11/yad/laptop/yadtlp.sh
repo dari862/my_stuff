@@ -1,10 +1,11 @@
 #!/bin/bash
 # if this line exist script will be part of gui scripts.new_name=GUI_TLP
 
+. "/usr/share/my_stuff/lib/common/Distro_path"
 __config_path="/etc/tlp.conf"
 __tlp_version_="$(tlp-stat -s | head -1)"
 
-. "/usr/share/my_stuff/lib/languages/tlp/yadtlp_configdescriptions"
+. "${__distro_path_root}/lib/languages/tlp/yadtlp_configdescriptions"
 
 check_4_dependencies_if_installed tlp || exit 1
 
@@ -482,7 +483,7 @@ main_yad(){
     	--tab="Radio" \
     	--tab="USB" \
     	--tab="ThinkPad_Battery" \
-    	--title="TLP" --image=/usr/share/my_stuff/icons/linux.png \
+    	--title="TLP" --image=${__distro_path_root}/icons/linux.png \
     	--scroll --center --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  \
     	--text="$INTRO_TXT" \
     	--button="show simple statistics":"bash -c 'show_statistics simple'" \

@@ -10,11 +10,11 @@ elif which xsetroot >/dev/null 2>/dev/null;then
   BG=xsetroot
 fi
 #test -z $BG || $BG -solid "#303030"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 
-. "/usr/share/my_stuff/lib/common/WM"
-. "/usr/share/my_stuff/lib/common/openbox"
-
-GLOBALAUTOSTART="/usr/share/my_stuff/lib/xsessions/openbox_files/autostart"
+GLOBALAUTOSTART="${__distro_path_root}/lib/xsessions/openbox_files/autostart"
 AUTOSTART="${OBPATH}/autostart"
 
 # Run the global openbox autostart script
@@ -35,7 +35,7 @@ fi
 #   CMD=xdg-autostart
 #   mkdir -p "$HOME/.config/autostart"
 #else
-#   CMD=/usr/share/my_stuff/lib/xsessions/openbox_files/openbox-xdg-autostart
+#   CMD=${__distro_path_root}/lib/xsessions/openbox_files/openbox-xdg-autostart
 #fi
 # Run the XDG autostart stuff.  These are found in /etc/xdg/autostart and
 # in $HOME/.config/autostart.  This requires PyXDG to be installed.

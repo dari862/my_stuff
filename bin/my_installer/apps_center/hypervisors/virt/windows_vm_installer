@@ -2,9 +2,9 @@
 set -e
 release="10"
 
-if [ -f "/usr/share/my_stuff/system_files/bin/quickemu_installer" ];then
+if [ -f "${__distro_path_root}/system_files/bin/quickemu_installer" ];then
 	say " Installing quickemu for quick and auto deploy windows."
-	. /usr/share/my_stuff/system_files/bin/quickemu_installer
+	. ${__distro_path_root}/system_files/bin/quickemu_installer
 fi
 say " Getting windows ${release} required ISO."
 if ! quickget windows ${release};then
@@ -17,4 +17,4 @@ echo ""
 say "windows_vm_installer to auto deploy windows ${release} vm."
 say "windows_vm_installer to auto deploy windows ${release} vm."
 say "windows_vm_installer to auto deploy windows ${release} vm."
-rm -f /usr/share/my_stuff/system_files/bin/windows_vm_installer
+rm -f ${__distro_path_root}/system_files/bin/windows_vm_installer

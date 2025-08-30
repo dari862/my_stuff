@@ -1,20 +1,20 @@
 #!/bin/sh
-
+. "/usr/share/my_stuff/lib/common/Distro_path"
 installation_script_name="popup_terminal"
 
-. "/usr/share/my_stuff/lib/common/DB"
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "${__distro_path_root}/lib/common/DB"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 DEPLOYS="$(cat "${distrobox_deploy_db_path}")"
 CONTAINERS="$(cat "${containers_deploy_db_path}")"
 CHROOTS="$(cat "${chroots_deploy_db_path}")"
 
-. "/usr/share/my_stuff/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/pipemenu"
 
 {
 	menuStart "DeployFavouriteContainers" "Deploy containers using Distrobox and Containers softwares"
-	if [ ! -f "/usr/share/my_stuff/system_files/Gaming_ready" ];then
-		if [ ! -f "/usr/share/my_stuff/system_files/GPU_Drivers_ready" ];then
+	if [ ! -f "${__distro_path_root}/system_files/Gaming_ready" ];then
+		if [ ! -f "${__distro_path_root}/system_files/GPU_Drivers_ready" ];then
 			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU"
 		else
 			menuItem "Gaming Box" "${installation_script_name} --deploy gaming"

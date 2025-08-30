@@ -3,7 +3,7 @@ app_name="vivaldi-stable"
 
 say 'Adding Repo...' 1
 download_key "gpg" "https://repo.vivaldi.com/archive/linux_signing_key.pub" "/usr/share/keyrings/vivaldi-browser.gpg"
-echo "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=$(dpkg --print-architecture)] https://repo.vivaldi.com/archive/deb/ stable main" | my-superuser tee /etc/apt/sources.list.d/vivaldi-archive.list >/dev/null 2>&1
+add_repo "vivaldi-archive" "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=$(dpkg --print-architecture)] https://repo.vivaldi.com/archive/deb/ stable main"
 
 Package_update_
 

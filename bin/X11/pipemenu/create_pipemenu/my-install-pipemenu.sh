@@ -2,9 +2,10 @@
 
 installation_script_name="popup_terminal"
 
-. "/usr/share/my_stuff/lib/common/DB"
-. "/usr/share/my_stuff/lib/common/pipemenu"
-. "/usr/share/my_stuff/lib/common/my_installer_and_DB_dir"
+. "/usr/share/my_stuff/lib/common/Distro_path"
+. "${__distro_path_root}/lib/common/DB"
+. "${__distro_path_root}/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 X11_apps_2_remove="$(grep -rI "# X11 only package remove it from my-installer" "$_APPS_LIBDIR" | awk -F: '{print $1}' | xargs -n1 basename | tr '\n' '|' | sed 's/|$//')"
 wayland_apps_2_remove="$(grep -rI "# wayland only package remove it from my-installer" "$_APPS_LIBDIR" | awk -F: '{print $1}' | xargs -n1 basename | tr '\n' '|' | sed 's/|$//')"

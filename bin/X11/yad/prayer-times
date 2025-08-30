@@ -1,4 +1,5 @@
 #!/bin/bash
+. "/usr/share/my_stuff/lib/common/Distro_path"
 create_config_file(){
 	location="$(cat /etc/timezone | awk -F/ '{print $2}')"
 	reg_location="$(cat /etc/timezone | awk -F/ '{print $1}')"
@@ -82,7 +83,7 @@ create_config_file(){
 		print_lang="ar"
 		
 		athan_file_name='qatami_takbeer.mp3'
-		athan_file_path="/usr/share/my_stuff/lib/${athan_file_name}"
+		athan_file_path="${__distro_path_root}/lib/${athan_file_name}"
 		# ----------------------- #
 		
 		
