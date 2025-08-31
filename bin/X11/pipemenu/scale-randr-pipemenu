@@ -1,20 +1,16 @@
 #!/bin/sh
 . "/usr/share/my_stuff/lib/common/Distro_path"
-if [ -z "$1" ];then
-	. "${__distro_path_root}/lib/common/pipemenu"
-	
-	menuStart "scalinglistmenu" "Pick scaling."
-	menuItem "50 %" "$0 50"
-	menuItem "75 %" "$0 75"
-	menuItem "100 %" "$0 100"
-	menuItem "125 %" "$0 125"
-	menuItem "175 %" "$0 175"
-	menuItem "200 %" "$0 200"
-	menuItem "225 %" "$0 225"
-	menuItem "250 %" "$0 250"
-	menuItem "275 %" "$0 275"
-	menuItem "300 %" "$0 300"
-	menuEnd
-else
-	displayselect "Set_scaling" "pass" "$1"
-fi
+. "${__distro_path_root}/lib/common/pipemenu"
+
+menuStart "scalinglistmenu" "Pick scaling."
+menuItem "50 %" "displayselect Set_scaling pass 0.5"
+menuItem "75 %" "displayselect Set_scaling pass 0.75"
+menuItem "100 %" "displayselect Set_scaling pass 1"
+menuItem "125 %" "displayselect Set_scaling pass 1.25"
+menuItem "175 %" "displayselect Set_scaling pass 1.75"
+menuItem "200 %" "displayselect Set_scaling pass 2"
+menuItem "225 %" "displayselect Set_scaling pass 2.25"
+menuItem "250 %" "displayselect Set_scaling pass 2.50"
+menuItem "275 %" "displayselect Set_scaling pass 2.75"
+menuItem "300 %" "displayselect Set_scaling pass 3"
+menuEnd

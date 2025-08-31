@@ -5,7 +5,7 @@ _repobin() {
   _init_completion || return
 
   local commands="install update list remove info clean reinstall help"
-  local options="--bin-dir --config-file --sudo"
+  local options="--bin-dir --config-file --root --mode --ext"
 
   # Get installed repos for completion (modify this if config path varies)
   local config_file="${BIN_DIR:-$HOME/.local/bin}/installs.json"

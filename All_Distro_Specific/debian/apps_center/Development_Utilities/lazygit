@@ -10,5 +10,5 @@ if [ "${no_neovim}" = "no_neovim" ];then
 fi
 
 say "Installing ${app_name}..." 1
-repobin --sudo install jesseduffield/lazygit || failed_to_run "failed to run ${app_name} ."
+repobin --root install jesseduffield/lazygit || failed_to_run "failed to run ${app_name} ."
 copy_from_extra_skel ".config/lazygit" || continue

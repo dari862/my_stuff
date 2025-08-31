@@ -1,4 +1,4 @@
 #!/bin/sh
 app_name="odin"
 say "Installing ${app_name}..." 1
-repobin --sudo --mode full install odin-lang/Odin || failed_to_run "failed to run ${app_name} ."
+repobin --root --mode full --file odian install odin-lang/Odin || failed_to_run "failed to run ${app_name} ."

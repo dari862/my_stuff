@@ -2,7 +2,7 @@
 app_name="envycontrol"
 
 say "Installing ${app_name}..." 1
-repobin --sudo --mode deb install bayasdev/envycontrol || failed_to_run "failed to run ${app_name} ."
+repobin --root --mode deb install bayasdev/envycontrol v3.5.1 || failed_to_run "failed to run ${app_name} ."
   				
 if [ ! -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/gpu-switcher-session}" ];then
 	ln -sf ${__distro_path_root}/bin/X11/yad/gpu_switcher/gpu-switcher-session "${__distro_path_root}/system_files/skel/.config/autostartscripts"

@@ -1,4 +1,4 @@
 #!/bin/sh
 app_name="copyparty"
 say "Installing ${app_name}..." 1
-repobin --sudo --ext sfx.py install 9001/copyparty || failed_to_run "failed to run ${app_name} ."
+repobin --root --ext sfx.py install 9001/copyparty || failed_to_run "failed to run ${app_name} ."

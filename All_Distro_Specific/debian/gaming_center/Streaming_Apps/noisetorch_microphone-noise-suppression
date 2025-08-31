@@ -5,7 +5,7 @@ if [ -f "${__distro_path_root}/system_files/Distrobox_ready" ];then
 	Distrobox_package_installer_ ${app_name} || continue		
 else
 	say "Installing ${app_name}..." 1
-	repobin --sudo install noisetorch/NoiseTorch || failed_to_run "failed to run ${app_name} ."
+	repobin --root install noisetorch/NoiseTorch || failed_to_run "failed to run ${app_name} ."
 	my-superuser setcap 'CAP_SYS_RESOURCE=+ep' "${__distro_path_downloaded}/noisetorch"
 	create_applicationsdotdesktop_link "noisetorch"
 fi	

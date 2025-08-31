@@ -1,4 +1,4 @@
 #!/bin/sh
 app_name="quran"
 say "Installing ${app_name}..." 1
-repobin --sudo install AppImage 0xzer0x/quran-companion || failed_to_run "failed to run ${app_name} ."
+repobin --root --mode appimage install 0xzer0x/quran-companion || failed_to_run "failed to run ${app_name} ."

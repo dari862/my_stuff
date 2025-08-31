@@ -62,7 +62,7 @@ mk_position_controls() {
 				if [[ "${output}" != "$other" ]];then
 					echo "<item label=\"$other\">"
 					echo "<action name=\"execute\">"
-					echo "<command>xrandr --output ${output} --$position $other</command>"
+					echo "<command>displayselect manage_arrangement monitor ${output} $position $other</command>"
 					echo "</action>"
 					echo "</item>"
 				fi
@@ -74,13 +74,14 @@ mk_position_controls() {
 
 # Function to create executable menu node
 mk_exe_node() {
-    local output="$1"
-    local name="$2"
+    local name="$1"
+    local output="$2"
     local command="$3"
+    local command_value="$4"
     
     echo "<item label=\"$name\">"
     echo "<action name=\"execute\">"
-    echo "<command>xrandr --output $output $command</command>"
+    echo "<command>displayselect $command monitor $output $command_value</command>"
     echo "</action>"
     echo "<action name=\"execute\">"
     echo "<command>setbg -r</command>"
@@ -98,7 +99,7 @@ get_rc_menu() {
         command="${line#*=}"
 
         echo "<menu id=\"shortcut-$section\" label=\"$section\">"
-        echo "$(mk_exe_node "$output" "$section" "$command")"
+        echo "$(mk_exe_node "$section" "$output" "$command")"
         echo "</menu>"
     done < "$HOME/$RCFILE"
 }
@@ -128,29 +129,32 @@ while IFS= read -r output_info; do
 		echo "<menu id=\"${output}-modes\" type=\"modes\" label=\"Modes\">"
 		
 		modes=$(xrandr | grep "^ *" | awk '{print $1}' | grep "[0-9].*x[0-9].*")
-		
+		#set_resolutions
 		for mode in $modes; do
-			echo "$(mk_exe_node "$output" "$mode" "--mode $mode")"
+			echo "$(mk_exe_node "$mode" "$output" "set_resolutions" "$mode")"
 		done
 		
 		echo "</menu>"
-		
+		#manage_arrangement
 		if [ $words_in_outputs_connected -gt 1 ];then
 			echo "<separator />"
 			mk_position_controls "$output"
 		fi
 		
 		echo "<separator />"
-		
-		echo "$(mk_exe_node "$output" "Right" "--rotate right")"
-		echo "$(mk_exe_node "$output" "Left" "--rotate left")"
-		echo "$(mk_exe_node "$output" "Inverted" "--rotate inverted")"
-		echo "$(mk_exe_node "$output" "Normal" "--rotate normal")"
+		#change_orientation
+		echo "$(mk_exe_node "Right" "$output" "change_orientation" "right")"
+		echo "$(mk_exe_node "Left" "$output" "change_orientation" "left")"
+		echo "$(mk_exe_node "Inverted" "$output" "change_orientation" "inverted")"
+		echo "$(mk_exe_node "Normal" "$output" "change_orientation" "normal")"
 		echo "<separator />"
-		echo "$(mk_exe_node "$output" "Auto" "--auto")"
-		echo "$(mk_exe_node "$output" "Off" "--off")"
-		echo "$(mk_exe_node "$output" "Reset" "--auto --rotate normal --scale 1x1 --panning 0x0")"
-		
+        #enable_monitor
+		echo "$(mk_exe_node "Auto" "$output" "enable_monitor")"
+        #disable_monitor
+		echo "$(mk_exe_node "Off" "$output" "disable_monitor")"
+        #reset_monitor
+		echo "$(mk_exe_node "Reset" "$output" "reset_monitor")"
+        
 		echo "</menu>"
 	fi
 done < <(get_xrandr_info)
