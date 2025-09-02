@@ -37,7 +37,7 @@ fi
 
 for bar in $bar_2_check;do
 	if grep -q "^\[bar/$bar]" "$HOME/.config/polybar/${polybar_STYLE}/${config_file_name}.ini";then
-		echo "MONITOR=\$MON polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/${config_file_name}.ini\" &" >> "${polybar_launcher_path}"
+		echo "MONITOR=\$mon polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/${config_file_name}.ini\" &" >> "${polybar_launcher_path}"
 	fi
 done
 

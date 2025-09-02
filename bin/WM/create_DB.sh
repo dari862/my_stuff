@@ -84,8 +84,13 @@ create_tweeks_db() {
 
 	find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
 		tweek_enabled=false
+		tweek_basename="$(basename "$tweek")"
 		. "${tweek}"
-		[ "$tweek_enabled" = false ] && basename "$tweek" >> "${tweeks_db_path}"
+		if [ "$tweek_enabled" = false ];then
+			echo "$tweek_basename" >> "${tweeks_db_path}"
+		else
+			echo "$tweek_basename are enabled." 
+		fi
 	done
 }
 

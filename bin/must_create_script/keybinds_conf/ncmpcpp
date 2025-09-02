@@ -133,5 +133,4 @@ toggle_library_tag_type=`
 refetch_lyrics=`
 add_random_items=`
 set_selected_items_priority=Ctrl + p
-ncmpcpp_quit=q
 #;

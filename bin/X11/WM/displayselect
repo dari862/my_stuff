@@ -7,7 +7,7 @@ set -e
 pass_arg=""
 OPT__="${1:-}"
 MODE="${2:-}"
-if [ "$Menu_" = "rofi" ];then
+if [ "$MODE" = "rofi" ];then
 	Menu_="rofi"
 	. "${Distro_config_file}"
 elif [ "$MODE" = "pass" ];then
@@ -131,6 +131,7 @@ Invalid_selection(){
 
 edit_command() {
 	var_name="${1:-}"
+	var_name="$(printf '%s' "$var_name" | sed 's/-/_/g')"
 	var_value="${2:-}"
 	sed -i "s/${var_name}=.*/${var_name}=\"${var_value}\"/g" "$display_script"
 }
@@ -221,9 +222,9 @@ auto_detect_displays() {
 		${fix_script_monitor}_extend=""
 		${fix_script_monitor}_brightness=""
 		${fix_script_monitor}_duplicate=""
-		${fix_script_monitor}_orientation=""
+		${fix_script_monitor}_orientation="--rotate normal"
 		${fix_script_monitor}_arrangement=""
-		${fix_script_monitor}_scale=""
+		${fix_script_monitor}_scale="--scale 1x1"
 		${fix_script_monitor}_disable=""
 		if [ -z "\$${fix_script_monitor}_enable" ];then
 			xrandr --output $monitor \$${fix_script_monitor}_scale \$${fix_script_monitor}_resolution \$${fix_script_monitor}_primary \$${fix_script_monitor}_extend \$${fix_script_monitor}_brightness \$${fix_script_monitor}_duplicate \$${fix_script_monitor}_orientation \$${fix_script_monitor}_arrangement \$${fix_script_monitor}_disable
@@ -550,21 +551,21 @@ Set_scaling() {
 	
 	
 	enter_choice "Enter the new Scaling Resolution value as a percentage (10 to 300):"
-	new_scaling_resolution="$choice"
+	picked_scaling_resolution="$choice"
 
-	if [ -n "$new_scaling_resolution" ];then
-		new_scaling_resolution="$(awk "BEGIN {printf \"%.2f\", $new_scaling_resolution / 10}")"
+	if [ -n "$picked_scaling_resolution" ];then
+		new_scaling_resolution="$(awk "BEGIN {printf \"%.2f\", $picked_scaling_resolution / 100}")"
 	else
 		new_scaling_resolution="1"
 	fi
 	
 	for monitor in $monitor_array; do
-		show_message "CYAN" "Setting scaling for $monitor to ${new_scaling_resolution} (resolution)"
+		show_message "CYAN" "Setting scaling for $monitor to ${picked_scaling_resolution} (resolution) ${new_scaling_resolution}x${new_scaling_resolution}"
 		edit_command "${monitor}_scale" "--scale ${new_scaling_resolution}x${new_scaling_resolution}"
 	done
 	
-	show_message "GREEN" "All monitor scalings have been set to ${new_scaling_resolution}."
-	postrun_message="All monitor scalings have been set to ${new_scaling_resolution}."
+	show_message "GREEN" "All monitor scalings have been set to ${picked_scaling_resolution}."
+	postrun_message="All monitor scalings have been set to ${picked_scaling_resolution}."
 }
 
 disable_monitor() {

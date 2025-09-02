@@ -80,7 +80,7 @@ getdoppler() {
 
 main() {	
 	if old_weather_data_;then
-		connectiontest 10 && get_weather_data_
+		connectiontest 10 && get_weather_data_ >/dev/null 2>&1
 	fi
 
 	if [ "$__opt" = "-m" ];then

@@ -3,4 +3,4 @@
 
 app_name="localsend"
 say "Installing ${app_name}..." 1
-repobin --root --mode deb install localsend/localsend || failed_to_run "failed to run ${app_name} ."
+repobin --root --ext deb install localsend/localsend || failed_to_run "failed to run ${app_name} ."
