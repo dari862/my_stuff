@@ -1,4 +1,4 @@
 #!/bin/sh
-app_name="copyparty"
+app_name="tgpt"
 say "Installing ${app_name}..." 1
 repobin --root install aandrew-me/tgpt || failed_to_run "failed to run ${app_name} ."

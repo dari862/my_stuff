@@ -1,0 +1,4 @@
+#!/bin/sh
+app_name="webapp-manager"
+say "Installing ${app_name}..." 1
+repobin --root install linuxmint/webapp-manager || failed_to_run "failed to run ${app_name} ."

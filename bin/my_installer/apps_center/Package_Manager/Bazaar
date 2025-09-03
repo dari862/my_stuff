@@ -1,0 +1,4 @@
+#!/bin/sh
+app_name="Bazaar"
+flatpak_install ${app_name} io.github.kolunmi.Bazaar
+

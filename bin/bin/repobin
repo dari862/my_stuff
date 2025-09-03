@@ -1,127 +1,81 @@
 #!/bin/bash
-getURL(){
-	mode="${1-}"
-	url="${2-}"
-	path="${3-}"
-	
-	if command -v curl >/dev/null;then
-		if [ "${mode}" = "head" ];then
-			curl --head -fsS --max-redirs 0 "${url}" || exit 1
-		elif [ "${mode}" = "2term" ];then
-			curl -fsSL "${url}" || exit 1
-		elif [ "${mode}" = "download2" ];then
-			curl -fSLo "$path" "${url}" --progress-bar || exit 1
-		elif [ "${mode}" = "download" ];then
-			curl -fSLO "${url}" --progress-bar || exit 1
-		elif [ "${mode}" = "latestgit" ];then
-			curl -fsSL "https://api.github.com/repos/${url}/releases/latest" | grep -oP '(?<=browser_download_url": ")[^"]*' | grep "${path}" || exit 1
-		fi
-	elif command -v wget >/dev/null;then
-		if [ "${mode}" = "head" ];then
-    		wget -S --spider --max-redirect=0 "${url}" || exit 1
-		elif [ "${mode}" = "2term" ];then
-    		wget -qO- "${url}" || exit 1
-		elif [ "${mode}" = "download2" ];then
-    		wget -q --show-progress -O "$path" "${url}" || exit 1
-		elif [ "${mode}" = "download" ];then
-			file_name="${url##*/}"
-    		wget --show-progress -O "${file_name}" "${url}" || exit 1
-    	elif [ "${mode}" = "latestgit" ];then
-			wget -qO- "https://api.github.com/repos/${url}/releases/latest" | grep -oP '(?<=browser_download_url": ")[^"]*' | grep "${path}" || exit 1
-		fi
-	fi
-}
 set -e
-
-__superuser=""
-script_runs_as_superuser=false
-USE_SUDO=false
 run_reinstall=false
+save_2_config_file=true
 repobinMODE="bin"
 extension=""
+File_to_link=""
+user_root_dir=false
 
-[ "$(id -u)" -eq 0 ] && script_runs_as_superuser=true	
-
-#. "/usr/share/my_stuff/lib/common/Distro_path"
-__distro_path_root="/usr/share/my_stuff"
-__distro_path_bin="${__distro_path_root}/system_files/bin"
-__distro_path_downloaded="${__distro_path_root}/external/downloaded"
-__distro_path_neverremove="${__distro_path_root}/never_remove"
+. "/usr/share/my_stuff/lib/common/Distro_path"
 ROOT_CONFIG_DIR="${__distro_path_neverremove}"
 ROOT_CONFIG_FILE="${__distro_path_neverremove}/installs.json"
-ROOT_BIN_DIR="${__distro_path_downloaded}"
+ROOT_BIN_DIR="${__distro_path_bin}"
+ROOT_CORE_BIN_DIR="${__distro_path_downloaded}"
 
 USER_BIN_DIR="$HOME/.local/bin"
-USER_CONFIG_DIR="$HOME/.local/bin"
-USER_CONFIG_FILE="${CONFIG_DIR}/installs.json"
-File_to_link=""
+USER_CORE_BIN_DIR="$USER_BIN_DIR/core"
+USER_CONFIG_DIR="$USER_BIN_DIR"
+USER_CONFIG_FILE="${USER_CONFIG_DIR}/installs.json"
 
-# Parse arguments and flags
-ARGS=$(getopt -o '' \
-  --long mode:,file:,ext:,root \
-  -n "$0" -- "$@")
-eval set -- "$ARGS"
-
-# Handle options
 while true; do
   case "$1" in
     --mode) repobinMODE="$2"; shift 2 ;;
     --ext) extension="$2"; shift 2 ;;
     --file) File_to_link="$2"; shift 2 ;;
-    --root) USE_SUDO=true; shift ;;
-    --) shift; break ;;
-    *) echo "Unknown option: $1"; exit 1 ;;
+    --file-repo) repo_to_find="$2"; shift 2 ;;
+    --root) __superuser="sudo"; shift ;;
+    *) break ;;
   esac
 done
 
-if [ "$USE_SUDO" = true ]; then
-	script_runs_as_superuser=true
-	__superuser="sudo"
+if [ "$(id -u)" -eq 0 ] || [ -n "$__superuser" ]; then
+	user_root_dir=true	
 fi
 
-if [ "$script_runs_as_superuser" = true ]; then
+if [ "$user_root_dir" = true ]; then
+	[ "$(id -u)" -eq 0 ] && __superuser=""
 	BIN_DIR="$ROOT_BIN_DIR"
+	CORE_BIN_DIR="$ROOT_CORE_BIN_DIR"
 	CONFIG_DIR="$ROOT_CONFIG_DIR"
 	CONFIG_FILE="$ROOT_CONFIG_FILE"
-	[ ! -d "$__distro_path_bin" ] && $__superuser mkdir -p "$__distro_path_bin"
-	[ ! -d "$BIN_DIR" ] && $__superuser mkdir -p "$__distro_path_downloaded"
-	[ ! -d "$CONFIG_DIR" ] && $__superuser mkdir -p "$__distro_path_neverremove"
 else
 	BIN_DIR="$USER_BIN_DIR"
+	CORE_BIN_DIR="$USER_CORE_BIN_DIR"
 	CONFIG_DIR="$USER_CONFIG_DIR"
 	CONFIG_FILE="$USER_CONFIG_FILE"
-	[ ! -d "$BIN_DIR" ] && mkdir -p "$BIN_DIR"
-	[ ! -d "$CONFIG_DIR" ] && mkdir -p "$CONFIG_DIR"
 fi
 
-# Load config
-declare -A config_root
-if [ -f "$ROOT_CONFIG_FILE" ]; then
-  while IFS="=" read -r repo ver; do
-    config_root["$repo"]="$ver"
-  done < <(jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' "$ROOT_CONFIG_FILE")
-fi
-declare -A config_user
-if [ -f "$USER_CONFIG_FILE" ]; then
-  while IFS="=" read -r repo ver; do
-    config_user["$repo"]="$ver"
-  done < <(jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' "$USER_CONFIG_FILE")
-fi
+[ ! -d "$BIN_DIR" ] && $__superuser mkdir -p "$BIN_DIR"
+[ ! -d "$CORE_BIN_DIR" ] && $__superuser mkdir -p "$CORE_BIN_DIR"
+[ ! -d "$CONFIG_DIR" ] && $__superuser mkdir -p "$CONFIG_DIR"
+
 declare -A config
 if [ -f "$CONFIG_FILE" ]; then
   while IFS="=" read -r repo ver; do
     config["$repo"]="$ver"
-  done < <(jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' "$CONFIG_FILE")
+  done < "$CONFIG_FILE"
 fi
 
-log()  { echo -e "\033[1;34m[INFO]\033[0m $*"; }
-warn() { echo -e "\033[1;33m[WARN]\033[0m $*" >&2; }
-err()  { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
+INFO_COLOR="\033[1;34m"
+WARN_COLOR="\033[1;33m"
+ERR_COLOR="\033[1;31m"
+RESET_COLOR="\033[0m"
+
+log()  { printf "${INFO_COLOR}[INFO]${RESET_COLOR} %s\n" "$*"; }
+warn() { printf "${WARN_COLOR}[WARN]${RESET_COLOR} %s\n" "$*" >&2; }
+err()  { printf "${ERR_COLOR}[ERROR]${RESET_COLOR} %s\n" "$*" >&2 ; exit 1; }
+
+find_binary_executable() {
+  search_dir="$1"
+  match_name="$2"
+  find "$search_dir" -type f -perm -111 ! -iname "*.so" ! -iname "*.dll" ! -iname "*.dylib" | grep -i "${match_name:-.}" | sort | head -n1
+}
 
 safe_mv() {
   [ -n "${extension}" ] && extension=".${extension}"
-  $__superuser mv "$tmpfile" "$BIN_DIR/${bin_name}${extension}"
-  $__superuser chmod +x "$BIN_DIR/${bin_name}${extension}"
+  $__superuser mv "$tmpfile" "$CORE_BIN_DIR/${bin_name}${extension}"
+  $__superuser chmod +x "$CORE_BIN_DIR/${bin_name}${extension}"
 }
 
 Installing_deb() {
@@ -130,104 +84,71 @@ Installing_deb() {
 	CONFIG_FILE="$ROOT_CONFIG_FILE"
   [ "$(id -u)" -ne 0 ] && __superuser="sudo"
   [ ! -d "$CONFIG_DIR" ] && $__superuser mkdir -p "$CONFIG_DIR"
-  $__superuser mv ${tmpfile} ${tmpfile}.deb
-  $__superuser apt-get install -y -f ${tmpfile}.deb
+  $__superuser mv "${tmpfile}" "${tmpfile}".deb
+  $__superuser apt-get install -y -f "${tmpfile}".deb
 }
 
 mv_appimage() {
   log "appimage detected."
-  [ -d "${bin_name}.appimage" ] && $__superuser rm -rdf "${bin_name}.appimage"
+  [ -d "${bin_name}.appimage" ] && $__superuser rm -rdf "$CORE_BIN_DIR/${bin_name}.appimage"
   safe_mv "appimage"
-  
-  cd "$BIN_DIR"
+  cd "$CORE_BIN_DIR"
   if ! $__superuser ./"${bin_name}.appimage" --version;then
   	if $__superuser ./"${bin_name}.appimage" --appimage-extract;then
     	$__superuser rm -rf "${bin_name}.appimage"
 		$__superuser mv "squashfs-root" "${bin_name}.appimage"
-		if [ "$script_runs_as_superuser" = true ];then
-			$__superuser ln -sf "${BIN_DIR}/${bin_name}.appimage/AppRun" "${__distro_path_bin}/${bin_name}"
-		else
-    		$__superuser ln -sf "${bin_name}.appimage/AppRun" "${bin_name}"
-    	fi
+		$__superuser ln -sf "$CORE_BIN_DIR/${bin_name}.appimage/AppRun" "$BIN_DIR/${bin_name}"
   	fi
   else
-  	[ "$script_runs_as_superuser" = true ] && $__superuser ln -sf "${BIN_DIR}/${bin_name}.appimage" "${__distro_path_bin}/${bin_name}"
+  	$__superuser ln -sf "${CORE_BIN_DIR}/${bin_name}.appimage" "${BIN_DIR}/${bin_name}"
   fi
 }
 
 extract_and_find_binary() {
-  extension="${1:-}"
-  found_bin=""
+  archive_type="$1"
   tmpdir="$(mktemp -d /tmp/repobin_XXXXXXXXXXXXXXXXX)"
-  
-  log "Extracting $extension file."
-  
-  mv "$tmpfile" "${tmpfile}.${extension}"
-  
-  tmpdir_new="${tmpdir}/${bin_name}_extracted"
-  mkdir -p "${tmpdir_new}"
-  
-  if [ "${extension}" = "zip" ]; then
-    unzip -q "${tmpfile}.zip" -d "${tmpdir_new}"
-  else
-    tar -xf "${tmpfile}.${extension}" -C "${tmpdir_new}"
-  fi
-  
-  if [ -z "$File_to_link" ];then
-  	found_bin=$(find "$tmpdir_new" -type f -perm -111 | grep -vE '(\.so|\.dll|\.dylib)$' | head -n1 || :)
-  else
-  	found_bin=$(find "$tmpdir_new" -type f -perm -111 | grep -vE '(\.so|\.dll|\.dylib)$' | grep "$File_to_link" | sort | head -n1 || :)
-  fi
+  tmpdir_extracted="$tmpdir/${bin_name}_extracted"
+  mkdir -p "$tmpdir_extracted"
 
-  if [ -z "$found_bin" ]; then
-  	log "finding nested compress file"
-  	check_for_nested_compress_file="$(find "$tmpdir_new" -type f \( \
-        -iname "*.tar.gz" -o \
-        -iname "*.tgz" -o \
-        -iname "*.tar" -o \
-        -iname "*.gz" \) || :)"
-    if [ -n "$check_for_nested_compress_file" ]; then
-    	log "nested compress file found."
-    	tmpdir_new="${tmpdir}/nested"
-    	mkdir -p "${tmpdir_new}"
-    	tar -xf "$check_for_nested_compress_file" -C "$tmpdir_new"
-    	subdirs=("$tmpdir_new"/*/)
-    	[ ${#subdirs[@]} -eq 1 ] && tmpdir_new="$subdirs"
-  		if [ -z "$File_to_link" ];then
-  			found_bin=$(find "$tmpdir_new" -type f -perm -111 | grep -vE '(\.so|\.dll|\.dylib)$' | head -n1 || :)
-  		else
-  			found_bin=$(find "$tmpdir_new" -type f -perm -111 | grep -vE '(\.so|\.dll|\.dylib)$' | grep "$File_to_link" | sort | head -n1 || :)
-  		fi	
-  	fi
+  mv "$tmpfile" "${tmpfile}.${archive_type}"
+  
+  case "$archive_type" in
+    zip) unzip -q "${tmpfile}.zip" -d "$tmpdir_extracted" ;;
+    tar.gz|tgz) tar -xf "${tmpfile}.${archive_type}" -C "$tmpdir_extracted" ;;
+    *) err "Unsupported archive type: $archive_type" ;;
+  esac
+
+  deb_file=$(find "$tmpdir_extracted" -iname "*.deb" | head -n1)
+  if [ -n "$deb_file" ]; then
+    tmpfile="$deb_file"
+    Installing_deb && return
+  fi
+   
+  nested_archive=$(find "$tmpdir_extracted" -type f -iname "*.tar.gz" -o -iname "*.tgz" | head -n1)
+  if [ -n "$nested_archive" ]; then
+  	log "nested archive file found"
+    nested_dir="$tmpdir/nested"
+    mkdir -p "$nested_dir"
+    tar -xf "$nested_archive" -C "$nested_dir"
+    tmpdir_extracted="$nested_dir"
+    subdir="$(find "$tmpdir_extracted" -mindepth 1 -maxdepth 1 -type d)"
+    [ "$(printf '%s\n' "$subdir" | wc -l)" -eq 1 ] && tmpdir_extracted="$subdir"
   fi
   
-  if [ -z "$found_bin" ]; then
-    err "No executable binary found in archive."
-    return 1
-  fi
-  
+  found_bin=$(find_binary_executable "$tmpdir_extracted" "$File_to_link")
+  [ -z "$found_bin" ] && err "No executable binary found."
   tmpfile="$found_bin"
+  extension=""
   
   if [ "$repobinMODE" = "bin" ];then
-  	extension=""
     safe_mv
+    final_bin="$CORE_BIN_DIR/${bin_name}${extension}"
   elif [ "$repobinMODE" = "full" ];then
-	  $__superuser mv "$tmpdir_new" "$BIN_DIR/core_${bin_name}"
-	  if [ -z "$File_to_link" ];then
-  		found_bin=$(find "$BIN_DIR/core_${bin_name}" -type f -perm -111 | grep -vE '(\.so|\.dll|\.dylib)$' | head -n1 || :)
-  	  else
-  		found_bin=$(find "$BIN_DIR/core_${bin_name}" -type f -perm -111 | grep -vE '(\.so|\.dll|\.dylib)$' | grep "$File_to_link" | sort | head -n1 || :)
-  	  fi
-	  $__superuser chmod +x "${found_bin}"
-	  if [ "$script_runs_as_superuser" = false ];then
-	  	extension=""
-		$__superuser ln -sf "${found_bin}" "${BIN_DIR}"
-      fi
+	$__superuser mv "$tmpdir_extracted" "$CORE_BIN_DIR/${bin_name}"
+    final_bin=$(find_binary_executable "$CORE_BIN_DIR/${bin_name}" "$File_to_link")
+    $__superuser chmod +x "$final_bin"
   fi
-  
-  if [ "$script_runs_as_superuser" = true ]; then
-	$__superuser ln -sf "$__distro_path_downloaded/${bin_name}" "$__distro_path_bin"
-  fi
+  $__superuser ln -sf "${final_bin}" "${BIN_DIR}/${bin_name}"
   rm -rf "$tmpdir"
 }
 
@@ -247,231 +168,174 @@ verify_checksum() {
 
   actual=$(sha256sum "$bin_path" | awk '{print $1}')
   if [ "$expected" != "$actual" ]; then
+    printf "Checksum mismatch!"
+    printf 'Expected: %s' "$expected"
+    printf 'Actual:   %s' "$actual"
     err "Checksum mismatch!"
-    echo "Expected: $expected"
-    echo "Actual:   $actual"
-    exit 1
   fi
 
   log "Checksum verified for $(basename "$bin_path")"
   rm -f "$tmp_checksum"
 }
 
-install_repo() {
-  bin_name="${repo##*/}"
-  if [ -z "$version" ]; then
-    release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/latest")
-    version=$(echo "$release_json" | jq -r '.tag_name')
-  else
-    release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/tags/$version")
-  fi
-
-  if [ "$(echo "$release_json" | jq -r '.draft')" = "true" ] || [ "$(echo "$release_json" | jq -r '.prerelease')" = "true" ]; then
-    warn "Release is draft or prerelease. Skipping."
-    return 1
-  fi
-
-  # Find binary asset
-  asset_url=""
-
-  mapfile -t assets < <(echo "$release_json" | jq -r '.assets[].browser_download_url' | grep -v ".appimage.zsync")
-  # Detect system info
-	OS="$(uname -s)"
-	uname_ARCH="$(uname -m)"
-	case "$uname_ARCH" in
-  		x86_64)  ARCH="$uname_ARCH|amd64|x86-64|_x64_"    ;;
-  		aarch64) ARCH="$uname_ARCH|arm64"  			      ;;
-  		armv7*)  ARCH="$uname_ARCH|armv7"  			      ;;
-	esac
-  if echo "${assets}" | grep -qi "$ARCH";then
-  	assets="$(printf '%s\n' "${assets[@]}" | grep -iE "$ARCH")"
-  else
-    assets="$(printf '%s\n' "${assets[@]}")"
-  fi
+select_assets() {
+  picked_assets=""
+  filtered_assets=""
+  OS="$(uname -s)"
+  uname_ARCH="$(uname -m)"
+  case "$uname_ARCH" in
+    x86_64)  ARCH="x86_64|amd64|x86-64|_x64_" ;;
+  	aarch64) ARCH="aarch64|arm64"			  ;;
+  	armv7*)  ARCH="armv7"					  ;;
+  esac
   
-  if echo "${assets}" | grep -qi "$OS";then
-    assets="$(printf '%s\n' "${assets}" | grep -i "$OS")"
-  fi
+  assets="$(printf '%s\n' "${all_assets[@]}" | grep -iE "${ARCH}|${OS}|${repo_to_find:-.}")"
   
   if [ -n "$extension" ];then
-    new_assets="$(printf '%s\n' "${assets}" | grep -i "$extension")"
+    filtered_assets="$(printf '%s\n' "${assets}" | grep -i "$extension")"
   elif [ "$extension" != "appimage" ];then
-  	new_assets="$(printf '%s\n' "${assets}" | grep -v "appimage")"
+  	filtered_assets="$(printf '%s\n' "${assets}" | grep -v "appimage")"
   else
-    new_assets="$(printf '%s\n' "${assets}")"
+    filtered_assets="${assets}"
   fi
   
   if printf '%s\n' "${assets}" | grep -qi "appimage";then
   	appimage_assets="$(printf '%s\n' "${assets}" | grep -i "appimage")"
   fi
   
-  if [ -n "${new_assets}" ];then
-  	for url in ${new_assets}; do
-  		if ! [ "$url" =~ sha256(sum)? ]; then
-    		asset_url="$url"
-      		break
-    	fi
-  	done
-  elif [ -n "${appimage_assets}" ];then
-    for url in ${appimage_assets}; do
-  		if ! [ "$url" =~ sha256(sum)? ]; then
-    		asset_url="$url"
-      		break
-    	fi
-  	done
-  fi
-  
-  if [ -n "${new_assets}" ];then
-  	for url in ${new_assets}; do
-  		if [ "$url" =~ sha256(sum)? ]; then
-    		checksum_url="$url"
-      		break
-    	fi
-  	done
-  elif [ -n "${appimage_assets}" ];then
-    for url in ${appimage_assets}; do
-  		if [ "$url" =~ sha256(sum)? ]; then
-    		checksum_url="$url"
-      		break
-    	fi
-  	done
-  fi
-  
-  if [ -z "$asset_url" ]; then
-   	err "No matching asset found for $repo on $OS/$ARCH"
-   	return 1
-  fi
+	if [ -n "$filtered_assets" ]; then
+    	picked_assets="$filtered_assets"
+	elif [ -n "$appimage_assets" ]; then
+    	picked_assets="$appimage_assets"
+	fi
+	
+	for url in $picked_assets; do
+    	case "$url" in
+        	*sha256*) [ -z "$checksum_url" ] && checksum_url="$url" ;;
+        	*) [ -z "$asset_url" ] && asset_url="$url" ;;
+    	esac
+    	[ -n "$asset_url" ] && [ -n "$checksum_url" ] && break
+	done
+}
 
-  if [ "$run_reinstall" = false ] && [ -f "$BIN_DIR/${bin_name}${extension}" ]; then
-    err "Repo already exist: $repo"
-    exit 1
-  fi
-  # Download
-  tmpfile="$(mktemp /tmp/repobin_XXXXXXXXXXXXXXXXX)"
+install_repo() {
+  bin_name="${repo##*/}"
+
+  release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/${version:+tags/}$version")
+  [ "$(jq -r '.draft // false' <<< "$release_json")" = "true" ] && return
+  [ "$(jq -r '.prerelease // false' <<< "$release_json")" = "true" ] && return
+
+  mapfile -t all_assets < <(jq -r '.assets[].browser_download_url' <<< "$release_json" | grep -vE ".zsync|.changes$")
+  select_assets
+
+  [ -z "$asset_url" ] && err "No matching asset found."
+  [ "$run_reinstall" = false ] && [ -f "$BIN_DIR/${bin_name}${extension}" ] && err "Repo already installed."
+
+  tmpfile=$(mktemp /tmp/repobin_XXXXXXXXXXXXXXXXX)
   log "Downloading from $asset_url"
   getURL "download2" "$asset_url" "$tmpfile"
-  # Verify checksum if present
-  if [ -n "$checksum_url" ]; then
-    verify_checksum "$tmpfile" "$checksum_url"
-  else
-    warn "No checksum found for $bin_name"
-  fi
+
+  [[ -n "$checksum_url" ]] && verify_checksum "$tmpfile" "$checksum_url"
+  
+  asset_url="${asset_url,,}"
   case "$asset_url" in
     *.deb) Installing_deb ;;
-    *.appimage|*.AppImage|*.Appimage) mv_appimage ;;
-    *.zip) extract_and_find_binary "zip" ;;
-    *.tar.gz) extract_and_find_binary "tar.gz" ;;
-    *.tgz) extract_and_find_binary "tgz" ;;
-    *) safe_mv "$extension" && [ "$script_runs_as_superuser" = true ] && $__superuser ln -sf "$__distro_path_downloaded/${bin_name}${extension}" "$__distro_path_bin" ;;
+    *.appimage) mv_appimage ;;
+    *.zip) extract_archive "zip" ;;
+    *.tar.gz|*.tgz) extract_archive "tar.gz" ;;
+    *) safe_mv "$extension"; $__superuser mv "$CORE_BIN_DIR/${bin_name}${extension}" "${BIN_DIR}" ;;
   esac
 
-  config["$repo"]="$version|$extension"
-  
   log "Installed $bin_name@$version"
-  save_config
+  save_config "$repo" "${version}|${extension}"
 }
 
 update() {
-  for repo in "${!config[@]}"; do
+  while IFS="=" read -r repo version_and_extension; do
     log "Checking $repo..."
-    version_and_extension=""
     release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/latest")
 
-    if [ "$(echo "$release_json" | jq -r '.draft')" = "true" ] || [ "$(echo "$release_json" | jq -r '.prerelease')" = "true" ]; then
+    if [ "$(printf '%s\n' "$release_json" | jq -r '.draft')" = "true" ] || [ "$(printf '%s\n' "$release_json" | jq -r '.prerelease')" = "true" ]; then
       warn "Latest release is draft/prerelease. Skipping."
       continue
     fi
 
-    latest=$(echo "$release_json" | jq -r '.tag_name')
-    version_and_extension="${config[$repo]}"
+    latest=$(printf '%s\n' "$release_json" | jq -r '.tag_name')
     IFS='|' read -r version extension <<< "$version_and_extension"
+    old_repo="$repo=${version}"
     if [ "$latest" != "${version}" ]; then
-      log "Updating $repo: ${config[$repo]} → $latest"
+      log "Updating $repo: $version_and_extension → $latest"
       install_repo
+      remove_repo_from_config "$old_repo" "$extension"
     else
       log "$repo is up-to-date."
     fi
-  done
-}
-
-save_config() {
-	json="{"
-	for repo in "${!config[@]}"; do
-    	json+="\"$repo\":\"${config[$repo]}\","
-	done
-	json="${json%,}"  # Remove trailing comma
-	json+="}"
-	echo "$json" | jq . | $__superuser tee "$CONFIG_FILE" >/dev/null 2>&1
-	log "Done."
+  done < "$CONFIG_FILE"
 }
 
 list_installed() {
-  if [ "${#config_root[@]}" -eq 0 ]; then
-    echo "No binaries installed in root."
+  if [ ! -s "$ROOT_CONFIG_FILE" ]; then
+    printf '%s\n' "No binaries installed in root."
   else
-    echo "Installed binaries and versions in root:"
-    for repo in "${!config_root[@]}"; do
-      printf "%-30s %s\n" "$repo" "${config_root[$repo]}"
-    done
+    printf '%s\n' "Installed binaries and versions in root:"
+    sed 's/=/\t/g' "$ROOT_CONFIG_FILE" | column -t
   fi
-  
-  echo ""
-  
-  if [ "${#config_user[@]}" -eq 0 ]; then
-    echo "No binaries installed in usr."
+  printf '\n'
+  if [ ! -s "$USER_CONFIG_FILE" ]; then
+    printf '%s\n' "No binaries installed in user."
   else
-    echo "Installed binaries and versions in root:"
-    for repo in "${!config_user[@]}"; do
-      printf "%-30s %s\n" "$repo" "${config_user[$repo]}"
-    done
+    printf '%s\n' "Installed binaries and versions in user:"
+    sed 's/=/\t/g' "$USER_CONFIG_FILE" | column -t
   fi
+}
+
+save_config() {
+	[ "$save_2_config_file" = false ] && return
+	reponame="${1:-}"
+	value_of_repo="${2:-}"
+	printf '%s=%s\n' "$reponame" "$value_of_repo" | $__superuser tee -a "$CONFIG_FILE" >/dev/null 2>&1
+	log "Done."
+}
+
+remove_repo_from_config(){
+	$__superuser sed -i "\|${1:-}\|${2:-}|d" "$CONFIG_FILE"
 }
 
 remove_installed() {
   repo="$1"
-  if [ -z "${config[$repo]:-}" ]; then
-    err "No such repo installed: $repo"
-    return 1
-  fi
-
+  [ -z "${config[$repo]:-}" ] && err "No such repo installed: $repo"
+  
   bin_name="${repo##*/}"
-  target="$BIN_DIR/$bin_name"
+  target="$CORE_BIN_DIR/$bin_name"
 
-  if [ -f "$target" ]; then
-    $__superuser rm -f "$target"
+  if [ -e "$target" ]; then
+    $__superuser rm -rdf "$target"
     log "Removed binary: $target"
   else
     warn "Binary file not found: $target"
   fi
-
-  unset config["$repo"]
+  remove_repo_from_config "$repo"
   log "Removed $repo from config"
-  save_config
 }
 
 info_installed() {
   repo="$1"
-  if [ -z "${config[$repo]:-}" ]; then
-    err "No such repo installed: $repo"
-    return 1
-  fi
+  [ -z "${config[$repo]:-}" ] && err "No such repo installed: $repo"
 
-  version="${config[$repo]}"
-  echo "Repository: $repo"
-  echo "Installed Version: $version"
-
-  # Fetch latest release info
+  version_and_extension="${config[$repo]}"
+  printf 'Repository: %s\n' "$repo"
+  printf 'Installed Version: %s\n' "$version_and_extension"
   release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/latest") || {
     warn "Failed to fetch release info"
     return 1
   }
 
-  latest_version=$(echo "$release_json" | jq -r '.tag_name')
-  echo "Latest Release Version: $latest_version"
+  latest_version=$(printf '%s\n' "$release_json" | jq -r '.tag_name')
+  printf 'Latest Release Version: %s\n' "$latest_version"
 }
 
 clean_installed() {
-  $__superuser rm -rf  /tmp/repobin_*
+  $__superuser rm -rfd  /tmp/repobin_*
   log "Removed temp file."
 }
 
@@ -484,7 +348,7 @@ Usage: $0 [OPTIONS] <COMMAND> [ARGS...]
 	$script_name [--root] update
    
 Options:
-  --root                Use sudo when installing to protected paths (e.g. $__distro_path_root)
+  --root                Use sudo when installing to protected paths (e.g. $ROOT_CONFIG_DIR)
 
 Commands:
   install <user/repo> [version]   Install a GitHub release binary
@@ -508,33 +372,30 @@ Examples:
 EOF
 }
 
-# Main command logic
 COMMAND="${1:-}"
-shift || true
+shift
 
 case "$COMMAND" in
-  install) [ -z "${1:-}" ] && err "Usage: $(basename "$0") install <user/repo>" && exit 1
+  install) [ -z "${1:-}" ] && err "Usage: $(basename "$0") install <user/repo>"
     repo="${1:-}"
   	version="${2:-}"
-  	if [ -n "${config[$repo]:-}" ]; then
-      err "repo installed: $repo to reinstall it switch to reinstall arg."
-      exit
-    fi
+  	[ -n "${config[$repo]:-}" ] && err "repo installed: $repo to reinstall it switch to reinstall arg."
     install_repo
     ;;
   update) run_reinstall=true ; update ;;
   list) list_installed ;;
-  remove) [ -z "${1:-}" ] && err "Usage: $(basename "$0") remove <user/repo>" && exit 1; remove_installed "$1" ;;
-  info) [ -z "${1:-}" ] && err "Usage: $(basename "$0") info <user/repo>" && exit 1; info_installed "$1" ;;
+  remove) [ -z "${1:-}" ] && err "Usage: $(basename "$0") remove <user/repo>"; remove_installed "$1" ;;
+  info) [ -z "${1:-}" ] && err "Usage: $(basename "$0") info <user/repo>"; info_installed "$1" ;;
   clean) clean_installed ;;
-  reinstall) [ -z "${1:-}" ] && err "Usage: $(basename "$0") reinstall <user/repo>" && exit 1
+  reinstall) [ -z "${1:-}" ] && err "Usage: $(basename "$0") reinstall <user/repo>"
     run_reinstall=true
+    save_2_config_file=false
     repo="$1"
-    [ -z "${config[$repo]:-}" ] && err "No such repo installed: $repo" && exit 1
+    [ -z "${config[$repo]:-}" ] && err "No such repo installed: $repo"
     IFS='|' read -r version extension <<< "${config[$repo]}"
     log "Reinstalling $repo@$version"
     install_repo
     ;;
   help|-h|--help) print_help ;;
-  *) err "Unknown command: $COMMAND" ; print_help ; exit 1 ;;
+  *) print_help ; err "Unknown command: $COMMAND" ;;
 esac
