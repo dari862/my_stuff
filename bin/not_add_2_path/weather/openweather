@@ -1,4 +1,7 @@
 #!/bin/bash
+
+api_prefix="api.openweathermap.org/data/2.5/"
+
 which_timestamp_to_traget_in_jq(){
 	CURRENT_DATE="$(date +"%Y-%m-%d")"
 	TARGET_DATE="$CURRENT_DATE"
@@ -190,8 +193,6 @@ if ! appid="$(myAPIman show openweather)";then
    	exit 1
 fi
 	
-api_prefix="api.openweathermap.org/data/2.5/"
-
 appid="APPID=$appid"
 units="&units=$units"
 
@@ -199,5 +200,5 @@ if [ -n "${lang}" ];then
 	lang="&lang=$lang"
 fi
 
-WEATHER_URL="${api_prefix}weather?${appid}&q=${place}${units}${lang}"
-FORECAST_URL="${api_prefix}forecast?${appid}&q=${place}${units}${lang}"
+WEATHER_URL="https://${api_prefix}weather?${appid}&q=${place}${units}${lang}"
+FORECAST_URL="https://${api_prefix}forecast?${appid}&q=${place}${units}${lang}"

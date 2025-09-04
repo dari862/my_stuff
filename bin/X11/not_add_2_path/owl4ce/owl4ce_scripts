@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 exec 3>&1 # show output if redirected to  >&3 
 exec >/dev/null 2>&1 # show nothing
 
@@ -113,7 +113,7 @@ send_notification(){
 set_user_interface()
 {
 	my_session_manager_cli reload
-	dunst-session restart
+	notification-d-session restart
 	tint2-session restart
 }
 

@@ -50,7 +50,7 @@
 		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
 		<separator/>
 		<menu icon="&icons;/help.png" id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
-		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds"/>
+		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="keyboard-shortcut-pipemenu" label="Keybinds"/>
 		<separator/>
 		<separator/>
 		<separator/>

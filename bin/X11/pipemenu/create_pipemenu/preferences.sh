@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/pipemenu"
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
@@ -12,7 +12,7 @@ create_exec_pipemenu(){
 
 {
 	menuStart
-	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
+	create_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
 	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
 	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
 	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
@@ -35,7 +35,7 @@ create_exec_pipemenu(){
 	menuItem "Reload GTK" "reload_gtk23"
 	menuItem "Font configuration" "my-text-editor ~/.config/fontconfig/fonts.conf"
 	menuItem "Wallpaper" "pickbg"
-	menuItem "Notifications" "notifications_config"
+	menuItem "Notifications" "notification-d-session edit"
 	menuItem "Power Management" "power_manager_settings"
 	menuSubmenu "preferences-rofi" "rofi"
     	menuItem "Edit Config File" "rofi_editer"
@@ -52,7 +52,7 @@ create_exec_pipemenu(){
 
 {
 	menuStart
-	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
+	create_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
 	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
 	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
 	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
@@ -93,7 +93,7 @@ create_exec_pipemenu(){
 
 {
 	menuStart
-	create_exec_pipemenu "my_stuffGuiAppsPipemenu" "gui-apps-pipemenu" "My Stuff GUI Apps"
+	create_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
 	menuSeparator "Install Packages and Distro Tweeks"
 	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
 	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
@@ -142,7 +142,7 @@ create_exec_pipemenu(){
 	menuItem "GTK Appearance" "appearance_settings_"
 	menuItem "Font Configuration" "my-text-editor ~/.config/fontconfig/fonts.conf"
 	menuItem "Wallpaper" "pickbg"
-	menuItem "Notifications" "notifications_config"
+	menuItem "Notifications" "notification-d-session edit"
 	menuItem "Display" "arandr"
 	
 	menuSeparator "SYSTEM PREFERENCES"

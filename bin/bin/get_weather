@@ -3,7 +3,7 @@
 __opt="${1-}"
 __opt2="${2-}"
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
 show_Extra=false

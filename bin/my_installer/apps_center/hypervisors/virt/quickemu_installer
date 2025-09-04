@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 
 [ -e "$__distro_path_git/quickemu" ] && my-superuser rm -rdf "$__distro_path_git"/quickemu
 [ -e "$__distro_path_external/applications/quickemu_gui.desktop" ] && my-superuser rm -rdf "${__distro_path_root}/system_files/applications/quickemu_gui.desktop"

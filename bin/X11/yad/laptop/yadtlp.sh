@@ -1,7 +1,7 @@
 #!/bin/bash
 # if this line exist script will be part of gui scripts.new_name=GUI_TLP
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 __config_path="/etc/tlp.conf"
 __tlp_version_="$(tlp-stat -s | head -1)"
 

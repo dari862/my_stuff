@@ -1,7 +1,7 @@
 #!/bin/sh
 # Usage: menuItem label command
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/pipemenu"
 
 # Pipemenu
@@ -63,11 +63,11 @@ menuItem 'jgmenu' 'popup_terminal --man jgmenu'
 menuItem 'rofi' 'popup_terminal --man rofi'
 menuItem 'xrandr' 'popup_terminal --man xrandr'
 menuSeparator
-menuSubmenu 'help_my_stuff_Help_Files' 'My Stuff Help Files'
+menuSubmenu 'Distro_Help_Files' "$__distro_title Help Files"
 	menuItem 'How to Edit Menu' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="How to Edit the Menu" --filename="${__distro_path_root}/lib/docs/menu.txt" --width=900 --height=700 --fontname=Monospace'
 	menuItem 'About BLOB' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About BLOB" --filename="${__distro_path_root}/lib/docs/blob.txt" --width=900 --height=700 --fontname=Monospace'
 	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About My Stuff Autostart' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Autostart" --filename="${__distro_path_root}/lib/docs/blautostart.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About My Stuff Alternatives' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About My Stuff Alternatives" --filename="${__distro_path_root}/lib/docs/alternatives.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About ${__distro_title} Autostart' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About ${__distro_title} Autostart" --filename="${__distro_path_root}/lib/docs/blautostart.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About ${__distro_title} Alternatives' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About ${__distro_title} Alternatives" --filename="${__distro_path_root}/lib/docs/alternatives.txt" --width=900 --height=700 --fontname=Monospace'
 menuSubmenuEnd
 menuEnd

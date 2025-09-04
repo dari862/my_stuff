@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 NVIDIA_VENDOR="NVIDIA Corporation"
 AMD_VENDOR="AMD"
 SOFTWARE_VENDOR="Mesa/X.org"

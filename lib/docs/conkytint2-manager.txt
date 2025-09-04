@@ -1,7 +1,7 @@
-My Stuff Conky and Tint2 Management
+Conky and Tint2 Management
 =====================================
 
-My Stuff provides a number of tools to make using conky and tint2 easier.
+Distro provides a number of tools to make using conky and tint2 easier.
 
 Conky
 =====

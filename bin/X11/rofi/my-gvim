@@ -19,7 +19,7 @@
 #  /usr/bin/vim.* starting with the letter 'g' like /etc/alternatives/gvim or
 #  gnome-text-editor actually invoke GUI mode (without using the -g option).
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 GVIM="$(readlink -e /etc/alternatives/gvim)"
 SELF="${__distro_path_root}/bin/bin/my-gvim"
 case $GVIM in

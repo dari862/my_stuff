@@ -1,5 +1,5 @@
 #!/bin/bash
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 distro_dir="${__distro_path_root}"
 weather_icons_folder="${distro_dir}/icons/weather_icon"
 openweather_icons_folder="${distro_dir}/system_files/conky_weather_icons/openweather"

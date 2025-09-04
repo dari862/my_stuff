@@ -2,9 +2,7 @@
 #### User configurables:  ################################################
 
 # Choose wttr or openweather or auto:
-#mode="wttr"
-#mode="auto"
-mode="openweather"
+mode="auto"
 
 # Either set the location manually here, or leave it empty and script will attempts to get a geolocation from the IP address.
 place="Paris"
@@ -41,6 +39,5 @@ weather_TEXT=""
 #### WTTRURL configurables:  ##############################################
 wttr_weatherreport="${weather_script_data_path}/wttr_weatherreport"
 weatherreport_json="${weather_script_data_path}/wttr_weatherreport.json"
-WTTRURL="${WTTRURL:-wttr.in}"
 moonfile="${weather_script_data_path}/moonphase"
 doppler="${XDG_CACHE_HOME:-$HOME/.cache}/${radar}_doppler.gif"

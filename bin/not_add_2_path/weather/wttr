@@ -1,6 +1,7 @@
 #!/bin/bash
 weatherdata=""
 WEATHER_TEMP=""
+WTTRURL="${WTTRURL:-wttr.in}"
 
 which_timestamp_to_traget_in_jq(){
 	CURRENT_TIME="$(date +"%H%M")"
@@ -124,8 +125,8 @@ old_weather_data_(){
 }
 
 get_weather_data_(){
-	getURL '2term' "${WTTRURL}/$place" > "${weatherreport}"
-	getURL '2term' "${WTTRURL}/$place?format=j1" > "${weatherreport_json}"
+	getURL '2term' "http://${WTTRURL}/$place" > "${weatherreport}"
+	getURL '2term' "http://${WTTRURL}/$place?format=j1" > "${weatherreport_json}"
 }
 
 parse_weather_for_conky_vision(){

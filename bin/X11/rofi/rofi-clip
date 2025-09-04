@@ -1,7 +1,7 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
 # Import Current Theme
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 . "${script_config_path}/clipmanager/config.ini" 

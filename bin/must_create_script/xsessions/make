@@ -1,35 +1,22 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/common/Distro_path"
+__distro_path_lib="$__distro_path_lib"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 xsessions_path="${__distro_path_root}/system_files/bin/xsessions"
 mkdir -p "$xsessions_path"
 
-tee  "$xsessions_path"/openbox > /dev/null 2>&1 << EOF
+for wm in openbox bspwm dwm;do
+tee  "$xsessions_path"/"$wm" > /dev/null 2>&1 << EOF
 #!/bin/sh
-__distro_path_root="${__distro_path_root}"
+export __distro_path_lib="${__distro_path_lib}"
+. "\$__distro_path_lib"
 EOF
-cat "main.sh" | tee -a "$xsessions_path"/openbox > /dev/null 2>&1
-echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | tee -a "$xsessions_path"/openbox > /dev/null 2>&1
-echo "echo 'openbox' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | tee -a "$xsessions_path"/openbox > /dev/null 2>&1
-cat "${__distro_path_root}/lib/common/openbox" "openbox.sh" | tee -a "$xsessions_path"/openbox > /dev/null 2>&1
-
-tee  "$xsessions_path"/bspwm > /dev/null 2>&1 << EOF
-#!/bin/sh
-__distro_path_root="${__distro_path_root}"
+cat "main.sh" | tee -a "$xsessions_path"/"$wm" > /dev/null 2>&1
+tee -a  "$xsessions_path"/"$wm" > /dev/null 2>&1 << EOF
+mkdir -p "\$HOME/$WM_config_dir_name"
+echo "$wm" | tee "\$HOME/$WM_config_dir_name/$WM_name_file_name" >/dev/null 2>&1
 EOF
-cat "main.sh" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
-echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
-echo "echo 'bspwm' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
-cat "bspwm.sh" | tee -a "$xsessions_path"/bspwm > /dev/null 2>&1
-
-tee  "$xsessions_path"/dwm > /dev/null 2>&1 << EOF
-#!/bin/sh
-__distro_path_root="${__distro_path_root}"
-EOF
-cat "main.sh" | tee -a "$xsessions_path"/dwm > /dev/null 2>&1
-echo "mkdir -p \"\$HOME/$WM_config_dir_name\"" | tee -a "$xsessions_path"/dwm > /dev/null 2>&1
-echo "echo 'dwm' | tee \"\$HOME/$WM_config_dir_name/$WM_name_file_name\" >/dev/null 2>&1" | tee -a "$xsessions_path"/dwm > /dev/null 2>&1
-cat "dwm.sh" | tee -a "$xsessions_path"/dwm > /dev/null 2>&1
-
+cat "$wm.sh" | tee -a "$xsessions_path"/"$wm" > /dev/null 2>&1
+done
 chmod +x "$xsessions_path"/*

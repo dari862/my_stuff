@@ -3,7 +3,7 @@
 #########################################
 # Variables
 #########################################
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 icons_dir="${__distro_path_root}/icons/dunst"
 error_log="/tmp/$USER/my-shots"
 __no_notify=false

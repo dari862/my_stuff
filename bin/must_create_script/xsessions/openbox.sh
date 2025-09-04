@@ -1,4 +1,4 @@
-export my_stuff_display_manager_lib_path="${__distro_path_root}/display_server/X11"
+export __distro_display_manager_lib_path="${__distro_path_root}/display_server/X11"
 usr_autostart="$usr_confdir/openbox/autostart"
 usr_envfile="$usr_confdir/openbox/environment"
 default_autostart="${OBPATH_SKEL}"

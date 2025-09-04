@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#    tint2-manager: a My Stuff tint2 selection and switcher script
+#    tint2-manager: a tint2 selection and switcher script
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 #
 ########################################################################
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 TINT2PATH="$HOME/.config/tint2"
 TINT2DEFAULT="$TINT2PATH/tint2rc" # tint2 will create this if it doesn't exist
 SESSIONFILE="$TINT2PATH/tint2-sessionfile"
@@ -84,7 +84,7 @@ done
 ### DIALOG VARIABLES
 DLG="yad --center --undecorated --borders=20 "
 DLGDEC="yad --center --borders=20 "
-TITLE="My Stuff Tint2 Manager"
+TITLE="${__distro_title} Tint2 Manager"
 WINICON="--window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
 OK="--button=OK:0"
 APPLY="--button=Apply:0"

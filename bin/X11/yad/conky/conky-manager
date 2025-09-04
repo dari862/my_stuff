@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#    conky-manager: My Stuff Conky selection and switcher script
+#    conky-manager: Conky selection and switcher script
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 #
 ########################################################################
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 
 CONKYPATH="$HOME/.config/conky"
 SESSIONFILE="$CONKYPATH/conky-sessionfile"
@@ -78,7 +78,7 @@ CPATH_REGEX='.*(conky.*\.conf|conky|conkyrc)'
 ### DIALOG VARIABLES
 DLG="yad --center --undecorated --borders=20 "
 DLGDEC="yad --center --borders=20 "
-TITLE="My Stuff Conky Manager"
+TITLE="${__distro_title} Conky Manager"
 WINICON="--window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
 APPLY="--button=Apply:0"
 CLOSE="--button=Close:1"

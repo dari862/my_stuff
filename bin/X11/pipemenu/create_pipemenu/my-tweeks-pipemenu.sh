@@ -2,7 +2,7 @@
 
 run_tweeks_script_="popup_terminal"
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/pipemenu"
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Dmenu prompt to easily search for a man page to open
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 

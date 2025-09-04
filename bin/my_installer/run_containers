@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 containers_orginal_runner_path="${__distro_path_root}/bin/my_installer/containers_runner"
 containers_runner_path="${__distro_path_root}/system_files/containers_runner"

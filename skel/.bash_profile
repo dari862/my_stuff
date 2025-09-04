@@ -1,0 +1,1 @@
+.config/myshell/bash/bash_profile

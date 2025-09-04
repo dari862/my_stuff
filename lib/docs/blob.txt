@@ -1,4 +1,4 @@
-BLOB - The My Stuff theme management script
+BLOB - The theme management script
 =============================================
 
 bl-obthemes is a script to save or restore gui theme settings,
@@ -84,7 +84,7 @@ Options:
 
     etc.
 
-Several blobs are shipped with My Stuff, so you can try some alternative desktop appearances.
+Several blobs are shipped with distro, so you can try some alternative desktop appearances.
 The current default desktop is also available as "Beryllium" in case you want to come back.
 
 If some of your configs are different from when your last blob was saved,

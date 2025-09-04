@@ -3,7 +3,7 @@ __arg_="${1-}"
 __passed_image_="${2-}"
 __image_full_path_="${__passed_image_}"
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
 if pgrep -x "i3lock" > /dev/null 2>&1;then

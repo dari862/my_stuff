@@ -1,4 +1,4 @@
-export my_stuff_display_manager_lib_path="${__distro_path_root}/display_server/X11"
+export __distro_display_manager_lib_path="${__distro_path_root}/display_server/X11"
 
 if [ -d "${__distro_path_root}/bin/X11/bspwm" ];then
    	PATH="${__distro_path_root}/bin/X11/bspwm:$PATH"

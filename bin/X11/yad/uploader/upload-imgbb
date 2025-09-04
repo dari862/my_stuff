@@ -27,7 +27,7 @@
 #
 ########################################################################
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 check_4_dependencies_if_installed yad jq xdotool convert || exit 1
 
 export API_URL="https://api.imgbb.com/"   # used by run_browser()

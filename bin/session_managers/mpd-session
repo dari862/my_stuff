@@ -6,10 +6,13 @@ stop() {
 	wait
 }
 
+createdb() {
+	sleep 2
+	cd ~/Music
+	mpc -q add *
+}
+
 start() {
-	if [ ! -f "$HOME/.config/mpd/mpd.db" ];then
-		( sleep 1 && cd ~/Music/ && mpc -q add * ) &
-	fi
 	pidof -q mpd || mpd ${mpdconf_path} &
 }
 
@@ -23,6 +26,9 @@ case "${1}" in
 	;;
 	stop)	
 		stop	
+	;;
+	db)	
+		createdb	
 	;;
 	*)	
 		echo "Usage: mpd-session [start|stop|restart]"

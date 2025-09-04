@@ -1,8 +1,8 @@
 #!/bin/sh
 is_it_zero_byte=false
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
-. "${__distro_path_root}/never_remove/var_for_distro_uninstaller"
+. "$__distro_path_lib"
+. "${__distro_path_uninstaller_var}"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
@@ -25,13 +25,14 @@ if ls /usr/local/bin/chroot-* >/dev/null 2>&1;then
 	my-superuser rm -rdf /usr/local/bin/chroot-*
 fi
 
-echo "delete all symbolic links in /usr/share/{applications;xsessions;lightdm;man/man1}"
+say "delete all symbolic links in /usr/share/{applications;xsessions;lightdm;man/man1}"
 my-superuser find /usr/share/applications -depth -maxdepth 1 -type l -delete
 my-superuser find /usr/share/xsessions -depth -maxdepth 1 -type l -delete
 my-superuser find /usr/share/lightdm/lightdm.conf.d -depth -maxdepth 1 -type l -delete
 my-superuser find /usr/share/lightdm/lightdm-gtk-greeter.conf.d -depth -maxdepth 1 -type l -delete
 my-superuser find /usr/share/man/man1 -depth -maxdepth 1 -type l -delete
-echo "delete all symbolic links in /etc/xdg/autostart"
+
+say "delete all symbolic links in /etc/xdg/autostart"
 my-superuser find /etc/xdg/autostart -depth -maxdepth 1 -type l -delete
 
 if [ -f "/etc/sysctl.d/90-disable_ipv6.conf" ];then
@@ -47,7 +48,7 @@ if [ -f "/etc/sysctl.d/90-disable_ipv6.conf" ];then
 	fi
 fi
 
-echo "restoring home dirs"
+say "restoring home dirs"
 for d in /home/*; do
     [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes 
     user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
@@ -78,25 +79,32 @@ for d in /home/*; do
 	fi
 done
 
-echo "switch default xsession to ${switch_default_xsession}."
-my-superuser update-alternatives --set x-session-manager ${switch_default_xsession}
+if [ -n "${switch_default_xsession}" ];then
+	say "switch default xsession to ${switch_default_xsession}."
+	my-superuser update-alternatives --set x-session-manager ${switch_default_xsession}
+fi
 
-echo "removing Packages"
-Package_remove_ "${List_of_pakages_installed_}"
+if [ -n "${List_of_pakages_installed_}" ];then
+	say "removing Packages"
+	Package_remove_ "${List_of_pakages_installed_}"
+fi
 
-echo "updating fc-cache"
+say "updating fc-cache"
 my-superuser fc-cache -vf > /dev/null 2>&1
-echo "updating gtk-update"
-my-superuser gtk-update-icon-cache > /dev/null 2>&1
-echo "updating grub"
-grub_updater_function
-echo "removing ${__distro_path_root}"
-my-superuser rm -rdf "${__distro_path_root}"
 
-echo "running myautorandr.sh"
+say "updating gtk-update"
+my-superuser gtk-update-icon-cache > /dev/null 2>&1
+
+say "updating grub"
+grub_updater_function
+
+say "running myautorandr.sh"
 my-superuser ${__distro_path_root}/bin/X11/not_add_2_path/myautorandr.sh uninstall || echo "failed to run myautorandr.sh uninstaller"
 
-echo "delete /usr/bin/my-superuser"
+say "removing ${__distro_path_root}"
+my-superuser rm -rdf "${__distro_path_root}"
+
+say "delete /usr/bin/my-superuser"
 my-superuser rm -rdf /usr/bin/my-superuser || :
 
-echo "Done"
+say "Done"

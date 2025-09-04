@@ -2,7 +2,7 @@
 ## Commands Executed By Openbox Powermenu
 
 ## Rofi #############################################
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 opt_="${1:-}"
 opt2_="${2:-}"
@@ -74,7 +74,7 @@ _lock(){
 }
 
 _moniter_off(){
-	. "${my_stuff_display_manager_lib_path}"
+	. "${__distro_display_manager_lib_path}"
 	if [ "$Display_server_are" = "X11" ];then
 		xset dpms force off || ( xset s blank && xset s activate )
 	elif [ "$Display_server_are" = "wayland" ];then

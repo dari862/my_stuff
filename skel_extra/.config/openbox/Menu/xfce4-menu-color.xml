@@ -58,7 +58,7 @@
 		<menu id="info" execute="sysinfo-pipemenu --more" label="System info" icon="&icons;/stats.png"/>
 		
         <menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources" icon="&icons;/help.png"/>
-		<menu id="KeybindsPipeMenu" execute="my_stuff-kb-pipemenu" label="Keybinds" icon="&icons;/keyboard.png"/>
+		<menu id="KeybindsPipeMenu" execute="keyboard-shortcut-pipemenu" label="Keybinds" icon="&icons;/keyboard.png"/>
 		
         <separator/>
 

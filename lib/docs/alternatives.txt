@@ -1,6 +1,6 @@
-"My Stuff Alternatives"
+"Alternatives"
 =====================
-The "My Stuff Alternatives" are four groups added to the Debian Alternatives:
+The "Alternatives" are four groups added to the Debian Alternatives:
 
         my-file-manager
         my-text-editor
@@ -13,12 +13,12 @@ set as that alternative. Often the setting will be done automatically, but
 even done manually it only needs to be done once to cover
 all the calls to that command. (See "Editing Alternatives" below.)
 
-The default settings in a new install of My Stuff are:
+The default settings in a new install are:
 
         my-file-manager Thunar
         my-text-editor  Geany
-        my-image-viewer Mirage
-        my-media-player VLC
+        my-image-viewer Viewnior
+        my-media-player MPC
 
 The only difference from the other Debian alternatives is that they are
 not automatically added by packages themselves.
@@ -43,12 +43,11 @@ or add an app to an alternative group manually (see below).
 
 Editing Alternatives
 ====================
-You can edit any Debian Alternatives (including the bl-* My Stuff varieties)
-with the command 'update-alternatives' (see 'man update-alternatives'), but
-there is also a graphic front end called Galternatives which is easier to
-use in some ways.
+You can edit any Debian Alternatives with the command 'update-alternatives' 
+(see 'man update-alternatives'), but there is also a graphic front end 
+called Galternatives which is easier to use in some ways.
 
-In the My Stuff menu, click "System" > "Edit Debian Alternatives".
+In the bl-menu, click "System" > "Edit Debian Alternatives".
 You can scroll down the list to see what alternative groups have been
 installed on your system, what options are available for each group
 and if there is more than one option you can set a different one.

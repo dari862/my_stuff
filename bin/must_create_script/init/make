@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 target_path="${__distro_path_root}/system_files/bin/service_manager"
 init_create_path="${__distro_path_root}/bin/must_create_script/init"
 # openrc

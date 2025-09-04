@@ -2,7 +2,7 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=pmxkcd
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 pmrm=$(which rm)
 pmkl=$(which kill)
 json_get_var() {

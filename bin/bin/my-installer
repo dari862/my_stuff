@@ -2,7 +2,7 @@
 #    my-installer: a script to install Debian packages in a popup terminal window.
 # # distobox enter gaming -- "pacman -Qi package 1>/dev/null || echo yes"
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 HELP='my-installer: a script to install Debian packages in a popup terminal window.
 
 Usage:  my-installer --install app_name

@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 HELP='    my-install-pipemenu a obmenu Pipe Menu for installing applications
     It should normally be called from a obmenu menu.
 
@@ -28,7 +28,7 @@ done
 cd "${gui_scripts_dir}"
 
 obmenu_options(){
-	menuStart "my_stuffGuiAppsPipemenu" "My Stuff GUI Apps"
+	menuStart "GuiAppsPipemenu" "${__distro_title} GUI Apps"
 	for gui in *;do
 		menuItem "$gui" "${gui_scripts_dir}/$gui"
 	done

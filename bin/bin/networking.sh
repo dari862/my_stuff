@@ -1,7 +1,7 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
 # Default Values
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
 _network_manager_script_config="${script_config_path}/network-manager-script.ini"

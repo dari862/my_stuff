@@ -1,5 +1,5 @@
 #!/bin/bash
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 __opt_="${1:-}"
 __opt2_="${2:-}"
 no_wall=false

@@ -70,7 +70,7 @@ def parse_shell_var(file_path, key_to_find):
         return resolve(variables[key_to_find])
     return None
 
-DISTRO_PATH_NAME_LIB = "/usr/share/my_stuff/lib/common/Distro_path"
+DISTRO_PATH_NAME_LIB = "$__distro_path_lib"
 __distro_path_root = parse_shell_var(DISTRO_PATH_NAME_LIB, "__distro_path_root")
 WM_CONFIG_LIB = f"{__distro_path_root}/lib/common/WM"
 DISTRO_CONFIG_PATH = parse_shell_var(WM_CONFIG_LIB, "Distro_config_file")

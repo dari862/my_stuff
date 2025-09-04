@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 locate_command="${1:-}"
 shift
 __arg="$@"

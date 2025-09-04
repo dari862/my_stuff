@@ -2,7 +2,7 @@
 ## Openbox Pipemenu to change openbox styles
 
 # Variables and functions
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/pipemenu"
 

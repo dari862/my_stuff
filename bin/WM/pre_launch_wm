@@ -1,8 +1,9 @@
 #!/bin/sh
-#### Fix missing files        ########################################################################
-
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
+
+mpd-session start
+mpd-session db &
 
 if mkdir -p "/tmp/$USER";then
 	chmod 700 "/tmp/$USER"
@@ -19,36 +20,27 @@ if [ ! -f "${Distro_config_file}" ];then
 	tint2_sessionfile="/.config/tint2/default.tint2rc"
 	EOF
 	
-	# pickers
 	panel_picker
 	style_setter
 	touch "${WM_config_dir}/rofi_picked"
 fi
 
-#### START SETTINGS  #################################################################################
 dotscreenlayout_profile="$(ls ~/.screenlayout/*.sh 2>/dev/null | head -1 || :)"
 if [ -n "$dotscreenlayout_profile" ];then
 	"$dotscreenlayout_profile"
 elif [ -f "$display_script" ];then
 	"$display_script"
 else
-	displayselect auto "noninteractive"
+	displayselect auto noninteractive
 fi
 
 displayselect watch &
 
-# Set wallpaper
 setbg -r
 
-# Start keyring	
 #polkit-session start &
 
-## Start Music Player Daemon
-mpd-session start &
+notification-d-session start &
 
-## Notification Daemon
-dunst-session start &
-
-## file-manager Daemon
 file-manager-session start &
 

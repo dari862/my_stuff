@@ -13,7 +13,7 @@ if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 	exit 0
 fi
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 . "${__distro_path_root}/lib/common/Distro_path"
@@ -29,7 +29,7 @@ update_full_upgrade_script(){
 	print_purple "==> check if full upgrade need update. "
 	do_full_upgrade_need_update=false
 	$__SUPER_USER mkdir -p /tmp/root/disto_updater
-	$__SUPER_USER $getURL_path 'download2' https://raw.githubusercontent.com/dari862/my_stuff/refs/heads/main/distro_manager/full-upgrade "/tmp/root/disto_updater/full-upgrade"
+	$__SUPER_USER $getURL_path 'download2' "https://raw.githubusercontent.com/dari862/${__distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
 	$__SUPER_USER chmod +x "/tmp/root/disto_updater/full-upgrade"
 	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
 	
@@ -91,7 +91,7 @@ Updating_Distro(){
 	blob_modified=false
 	skel_modified=false
 	print_purple "==> Fetching Distro repo."
-	$__SUPER_USER git remote set-url origin https://github.com/dari862/my_stuff.git >/dev/null 2>&1
+	$__SUPER_USER git remote set-url origin "https://github.com/dari862/${__distro_name}.git" >/dev/null 2>&1
 	$__SUPER_USER git fetch >/dev/null 2>&1
 	if $(git status | grep -q "^Your branch is up to date" || :);then
 		print_GREEN "==> Distro is up to date." 

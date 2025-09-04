@@ -5,7 +5,7 @@ set -e
 opt="${1-}"
 
 # Import necessary libraries
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/openbox"

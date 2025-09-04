@@ -6,7 +6,7 @@
 # but may be extended in the future.
 
 # var
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/display_server/X11"
 
 __to_where_="${1-}"

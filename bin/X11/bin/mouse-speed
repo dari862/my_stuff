@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
 HOME_mouse_speed_conf="${script_config_path}/mouse-speed.conf"

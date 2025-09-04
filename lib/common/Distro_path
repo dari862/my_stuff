@@ -1,4 +1,7 @@
-__distro_path_root="${__distro_path_root}"
+__distro_title="My Stuff"
+__distro_name="my_stuff"
+
+__distro_path_root="/usr/share/${__distro_name}"
 __distro_path_system_files="${__distro_path_root}/system_files"
 __distro_path_bin="${__distro_path_system_files}/bin"
 
@@ -11,5 +14,6 @@ __distro_path_disabled_completion="${__distro_path_root}/lib/auto_completion"
 __distro_path_enabled_completion="${__distro_path_root}/system_files/completion"
 
 _distro_xsessions_desktop_path="${__distro_path_system_files}/xsessions_applicationsdotdesktop"
-pre_distro_xsessions_desktop_file_name="my_stuff_"
-pre_distro_xsessions_desktop_title="My Stuff"
+
+__distro_path_neverremove="${__distro_path_root}/never_remove"
+__distro_path_uninstaller_var="${__distro_path_neverremove}/var_for_distro_uninstaller"

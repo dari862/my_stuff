@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 exec 2>/dev/null
 . "${__distro_path_root}/lib/common/WM"
 

@@ -1,4 +1,8 @@
-# Compression
+# colored man
+man() {
+	/usr/bin/man "$@" | bat -l man --style=plain
+}
+
 # Searches for text in all files in the current folder
 ftext() {
 	# -i case-insensitive

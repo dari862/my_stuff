@@ -2,7 +2,7 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=live_wallpaper
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 title_name="Live wallpaper"
 icon_name="livewall_gui"
 icon="${__distro_path_root}/icons/${icon_name}.png"

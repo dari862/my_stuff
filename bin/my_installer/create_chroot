@@ -1,9 +1,9 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
-. "${my_stuff_display_manager_lib_path}"
+. "${__distro_display_manager_lib_path}"
 
 chroot_name="${1-}"
 chroot_path="${INSTALLER_CHROOT_DIR}/${chroot_name}"

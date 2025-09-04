@@ -19,7 +19,7 @@ mainbox {
     enabled:                     true;
     border-color:                @background;
     background-color:            transparent;
-    children:                    [ "inputbar" ];
+    children:                    [ "inputbar", "listview" ];
 }
 
 /*****----- Inputbar -----*****/

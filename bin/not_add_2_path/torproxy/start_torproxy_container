@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/bin/not_add_2_path/torproxy/check_container"
 check_tor_container
 ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy

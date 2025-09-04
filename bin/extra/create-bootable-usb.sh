@@ -1,5 +1,5 @@
 #!/bin/sh -e
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/Distro_Specific/info"
 
 DEPENDENCIES="xz gzip bzip2 jq"

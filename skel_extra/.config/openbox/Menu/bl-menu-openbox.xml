@@ -135,7 +135,7 @@
 		</menu>
 		<separator/>
 		<menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
-		<menu id="DisplayKeybinds" execute="my_stuff-kb-pipemenu" label="Display Keybinds"/>
+		<menu id="DisplayKeybinds" execute="keyboard-shortcut-pipemenu" label="Display Keybinds"/>
 		<separator/>
 		<menu id="applications-menu" label="Applications" execute="obamenu.py"/>
 		<separator/>

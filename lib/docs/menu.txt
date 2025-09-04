@@ -26,7 +26,7 @@ Edit "~/.config/openbox/menu.xml" using a text editor.
 (Links to more detailed info can be found in the Online Help for Openbox in the Help menu)
 
 
-HowTo edit a My Stuff pipemenu
+HowTo edit a pipemenu
 ================================
 
     Menus, eg bl-help-pipemenu, are in "/usr/bin/"

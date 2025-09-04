@@ -14,7 +14,7 @@ alias mv='mv -iv'
 alias mkdir='mkdir -pv'
 alias ps='ps auxf'
 alias ping4='ping -c 4'
-alias less='less -R'
+alias less="bat -l less --style=plain"
 alias cls='clear'
 alias multitail='multitail --no-repeat -c'
 
@@ -33,7 +33,7 @@ alias rmd='/bin/rm  --recursive --force --verbose '
 alias ls="ls -hN --color=auto --group-directories-first"
 alias grep="grep --color=auto" 
 alias diff="diff --color=auto" 
-alias ccat="highlight --out-format=ansi" 
+alias cat="bat --style=plain --paging=never" 
 alias ip="ip -color=auto"
 
 ### LS
@@ -126,5 +126,3 @@ alias cleanup_ram="my-superuser sh -c 'sync; echo 3 >/proc/sys/vm/drop_caches'"
 for command in mount umount sv apt updatedb shutdown poweroff reboot; do
 	alias $command="my-superuser $command"
 done; unset command
-
-alias ff="fzf --preview 'bat --style=numbers --color=always {}'"

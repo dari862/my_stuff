@@ -60,7 +60,7 @@ URxvt.url-launcher: (((distro_path_root)))/bin/apps/my-www-browser
 URxvt.matcher.button: 3
 
 ! Custom colourscheme, see http://terminal.sexy/ for more ideas.
-! Commented out colors are from the original My Stuff Hydrogen terminal theme.
+! Commented out colors are from the original bunsenlabs Hydrogen terminal theme.
 
 ! Black
 ! URxvt.color0: #000000

@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 disto_brightness_controller_path="${__distro_path_root}/system_files/bin/disto_brightness_controller"
 
 if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then

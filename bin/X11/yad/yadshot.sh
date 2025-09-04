@@ -6,7 +6,7 @@
 # need atleast one: slop, imagemagick, miam
 # optional: xclip, grabc (for use with color picker)
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 # export running directory variables for use later
 export YADSHOT_PATH="$(readlink -f $0)"

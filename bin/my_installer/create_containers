@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 if [ "${1-}" = "--upate" ];then
 	"${__distro_path_root}/bin/my_installer/update-containers.sh"

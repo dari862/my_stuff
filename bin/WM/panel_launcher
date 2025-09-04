@@ -1,5 +1,5 @@
 #!/bin/bash
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
@@ -15,7 +15,7 @@ if [ "${1-}" = "--reload" ] || [ "${1-}" = "-r" ];then
 fi
 
 conky-session restart &
-dunst-session restart &
+notification-d-session restart &
 #plank-session restart &
 
 if [ "$_panel_name_" = "polybar" ];then 

@@ -1,23 +1,27 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
 set -e
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
 pass_arg=""
 OPT__="${1:-}"
 MODE="${2:-}"
+__automate_it=false
+
 if [ "$MODE" = "rofi" ];then
 	Menu_="rofi"
 	. "${Distro_config_file}"
 elif [ "$MODE" = "pass" ];then
-	MODE="noninteractive"
+	__automate_it=true
 	pass_arg="${3:-}"
 elif [ "$MODE" = "monitor" ];then
-	MODE="noninteractive"
+	__automate_it=true
     picked_pass_monitor="${3:-}"
 	pass_arg="${4:-}"
     extra_pass_arg="${5:-}"
+elif [ "$MODE" = "noninteractive" ];then
+	__automate_it=true
 fi
 
 postrun_message=""
@@ -53,7 +57,7 @@ printf_message(){
 }
 
 show_message(){
-	[ "$MODE" = "noninteractive" ] && return
+	[ "$__automate_it" = true ] && return
 	[ "$Menu_" = "rofi" ] && return
 	COLOR="$1"
 	message="$2"
@@ -62,7 +66,7 @@ show_message(){
 }
 
 show_title(){
-	[ "$MODE" = "noninteractive" ] && return
+	[ "$__automate_it" = true ] && return
 	[ "$Menu_" = "rofi" ] && return
 	COLOR="$1"
 	title="$2"
@@ -72,7 +76,7 @@ show_title(){
 
 enter_choice(){
 	choice=""
-	[ "$MODE" = "noninteractive" ] && return
+	[ "$__automate_it" = true ] && return
 	if [ "$Menu_" = "rofi" ];then
 		choice="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "${1:-}")"
 	else
@@ -89,7 +93,7 @@ enter_choice(){
 
 list_and_enter_choice(){
 	choice=""
-	[ "$MODE" = "noninteractive" ] && return
+	[ "$__automate_it" = true ] && return
 	if [ "$Menu_" = "rofi" ];then
 		choice="$(printf '%s' "$2" | rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "${1:-}")"
 	else
@@ -102,7 +106,7 @@ list_and_enter_choice(){
 }
 
 confirm_action() {
-	[ "$MODE" = "noninteractive" ] && return
+	[ "$__automate_it" = true ] && return
 	action="$1"
 	if [ "$MODE" != "rofi" ];then
 		printf "%b\n" "${CYAN}$action"
@@ -138,7 +142,7 @@ edit_command() {
 
 execute_command() {
 	command="$1"
-	[ "$MODE" != "noninteractive" ] && printf "Executing: %s\n" "$command"
+	[ "$__automate_it" = false ] && printf "Executing: %s\n" "$command"
 	if ! $command 2>&1 | tee /tmp/xrandr.log | tail -n 20; then
 		if [ "$MODE" != "rofi" ];then
 			show_message "RED" "An error occurred while executing the command. Check /tmp/xrandr.log for details."
@@ -263,7 +267,7 @@ scale_monitors() {
 
 set_resolutions() {
     if [ "$MODE" = "monitor" ];then
-        edit_command "${picked_pass_monitor}_resolution" "$pass_arg"
+        edit_command "${picked_pass_monitor}_resolution" "--mode $pass_arg"
         return
     fi
 	postrun_title="Monitor configuration set resolutions"
@@ -322,6 +326,9 @@ set_primary_monitor() {
 	fi
 	monitor_name=$(echo "$monitor_array" | cut -d' ' -f"$monitor_choice")
 	if confirm_action "Set $monitor_name as the primary monitor?"; then
+		for monitor in $monitor_array; do
+			edit_command "${monitor_name}_primary" ""
+		done
 		show_message "GREEN" "Setting $monitor_name as primary monitor"
 		edit_command "${monitor_name}_primary" "--primary"
 		show_message "GREEN" "Monitor $monitor_name set as primary successfully."
@@ -439,7 +446,7 @@ duplicate_displays() {
 }
 change_orientation() {
     if [ "$MODE" = "monitor" ];then
-        edit_command "${picked_pass_monitor}_orientation" "$pass_arg"
+        edit_command "${picked_pass_monitor}_orientation" "--rotate $pass_arg"
         return
     fi
 	postrun_title="Change Monitor Orientation"
@@ -657,7 +664,7 @@ help(){
 }
 
 watch_for_device_hot_plugs(){
-	MODE="noninteractive"
+	__automate_it= true
 	cooldown=4
 	last_event_time=0
 	
@@ -724,5 +731,5 @@ esac
 
 execute_command "$display_script"
 my_session_manager_cli reload
-dunst-session restart
+notification-d-session restart
 notify_send_and_exit

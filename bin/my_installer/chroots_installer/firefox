@@ -2,7 +2,7 @@
 APP_NAME="firefox"
 make_chroot_browser_default_browser=false
 prompt "Do you want to set chroot-${APP_NAME} as default browser(my-www-browser)?" 'Y' && make_chroot_browser_default_browser=true
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 . "${__distro_path_root}/bin/my_installer/chroots_installer/browsers_creater"
 trap cleanup EXIT

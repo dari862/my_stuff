@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 installation_script_name="popup_terminal"
 
 . "${__distro_path_root}/lib/common/DB"

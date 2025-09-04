@@ -6,7 +6,7 @@
 ## Openbox Pipemenu to display system stats/info
 sysinfo_script_="sysinfo_script_ --system"
 # Variables and functions
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/pipemenu"
 
 if  [ "$1" = "--more" ];then

@@ -9,7 +9,7 @@
 # CREATED: 2021.09.21
 # LICENSE: GNU General Public License v3.0
 #===================================================================================
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 if [ ! -f "${script_config_path}/welcome_keybinds" ];then
 	. "${__distro_path_root}/system_files/welcome_keybinds" 
@@ -21,7 +21,7 @@ current_wm_name="$(cat "$WM_name_file_path")"
 field="Show this message on startup"
 
 # Openbox welcome text
-text_openbox="<big><b>Welcome TO My Stuff \!</b></big>\n
+text_openbox="<big><b>Welcome TO ${__distro_title} \!</b></big>\n
  A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
  <b> How to open main menu?</b>\n
    • Right click on desktop and taskbar\n
@@ -43,7 +43,7 @@ text_openbox="<big><b>Welcome TO My Stuff \!</b></big>\n
 "
 
 # Bspwm welcome text
-text_bspwm="<big><b>Welcome TO My Stuff \!</b></big>\n
+text_bspwm="<big><b>Welcome TO ${__distro_title} \!</b></big>\n
  A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
  <b> How to open main menu?</b>\n
    • Right click on desktop and taskbar\n
@@ -65,7 +65,7 @@ text_bspwm="<big><b>Welcome TO My Stuff \!</b></big>\n
 "
 
 # awesome welcome text
-text_awesome="<big><b>Welcome TO My Stuff \!</b></big>\n
+text_awesome="<big><b>Welcome TO ${__distro_title} \!</b></big>\n
  A lightweight and minimal desktop on Debian\!. There are some <b>tips</b>:\n
  <b> How to open main menu?</b>\n
    • Right click on desktop and taskbar\n

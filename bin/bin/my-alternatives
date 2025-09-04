@@ -1,8 +1,8 @@
 #!/bin/sh
-# my-alternatives: A script to manage My Stuff alternatives.
+# my-alternatives: A script to manage alternatives.
 # Licensed under the GNU General Public License, version 3 or later.
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
@@ -63,14 +63,14 @@ link_package() {
 usage() {
   cat <<-EOF
 	Usage: my-alternatives <action>
-	Manage My Stuff alternatives. Superuser permission is required to make changes.
+	Manage alternatives. Superuser permission is required to make changes.
 	
 	Actions:
   		--help		| -h	Show this help message
-  		--install	| -i	Install My Stuff alternatives with default packages
-  		--list 		| -l	List all assigned My Stuff alternatives
-  		--remove 	| -r	Remove all assigned My Stuff alternatives
-  		--set 		| -s	Set My Stuff alternatives with typical installed packages
+  		--install	| -i	Install ${__distro_title} alternatives with default packages
+  		--list 		| -l	List all assigned ${__distro_title} alternatives
+  		--remove 	| -r	Remove all assigned ${__distro_title} alternatives
+  		--set 		| -s	Set ${__distro_title} alternatives with typical installed packages
 	EOF
 }
 
@@ -143,7 +143,7 @@ remove_alternatives() {
 # Set a specific alternative
 set_alternatives() {
   if [ -z "$alt_package" ];then
-    echo "Which My Stuff alternative would you like to change?"
+    echo "Which ${__distro_title} alternative would you like to change?"
     echo "================================="
     count=1
     for alternative_name in $MYALTS; do

@@ -4,7 +4,7 @@
 
 # wrapper for mpv to enable use as alternative for my-media-player
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 MPV_PROFILE=my-pseudo-gui
 
 check_4_dependencies_if_installed mpv || exit 1

@@ -1,11 +1,12 @@
 #!/bin/sh
 ## Openbox Pipemenu to change openbox styles
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/pipemenu"
+. "${Distro_config_file}"
 
-[ ! -f "${style_pipemenu_file}" ] && ${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/style.sh
+[ ! -f "${style_pipemenu_file}_${_panel_name_}" ] && "${__distro_path_root}"/bin/X11/pipemenu/create_pipemenu/style.sh
 
 menuStart
-cat "${style_pipemenu_file}"
+cat "${style_pipemenu_file}_${_panel_name_}"
 menuEnd

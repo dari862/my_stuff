@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #A script written by Benexl in September 2024 under MIT LICENSE
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${script_config_path}/My_TV/yt-x.conf"
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 usr_setup_flag_file="$1"
 backup_date="$(date +'%d-%m-%Y-%HH%mm')"

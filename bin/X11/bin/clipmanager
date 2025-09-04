@@ -3,7 +3,7 @@ set -eu
 debug_mode="false"
 [ "${1:-}" = "-d" ] && debug_mode="true"
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${script_config_path}/clipmanager/config.ini"
 pid_file_dir="${clip_path}/process_ids"

@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 op__="$1"
 op2__="$2"
 wallpaper_layout="${3:-zoom}"
@@ -9,7 +9,7 @@ wallpaper_layout="${3:-zoom}"
 wallpapers_dir="${__distro_path_root}/my_wallpapers"
 
 Prerequisite() {
-	. "${my_stuff_display_manager_lib_path}"	  
+	. "${__distro_display_manager_lib_path}"	  
 	
 	if [ "$Display_server_are" = "X11" ];then
 		SETTER="xwallpaper --stretch"

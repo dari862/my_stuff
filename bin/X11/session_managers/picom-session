@@ -1,4 +1,7 @@
 #!/bin/sh
+. "$__distro_path_lib"
+[ "$(cat "${__distro_path_neverremove}/machine_type")" = "vm" ] && exit
+
 picom_path="$HOME/.config/picom.conf"
 
 stop() {	

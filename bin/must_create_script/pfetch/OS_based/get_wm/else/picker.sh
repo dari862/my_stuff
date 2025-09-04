@@ -1,5 +1,5 @@
 get_wm() {
-	. "${my_stuff_display_manager_lib_path}"
+	. "${__distro_display_manager_lib_path}"
 	# Don't display window manager if X isn't running.
 	[ "$DISPLAY" ] || return
 	if [ "$Display_server_are" = "X11" ];then

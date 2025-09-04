@@ -6,7 +6,12 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-[[ -n $SSH_CONNECTION ]] && SSH_MESS="-ssh"
+SSH_MESS=""
+
+if [[ -n $SSH_CONNECTION ]];then
+	SSH_MESS="-ssh"
+	BASH_THEME="$SSH_THEME"
+fi
 
 command -v pfetch &>/dev/null && pfetch
 

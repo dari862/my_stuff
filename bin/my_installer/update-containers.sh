@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 
 IMAGES_2_SKIP_distrobox="$(cd "${__distro_path_root}"/bin/my_installer/distrobox_center && ls || :)"
 IMAGES_2_SKIP_containers="$(cd "${__distro_path_root}"/bin/my_installer/containers_center && ls || :)"

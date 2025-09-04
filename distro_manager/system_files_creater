@@ -1,17 +1,17 @@
 #!/bin/sh
 set -e
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
-if [ ! -f "${__distro_path_root}/never_remove/machine_type" ];then
+if [ ! -f "${__distro_path_neverremove}/machine_type" ];then
 	. "${__distro_path_root}/lib/common/machine_type"
 	machine_type_are="$(check_machine_type)"
-	printf '%s' "$machine_type_are" | tee "${__distro_path_root}/never_remove/machine_type" >/dev/null 2>&1
+	printf '%s' "$machine_type_are" | tee "${__distro_path_neverremove}/machine_type" >/dev/null 2>&1
 else
-	machine_type_are="$(cat "${__distro_path_root}/never_remove/machine_type")"
+	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
 fi
 
 pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
@@ -270,7 +270,7 @@ fi
 if command -v dunst >/dev/null 2>&1;then
 	show_im "copy dunst skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/dunst" "${__distro_path_root}/system_files/skel/.config"
-	cp -r "${__distro_path_root}/bin/X11/session_managers/dunst-session" "${__distro_path_root}"/system_files/binX11
+	cp -r "${__distro_path_root}/bin/X11/session_managers/notification-d-session" "${__distro_path_root}"/system_files/binX11
 fi
 if command -v openbox >/dev/null 2>&1;then
 	show_im "copy openbox skell file to system_files/skel ."

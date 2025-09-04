@@ -7,7 +7,7 @@ extension=""
 File_to_link=""
 user_root_dir=false
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 ROOT_CONFIG_DIR="${__distro_path_neverremove}"
 ROOT_CONFIG_FILE="${__distro_path_neverremove}/installs.json"
 ROOT_BIN_DIR="${__distro_path_bin}"
@@ -189,14 +189,24 @@ select_assets() {
   	armv7*)  ARCH="armv7"					  ;;
   esac
   
-  assets="$(printf '%s\n' "${all_assets[@]}" | grep -iE "${ARCH}|${OS}|${repo_to_find:-.}")"
+  assets="$(printf '%s\n' "${all_assets[@]}")"
+  
+  if printf '%s\n' "${assets}" | grep -iqE "${ARCH}" ;then
+  	assets="$(printf '%s\n' "${assets}" | grep -iE "${ARCH}")"
+  fi
+  if printf '%s\n' "${assets}" | grep -iqE "${OS}" ;then
+    assets="$(printf '%s\n' "${assets}" | grep -i "${OS}")"
+  fi
+  if printf '%s\n' "${assets}" | grep -iqE "${repo_to_find}" ;then
+    assets="$(printf '%s\n' "${assets}" | grep -i "${repo_to_find}")"
+  fi
   
   if [ -n "$extension" ];then
     filtered_assets="$(printf '%s\n' "${assets}" | grep -i "$extension")"
   elif [ "$extension" != "appimage" ];then
   	filtered_assets="$(printf '%s\n' "${assets}" | grep -v "appimage")"
   else
-    filtered_assets="${assets}"
+    filtered_assets="$(printf '%s\n' "${assets}")"
   fi
   
   if printf '%s\n' "${assets}" | grep -qi "appimage";then
@@ -214,16 +224,27 @@ select_assets() {
         	*sha256*) [ -z "$checksum_url" ] && checksum_url="$url" ;;
         	*) [ -z "$asset_url" ] && asset_url="$url" ;;
     	esac
-    	[ -n "$asset_url" ] && [ -n "$checksum_url" ] && break
+    	if [ -n "$asset_url" ] && [ -n "$checksum_url" ];then
+    		break
+    	else
+    		:
+    	fi
 	done
 }
 
 install_repo() {
   bin_name="${repo##*/}"
-
-  release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/${version:+tags/}$version")
-  [ "$(jq -r '.draft // false' <<< "$release_json")" = "true" ] && return
-  [ "$(jq -r '.prerelease // false' <<< "$release_json")" = "true" ] && return
+  
+  if [ -z "$version" ]; then
+    release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/latest")
+    version=$(echo "$release_json" | jq -r '.tag_name')
+  else
+    release_json=$(getURL "2term" "https://api.github.com/repos/$repo/releases/tags/$version")
+  fi
+  
+  if [[ "$(echo "$release_json" | jq -r '.draft')" == "true" || "$(echo "$release_json" | jq -r '.prerelease')" == "true" ]]; then
+	warn "Release is draft or prerelease. Skipping."; return 1
+  fi
 
   mapfile -t all_assets < <(jq -r '.assets[].browser_download_url' <<< "$release_json" | grep -vE ".zsync|.changes$")
   select_assets
@@ -241,8 +262,8 @@ install_repo() {
   case "$asset_url" in
     *.deb) Installing_deb ;;
     *.appimage) mv_appimage ;;
-    *.zip) extract_archive "zip" ;;
-    *.tar.gz|*.tgz) extract_archive "tar.gz" ;;
+    *.zip) extract_and_find_binary "zip" ;;
+    *.tar.gz|*.tgz) extract_and_find_binary "tar.gz" ;;
     *) safe_mv "$extension"; $__superuser mv "$CORE_BIN_DIR/${bin_name}${extension}" "${BIN_DIR}" ;;
   esac
 

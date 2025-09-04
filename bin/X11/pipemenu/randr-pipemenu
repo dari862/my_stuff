@@ -148,6 +148,7 @@ while IFS= read -r output_info; do
 		echo "$(mk_exe_node "Inverted" "$output" "change_orientation" "inverted")"
 		echo "$(mk_exe_node "Normal" "$output" "change_orientation" "normal")"
 		echo "<separator />"
+		echo "$(mk_exe_node "Set as primary" "$output" "set_primary_monitor")"
         #enable_monitor
 		echo "$(mk_exe_node "Auto" "$output" "enable_monitor")"
         #disable_monitor

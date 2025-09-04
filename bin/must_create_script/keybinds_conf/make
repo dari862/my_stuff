@@ -1,5 +1,5 @@
 #!/bin/sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 skel_keybinds_dir="${__distro_path_root}/system_files/skel/.config/keybinds"
 usr_setup_flag_file="$HOME/.local/share/usr-flag-setup"
 

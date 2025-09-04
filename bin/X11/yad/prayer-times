@@ -1,5 +1,5 @@
 #!/bin/bash
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 create_config_file(){
 	location="$(cat /etc/timezone | awk -F/ '{print $2}')"
 	reg_location="$(cat /etc/timezone | awk -F/ '{print $1}')"

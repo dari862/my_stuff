@@ -2,9 +2,9 @@
 ## Commands Executed By Openbox Powermenu
 
 ## Rofi #############################################
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
-. "${my_stuff_display_manager_lib_path}"
+. "${__distro_display_manager_lib_path}"
 . "${Distro_config_file}"
 
 chosen="${1-}"

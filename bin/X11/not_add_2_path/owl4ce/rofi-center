@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 exec >/dev/null 2>&1
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_vars.sh"

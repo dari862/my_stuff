@@ -1,9 +1,0 @@
-#!/bin/sh
-#===================================================================================
-. "${my_stuff_display_manager_lib_path}"
-
-if [ "$Display_server_are" = "openbox" ];then
-	dunst-session edit
-elif [ "$Display_server_are" = "wayland" ];then
-	mako-session edit
-fi	

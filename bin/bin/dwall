@@ -2,7 +2,7 @@
 ## Dynamic Wallpaper : Set wallpapers according to current time.
 ## Created to work better with job schedulers (cron)
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 
 #[ "$(id -u)" -eq 0 ] && { echo "never run script as root. existing.."; exit 1 ;}
 cron_dwall_extra_arg=()

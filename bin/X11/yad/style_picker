@@ -2,7 +2,7 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=Style_Manager
 
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
 . "${Distro_config_file}"
@@ -137,7 +137,7 @@ Launch_YAD_(){
 	CANCEL="--button=Cancel:1"
 	EXIT="--button=Quit:1"
 	CLOSE="--button=Close:1"
-	TXTINTRO="<big><b>My Stuff\n\nOpenbox Configuration Manager</b></big>\n\n\n \
+	TXTINTRO="<big><b>${__distro_title}\n\nOpenbox Configuration Manager</b></big>\n\n\n \
 	<b>Save or Restore settings for:</b>\n\n \
 	\tOpenbox theme\n \
 	\tGTK theme\n \

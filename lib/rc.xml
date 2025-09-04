@@ -567,7 +567,7 @@
   </mouse>
   <!-- ################################ Menu Settings ################################ -->
   <menu>
-    <!-- My Stuff now uses jgmenu instead of this Openbox menu. -->
+    <!-- Distro now uses jgmenu instead of this Openbox menu. -->
 
     <!-- You can specify more than one menu file in here and they are all loaded,
        just don't make menu ids clash or, well, it'll be kind of pointless -->

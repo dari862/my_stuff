@@ -30,6 +30,6 @@ case "${1}" in
 		start	
 	;;
 	*)	
-		echo "Usage: dunst-session [start|stop|restart]"
+		echo "Usage: notification-d-session [start|stop|restart]"
 	;;
 esac

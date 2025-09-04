@@ -1,5 +1,5 @@
 #!/bin/sh
-. "${my_stuff_display_manager_lib_path}"
+. "${__distro_display_manager_lib_path}"
 
 printf '\n\n  1. Install Lazyvim? \n  2. Install kickstart?\n  3. Install ThePrimeagen config?\n  4. Install kickstart (ChrisTitusTech)?\n\nInsert appropriate number: '
 stty -icanon -echo time 0 min 1

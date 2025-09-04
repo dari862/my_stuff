@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-. "/usr/share/my_stuff/lib/common/Distro_path"
+. "$__distro_path_lib"
 
 __opt="${1:-}"
 __user="${2:-}"

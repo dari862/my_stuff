@@ -1,12 +1,12 @@
-My Stuff Autostart
+Autostart
 ===================
 
-The X session and My Stuff session
+The X session
 ====================================
 
 When you log in to an X session, a "session manager" is chosen from the
 .desktop files in /usr/share/xsessions to start a window manager and other processes needed.
-With simple systems like My Stuff it's usual to have a user "autostart" file to run
+With simple systems like this distro it's usual to have a user "autostart" file to run
 things like desktop panels and utilities.
 
 The session manager "${__distro_path_root}/system_files/bin/xsessions/openbox" runs a window manager (openbox by default),
@@ -15,7 +15,7 @@ and runs the user autostart file ~/.config/openbox/autostart.
 
 SEE ALSO: 'man openbox-session', 'man openbox', 'man xsession'
 
-The My Stuff autostart file
+The Distro autostart file
 =============================
 
 ~/.config/openbox/autostart
@@ -48,7 +48,7 @@ Then make a new clause in the 'case $window_manager in...' section to call the a
 4) Many applications use the xdg autostart mechanism based on
 .desktop files in /etc/xdg/autostart and ~/.config/autostart.
 
-The last line in the My Stuff autostart file:
+The last line in the autostart file:
 bl-xdg-autostart
 will start up the appropriate .desktop files for you.
 If you would prefer to ignore the xdg autostart and start all applications manually,
