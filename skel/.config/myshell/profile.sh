@@ -72,20 +72,13 @@ if [ ! -d "$GNUPGHOME" ];then
 fi
 
 # Set environment path
-export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin:/usr/games:/usr/local/games
-# set PATH so it includes user's private bin if it exists
-PATH="$HOME/.local/bin:$PATH"
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ];then
-    PATH="$HOME/bin:$PATH"
-fi
+export PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin:/usr/games:/usr/local/games:$HOME/.local/bin:$HOME/bin:$PATH"
 
 # Python
 # use PYTHONPYCACHEPREFIX to use a global cache, so python won't create
 # __pycache__ directories in my projects
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
-export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"s
+export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"
 # Manage multiple versions of Python using pyenv
 if [ -d "$HOME/.pyenv" ];then
     export PYENV_ROOT="$HOME/.pyenv"

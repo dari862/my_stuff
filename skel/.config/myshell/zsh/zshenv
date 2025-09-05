@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ -z "$ZDOTDIR" ];then
+  	export My_shell_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myshell"
+  	export ZDOTDIR="${My_shell_DIR}/zsh"
+fi
+source "$ZDOTDIR/zshrc"

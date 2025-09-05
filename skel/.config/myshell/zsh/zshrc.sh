@@ -1,17 +1,23 @@
 #!/bin/zsh
 unsetopt PROMPT_SP 2>/dev/null
 
-if [[ -z $ZSH_THEME ]];then
-  ZSH_THEME="pure"
-fi
-
-[[ -n $SSH_CONNECTION ]] && SSH_MESS="-ssh"
-
 command -v pfetch &>/dev/null && pfetch
 
 fpath+=("(((distro_path_root)))/system_files/completion/zsh")
 
 # --------- theme Applyer ------
+if [[ -n "$SSH_CONNECTION" ]];then
+	ZSH_THEME="$SSH_THEME"
+	SSH_MESS="-ssh"
+else
+	SSH_THEME=""
+	SSH_MESS=""
+fi
+
+if [[ -z "$ZSH_THEME" ]];then
+	ZSH_THEME="pure"
+fi
+
 # Configure color-scheme
 if [[ -d "$ZDOTDIR/prompts/$ZSH_THEME" ]];then
 	fpath+=("$ZDOTDIR/prompts/$ZSH_THEME")

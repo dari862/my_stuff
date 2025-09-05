@@ -3,16 +3,6 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 # -------------------------------  Checks  -----------------------------------
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
-
-SSH_MESS=""
-
-if [[ -n $SSH_CONNECTION ]];then
-	SSH_MESS="-ssh"
-	BASH_THEME="$SSH_THEME"
-fi
-
 command -v pfetch &>/dev/null && pfetch
 
 # ------------------------------- variables -----------------------------------
@@ -43,8 +33,15 @@ if [ -z "${debian_chroot:-}" ] && [ -r "/etc/debian_chroot" ];then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-if [[ -z $BASH_THEME ]];then
-  BASH_THEME="pure"
+if [[ -n "$SSH_CONNECTION" ]];then
+	BASH_THEME="$SSH_THEME"
+else
+	SSH_THEME=""
+	SSH_MESS=""
+fi
+
+if [[ -z "$BASH_THEME" ]];then
+	BASH_THEME="pure"
 fi
 
 if [[ -f "$BASHDOTDIR/themes/${BASH_THEME}.bash-prompt-theme" ]];then

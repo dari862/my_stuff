@@ -1,13 +1,16 @@
 #!/bin/zsh
-# --------------------------------- checks -----------------------------------
+# --------------------------------- checks ------------------------------------
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
 if [ -z "$ZDOTDIR" ];then
-  export My_shell_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myshell"
-  export ZDOTDIR="${My_shell_DIR}/bash"
+  	export My_shell_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myshell"
+  	export ZDOTDIR="${My_shell_DIR}/zsh"
 fi
 
-# --------------------------------- Settings -----------------------------------
+# --------------------------------- Settings ----------------------------------
 vim_mode_enabled=true
 
+# --------------------------------- Plugins -----------------------------------
 remote_plugins=(
 zsh-users/zsh-autosuggestions
 zsh-users/zsh-syntax-highlighting
@@ -16,8 +19,9 @@ MichaelAquilina/zsh-you-should-use
 MichaelAquilina/zsh-auto-notify
 )
 
-# ---------------------------------   Theme  -----------------------------------
+# ---------------------------------  Theme  -----------------------------------
 ZSH_THEME="pure"
+SSH_THEME="pure"
 
-# ---------------------------------  source  -----------------------------------
-source $ZDOTDIR/zshrc.sh
+# -------------------------------  main file  ---------------------------------
+source "$ZDOTDIR"/zshrc.sh
