@@ -13,8 +13,6 @@ script_name="update-notification"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 
-print_total_updates() { cat "$updates_file" | wc -l; }
-
 set_superuser() { 
 	if [ "$(id -u)" -eq 0 ];then
 		_SUPERUSER=""
@@ -52,8 +50,7 @@ update_system () {
 	Package_update_
 	
 	plain "Checking updates and saving in $updates_file..."
-	printf "" | $_SUPERUSER tee "$updates_file" > /dev/null 2>&1
-	Upgradeable_Packages_count_ | $_SUPERUSER tee -a "$updates_file" > /dev/null 2>&1
+	Upgradeable_Packages_count_ | $_SUPERUSER tee "$updates_file" > /dev/null 2>&1
 
 	# No updates
 	if [ ! -s "$updates_file" ];then
@@ -93,22 +90,18 @@ interactive_upgrade() {
 }
 
 send_notifcation_msg () {
-	if [ -s "$updates_file" ];then
-	    UPDATES=$(print_total_updates)
-	    # notify user of updates
-	    if hash notify-send >/dev/null 2>&1;then
-			if [ "$UPDATES" -gt 50 ];then
-		    	notify-send -u critical -i $NOTIFY_ICON \
-				"You really need to update!!" "$UPDATES New packages"
-			elif [ "$UPDATES" -gt 25 ];then
-		    	notify-send -u normal -i $NOTIFY_ICON \
-				"You should update soon" "$UPDATES New packages"
-			elif [ "$UPDATES" -gt 2 ];then
-		    	notify-send -u low -i $NOTIFY_ICON \
-				"$UPDATES New packages"
-			fi
-	    fi		
-	fi
+	[ ! -s "$updates_file" ] && exit 0
+	UPDATES=$(cat "$updates_file")
+	if [ "$UPDATES" -gt 50 ];then
+		notify-send -u critical -i $NOTIFY_ICON \
+			"You really need to update!!" "$UPDATES New packages"
+	elif [ "$UPDATES" -gt 25 ];then
+		notify-send -u normal -i $NOTIFY_ICON \
+			"You should update soon" "$UPDATES New packages"
+	elif [ "$UPDATES" -gt 2 ];then
+		notify-send -u low -i $NOTIFY_ICON \
+			"$UPDATES New packages"
+	fi	
 	exit 0
 }
 
@@ -177,6 +170,6 @@ case "$__arg" in
 	-I) install_it ;;
 	-U) uninstall_it ;;
 	-l) list_update;;
-	-c) print_total_updates;;
+	-c) cat "$updates_file";;
 	*) help;;
 esac

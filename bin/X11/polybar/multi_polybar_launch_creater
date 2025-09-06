@@ -15,6 +15,12 @@ if [ ! -f "$HOME/.config/polybar/$polybar_STYLE/system.ini" ];then
 	polybar_fixer
 fi
 
+tee "${polybar_launcher_path}" <<- 'EOF' > /dev/null
+#!/bin/sh
+MONITORS="$(polybar --list-monitors | cut -d":" -f1)"
+for mon in ${MONITORS}; do
+EOF
+
 if grep -q "#EXO#" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
 	bar_2_check="main apps bspwmInfo CheckNetwork info monitoring network sec SystemTray sysTray third fourth fifth sixth"
 else
@@ -29,11 +35,11 @@ else
 	esac
 fi
 
-echo "#!/bin/sh" > "${polybar_launcher_path}"
 for bar in $bar_2_check;do
 	if grep -q "^\[bar/$bar]" "$HOME/.config/polybar/${polybar_STYLE}/${config_file_name}.ini";then
-		echo "polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/${config_file_name}.ini\" &" >> "${polybar_launcher_path}"
+		echo "MONITOR=\$mon polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/${config_file_name}.ini\" &" >> "${polybar_launcher_path}"
 	fi
 done
 
+echo 'done' >> "${polybar_launcher_path}"
 chmod +x "${polybar_launcher_path}"
