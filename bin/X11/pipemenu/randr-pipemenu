@@ -30,24 +30,23 @@
 
 HOME="$HOME"
 RCFILE=".ob-randrrc"
-tmp_outputs_disconnected_file="/tmp/$USER/outputs_disconnected"
-tmp_outputs_connected_file="/tmp/$USER/outputs_connected"
 
-: > "${tmp_outputs_disconnected_file}"
-: > "${tmp_outputs_connected_file}"
+connected_monitors(){
+	outputs_disconnected=""
+	outputs_connected=""
+	
+	xrandr -q | grep "connected" | while read -r line; do
+	    output="${line%% *}"
+	
+	    if [[ "$line" == *"disconnected"* ]];then
+	    	:
+	    else
+	    	echo $output
+	    fi
+	done
+}
 
-xrandr -q | grep "connected" | while read -r line; do
-    output="${line%% *}"
-
-    if [[ "$line" == *"disconnected"* ]];then
-    	echo "$output" >> "${tmp_outputs_disconnected_file}"
-    else
-    	echo "$output" >> "${tmp_outputs_connected_file}"
-    fi
-done
-
-outputs_disconnected="$(cat "${tmp_outputs_disconnected_file}")"
-outputs_connected="$(cat "${tmp_outputs_connected_file}")"
+outputs_connected="$(connected_monitors)"
 words_in_outputs_connected="$(echo $outputs_connected | wc -w)"
 
 mk_position_controls() {
