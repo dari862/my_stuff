@@ -50,18 +50,18 @@ outputs_connected="$(connected_monitors)"
 words_in_outputs_connected="$(echo $outputs_connected | wc -w)"
 
 mk_position_controls() {
-	local output="$1"
+	local passed_output="$1"
     # Create XML element for the menu
-    echo "<menu id=\"${output}-position\" type=\"position\" label=\"Position\">"
+    echo "<menu id=\"${passed_output}-position\" type=\"position\" label=\"Position\">"
 	
 	# Iterate over outputs and create submenus
 	for position in left-of right-of above below same-as; do
 		echo "<menu id=\"--$position\" label=\"$position\">"
 			for other in ${outputs_connected}; do
-				if [[ "${output}" != "$other" ]];then
+				if [[ "${passed_output}" != "$other" ]];then
 					echo "<item label=\"$other\">"
 					echo "<action name=\"execute\">"
-					echo "<command>displayselect manage_arrangement monitor ${output} $position $other</command>"
+					echo "<command>displayselect manage_arrangement monitor ${passed_output} $position $other</command>"
 					echo "</action>"
 					echo "</item>"
 				fi
