@@ -36,4 +36,4 @@ wayland_apps_2_remove="$(grep -rI "# wayland only package remove it from my-inst
 		[ -n "$apps_in_dir" ] && generate_installmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
 	done
     menuEnd
-} | tee "${my_installer_pipemenu_X11_file}" >/dev/null 2>&1
+} | my-superuser tee "${my_installer_pipemenu_X11_file}" >/dev/null 2>&1
