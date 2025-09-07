@@ -43,4 +43,4 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
 		done
 	fi
     menuEnd
-} | tee "${gaming_pipemenu_file}" >/dev/null 2>&1
+} | my-superuser tee "${gaming_pipemenu_file}" >/dev/null 2>&1
