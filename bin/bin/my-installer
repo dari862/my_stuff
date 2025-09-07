@@ -60,7 +60,7 @@ install_as_dependency(){
 	dependency_opt="${2-}"
 	dependency_location="$(grep -r "^${dependency_name}$" "${db_dir}" || :)"
 	if [ -n "$dependency_location" ];then
-		dependency_location="$(find ${__distro_path_root}/bin/my_installer/ -type f -name "${dependency_name}" )"
+		dependency_location="$(find "${__distro_path_root}/bin/my_installer" "${__distro_path_root}/Distro_Specific" -type f -name "${dependency_name}" )"
 		. "${dependency_location}" "${dependency_opt}"
 		remove_from_db "${dependency_name}" "apps"
 		need_logout
