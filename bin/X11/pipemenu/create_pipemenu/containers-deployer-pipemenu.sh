@@ -43,4 +43,4 @@ CHROOTS="$(cat "${chroots_deploy_db_path}")"
 	fi
 	
     menuEnd
-} | tee "${containers_deployer_pipemenu_file}" >/dev/null 2>&1
+} | my-superuser tee "${containers_deployer_pipemenu_file}" >/dev/null 2>&1
