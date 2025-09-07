@@ -98,4 +98,4 @@ my-superuser touch ${__distro_path_root}/system_files/GPU_Drivers_ready
 my-superuser  ${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
 
 say "enable Hardware Acceleration."
-my-installer --tweek "HardwareAcceleration" || continue
+tweek_as_dependency "HardwareAcceleration" || continue
