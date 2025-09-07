@@ -15,4 +15,4 @@ full_environments="$(cat "${full_environment_db_path}")"
     	menuItem "install ${fullenv}" "${run_full_environment_script_} --fullenv ${fullenv}"
     done
     menuEnd
-} | tee "${full_environment_pipemenu_file}" >/dev/null 2>&1
+} | my-superuser tee "${full_environment_pipemenu_file}" >/dev/null 2>&1
