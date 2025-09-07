@@ -26,6 +26,8 @@ elif [ "${option}" = "disable" ];then
 	$_superuser systemctl ${user} disable --now ${service}
 elif [ "${option}" = "cleanup" ];then
 	$_superuser journalctl --vacuum-time=3d
+elif [ "${option}" = "reload" ];then
+	$_superuser systemctl daemon-reload
 else
 	echo "option are enable is-enable is-active disable start restart stop"
 fi
