@@ -196,27 +196,27 @@ __run_(){
 		
 		if [ "${package_install}" = "true" ];then
 			remove_from_db "${file_name_}" "apps" || continue
-			my-superuser "${pipemenu_creater}"/my-install-pipemenu.sh || continue
+			"${pipemenu_creater}"/my-install-pipemenu.sh || continue
 		elif [ "${game_install}" = "true" ];then
 			if [ "$file_name_" != "Gaming_Essential_" ];then
 				remove_from_db "${file_name_}" "game" || continue
-				my-superuser "${pipemenu_creater}"/gaming-pipemenu.sh || continue
+				"${pipemenu_creater}"/gaming-pipemenu.sh || continue
 			fi
 		elif [ "${distrobox_install}" = "true" ];then
 			remove_from_db "${file_name_}" "distroboxs" || continue
-			my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+			"${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
 		elif [ "${container_install}" = "true" ];then
 			remove_from_db "${file_name_}" "containers" || continue
-			my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+			"${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
 		elif [ "${chroot_install}" = "true" ];then
 			remove_from_db "${file_name_}" "chroots" || continue
-			my-superuser "${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+			"${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
 		elif [ "${running_fullenv}" = "true" ];then
 			remove_from_db "${file_name_}" "fullenv" || continue
-			my-superuser "${pipemenu_creater}"/full_environment-pipemenu.sh || continue
+			"${pipemenu_creater}"/full_environment-pipemenu.sh || continue
 		elif [ "${running_tweek}" = "true" ];then
 			remove_from_db "${file_name_}" "tweeks" || continue
-			my-superuser "${pipemenu_creater}"/my-tweeks-pipemenu.sh || continue
+			"${pipemenu_creater}"/my-tweeks-pipemenu.sh || continue
 		fi
 
 		end_superuser || continue
