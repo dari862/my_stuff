@@ -76,6 +76,8 @@ then
         rc-update -v show
     elif [ "${option}" = "cleanup" ];then
 		:
+	elif [ "${option}" = "reload" ];then
+		:
     else
         _usage
     fi
