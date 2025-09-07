@@ -4,30 +4,53 @@ set -e
 dry_run=false
 unmounted_devices=""
 
+show_m() {
+    __massage="${1:-}"
+    printf '%s\n' "$__massage"
+}
+
+show_em() {
+    __massage="${1:-}"
+    printf '%s\n' "$__massage"
+    exit 1
+}
+
+if [ "$__mode" = "rofi" ]; then
+	show_m() {
+    	__massage="${1:-}"
+     	rofi -e "$__massage" -theme "$RASI_PATH"
+	}
+	show_em() {
+    	__massage="${1:-}"
+    	rofi -e "$__massage" -theme "$RASI_PATH"
+    	exit 1
+	}
+fi
+
 get_uuid() {
-    blkid "$1" | sed -n 's/.* UUID="\([^"]*\)".*/\1/p'
+    my-superuser blkid "$1" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p'
 }
 
 get_fs_type() {
-    blkid "$1" | sed -n 's/.*TYPE="\([^"]*\)".*/\1/p'
+    my-superuser blkid "$1" | sed -n 's/.*TYPE="\([^"]*\)".*/\1/p'
 }
 
 Parse_arguments(){
+	arg="${1:-}"
 	case "$arg" in
 	--dry-run)
 		dry_run=true
 		;;
-	*)
-		show_m "❌ Unknown option: $arg"
-		show_m "Usage: $0 [--dry-run]"
-		exit 1
+	'') : ;;
+	*)	show_m "Usage: $0 [--dry-run]"
+		show_em "❌ Unknown option: $arg"
 	;;
 	esac
 }
 
 fill_unmounted_devices_var(){
-	_devices="$(lsblk -lnpo NAME,TYPE | awk '$2 == "disk" {print $1}')"
-	mount_output="$(mount)"
+	_devices="$(lsblk -lnpo NAME,TYPE | awk '$2 == "disk" {print $1}' | grep -v "zram" || :)"
+	mount_output="$(my-superuser mount)"
 	for dev in ${_devices};do
 		if ! printf "%s\n" "$mount_output" | grep -q "$dev";then
 			unmounted_devices="$unmounted_devices $dev"
@@ -44,16 +67,14 @@ get_uuid_and_fs_type(){
 	device_path=$(awk '{print $1}' <<< "$selected_line")
 
 	if [ -z "$device_path" ] || [ ! -b "$device_path" ]; then
-		show_m "❌ Invalid selection or device not found."
-		exit 1
+		show_em "❌ Invalid selection or device not found."
 	fi
 
 	uuid=$(get_uuid "$device_path")
 	fs_type=$(get_fs_type "$device_path")
 
 	if [ -z "$uuid" ] || [ -z "$fs_type" ]; then
-		show_m "❌ Could not retrieve UUID or filesystem type for $device_path."
-		exit 1
+		show_em "❌ Could not retrieve UUID or filesystem type for $device_path."
 	fi
 
 	if grep -q "$uuid" /etc/fstab; then
@@ -87,19 +108,18 @@ run_automount(){
 	mkdir -p "$mount_path"
 
 	backup_file="/etc/fstab.backup.$(date +%F-%H%M%S)"
-	cp /etc/fstab "$backup_file"
+	my-superuser cp /etc/fstab "$backup_file"
 	show_m "📁 fstab backed up to $backup_file"
 
 	{
 		printf "# Added by automount script on %s\n" "$(date)"
 		printf "UUID=%s %s %s %s 0 2\n" "$uuid" "$mount_path" "$fs_type" "$options"
-	} | tee -a /etc/fstab
+	} | my-superuser tee -a /etc/fstab
 
-	if mount "$mount_path"; then
+	if my-superuser  mount "$mount_path"; then
 		show_m "✅ Mounted $device_path at $mount_path"
 		df -h | grep --color=never "$mount_path"
 	else
-		show_m "❌ Failed to mount $device_path."
-		exit 1
+		show_em "❌ Failed to mount $device_path."
 	fi
 }

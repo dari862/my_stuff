@@ -1,24 +1,15 @@
-#!/bin/sh -e
-if [ "$(id -u)" -ne 0 ]; then
-    show_m "❌ This script must be run as root (use sudo)."
-    exit 1
-fi
-
-if command -v fzf >/dev/null 2>&1; then
-    use_fzf=true
-else
-	use_fzf=false
-fi
+#!/bin/bash
+set -e
 
 arg="${1:-}"
+__mode="cli"
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/automount_lib"
 
-show_m() {
-    __massage="${1:-}"
-    printf '%s\n' "$__massage"
-}
+if [ "$(id -u)" -eq 0 ]; then
+	show_em "❌ This script should never be run as super user."
+fi
 
 Parse_arguments
 fill_unmounted_devices_var
@@ -30,7 +21,7 @@ for dev in ${unmounted_devices};do
 done
 
 selected_line=""
-if [ "$use_fzf" = true ]; then
+if command -v fzf >/dev/null 2>&1; then
 	selected_line=$(printf '%s\n' "${unmounted_devices}" | fzf --prompt="Select device to mount: ")
 else
 	show_m "📦 Select device to mount:"
@@ -42,7 +33,7 @@ else
 	printf "Enter the number of the device to mount: "
 	read -r idx
 	case "$idx" in
-		''|*[!0-9]*) show_m "❌ Invalid selection." ; exit 1;;
+		''|*[!0-9]*) show_em "❌ Invalid selection.";;
 	esac
 	selected_line=$(printf '%s\n' "$unmounted_devices" | awk "NR == $((idx))")
 fi

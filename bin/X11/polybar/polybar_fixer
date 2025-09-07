@@ -131,23 +131,7 @@ fix_modules() {
 }
 
 remove_modules() {
-	polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g' | cut -c 1-3)
-	string_size_of_polybar_ver="${#polybar_ver}"
-	if [ "$string_size_of_polybar_ver" != 3 ];then
-		if [ "$string_size_of_polybar_ver" = 1 ];then
-			polybar_ver="${polybar_ver}00"
-		elif [ "$string_size_of_polybar_ver" = 2 ];then
-			polybar_ver="${polybar_ver}0"
-		else
-			polybar_ver="$(echo $polybar_ver | cut -c1-3)"
-		fi
-	fi
-
-	if [ "$polybar_ver" -ge "370" ];then
-		find $HOME/.config/polybar -type f -exec sed -i 's/ notray_m/ tray_m/g' {} +
-		#find $HOME/.config/polybar -type f -exec sed -i 's/label-active/label-focused/g' {} +
- 	fi
-
+	
  	[ ! -f "${__distro_path_root}/system_files/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
  	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	

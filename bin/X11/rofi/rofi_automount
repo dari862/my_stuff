@@ -1,21 +1,22 @@
-#!/bin/sh -e
-if command -v rofi >/dev/null 2>&1; then
-    exit 1
-fi
+#!/bin/bash
+set -e
+__mode="rofi"
+__user="${1:-}"
+__distro_path_lib="${2:-$__distro_path_lib}"
 
 if [ "$(id -u)" -ne 0 ]; then
-    show_m "❌ This script must be run as root (use sudo)."
+    popup_terminal --superuser "$0 $USER $__distro_path_lib"
+    exit
+elif [ -z "$__user" ];then
+    printf "❌ This script should never be run as super user."
     exit 1
 fi
 
-arg="${1:-}"
 . "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
+. "/home/$__user/$Distro_config_dir_name"
+RASI_PATH="/home/$__user/.config/rofi/$ROFI_STYLE/runner.rasi"
 . "${__distro_path_root}/lib/automount_lib"
-
-show_m() {
-    __massage="${1:-}"
-     rofi -e "$__massage"
-}
 
 Parse_arguments
 fill_unmounted_devices_var
@@ -27,11 +28,11 @@ for dev in ${unmounted_devices};do
 done
 
 selected_line=""
-selected_line=$(printf '%s\n' "${unmounted_devices}" | rofi -dmenu -p "Select device to mount:")
+selected_line=$(printf '%s\n' "${unmounted_devices}" | rofi -dmenu -p "Select device to mount:" -theme "$RASI_PATH")
 
 get_uuid_and_fs_type
 
-mount_path=$(printf "" | rofi -dmenu -p "Enter mount point (blank = auto):")
+mount_path=$(printf "" | rofi -dmenu -p "Enter mount point (blank = auto):" -theme "$RASI_PATH")
 
 check_mount_path_and_fs_type
 run_automount

@@ -1,0 +1,34 @@
+#!/bin/sh
+. "$__distro_path_lib"
+
+polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g')
+polybar_ver=$(echo "${polybar_ver}0000000000" | cut -c 1-9)
+
+[ "$polybar_ver" -lt "370" ] && exit
+
+find "${__distro_path_root}/system_files/skel/.config"/polybar -type f -name config.ini -exec sed -i 's/ notray_m/ tray_m/g' {} +
+find "${__distro_path_root}/system_files/skel/.config"/polybar -type f -exec sed -i 's/^content/format/g' {} +
+
+find "${__distro_path_root}/system_files/skel/.config"/polybar -type f -name config.ini -exec sed -i '
+  /^tray-background/d
+  /^tray-detached/d
+  /^tray-maxsize/d
+  /^tray-offset-x/d
+  /^tray-offset-y/d
+  /^tray-padding/d
+  /^tray-position/d
+  /^tray-scale/d
+  /^throttle-/d
+' {} +
+
+find "${__distro_path_root}/system_files/skel/.config"/polybar/pwidgets -type f ! -name modules.ini -exec sed -i '
+  /^tray-background/d
+  /^tray-detached/d
+  /^tray-maxsize/d
+  /^tray-offset-x/d
+  /^tray-offset-y/d
+  /^tray-padding/d
+  /^tray-position/d
+  /^tray-scale/d
+  /^throttle-/d
+' {} +

@@ -1,6 +1,7 @@
 #!/bin/sh
-set -eu
+set -e
 . "$__distro_path_lib"
+
 locate_command="${1:-}"
 shift
 __arg="$@"
@@ -37,13 +38,10 @@ rofi_ask_passowrd(){
 	unset password
 }
 
-password="$(rofi_ask_passowrd)" || ( 
-	unset password
-	exit 2
-)
 if ! command -v expect >/dev/null 2>&1 && command -v doas >/dev/null 2>&1;then
 	popup_terminal --superuser "$_full_command"
 elif command -v doas >/dev/null 2>&1;then
+	password="$(rofi_ask_passowrd)" || ( unset password;exit 2 )
 	# work on this : remove expect
 	expect <<-EOF
 	# don't mind the man behind the curtain
@@ -63,7 +61,14 @@ elif command -v doas >/dev/null 2>&1;then
 	}
 	EOF
 else
-	sudo -S $_full_command >/dev/null 2>&1 <<-EOF || (rofi -e "Superuser password was incorrect." -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi && return 1)
-	$password
+	status=0
+	sudo -S true >/dev/null 2>&1 <<-EOF || status=1
+	$(rofi_ask_passowrd)
 	EOF
+	if [ "$status" = "0" ];then
+		sudo $_full_command
+	else
+		rofi -e "Superuser password was incorrect." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/askpass.rasi" 
+		exit 1
+	fi
 fi

@@ -418,6 +418,7 @@ if command -v polybar >/dev/null 2>&1;then
 	if [ -d "${__distro_path_root}/bin/X11/polybar" ];then
 		ln -sf "${__distro_path_root}"/bin/X11/polybar/* "${__distro_path_root}"/system_files/binX11
 	fi
+	"${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver
 fi
 
 if command -v yad >/dev/null 2>&1;then
@@ -585,7 +586,7 @@ done
 show_im "Create keybinds."
 "${__distro_path_root}"/system_files/binX11/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
 
-ln -sf ${__distro_path_root}/distro_manager/full-upgrade ${__distro_path_root}/system_files/bin
+ln -sf "${__distro_path_root}"/distro_manager/full-upgrade ${__distro_path_root}/system_files/bin
 
 if command -v conky >/dev/null 2>&1;then
 	show_im "Create conky weather icons."

@@ -14,4 +14,7 @@ say 'Copy bin from polybar...' 1
 if [ -d "${__distro_path_root}/bin/X11/polybar" ];then
 	my-superuser ln -sf "${__distro_path_root}/bin/X11/polybar/"* "${__distro_path_root}/system_files/bin" || continue
 fi
+
+"${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver || continue
+
 polybar_launch_creater || continue

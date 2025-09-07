@@ -2,45 +2,49 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=USB_formatter
 __user="${1:-}"
-popup_terminal_command="${2:-}"
+__distro_path_lib="${2:-$__distro_path_lib}"
 
 if [ "$(id -u)" -ne 0 ]; then
-    apps_as_root "$0" "$USER $(which popup_terminal)"
+    popup_terminal --superuser "$0 $USER $__distro_path_lib"
     exit
+elif [ -z "$__user" ];then
+    printf "❌ This script should never be run as super user."
+    exit 1
 fi
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "/home/$__user/$Distro_config_dir_name"
+RASI_PATH="/home/$__user/.config/rofi/$ROFI_STYLE/runner.rasi"
 
-rofi_msg() {
+__msg() {
 	__massage="$(printf "$2")"
-    printf "$1" | rofi -dmenu -p "$__massage" -theme "/home/$__user/.config/rofi/$ROFI_STYLE"/runner.rasi
+    printf "$1" | rofi -dmenu -p "$__massage" -theme "$RASI_PATH"
 }
 
-rofi_msg_no_choice() {
+_no_choice_msg() {
 	__massage="$(printf "$1")"
-    rofi -e "$__massage" -theme "/home/$__user/.config/rofi/$ROFI_STYLE"/runner.rasi
+    rofi -e "$__massage" -theme "$RASI_PATH"
 }
 
 formatmenu () {
     if [ -z "$1" ]; then
-        rofi_msg_no_choice "	Error	\n\n	You must select a USB key to use.	\n	Press Enter to return to main menu.\n	"
+        _no_choice_msg "	Error	\n\n	You must select a USB key to use.	\n	Press Enter to return to main menu.\n	"
         mainmenu
         exit 0
     fi
 
-   erase_choice="$(rofi_msg "yes\nno" "WARNING:\nThis will completely erase /dev/$1.\nProceed? (yes/no)")"
+   erase_choice="$(__msg "yes\nno" "WARNING:\nThis will completely erase /dev/$1.\nProceed? (yes/no)")"
    
    if [ "$erase_choice" = "yes" ];then
      	mount | grep "/dev/$1" | awk '{print $1}' | while read line; do
         	umount "$line"
         	sleep 1
     	done
-    	if $popup_terminal_command "mkfs.vfat -F 32 -I -n \"$2\" -v \"/dev/$1\"" >/dev/null 2>&1;then
-    		rofi_msg_no_choice "	Done	\n\n	USB key formatting completed.	\n	Press Enter to exit.\n	"
+    	if mkfs.vfat -F 32 -I -n "$2" -v "/dev/$1" >/dev/null 2>&1;then
+    		_no_choice_msg "	Done	\n\n	USB key formatting completed.	\n	Press Enter to exit.\n	"
     	else
-    		rofi_msg_no_choice "	Failed	\n\n	USB key formatting failed.	\n	Press Enter to exit.\n	"
+    		_no_choice_msg "	Failed	\n\n	USB key formatting failed.	\n	Press Enter to exit.\n	"
     	fi
     	exit 0
     elif [ "$erase_choice" = "no" ];then
@@ -55,7 +59,7 @@ mainmenu () {
     DEVS=$(ls -l /dev/disk/by-id/*usb* 2>/dev/null | awk -F "/" '!/part/ {print $NF}' | sort -u)
 
     if [ -z "$DEVS" ]; then
-        rofi_msg_no_choice "	Notice	\n\n	No USB keys found.	\n	Insert a USB key and try again.\n	"
+        _no_choice_msg "	Notice	\n\n	No USB keys found.	\n	Insert a USB key and try again.\n	"
         exit 0
     fi
 
@@ -65,10 +69,10 @@ mainmenu () {
         [ -n "$SIZE" ] && MENU="$MENU$i - ${SIZE}KB\n"
     done
 
-    CHOICE=$(rofi_msg "$MENU" "Select USB Device" | awk '{print $1}')
+    CHOICE=$(__msg "$MENU" "Select USB Device" | awk '{print $1}')
     [ -z "$CHOICE" ] && exit 0
 
-    LABEL=$(rofi_msg "" "Enter USB Label (Max 11 chars)")
+    LABEL=$(__msg "" "Enter USB Label (Max 11 chars)")
     [ -z "$LABEL" ] && LABEL="USBDISK"
     LABEL="${LABEL:0:11}"
 
