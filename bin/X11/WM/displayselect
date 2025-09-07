@@ -207,20 +207,33 @@ auto_detect_displays() {
 		common_resolutions=$(comm -12 <(echo "$temp_common_resolutions") <(echo "$temp_resolutions"))
 	done
 	
+	check_for_unique_resolutions=false
+
 	if [ -z "$common_resolutions" ]; then
 		show_message "RED" "No common resolution found among connected monitors."
-		return
+		check_for_unique_resolutions=true
+	else
+		highest_resolution="--mode $(echo "$common_resolutions" | sort -n -t'x' -k1,1 -k2,2 | tail -n 1)"
 	fi
-	highest_resolution=$(echo "$common_resolutions" | sort -n -t'x' -k1,1 -k2,2 | tail -n 1)
+
 	tee "$display_script" <<- EOF >/dev/null 2>&1
 	#!/bin/sh
 	EOF
 	chmod +x "$display_script"
 	for monitor in $monitor_list; do
+		if [ "$check_for_unique_resolutions" = true ];then
+			highest_resolution="$(get_unique_resolutions "$monitor" | head -n1)"
+			if [ -n "$highest_resolution" ];then
+				highest_resolution="--mode $highest_resolution"
+			else
+				highest_resolution="--auto"
+			fi
+		fi
+		
 		show_message "YELLOW" "Setting resolution for $monitor to $highest_resolution..."
 		fix_script_monitor="$(printf '%s' "$monitor" | sed 's/-/_/g')"
 		tee -a "$display_script" <<- EOF2 >/dev/null 2>&1
-		${fix_script_monitor}_resolution="--mode $highest_resolution"
+		${fix_script_monitor}_resolution="$highest_resolution"
 		${fix_script_monitor}_primary=""
 		${fix_script_monitor}_enable=""
 		${fix_script_monitor}_extend=""
