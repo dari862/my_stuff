@@ -16,4 +16,4 @@ TWEEKS="$(cat "${tweeks_db_path}")"
     	menuItem "run ${tweek}" "${run_tweeks_script_} --tweek ${tweek}"
     done
     menuEnd
-} | tee "${my_tweeks_pipemenu_file}" >/dev/null 2>&1
+} | my-superuser tee "${my_tweeks_pipemenu_file}" >/dev/null 2>&1
