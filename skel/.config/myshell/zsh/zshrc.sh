@@ -32,7 +32,6 @@ fi
 # ---------------------------- ZSH local_plugins -----------------------------
 zlocal_plugins=(
 command-not-found
-thefuck
 kitty_auto_complete
 fzf
 mise
@@ -43,7 +42,7 @@ zap
 # --------------------------------- SETTINGS ----------------------------------
 setopt AUTO_CD 					# change directory just by typing its name
 setopt BEEP
-#setopt CORRECT
+setopt CORRECT					# auto wrong command correction
 setopt HIST_BEEP
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
