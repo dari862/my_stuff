@@ -27,13 +27,8 @@ fi
 
 foo="$frmday $frmtime"
 
-if ! date -d "$foo" >/dev/null 2>&1;then
-    yad --error --title="Invalid Date" --text="Error: Invalid date or time. Please check the entered values."
-    exit 1
-fi
-
 timestamp=$(date +%s -d "$foo")
-current_timestamp=$(date +%s)
+current_timestamp=$(printf "%(%s)T")
 if [ "$timestamp" -le "$current_timestamp" ];then
     yad --error --title="Invalid Time" --text="Error: The selected time is in the past. Please choose a future time."
     exit 1

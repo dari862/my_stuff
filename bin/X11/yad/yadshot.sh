@@ -72,7 +72,7 @@ if [ ! -d "$HOME/Pictures" ];then
 fi
 # capture screenshot.
 function yadshotcapture() {
-	SS_NAME="yadshot-$(date +'%s').png"
+	SS_NAME="yadshot-$(printf "%('%s')T").png"
 
 	. "${script_config_path}/yadshot.conf"
 	

@@ -12,7 +12,7 @@ get_uptime() {
 
             # The uptime format from 'sysctl' needs to be subtracted from
             # the current time in seconds.
-            s=$(($(date +%s) - s))
+            s=$(($(printf "%(%s)T") - s))
 
     # Convert the uptime from seconds into days, hours and minutes.
     d=$((s / 60 / 60 / 24))

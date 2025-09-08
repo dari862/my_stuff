@@ -20,7 +20,7 @@ if [ "$PREFERRED_SELECTOR" = "auto" ];then
 fi
 
 CLI_NAME="yt-x.conf"
-CURRENT_TIME=$(date +%s)
+CURRENT_TIME=$(printf "%(%s)T")
 
 CLI_CONFIG_DIR="$HOME/.config/$CLI_NAME"
 CLI_EXTENSION_DIR="$CLI_CONFIG_DIR/extensions"

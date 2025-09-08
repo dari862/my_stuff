@@ -19,7 +19,9 @@ if [ ! -f "${Distro_config_file}" ];then
 	conky_sessionfile=".config/conky/openbox-conky.conf"
 	tint2_sessionfile="/.config/tint2/default.tint2rc"
 	EOF
-	
+fi
+
+if [ ! -f "${WM_config_dir}/rofi_picked" ];then	
 	panel_picker
 	style_setter
 	touch "${WM_config_dir}/rofi_picked"

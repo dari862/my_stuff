@@ -5,7 +5,7 @@
 # Update checktimes are appended to $HOME/Misc/checkupdates/updatechecktime
 
 ARCH=" 󰣇 "
-DIFF=$(echo "scale=2; ($(date +%s)-$(date -r "$HOME/Misc/checkupdates/updatechecktime" +%s)) / (3600 * 24)" | bc)
+DIFF=$(echo "scale=2; ($(printf "%(%s)T")-$(date -r "$HOME/Misc/checkupdates/updatechecktime" +%s)) / (3600 * 24)" | bc)
 PEND=$(cat "$HOME/Misc/checkupdates/pending")
 CHECK=$(echo "$DIFF 1" | awk '{print ($1 < $2)}')
 

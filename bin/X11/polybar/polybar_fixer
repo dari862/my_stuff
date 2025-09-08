@@ -128,11 +128,8 @@ fix_modules() {
 		find $HOME/.config/polybar -type f -name config.ini -exec sed -i 's/ ethernetControl/ networkControl/g' {} +
 		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ ethernetControl/ networkControl/g' {} +
 	fi
-}
-
-remove_modules() {
 	
- 	[ ! -f "${__distro_path_root}/system_files/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
+	[ ! -f "${__distro_path_root}/system_files/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
  	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
  	if [ -z "$VPN_INTERFACE" ];then
@@ -145,4 +142,3 @@ remove_modules() {
 get_values
 create_system_file_ini
 fix_modules
-remove_modules

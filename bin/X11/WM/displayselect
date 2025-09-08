@@ -683,7 +683,7 @@ watch_for_device_hot_plugs(){
 	
 	udevadm monitor --subsystem-match=drm --udev | while read -r line; do
     	if echo "$line" | grep -q "change"; then
-        	now=$(date +%s)
+        	now=$(printf "%(%s)T")
         	time_diff=$((now - last_event_time))
 	
         	# If last event was more than cooldown seconds ago, print "changed"

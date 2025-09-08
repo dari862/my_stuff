@@ -190,7 +190,8 @@ function getimage(){
     fi
     if [[ -z "$1" ]];then
         # new filename with date
-        img_file="$(date +"${FILE_NAME}.${FILE_FORMAT}")"
+        timestampnew="$(printf "%(%s)T")"
+        img_file="${timestampnew}${FILE_NAME}.${FILE_FORMAT}"
         img_file="${FILE_DIR}/${img_file}" && export img_file
         take_screenshot "${img_file}"
     else

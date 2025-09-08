@@ -191,10 +191,10 @@ prayers_ar=(
   ["Isha"]="العشاء"
 )
 date=(
-  [day_idx]=$(($(date +%-d) - 1))
-  [weekday]=$(date +%a)
-  [month]=$(date +%-m)
-  [year]=$(date +%Y)
+  [day_idx]=$(($(printf "%(%-d)T") - 1))
+  [weekday]=$(printf "%(%a)T")
+  [month]=$(printf "%(%-m)T")
+  [year]=$(printf "%(%Y)T")
 )
 
 nameof() {
@@ -278,7 +278,7 @@ settimes() {
   [[ "${#epochtimes[@]}" -gt 0 ]] && return 0
 
   epochtimes=(
-    [now]=$(date +%s)
+    [now]=$(printf "%(%s)T")
     [fajr]=$(timeof Fajr %s)
     [dhuhr]=$(timeof Dhuhr %s)
     [asr]=$(timeof Asr %s)

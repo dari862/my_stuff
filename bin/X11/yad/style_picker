@@ -126,7 +126,7 @@ Launch_YAD_(){
 	NUMDIRS=0
 	### CONFIGS VARIABLES
 	XFILE="$HOME/.Xresources"
-	BKP_SFX=".$(date +"%Y%m%d-%H%M%S").blob~"
+	BKP_SFX=".$(printf "%(%Y%m%d-%H%M%S)T").blob~"
 	### END CONFIGS VARIABLES
 	
 	### DIALOG VARIABLES

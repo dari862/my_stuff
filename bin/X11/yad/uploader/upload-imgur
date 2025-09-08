@@ -287,7 +287,8 @@ function getimage(){
             (( RET == 1 )) && exit 0
         fi
         # new filename with date
-        IMG_FILE="$(date +"${FILE_NAME}.${FILE_FORMAT}")"
+        timestampnew="$(printf "%(%s)T")"
+        IMG_FILE="${timestampnew}${FILE_NAME}.${FILE_FORMAT}"
         IMG_FILE="${FILE_DIR}/${IMG_FILE}"
         take_screenshot "${IMG_FILE}"
         thumbnail="${IMG_FILE%.*}-thumb.${FILE_FORMAT}"
@@ -559,7 +560,7 @@ function load_access_token() {
         save_access_token
     fi
     if [[ -n "${REFRESH_TOKEN}" ]] 2>/dev/null;then    # token already set
-        CURRENT_TIME="$(date +%s)"
+        CURRENT_TIME="$(printf "%(%s)T")"
         PREEMPTIVE_REFRESH_TIME="600" # 10 minutes
         EXPIRED=$((CURRENT_TIME > (TOKEN_EXPIRE_TIME - PREEMPTIVE_REFRESH_TIME)))
         if [[ ${EXPIRED} == "1" ]];then      # token expired
@@ -620,7 +621,7 @@ function acquire_access_token() {
                             ;;
             refresh_token)  REFRESH_TOKEN="${PARAM_VALUE}"
                             ;;
-            expires_in)     TOKEN_EXPIRE_TIME=$(( $(date +%s) + PARAM_VALUE ))
+            expires_in)     TOKEN_EXPIRE_TIME=$(( $(printf "%(%s)T") + PARAM_VALUE ))
                             ;;
         esac
     done
@@ -668,7 +669,7 @@ function refresh_access_token() {
     ACCESS_TOKEN="$(jq -r .access_token <<<"${RESPONSE}")"
     REFRESH_TOKEN="$(jq -r .refresh_token <<<"${RESPONSE}")"
     EXPIRES_IN="$(jq -r .expires_in <<<"${RESPONSE}")"
-    TOKEN_EXPIRE_TIME=$(( $(date +%s) + EXPIRES_IN ))
+    TOKEN_EXPIRE_TIME=$(( $(printf "%(%s)T") + EXPIRES_IN ))
     save_access_token
 }
 
@@ -763,7 +764,7 @@ AUTH="Authorization: Client-ID ${ID}"           # in url command
 AUTH_MODE="A"
 F_FLAG=0                    # Flag for local image file upload
 SCREENSHOT_COMMAND="${SCREENSHOT_FULL_COMMAND}"
-DATETIME=$(date +%s)
+DATETIME=$(printf "%(%s)T")
 REGISTER=0                  # Flag for registering account
 KEEP_BB=1                   # Flag to keep BBCode on clipboard
 TEST=0                      # Flag to test if user has Imgur account

@@ -58,7 +58,7 @@ title="beepmein Alarm Clock (Time is now: $(date +%R))"
 future="$(date -d "+5 minutes" +%R)"
 
 # for timeToEvent()
-now="$(date +%s)"
+now="$(printf "%(%s)T")"
 
 # timeToEvent
 timeToEvent() {
