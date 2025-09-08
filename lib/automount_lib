@@ -28,11 +28,19 @@ if [ "$__mode" = "rofi" ]; then
 fi
 
 get_uuid() {
-    my-superuser blkid "$1" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p'
+	if my-superuser blkid "$1" | grep -q "PTUUID=";then
+    	my-superuser blkid "$1" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p'
+	else
+		ls -l /dev/disk/by-uuid/ | grep $(basename "$1") | awk '{print $9}'
+	fi
 }
 
 get_fs_type() {
-    my-superuser blkid "$1" | sed -n 's/.*TYPE="\([^"]*\)".*/\1/p'
+	if my-superuser blkid "$1" | grep -q "PTTYPE=";then
+    	my-superuser blkid "$1" | sed -n 's/.*TYPE="\([^"]*\)".*/\1/p'
+	else
+		df -T | grep /dev/sda | awk '{print $2}'
+	fi
 }
 
 Parse_arguments(){
@@ -71,6 +79,7 @@ get_uuid_and_fs_type(){
 	fi
 
 	uuid=$(get_uuid "$device_path")
+	
 	fs_type=$(get_fs_type "$device_path")
 
 	if [ -z "$uuid" ] || [ -z "$fs_type" ]; then
