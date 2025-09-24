@@ -1,9 +1,11 @@
 #!/bin/sh
 . "$__distro_path_lib"
-style="${1:-}"
-no_wallpaper_option="${2:-}"
 
-style_setter "${style}" "${no_wallpaper_option}"
+_panel_name_="${1:-}"
+style="${2:-}"
+no_wallpaper_option="${3:-}"
+
+style_setter "${_panel_name_}" "${style}" "${no_wallpaper_option}"
 setbg -r
 panel_launcher --reload
 

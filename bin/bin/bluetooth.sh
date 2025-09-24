@@ -178,7 +178,7 @@ print_status() {
 
         paired_devices_cmd="devices Paired"
         # Check if an outdated version of bluetoothctl is used to preserve backwards compatibility
-        bluetooth_version=$(bluetoothctl version | cut -d ' ' -f 2)
+        bluetooth_version=$(bluetoothctl version | head -n1 | cut -d ' ' -f 2)
         if awk "BEGIN {if ($bluetooth_version < 5.65) exit 0}";then
             paired_devices_cmd="paired-devices"
         fi

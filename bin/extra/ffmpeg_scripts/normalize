@@ -113,8 +113,8 @@ for line in "${normalize}"; do
 done
 
 # defaults for variables if not defined
-audio_default="${infile_name}-normalized-$(date +"%Y-%m-%d-%H-%M-%S").${infile_ext}"
-video_default="${infile_name}-normalized-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
+audio_default="${infile_name}-normalized-$(date +%Y-%m-%d-%H-%M-%S).${infile_ext}"
+video_default="${infile_name}-normalized-$(date +%Y-%m-%d-%H-%M-%S).mp4"
 
 
 #===============================================================================

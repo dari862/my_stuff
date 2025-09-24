@@ -1,6 +1,8 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 pulseconfig="/etc/pulse/default.pa"
 
@@ -9,5 +11,6 @@ if [ ! -f "${pulseconfig}" ] || grep -q "#load-module module-suspend-on-idle" "$
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "disable_pulseaudio_suspend"
 	${_SUPERUSER} sed -i "s/^load-module module-suspend-on-idle$/#load-module module-suspend-on-idle/g" ${pulseconfig}
 fi

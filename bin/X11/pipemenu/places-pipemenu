@@ -4,7 +4,7 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
 ## Openbox Pipemenu for places
-
+unalias -a
 readonly default_open_cmd=exo-open
 
 open_file() {

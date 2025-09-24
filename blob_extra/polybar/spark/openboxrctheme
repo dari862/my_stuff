@@ -4,6 +4,6 @@ right=8
 left=8
 font=JetBrainsMono
 size=9
-theme=Spark
+theme=openbox-Spark
 titleLayout=LIMC
 gtk_icon_name="Luv-Folders"

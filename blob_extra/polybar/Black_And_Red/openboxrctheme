@@ -4,6 +4,6 @@ right=20
 left=20
 font=JetBrainsMono
 size=9
-theme=Blade2
+theme=openbox-Blade2
 titleLayout=CLM
 gtk_icon_name="Red-Black"

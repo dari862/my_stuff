@@ -89,7 +89,7 @@ get_values() {
 		E_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^e" | head -n 1)"
 		W_INTERFACE="$(ip link | awk '/UP/ {print $2}' | tr -d : | grep -v lo | grep "^w" | head -n 1)"
 		
-		if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then
+		if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 			INTERFACE="${W_INTERFACE}"
 		elif [ -n "${E_INTERFACE}" ];then
 			INTERFACE="${E_INTERFACE}"
@@ -115,7 +115,7 @@ get_values() {
 
 # Fix backlight and network modules
 fix_modules() {
-	if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then
+	if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 		if xbacklight -get >/dev/null 2>&1; then
 			find $HOME/.config/polybar -type f -exec sed -i 's|type = internal/backlight|type = internal/xbacklight|g' {} +
 		fi
@@ -129,7 +129,7 @@ fix_modules() {
 		find $HOME/.config/polybar/pwidgets -type f -exec sed -i 's/ ethernetControl/ networkControl/g' {} +
 	fi
 	
-	[ ! -f "${__distro_path_root}/system_files/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
+	[ ! -f "${__distro_path_system_ready}/has_bluetooth" ] && find $HOME/.config/polybar -type f -exec sed -i 's/ bluetoothControl/ no_bluetoothControl/g' {} +
  	find $HOME/.config/polybar -type f -exec sed -i 's/ tiling_mod/ no_tiling_mod/g' {} +
  	
  	if [ -z "$VPN_INTERFACE" ];then

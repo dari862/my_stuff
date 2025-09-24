@@ -90,7 +90,7 @@ up="scale=w=-2:h=3*${img_h},crop=w=3*${img_w}/1.2:h=3*${img_h}/1.2:y=t*(in_h-out
 down="scale=w=-2:h=3*${img_h},crop=w=3*${img_w}/1.2:h=3*${img_h}/1.2:y=(in_h-out_h)-t*(in_h-out_h)/${dur},scale=w=${img_w}:h=${img_h},setsar=1" \
 
 # output file recording destination
-outfile_default="${infile_name}-pan-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
+outfile_default="${infile_name}-pan-$(date +%Y-%m-%d-%H-%M-%S).mp4"
 
 
 #===============================================================================

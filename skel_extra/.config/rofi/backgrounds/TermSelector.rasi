@@ -7,6 +7,7 @@ configuration {
 }
 
 @import "theme.rasi"
+@import "fonts.rasi"
 
 window {
     transparency:                "real";
@@ -77,7 +78,6 @@ element {
 }
 
 element-text {
-    font:                        "JetbrainsMono NF Bold 20";
     background-color:            transparent;
     text-color:                  inherit;
     cursor:                      inherit;

@@ -27,25 +27,21 @@ if [ "$1" = "-I" ];then
         # Open bt manager
         echo
         echo "Press enter to open bluetooth manager"
-        read
+        read -r blu
         blueman-manager
-
     # START BT
     else
         echo "Bluetooth is installed but not running"
         echo "Press enter to try to start bluetooth"
-        read
+        read -r blu
         service_manager start bluetooth.service
         sleep 1
         service_manager is-active bluetooth && blueman-manager
     fi
-
 # OPEN BT ADMIN
 elif service_manager is-active bluetooth.service && which blueman-manager >/dev/null 2>&1;then
     blueman-manager
     exit
-
-# CALL TO INSTALL BT
 else
     popup_terminal "$(readlink -f "$0") -I"
 fi

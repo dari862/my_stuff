@@ -233,6 +233,9 @@ mkdir -p "${__distro_path_external}"/auto_completion
 
 mkdir -p "${__distro_path_root}"/system_files/applications
 
+mkdir -p "${__distro_path_system_ready}"
+mkdir -p "${__distro_path_neverremove}"
+
 show_im "LN essional files"
 mkdir -p "${__distro_path_root}/system_files/bin"
 mkdir -p "${__distro_path_root}/system_files/binX11"
@@ -242,12 +245,12 @@ ln -sf "${__distro_path_root}/bin/X11/WM"/* "${__distro_path_root}/system_files/
 
 if [ "$machine_type_are" = "laptop" ];then 
 	show_im "this is laptop"
-	touch "${__distro_path_root}"/system_files/this_is_laptop
+	touch "${__distro_path_system_ready}/this_is_laptop"
 fi
 
 if dmesg | grep -qi bluetooth || lsusb 2>/dev/null | grep -qi bluetooth || [ -d "/sys/class/bluetooth" ];then
 	show_im "has bluetooth"
-	touch "${__distro_path_root}"/system_files/has_bluetooth
+	touch "${__distro_path_system_ready}"/has_bluetooth
 	cp -r "${__distro_path_root}/bin/not_add_2_path/session_managers/bt-session" "${__distro_path_root}/system_files/bin"
 fi
 
@@ -421,13 +424,19 @@ if command -v polybar >/dev/null 2>&1;then
 	"${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver
 fi
 
+if service_manager status ssh;then
+	show_im "copy shell skel file related to ssh file to system_files/skel ."
+	cp -r "${__distro_path_root}/skel_extra/.bash_profile" "${__distro_path_root}/system_files/skel/.config"
+	command -v zsh >/dev/null 2>&1 && cp -r "${__distro_path_root}/skel_extra/.zshenv" "${__distro_path_root}/system_files/skel/.config"
+fi
+
 if command -v yad >/dev/null 2>&1;then
 	show_im "copy yad bin to system_files/bin ."
 	if [ -d "${__distro_path_root}/bin/X11/yad" ];then
 		ln -sf "${__distro_path_root}"/bin/X11/yad/* "${__distro_path_root}"/system_files/binX11
 	fi
 	copy_all__application_link_in_dir "yad"
-	if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then
+	if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 		show_im "yad laptop stuff."
 		if [ -d "${__distro_path_root}/bin/X11/yad/laptop" ];then
 			show_im "laptop bin files to system_files/binX11 ."
@@ -444,14 +453,17 @@ fi
 
 if command -v picom >/dev/null 2>&1;then
 	show_im "copy picom skell file to system_files/skel ."
-	cp -r "${__distro_path_root}/skel_extra/.config/picom.conf" "${__distro_path_root}/system_files/skel/.config"
+	if [ "$machine_type_are" = "vm" ];then
+		cp -r "${__distro_path_root}/skel_extra/.config/vm-picom.conf" "${__distro_path_root}/system_files/skel/.config/picom.conf"
+	else
+		cp -r "${__distro_path_root}/skel_extra/.config/phy-picom.conf" "${__distro_path_root}/system_files/skel/.config/picom.conf"
+	fi
 	cp -r "${__distro_path_root}/bin/X11/session_managers/picom-session" "${__distro_path_root}"/system_files/binX11
 	[ -f /etc/xdg/autostart/picom.desktop ] && rm -f /etc/xdg/autostart/picom.desktop
 fi
 
 if [ "$machine_type_are" = "vm" ];then
-	show_im "disable vsync from picom (vsync in virtual machine make issues) and mpv."
-	sed -i "s/^vsync = .*/vsync = false;/g" "${__distro_path_root}"/system_files/skel/.config/picom.conf
+	show_im "disable vsync from mpv (VM)."
 	sed -i 's/vo=gpu/#vo=gpu/g' "${__distro_path_root}"/system_files/skel/.config/mpv/mpv.conf
 fi
 	
@@ -503,12 +515,18 @@ show_im "nbrowser bin files to system_files/bin ."
 ln -sf "${__distro_path_root}"/bin/X11/not_add_2_path/nbrowser/nbrowser "${__distro_path_root}"/system_files/bin
 create_applicationsdotdesktop_link "nbrowser"
 
-if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then
+if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 	show_im "laptop stuff."
 	if [ -d "${__distro_path_root}/bin/X11/laptop" ];then
 		show_im "laptop bin files to system_files/binX11 ."
 		ln -sf "${__distro_path_root}/bin/X11/laptop"/* "${__distro_path_root}"/system_files/binX11
 	fi
+fi
+
+if command -v python >/dev/null 2>&1;then
+	ln -sf "${__distro_path_root}"/bin/not_add_2_path/oops/oops.python "${__distro_path_root}"/system_files/bin/theoops
+elif command -v python3 >/dev/null 2>&1;then
+	ln -sf "${__distro_path_root}"/bin/not_add_2_path/oops/oops.python3 "${__distro_path_root}"/system_files/bin/theoops
 fi
 
 if command -v arandr >/dev/null 2>&1;then

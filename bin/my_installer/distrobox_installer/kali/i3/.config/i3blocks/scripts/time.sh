@@ -13,8 +13,8 @@ LCLK_09="󱑓"
 LCLK_10="󱑔"
 LCLK_11="󱑕"
 
-TIME=$(date '+%H:%M')
-HR=$(date '+%I')
+TIME=$(date +%H:%M)
+HR=$(date +%I)
 
 get_time() {
         case $HR in

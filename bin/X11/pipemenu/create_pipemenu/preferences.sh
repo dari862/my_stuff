@@ -6,6 +6,9 @@
 
 mkdir -p "${pipemenu_output_dir}"
 
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 create_exec_pipemenu(){
 	echo "<menu id=\"$1\" execute=\"$2\" label=\"$3\"/>"
 }
@@ -48,7 +51,7 @@ create_exec_pipemenu(){
     	menuItem "man xrandr" "popup_terminal --man xrandr"
 	menuSubmenuEnd
 	menuEnd
-} | tee "${pipemenu_output_dir}/bl" >/dev/null 2>&1
+} | $_SUPERUSER tee "${pipemenu_output_dir}/bl" >/dev/null 2>&1
 
 {
 	menuStart
@@ -89,7 +92,7 @@ create_exec_pipemenu(){
 	menuItem "Settings Manager" "settings_manager_"
 	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
-} | tee "${pipemenu_output_dir}/ac" >/dev/null 2>&1
+} | $_SUPERUSER tee "${pipemenu_output_dir}/ac" >/dev/null 2>&1
 
 {
 	menuStart
@@ -155,5 +158,5 @@ create_exec_pipemenu(){
 	menuItem "GParted Partition Manager" "gparted"
 	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
-} | tee "${pipemenu_output_dir}/my" >/dev/null 2>&1
+} | $_SUPERUSER tee "${pipemenu_output_dir}/my" >/dev/null 2>&1
 

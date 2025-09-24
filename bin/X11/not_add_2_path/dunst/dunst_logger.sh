@@ -7,7 +7,7 @@ crunch_summary=$(echo "$2" | sed  '/^$/d' | xargs)
 crunch_body=$(echo "$3" | sed  '/^$/d' | xargs)
 crunch_icon=$(echo "$4" | sed  '/^$/d')
 crunch_urgency=$(echo "$5" | sed  '/^$/d')
-timestamp=$(date +"%I:%M %p")
+timestamp=$(date +%I:%M %p)
 
 # Rules for notifs that send their icons over the wire (w/o an actual path)
 if [ "$crunch_appname" = "Spotify" ];then

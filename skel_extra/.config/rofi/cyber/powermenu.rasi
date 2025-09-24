@@ -13,7 +13,8 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import 						 "theme.rasi"
+@import "theme.rasi"
+@import "fonts.rasi"
 
 /*
 USE_ICON=YES
@@ -73,6 +74,7 @@ dummy {
 }
 
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str:                         "";
@@ -156,7 +158,6 @@ element {
     cursor:                      pointer;
 }
 element-text {
-    font:                        "feather bold 24";
     background-color:            transparent;
     text-color:                  inherit;
     cursor:                      inherit;

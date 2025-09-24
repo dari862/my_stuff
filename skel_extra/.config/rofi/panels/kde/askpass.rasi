@@ -1,52 +1,25 @@
-/* Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com> */
-/* Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 */
+/* Confirm Dialog */
 
-@import                          "theme.rasi"
+@import "colors.rasi"
+
+* {
+    background-color:       @bg;
+    text-color:             @fg;
+	font:				 	"Iosevka Nerd Font 10";
+}
 
 window {
-    width:      			250px;
+    width:      			310px;
     padding:    			20px;
-    border:					0px 0px 2px 0px;
-    border-radius:          8px;
-    background-color:       @background;
-    border-color:           @background;
+    border:					0px;
+    border-radius:          2px;
+    border-color:           @ac;
     location:               center;
-    x-offset:               0;
-    y-offset:               -4%;
+    y-offset:               -2em;
 }
 
-mainbox {
-    enabled:                     true;
-    border-color:                @background;
-    background-color:            transparent;
-    children:                    [ "inputbar", "listview" ];
-}
-
-/*****----- Inputbar -----*****/
-inputbar {
-    enabled:                     true;
-    border-color:                @background;
-    background-color:            transparent;
-    text-color:                  @foreground;
-    children:                    [ "textbox-prompt-colon", "entry" ];
-}
-
-prompt {
-    enabled:                     true;
-    background-color:            @background;
-    text-color:                  @foreground;
-}
-textbox-prompt-colon {
-    enabled:                     true;
-    expand:                      false;
-    str:                         "Run apps as root : ";
-    background-color:            @background;
-    text-color:                  @foreground;
-}
 entry {
-    enabled:                     true;
-    background-color:            @background;
-    text-color:                  @foreground;
-    cursor:                      text;
-    placeholder-color:           @background;
+    expand: 				true;
+    text-color:				@fg;
 }
+

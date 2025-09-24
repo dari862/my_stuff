@@ -5,14 +5,14 @@ configuration {
     modi:                        "drun";
     show-icons:                  true;
     drun-display-format:         "{name}";
-    font:                        "JetBrainsMono NF Bold 11";
-
+ 
     //hover-select:				 true;
 	//me-select-entry:			 "";
 	//me-accept-entry:			 "MousePrimary";
 }
 
 @import "theme.rasi"
+@import "fonts.rasi"
 
 // Main //
 window {
@@ -48,6 +48,7 @@ inputbar {
 }
 
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str:                         "";

@@ -33,7 +33,7 @@ frame_width = 6
 
 ### Text ###
 
-font = Sans 9
+font = Noto Sans 9
 
 # The format of the message.  Possible variables are:
 #   %a  appname

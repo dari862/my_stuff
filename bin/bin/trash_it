@@ -1,6 +1,5 @@
 #!/bin/bash
-
-rm_command="$(builtin command -v rm)"
+unalias -a
 trash_dir="${XDG_DATA_HOME:-$HOME/.local/share}/trash_it"
 trash_files="$trash_dir/files"
 trash_info="$trash_dir/info"
@@ -22,7 +21,7 @@ trash() {
 
         abs_path=$(readlink -f "$filepath")
         filename=$(basename "$filepath")
-        timestamp=$(date +"%Y-%m-%dT%H:%M:%S")
+        timestamp=$(date +%Y-%m-%dT%H:%M:%S)
 
         # Handle name collisions
         base="$filename"
@@ -81,7 +80,7 @@ restore_file() {
     if [[ "$confirm" == "y" ]]; then
         mkdir -p "$(dirname "$original")"
         mv "$file_path" "$original"
-        ${rm_command} -f "$info_file"
+        rm -f "$info_file"
         echo "Restored: $original"
     fi
 }
@@ -105,7 +104,7 @@ restore_all() {
         fi
         original=$(grep '^Path=' "$info_file" | cut -d= -f2-)
         mkdir -p "$(dirname "$original")"
-        mv "$file" "$original" && ${rm_command} -f "$info_file"
+        mv "$file" "$original" && rm -f "$info_file"
         echo "Restored: $original"
     done
 }
@@ -122,7 +121,7 @@ remove_from_trash() {
 
         read -rp "Permanently delete '$filename'? [y/N]: " confirm
         if [[ "$confirm" == "y" ]]; then
-            ${rm_command} -f "$file_path" "$info_file"
+            rm -f "$file_path" "$info_file"
             echo "Deleted: $filename"
         else
             echo "Skipped: $filename"
@@ -134,7 +133,7 @@ remove_from_trash() {
 empty_trash() {
     read -rp "Empty entire trash permanently? [y/N]: " confirm
     if [[ "$confirm" == "y" ]]; then
-        ${rm_command} -rfd "$trash_dir"
+        rm -rfd "$trash_dir"
         echo "Trash emptied."
     else
         echo "Cancelled."

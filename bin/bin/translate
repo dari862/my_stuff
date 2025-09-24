@@ -1,0 +1,109 @@
+#!/bin/sh
+# Translate using Google Translate (through Lingva or LibreTranslate) - CLI with fzf support
+
+set -eu
+# Default translation service
+translate_service="${translate_service:-lingva}"
+
+# URLs
+libretranslate_url="https://libretranslate.de"
+lingva_url="https://lingva.ml"
+
+# Language map cache
+lang_map="/tmp/$USER/$translate_service"
+
+list_lang(){
+    sort "$lang_map"
+}
+
+# Ensure language map exists or is updated today
+update_lang_map() {
+  if [ ! -f "$lang_map" ] || [ "$(stat -c %y "$lang_map" | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ]; then
+    case "$translate_service" in
+      "libretranslate") url="$libretranslate_url/languages" ;;
+      "lingva") url="$lingva_url/api/v1/languages/source" ;;
+      *) echo "Unsupported service: $translate_service" >&2; exit 1 ;;
+    esac
+
+    mkdir -p "$(dirname "$lang_map")"
+    getURL '2term' "$url" | \
+      sed -e 's/","name":"/ /g' \
+          -e 's/"},{"code":"/\n/g' \
+          -e 's/{"code":"//g' \
+          -e 's/}]//g' \
+          -e 's/{"languages"://g' \
+          -e 's/"}//g' > "$lang_map"
+  fi
+}
+
+# Get language code from name
+select_language() {
+  prompt="$1"
+  selected=$(list_lang | fzf --prompt="$prompt: " --height=20 --reverse) || exit 1
+  echo "$selected" | awk '{print $1}'
+}
+
+# CLI entry
+main() {
+  update_lang_map
+
+  # Input handling
+  query="${1:-}"
+  from_code="${2:-}"
+  to_code="${3:-}"
+
+  # Prompt for missing inputs
+  if [ -z "$from_code" ]; then
+    from_code=$(select_language "Translate from")
+  fi
+
+  if [ -z "$to_code" ]; then
+    to_code=$(select_language "Translate to")
+  fi
+
+  if [ -z "$query" ]; then
+    printf "Enter text to translate (from $from_code to $to_code):\n> "
+    read -r query
+  fi
+
+  # URL encode input
+  query_encoded=$(encode "$query")
+  query_encoded="${query_encoded}%0A"
+
+  # Build URL
+  case "$translate_service" in
+    "libretranslate")
+      translate_url="${libretranslate_url}/translate?q=${query_encoded}&source=${from_code}&target=${to_code}"
+      translation_method="POST"
+      ;;
+    "lingva")
+      translate_url="${lingva_url}/api/v1/${from_code}/${to_code}/${query_encoded}"
+      translation_method="GET"
+      ;;
+    *)
+      echo "Unsupported service: $translate_service" >&2
+      exit 1
+      ;;
+  esac
+
+  # Make request
+  if [ "$translation_method" = "POST" ]; then
+    if command -v curl >/dev/null 2>&1; then
+      translation=$(curl -X "$translation_method" -Ss "$translate_url")
+    elif command -v wget >/dev/null 2>&1; then
+      translation=$(wget --quiet --method="$translation_method" --output-document=- "$translate_url")
+    fi
+  else
+    translation=$(getURL '2term' "$translate_url")
+  fi
+
+  # Extract result
+  translation=$(echo "$translation" | sed -e 's/{"translation":"//g' -e 's/"}//g')
+  echo "$translation"
+}
+
+case "${1:-}" in
+    list) list_lang ;;
+    update) update_lang_map "$@" ;;
+    *) main "$@" ;;
+esac

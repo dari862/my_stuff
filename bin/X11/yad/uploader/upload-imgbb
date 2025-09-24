@@ -26,7 +26,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ########################################################################
-
+unalias -a
 . "$__distro_path_lib"
 check_4_dependencies_if_installed yad jq xdotool convert || exit 1
 
@@ -190,7 +190,7 @@ function getimage(){
     fi
     if [[ -z "$1" ]];then
         # new filename with date
-        timestampnew="$(printf "%(%s)T")"
+        timestampnew="$(date +%s)"
         img_file="${timestampnew}${FILE_NAME}.${FILE_FORMAT}"
         img_file="${FILE_DIR}/${img_file}" && export img_file
         take_screenshot "${img_file}"
@@ -217,7 +217,7 @@ function make_thumbnail(){
     img_dirpath="$(dirname "${img}")"
     thumbnail="${img_dirpath}/th_${img_name}"
 
-    convert "${img}" -resize ${THUMB_SIZE} "${img_dirpath}/th_${img_name}"
+    magick "${img}" -resize ${THUMB_SIZE} "${img_dirpath}/th_${img_name}"
 }
 
 function delete_local(){    # delete local screenshot; don't delete if '--file' was script arg.
@@ -321,7 +321,7 @@ function image_resize(){
     fi
     if (( ans != 1 ));then
         temp_file=$(mktemp --tmpdir resize.XXX) # stores url output for use by ${response}
-        resize_cmd="convert ${img} -resize ${resize}% ${img_file}"
+        resize_cmd="magick ${img} -resize ${resize}% ${img_file}"
         message='
         Resizing image...
 
@@ -348,7 +348,7 @@ function watermark_thumb() {    # add watermark to thumbnail if uploaded image h
     local delete_text="$HOME/tmp/deleted.png"
 
     # create watermark image
-    convert  -background transparent -fill red -size 160x60 label:'UPLOAD\n     DELETED' "${delete_text}"
+    magick  -background transparent -fill red -size 160x60 label:'UPLOAD\n     DELETED' "${delete_text}"
     # overlay thumbnail with watermark
     composite -dissolve 50% -gravity west "${delete_text}" "${thumb_tempfile}" "${thumb_tempfile}"
 

@@ -132,7 +132,7 @@ pts=$(printf "%s %s\n" "${seek}" | awk '{
           printf("%s\n"), seconds
 }')
 
-outfile_default="${infile_name}-tile-$(date +"%Y-%m-%d-%H-%M-%S").png"
+outfile_default="${infile_name}-tile-$(date +%Y-%m-%d-%H-%M-%S).png"
 
 # duration * fps / number of tiles
 frames=$(echo "${duration} * ${fps} / ${tile_sum:=${tile_default}}" | bc)
@@ -170,11 +170,11 @@ ffmpeg \
 # check option passed to script
 #===============================================================================
 
-if [ "${timestamp}" == on ]; then
+if [ "${timestamp}" = on ]; then
     timestamp "${infile}" # -x on
-elif [ ! -z "${fontcolor}" ]; then
+elif [ -n "${fontcolor}" ]; then
     timestamp "${infile}" # -f 
-elif [ ! -z "${boxcolor}" ]; then
+elif [ -n "${boxcolor}" ]; then
     timestamp "${infile}" # -b
 elif [ -z "${timestamp}" ]; then
     tilevideo "${infile}" # no timestamp

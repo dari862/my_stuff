@@ -12,18 +12,12 @@ else
 fi
 
 if [ ! -f "${Distro_config_file}" ];then
-	cat <<- EOF > "${Distro_config_file}"
-	_panel_name_="polybar"
-	ROFI_STYLE="default"
-	polybar_STYLE="default"
-	conky_sessionfile=".config/conky/openbox-conky.conf"
-	tint2_sessionfile="/.config/tint2/default.tint2rc"
-	EOF
+	cp -r "${__distro_path_root}/system_files/blob/polybar/default/config/WM_common_config/Distro_config" "$WM_config_dir"
 fi
 
 if [ ! -f "${WM_config_dir}/rofi_picked" ];then	
-	panel_picker
-	style_setter
+	_picked_panel_="$(panel_picker)"
+	style_setter "$_picked_panel_"
 	touch "${WM_config_dir}/rofi_picked"
 fi
 

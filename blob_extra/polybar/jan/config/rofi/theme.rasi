@@ -1,7 +1,6 @@
 // Rofi colors for Jan
 
 * {
-    font: "Terminess Nerd Font Mono Bold 10";
     background: #070219F0;
     bg-alt: #09021f;
     background-alt: #070219E0;

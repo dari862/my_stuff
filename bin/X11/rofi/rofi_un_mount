@@ -1,5 +1,5 @@
 #!/bin/bash
-
+unalias -a
 __mounter(){
 	# Mounts Android Phones and USB drives (encrypted or not). This script will
 	# replace the older `dmenumount` which had extra steps and couldn't handle

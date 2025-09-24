@@ -1,6 +1,8 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 pcspkr_blacklist="/etc/modprobe.d/nobeep.conf"
 
@@ -9,6 +11,7 @@ if [ -f "$pcspkr_blacklist" ];then # enabled
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "disable_beep"
 	if [ ! -f "$pcspkr_blacklist" ];then
 		${_SUPERUSER} sh -c "echo 'blacklist pcspkr' >> ${pcspkr_blacklist}"
 		${_SUPERUSER} sh -c "echo 'blacklist snd_pcsp' >> ${pcspkr_blacklist}"

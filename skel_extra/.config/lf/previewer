@@ -11,7 +11,7 @@
 #	- lynx (html/web pages)
 #	- pdftoppm (pdf)
 #	- odt2txt (odt)
-#	- convert from imagemagick (fonts)
+#	- magick from imagemagick (fonts)
 #	- atool (archives)
 #	- gpg (PGP encrypted files)
 #	- man (troff manuals)
@@ -62,7 +62,7 @@ mime_preview() {
 	(image/svg+xml,0 | image/svg)
 		create_cache "$1"
 		[ -f "$CACHE.png" ] \
-			|| rsvg-convert  -o "$CACHE.png" -a -w "1000" -b '#1f2430' "$1"
+			|| rsvg-magick  -o "$CACHE.png" -a -w "1000" -b '#1f2430' "$1"
 		image "$CACHE.png" "$2" "$3" "$4" "$5" "$1"
 	;;
 	(image/*,0)
@@ -93,7 +93,7 @@ mime_preview() {
 		case "${1##*.}" in
 		(ipynb)
 			# Needs my fork of ipynb-py-convert
-			ipynb-py-convert --stdout "$1" \
+			ipynb-py-magick --stdout "$1" \
 				| bat --terminal-width "$(($4*7/9))" --color=always -l python --style=numbers
 		;;
 		(*) jq -C < "$1" ;;
@@ -128,7 +128,7 @@ mime_preview() {
 	(application/font*,0 | application/*opentype,0 | font/sfnt,0)  # .ttf, .otf
 		create_cache "$1"
 		[ -f "$CACHE.png" ] \
-			|| convert -size "800x800" "xc:#000000" -fill "#ffffff" \
+			|| magick -size "800x800" "xc:#000000" -fill "#ffffff" \
 				-pointsize "72" -font "$1" -gravity center -annotate +0+0 \
 				"ABCDEFGHIJKLM\nNOPQRSTUVWXYZ\nabcdefghijklm\nnopqrstuvwxyz\n1234567890\n!@#$\%^&*,.;:\n_-=+'\"|\\(){}[]" \
 				"$CACHE.png"

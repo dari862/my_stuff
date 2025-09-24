@@ -1,7 +1,6 @@
 // Rofi colors for Aline
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #faf4ed;
     bg-alt: #f2e9e1;
     background-alt: #faf4edE0;

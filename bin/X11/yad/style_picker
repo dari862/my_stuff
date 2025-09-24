@@ -1,6 +1,7 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=Style_Manager
+unalias -a
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
@@ -13,7 +14,7 @@ CURSESSION="$WM_config_dir/tint2_style"
 
 if [ "$_panel_name_" = 'polybar' ];then
 	CONFIGPATH="${BLOBPATH}/blob/polybar"
-else
+elif [ "$_panel_name_" = 'tint2' ];then
 	CONFIGPATH="${BLOBPATH}/blob/tint2"
 fi
 
@@ -126,7 +127,7 @@ Launch_YAD_(){
 	NUMDIRS=0
 	### CONFIGS VARIABLES
 	XFILE="$HOME/.Xresources"
-	BKP_SFX=".$(printf "%(%Y%m%d-%H%M%S)T").blob~"
+	BKP_SFX=".$(date +%Y%m%d-%H%M%S).blob~"
 	### END CONFIGS VARIABLES
 	
 	### DIALOG VARIABLES
@@ -502,7 +503,7 @@ Launch_YAD_(){
                 	;;
         	esac
     	done
-		style_changer "$(cat $CURSESSION)"
+		style_changer "$_panel_name_" "$(cat $CURSESSION)"
 		if . "$FPATH/lightdm-gtk-greeter.conf";then
     		apps_as_root "setLightdmGreeter" "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position" \
     			|| rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi

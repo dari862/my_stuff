@@ -27,10 +27,15 @@ print_unread_email_count() {
     *outlook.com|*hotmail.com) IMAP_SERVER="imap-mail.outlook.com" ;;
     *)            IMAP_SERVER="imap.example.com" ;;
   esac
-
-  response=$(curl -s --url "imaps://$IMAP_SERVER/INBOX" \
-    --request "SEARCH UNSEEN" \
-    --user "$EMAIL:$(passman show email/$EMAIL)")
+  if command -v curl >/dev/null 2>&1 ;then
+		response=$(curl -s --url "imaps://$IMAP_SERVER/INBOX" \
+			--request "SEARCH UNSEEN" \
+			--user "$EMAIL:$(passman show email/$EMAIL)")
+  elif command -v python3 >/dev/null 2>&1 ;then
+		response=$(python3 -c "import imaplib; m=imaplib.IMAP4_SSL('$IMAP_SERVER'); m.login('$EMAIL', '''$PASSWORD'''); m.select('INBOX'); print(m.search(None, 'UNSEEN')[1][0].decode()); m.logout()")
+  elif command -v python >/dev/null 2>&1 ;then
+		response=$(python -c "import imaplib; m=imaplib.IMAP4_SSL('$IMAP_SERVER'); m.login('$EMAIL', '''$PASSWORD'''); m.select('INBOX'); print(m.search(None, 'UNSEEN')[1][0].decode()); m.logout()")
+  fi
 
   [ $? -ne 0 ] && {
     Unread_Email_count="NaN"

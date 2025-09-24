@@ -1,14 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 # if this line exist script will be part of gui scripts.new_name=DistroBOX_GUI
 
-if [[ ! -d "$HOME/.config" ]]
-then
+if [ ! -d "$HOME/.config" ];then
   echo "Making $HOME/.config"
   mkdir $HOME/.config
 fi
 
-if [[ ! -d "$HOME/.config/distrogui" ]]
-then
+if [ ! -d "$HOME/.config/distrogui" ];then
   echo "Making $HOME/.config/distrogui"
   SCRIPT_PATH="$(realpath "$0")"
   mkdir -p "$HOME/.config/distrogui"
@@ -72,7 +70,7 @@ case $? in
     echo \
       "$CONTAINER" | awk 'BEGIN {FS = "|"}; {print $1}' | xargs echo -n > ~/.active.distro.temp
     CONTAINERNAME=$(cat ~/.active.distro.temp)
-    if [ $CONTAINERNAME = ""] #Checks to see if a container was selected
+    if [ $CONTAINERNAME = "" ] #Checks to see if a container was selected
     then
       yad --title="DistroGUI" \
         --text="Please select a container before entering!"
@@ -114,7 +112,7 @@ case $? in
     #Upgrading the container
     echo "$CONTAINER" | awk 'BEGIN {FS = "|"}; {print $1}' | xargs echo -n > ~/.active.distro.temp
     CONTAINERNAME=$(cat ~/.active.distro.temp)
-    if [ $CONTAINERNAME = ""] #Checks to see if container is selected
+    if [ $CONTAINERNAME = "" ] #Checks to see if container is selected
     then
       yad --title="DistroGUI" \
         --text="Please select a container before entering!"
@@ -177,7 +175,7 @@ case $? in
     #Stops a running container
     echo "$CONTAINER" | awk 'BEGIN {FS = "|"}; {print $1}' | xargs echo -n > ~/.active.distro.temp
     CONTAINERNAME=$(cat ~/.active.distro.temp)
-    if [ $CONTAINERNAME = ""]
+    if [ $CONTAINERNAME = "" ]
     then
       yad title="DistroGUI" \
         --text="Please select a container before entering!"
@@ -200,7 +198,7 @@ case $? in
     CONTAINERNAME=$(cat ~/.active.distro.temp)
     echo $CONTAINER | awk 'BEGIN {FS = "|"}; {print $2}' | xargs echo -n > ~/.activedel.distro.temp
     DELCONTAINERSTATUS=$(cat ~/.activedel.distro.temp | head -n1 | awk '{print $1}')
-    if [ $CONTAINERNAME = ""] #Checks to see if container was selected.
+    if [ $CONTAINERNAME = "" ] #Checks to see if container was selected.
     then
       echo $CONTAINERNAME
       yad title="DistroGUI" \

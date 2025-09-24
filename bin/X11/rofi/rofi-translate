@@ -1,0 +1,28 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+set -eu
+. "/usr/share/my_stuff/lib/common/WM"
+. "${Distro_config_file}"
+
+cp2cb() {
+  case "$XDG_SESSION_TYPE" in
+    'x11') xclip -r -selection clipboard;;
+    'wayland') wl-copy -n;; 
+    *) err "Unknown display server";;
+  esac
+}
+
+translate update
+
+from_name=$(translate list | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Translate from:' || exit 1)
+from_code=$(echo "$from_name" | awk '{print $1}')
+
+to_name=$(translate list | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Translate to:' || exit 1)
+to_code=$(echo "$to_name" | awk '{print $1}')
+query=$(rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Translate (${from_code} -> ${to_code}):")
+
+if [ -n "$query" ];then
+    translation="$(translate "$query" $from_code $to_code)"
+    echo "$translation" | cp2cb 
+    notify-send "Translation (in clipboard)" "$translation"
+fi

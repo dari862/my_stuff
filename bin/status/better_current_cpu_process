@@ -1,5 +1,5 @@
 #!/bin/bash
-
+unalias -a
 # Multi-core CPU Monitor with Icons, Colors, Polybar Mode, Averages, Bars, and Top Process
 
 ICON=""

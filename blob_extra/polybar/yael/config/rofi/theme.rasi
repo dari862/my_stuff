@@ -1,7 +1,6 @@
 // Rofi colors for Yael
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #161616;
     bg-alt: #212121;
     background-alt: #161616E0;

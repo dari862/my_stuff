@@ -1,7 +1,6 @@
 // Rofi colors for Daniela
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #181825;
     bg-alt: #1e1e2e;
     background-alt: #181825E0;

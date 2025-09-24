@@ -119,8 +119,8 @@ double_buffer = true,
 -- max_user_text 16384
 
 -- Desired output unit of all objects displaying a temperature. Parameters are
--- either "fahrenheit" or "celsius". The default unit is degree Celsius.
--- temperature_unit Fahrenheit
+-- either "celsius" or "celsius". The default unit is degree Celsius.
+-- temperature_unit celsius
 --################  End Miscellaneous Section  ###
 
 update_interval = 1,
@@ -128,7 +128,7 @@ update_interval = 1,
 };
 
 conky.text = [[
-${voffset 6}${offset 20}${color0}${font M+ 1mn:size=24}${time %H:%M}${font}${color}
+${voffset 6}${offset 20}${color0}${font mplus Nerd Font:size=24}${time %H:%M}${font}${color}
 ${font Noto Sans:Regular:size=24}${voffset 20}${time %A, %-d %B}${font}
 ${voffset 18}Today will be ${execi 1800 conky_scripts get_weather -d}
 ${voffset 6}${execi 1800 conky_scripts get_weather -t}

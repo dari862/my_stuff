@@ -1,7 +1,6 @@
 // Rofi colors for Emilia
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #1a1b26;
     bg-alt: #222330;
     background-alt: #1a1b26E0;

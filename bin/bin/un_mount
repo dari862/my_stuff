@@ -1,4 +1,6 @@
 #!/bin/bash
+unalias -a
+set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 action="${1:-}"

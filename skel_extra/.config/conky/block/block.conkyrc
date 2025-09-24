@@ -46,7 +46,7 @@ alignment = 'top_left',
 --##  Font Settings  #############################
 -- Use Xft (anti-aliased font and stuff)
 use_xft = true,
-font = 'M+ 1mn:size=64',
+font = 'mplus Nerd Font:size=64',
 
 
 -- Alpha of Xft font. Must be a value at or between 1 and 0 ###
@@ -117,8 +117,8 @@ double_buffer = true,
 -- max_user_text 16384
 
 -- Desired output unit of all objects displaying a temperature. Parameters are
--- either "fahrenheit" or "celsius". The default unit is degree Celsius.
--- temperature_unit Fahrenheit
+-- either "celsius" or "celsius". The default unit is degree Celsius.
+-- temperature_unit celsius
 --################  End Miscellaneous Section  ###
 
 update_interval = 1,

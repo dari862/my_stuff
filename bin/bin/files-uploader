@@ -4,7 +4,7 @@
 # Taking of screenshots is also supported.
 # At present this is a wrapper script around imgur-upload,
 # but may be extended in the future.
-
+unalias -a
 # var
 . "$__distro_path_lib"
 . "${__distro_path_root}/display_server/X11"

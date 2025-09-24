@@ -4,6 +4,6 @@ right=10
 left=10
 font=JetBrainsMono
 size=9
-theme=TokyoNight-zk
+theme=openbox-TokyoNight-zk
 titleLayout=LIMC
 gtk_icon_name="TokyoNight-SE"

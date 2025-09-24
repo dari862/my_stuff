@@ -1,6 +1,8 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 gtksettings="${HOME}/.config/gtk-3.0/settings.ini"
 
@@ -9,6 +11,7 @@ if grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then 
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "disabling IPv6 stack (kernal level)."
 	if ! grep 'GRUB_CMDLINE_LINUX=' /etc/default/grub | grep -q 'ipv6.disable=1';then
 		if grep -q 'GRUB_CMDLINE_LINUX=""' /etc/default/grub;then
 			${_SUPERUSER} sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="ipv6.disable=1"/' /etc/default/grub

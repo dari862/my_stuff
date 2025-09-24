@@ -6,7 +6,7 @@
 # DESCRIPTION: Snap current windows according the mouse position
 # REQUIREMENTS: xdotool, xrandr
 #===================================================================================
-
+unalias -a
 # Key combinations in openbox (same as configured in rc.xml)
 topleft_key="super+KP_Home"
 top_key="super+KP_Up"

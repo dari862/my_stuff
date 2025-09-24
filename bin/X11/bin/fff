@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # fff - fucking fast file-manager.
-
+unalias -a
 get_os() {
     # Figure out the current operating system to set some specific variables.
     # '$OSTYPE' typically stores the name of the OS kernel.

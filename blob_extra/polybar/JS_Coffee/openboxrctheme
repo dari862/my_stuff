@@ -4,6 +4,6 @@ right=20
 left=20
 font=JetBrainsMono
 size=9
-theme=everblush
+theme=openbox-everblush
 titleLayout=CLM
 gtk_icon_name="Zafiro-Icons"

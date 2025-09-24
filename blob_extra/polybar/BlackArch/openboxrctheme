@@ -4,6 +4,6 @@ right=20
 left=20
 font=JetBrainsMono
 size=9
-theme=BlackArch-theme
+theme=openbox-BlackArch-theme
 titleLayout=CLM
 gtk_icon_name="Blue-Icons"

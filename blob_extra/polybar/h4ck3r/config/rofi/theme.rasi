@@ -1,7 +1,6 @@
 // Rofi colors for h4ck3r
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #0c1018;
     bg-alt: #1B2333;
     background-alt: #0c1018E0;

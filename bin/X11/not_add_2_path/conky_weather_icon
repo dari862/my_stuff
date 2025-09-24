@@ -1,4 +1,5 @@
 #!/bin/bash
+unalias -a
 . "$__distro_path_lib"
 distro_dir="${__distro_path_root}"
 weather_icons_folder="${distro_dir}/icons/weather_icon"

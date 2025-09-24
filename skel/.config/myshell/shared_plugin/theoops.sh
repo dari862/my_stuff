@@ -1,0 +1,1 @@
+eval $(theoops --alias f)

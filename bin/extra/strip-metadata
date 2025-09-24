@@ -228,9 +228,6 @@ function strip_image {
   if command -v magick > /dev/null;then
     magick "${IN}" -strip "${TMP}"
     mv "${TMP}" "${IN}"
-  elif command -v convert > /dev/null;then
-    convert "${IN}" -strip "${TMP}"
-    mv "${TMP}" "${IN}"
   else
     show_error "ERROR: imagemagick not found. Exiting."
     exit 3
@@ -238,7 +235,7 @@ function strip_image {
 }
 
 IN="${1}"
-BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
+BACKUP="${IN}_$(date +%Y%m%Y%m%d-%H%M%S).bak"
 TMP="$(mktemp)"
 
 trap 'rm -f "${TMP}" && exit' INT TERM ERR EXIT

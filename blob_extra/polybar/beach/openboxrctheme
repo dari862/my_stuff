@@ -4,6 +4,6 @@ right=20
 left=20
 font=JetBrainsMono
 size=9
-theme=Arc
+theme=openbox-Arc
 titleLayout=CLM
 gtk_icon_name="Arc-Circle"

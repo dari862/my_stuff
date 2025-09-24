@@ -8,6 +8,8 @@ run_full_environment_script_="popup_terminal"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 full_environments="$(cat "${full_environment_db_path}")"
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 {
 	menuStart "RunDebianTweeks" "Run Debian Tweeks"
@@ -15,4 +17,4 @@ full_environments="$(cat "${full_environment_db_path}")"
     	menuItem "install ${fullenv}" "${run_full_environment_script_} --fullenv ${fullenv}"
     done
     menuEnd
-} | my-superuser tee "${full_environment_pipemenu_file}" >/dev/null 2>&1
+} | $_SUPERUSER tee "${full_environment_pipemenu_file}" >/dev/null 2>&1

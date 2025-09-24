@@ -7,6 +7,7 @@
 # shellcheck disable=SC2190,SC2086,SC1091
 
 # Function to copy to clipboard with different tools depending on the display server
+unalias -a
 case "$XDG_SESSION_TYPE" in
 	'x11') cp2cb() { xclip -selection clipboard; };;
 	'wayland') cp2cb() { wl-copy -n; };; 

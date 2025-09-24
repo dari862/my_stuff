@@ -41,6 +41,7 @@
 #           conky-manager -z (opens gui entry dialog for filepath)
 #
 ########################################################################
+unalias -a
 
 . "$__distro_path_lib"
 

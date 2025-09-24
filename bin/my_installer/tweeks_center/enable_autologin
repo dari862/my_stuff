@@ -1,6 +1,8 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 lightdmconf="/etc/lightdm/lightdm.conf"
 
@@ -9,6 +11,7 @@ if grep -q "^autologin-user=" "${lightdmconf}";then # enabled
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "enable_autologin"
 	${_SUPERUSER} sed -i "s/^#autologin-user=/autologin-user=/g" ${lightdmconf}
 	${_SUPERUSER} sed -i "s/^#autologin-user-timeout=/autologin-user-timeout=/g" ${lightdmconf}
 	${_SUPERUSER} sed -i "s/^autologin-user=.*$/autologin-user=${USER}/g" ${lightdmconf}

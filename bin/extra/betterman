@@ -14,7 +14,7 @@ run_my_tldr_(){
 	[ ! -d "${tldr_dir}" ] && clone_repo https://github.com/tldr-pages/tldr "${tldr_dir}"
 	[ ! -d "${tldr_dir}/.git" ] && rm -rdf "${tldr_dir}" && clone_repo https://github.com/tldr-pages/tldr "${tldr_dir}"
 	
-	if [ "$(stat -c %y "${tldr_dir}/pages" 2>/dev/null | cut -d' ' -f1 | cut -d'-' -f1-2)" != "$(date '+%Y-%m')" ]
+	if [ "$(stat -c %y "${tldr_dir}/pages" 2>/dev/null | cut -d' ' -f1 | cut -d'-' -f1-2)" != "$(date +'%Y-%m')" ]
 	then
 		update_tldr_
 	fi

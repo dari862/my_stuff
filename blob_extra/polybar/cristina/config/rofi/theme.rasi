@@ -1,7 +1,6 @@
 // Rofi colors for Cristina
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #232136;
     bg-alt: #2a2740;
     background-alt: #232136E0;

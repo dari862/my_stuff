@@ -24,3 +24,7 @@ if command -v fzf >/dev/null 2>&1;then
 	my-superuser ln -sf "$__distro_path_disabled_completion"/zsh/key-bindings.zsh "$__distro_path_enabled_completion"/zsh/key-bindings.zsh
 	my-superuser ln -sf "$__distro_path_disabled_completion"/zsh/completion.zsh "$__distro_path_enabled_completion"/zsh/completion.zsh
 fi
+
+if service_manager status ssh;then
+	copy_from_extra_skel ".zshenv"
+fi

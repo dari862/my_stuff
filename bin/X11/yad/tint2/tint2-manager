@@ -33,6 +33,7 @@
 #           tint2-session
 #
 ########################################################################
+unalias -a
 
 . "$__distro_path_lib"
 TINT2PATH="$HOME/.config/tint2"

@@ -15,6 +15,7 @@ Usage:  my-installer --install app_name
 skip_test=""
 source__file_location=false
 check_tweek=false
+Distro_installer_mode=false
 
 # if help option anywhere in args, output $HELP and exit immediately
 for i in "$@"
@@ -54,7 +55,22 @@ need_logout(){
 		my_session_manager_cli logout
 	fi
 }
-	
+
+create_system_ready_file(){
+	file_2_create_system_ready=${1:-}
+	my-superuser touch "${__distro_path_system_ready}/${file_2_create_system_ready}"
+}
+
+remove_system_ready_file(){
+	file_2_remove_system_ready=${1:-}
+	my-superuser rm -rf "${__distro_path_system_ready}/${file_2_remove_system_ready}"
+}
+
+update_pipemenu(){
+	which_pipemenu_2_update=${1:-}
+	my-superuser "${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/${which_pipemenu_2_update}"
+}
+
 install_as_dependency(){
 	dependency_name="${1-}"
 	dependency_opt="${2-}"
@@ -92,7 +108,7 @@ install_as_dependency_nested(){
 }
 
 install_distrobox(){
-	if [ ! -f "${__distro_path_root}/system_files/Distrobox_ready" ];then
+	if [ ! -f "${__distro_path_system_ready}/Distrobox_ready" ];then
 		box_app_name="distrobox"
 		say "install ${box_app_name} ..." 1
 		install_as_dependency_nested "${box_app_name}" "nested"
@@ -282,7 +298,7 @@ case $option in
 			package_update=true
 			game_install=true
 			_files_path="${_GAMING_EXTRA_LIBDIR}"
-			if [ ! -f "${__distro_path_root}/system_files/Gaming_ready" ];then
+			if [ ! -f "${__distro_path_system_ready}/Gaming_ready" ];then
 				if [ "$file_name_" != "Gaming_Essential_" ];then
 					say "install Gaming_Essential_ first." 'pause'
 					exit

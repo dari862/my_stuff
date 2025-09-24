@@ -1,53 +1,29 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
-. "$__distro_path_lib"
 __mode="${1:-}"
-scripts_path="${__distro_path_root}/bin/X11/TV"
+scripts_path="/usr/share/my_stuff/bin/X11/TV"
 
-on_terminal(){
-	if [ ! -t 1 ];then
-   		return 1
-   	fi
-}
+list_are="1. Youtube
+2. Anime
+3. Moive/TV-Show
+4. IP-TV"
 
 if [ -z "${__mode}" ];then
-	if ! on_terminal;then
-		. "${__distro_path_root}/lib/common/WM"
+	if [ -t 1 ];then #on_terminal
+        __mode="$(printf "%s" "$list_are" | fzf --info=hidden --layout=reverse --height=100% --exact --cycle --ansi)"
+    else
+		. "/usr/share/my_stuff/lib/common/WM"
 		. "${Distro_config_file}"
-		selected_mode="$(printf "1. Youtube|2. ancli|3. Moive/TV-Show|4. IP-TV" | rofi -sep '|' -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
-	else
-		selected_mode="$(printf "1. Youtube|2. ancli|3. Moive/TV-Show|4. IP-TV" | fzf --info=hidden --layout=reverse --height=100% --exact --cycle --ansi)"
+		__mode="$(printf "%s" "$list_are" | rofi -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
 	fi
-	
-	case "${selected_mode}" in
-		1*) __mode="yt" ;;
-		2*) __mode="ani" ;;
-		3*)	__mode="mov" ;;
-		4*)	__mode="tv" ;;
-		*)	__mode="yt" ;;
-	esac
-	case "${__mode}" in
-		yt) name="yt-x" ;;
-		ani)name="ani-cli" ;;
-		mov)name="yt" ;;
-		tv) name="termv" ;;
-	esac
-	
-	"$scripts_path"/${name} $@
-else
-	case "${__mode}" in
-		yt|ani|mov|tv) ;;
-		*)	name="yt" ;;
-	esac
-	
-	shift 1
-	
-	case "${__mode}" in
-		yt) name="yt-x" ;;
-		ani)name="ani-cli" ;;
-		mov)name="movie" ;;
-		tv) name="termv" ;;
-	esac
-	
-	"$scripts_path"/${name} $@
 fi
+
+case "${__mode}" in
+	yt|1*) name="youtube-cli" ;;
+	ani|2*)name="anime-cli" ;;
+	mov|3*)name="movie" ;;
+	tv|4*) name="iptv" ;;
+    *)	name="youtube-cli" ;;
+esac
+
+"$scripts_path"/${name} $@

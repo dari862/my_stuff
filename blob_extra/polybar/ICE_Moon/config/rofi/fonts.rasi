@@ -1,0 +1,7 @@
+/**/
+
+* {
+  font:			"Iosevka 10";
+  text-font:      @font;
+  icon-font:      "Material 14";
+}

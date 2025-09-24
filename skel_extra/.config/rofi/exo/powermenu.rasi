@@ -8,10 +8,7 @@ configuration {
 /*****----- Global Properties -----*****/
 
 @import "theme.rasi"
-
-* {
-    font:                        "JetBrains Mono Nerd Font 10";
-}
+@import "fonts.rasi"
 
 /*****----- Main Window -----*****/
 window {
@@ -67,6 +64,7 @@ dummy{
     background-color:            transparent;
 }
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str:                         "";

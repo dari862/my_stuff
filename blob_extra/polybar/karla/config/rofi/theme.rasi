@@ -1,7 +1,6 @@
 // Rofi colors for Karla
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #0E1113F7;
     bg-alt: #111517;
     background-alt: #0E1113F5;

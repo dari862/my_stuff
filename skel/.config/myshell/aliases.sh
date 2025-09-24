@@ -29,6 +29,9 @@ alias .....='cd ../../../..'
 # Remove a directory and all files
 alias rmd='/bin/rm  --recursive --force --verbose '
 
+# grep skip binary
+alias grep="grep -I"
+
 # Colorize commands when possible.
 alias ls="ls -hN --color=auto --group-directories-first"
 alias grep="grep --color=auto" 
@@ -49,8 +52,8 @@ alias lm='ls -alh |more'          # pipe through 'more'
 alias lw='ls -xAh'                # wide listing format
 alias ll='ls -Fls'                # long listing format
 alias labc='ls -lap'              #alphabetical sort
-alias lf="ls -l | egrep -v '^d'"  # files only
-alias ldir="ls -l | egrep '^d'"   # directories only
+alias lf="ls -l | grep -v '^d'"  # files only
+alias ldir="ls -l | grep '^d'"   # directories only
 
 # alias chmod commands
 alias mx='chmod a+x'
@@ -109,7 +112,6 @@ alias sports="my-superuser ss -lntu"
 # These common commands are just too long! Abbreviate them.
 alias getpass="openssl rand -base64 20"
 alias www="python -m SimpleHTTPServer 8000"
-alias qf="find . |grep"
 alias ka="killall"
 alias pdf="zathura"
 

@@ -38,6 +38,6 @@ flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue
 flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     
 
 say "Creating Check File (Gaming_ready)"
-my-superuser rm -rf ${__distro_path_root}/system_files/GPU_Drivers_ready
-my-superuser touch ${__distro_path_root}/system_files/Gaming_ready
-${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+remove_system_ready_file GPU_Drivers_ready
+create_system_ready_file Gaming_ready
+update_pipemenu preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"

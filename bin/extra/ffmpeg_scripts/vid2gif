@@ -82,7 +82,7 @@ start_default='00:00:00'
 end_default=$(ffprobe -v error -sexagesimal -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$infile" | cut -d\. -f1)
 framerate_default='15'
 width_default='320'
-outfile_default="${infile_name}-gif-$(date +"%Y-%m-%d-%H-%M-%S").gif"
+outfile_default="${infile_name}-gif-$(date +%Y-%m-%d-%H-%M-%S).gif"
 
 
 #===============================================================================

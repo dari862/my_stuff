@@ -1,5 +1,5 @@
 #!/bin/bash
-
+unalias -a
 # check if $1 exists; exit if it doesn't
 argcheck() {
     if [[ -z "$1" ]];then
@@ -77,7 +77,7 @@ uploadfile() {
     fi
     # if text being uploaded via pipe and FILE_NAME is empty, set random file name
     if [[  "$UPLOAD_FILE" == "-" ]] && [[ -z "$FILE_NAME" ]];then
-        FILE_NAME="$(printf "%(%s)T").txt"
+        FILE_NAME="$(date +%s).txt"
     # else get file name using rev and cut if FILE_NAME is empty
     elif [[ -z "$FILE_NAME" ]];then
             FILE_NAME="$(echo "$UPLOAD_FILE" | rev | cut -f1 -d'/' | rev)"

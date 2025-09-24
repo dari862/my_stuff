@@ -4,6 +4,6 @@ right=20
 left=20
 font=JetBrainsMono
 size=9
-theme=Tokyonight-Dark-B
+theme=openbox-Tokyonight-Dark-B
 titleLayout=CLM
 gtk_icon_name="Elena-dark-icons"

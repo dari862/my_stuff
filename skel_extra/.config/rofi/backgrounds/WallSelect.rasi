@@ -10,6 +10,7 @@ configuration {
 }
 
 @import "theme.rasi"
+@import "fonts.rasi"
 
 window {
     enabled:                     true;

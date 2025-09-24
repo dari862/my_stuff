@@ -69,7 +69,7 @@ infile_nopath="${infile##*/}"
 infile_name="${infile_nopath%.*}"
 
 # defaults for variables if not defined
-outfile_default="${infile_name}-waveform-$(date +"%Y-%m-%d-%H-%M-%S").png"
+outfile_default="${infile_name}-waveform-$(date +%Y-%m-%d-%H-%M-%S).png"
 
 
 #===============================================================================

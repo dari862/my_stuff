@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 # debian missing goimapnotify pam-gnupg abook urlview
 # arch   missing pam-gnupg abook urlview

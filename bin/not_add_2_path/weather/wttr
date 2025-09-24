@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 weatherdata=""
 WEATHER_TEMP=""
 WTTRURL="${WTTRURL:-wttr.in}"
 
 which_timestamp_to_traget_in_jq(){
-	CURRENT_TIME="$(date +"%H%M")"
+	CURRENT_TIME="$(date +%H%M)"
 	if [ ${CURRENT_TIME} -lt 300 ];then
 		TARGET_TIME=300
 	elif [ ${CURRENT_TIME} -lt 600 ];then
@@ -120,8 +120,8 @@ get_weather_report_more_no_extra() {
 }
 
 old_weather_data_(){
-	[ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
-	[ ! -s "$weatherreport_json" ] && [ "$(stat -c %y "$weatherreport_json" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
+	[ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ] && return
+	[ ! -s "$weatherreport_json" ] && [ "$(stat -c %y "$weatherreport_json" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ] && return
 }
 
 get_weather_data_(){
@@ -170,14 +170,14 @@ parse_weather_for_conky_vision(){
 	ln -sf "${current_realpath}"  "${cache_folder}/current.png"
 	
 	get_most_common_weather_code() {
-		local weather_data=$1
+		weather_data=$1
 		weatherdata_json_var="$(echo "$weatherdata_json" | jq -r ".weather[$weather_data].hourly[].weatherCode" | sort | uniq -c | sort -nr | head -n 1 | awk '{print $2}')"
 		realpath="$(realpath "${image_folder}/${weatherdata_json_var}.png")"
 		ln -sf "${realpath}" "${cache_folder}/forecast-${i}.png"
 	}
 	
 	# Process the forecast weather codes
-	for i in {0..2}; do
+	for i in 0 1 2; do
   		get_most_common_weather_code "$i"
 	done
 	realpath_for_forecast_3="$(realpath ${cache_folder}/forecast-2.png)"

@@ -2,7 +2,7 @@
 icon_position = left
 
 # Paths to default icons.
-icon_theme = "Gruvbox-Plus-Dark"
+icon_theme = "Gruvbox Plux Dark"
 
 # Defines color of the frame around the notification window.
 frame_color = "#181616"

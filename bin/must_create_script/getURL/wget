@@ -1,0 +1,25 @@
+#!/bin/sh 	
+#getURL '2term' "url"
+#getURL 'download' "url"
+#getURL 'download2' "url" "path"
+#getURL 'head' "url"
+
+mode="${1-}"
+url="${2-}"
+path="${3-}"
+
+if [ "${mode}" = "head" ];then
+	wget -S --spider --max-redirect=0 "${url}" || exit 1
+elif [ "${mode}" = "2term" ];then
+	wget -qO- "${url}" || exit 1
+elif [ "${mode}" = "download2" ];then
+	wget -q --show-progress -O "$path" "${url}" || exit 1
+elif [ "${mode}" = "download" ];then
+	file_name="${url##*/}"
+	wget --show-progress -O "${file_name}" "${url}" || exit 1
+elif [ "${mode}" = "ugn" ];then
+	USERNAME_and_ACCESS_TOKEN="$(printf '%s' "${USERNAME_and_ACCESS_TOKEN}" | base64)"
+	wget --quiet --header="Authorization: Basic $USERNAME_and_ACCESS_TOKEN" -O - https://api.github.com/notifications | jq '.[].unread' | grep -c true
+
+fi
+

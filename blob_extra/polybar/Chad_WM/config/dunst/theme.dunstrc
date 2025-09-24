@@ -2,7 +2,7 @@
 icon_position = left
 
 # Paths to default icons.
-icon_theme = "Qogir-dark"
+icon_theme = "Qogir-Dark"
 
 # Defines color of the frame around the notification window.
 frame_color = "#1E222A"

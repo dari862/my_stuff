@@ -9,6 +9,8 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
 
 . "${__distro_path_root}/lib/common/pipemenu"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 {
 	# This function is specific to this script.
@@ -28,8 +30,8 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
         fi
     }
     menuStart
-	if [ ! -f "${__distro_path_root}/system_files/Gaming_ready" ];then
-		if [ ! -f "${__distro_path_root}/system_files/GPU_Drivers_ready" ];then
+	if [ ! -f "${__distro_path_system_ready}/Gaming_ready" ];then
+		if [ ! -f "${__distro_path_system_ready}/GPU_Drivers_ready" ];then
 			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU"
 		else
 			menuItem "Gaming Essential (GamingMenu after install)" "${installation_script_name} --game Gaming_Essential_"
@@ -43,4 +45,4 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
 		done
 	fi
     menuEnd
-} | my-superuser tee "${gaming_pipemenu_file}" >/dev/null 2>&1
+} | $_SUPERUSER tee "${gaming_pipemenu_file}" >/dev/null 2>&1

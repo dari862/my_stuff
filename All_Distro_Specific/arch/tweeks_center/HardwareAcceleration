@@ -1,6 +1,8 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 Packages_2_install=""
 add_nvidia=false
@@ -12,6 +14,7 @@ if grep -q "LIBVA_DRIVER_NAME=nvidia" /etc/environment && grep -q "MOZ_DISABLE_R
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "enabling HardwareAcceleration"
 	if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
 		say "Nvidia detected."
 		Packages_2_install="nvidia nvidia-utils libva libva-utils nvidia-vaapi-driver" || continue
@@ -42,12 +45,4 @@ else
 	fi
 
 	say "Hardware Acceleration setup completed successfully."
-	if prompt "enable Hardware Acceleration in MPV player" 'Y'; then
-		mkdir -p "$HOME/.config/mpv"
-		if [ -f "$MPV_CONF" ]; then
-			sed -i '/^hwdec/d' "$MPV_CONF"
-		fi
-		printf "hwdec=auto" | tee -a "$MPV_CONF" >/dev/null
-		say "MPV Hardware Acceleration enabled successfully."
-	fi
 fi

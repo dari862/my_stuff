@@ -1,6 +1,6 @@
 #!/bin/sh
 # X11 only package remove it from my-installer
-#hide_it#
+
 app_name="dwm"
 extra_apps_="build-essential libx11-dev libxft-dev libxinerama-dev"
 

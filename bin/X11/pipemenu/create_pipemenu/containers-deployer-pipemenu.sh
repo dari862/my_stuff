@@ -10,11 +10,13 @@ CONTAINERS="$(cat "${containers_deploy_db_path}")"
 CHROOTS="$(cat "${chroots_deploy_db_path}")"
 
 . "${__distro_path_root}/lib/common/pipemenu"
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 {
 	menuStart "DeployFavouriteContainers" "Deploy containers using Distrobox and Containers softwares"
-	if [ ! -f "${__distro_path_root}/system_files/Gaming_ready" ];then
-		if [ ! -f "${__distro_path_root}/system_files/GPU_Drivers_ready" ];then
+	if [ ! -f "${__distro_path_system_ready}/Gaming_ready" ];then
+		if [ ! -f "${__distro_path_system_ready}/GPU_Drivers_ready" ];then
 			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU"
 		else
 			menuItem "Gaming Box" "${installation_script_name} --deploy gaming"
@@ -43,4 +45,4 @@ CHROOTS="$(cat "${chroots_deploy_db_path}")"
 	fi
 	
     menuEnd
-} | my-superuser tee "${containers_deployer_pipemenu_file}" >/dev/null 2>&1
+} | $_SUPERUSER tee "${containers_deployer_pipemenu_file}" >/dev/null 2>&1

@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 . "$__distro_path_lib"
-__opt_="${1:-}"
-__opt2_="${2:-}"
+_panel_name_="${1:-polybar}"
+__opt_="${2:-}"
+__opt2_="${3:-}"
 no_wall=false
 if [ -z "$__opt_" ];then
 	style=""
@@ -16,7 +17,6 @@ else
 fi
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
-. "${Distro_config_file}"
 
 show_em(){
 	echo "[ERROR] $0 : $1"
@@ -28,17 +28,11 @@ CONFIG_PATH="$HOME/.config"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
 
-if [ "$_panel_name_" = 'polybar' ];then
-	CONFIGPATH="${BLOBPATH}/polybar"
-else
-	CONFIGPATH="${BLOBPATH}/tint2"
-fi
-
 if [ -z "${style}" ];then
 	style="default"
 fi
 
-STYLEPATH="${CONFIGPATH}/${style}"
+STYLEPATH="${BLOBPATH}/${_panel_name_}/${style}"
 
 OB_themeing(){
 	. "$STYLEPATH/openboxrctheme"
@@ -69,6 +63,7 @@ if [ ! -d "${BLOBPATH}" ];then
 fi
 
 cp -r "${STYLEPATH}/config"/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
+. "${Distro_config_file}"
 
 if [ -d "${STYLEPATH}/cache" ];then
 	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"

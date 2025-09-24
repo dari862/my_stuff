@@ -37,6 +37,7 @@ fzf
 mise
 change-term-title
 zap
+#theoops
 )
 
 # --------------------------------- SETTINGS ----------------------------------

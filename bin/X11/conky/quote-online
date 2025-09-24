@@ -36,7 +36,7 @@ if getURL '2term' http://google.com > /dev/null;then
     done
 else
 	# Get the current second (0-59)
-	a=$(date "+%S")
+	a=$(date +%S)
 	
 	# Store quotes in a newline-separated format
 	quotes="Ever tried. Ever failed. No matter. Try Again. Fail again. Fail better._auther_-Samuel Beckett

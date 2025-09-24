@@ -19,7 +19,7 @@ if [ -e "$Temp_Cover_path" ];then
 fi
 
 convert_file() {
-	convert "${album_dir}/$album" -resize "60x60" "${album_dir}/$album" && cover_path="${album_dir}/$album" || cover_path="$_fallback_icon"
+	magick "${album_dir}/$album" -resize "60x60" "${album_dir}/$album" && cover_path="${album_dir}/$album" || cover_path="$_fallback_icon"
 }
 
 find_cover_image() {
@@ -51,7 +51,8 @@ get_cover_online() {
     QUERY=$(mpc current | sed 's/\.[^.]*$//' | iconv -t ascii//TRANSLIT -f utf8)
 
     # Try to get the album cover online from api.deezer.com
-    API_URL="https://api.deezer.com/search/autocomplete?q=$QUERY" && API_URL=${API_URL//' '/'%20'}
+    API_URL="https://api.deezer.com/search/autocomplete?q=$QUERY"
+    API_URL=$(printf "%s" "$API_URL" | sed 's/ /%20/g')
     # Extract the albumcover from the json returned
     
     JSON=$(getURL '2term' "$API_URL")
@@ -59,7 +60,7 @@ get_cover_online() {
     ARTIST=$(echo "$JSON" | jq -r '.tracks.data[0].artist.picture_big' | sed 's/null//');
     IMG_URL="${ALBUM:-$ARTIST}"
     
-    getURL 'download2' "$IMG_URL" "${album_dir}/$album" && convert "${album_dir}/$album" -resize "60x60" "${album_dir}/$album" || return 1
+    getURL 'download2' "$IMG_URL" "${album_dir}/$album" && magick "${album_dir}/$album" -resize "60x60" "${album_dir}/$album" || return 1
 	cover_path="${album_dir}/$album"
 }
 

@@ -74,26 +74,26 @@ mkdir -p "$TEMP_DIR"
 cd "$TEMP_DIR" || exit 1
 
 # Process images
-convert "$BACKGROUND_IMAGE_PATH" -blur 0x8 "$BLURRED_BACKGROUND"
-convert "$BACKGROUND_IMAGE_PATH" -crop "${EXTRA_WIDTH}x${EXTRA_HEIGHT}+0+${EXTRA_Y}" "$CROPPED_BACKGROUND"
+magick "$BACKGROUND_IMAGE_PATH" -blur 0x8 "$BLURRED_BACKGROUND"
+magick "$BACKGROUND_IMAGE_PATH" -crop "${EXTRA_WIDTH}x${EXTRA_HEIGHT}+0+${EXTRA_Y}" "$CROPPED_BACKGROUND"
 
-convert -size "${MENU_WIDTH}x${MENU_HEIGHT}" xc:none \
+magick -size "${MENU_WIDTH}x${MENU_HEIGHT}" xc:none \
     -fill "$BACKGROUND_COLOR" \
     -draw "roundrectangle 0,0,$((MENU_WIDTH-1)),$((MENU_HEIGHT-1)),${MENU_RADIUS_W},${MENU_RADIUS_H}" \
     "$MENU_IMAGE"
 
-convert "$CROPPED_BACKGROUND" -resize "${EXTRA_RESIZED_WIDTH}x${EXTRA_RESIZED_HEIGHT}!" "$CROPPED_RESIZED"
+magick "$CROPPED_BACKGROUND" -resize "${EXTRA_RESIZED_WIDTH}x${EXTRA_RESIZED_HEIGHT}!" "$CROPPED_RESIZED"
 
-convert -size "${EXTRA_RESIZED_WIDTH}x${EXTRA_RESIZED_HEIGHT}" xc:none -fill white \
+magick -size "${EXTRA_RESIZED_WIDTH}x${EXTRA_RESIZED_HEIGHT}" xc:none -fill white \
     -draw "roundRectangle 0,0,${EXTRA_RESIZED_WIDTH},${EXTRA_RESIZED_HEIGHT} ${EXTRA_RADIUS_W},${EXTRA_RADIUS_H}" \
     "$MASK_IMAGE"
 
-convert "$CROPPED_RESIZED" "$MASK_IMAGE" -alpha off -compose copy-opacity -composite "$CROPPED_RESIZED_ROUNDED"
+magick "$CROPPED_RESIZED" "$MASK_IMAGE" -alpha off -compose copy-opacity -composite "$CROPPED_RESIZED_ROUNDED"
 
 composite -gravity center -geometry "+$((MENU_WIDTH / 4))+0" "$CROPPED_RESIZED_ROUNDED" "$MENU_IMAGE" "$COMBINED_MENU_IMAGE"
 
 composite -gravity center "$COMBINED_MENU_IMAGE" "$BLURRED_BACKGROUND" "$FINAL_IMAGE"
 
-convert "$FINAL_IMAGE" -resize "$SCREEN_RES" "$OUTPUT_IMAGE"
+magick "$FINAL_IMAGE" -resize "$SCREEN_RES" "$OUTPUT_IMAGE"
 
 echo "Image successfully processed and saved as $OUTPUT_IMAGE"

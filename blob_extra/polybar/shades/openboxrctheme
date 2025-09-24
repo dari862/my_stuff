@@ -4,6 +4,6 @@ right=0
 left=0
 font=JetBrainsMono
 size=9
-theme=Windows-10-Dark
+theme=openbox-Windows-10-Dark
 titleLayout=NLIMC
 gtk_icon_name="Win11-Dark"

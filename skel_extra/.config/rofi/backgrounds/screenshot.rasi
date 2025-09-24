@@ -7,6 +7,7 @@ configuration {
 }
 
 @import "theme.rasi"
+@import "fonts.rasi"
 
 window {
     transparency:                "real";
@@ -47,9 +48,9 @@ inputbar {
 }
 
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
-    font:                        "JetbrainsMono NF Bold 10";
     str:                         "";
     padding:                     10px 17px 10px 12px;
     border-radius:               0px;
@@ -108,7 +109,6 @@ element {
 }
 
 element-text {
-    font:                        "JetbrainsMono NF Bold 20";
     background-color:            transparent;
     text-color:                  inherit;
     cursor:                      inherit;

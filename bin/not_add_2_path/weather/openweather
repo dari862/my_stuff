@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 api_prefix="api.openweathermap.org/data/2.5/"
 
 which_timestamp_to_traget_in_jq(){
-	CURRENT_DATE="$(date +"%Y-%m-%d")"
+	CURRENT_DATE="$(date +%Y-%m-%d)"
 	TARGET_DATE="$CURRENT_DATE"
-	CURRENT_TIME="$(date +"%H%M")"
+	CURRENT_TIME="$(date +%H%M)"
 	if [ ${CURRENT_TIME} -lt 300 ];then
 		TARGET_TIME=3:00
 	elif [ ${CURRENT_TIME} -lt 600 ];then
@@ -22,7 +22,7 @@ which_timestamp_to_traget_in_jq(){
 		TARGET_TIME=21:00
 	else
 		TARGET_TIME=00:00
-		TARGET_DATE="$(date -d "$(date '+%Y-%m-%d') +1 day" '+%Y-%m-%d')"
+		TARGET_DATE="$(date -d "$(date +%Y-%m-%d) +1 day" '+%Y-%m-%d')"
 	fi
 	date -d "$TARGET_DATE $TARGET_TIME" +%s
 }
@@ -57,7 +57,7 @@ create_detailed_weather_report(){
 	forecast=$(cat "${forecastreport}")
 	
 	# Extract the current weather information
-	CURRENT_DATETIME=$(date "+%Y-%m-%d %H:%M:%S")
+	CURRENT_DATETIME=$(date +%Y-%m-%d %H:%M:%S)
 	CURRENT_POP=$(echo $forecast | jq -r ".list[0].pop")  # chance of rain
 	
 	# Display the current weather
@@ -123,8 +123,8 @@ get_weather_report_more(){
 }
 
 old_weather_data_(){
-	[ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
-	[ ! -s "$forecastreport" ] && [ "$(stat -c %y "$forecastreport" 2>/dev/null | cut -d' ' -f1)" != "$(date '+%Y-%m-%d')" ] && return
+	[ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ] && return
+	[ ! -s "$forecastreport" ] && [ "$(stat -c %y "$forecastreport" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ] && return
 }
 
 get_weather_data_(){
@@ -143,14 +143,14 @@ parse_weather_for_conky_vision(){
 	parse_weather_file="${cache_folder}/parse_weather_file"
 	
 	get_property () {
-		local mode="$1"
-    	local day="$2"
+		mode="$1"
+    	day="$2"
     	current_date="$(date +%Y-%m-%d)"
     	picked_date="$(date -d "$next_date + $day day" +%Y-%m-%d)"
     	
-		if [[ "$mode" = "max" ]];then
+		if [ "$mode" = "max" ];then
     		res=$(echo "$forecast" | jq --arg target_day "$picked_date" '.list[] | select(.dt_txt | startswith($target_day)) | .main.temp_max' | sort -nr | head -1)
-		elif [[ "$mode" = "min" ]];then
+		elif [ "$mode" = "min" ];then
 			res=$(echo "$forecast" | jq --arg target_day "$picked_date" '.list[] | select(.dt_txt | startswith($target_day)) | .main.temp_min' | sort -n | head -1)
 		fi
 
@@ -158,10 +158,10 @@ parse_weather_for_conky_vision(){
 	}
 	current_weather="$(echo "$WEATHER_INFO" | jq .main.temp | awk '{print int($1+0.5)}')"
 	echo "${current_weather}°" > ${parse_weather_file}
-	for day in {1..4}; do
+	for day in 1 2 3 4; do
     	echo "$(get_property 'max' "$day")°" >> ${parse_weather_file}
 	done
-	for day in {1..4}; do
+	for day in 1 2 3 4; do
     	echo "$(get_property 'min' "$day")°" >> ${parse_weather_file}
 	done
 	

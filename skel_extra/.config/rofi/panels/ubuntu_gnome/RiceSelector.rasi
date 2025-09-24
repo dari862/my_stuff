@@ -12,7 +12,7 @@ configuration {
 	//me-accept-entry:			 "MousePrimary";
 }
 
-@import "theme.rasi"
+@import "colors.rasi"
 
 * {
 	main-bg: @bg;
@@ -48,9 +48,9 @@ inputbar {
     padding:                     0px;
     border:                      0px;
     border-radius:               0px;
-    border-color:                @selected;
+    border-color:                @main-fg;
     background-color:            transparent;
-    text-color:                  @foreground;
+    text-color:                  @select-bg;
     children:                    [ "textbox-prompt-colon", "entry"];
 }
 
@@ -60,15 +60,15 @@ textbox-prompt-colon {
     str:                         "";
     padding:                     10px 13px;
     border-radius:               0px;
-    background-color:            @urgent;
-    text-color:                  @background;
+    background-color:            @select-fg;
+    text-color:                  @select-bg;
 }
 
 entry {
     enabled:                     true;
     padding:                     8px 12px;
     border-radius:               8px;
-    background-color:            @background-alt;
+    background-color:            @select-fg;
     text-color:                  inherit;
     cursor:                      text;
     placeholder:                 "...";

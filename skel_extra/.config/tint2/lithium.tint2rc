@@ -156,7 +156,7 @@ taskbar_always_show_all_desktop_tasks = 0
 taskbar_name_padding = 0 0
 taskbar_name_background_id = 0
 taskbar_name_active_background_id = 0
-taskbar_name_font = Sans 9
+taskbar_name_font = Noto Sans 9
 taskbar_name_font_color = #828282 100
 taskbar_name_active_font_color = #828282 100
 taskbar_distribute_size = 0
@@ -171,7 +171,7 @@ task_centered = 1
 urgent_nb_of_blink = 20
 task_maximum_size = 30 30
 task_padding = 2 2
-task_font = Sans 9
+task_font = Noto Sans 9
 task_tooltip = 1
 task_thumbnail = 0
 task_thumbnail_size = 210
@@ -229,8 +229,8 @@ time1_format = %H:%M
 #time1_format = %l:%M%P
 time2_format =
 #font example
-#time1_font = Futura Bk BT bold 10
-time1_font = Sans bold 12
+#time1_font = Liberation Sans Bold 10
+time1_font = Noto Sans bold 12
 time1_timezone =
 time2_timezone =
 clock_font_color = #DFDFDF 100
@@ -276,7 +276,7 @@ tooltip_hide_timeout = 0
 tooltip_padding = 8 8
 tooltip_background_id = 7
 tooltip_font_color = #d3dae3 100
-tooltip_font = Sans normal 10
+tooltip_font = Noto Sans Regular 10
 
 #-------------------------------------
 # Buttons - Panel item = P
@@ -331,7 +331,7 @@ execp_rclick_command = volume_cli_control --toggle-mic
 execp_mclick_command = volume_controller
 execp_uwheel_command = volume_cli_control --inc
 execp_dwheel_command = volume_cli_control --dec
-execp_font = Sans normal 10
+execp_font = Noto Sans Regular 10
 
 execp_font_color = #DFDFDF 100
 execp_padding = 10 0
@@ -356,7 +356,7 @@ execp_rclick_command =
 execp_mclick_command = 
 execp_uwheel_command = disto_brightness_controller --inc
 execp_dwheel_command = disto_brightness_controller --dec
-execp_font = Sans normal 10
+execp_font = Noto Sans Regular 10
 
 execp_font_color = #DFDFDF 100
 execp_padding = 10 0
@@ -381,7 +381,7 @@ execp_rclick_command = bluetooth_manager
 execp_mclick_command = 
 execp_uwheel_command = 
 execp_dwheel_command = 
-execp_font = Sans normal 10
+execp_font = Noto Sans Regular 10
 
 execp_font_color = #DFDFDF 100
 execp_padding = 10 0
@@ -406,7 +406,7 @@ execp_rclick_command = nm-connection-editor
 execp_mclick_command = 
 execp_uwheel_command = 
 execp_dwheel_command = 
-execp_font = Sans normal 10
+execp_font = Noto Sans Regular 10
 
 execp_font_color = #DFDFDF 100
 execp_padding = 10 0
@@ -431,7 +431,7 @@ execp_rclick_command = power_manager_settings
 execp_mclick_command = 
 execp_uwheel_command = 
 execp_dwheel_command = 
-execp_font = Sans normal 10
+execp_font = Noto Sans Regular 10
 
 execp_font_color = #DFDFDF 100
 execp_padding = 10 0

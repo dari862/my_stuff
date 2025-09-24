@@ -201,6 +201,10 @@ if [ -d "$__distro_path_updater" ];then
 	print_GREEN "==> updating packages(s) completed. "
 fi
 
+if command -v yt-dlp >/dev/null 2>&1;then
+	$__SUPER_USER yt-dlp -U
+fi
+
 Updating_Distro
 
 if [ -d "${__distro_path_root}/opt/git" ];then

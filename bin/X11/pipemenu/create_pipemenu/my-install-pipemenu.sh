@@ -9,6 +9,8 @@ installation_script_name="popup_terminal"
 
 X11_apps_2_remove="$(grep -rI "# X11 only package remove it from my-installer" "$_APPS_LIBDIR" | awk -F: '{print $1}' | xargs -n1 basename | tr '\n' '|' | sed 's/|$//')"
 wayland_apps_2_remove="$(grep -rI "# wayland only package remove it from my-installer" "$_APPS_LIBDIR" | awk -F: '{print $1}' | xargs -n1 basename | tr '\n' '|' | sed 's/|$//')"
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 {
 	# This function is specific to this script.
@@ -36,4 +38,4 @@ wayland_apps_2_remove="$(grep -rI "# wayland only package remove it from my-inst
 		[ -n "$apps_in_dir" ] && generate_installmenu "$dir" "$apps_dir_name" "${apps_in_dir}"
 	done
     menuEnd
-} | my-superuser tee "${my_installer_pipemenu_X11_file}" >/dev/null 2>&1
+} | $_SUPERUSER tee "${my_installer_pipemenu_X11_file}" >/dev/null 2>&1

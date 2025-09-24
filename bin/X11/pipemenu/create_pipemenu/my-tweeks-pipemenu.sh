@@ -9,6 +9,8 @@ run_tweeks_script_="popup_terminal"
 . "${__distro_path_root}/Distro_Specific/info"
 
 TWEEKS="$(cat "${tweeks_db_path}")"
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 {
 	menuStart "Run${distro_name_}Tweeks" "Run ${distro_name_} Tweeks"
@@ -16,4 +18,4 @@ TWEEKS="$(cat "${tweeks_db_path}")"
     	menuItem "run ${tweek}" "${run_tweeks_script_} --tweek ${tweek}"
     done
     menuEnd
-} | my-superuser tee "${my_tweeks_pipemenu_file}" >/dev/null 2>&1
+} | $_SUPERUSER tee "${my_tweeks_pipemenu_file}" >/dev/null 2>&1

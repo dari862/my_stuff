@@ -4,6 +4,7 @@ configuration {
 }
 
 @import "theme.rasi"
+@import "fonts.rasi"
 
 /*
 USE_ICON=YES
@@ -55,6 +56,7 @@ dummy{
     background-color:            transparent;
 }
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str: 						 "";
@@ -115,7 +117,6 @@ element {
     cursor:                      pointer;
 }
 element-text {
-    font:                        "feather 28";
     background-color:            transparent;
     text-color:                  inherit;
     cursor:                      inherit;

@@ -3,7 +3,7 @@
 # if this line exist script will be part of hub script.
 
 # wrapper for mpv to enable use as alternative for my-media-player
-
+unalias -a
 . "$__distro_path_lib"
 MPV_PROFILE=my-pseudo-gui
 

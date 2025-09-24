@@ -3,9 +3,31 @@ tweek_as_dependency "Enable_multilib" || continue
 LIBVA_DIR="$HOME/.local/share/linutil/libva"
 MPV_CONF="$HOME/.config/mpv/mpv.conf"
 
+if [ "$Distro_installer_mode" = false ];then
+	app_name="GPU Drivers"
+	_SUPERUSER="my-superuser"
+	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
+fi
+
+add_nvidia=false
+add_amd=false
+add_intel=false
+
+if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
+	add_nvidia=true
+fi
+
+if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
+	add_amd=true
+fi
+
+if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
+	add_intel=true
+fi
+
 create_X11_intel_conf(){
-	my-superuser mkdir -p /etc/X11/xorg.conf.d/
-	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
+	${_SUPERUSER} mkdir -p /etc/X11/xorg.conf.d/
+	${_SUPERUSER} tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
 	Section "Device"
 	Identifier  "Intel Graphics"
 	Driver      "Intel"
@@ -19,12 +41,12 @@ create_X11_intel_conf(){
 }
 
 install_intel_drivers(){
-	Package_installer_ xf86-video-intel intel-gpu-tools intel-media-driver || continue
+	Packages_2_install="$Packages_2_install xf86-video-intel intel-gpu-tools intel-media-driver" || continue
 	#create_X11_intel_conf
 }
 
 install_amd_drivers(){
-	Package_installer_ mesa xf86-video-ati xf86-video-amdgpu vulkan-radeon vkbasalt || continue
+	Packages_2_install="$Packages_2_install mesa xf86-video-ati xf86-video-amdgpu vulkan-radeon vkbasalt" || continue
 }
 
 checkNvidiaHardware() {
@@ -46,7 +68,7 @@ setKernelParam() {
     if grep -q "$PARAMETER" /etc/default/grub; then
         say "NVIDIA modesetting is already enabled in GRUB."
     else
-        my-superuser sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/\"$/ $PARAMETER\"/" /etc/default/grub
+        ${_SUPERUSER} sed -i "/^GRUB_CMDLINE_LINUX_DEFAULT=/ s/\"$/ $PARAMETER\"/" /etc/default/grub
         say "Added $PARAMETER to /etc/default/grub."
         grub_updater_function
     fi
@@ -54,11 +76,14 @@ setKernelParam() {
 
 install_nvidia_drivers(){
 	installation_list=""
-	enable_HardwareAcceleration=false
-	open_driver_nvidia=false
-	(checkNvidiaHardware && prompt 'do you want to install nvidia open source driver?' && open_driver_nvidia=true) || :
-	prompt 'do you want to add Cuda Support?' && _cuda_="cuda"
-	prompt 'do you want to setup Hardware Acceleration?' && enable_HardwareAcceleration=true
+	if [ "$Distro_installer_mode" = false ];then
+		install_cuda_=false
+		install_kernel_open_dkms_=false
+		prompt 'do you want to add Cuda Support?' && install_cuda_=true
+		(checkNvidiaHardware && prompt 'do you want to install opensource nvidia-kernel?' && install_kernel_open_dkms_=true) || :
+	fi
+	[ "$install_cuda_" = true ] && _cuda_="cuda" || _cuda_=""
+	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-dkms" || _kernel_open_dkms_=""
 	
 	installation_list="$installation_list base-devel dkms ninja meson git"
     installed_kernels=$("$PACKAGER" -Q | grep -E '^linux(| |-rt|-rt-lts|-hardened|-zen|-lts)[^-headers]' | cut -d ' ' -f 1)
@@ -69,7 +94,7 @@ install_nvidia_drivers(){
     done
     
 	# Refer https://wiki.archlinux.org/title/NVIDIA for open-dkms or dkms driver selection
-    if [ "$open_driver_nvidia" = true ]; then
+    if [ "$install_kernel_open_dkms_" = true ]; then
         say "adding nvidia open source driver to installation list..."
         installation_list="$installation_list nvidia-open-dkms"
     else
@@ -79,43 +104,58 @@ install_nvidia_drivers(){
     installation_list="$installation_list nvidia-utils $_cuda_"
     
     say "Installing nvidia driver..."
-    Package_installer_ "$installation_list"
+    Packages_2_install="$Packages_2_install $installation_list"
     
     if checkIntelHardware; then
         setKernelParam "ibt=off"
     fi
     # Refer https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video_memory_after_suspend
     setKernelParam "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
-    my-superuser systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+    ${_SUPERUSER} systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
     say "Driver installed successfully."
-    if [ "$enable_HardwareAcceleration" = true ]; then
-        tweek_as_dependency "HardwareAcceleration" || continue
-    fi
-    say "enable drm."
-	printf "options nvidia-drm modeset=1" | my-superuser tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
-	my-superuser mkinitcpio -p linux
-    say
+    tweek_as_dependency "HardwareAcceleration" || continue
+}
+
+update_initramfs_now(){
+	say "enable drm."
+	printf "options nvidia-drm modeset=1" | ${_SUPERUSER} tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	${_SUPERUSER} mkinitcpio -p linux
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
-	say
 	say "NVIDIA Drivers installed you need to reboot your pc."
 }
 
-if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
-	install_nvidia_drivers
-fi
-	
-if [ "$(lspci | grep -i amd | grep VGA -c)" != "0" ];then
-	install_amd_drivers
-fi
-	
-if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
-	install_intel_drivers
-fi
-
-if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
+if [ "$machine_type_are" = "vm" ];then
 	say "This is VM"
 fi
 
+if [ "$add_nvidia" = true ];then
+	install_nvidia_drivers
+fi
+	
+if [ "$add_amd" = true ];then
+	install_amd_drivers
+fi
+	
+if [ "$add_intel" = true ];then
+	install_intel_drivers
+fi
+
+if [ -n "$Packages_2_install" ];then
+	Package_installer_ "$Packages_2_install"
+fi
+
+if [ "$add_nvidia" = true ];then
+	update_initramfs_now
+	if ! ls /dev/nvidia* >/dev/null 2>&1;then
+		${_SUPERUSER} nvidia-smi >/dev/null 2>&1
+	fi
+fi
+
+if [ "$add_intel" = true ];then
+	#create_X11_intel_conf
+	:
+fi
+
 say "Creating Check File (GPU_Drivers_ready)"
-my-superuser touch ${__distro_path_root}/system_files/GPU_Drivers_ready
-my-superuser  ${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+create_system_ready_file GPU_Drivers_ready
+update_pipemenu gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"

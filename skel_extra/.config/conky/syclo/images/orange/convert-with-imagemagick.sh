@@ -1,1 +1,1 @@
-for filename in *.png; do file=`echo "$filename"`;convert $filename -fuzz 100% -fill '#FFA726' -opaque white $file;done
+for filename in *.png; do file=`echo "$filename"`;magick $filename -fuzz 100% -fill '#FFA726' -opaque white $file;done

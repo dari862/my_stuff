@@ -24,6 +24,7 @@
 #   Multiple conkys can be chosen
 #
 ########################################################################
+unalias -a
 
 . "$__distro_path_lib"
 CONKYPATH="$HOME/.config/conky"

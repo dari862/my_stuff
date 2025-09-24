@@ -8,7 +8,7 @@ command -v pfetch &>/dev/null && pfetch
 # ------------------------------- variables -----------------------------------
 bashplugins=(
 keychain
-thefuck
+theoops
 kitty_auto_complete
 fzf
 mise
@@ -61,8 +61,8 @@ export HISTSIZE=500
 export HISTIGNORE="ls:cd:pwd:exit:sudo reboot:history:cd -:cd ..:doas reboot:my-superuser reboot"
 export HISTFILE=$BASHDOTDIR/bash_history
 
-# Don't put duplicate lines in the history and do not add lines that start with a space
-export HISTCONTROL=erasedups:ignoredups:ignorespace
+# Don't put duplicate lines in the history
+export HISTCONTROL=erasedups:ignoredups
 
 # Better history management
 shopt -s histappend              # Append to history, don't overwrite

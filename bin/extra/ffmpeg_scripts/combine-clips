@@ -97,7 +97,7 @@ png_mime='image/png'
 jpg_mime='image/jpeg'
 
 # defaults for variables
-outfile_default="${infile_name}-combined-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
+outfile_default="${infile_name}-combined-$(date +%Y-%m-%d-%H-%M-%S).mp4"
 
 # check if the libfdk_aac codec is installed, if not fall back to the aac codec
 aac_codec="$(ffmpeg -hide_banner -stats -v panic -h encoder=libfdk_aac)"

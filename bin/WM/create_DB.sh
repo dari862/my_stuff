@@ -110,7 +110,7 @@ create_distrobox_deploy_db() {
 	say "create DB for distrobox."
 	list_of_deploys=$(find "${_DISTROBOX_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 
-	if [ -f "${__distro_path_root}/system_files/Distrobox_ready" ];then
+	if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
 		for deploy in $list_of_deploys; do
 			if ! distrobox list | grep -q " ${deploy} ";then
 				echo "$deploy" >> "${distrobox_deploy_db_path}"
@@ -211,22 +211,22 @@ create_pipemenu(){
 	pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
 	
 	say "Running script for creating preferences pipemenu."
-	"${pipemenu_creater}"/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+	. "${pipemenu_creater}"/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
 	
 	say "Running script for creating full_environment pipemenu."
-	"${pipemenu_creater}"/full_environment-pipemenu.sh || failed_to_run "failed to run create_pipemenu/full_environment-pipemenu.sh"
+	. "${pipemenu_creater}"/full_environment-pipemenu.sh || failed_to_run "failed to run create_pipemenu/full_environment-pipemenu.sh"
 	
 	say "Running script for creating preferences pipemenu."
-	"${pipemenu_creater}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
+	. "${pipemenu_creater}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
 	
 	say "Running script for creating install pipemenu."
-	"${pipemenu_creater}"/my-install-pipemenu.sh|| failed_to_run "failed to run create_pipemenu/my-install-pipemenu.sh"
+	. "${pipemenu_creater}"/my-install-pipemenu.sh|| failed_to_run "failed to run create_pipemenu/my-install-pipemenu.sh"
 	
 	say "Running script for creating gaming pipemenu."
-	"${pipemenu_creater}"/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+	. "${pipemenu_creater}"/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
 	
 	say "Running script for creating containers and others pipemenu."
-	"${pipemenu_creater}"/containers-deployer-pipemenu.sh || failed_to_run "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
+	. "${pipemenu_creater}"/containers-deployer-pipemenu.sh || failed_to_run "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
 }
 
 # Case statement to trigger the appropriate function

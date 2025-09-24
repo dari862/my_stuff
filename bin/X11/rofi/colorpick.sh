@@ -29,7 +29,7 @@ else
 	if [ -n "$color" ];then
     	random_file=$(mktemp --suffix ".png")
     	# generate preview
-    	convert -size 100x100 xc:"$color" "$random_file"
+    	magick -size 100x100 xc:"$color" "$random_file"
     	# notify about it
 		dunstify -u low --replace=69 -i "$random_file" -a ColorPicker -u normal "$color"
 		echo "$color" | cp2cb

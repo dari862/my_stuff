@@ -43,8 +43,7 @@ scripts_hub()
 	# Dependencies: rofi, executable dmscripts, all the dependancies from dmscripts
 	list_scripts="$(list_scripts_hub)"
 	MENU="$(printf "$list_scripts" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p '')"
-	if [ -n "$MENU" ]
-	then
+	if [ -n "$MENU" ];then
 		script_name_="$MENU"
 		full_script_path="${_hub_script_dir}/${script_name_}"
         execuite_scripts_ 
@@ -53,18 +52,8 @@ scripts_hub()
 
 execuite_scripts_()
 {
-	if [ -f "${full_script_path}" ];then
-		run_this_in_popup_="'mytv' 'usb-formatter'"
-		if echo "${run_this_in_popup_}" | grep -q "${script_name_}";then
-			popup_terminal "${full_script_path};read -p 'Press enter to continue'"
-		else
-			if grep -E "popup|yad|rofi" "${full_script_path}";then
-				"${full_script_path}"
-			else
-				echo "this script (${full_script_path}) does not exist"
-				help
-			fi
-		fi
+	if [ -f "${full_script_path}" ] && grep -E "popup|yad|rofi" "${full_script_path}";then
+		"${full_script_path}"
 	else
 		echo "this script (${full_script_path}) does not exist"
 		help

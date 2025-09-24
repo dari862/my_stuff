@@ -1,4 +1,5 @@
 #!/bin/bash
+unalias -a
 set -e
 run_reinstall=false
 save_2_config_file=true

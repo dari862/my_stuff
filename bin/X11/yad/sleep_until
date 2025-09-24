@@ -28,7 +28,7 @@ fi
 foo="$frmday $frmtime"
 
 timestamp=$(date +%s -d "$foo")
-current_timestamp=$(printf "%(%s)T")
+current_timestamp=$(date +%s)
 if [ "$timestamp" -le "$current_timestamp" ];then
     yad --error --title="Invalid Time" --text="Error: The selected time is in the past. Please choose a future time."
     exit 1

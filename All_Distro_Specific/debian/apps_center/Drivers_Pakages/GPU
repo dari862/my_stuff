@@ -1,19 +1,20 @@
 #!/bin/sh
 
-tweek_as_dependency "Adding_contrib" || continue
-tweek_as_dependency "Adding_nonfree_repo" || continue
-tweek_as_dependency "Adding_nonfree_firmware_repo" || continue
+if [ "$Distro_installer_mode" = false ];then
+	app_name="GPU Drivers"
+	_SUPERUSER="my-superuser"
+	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
+fi
 
-app_name="GPU Drivers"
+tweek_as_dependency "Adding_contrib" "skip_update" || failed_but_continue "Adding_contrib tweek"
+tweek_as_dependency "Adding_nonfree_repo" "skip_update" || failed_but_continue "Adding_nonfree_repo tweek"
+tweek_as_dependency "Adding_nonfree_firmware_repo" "skip_update" || failed_but_continue "Adding_nonfree_firmware_repo tweek"
 
-Packages_2_install=""
+Package_update_
+
 add_nvidia=false
 add_amd=false
 add_intel=false
-
-if [ "$(lspci | grep "VGA compatible controller" | grep VMware -c)" != "0" ];then
-	say "This is VM"
-fi
 
 if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
 	add_nvidia=true
@@ -28,8 +29,8 @@ if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
 fi
 
 create_X11_intel_conf(){
-	my-superuser mkdir -p /etc/X11/xorg.conf.d/
-	my-superuser tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
+	${_SUPERUSER} mkdir -p /etc/X11/xorg.conf.d/
+	${_SUPERUSER} tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
 	Section "Device"
 	Identifier  "Intel Graphics"
 	Driver      "Intel"
@@ -43,30 +44,39 @@ create_X11_intel_conf(){
 }
 
 install_intel_drivers(){
-	Packages_2_install="xserver-xorg-video-intel intel-gpu-tools intel-media-va-driver" || continue
+	Packages_2_install="$Packages_2_install xserver-xorg-video-intel intel-gpu-tools intel-media-va-driver" || continue
 }
 
 install_amd_drivers(){
-	Packages_2_install="libgl1-mesa-dri xserver-xorg-video-ati xserver-xorg-video-amdgpu mesa-vulkan-drivers vkbasalt" || continue
+	Packages_2_install="$Packages_2_install libgl1-mesa-dri xserver-xorg-video-ati xserver-xorg-video-amdgpu mesa-vulkan-drivers vkbasalt" || continue
 }
 
 install_nvidia_drivers(){
-	_cuda_=""
-	_kernel_open_dkms_=""
-	prompt '  do you want to add Cuda Support?' && _cuda_="cuda"
-	prompt 'do you want to install opensource nvidia-kernel?' && _kernel_open_dkms_="nvidia-kernel-open-dkms"
-
-	Packages_2_install="nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
+	if [ "$Distro_installer_mode" = false ];then
+		install_cuda_=false
+		install_kernel_open_dkms_=false
+		prompt '  do you want to add Cuda Support?' && install_cuda_=true
+		prompt 'do you want to install opensource nvidia-kernel?' && install_kernel_open_dkms_=true
+	fi
 	
+	[ "$install_cuda_" = true ] && _cuda_="cuda" || _cuda_=""
+	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-kernel-open-dkms" || _kernel_open_dkms_="nvidia-dkms"
+	
+	Packages_2_install="$Packages_2_install nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
+}
+
+update_initramfs_now(){
 	say "Enable drm."
-	printf "options nvidia-drm modeset=1" | my-superuser tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
-	my-superuser update-initramfs -u
-		
-	say
+	printf "options nvidia-drm modeset=1" | ${_SUPERUSER} tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	${_SUPERUSER} update-initramfs -u
+	
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
-	say
 	say "NVIDIA Drivers installed you need to reboot your pc."
 }
+
+if [ "$machine_type_are" = "vm" ];then
+	say "This is VM"
+fi
 
 if [ "$add_nvidia" = true ];then
 	install_nvidia_drivers
@@ -80,11 +90,14 @@ if [ "$add_intel" = true ];then
 	install_intel_drivers
 fi
 
-Package_installer_ "$Packages_2_install"
+if [ -n "$Packages_2_install" ];then
+	Package_installer_ "$Packages_2_install"
+fi
 
 if [ "$add_nvidia" = true ];then
+	update_initramfs_now
 	if ! ls /dev/nvidia* >/dev/null 2>&1;then
-		my-superuser nvidia-smi >/dev/null 2>&1
+		${_SUPERUSER} nvidia-smi >/dev/null 2>&1
 	fi
 fi
 
@@ -94,8 +107,8 @@ if [ "$add_intel" = true ];then
 fi
 
 say "Creating Check File (GPU_Drivers_ready)"
-my-superuser touch ${__distro_path_root}/system_files/GPU_Drivers_ready
-my-superuser  ${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+create_system_ready_file GPU_Drivers_ready
+update_pipemenu gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
 
 say "enable Hardware Acceleration."
 tweek_as_dependency "HardwareAcceleration" || continue

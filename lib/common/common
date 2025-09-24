@@ -143,6 +143,12 @@ failed_to_run() {
     exit 1
 }
 
+failed_but_continue() {
+    __message_="${1:-}"
+    say "$__message_" 'red' 'pause'
+    continue
+}
+
 create_applicationsdotdesktop_link(){
 	__application_name="${1:-}"
 	__application_command="${2:-}"

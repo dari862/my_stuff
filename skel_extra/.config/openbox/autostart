@@ -32,7 +32,7 @@ fi
 [ -f ~/.Xmodmap ] && xmodmap ~/.Xmodmap &							
 
 # Touchpad settings
-if [ -f "(((distro_path_root)))/system_files/this_is_laptop" ];then
+if [ -f "(((__distro_path_system_ready)))/this_is_laptop" ];then
 	# Configure touchpad
 	synclient VertEdgeScroll=1 HorizEdgeScroll=1 TapButton1=1 2>/dev/null	
 	# Disable touchpad while typing

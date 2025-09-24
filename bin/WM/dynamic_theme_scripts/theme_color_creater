@@ -1,4 +1,5 @@
 #!/bin/bash
+unalias -a
 style="${1:-}"
 temp_theme_file_dir="${2:-/tmp/$USER/theme_color_creater_output}"
 theme_file_2_source="${temp_theme_file_dir}/temp_${style}_colors.sh"

@@ -1,4 +1,5 @@
 #!/bin/bash
+unalias -a
 . "$__distro_path_lib"
 create_config_file(){
 	location="$(cat /etc/timezone | awk -F/ '{print $2}')"
@@ -191,10 +192,10 @@ prayers_ar=(
   ["Isha"]="العشاء"
 )
 date=(
-  [day_idx]=$(($(printf "%(%-d)T") - 1))
-  [weekday]=$(printf "%(%a)T")
-  [month]=$(printf "%(%-m)T")
-  [year]=$(printf "%(%Y)T")
+  [day_idx]=$(($(date +%-d) - 1))
+  [weekday]=$(date +%a)
+  [month]=$(date +%-m)
+  [year]=$(date +%Y)
 )
 
 nameof() {
@@ -278,7 +279,7 @@ settimes() {
   [[ "${#epochtimes[@]}" -gt 0 ]] && return 0
 
   epochtimes=(
-    [now]=$(printf "%(%s)T")
+    [now]=$(date +%s)
     [fajr]=$(timeof Fajr %s)
     [dhuhr]=$(timeof Dhuhr %s)
     [asr]=$(timeof Asr %s)

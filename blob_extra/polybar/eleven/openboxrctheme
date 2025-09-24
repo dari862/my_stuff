@@ -4,6 +4,6 @@ right=0
 left=0
 font=JetBrainsMono
 size=9
-theme=Windows-10
+theme=openbox-Windows-10
 titleLayout=NLIMC
 gtk_icon_name="Win11"

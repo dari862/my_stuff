@@ -93,7 +93,7 @@ case "${filetype}" in
 esac
 
 # defaults for variables if not defined
-outfile_default="${infile_name}-title-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
+outfile_default="${infile_name}-title-$(date +%Y-%m-%d-%H-%M-%S).mp4"
 duration_default="0.5"
 
 # print analyzing file

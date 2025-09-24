@@ -1,9 +1,8 @@
 // User's rofi theme configuration.
 @import "theme.rasi"
+@import "fonts.rasi"
 
 * {
-  text-font:                        @font;
-  icon-font:                        "Material 14";
   text-color:                       @foreground;
   vertical-align:                   @center-align;
   center-align:                     0.5;

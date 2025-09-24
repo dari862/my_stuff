@@ -22,7 +22,7 @@
 #     fzf - https://github.com/junegunn/fzf
 #     bat - https://github.com/sharkdp/bat
 #==============================================================#
-
+unalias -a
 # USER CUSTOMIZABLE VARIABLES
 CARD_POOL_SIZE=10        ######## How large the pool size is for shuf to draw from
 SEARCH_DEPTH=999         ######### How many levels to recursively search for .csv's in .local/share/flash
@@ -245,7 +245,7 @@ $([ ${#QUESTION} -lt 59 ] && printf "%$(((59 - ${#QUESTION}) / 2))s")$QUESTION"
 add_usage_entry() {
     if [ ! "$COUNTER" = 0 ];then
         # Create a New Entry
-        TIME_STAMP=$(date +"%Y%m%d %H:%M:%S")
+        TIME_STAMP=$(date +%Y%m%d %H:%M:%S)
         printf -v ENTRY "TimeStamp: %s Deck: %s cardsReviewed: %s" "$TIME_STAMP" "$CURRENT_DECK" "$COUNTER"
         echo "$ENTRY" >>"$REVIEW_LOG"
     fi

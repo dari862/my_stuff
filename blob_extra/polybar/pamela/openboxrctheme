@@ -4,6 +4,6 @@ right=10
 left=10
 font=JetBrainsMono
 size=9
-theme=LoveLace-zk
+theme=openbox-LoveLace-zk
 titleLayout=MLC
 gtk_icon_name="Luv-Folders"

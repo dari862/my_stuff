@@ -1,27 +1,22 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
-ShortName="BAT\nLBC\nTRX\nADA"
-
-if [ ! -d ~/.cache/crypto ];then
-	mkdir ~/.cache/crypto
-fi
-
-date > ~/.cache/crypto/price
-
-echo "$ShortName" | while read coin
-do
-	price="$(getURL '2term' rate.sx/1$coin 2> /dev/null)"
-	if [ "$coin" = "BAT" ];then
-		icon=🦁
-	elif [ "$coin" = "LBC" ];then
-		icon=📖
-	elif [ "$coin" = "TRX" ];then
-		icon=🔺
-	elif [ "$coin" = "ADA" ];then
-		icon="⚛️ "
-	fi
-
-	echo "$icon $coin: $price" >> ~/.cache/crypto/price
-
-done
-notify-send "Crypto Prices" "$(cat ~/.cache/crypto/price)"
+get_cryptoprice(){
+	ShortName="BAT\nLBC\nTRX\nADA"
+	printf '%b\n' "$ShortName" | while read coin
+	do
+		price="$(getURL '2term' rate.sx/1$coin 2> /dev/null)"
+		if [ "$coin" = "BAT" ];then
+			icon=🦁
+		elif [ "$coin" = "LBC" ];then
+			icon=📖
+		elif [ "$coin" = "TRX" ];then
+			icon=🔺
+		elif [ "$coin" = "ADA" ];then
+			icon="⚛️ "
+		fi
+	
+		echo "$icon $coin: $price"
+	
+	done
+}
+notify-send "Crypto Prices" "$(get_cryptoprice)"

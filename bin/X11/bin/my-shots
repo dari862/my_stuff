@@ -185,7 +185,7 @@ fi
 
 # Resize image for thumbnail if requested
 if [ -n "$__size" ];then
-	convert "$IMAGE_FILE" -resize "$__size%" "$IMAGE_THUMB"
+	magick "$IMAGE_FILE" -resize "$__size%" "$IMAGE_THUMB"
 fi
 
 exit 0

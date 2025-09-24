@@ -4,6 +4,6 @@ right=0
 left=0
 font=JetBrainsMono
 size=9
-theme=Arc-Dark
+theme=openbox-Arc-Dark
 titleLayout=DLIMC
 gtk_icon_name="Zafiro"

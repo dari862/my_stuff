@@ -1,12 +1,14 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 if [ -e /etc/yum.repos.d/rpmfusion-free.repo ] || [ -e /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then # enabled
 	tweek_enabled=true 
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
-	say 'Adding multimedia-codecs support.'
+	say "Adding_multimedia-codecs_support"
 	${_SUPERUSER} "$PACKAGER" swap ffmpeg-free ffmpeg --allowerasing -y
 fi

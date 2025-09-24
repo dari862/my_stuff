@@ -84,7 +84,7 @@ infile_nopath="${infile##*/}"
 infile_name="${infile_nopath%.*}"
 
 # defaults for variables
-outfile_default="${infile_name}-corrected-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
+outfile_default="${infile_name}-corrected-$(date +%Y-%m-%d-%H-%M-%S).mp4"
 # check if the libfdk_aac codec is installed, if not fall back to the aac codec
 aac_codec="$(ffmpeg -hide_banner -stats -v panic -h encoder=libfdk_aac)"
 aac_error="Codec 'libfdk_aac' is not recognized by FFmpeg."

@@ -1,7 +1,6 @@
 // Rofi colors for Varinka
 
 * {
-    font: "Terminess Nerd Font Mono Bold 10";
     background: #212529;
     bg-alt: #343a40;
     background-alt: #212529E0;

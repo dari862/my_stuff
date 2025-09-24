@@ -16,6 +16,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+unalias -a
 
 . "$__distro_path_lib"
 HELP="    beepmein-pipemenu a beepmein pipe menu for jgmenu
@@ -58,7 +59,7 @@ title="beepmein Alarm Clock (Time is now: $(date +%R))"
 future="$(date -d "+5 minutes" +%R)"
 
 # for timeToEvent()
-now="$(printf "%(%s)T")"
+now="$(date +%s)"
 
 # timeToEvent
 timeToEvent() {

@@ -7,7 +7,6 @@
 
 * {
     theme: "openbox-menu";
-    font:						 "Sans Regular 14";
     background:     #FFFFFFFF;
     background-alt: #FFFFFFFF;
     foreground:     #273238FF;

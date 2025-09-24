@@ -1,6 +1,6 @@
 background yes
 use_xft yes
-font 'VCR OSD Mono:Regular:size=14'
+font 'Monospace:Regular:size=14'
 xftalpha 0.2
 update_interval 30
 total_run_times 0

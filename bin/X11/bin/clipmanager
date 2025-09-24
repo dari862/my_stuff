@@ -57,7 +57,7 @@ process_clipboard() {
            	_log "xclip out exited"
 
            	if [ "${_match}" = "${_utf8}" ];then
-           		newfilename="$(date +'%m%d-%H%M%S%6N')"
+           		newfilename="$(date +%m%d-%H%M%S%s)"
            		_history="${history_path}/${newfilename}"
                	cp "${_out}" "${_history}"
                	_log "Appended content to history: $_history"

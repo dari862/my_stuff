@@ -1,11 +1,14 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then # enabled
 	tweek_enabled=true 
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "Enable_virtualization"
 	${_SUPERUSER} zypper install -y @virtualization 
 fi

@@ -120,4 +120,4 @@ if command -v bspwm >/dev/null 2>&1;then
 	cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "${STYLEPATH}/config/bspwm/theme.conf"
 fi
 
-style_changer "$style" --no-wall
+style_changer "$_panel_name_" "$style" --no-wall

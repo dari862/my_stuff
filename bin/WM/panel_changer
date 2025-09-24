@@ -1,19 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
 . "${__distro_path_root}/lib/common/DB"
 . "${Distro_config_file}"
 
-panel_name="${1-}"
+_panel_name_="${1-}"
 
-if [ "$panel_name" = 'tint2' ];then
-	sed -i "s/_panel_name_=.*/_panel_name_=tint2/g" "${Distro_config_file}"
-elif [ "$panel_name" = 'polybar' ];then
-	sed -i "s/_panel_name_=.*/_panel_name_=polybar/g" "${Distro_config_file}"
-fi
+style_changer "$_panel_name_" "default"
 
-style_changer "default"
 if grep -q " never remove this line menu style are :jgmenu " "${BACKUP_OB_RC_FILE}";then
 	change-ob-menu menu-icons.xml
 fi

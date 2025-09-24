@@ -4,6 +4,6 @@ right=10
 left=55
 font=Cantarell
 size=10
-theme=openboxFleonBackslash
+theme=openbox-FleonBackslash
 titleLayout=CIML
 gtk_icon_name="Papirus-Dark-Custom"

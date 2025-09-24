@@ -22,3 +22,8 @@ if command -v ufw >/dev/null 2>&1; then
 	my-superuser ufw allow OpenSSH
 	my-superuser ufw enable
 fi
+
+copy_from_extra_skel ".bash_profile"
+if command -v zsh >/dev/null 2>&1; then
+	copy_from_extra_skel ".zshenv"
+fi

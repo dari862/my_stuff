@@ -1,12 +1,15 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 if grep -qE " backports" /etc/apt/sources.list;then # enabled
 	tweek_enabled=true 
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "Adding backports repo"
 	Package_installer_ software-properties-common
 	enable_repo backports
 		

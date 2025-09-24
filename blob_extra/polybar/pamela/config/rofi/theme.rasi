@@ -1,7 +1,6 @@
 // Rofi colors for Pamela
 
 * {
-    font: "Terminess Nerd Font Mono Bold 10";
     background: #1D1F28;
     bg-alt: #1F222B;
     background-alt: #1D1F28E0;

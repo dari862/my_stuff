@@ -24,6 +24,7 @@
 # Sometimes LANGUAGE is not updated to match LANG.
 # BunsenLabs ships a fix for this when LightDM is being used,
 # but something more generic would be nice.
+unalias -a
 
 HELP='setlocale is a GUI (yad) script to set a user locale
 

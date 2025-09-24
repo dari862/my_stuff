@@ -98,6 +98,6 @@ while [ "$days_in_month" -gt 0 ]; do
 done
 
 # Display the formatted output
-echo '${goto 180}''${font 'VCR OSD Mono:Regular:size=14'}'$TOPLINE | sed 's/Su/${color 383333}Su${color}/g' | sed 's/Su/${color fb0255}Su${color}/g'
+echo '${goto 180}''${font 'Monospace:Regular:size=14'}'$TOPLINE | sed 's/Su/${color 383333}Su${color}/g' | sed 's/Su/${color fb0255}Su${color}/g'
 echo ''
-echo '${goto 180}''${font 'VCR OSD Mono:Regular:size=14'}''${color 7a7a7a}'$OVER '${color 23b3a7}'$TODAY'${color cacaca}'$REST
+echo '${goto 180}''${font 'Monospace:Regular:size=14'}''${color 7a7a7a}'$OVER '${color 23b3a7}'$TODAY'${color cacaca}'$REST

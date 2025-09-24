@@ -2,6 +2,7 @@
 
 /*****----- Global Properties -----*****/
 @import "theme.rasi"
+@import "fonts.rasi"
 
 // Config //
 configuration {
@@ -54,9 +55,9 @@ inputbar {
 }
 
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
-    font:                        @font;
     str:                         "#";
     padding:                     12px 19px 0 15px;
     border-radius:               8px;

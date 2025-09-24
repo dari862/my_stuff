@@ -27,7 +27,7 @@
 # sideways. On my netbook, I frequently 'zoom out' to a higher resolution in
 # scaled-out mode or 'zoom in' to a higher resolution in panning mode.
 #
-
+unalias -a
 HOME="$HOME"
 RCFILE=".ob-randrrc"
 

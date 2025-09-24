@@ -1,7 +1,6 @@
 // Rofi colors for Melissa
 
 * {
-    font: "Terminess Nerd Font Mono Bold 10";
     background: #2e3440;
     bg-alt: #353C4A;
     background-alt: #2e3440E0;

@@ -1,11 +1,21 @@
 #!/bin/sh
 ## Files and Directories
+set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
+use_single_bar=true
 polybar_launcher_path="$HOME/.local/bin/polybar_launch"
 config_file_name="config"
+
+check_for_bars(){
+	for bar in $bar_2_check;do
+		if grep -q "^\[bar/$bar]" "$HOME/.config/polybar/${polybar_STYLE}/${config_file_name}.ini";then
+			echo "MONITOR=\$monitor polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/${config_file_name}.ini\" &" >> "${polybar_launcher_path}"
+		fi
+	done
+}
 
 if [ -z "$ROFI_STYLE" ] || ( [ "$_panel_name_" = "polybar" ] && [ -z "$polybar_STYLE" ] );then
 	RiceSelector
@@ -29,11 +39,14 @@ else
 	esac
 fi
 
-echo "#!/bin/sh" > "${polybar_launcher_path}"
-for bar in $bar_2_check;do
-	if grep -q "^\[bar/$bar]" "$HOME/.config/polybar/${polybar_STYLE}/${config_file_name}.ini";then
-		echo "polybar -q $bar -c \"\$HOME/.config/polybar/$polybar_STYLE/${config_file_name}.ini\" &" >> "${polybar_launcher_path}"
-	fi
-done
-
+echo '#!/bin/sh' > "${polybar_launcher_path}"
+if [ "$use_single_bar" = true ] ;then
+    echo 'monitor="$(polybar --list-monitors | grep "(primary)" | cut -d":" -f1)"' >> "${polybar_launcher_path}"
+    check_for_bars
+else
+    echo 'MONITORS="$(polybar --list-monitors | cut -d":" -f1)"' >> "${polybar_launcher_path}"
+    echo 'for monitor in ${MONITORS}; do' >> "${polybar_launcher_path}"
+    check_for_bars
+    echo 'done' >> "${polybar_launcher_path}"
+fi
 chmod +x "${polybar_launcher_path}"

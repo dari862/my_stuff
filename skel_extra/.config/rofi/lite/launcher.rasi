@@ -11,7 +11,8 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import 						 "theme.rasi"
+@import "theme.rasi"
+@import "fonts.rasi"
 
 * {
     border-colour:               var(selected);
@@ -103,6 +104,7 @@ prompt {
     text-color:                  inherit;
 }
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str:                         "::";
@@ -124,6 +126,7 @@ num-filtered-rows {
     text-color:                  inherit;
 }
 textbox-num-sep {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str:                         "/";

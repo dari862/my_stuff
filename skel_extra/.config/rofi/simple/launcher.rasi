@@ -11,7 +11,8 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import                          "theme.rasi"
+@import "theme.rasi"
+@import "fonts.rasi"
 
 * {
     border-colour:               var(selected);
@@ -72,6 +73,7 @@ prompt {
     text-color:                  inherit;
 }
 textbox-prompt-colon {
+	font:                        @icon-font;
     expand:     false;
     str:                         ":";
     margin:     0px 0.3em 0em 0em ;

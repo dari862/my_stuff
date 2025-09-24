@@ -36,7 +36,7 @@ create_note() {
 	template=$(cat <<- END
 ---
 title: $title
-date: $(date --rfc-3339=seconds)
+date: $(date +%Y-%m-%d %H:%M:%S%z)
 author: $AUTHOR
 ---
 
@@ -58,7 +58,7 @@ edit_note() {
 
 delete_note() {
     note=$1
-    action=$(echo -e "Yes\nNo" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Are you sure you want to delete $note? ")
+    action=$(printf "Yes\nNo" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Are you sure you want to delete $note? ")
 
     case $action in
         "Yes")
@@ -75,7 +75,7 @@ note_context() {
     note_location="$notes_folder/$note"
     if [ -f "$note_location" ]
     then
-    	action=$(echo -e "Edit\nDelete" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "$note > ")
+    	action=$(printf "Edit\nDelete" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "$note > ")
     	case $action in
 			"Edit")
             	edit_note "$note_location"
@@ -92,7 +92,7 @@ note_context() {
 new_note() {
 	if [ "$note_option" = "New" ]
 	then
-		title=$(echo -e "Cancel" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Input title: ")
+		title=$(printf "Cancel" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Input title: ")
     	case "$title" in
         	"Cancel")
             	Note_manager
@@ -116,7 +116,7 @@ Note_manager()
 	if [ "$all_notes" ];then
 		first_menu="New\n${all_notes}"
 	fi
-	note_option=$(echo -e "$first_menu"  | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Note: ")
+	note_option=$(printf "$first_menu"  | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "Note: ")
 	case $note_option in
 		"New")
 			new_note

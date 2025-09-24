@@ -19,6 +19,7 @@
 # On Debian systems make sure 'at' is installed with --no-install-recommends.
 
 # help
+unalias -a
 help () {
 cat << EOF
 beepmein is a simple alarm clock based on 'at'

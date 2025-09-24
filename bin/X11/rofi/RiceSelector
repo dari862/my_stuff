@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # if this line exist script will be part of hub script.
 # Load current theme
 . "$__distro_path_lib"
@@ -10,7 +10,7 @@ default_style="default"
 if [ "$_panel_name_" = 'polybar' ];then
 	rices_path="${__distro_path_root}/system_files/blob/polybar"
 	current_style="${polybar_STYLE}"
-else
+elif [ "$_panel_name_" = 'tint2' ];then
 	rices_path="${__distro_path_root}/system_files/blob/tint2"
 	current_style="${tint2_STYLE}"
 fi
@@ -35,4 +35,4 @@ else
 	selected="$default_style"
 fi
 # If a valid option was selected, write the value to the configuration file and change theme.
-[ -n "$selected" ] && [ "$selected" != "$current_style" ] && style_changer "${selected}"
+[ -n "$selected" ] && [ "$selected" != "$current_style" ] && style_changer "$_panel_name_" "${selected}"

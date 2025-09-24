@@ -121,8 +121,8 @@ double_buffer = true,
 -- max_user_text 16384
 
 -- Desired output unit of all objects displaying a temperature. Parameters are
--- either "fahrenheit" or "celsius". The default unit is degree Celsius.
--- temperature_unit Fahrenheit
+-- either "celsius" or "celsius". The default unit is degree Celsius.
+-- temperature_unit celsius
 --################  End Miscellaneous Section  ###
 
 update_interval = 1,

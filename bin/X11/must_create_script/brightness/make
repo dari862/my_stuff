@@ -2,7 +2,7 @@
 . "$__distro_path_lib"
 disto_brightness_controller_path="${__distro_path_root}/system_files/bin/disto_brightness_controller"
 
-if [ -f "${__distro_path_root}/system_files/this_is_laptop" ];then
+if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 	if command -v xbacklight >/dev/null 2>&1;then
 		pak=xbacklight.sh
 	elif command -v light >/dev/null 2>&1;then

@@ -1,0 +1,23 @@
+#!/bin/sh 	
+#getURL '2term' "url"
+#getURL 'download' "url"
+#getURL 'download2' "url" "path"
+#getURL 'head' "url"
+
+mode="${1-}"
+url="${2-}"
+path="${3-}"
+
+if [ "${mode}" = "head" ];then
+	curl --head -fsS --max-redirs 0 "${url}" || exit 1
+elif [ "${mode}" = "2term" ];then
+	curl -fsSL "${url}" || exit 1
+elif [ "${mode}" = "download2" ];then
+	curl -fSLo "$path" "${url}" --progress-bar || exit 1
+elif [ "${mode}" = "download" ];then
+	curl -fSLO "${url}" --progress-bar || exit 1
+elif [ "${mode}" = "ugn" ];then
+	#unread github notifications
+	USERNAME_and_ACCESS_TOKEN="${url}"
+	echo "user = \"${USERNAME_and_ACCESS_TOKEN}\"" | curl -sf -K- https://api.github.com/notifications | jq ".[].unread" | grep -c true
+fi

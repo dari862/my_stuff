@@ -1,7 +1,6 @@
 // Rofi colors for Cynthia
 
 * {
-    font: "Terminess Nerd Font Mono Bold 10";
     background: #181616;
     bg-alt: #1c1a1a;
     background-alt: #181616E0;

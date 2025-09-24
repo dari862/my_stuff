@@ -1,6 +1,14 @@
 #!/bin/sh
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+if [ "${1:-}" = "skip_update" ];then
+	skip_update=true
+else
+	skip_update=false
+fi
+
+if [ "$Distro_installer_mode" = false ];then
+	_SUPERUSER="my-superuser"
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+fi
 
 what_2_grep="non-free-firmware"
 if [ -f "/etc/apt/sources.list" ];then
@@ -18,8 +26,11 @@ if [ -z "$line_2_sed" ];then # enabled
 elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and only check
 	tweek_enabled=false
 else
+	say "enabling non-free-firmware repo."
 	printf '%s\n' "$line_2_sed" | while IFS= read -r l; do
 		${_SUPERUSER} sed -i "s\\^$l$\\$l ${what_2_grep}\\" "$apt_sources_file_path"
 	done
-	Package_update_
+	if [ "$skip_update" = "true" ];then
+		Package_update_
+	fi
 fi

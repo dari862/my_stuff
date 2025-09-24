@@ -3,7 +3,7 @@
 # Depends on:
 #   repositories: rofi, bluez-utils (contains bluetoothctl)
 
-if command -v blueman-manager >/dev/null 2>&1;then
+if ! command -v blueman-manager >/dev/null 2>&1;then
 	exit 0
 elif [ ! -d /sys/class/bluetooth ];then
 	echo # No Bluetooth interface

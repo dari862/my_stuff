@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # https://github.com/onespaceman/menu-calc
 # Calculator for use with rofi.
@@ -42,7 +42,7 @@ eq="$($menu -p =)"
 if [ -n "$eq" ];then
 	answer=$(calc $eq | sed '/\./ s/\.\{0,1\}0\{1,\}$//')
 	
-	action=$(echo -e "Copy to clipboard\nClear\nClose" | $menu "$@" -p "= $answer")
+	action=$(printf "Copy to clipboard\nClear\nClose" | $menu "$@" -p "= $answer")
 fi
 case $action in
   "Clear") $0 ;;

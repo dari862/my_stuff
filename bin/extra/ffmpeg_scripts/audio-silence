@@ -77,7 +77,7 @@ infile_name="${infile_nopath%.*}"
 # defaults for variables if not defined
 channel_default='mono'
 rate_default='44100'
-outfile_default="${infile_name}-silence-$(date +"%Y-%m-%d-%H-%M-%S").mp4"
+outfile_default="${infile_name}-silence-$(date +%Y-%m-%d-%H-%M-%S).mp4"
 
 # check if the libfdk_aac codec is installed, if not fall back to the aac codec
 aac_codec="$(ffmpeg -hide_banner -stats -v panic -h encoder=libfdk_aac)"

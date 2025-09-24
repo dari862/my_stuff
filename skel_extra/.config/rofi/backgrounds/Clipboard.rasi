@@ -5,6 +5,7 @@ configuration {
 }
 
 @import "theme.rasi"
+@import "fonts.rasi"
 
 
 window {
@@ -62,6 +63,7 @@ prompt {
 }
 
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     padding:                     8px 12.5px 8px 11px;
     border-radius:               8px;
@@ -90,6 +92,7 @@ num-filtered-rows {
 }
 
 textbox-num-sep {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str:                         "/";

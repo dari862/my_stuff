@@ -1,0 +1,40 @@
+#!/bin/sh
+set -e
+# if this line exist script will be part of hub script.
+. "$__distro_path_lib"
+__mode="${1:-}"
+scripts_path="${__distro_path_root}/bin/X11/TV"
+
+if [ -z "${__mode}" ];then
+	if [ -t 1 ];then # on_terminal
+		selected_mode="$(printf "1. Youtube|2. ancli|3. Moive/TV-Show|4. IP-TV" | fzf --info=hidden --layout=reverse --height=100% --exact --cycle --ansi)"
+	else
+		. "${__distro_path_root}/lib/common/WM"
+		. "${Distro_config_file}"
+		selected_mode="$(printf "1. Youtube|2. ancli|3. Moive/TV-Show|4. IP-TV" | rofi -sep '|' -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi -dmenu -selected-row 0)"
+	fi
+	
+	case "${selected_mode}" in
+		1*) __mode="yt" ;;
+		2*) __mode="ani" ;;
+		3*)	__mode="mov" ;;
+		4*)	__mode="tv" ;;
+		*)	__mode="yt" ;;
+	esac
+fi
+
+case "${__mode}" in
+	yt|ani|mov|tv) ;;
+	*)	name="yt" ;;
+esac
+	
+shift 1
+	
+case "${__mode}" in
+	yt) name="yt-x" ;;
+	ani)name="ani-cli" ;;
+	mov)name="lobster.sh" ;;
+	tv) name="termv" ;;
+esac
+	
+"$scripts_path"/${name} $@

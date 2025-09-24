@@ -139,10 +139,10 @@ launcher_tooltip = 1
 # Clock
 time1_format = %A
 time2_format = %H : %M
-time1_font = Rage Italic, 64
+time1_font = Wild Youth, 64
 time1_timezone = 
 time2_timezone = 
-time2_font = Rage Italic, Bold 16
+time2_font = Wild Youth, Bold 16
 clock_font_color = #ffffff 100
 clock_padding = 0 0
 clock_background_id = 0

@@ -4,6 +4,6 @@ right=10
 left=10
 font=JetBrainsMono
 size=9
-theme=GoHomeV2-leo
+theme=openbox-GoHomeV2-leo
 titleLayout=MLC
 gtk_icon_name="Numix-Paper"

@@ -1,7 +1,6 @@
 /* Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 */
 
 configuration {
-    font:                           "Iosevka 10";
     show-icons:                     false;
     display-drun: 					"";
     drun-display-format:            "{icon} {name}";
@@ -10,6 +9,7 @@ configuration {
 }
 
 @import "theme.rasi"
+@import "fonts.rasi"
 
 window {
     transparency:                   "real";
@@ -37,13 +37,13 @@ prompt {
 }
 
 textbox-prompt-colon {
+	font:                        @icon-font;
 	expand: 						false;
 	str: 							"";
     border-radius:                  5px;
     background-color:               @selected;
     text-color:                     @background;
     padding:    					10px;
-	font:							"Iosevka Nerd Font 10";
 }
 
 entry {
@@ -131,9 +131,9 @@ element selected {
 
 element.active,
 element.selected.urgent {
-  background-color: @active;
+  background-color: @urgent;
   text-color: @background;
-  border-color: @active;
+  border-color: @foreground;
 }
 
 element.selected.urgent {

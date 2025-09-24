@@ -79,7 +79,7 @@ run_popup_normal_mode_geometry(){
 }
 
 run_popup_normal_normal_superuser_mode(){
-	kitty -T "${arg_}" -e my-superuser bash -c "${file_name_}"
+	terminator -T "${arg_}" -e my-superuser bash -c "${file_name_}"
 }
 
 case $arg_ in

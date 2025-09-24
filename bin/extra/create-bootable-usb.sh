@@ -84,7 +84,11 @@ check_hash() {
 download_iso() {
     printf "\n%b\n" "${YELLOW}Found URL: ${ISO_URL}${RC}"
     printf "%b\n" "${YELLOW}Downloading ISO to ${ISO_PATH}...${RC}"
-    if ! curl -L -o "$ISO_PATH" "$ISO_URL"; then
+    if command -v curl >/dev/null 2>&1; then
+    	curl -L -o "$ISO_PATH" "$ISO_URL"
+    elif command -v wget >/dev/null 2>&1; then
+    	wget -O "$ISO_PATH" "$ISO_URL"
+   	else
         printf "%b\n" "${RED}Failed to download the ISO file.${RC}"
         exit 1
     fi
@@ -115,12 +119,22 @@ get_online_iso() {
     clear
     # Download available operating systems, filter to to those that match requirements
     # Remove entries with more than 1 ISO or any other medium, they could cause issues
-    OS_JSON="$(curl -L -s "$CONFIGURATION_URL" | jq -c "[.[] | \
-        .releases |= map(select( \
-        (.arch // \"x86_64\") == "\"${ARCH}\"" \
-        and (.iso | length == 1) and (.iso[0] | has(\"web\")) \
-        and .img == null and .fixed_iso == null and .floppy == null and .disk_images == null)) \
-        | select(.releases | length > 0)]")"
+    if command -v curl >/dev/null 2>&1; then
+    	OS_JSON="$(curl -L -s "$CONFIGURATION_URL" | jq -c "[.[] | \
+        	.releases |= map(select( \
+        	(.arch // \"x86_64\") == "\"${ARCH}\"" \
+        	and (.iso | length == 1) and (.iso[0] | has(\"web\")) \
+        	and .img == null and .fixed_iso == null and .floppy == null and .disk_images == null)) \
+        	| select(.releases | length > 0)]")"
+    else
+    	OS_JSON="$(wget -qO- "$CONFIGURATION_URL" | jq -c '[.[] | 
+    		.releases |= map(select(
+        		(.arch // "x86_64") == "'"${ARCH}"'" 
+        		and (.iso | length == 1) and (.iso[0] | has("web")) 
+        		and .img == null and .fixed_iso == null and .floppy == null and .disk_images == null)) 
+    		| select(.releases | length > 0)]')"
+    	
+    fi
     if echo "${OS_JSON}" | jq -e 'length == 0' >/dev/null; then
         printf "%b\n" "${RED}No operating systems found.${RC}"
         exit 1

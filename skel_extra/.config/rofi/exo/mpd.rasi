@@ -8,11 +8,7 @@ configuration {
 /*****----- Global Properties -----*****/
 
 @import "theme.rasi"
-
-* {
-    font:                        "JetBrains Mono Nerd Font 10";
-}
-
+@import "fonts.rasi"
 
 /*****----- Main Window -----*****/
 window {
@@ -60,6 +56,7 @@ dummy{
     background-color:            transparent;
 }
 textbox-prompt-colon {
+	font:                        @icon-font;
     enabled:                     true;
     expand:                      false;
     str:                         "ﱘ";
@@ -120,7 +117,6 @@ element {
     cursor:                      pointer;
 }
 element-text {
-    font:                        "feather 28";
     background-color:            transparent;
     text-color:                  inherit;
     cursor:                      inherit;

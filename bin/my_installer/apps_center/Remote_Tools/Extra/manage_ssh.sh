@@ -2,7 +2,7 @@
 
 ssh_config_dir="$HOME/.ssh/config"
 
-hostname=${HOSTNAME:-${hostname:-${HOST:-$(hostname)}}}
+hostname=${hostname:-${HOST:-$(hostname)}}
 
 # If the hostname is still not found, fallback to the contents of the
 # /etc/hostname file.

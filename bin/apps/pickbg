@@ -31,7 +31,7 @@ def get_gtk_font():
             except Exception:
                 pass
 
-    return "Sans", 10  # fallback
+    return "Noto Sans", 10  # fallback
 
 # --- Load wallpaper config from sourced shell files ---
 def parse_shell_var(file_path, key_to_find):

@@ -4,6 +4,6 @@ right=10
 left=10
 font=JetBrainsMono
 size=9
-theme=MonochromeBlue-zk
+theme=openbox-MonochromeBlue-zk
 titleLayout=MLC
 gtk_icon_name="Vimix-White"

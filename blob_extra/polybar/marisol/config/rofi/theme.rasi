@@ -1,7 +1,6 @@
 // Rofi colors for Marisol
 
 * {
-    font: "JetBrainsMono NF Bold 9";
     background: #282a36;
     bg-alt: #2f3240;
     background-alt: #282a36E0;

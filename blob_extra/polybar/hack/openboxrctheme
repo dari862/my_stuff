@@ -4,6 +4,6 @@ right=10
 left=10
 font=JetBrainsMono
 size=9
-theme=Hack
+theme=openbox-Hack
 titleLayout=LC
 gtk_icon_name="Hack"

@@ -5,12 +5,15 @@ mkdir -p "${gui_scripts_dir}"
 
 mkdir -p "${gui_scripts_dir}"
 _script_for_dir="$(grep -R "# if this line exist script will be part of gui scripts." "${__distro_path_root}/system_files/bin" "${__distro_path_root}/system_files/binX11" "${__distro_path_root}/system_files/binWayland" 2>/dev/null | awk -F: '{print $1}')"
+_SUPERUSER="my-superuser"
+[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
 for script in ${_script_for_dir};do
 	new_name="$(grep "# if this line exist script will be part of gui scripts." "$script" | awk -F= '{print $2}')"
 	base_name="$(basename "$new_name")"
 	if [ "$new_name" != "$base_name" ];then
-		cp -rf "$script" "${gui_scripts_dir}/$new_name"
+		$_SUPERUSER cp -rf "$script" "${gui_scripts_dir}/$new_name"
 	else
-		cp -rf "$script" "${gui_scripts_dir}"
+		$_SUPERUSER cp -rf "$script" "${gui_scripts_dir}"
 	fi
 done

@@ -182,7 +182,7 @@ ___generate_wallpaper(){
 		new_wallpaper_path="${WALLPAPERS_DIR}/${RAW%.*}${RES}.jpg"
 		
 		case "$CHK_THEME" in
-		owl4ce_dark) convert "$wallpaper_are" \
+		owl4ce_dark) magick "$wallpaper_are" \
 						-gravity center \
 						-crop 16:9 \
 						'(' -clone 0 \
@@ -199,7 +199,7 @@ ___generate_wallpaper(){
 						-composite \
 						-quality 100  "${new_wallpaper_path}"
 		;;
-		owl4ce_light) convert "$wallpaper_are" \
+		owl4ce_light) magick "$wallpaper_are" \
 						-gravity center \
 						-crop 16:9 \
 						'(' -clone 0 \
@@ -374,7 +374,7 @@ ___theme(){
 		owl4ce_light) CHK_THEME="owl4ce_dark";;
 	esac
 
-	style_changer "$CHK_THEME"
+	style_changer "tint2" "$CHK_THEME"
 	
    	case "${CHK_THEME}" in
    		owl4ce_dark) BODY='Dark Theme'

@@ -1,4 +1,5 @@
 #!/bin/bash
+unalias -a
 DEV_PATH=$(dirname $(realpath "$0"))
 . $DEV_PATH/menus_functions_list
 . $DEV_PATH/shellect

@@ -57,7 +57,7 @@ _desktop_screenshot_as_lockscreen()
 	# after unlocking.
 	[ "${minimize_all_windows}" = "true" ] && wmctrl is /usr/bin/wmctrl -k off
 	
-    convert "$__image_full_path_" $greyscale_arg $pixelate_arg -font "$font" -pointsize 26 -fill "$bw" -gravity center \
+    magick "$__image_full_path_" $greyscale_arg $pixelate_arg -font "$font" -pointsize 26 -fill "$bw" -gravity center \
     	-annotate +0+160 "$lock_text" "${icon}" -gravity center -composite "$__image_full_path_"
 }
 
@@ -77,7 +77,7 @@ _usr_image_as_lockscreen()
 	if [ "$File_type" = "PNG" ];then
   		return 0
   	else
-		convert "$__image_full_path_" "${my_locker_folder}/converted_image.png"
+		magick "$__image_full_path_" "${my_locker_folder}/converted_image.png"
 		__image_full_path_="${my_locker_folder}/converted_image.png"
 	fi
 }

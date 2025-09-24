@@ -117,8 +117,8 @@ double_buffer = true,
 -- max_user_text 16384
 
 -- Desired output unit of all objects displaying a temperature. Parameters are
--- either "fahrenheit" or "celsius". The default unit is degree Celsius.
--- temperature_unit Fahrenheit
+-- either "celsius" or "celsius". The default unit is degree Celsius.
+-- temperature_unit celsius
 --################  End Miscellaneous Section  ###
 
 update_interval = 1,
@@ -128,9 +128,9 @@ update_interval = 1,
 conky.text = [[
 ${image ~/.config/conky/whitewalls/res/bg.png -p 0,0}
 ${image ~/.config/conky/whitewalls/res/pita.png -p 25,160}
-${voffset 4}${font Nexa Rust Handmade:size=42}${alignc}${time %H.%M}${font Bebas Neue:size=14}
+${voffset 4}${font WaterBrush:size=42}${alignc}${time %H.%M}${font Bebas Neue:size=14}
 ${voffset 14}${alignc}${time %A %-d %B %Y}
-${voffset 34}${font Nexa Rust Script L:size=22}${alignc}Hello ${execi 600 whoami}
+${voffset 34}${font Khurasan L:size=22}${alignc}Hello ${execi 600 whoami}
 
 ${voffset 4}${font Bebas Neue:size=16}${alignc}${color0}email ${color}${execi 600 conky_scripts email} unread
 ${image ~/.config/conky/whitewalls/res/separator.png -p 25,280}

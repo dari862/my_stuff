@@ -9,10 +9,7 @@ sidebar-mode: 					false;
 
 /*****----- Global Properties -----*****/
 @import "theme.rasi"
-
-* {
-    font:                        "JetBrainsMono Nerd Font Bold 10";
-}
+@import "fonts.rasi"
 
 /*****----- Main Window -----*****/
 window {

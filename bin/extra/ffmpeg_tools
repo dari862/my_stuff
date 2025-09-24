@@ -22,15 +22,17 @@ print_info() {
 }
 
 list_scripts() {
+	print_info "Available scripts:"
+    printf "\n"
     {
-        printf "Script\tDescription\n"
-        printf "------\t-----------\n"
+        printf " Script##Description\n"
+        printf " ------##-----------\n"
         for f in *; do
             [ -f "$f" ] || continue
             desc="$(sed -n '5p' "$f" 2>/dev/null | tr -d '\r')"
-            printf "%s\t%s\n" "$f" "$desc"
+            printf " %s#%s\n" "$f" "$desc"
         done
-    } | column -t -s $'\t'
+    } | column -t -s "#"
 }
 
 # === Main ===
@@ -71,7 +73,5 @@ if command -v fzf >/dev/null 2>&1; then
     fi
 else
     print_error "$script_name script not found:"
-    print_info "Available scripts:"
-    printf "\n"
     list_scripts
 fi

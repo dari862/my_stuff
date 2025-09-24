@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+. "$__distro_path_lib"
+target_path="${__distro_path_root}/system_files/bin/getURL"
+init_create_path="${__distro_path_root}/bin/must_create_script/getURL"
+
+if command -v curl > /dev/null 2>&1;then
+	ln -sf "${init_create_path}/curl" "${target_path}"
+elif command -v wget > /dev/null 2>&1;then
+	ln -sf "${init_create_path}/wget" "${target_path}"
+fi

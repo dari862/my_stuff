@@ -100,7 +100,7 @@ compute_geometry_left_aligned() {
 
 compute_geometry_right_aligned() {
     if [ "$reserved_cols_in_percent" = "true" ];then
-        ueber_left_percent=$(printf "%.0f\n" $(calc "$ueber_left" / "$term_cols" '*' 100))
+        ueber_left_percent=$(printf "%.0f\n" $(calc_using_awk "$ueber_left" / "$term_cols" '*' 100))
         if [ "$ueber_left_percent" -lt "$reserved_playlist_cols" ];then
             ueber_left=$(( term_cols * reserved_playlist_cols / 100  ))
             cover_width_in_terminal=$(( term_cols - ueber_left - padding_right ))
@@ -176,7 +176,7 @@ is_font_size_successfully_computed() {
 }
 
 
-calc() {
+calc_using_awk() {
     awk "BEGIN{print $*}"
 }
 

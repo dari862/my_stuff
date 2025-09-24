@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Note taking function with clipboard support
+unalias -a
 local BUTTERBASH_NOTES_DIR="$HOME/Documents"
 local note_file="${BUTTERBASH_NOTES_DIR}/notes"
 
@@ -69,7 +70,7 @@ elif [ "$1" = "clip" ] || [ "$1" = "clipboard" ]; then
 		fi
 		
 		# Handle multi-line content by indenting continuation lines
-		echo "[$(date '+%Y-%m-%d %H:%M:%S')] [CLIPBOARD]" >> "$note_file"
+		echo "[$(date +%Y-%m-%d %H:%M:%S)] [CLIPBOARD]" >> "$note_file"
 		echo "$clip_content" | sed 's/^/  /' >> "$note_file"
 		echo "" >> "$note_file"
 		echo "📋 Clipboard content added to notes"
@@ -192,6 +193,6 @@ elif [ "$1" = "help" ]; then
 	echo "  note edit		 - Open notes file in editor"
 	echo "  note help		 - Show this help"
 else
-	echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$note_file"
+	echo "[$(date +%Y-%m-%d %H:%M:%S)] $*" >> "$note_file"
 	echo "✅ Note added to $note_file"
 fi

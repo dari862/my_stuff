@@ -8,5 +8,4 @@
     active:         #98C379FF;
     urgent:         #E06B74FF;
     icon-theme: "Zafiro";
-    font:				 	"Iosevka 10";
 }

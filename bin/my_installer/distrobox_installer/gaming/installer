@@ -78,8 +78,8 @@ chmod +x "${tmp_folder}/${distro_name}"
 mkdir -p "$HOME/.local/bin"
 mv "${tmp_folder}/${distro_name}" "$HOME/.local/bin"
 
-[ -f "${__distro_path_root}/system_files/GPU_Drivers_ready" ] && my-superuser rm -rf ${__distro_path_root}/system_files/GPU_Drivers_ready
-my-superuser touch ${__distro_path_root}/system_files/Gaming_ready
+remove_system_ready_file GPU_Drivers_ready
+create_system_ready_file Gaming_ready
 	
 # Prevent host steam to be used during install, forcefully kill it (on steamos produces output like it tries to kill host processes and fails, fixme?...)
 # pkill -f steam

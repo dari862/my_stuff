@@ -17,27 +17,13 @@ else
     export ICON_PATH="gtk-fullscreen"
 fi
 
-# check for dependencies
-if ! type ffmpeg >/dev/null 2>&1;then
-    MISSING_DEPS="TRUE"
-    echo "$(tput setaf 1)ffmpeg not installed!$(tput sgr0)"
-fi
+check_4_dependencies_if_installed yad ffmpeg || exit 1
 
-if ! type yad >/dev/null 2>&1;then
-    MISSING_DEPS="TRUE"
-    echo "$(tput setaf 1)yad is not installed!$(tput sgr0)"
-fi
-
-if [ "$MISSING_DEPS" = "TRUE" ];then
-    echo "$(tput setaf 1)Missing one or more packages required to run; exiting...$(tput sgr0)"
-    exit 1
-fi
-
-if ! type xclip >/dev/null 2>&1;then
+if type xclip >/dev/null 2>&1;then
 	export Xclip_installed=TRUE
 fi
 
-if ! type slop >/dev/null 2>&1;then
+if type slop >/dev/null 2>&1;then
 	export Slop_installed=TRUE
 fi
 
@@ -72,7 +58,7 @@ if [ ! -d "$HOME/Pictures" ];then
 fi
 # capture screenshot.
 function yadshotcapture() {
-	SS_NAME="yadshot-$(printf "%('%s')T").png"
+	SS_NAME="yadshot-$(date +'%s').png"
 
 	. "${script_config_path}/yadshot.conf"
 	

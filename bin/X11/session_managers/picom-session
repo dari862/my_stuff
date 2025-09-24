@@ -1,6 +1,5 @@
 #!/bin/sh
 . "$__distro_path_lib"
-[ "$(cat "${__distro_path_neverremove}/machine_type")" = "vm" ] && exit
 
 picom_path="$HOME/.config/picom.conf"
 
@@ -15,7 +14,7 @@ start() {
 }
 
 toggle() {
-	if [ $(pidof tint2) ];then
+	if pidof -q tint2;then
 		stop
 	else
 		start
