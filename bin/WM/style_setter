@@ -1,26 +1,14 @@
 #!/bin/sh
+set -e
+
 . "$__distro_path_lib"
 _panel_name_="${1:-polybar}"
-__opt_="${2:-}"
+_style="${2:-default}"
 __opt2_="${3:-}"
 no_wall=false
-if [ -z "$__opt_" ];then
-	style=""
-elif [ "$__opt_" = '--no-wall' ];then
-	style=""
-	no_wall=true
-elif [ "$__opt2_" = '--no-wall' ];then
-	style="${__opt_}"
-	no_wall=true
-else
-	style="${__opt_}"
-fi
+
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
-
-show_em(){
-	echo "[ERROR] $0 : $1"
-}
 
 GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
 GLOBALDYNAMICBLOBPATH="${__distro_path_root}/blob_dynamic/dynamic_theme"
@@ -28,11 +16,11 @@ CONFIG_PATH="$HOME/.config"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
 
-if [ -z "${style}" ];then
-	style="default"
-fi
+STYLEPATH="${BLOBPATH}/${_panel_name_}/${_style}"
 
-STYLEPATH="${BLOBPATH}/${_panel_name_}/${style}"
+show_em(){
+	echo "[ERROR] $0 : $1"
+}
 
 OB_themeing(){
 	. "$STYLEPATH/openboxrctheme"
@@ -49,17 +37,17 @@ OB_themeing(){
 }
 
 Set_Style_(){
-	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/global" "$HOME/.config/dunst"
-	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/experimental" "$HOME/.config/dunst"
-	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/theme.dunstrc" "$HOME/.config/dunst"
+	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/global" "$HOME/.config/dunst" || :
+	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/experimental" "$HOME/.config/dunst" || :
+	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/theme.dunstrc" "$HOME/.config/dunst" || :
 	cat $HOME/.config/dunst/global $HOME/.config/dunst/theme.dunstrc > $HOME/.config/dunst/dunstrc
 	OB_themeing
 }
 
 if [ ! -d "${BLOBPATH}" ];then
-	cp -r "${GLOBALBLOBPATH}" "${BLOBPATH}" || show_em "failed to cp -r \"${GLOBALBLOBPATH}\" \"${BLOBPATH}\""
+	cp -r "${GLOBALBLOBPATH}" "${CONFIG_PATH}" || show_em "failed to cp -r \"${GLOBALBLOBPATH}\" \"${BLOBPATH}\""
 	find "${BLOBPATH}/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} + || show_em "failed to change MmdmdmdmdmdmdmdmdmM to $USER"
-	(cp -r "${GLOBALDYNAMICBLOBPATH}" "${BLOBPATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${BLOBPATH}\"") &
+	cp -r "${GLOBALDYNAMICBLOBPATH}" "${BLOBPATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${BLOBPATH}\""
 fi
 
 cp -r "${STYLEPATH}/config"/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
@@ -69,7 +57,10 @@ if [ -d "${STYLEPATH}/cache" ];then
 	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
 fi
 
-if [ "${style}" = "dynamic" ];then
+if [ "${_style}" = "dynamic" ];then
+	if [ "$__opt2_" = '--no-wall' ];then
+		no_wall=true
+	fi
 	mkdir -p "$HOME/.themes"
 	mkdir -p "$HOME/.icons"
 	ln -sf "${BLOBPATH}/dynamic_theme/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${BLOBPATH}/themes to $HOME/.themes"
@@ -81,7 +72,10 @@ if command -v geany >/dev/null 2>&1;then
 fi
 
 if command -v jgmenu >/dev/null 2>&1;then
-	[ ! -f "$HOME/.cache/jgmenu/.last-gtktheme" ] && mkdir -p "$HOME/.cache/jgmenu"  && touch "$HOME/.cache/jgmenu/.last-gtktheme"
+	if [ ! -f "$HOME/.cache/jgmenu/.last-gtktheme" ];then
+		mkdir -p "$HOME/.cache/jgmenu"
+		touch "$HOME/.cache/jgmenu/.last-gtktheme"
+	fi
 	. "${STYLEPATH}/jgmenu_theme"
 	jgmenurc_file="$HOME/.config/jgmenu/jgmenurc"
 	#create jgmenu theme file
@@ -123,9 +117,8 @@ reload_gtk23 || show_em "failed to run reload_gtk23"
 
 if [ "$no_wall" = 'false' ];then
 	if [ -f "${STYLEPATH}/random_wallpaper" ];then
-		# Set random wallpaper for actual rice
-		setbg -d "${style}" || show_em "failed to run setbg -d ${style}"
+		setbg --random "${_style}" || show_em "failed to run setbg -d ${_style}"
 	else
-		setbg -r "${style}" || show_em "failed to run setbg -r"
+		setbg -r "${_style}" || show_em "failed to run setbg -r"
 	fi
 fi

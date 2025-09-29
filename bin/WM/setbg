@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+
 . "$__distro_path_lib"
 op__="$1"
 op2__="$2"
@@ -69,7 +71,7 @@ main()
 	case $op__ in
 		-r) __restore ;;
 		-s) save_wall ;;
-		-d) random_wall ;;
+		-d|--random) random_wall ;;
 		-R) save_and_restore ;;
 		*) pickbg ;;
 	esac

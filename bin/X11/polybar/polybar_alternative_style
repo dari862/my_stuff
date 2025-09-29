@@ -7,7 +7,8 @@
 case "$polybar_STYLE" in
 	emilia|forest|hack|Japanese_Street|melissa)
 		polybar_STYLE="$(echo "$polybar_STYLE" | awk -F/ '{print $1}' || echo "$polybar_STYLE")";;
-	*)exit;;
+	*)
+		exit;;
 esac
 
 # Variables to try to define the correct size of the images for your resolution
