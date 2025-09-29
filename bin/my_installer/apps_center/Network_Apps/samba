@@ -7,63 +7,64 @@ say 'Installing package...' 1
 Package_installer_ "${app_name}" || continue
 
 say "Setting up Samba..."  1
-    
-SAMBA_CONFIG="/etc/samba/smb.conf"
-if [ -f "$SAMBA_CONFIG" ]; then
-	say "Samba configuration file already exists in $SAMBA_CONFIG."
-	say "Do you want to modify the existing Samba configuration? (Y/n): "
-	read -r MODIFY_SAMBA
-	if [ "$MODIFY_SAMBA" = "Y" ] || [ "$MODIFY_SAMBA" = "y" ]; then
-		my-superuser "$EDITOR" "$SAMBA_CONFIG"
-	fi
+SAMBA_USER="sambauser"
+SAMBA_GROUP="sambashare"
+CURRENT_USER=$(whoami)
+SHARED_DIR="/srv/samba/SecureShare"
+
+if getent group "$SAMBA_GROUP" > /dev/null; then
+    say "Group '$SAMBA_GROUP' already exists."
 else
-	say "No existing Samba configuration found. Setting up a new one..."
-	# Prompt user for shared directory path
-	say "Enter the path for the Samba share (default: /srv/samba/share): "
-	read -r SHARED_DIR
-	SHARED_DIR=${SHARED_DIR:-/srv/samba/share}
-	# Create the shared directory if it doesn't exist
-	my-superuser mkdir -p "$SHARED_DIR"
-	my-superuser chmod -R 0777 "$SHARED_DIR"
-	# Add a new Samba user
-	say "Enter Samba username: "
-	read -r SAMBA_USER
-	# Loop until the passwords match
-	while true; do
-		say "Enter Samba password: "
-		stty -echo
-		read -r SAMBA_PASSWORD
-		stty echo
-		say "Confirm Samba password: "
-		stty -echo
-		read -r SAMBA_PASSWORD_CONFIRM
-		stty echo
-		say ""
-		if [ "$SAMBA_PASSWORD" = "$SAMBA_PASSWORD_CONFIRM" ]; then
-			say "Passwords match."
-			break
-		else
-			say "Passwords do not match. Please try again."
-		fi
-	done
-	# Add the user and set the password
-	my-superuser smbpasswd -a "$SAMBA_USER"
-	# Configure Samba settings
-	my-superuser tee "$SAMBA_CONFIG" > /dev/null <<EOL
-[global]
-   workgroup = WORKGROUP
-   server string = Samba Server
-   security = user
-   map to guest = bad user
-   dns proxy = no
-[Share]
-   path = $SHARED_DIR
-   browsable = yes
-   writable = yes
+    say "Creating Samba group '$SAMBA_GROUP'..."
+    my-superuser groupadd "$SAMBA_GROUP"
+fi
+
+# Create user if not exists
+if id "$SAMBA_USER" &>/dev/null; then
+    say "User '$SAMBA_USER' already exists."
+else
+    say "Creating system user '$SAMBA_USER'..."
+    my-superuser adduser --disabled-password --gecos "" "$SAMBA_USER"
+    my-superuser usermod -aG "$SAMBA_GROUP" "$SAMBA_USER"
+fi
+
+# Add current user to samba group for access
+my-superuser usermod -aG "$SAMBA_GROUP" "$CURRENT_USER"
+say "Added current user '$CURRENT_USER' to group '$SAMBA_GROUP'."
+
+# Prompt for Samba password until confirmed
+say "Setting Samba password for '$SAMBA_USER'..."
+while true; do
+    my-superuser smbpasswd -a "$SAMBA_USER" && break
+    say "Password setup failed or canceled. Try again."
+done
+my-superuser smbpasswd -e "$SAMBA_USER"
+
+say "Creating secure shared directory at '$SHARE_DIR'..."
+my-superuser mkdir -p "$SHARE_DIR"
+my-superuser chown root:"$SAMBA_GROUP" "$SHARE_DIR"
+my-superuser chmod 2770 "$SHARE_DIR"  # Set GID bit so new files inherit group
+
+say "Backing up original smb.conf..."
+[ -f "/etc/samba/smb.conf" ] && my-superuser cp /etc/samba/smb.conf /etc/samba/smb.conf.bak || :
+
+say "Configuring Samba secure share..."
+# Append share config only if not already present
+if ! grep -q "\[SecureShare\]" /etc/samba/smb.conf; then
+    my-superuser tee /etc/samba/smb.conf >>/dev/null 2>&1 <<EOL
+
+[SecureShare]
+   path = $SHARE_DIR
+   valid users = @$SAMBA_GROUP
    guest ok = no
    read only = no
-   valid users = $SAMBA_USER
+   browsable = yes
+   create mask = 0660
+   directory mask = 2770
+   force group = $SAMBA_GROUP
 EOL
+else
+    say "Share [SecureShare] already defined in smb.conf. Skipping append."
 fi
 
 for service in smb nmb; do
@@ -82,3 +83,8 @@ if command -v ufw >/dev/null 2>&1; then
 	my-superuser ufw allow Samba
 	my-superuser ufw enable
 fi
+
+say "Secure Samba share is ready!"
+say "Access it using the '$SAMBA_USER' account:"
+say "   smb://<your-debian-ip>/SecureShare"
+say "Members of the '$SAMBA_GROUP' group (including '$CURRENT_USER') can access the share."

@@ -5,7 +5,7 @@
 icons_dir="${__distro_path_root}/icons/dunst"
 
 # File
-time=$(date +%Y-%m-%d-%H-%M-%S)
+time=$(date +%Y-%m-%d_%H-%M-%S)
 dir="$(xdg-user-dir VIDEOS)/Screenrecorder"
 file_name="Capture_${time}"
 input_frame_rate=30

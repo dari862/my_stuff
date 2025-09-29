@@ -7,7 +7,7 @@ LOG_FILE="$SEC_PATH/actions.log"
 group=""
 # -------------------- Utilities -------------------- #
 log() {
-    echo "$(date +%F %T) $(whoami): $*" >> "$LOG_FILE"
+    echo "$(date +'%F %T') $(whoami): $*" >> "$LOG_FILE"
 }
 
 msg() {

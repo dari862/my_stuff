@@ -62,12 +62,12 @@ has() {
 }
 
 _pemx() {
-	rofi -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -e "error: $1"
+	rofi -e "error: $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
 	exit 1
 }
 
 _notify(){
-	rofi -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -e "$@"
+	rofi -e "$@" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
 }
 
 _choose(){

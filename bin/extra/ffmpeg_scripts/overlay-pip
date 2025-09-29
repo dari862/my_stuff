@@ -91,7 +91,7 @@ video_nopath="${video##*/}"
 video_name="${video_nopath%.*}"
 
 # defaults for variables if not defined
-outfile_default="${video_name}-pip-$(date +%Y-%m-%d-%H-%M-%S).mp4"
+outfile_default="${video_name}-pip-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 
 
 #===============================================================================

@@ -6,9 +6,28 @@
 
 # Pipemenu
 menuStart
-menuSeparator 'Online Help'
 menuItem 'Welcome tips' 'welcome'
 menuSeparator
+menuSeparator 'Offline Help'
+menuItem 'Shell tips' 'my-www-browser file://${__distro_path_root}/lib/shell-guide/index.html'
+menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+menuSubmenuEnd
+menuSeparator 'man pages'
+menuItem 'Tint2 man page' 'popup_terminal --man tint2'
+menuItem 'Conky man pages' 'popup_terminal --man conky'
+menuItem 'Compositor' 'popup_terminal --man picom'
+menuItem 'jgmenu' 'popup_terminal --man jgmenu'
+menuItem 'rofi' 'popup_terminal --man rofi'
+menuItem 'xrandr' 'popup_terminal --man xrandr'
+menuSeparator
+menuSubmenu 'Distro_Help_Files' "$__distro_title Help Files"
+	menuItem 'How to Edit Menu' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="How to Edit the Menu" --filename="${__distro_path_root}/lib/docs/menu.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About BLOB' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About BLOB" --filename="${__distro_path_root}/lib/docs/blob.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About ${__distro_title} Autostart' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About ${__distro_title} Autostart" --filename="${__distro_path_root}/lib/docs/blautostart.txt" --width=900 --height=700 --fontname=Monospace'
+	menuItem 'About ${__distro_title} Alternatives' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About ${__distro_title} Alternatives" --filename="${__distro_path_root}/lib/docs/alternatives.txt" --width=900 --height=700 --fontname=Monospace'
+menuSubmenuEnd
+menuSeparator 'Online Help'
 menuItem 'Getting Started' 'my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=21'
 menuItem 'Tutorials' 'my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=25'
 menuItem 'Basic Help & Support' 'my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=2'
@@ -41,33 +60,15 @@ menuSubmenu 'help_Tint2' 'Tint2'
 	menuItem 'Tint2 Wiki: FAQ' 'my-www-browser https://gitlab.com/o9000/tint2/wikis/FAQ'
 	menuItem 'Tint2 Wiki: Configuration' 'my-www-browser https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md'
 	menuItem 'Tint2 Forum Thread' 'my-www-browser https://forums.bunsenlabs.org/viewtopic.php?id=254'
-	menuItem 'Tint2 man page' 'popup_terminal --man tint2'
-	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
 menuSubmenuEnd
 menuSubmenu 'help_Conky' 'Conky'
 	menuItem 'Conky Wiki' 'my-www-browser https://github.com/brndnmtthws/conky/wiki'
 	menuItem 'Conky Archive' 'my-www-browser https://web.archive.org/web/20160325091248/https://crunchbang.org/forums/viewtopic.php?pid=371424'
-	menuItem 'Conky man pages' 'popup_terminal --man conky'
-	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
 menuSubmenuEnd
 menuSeparator
 menuSubmenu 'help_Theme_Resources' 'Theme Resources'
 	menuItem 'bunsenlabs on DeviantArt' 'my-www-browser http://bunsenlabs.deviantart.com/'
 	menuItem 'Box-Look.org' 'my-www-browser http://www.box-look.org'
 	menuItem 'gnome-look.org' 'my-www-browser http://gnome-look.org/'
-menuSubmenuEnd
-menuSeparator
-menuSeparator 'man pages'
-menuItem 'Compositor' 'popup_terminal --man picom'
-menuItem 'jgmenu' 'popup_terminal --man jgmenu'
-menuItem 'rofi' 'popup_terminal --man rofi'
-menuItem 'xrandr' 'popup_terminal --man xrandr'
-menuSeparator
-menuSubmenu 'Distro_Help_Files' "$__distro_title Help Files"
-	menuItem 'How to Edit Menu' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="How to Edit the Menu" --filename="${__distro_path_root}/lib/docs/menu.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About BLOB' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About BLOB" --filename="${__distro_path_root}/lib/docs/blob.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'Conky & Tint2 Manager Help' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="Conky & Tint2 Manager Help" --filename="${__distro_path_root}/lib/docs/conkytint2-manager.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About ${__distro_title} Autostart' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About ${__distro_title} Autostart" --filename="${__distro_path_root}/lib/docs/blautostart.txt" --width=900 --height=700 --fontname=Monospace'
-	menuItem 'About ${__distro_title} Alternatives' 'yad --button="OK":0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title="About ${__distro_title} Alternatives" --filename="${__distro_path_root}/lib/docs/alternatives.txt" --width=900 --height=700 --fontname=Monospace'
 menuSubmenuEnd
 menuEnd

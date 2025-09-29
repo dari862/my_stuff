@@ -87,7 +87,7 @@ clip1_name="${clip1_nopath%.*}"
 # defaults
 duration_default='0.5'
 transition_default='fade'
-outfile_default="${clip1_name}-xfade-$(date +%Y-%m-%d-%H-%M-%S).mp4"
+outfile_default="${clip1_name}-xfade-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 
 # offset and duration options not set
 if [ -z "${offset}" ];then

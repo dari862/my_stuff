@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-
+unalias -a
 check_4_dependencies_if_installed grep nmcli || exit 1
 
 trap 'unset VPN_PASS' EXIT

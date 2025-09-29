@@ -1,0 +1,7 @@
+/**/
+
+* {
+  font:			"JetBrainsMono NF Bold 14";
+  text-font:      @font;
+  icon-font:      @font;
+}

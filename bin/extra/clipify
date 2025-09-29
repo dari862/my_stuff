@@ -1,6 +1,7 @@
 #!/bin/bash
 # cut clips out of videos
 set -eu
+unalias -a
 check_command() {
   local state=true
   for package in "${@}"; do

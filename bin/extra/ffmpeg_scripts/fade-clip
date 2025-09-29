@@ -68,7 +68,7 @@ infile_nopath="${infile##*/}"
 infile_name="${infile_nopath%.*}"
 
 # defaults for variables if not defined
-outfile_default="${infile_name}-fade-$(date +%Y-%m-%d-%H-%M-%S).mp4"
+outfile_default="${infile_name}-fade-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 duration_default="0.5"
 
 # check if the libfdk_aac codec is installed, if not fall back to the aac codec

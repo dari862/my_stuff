@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-
+unalias -a
 check_4_dependencies_if_installed drill ufw nmcli || exit 1
 
 #

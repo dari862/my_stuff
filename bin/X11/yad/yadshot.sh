@@ -1,7 +1,7 @@
 #!/bin/bash
 # if this line exist script will be part of gui scripts.new_name=Yad_ScreenShot
 # if this line exist script will be part of hub script.
-
+unalias -a
 # Dependencies: coreutils, yad
 # need atleast one: slop, imagemagick, miam
 # optional: xclip, grabc (for use with color picker)

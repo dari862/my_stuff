@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Task/Todo management function
-
+unalias -a
 local BUTTERBASH_NOTES_DIR="$HOME/Documents"
 local todo_file="${BUTTERBASH_NOTES_DIR}/tasks"
 

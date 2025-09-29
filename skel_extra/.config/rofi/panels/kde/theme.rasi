@@ -2,10 +2,8 @@
 
 * {
   al:   #00000000;
-  bg:   #F5F5F5FF;
+  background:   #F5F5F5FF;
   bga:  #93CEE999;
-  fg:   #000000A6;
+  foreground:   #000000A6;
   ac:   #3DAEE9FF;
-    	icon-theme: "Zafiro";
-    font:				 	"Iosevka 10";
 }

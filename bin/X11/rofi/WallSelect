@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+unalias -a
 # if this line exist script will be part of hub script.
 
 # Set some variables
@@ -9,16 +10,16 @@
 
 if [ -n "$polybar_STYLE" ];then
 	if echo "$polybar_STYLE" | grep -q "panels/" ;then
-		ROFI_STYLE_NAME="panels"
+		CURRENT_STYLE_NAME="panels"
 	else
-		ROFI_STYLE_NAME="$(echo "$polybar_STYLE" | cut -d'/' -f2-)"
+		CURRENT_STYLE_NAME="$(echo "$polybar_STYLE" | cut -d'/' -f1)"
 	fi
 elif [ -n "$tint2_STYLE" ];then
-	ROFI_STYLE_NAME="$tint2_STYLE"
+	CURRENT_STYLE_NAME="$tint2_STYLE"
 fi
 
 wall_dir="${__distro_path_root}/my_wallpapers"
-temp_dir="/tmp/$USER/walls/$ROFI_STYLE_NAME"
+temp_dir="/tmp/$USER/walls/$CURRENT_STYLE_NAME"
 # Create cache dir if not exists
 mkdir -p "${temp_dir}"
 
@@ -26,7 +27,7 @@ mkdir -p "${temp_dir}"
 monitor_res=$(($(xdpyinfo | awk '/dimensions/{print $2}' | cut -d 'x' -f1) * 14 / $(xdpyinfo | awk '/resolution/{print $2}' | cut -d 'x' -f1)))
 rofi_override="element-icon{size:${monitor_res}px;}"
 rofi_command="rofi -dmenu -theme $HOME/.config/rofi/$ROFI_STYLE/WallSelect.rasi -theme-str $rofi_override"
-list_all_wall="$(find "${wall_dir}" -name "${ROFI_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null)"
+list_all_wall="$(find "${wall_dir}" -name "${CURRENT_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null)"
 # magick images in directory and save to cache dir
 for imagen in $list_all_wall; do
     [ -f "$imagen" ] || continue
@@ -45,7 +46,7 @@ for imagen in $list_all_wall; do
 done
 
 # Launch rofi
-wall_selection=$(find "${wall_dir}" -name "${ROFI_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -exec basename {} \; | sort | while read -r A ; do  printf "$A\x00icon\x1f""${temp_dir}"/"$A\n" ; done | $rofi_command)
+wall_selection=$(find "${wall_dir}" -name "${CURRENT_STYLE_NAME}_*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -exec basename {} \; | sort | while read -r A ; do  printf "$A\x00icon\x1f""${temp_dir}"/"$A\n" ; done | $rofi_command)
 
 # Set wallpaper
 [ -n "$wall_selection" ] && setbg -R "${wall_dir}/${wall_selection}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-
+unalias -a
 check_4_dependencies_if_installed bc ffmpeg ffprobe sed || exit 1
 
 show_error() {
@@ -597,7 +597,7 @@ while [ ${#} -ge 1 ]; do
       IN="${2}"
       NAME="${IN%.*}"
       EXTENSION="${IN##*.}"
-      BACKUP="${IN}_$(date +%Y%m%d-%H%M%S).bak"
+      BACKUP="${IN}_$(date +'%Y%m%d-%H%M%S').bak"
       scan_input
       shift 2
       ;;

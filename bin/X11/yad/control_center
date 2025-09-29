@@ -330,8 +330,8 @@ if [ -f /var/log/apt/term.log ];then
 fi
 # Days ago
 TODAY=$(date +%F)
-TODAY_in_sec=$(date +%s -d ${TODAY})
-INST_in_sec=$(date +%s -d ${INST})
+TODAY_in_sec=$(date +'%s' -d ${TODAY})
+INST_in_sec=$(date +'%s' -d ${INST})
 DIFF_in_sec=$(($TODAY_in_sec - $INST_in_sec))
 DIFF=$((DIFF_in_sec / 86400))
 if [ "$DIFF" -gt 1 ];then

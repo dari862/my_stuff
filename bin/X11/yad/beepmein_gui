@@ -59,7 +59,7 @@ title="beepmein Alarm Clock (Time is now: $(date +%R))"
 future="$(date -d "+5 minutes" +%R)"
 
 # for timeToEvent()
-now="$(date +%s)"
+now="$(date +'%s')"
 
 # timeToEvent
 timeToEvent() {
@@ -67,7 +67,7 @@ timeToEvent() {
   	event="$1"
    	if [[ "$event" ]];then
 
-       	event="$(date -d "$event" +%s)"
+       	event="$(date -d "$event" +'%s')"
        	diff=$(( event - now ))
 
        	# And show as HH:MM:SS, only if less than 24 hours

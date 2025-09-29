@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-
+unalias -a
 opt="${1:-}"
 
 RED='\033[0;31m'

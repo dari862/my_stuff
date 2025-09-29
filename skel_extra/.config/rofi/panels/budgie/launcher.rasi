@@ -1,16 +1,8 @@
-/*
- *
- * Author  : Aditya Shakya
- * Mail    : adi1090x@gmail.com
- * Github  : @adi1090x
- * Twitter : @adi1090x
- *
- */
+@import "fonts.rasi"
+@import "colors.rasi"
 
 configuration {
-	font:							"Iosevka Nerd Font 10";
     show-icons:                     true;
-	icon-theme: 					"Papirus";
     display-drun: 					"";
     drun-display-format:            "{name}";
     disable-history:                false;
@@ -18,8 +10,6 @@ configuration {
 	hide-scrollbar: 				true;
 	sidebar-mode: 					false;
 }
-
-@import "colors.rasi"
 
 window {
     transparency:                   "real";
@@ -39,7 +29,7 @@ prompt {
 	padding: 						0px;
 	background-color: 				@al;
 	text-color: 					@ac;
-	font:							"feather 12";
+	font:							@font;
 }
 
 entry {

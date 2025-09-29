@@ -68,7 +68,7 @@ infile_nopath="${infile##*/}"
 infile_name="${infile_nopath%.*}"
 
 # output file recording destination
-outfile_default="${infile_name}-video-$(date +%Y-%m-%d-%H-%M-%S).mp4"
+outfile_default="${infile_name}-video-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 
 
 #===============================================================================

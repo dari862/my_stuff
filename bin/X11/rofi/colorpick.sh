@@ -7,7 +7,7 @@ err(){
 	. "${__distro_path_root}/lib/common/WM"
 	. "${Distro_config_file}"
 	__message="${1:-}"
-	rofi -e "Alert (Somthing went wrong!!):\n ${__message}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi && exit 1		
+	rofi -e "Alert (Somthing went wrong!!):\n ${__message}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi && exit 1		
 }
 
 # Function to copy to clipboard with different tools depending on the display server

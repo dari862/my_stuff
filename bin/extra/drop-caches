@@ -3,7 +3,7 @@
 
 # clear system cache
 set -eu
-
+unalias -a
 if [ -e /proc/sys/vm/drop_caches ];then
   sync
   my-superuser bash -c "echo 3 > /proc/sys/vm/drop_caches"

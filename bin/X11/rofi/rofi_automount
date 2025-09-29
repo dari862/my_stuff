@@ -16,7 +16,8 @@ fi
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "/home/$__user/$Distro_config_dir_name"
-RASI_PATH="/home/$__user/.config/rofi/$ROFI_STYLE/runner.rasi"
+RASI_DIR="/home/$__user/.config/rofi/$ROFI_STYLE"
+RASI_PATH="$RASI_DIR/runner.rasi"
 . "${__distro_path_root}/lib/automount_lib"
 
 Parse_arguments

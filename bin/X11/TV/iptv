@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 unalias -a
-. "/usr/share/my_stuff/lib/common/WM"
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
 tv_config_dir="${script_config_path}/My_TV"
 tv_config_file="${tv_config_dir}/termv.conf"
 

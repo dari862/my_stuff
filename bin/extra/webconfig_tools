@@ -1,5 +1,5 @@
 #!/bin/bash
-
+unalias -a
 # View Apache logs
 apachelog() {
 	if [ -f /etc/httpd/conf/httpd.conf ];then

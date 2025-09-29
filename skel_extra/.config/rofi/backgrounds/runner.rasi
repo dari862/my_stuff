@@ -2,8 +2,6 @@
 
 
 configuration {
-	icon-theme: 				"Papirus-Dark";
-	application-fallback-icon: 	"Adwaita";
     show-icons:                 true;
 	drun-display-format:        "{name}";
 	disable-history:            true;

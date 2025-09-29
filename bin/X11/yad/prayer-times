@@ -279,7 +279,7 @@ settimes() {
   [[ "${#epochtimes[@]}" -gt 0 ]] && return 0
 
   epochtimes=(
-    [now]=$(date +%s)
+    [now]=$(date +'%s')
     [fajr]=$(timeof Fajr %s)
     [dhuhr]=$(timeof Dhuhr %s)
     [asr]=$(timeof Asr %s)

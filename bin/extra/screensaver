@@ -2,7 +2,7 @@
 # if this line exist script will be part of hub script.
 
 #set -euo pipefail
-
+unalias -a
 opt_="${1-}"
 
 Let_it_Rain_screensaver_(){

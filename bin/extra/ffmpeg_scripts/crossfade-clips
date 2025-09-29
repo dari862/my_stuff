@@ -80,7 +80,7 @@ clip1_offset=$(echo "${clip1_dur}-1" | bc -l)
 clip2_offset=$(echo "${clip2_dur}-1" | bc -l)
 
 # variables
-outfile_default="${clip1_name}-xfade-$(date +%Y-%m-%d-%H-%M-%S).mp4"
+outfile_default="${clip1_name}-xfade-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 duration_default='1'
 
 

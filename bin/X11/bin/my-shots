@@ -82,7 +82,7 @@ for arg in "$@"; do
 done
 extension="png"
 if [ -z "${__file}" ];then
-	__time=$(date +%Y-%m-%d-%H-%M-%S)
+	__time=$(date +'%Y-%m-%d_%H-%M-%S')
 	__geometry=$(xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current')
 	__file="Screenshot_${__time}_${__geometry}"
 else

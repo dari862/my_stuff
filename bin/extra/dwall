@@ -1,7 +1,7 @@
 #!/bin/bash
 ## Dynamic Wallpaper : Set wallpapers according to current time.
 ## Created to work better with job schedulers (cron)
-
+unalias -a
 . "$__distro_path_lib"
 
 #[ "$(id -u)" -eq 0 ] && { echo "never run script as root. existing.."; exit 1 ;}

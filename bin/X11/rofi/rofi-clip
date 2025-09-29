@@ -18,6 +18,6 @@ if pgrep clipmanager >/dev/null 2>&1;then
 	selected_file="$(cat "${clip_path}/listofclip" | grep -w "^$clip2cp" | awk -F: '{print $2}')"
 	cat "${selected_file}" | xclip -selection clipboard
 else
-	rofi -e "$0: ERROR clipmanager is not running." -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi
+	rofi -e "$0: ERROR clipmanager is not running." -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
 	exit 1
 fi

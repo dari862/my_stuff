@@ -18,11 +18,11 @@ show_em() {
 if [ "$__mode" = "rofi" ]; then
 	show_m() {
     	__massage="${1:-}"
-     	rofi -e "$__massage" -theme "$RASI_PATH"
+     	rofi -e "$__massage" -theme "$RASI_DIR/massage.rasi"
 	}
 	show_em() {
     	__massage="${1:-}"
-    	rofi -e "$__massage" -theme "$RASI_PATH"
+    	rofi -e "$__massage" -theme "$RASI_DIR/massage.rasi"
     	exit 1
 	}
 fi

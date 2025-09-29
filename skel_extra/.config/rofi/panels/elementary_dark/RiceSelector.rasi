@@ -1,18 +1,16 @@
-// # z0mbi3 -  https://github.com/gh0stzk/dotfiles
+@import "fonts.rasi"
+@import "colors.rasi"
 
 // Config //
 configuration {
     modi:                        "drun";
     show-icons:                  true;
     drun-display-format:         "{name}";
-    font:                        "JetBrainsMono NF Bold 11";
 
     //hover-select:				 true;
 	//me-select-entry:			 "";
 	//me-accept-entry:			 "MousePrimary";
 }
-
-@import "colors.rasi"
 
 * {
 	main-bg: @bg;

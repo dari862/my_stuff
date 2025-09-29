@@ -25,7 +25,7 @@ while true; do
     --ext) extension="$2"; shift 2 ;;
     --file) File_to_link="$2"; shift 2 ;;
     --file-repo) repo_to_find="$2"; shift 2 ;;
-    --root) __superuser="sudo"; shift ;;
+    --root) __superuser="my-superuser"; shift ;;
     *) break ;;
   esac
 done
@@ -83,7 +83,7 @@ Installing_deb() {
 	log "Installing deb file."
 	CONFIG_DIR="$ROOT_CONFIG_DIR"
 	CONFIG_FILE="$ROOT_CONFIG_FILE"
-  [ "$(id -u)" -ne 0 ] && __superuser="sudo"
+  [ "$(id -u)" -ne 0 ] && __superuser="my-superuser"
   [ ! -d "$CONFIG_DIR" ] && $__superuser mkdir -p "$CONFIG_DIR"
   $__superuser mv "${tmpfile}" "${tmpfile}".deb
   $__superuser apt-get install -y -f "${tmpfile}".deb
@@ -370,7 +370,7 @@ Usage: $0 [OPTIONS] <COMMAND> [ARGS...]
 	$script_name [--root] update
    
 Options:
-  --root                Use sudo when installing to protected paths (e.g. $ROOT_CONFIG_DIR)
+  --root                Use my-superuser when installing to protected paths (e.g. $ROOT_CONFIG_DIR)
 
 Commands:
   install <user/repo> [version]   Install a GitHub release binary

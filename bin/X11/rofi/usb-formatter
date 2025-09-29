@@ -3,7 +3,7 @@
 # if this line exist script will be part of gui scripts.new_name=USB_formatter
 __user="${1:-}"
 __distro_path_lib="${2:-$__distro_path_lib}"
-
+unalias -a
 if [ "$(id -u)" -ne 0 ]; then
     popup_terminal --superuser "$0 $USER $__distro_path_lib"
     exit
@@ -15,7 +15,8 @@ fi
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "/home/$__user/$Distro_config_dir_name"
-RASI_PATH="/home/$__user/.config/rofi/$ROFI_STYLE/runner.rasi"
+RASI_DIR="/home/$__user/.config/rofi/$ROFI_STYLE"
+RASI_PATH="${RASI_DIR}/runner.rasi"
 
 __msg() {
 	__massage="$(printf "$2")"
@@ -24,7 +25,7 @@ __msg() {
 
 _no_choice_msg() {
 	__massage="$(printf "$1")"
-    rofi -e "$__massage" -theme "$RASI_PATH"
+    rofi -e "$__massage" -theme "$RASI_DIR/massage.rasi"
 }
 
 formatmenu () {

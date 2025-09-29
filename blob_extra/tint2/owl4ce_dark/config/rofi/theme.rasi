@@ -14,7 +14,6 @@
   off:              #fa5aa4;
   urgent:           #fa946e;
   icon-theme:       "Papirus-Dark-Custom";
-  font:				"Comfortaa Bold 12";
   background:       @background-alpha;
   background-alt:   @background-light;
   selected:         @accent2;

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 check_4_dependencies_if_installed bc ffmpeg ffprobe sed || exit 1
-
+unalias -a
 #
 # Define functions
 #

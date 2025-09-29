@@ -30,7 +30,7 @@ case $GVIM in
         TEXT="<big>$ERROR</big>\n\n$RX"
         . "${__distro_path_root}/lib/common/WM"
 		. "${Distro_config_file}"
-		rofi -e "$TEXT" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+		rofi -e "$TEXT" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
     else
         echo "${SELF##*/}: $ERROR" >&2
     fi

@@ -6,7 +6,7 @@ chosen="${1-}"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-RASI="$HOME/.config/rofi/$ROFI_STYLE/askpass.rasi"
+RASI="$HOME/.config/rofi/$ROFI_STYLE/massage.rasi"
 
 if [ "${chosen}" = "--www-search" ];then
 	words="$(rofi -dmenu -no-fixed-num-lines -theme "${RASI}" -theme-str 'textbox-prompt-colon {str: "Search : ";}')"

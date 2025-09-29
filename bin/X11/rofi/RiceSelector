@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+unalias -a
 # if this line exist script will be part of hub script.
 # Load current theme
 . "$__distro_path_lib"

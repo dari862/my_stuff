@@ -27,11 +27,11 @@ rofi_ask_passowrd(){
 	while :; do
 		password="$(ask_for_pass)"
 		[ $? -ne 0 ] && (
-			rofi -e "Authentication cancelled." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/askpass.rasi"
+			rofi -e "Authentication cancelled." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/massage.rasi"
 			return 2
 		)
 		[ -n "$password" ] && break
-		rofi -e "Empty password." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/askpass.rasi"
+		rofi -e "Empty password." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/massage.rasi"
 	done
 	
 	printf '%s\n' "$password"
@@ -68,7 +68,7 @@ else
 	if [ "$status" = "0" ];then
 		sudo $_full_command
 	else
-		rofi -e "Superuser password was incorrect." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/askpass.rasi" 
+		rofi -e "Superuser password was incorrect." -theme "$HOME/.config/rofi/${ROFI_STYLE:-default}/massage.rasi" 
 		exit 1
 	fi
 fi

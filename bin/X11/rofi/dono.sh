@@ -1,6 +1,6 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
-
+unalias -a
 set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
@@ -33,10 +33,11 @@ get_notes() {
 
 create_note() {
 	file=$(echo "$title" | sed 's/ /_/g;s/\(.*\)/\L\1/g')
+	currentdate="$(date +'%Y-%m-%d %H:%M:%S%z')"
 	template=$(cat <<- END
 ---
 title: $title
-date: $(date +%Y-%m-%d %H:%M:%S%z)
+date: $currentdate
 author: $AUTHOR
 ---
 

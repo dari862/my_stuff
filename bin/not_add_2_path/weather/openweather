@@ -57,7 +57,7 @@ create_detailed_weather_report(){
 	forecast=$(cat "${forecastreport}")
 	
 	# Extract the current weather information
-	CURRENT_DATETIME=$(date +%Y-%m-%d %H:%M:%S)
+	CURRENT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')
 	CURRENT_POP=$(echo $forecast | jq -r ".list[0].pop")  # chance of rain
 	
 	# Display the current weather
@@ -146,7 +146,7 @@ parse_weather_for_conky_vision(){
 		mode="$1"
     	day="$2"
     	current_date="$(date +%Y-%m-%d)"
-    	picked_date="$(date -d "$next_date + $day day" +%Y-%m-%d)"
+    	picked_date="$(date -d "$next_date + $day day" +'%Y-%m-%d')"
     	
 		if [ "$mode" = "max" ];then
     		res=$(echo "$forecast" | jq --arg target_day "$picked_date" '.list[] | select(.dt_txt | startswith($target_day)) | .main.temp_max' | sort -nr | head -1)

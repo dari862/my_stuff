@@ -1,4 +1,5 @@
 #!/bin/bash
+unalias -a
 main_menu(){
 	options=("Font-size" "Update" "Install" "Uninstall" "Quit")
 	SUB=$(printf '%s\n' "${options[@]}" | shellect "choices:" | tr '[:upper:]' '[:lower:]' | sed 's/-/_/g')

@@ -63,12 +63,12 @@ connectiontest() {
 
 get_moon_phase() { 
 	# Moon Phase should be updated only once a day.
-	[ ! -s "$moonfile" ] && [ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ] && (getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || echo "[ERROR] $0 : failed to run get_moon_phase")
+	[ ! -s "$moonfile" ] && [ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" != "$(date +'%Y-%m-%d')" ] && (getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || echo "[ERROR] $0 : failed to run get_moon_phase")
 	cat "$moonfile" && echo ""
 }
 
 getdoppler() {
-	[ -s "$doppler" ] && [ $(($(date +%s) - $(stat -c %Y "$doppler"))) -le "$secs" ] && return
+	[ -s "$doppler" ] && [ $(($(date +'%s') - $(stat -c %Y "$doppler"))) -le "$secs" ] && return
 	case "$continentcode" in
 		"US") getURL '2term' "https://radar.weather.gov/ridge/standard/${radarcode}_loop.gif" > "$doppler" ;;
 		"EU") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rainTMC/2/" > "$doppler" ;;

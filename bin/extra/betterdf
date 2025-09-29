@@ -1,5 +1,5 @@
 #!/bin/bash
-
+unalias -a
 # Colors
 bold="$(tput bold)"
 red="$(tput setaf 1)"

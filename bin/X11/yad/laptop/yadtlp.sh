@@ -1,6 +1,6 @@
 #!/bin/bash
 # if this line exist script will be part of gui scripts.new_name=GUI_TLP
-
+unalias -a
 . "$__distro_path_lib"
 __config_path="/etc/tlp.conf"
 __tlp_version_="$(tlp-stat -s | head -1)"

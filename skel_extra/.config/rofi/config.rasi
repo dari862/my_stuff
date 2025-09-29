@@ -15,6 +15,7 @@ configuration {
 	normalize-match: true;
 	show-icons: true;
 	icon-theme: "Zafiro";
+	application-fallback-icon: 	"Adwaita";
 /*	cache-dir: ;*/
 	steal-focus: false;
 /*	dpi: -1;*/

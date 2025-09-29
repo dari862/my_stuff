@@ -55,13 +55,13 @@ fi
 confirmation_dialog
 
 case "$chosen" in
-  	"$shutdown"|shutdown) my_session_manager_cli shutdown --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
-   	"$reboot"|reboot) my_session_manager_cli reboot --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+  	"$shutdown"|shutdown) my_session_manager_cli shutdown --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi ;;
+   	"$reboot"|reboot) my_session_manager_cli reboot --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi ;;
    	"$lock"|lock) my_session_manager_cli lock ;;
    	"$suspend"|suspend) my_session_manager_cli suspend ;;
    	"$logout"|logout) my_session_manager_cli logout ;;
-   	hibernate) my_session_manager_cli hibernate --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
-	hybrid-Sleep) my_session_manager_cli hybrid-Sleep --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/confirm.rasi ;;
+   	hibernate) my_session_manager_cli hibernate --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi ;;
+	hybrid-Sleep) my_session_manager_cli hybrid-Sleep --no-cli-print-error ||  rofi -e "failed to $1" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi ;;
 	moniter_off) my_session_manager_cli moniter_off ;;
 	reload) my_session_manager_cli reload ;;
 	*) exit 0;;

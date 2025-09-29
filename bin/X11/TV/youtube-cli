@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 unalias -a
-. "/usr/share/my_stuff/lib/common/WM"
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
 
 CLI_NAME="yt-x"
 tv_config_dir="${script_config_path}/My_TV"

@@ -165,7 +165,7 @@ y='ih-ih/zoom',\
 scale=-2:${imgheight}" \
 
 # outfile file recording destination
-outfile_default="${infile_name}-zoompan-$(date +%Y-%m-%d-%H-%M-%S).mp4"
+outfile_default="${infile_name}-zoompan-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 
 
 #===============================================================================

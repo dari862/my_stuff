@@ -41,7 +41,7 @@ device_menu() {
     options="$connected\n$paired\n$trusted\n$divider\n$goback\nExit"
 
     # Open rofi menu, read chosen option
-    chosen="$(printf "$options" | $rofi_command "$device_name")"
+    chosen="$(printf "$options" | rofi_command "$device_name")"
 
     # Match chosen option to command
     case "$chosen" in
@@ -86,7 +86,7 @@ show_menu() {
     fi
 
     # Open rofi menu, read chosen option
-    chosen="$(printf "$options" | $rofi_command "Bluetooth")"
+    chosen="$(printf "$options" | rofi_command "Bluetooth")"
 
     # Match chosen option to command
     case "$chosen" in
@@ -107,13 +107,13 @@ show_menu() {
             ;;
         *)
             device=$(bluetoothctl devices | grep "$chosen")
-            # Open a submenu if a device is selected
-            if [ "$device" ];then device_menu "$device"; fi
+            [ -n "$device" ] && device_menu "$device" || :
             ;;
     esac
 }
 
-# Rofi command to pipe into, can add any options here
-rofi_command="rofi -dmenu $* -p -theme ${RASI}"
+rofi_command(){
+	rofi -dmenu -p "${1:-}" -theme "${RASI}"
+}
 
 show_menu

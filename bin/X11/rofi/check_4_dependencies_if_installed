@@ -50,6 +50,6 @@ if [ -n "${dependencies_not_installed}" ];then
 	else
 		. "${__distro_path_root}/lib/common/WM"
 		. "${Distro_config_file}"
-		rofi -e "Missing dependencies, please install : ${not_installed_apps_are}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi && return 1
+		rofi -e "Missing dependencies, please install : ${not_installed_apps_are}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi && return 1
 	fi
 fi

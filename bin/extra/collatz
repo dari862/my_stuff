@@ -1,6 +1,6 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
-
+unalias -a
 stopping_time=0
 
 echo 'Explore the Collatz sequence, the "simplest impossible math problem"'

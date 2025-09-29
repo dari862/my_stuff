@@ -15,7 +15,7 @@ echo '
 Package: *
 Pin: origin packages.mozilla.org
 Pin-Priority: 1000
-' | sudo tee /etc/apt/preferences.d/mozilla
+' | my-superuser tee /etc/apt/preferences.d/mozilla
 
 Package_update_
 

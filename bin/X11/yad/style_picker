@@ -127,7 +127,7 @@ Launch_YAD_(){
 	NUMDIRS=0
 	### CONFIGS VARIABLES
 	XFILE="$HOME/.Xresources"
-	BKP_SFX=".$(date +%Y%m%d-%H%M%S).blob~"
+	BKP_SFX=".$(date +'%Y%m%d-%H%M%S').blob~"
 	### END CONFIGS VARIABLES
 	
 	### DIALOG VARIABLES
@@ -506,7 +506,7 @@ Launch_YAD_(){
 		style_changer "$_panel_name_" "$(cat $CURSESSION)"
 		if . "$FPATH/lightdm-gtk-greeter.conf";then
     		apps_as_root "setLightdmGreeter" "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position" \
-    			|| rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/askpass.rasi
+    			|| rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
     	fi
     	restoreSettings   
 	}

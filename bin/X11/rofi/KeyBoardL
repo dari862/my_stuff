@@ -25,7 +25,7 @@ show_rofi_menu() {
     for layout in "${!LAYOUTS[@]}"; do
         options+="$layout\n"
     done
-    echo -e "${options%\\n}" | rofi \
+    printf '%b' "${options}" | rofi \
         -dmenu \
         -p "Keyboard Layout" \
         -mesg "Current layout --> $CURRENT" \
