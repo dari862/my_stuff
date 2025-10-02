@@ -1,7 +1,8 @@
 #!/bin/sh
-if [ "$Distro_installer_mode" = false ];then
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
 	_SUPERUSER="my-superuser"
-	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 fi
 
 if ls /sys/kernel/iommu_groups/* >/dev/null 2>&1 || ls /sys/class/iommu/* >/dev/null 2>&1 || (cat /proc/cmdline | grep -q "iommu=on") || grep -Ecq '(vmx|svm)' /proc/cpuinfo;then # enabled

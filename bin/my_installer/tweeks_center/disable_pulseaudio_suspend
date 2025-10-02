@@ -1,7 +1,8 @@
 #!/bin/sh
-if [ "$Distro_installer_mode" = false ];then
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
 	_SUPERUSER="my-superuser"
-	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 fi
 
 pulseconfig="/etc/pulse/default.pa"

@@ -1,11 +1,14 @@
 #!/bin/sh
-
 tweek_as_dependency "enable_universe_multiverse" || continue
-
-if [ "$Distro_installer_mode" = false ];then
-	app_name="GPU Drivers"
-	_SUPERUSER="my-superuser"
+app_name="GPU Drivers"
+if [ -z "$machine_type_are" ];then
 	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
+fi
+
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
+	_SUPERUSER="my-superuser"
 fi
 
 add_nvidia=false

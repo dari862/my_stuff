@@ -1,9 +1,13 @@
 #!/bin/sh
-
-if [ "$Distro_installer_mode" = false ];then
-	app_name="GPU Drivers"
-	_SUPERUSER="my-superuser"
+app_name="GPU Drivers"
+if [ -z "$machine_type_are" ];then
 	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
+fi
+
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
+	_SUPERUSER="my-superuser"
 fi
 
 tweek_as_dependency "Adding_contrib" "skip_update" || failed_but_continue "Adding_contrib tweek"

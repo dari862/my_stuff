@@ -2,7 +2,7 @@
 set -e
 . "$__distro_path_lib"
 target_path="${__distro_path_root}/system_files/bin/popup_terminal"
-popup_terminal_create_path="${__distro_path_root}/bin/must_create_script/popup_terminal"
+popup_terminal_create_path="$(pwd)"
 
 for term in kitty alacritty terminator urxvt;do
 	command -v "$term" > /dev/null 2>&1 && terminal="$term" && break

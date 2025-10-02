@@ -2,7 +2,7 @@
 set -e
 . "$__distro_path_lib"
 target_path="${__distro_path_root}/system_files/bin/service_manager"
-init_create_path="${__distro_path_root}/bin/must_create_script/init"
+init_create_path="$(pwd)"
 # openrc
 if command -v rc-service > /dev/null 2>&1;then
 	ln -sf "${init_create_path}/openrc" "${target_path}"

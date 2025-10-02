@@ -2,18 +2,16 @@
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
-tmp_dir="$(mktemp -d /tmp/$USER/frontpage_XXXXX)"
 input="${script_config_path}/frontpage-bookmarks"  # File containing your text
 output="${WM_config_dir}/bookmarks.html"  # File to save the modified text
+stored_line=""
+stored_depth=""
+first_depth=""
+second_depth=""
+third_depth=""
 
-head="${tmp_dir}/head"  # File to save the modified text
-bottom="${tmp_dir}/bottom"  # File to save the modified text
-tmp_output="${tmp_dir}/temp"  # File to save the modified text
-combined="${tmp_dir}/combined"
-
-: > "$tmp_output"
-
-tee "$head" <<- EOF > /dev/null
+{
+cat <<- EOF
 <!DOCTYPE html>
 <html>
 <head>
@@ -38,11 +36,6 @@ tee "$head" <<- EOF > /dev/null
 <div class="container"><h2>Multi-Level Dropdowns</h2>                             
 
 EOF
-stored_line=""
-stored_depth=""
-first_depth=""
-second_depth=""
-third_depth=""
 
 # Read each line from the input file
 while IFS= read -r line; do
@@ -54,7 +47,7 @@ while IFS= read -r line; do
         if [ "$stored_depth" = 3 ] && [ -z "$third_depth" ];then
         	third_depth="$stored_line"
         elif [ "$stored_depth" -gt 0 ] && [ -n "$third_depth" ];then
-        	echo '</ul></li>' >> "$tmp_output"
+        	echo '</ul></li>'
         	if [ "$stored_depth" = 3 ];then
         		third_depth="$stored_line"
         	else
@@ -65,7 +58,7 @@ while IFS= read -r line; do
         if [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
         	second_depth="$stored_line"
         elif [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
-        	echo '</ul></li>' >> "$tmp_output"
+        	echo '</ul></li>'
         	second_depth="$stored_line"
         elif [ "$stored_depth" = 1 ];then
         	second_depth=""
@@ -74,20 +67,20 @@ while IFS= read -r line; do
 		if [ "$stored_depth" = 1 ] && [ -z "$first_depth" ];then
         	first_depth="$stored_line"
         elif [ "$stored_depth" = 1 ] && [ -n "$first_depth" ];then
-        	echo '</ul></div>' >> "$tmp_output"
+        	echo '</ul></div>'
         	first_depth="$stored_line"
 		fi
     fi
-    echo "$line" >> "$tmp_output" 
+    echo "$line"
 done < "$input"
 if [ -n "$third_depth" ];then
-	echo "$third_depth third_depth" >> "$tmp_output" 
+	echo "$third_depth third_depth"
 fi
 if [ -n "$first_depth" ];then
-	echo "$first_depth first_depth" >> "$tmp_output"
+	echo "$first_depth first_depth"
 fi
 
-tee -a "$bottom" <<- 'EOF' > /dev/null
+cat <<- 'EOF'
 </div>
 
 <script>
@@ -103,19 +96,16 @@ $(document).ready(function(){
 </body>
 </html>
 EOF
-sed -i '/^###/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' "$tmp_output"
-sed -i 's/^###/<li class="dropdown-submenu"><a class="test" href="#">/g' "$tmp_output"
-
-sed -i '/^##/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' "$tmp_output"
-sed -i 's/^##/<li class="dropdown-submenu"><a class="test" tabindex="-1" href="#">/g' "$tmp_output"
-
-sed -i '/^#/ s/$/<span class="caret"><\/span><\/button><ul class="dropdown-menu">/' "$tmp_output"
-sed -i 's/^#/<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">/g' "$tmp_output"
-
-sed -i '/^   */ s/$/<\/a><\/li>/' "$tmp_output"
-sed -i 's/^   */<li><a href="/g' "$tmp_output"
-sed -i 's/<A>/">/g' "$tmp_output"
-
-cat "$head" "$tmp_output" "$bottom" > "$combined"
-mv "$combined" "$output" 
-rm -rdf "$tmp_dir"
+} |\
+sed '/^###/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' |\
+sed 's/^###/<li class="dropdown-submenu"><a class="test" href="#">/g' |\
+\
+sed '/^##/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' |\
+sed 's/^##/<li class="dropdown-submenu"><a class="test" tabindex="-1" href="#">/g' |\
+\
+sed '/^#/ s/$/<span class="caret"><\/span><\/button><ul class="dropdown-menu">/' |\
+sed 's/^#/<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">/g' |\
+\
+sed '/^   */ s/$/<\/a><\/li>/' |\
+sed 's/^   */<li><a href="/g' |\
+sed 's/<A>/">/g' > "$output"

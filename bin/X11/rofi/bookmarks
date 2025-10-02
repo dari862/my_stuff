@@ -8,6 +8,14 @@
 database="${script_config_path}/bookmarks"
 [ ! -f "$database" ] && touch $database
 
-mark="$(cat $database | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Bookmarks:')"
+database_contant="$(cat $database)"
 
-[ ! -z "$mark" ] && my-www-browser $mark
+mark="$(printf '%s\nAdd to bookmark.' "$database" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Bookmarks:')"
+
+if [ -n "$mark" ];then
+	if [ "$mark" = "Add to bookmark." ];then
+		printf "%s" "$mark" >> "$database"
+	else
+		my-www-browser $mark
+	fi
+fi
