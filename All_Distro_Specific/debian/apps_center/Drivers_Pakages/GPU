@@ -66,12 +66,13 @@ install_nvidia_drivers(){
 	[ "$install_cuda_" = true ] && _cuda_="cuda" || _cuda_=""
 	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-kernel-open-dkms" || _kernel_open_dkms_="nvidia-dkms"
 	
-	Packages_2_install="$Packages_2_install nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree" || continue
+	Packages_2_install="$Packages_2_install nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree nvidia-vulkan-common xserver-xorg-video-nvidia" || continue
 }
 
 update_initramfs_now(){
-	say "Enable drm."
-	printf "options nvidia-drm modeset=1" | ${_SUPERUSER} tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	#say "Enable drm."
+	#printf "options nvidia-drm modeset=1" | ${_SUPERUSER} tee /etc/modprobe.d/nvidia-drm.conf >/dev/null 2>&1
+	say "Update initramfs."
 	${_SUPERUSER} update-initramfs -u
 	
 	say "if system notification regarding Nvidia driver conflicts appeard reboot will fix it."
