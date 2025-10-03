@@ -4,7 +4,11 @@ set -eu
 option=${1-}
 service=${2-}
 user=""
-_superuser="my-superuser"
+if [ "$(id -u)" -eq 0 ];then
+	_superuser=""
+else
+	_superuser="my-superuser"
+fi
 if [ "${service}" = "user" ];then
 	user="--user"
 	service=${3-}
