@@ -9,8 +9,6 @@ show_em(){
 
 if [ -z "${wallpaper}" ];then
 	pickbg
-else
-	wallpaper="$(realpath "${wallpaper}")"
 fi
 
 . "${__distro_path_root}/lib/common/WM"
@@ -24,6 +22,12 @@ elif [ "$_panel_name_" = 'tint2' ];then
 	CONFIGPATH="${BLOBPATH}/tint2"
 fi
 STYLEPATH="${CONFIGPATH}/$style"
+
+if [ -z "${wallpaper}" ];then
+	wallpaper="${wallpaper_are}"
+fi
+
+wallpaper="$(realpath "${wallpaper}")"
 
 setbg -s "${wallpaper}"
 
