@@ -23,10 +23,10 @@ set period 1
 #set number
 set hidden!
 set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
-set cleaner '~/.config/lf/cleaner'
-set previewer '~/.config/lf/previewer'
+set cleaner '(((distro_path_root)))/bin/not_add_2_path/LF/cleaner'
+set previewer '(((distro_path_root)))/bin/not_add_2_path/LF/previewer'
 set promptfmt "
-\033[48;2;35;38;39;38;2;28;220;156m  
+\033[48;2;35;38;39;38;2;28;220;156m (((distro_icon))) 
 \033[38;2;35;38;39;48;2;202;31;31m
 \033[38;2;202;31;31;48;2;40;47;62m
 \033[38;2;255;255;255m %w 
@@ -59,7 +59,7 @@ source '~/.config/lf/opener'
 %test $LF_LEVEL -eq 1 || >&2 printf "Warning: You're in a nested lf instance!"
 
 cmd mkdir $mkdir -p "$(echo $* | tr ' ' '\ ')"
-cmd trash %trash-put $fx
+cmd trash_it %trash-put $fx
 
 
 cmd delete ${{
@@ -279,7 +279,7 @@ map Kc cmaps  # List command mode mappings
 map d
 map dd cut
 map D delete
-map <a-d> trash
+map <a-d> trash_it
 map <a-D> shred
 map E extract
 #map C copyto

@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/Distro_Specific/disto_icon"

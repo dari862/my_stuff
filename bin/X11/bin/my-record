@@ -1,6 +1,6 @@
 #!/bin/sh
 # Variables and functions
-# work on this : trap
+
 . "$__distro_path_lib"
 icons_dir="${__distro_path_root}/icons/dunst"
 

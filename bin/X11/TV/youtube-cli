@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 unalias -a
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"

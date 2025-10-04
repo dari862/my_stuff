@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/python3
 
 # Try to determine how much RAM is currently being used per program.
 # Note per _program_, not per process. So for example this script
@@ -44,7 +44,7 @@
 # All interpreted programs where the interpreter is started
 # by the shell or with env, will be merged to the interpreter
 # (as that's what's given to exec). For e.g. all python programs
-# starting with "#!/usr/bin/env python" will be grouped under python.
+# starting with "#!/bin/python" will be grouped under python.
 # You can change this by using the full command line but that will
 # have the undesirable affect of splitting up programs started with
 # differing parameters (for e.g. mingetty tty[1-6]).

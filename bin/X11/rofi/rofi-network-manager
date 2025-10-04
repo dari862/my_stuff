@@ -68,7 +68,7 @@ show_menu() {
 }
 
 rofi_cmd() {
-    rofi -theme "$THEME_FILE" -theme-str 'window{width:345px;location: ${DIRECTIONS[LOCATION]};}' "$@" -kb-cancel "Escape"
+    rofi -theme "$THEME_FILE" -theme-str "window{width:345px;location: ${DIRECTIONS[LOCATION]};}" "$@" -kb-cancel "Escape"
 }
 
 rofi_cmd_qrcode() {
@@ -90,7 +90,7 @@ rofi_cmd_qrcode() {
 # Custom rofi command function for hidden network SSID input
 rofi_cmd_hidden_ssid() {
     rofi -theme "$THEME_FILE" \
-        -theme-str 'window{width:350px;location: ${DIRECTIONS[LOCATION]};}' \
+        -theme-str "window{width:350px;location: ${DIRECTIONS[LOCATION]};}" \
         -theme-str 'mainbox{children:["message","inputbar"];}' \
         -theme-str 'inputbar{background-image:none; padding:10px;}' \
         -theme-str 'textbox{font:"JetBrains Mono Nerd Font Propo 10";padding:12px;expand:false;}' \
@@ -104,7 +104,7 @@ rofi_cmd_hidden_ssid() {
 # Custom rofi command function for security selection
 rofi_cmd_security() {
     rofi -theme "$THEME_FILE" \
-        -theme-str 'window{width:345px;location: ${DIRECTIONS[LOCATION]};}' \
+        -theme-str "window{width:345px;location: ${DIRECTIONS[LOCATION]};}" \
         -theme-str 'listview{columns:1; lines:3;}' \
         -theme-str 'element{padding:5px;}' \
         -theme-str 'element-text{font:"JetBrains Mono Nerd Font Propo 10";}' \
@@ -116,7 +116,7 @@ rofi_cmd_security() {
 # Custom rofi command function for saved networks
 rofi_cmd_saved() {
     rofi -theme "$THEME_FILE" \
-        -theme-str 'window{width:345px;location: ${DIRECTIONS[LOCATION]};}' \
+        -theme-str "window{width:345px;location: ${DIRECTIONS[LOCATION]};}" \
         -theme-str 'listview{columns:1;lines:5;}' \
         -theme-str 'element{padding:5px;}' \
         -theme-str 'element-text{font:"JetBrains Mono Nerd Font Propo 10";}' \
@@ -128,7 +128,7 @@ rofi_cmd_saved() {
 # Custom rofi command function for network actions (Connect/Forget/Back)
 rofi_cmd_actions() {
     rofi -theme "$THEME_FILE" \
-        -theme-str 'window{width:345px;location: ${DIRECTIONS[LOCATION]};}' \
+        -theme-str "window{width:345px;location: ${DIRECTIONS[LOCATION]};}" \
         -theme-str 'listview{columns:1; lines:3; spacing:3px;}' \
         -theme-str 'element{padding:5px;}' \
         -theme-str 'element-text{font:"JetBrains Mono Nerd Font Propo 10";}' \

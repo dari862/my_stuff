@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Task/Todo management function
 unalias -a
 local BUTTERBASH_NOTES_DIR="$HOME/Documents"

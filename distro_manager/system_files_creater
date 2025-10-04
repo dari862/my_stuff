@@ -612,9 +612,9 @@ fi
 show_im "Add SSH theme."
 if service_manager status ssh;then
 	show_im "copy shell skel file related to ssh file to system_files/skel ."
-	cp -r "${__distro_path_root}/skel_extra/.bash_profile" "${__distro_path_root}/system_files/skel/.config"
+	cp -r "${__distro_path_root}/skel_extra/.bash_profile" "${__distro_path_root}/system_files/skel"
 	if command -v zsh >/dev/null 2>&1;then
-		cp -r "${__distro_path_root}/skel_extra/.zshenv" "${__distro_path_root}/system_files/skel/.config"
+		cp -r "${__distro_path_root}/skel_extra/.zshenv" "${__distro_path_root}/system_files/skel"
 	fi
 fi
 

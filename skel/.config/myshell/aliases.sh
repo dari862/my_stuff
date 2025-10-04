@@ -8,6 +8,10 @@
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
+# lf (as in "list files") is a terminal file
+# lfub is warper for lf
+alias lf="(((distro_path_root)))/bin/not_add_2_path/LF/lfub"
+
 # Alias's to modified commands
 alias cp='cp -iv'
 alias mv='mv -iv'
@@ -52,7 +56,7 @@ alias lm='ls -alh |more'          # pipe through 'more'
 alias lw='ls -xAh'                # wide listing format
 alias ll='ls -Fls'                # long listing format
 alias labc='ls -lap'              #alphabetical sort
-alias lf="ls -l | grep -v '^d'"  # files only
+alias llf="ls -l | grep -v '^d'"  # files only
 alias ldir="ls -l | grep '^d'"   # directories only
 
 # alias chmod commands

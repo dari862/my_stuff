@@ -15,9 +15,6 @@ if [ -f "/etc/doas.conf" ];then
 	my-superuser rm -rdf "/etc/doas.conf"
 fi
 
-# work on this : remove expect
-Package_installer_ expect || continue
-
 my-superuser ln -sf ${__distro_path_root}/bin/doas/doasedit ${__distro_path_root}/system_files/bin
 my-superuser cp -rp ${__distro_path_root}/system_files/doas.conf /etc
 

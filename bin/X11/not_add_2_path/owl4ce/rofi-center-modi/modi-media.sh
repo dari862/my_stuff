@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 ROW_ICON_FONT='feather 12'
 MSG_ICON_FONT='feather 48'

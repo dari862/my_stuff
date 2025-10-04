@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 . "$__distro_path_lib"
 exec 2>/dev/null
 . "${__distro_path_root}/lib/common/WM"

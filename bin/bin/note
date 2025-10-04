@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Note taking function with clipboard support
 unalias -a
 local BUTTERBASH_NOTES_DIR="$HOME/Documents"
