@@ -113,36 +113,6 @@ create_blob_system_files(){
 	fi
 }
 
-create_applicationsdotdesktop_link(){
-	__application_name="${1:-}"
-	__application_command="${2:-}"
-    if [ -f "${__distro_path_root}/applications_extra/${__application_name}.desktop" ];then
-    	cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
-    	ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
-    else
-    	[ -z "$__application_command" ] && __application_command="${__application_name}"
-    	tee "${__distro_path_root}/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
-    	[Desktop Entry]
-		Name=${__application_name}
-		Comment=${__application_name}
-		Exec=${__application_command}
-		Terminal=false
-		Type=Application
-		Icon=flatpak
-		Categories=GTK;
-		MimeType=text/html;text/xml;application/xhtml_xml;
-		StartupNotify=true
-		EOF
-    	ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
-    fi
-}
-
-copy_all__application_link_in_dir(){
-	__application_link_dir="${1:-}"
-    cp -r "${__distro_path_root}/applications_extra/${__application_link_dir}"/* "${__distro_path_root}/system_files/applications"
-    ln -sf "${__distro_path_root}/system_files/applications/${__application_link_dir}"/* "/usr/share/applications"
-}
-
 create_auto_completion_files(){
 	if command -v bash >/dev/null 2>&1;then
 		mkdir -p "$__distro_path_enabled_completion"/bash
@@ -237,6 +207,8 @@ mkdir -p "${__distro_path_root}"/system_files/applications
 
 mkdir -p "${__distro_path_system_ready}"
 mkdir -p "${__distro_path_neverremove}"
+
+mkdir -p "${_distro_xsessions_desktop_path}"
 
 show_im "LN essional files"
 mkdir -p "${__distro_path_root}/system_files/bin"
@@ -626,5 +598,20 @@ show_im "prepares hub script dir"
 show_im "sed (((distro_path_root)) to ${__distro_path_root} ."
 sed_distro_path_root_var_2_correct_value "${__distro_path_root}/system_files/skel"
 sed_distro_path_root_var_2_correct_value "${__distro_path_root}/system_files/blob"
+
+if command -v openbox >/dev/null 2>&1;then
+	show_im "create ${__distro_name}_openbox to xsessions."
+	create_applicationsdotdesktop_4_xsessions "openbox" "openbox"
+fi
+
+if command -v dwm >/dev/null 2>&1;then
+	show_im "create ${__distro_name}_dwm to xsessions."
+	create_applicationsdotdesktop_4_xsessions "dwm" "dwm"
+fi
+
+if command -v bspwm >/dev/null 2>&1;then
+	show_im "create ${__distro_name}_bspwm to xsessions."
+	create_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
+fi
 
 show_im "system_files_creater Done."
