@@ -16,7 +16,7 @@ fi
 
 pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
 
-PATH="${__distro_path_root}/bin/bin:$PATH"
+PATH="${__distro_path_root}/bin/cli:$PATH"
 
 ##################################################################################
 
@@ -467,9 +467,9 @@ fi
 	
 show_im "LN bin files to system_files/bin ."
 
-if [ -d "${__distro_path_root}/bin/bin" ];then
-	show_im "bin bin files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/bin/* "${__distro_path_root}"/system_files/bin
+if [ -d "${__distro_path_root}/bin/cli" ];then
+	show_im "bin cli files to system_files/bin ."
+	ln -sf "${__distro_path_root}"/bin/cli/* "${__distro_path_root}"/system_files/bin
 fi
 
 if [ -d "${__distro_path_root}/Distro_Specific/bin" ];then
@@ -484,9 +484,9 @@ if [ -d "${__distro_path_root}/bin/WM" ];then
 	
 fi
 
-if [ -d "${__distro_path_root}/bin/extra" ];then
-	show_im "exra bin files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/extra/* "${__distro_path_root}"/system_files/bin
+if [ -d "${__distro_path_root}/bin_extra/cli" ];then
+	show_im "exra cli files to system_files/bin ."
+	ln -sf "${__distro_path_root}"/bin_extra/cli/* "${__distro_path_root}"/system_files/bin
 fi
 
 if [ -d "${__distro_path_root}/bin/status" ];then
@@ -494,8 +494,8 @@ if [ -d "${__distro_path_root}/bin/status" ];then
 	ln -sf "${__distro_path_root}"/bin/status/* "${__distro_path_root}"/system_files/bin
 fi
 
-if [ -d "${__distro_path_root}/bin/apps" ];then
-	show_im "apps bin files to system_files/bin ."
+if [ -d "${__distro_path_root}/bin/gui" ];then
+	show_im "gui bin files to system_files/bin ."
 	ln -sf "${__distro_path_root}"/bin/apps/* "${__distro_path_root}"/system_files/bin
 	if ! command -v systemctl >/dev/null 2>&1;then
 		rm -f "${__distro_path_root}"/system_files/bin/yautostart

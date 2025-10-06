@@ -51,13 +51,13 @@ case "$REPLY" in
 		platfrom_name="kali"
 		install_kali
 		create_install_script
-		kali_install #script at ${__distro_path_root}/bin/bin to install kali packages
+		kali_install #script at ${__distro_path_root}/bin/cli to install kali packages
 	;;
 	2|p|P)
 		platfrom_name="parrot"
 		install_parrot
 		create_install_script
-		parrot_install #script at ${__distro_path_root}/bin/bin to install parrot packages
+		parrot_install #script at ${__distro_path_root}/bin/cli to install parrot packages
 	;;
 	*)
 		echo "$0: no such install option $REPLY"

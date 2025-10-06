@@ -21,7 +21,7 @@
 
 . "$__distro_path_lib"
 GVIM="$(readlink -e /etc/alternatives/gvim)"
-SELF="${__distro_path_root}/bin/bin/my-gvim"
+SELF="${__distro_path_root}/bin/cli/my-gvim"
 case $GVIM in
 "")
     ERROR="gvim is missing or not installed."

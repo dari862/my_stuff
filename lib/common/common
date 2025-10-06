@@ -177,7 +177,7 @@ create_applicationsdotdesktop_link(){
 create_applicationsdotdesktop_4_xsessions(){
 	__application_name="${1:-}"
 	__application_command="${2:-}"
-	
+	xsessions_applicationsdotdesktop_path="${__distro_path_system_files}/xsessions_applicationsdotdesktop"
 	if [ "$(id -u)" -eq 0 ];then
 		_SUPERUSER_2_use=""
 	else
@@ -190,9 +190,9 @@ create_applicationsdotdesktop_4_xsessions(){
 		fi
 	fi
 	
-	$_SUPERUSER_2_use mkdir -p "${__distro_path_system_files}/xsessions_applicationsdotdesktop"
-    if [ ! -f "${__distro_path_system_files}/xsessions_applicationsdotdesktop/${__distro_name}_${__application_name}.desktop" ];then
-    	$_SUPERUSER_2_use tee "${__distro_path_system_files}/xsessions_applicationsdotdesktop/${__distro_name}_${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+	$_SUPERUSER_2_use mkdir -p "${xsessions_applicationsdotdesktop_path}"
+    if [ ! -f "${xsessions_applicationsdotdesktop_path}/${__distro_name}_${__application_name}.desktop" ];then
+    	$_SUPERUSER_2_use tee "${xsessions_applicationsdotdesktop_path}/${__distro_name}_${__application_name}.desktop" <<- EOF >/dev/null 2>&1
 		[Desktop Entry]
 		Name=${__distro_title} ${__application_name}
 		Comment=Log in to a ${__distro_title} ${__application_name} session
@@ -203,7 +203,7 @@ create_applicationsdotdesktop_4_xsessions(){
 		EOF
     fi
     if [ ! -f "/usr/share/xsessions/${__distro_name}_${__application_name}.desktop" ];then
-    	$_SUPERUSER_2_use ln -sf "${__distro_path_system_files}/xsessions_applicationsdotdesktop/${__distro_name}_${__application_name}.desktop" "/usr/share/xsessions"
+    	$_SUPERUSER_2_use ln -sf "${xsessions_applicationsdotdesktop_path}/${__distro_name}_${__application_name}.desktop" "/usr/share/xsessions"
     fi
 }
 
