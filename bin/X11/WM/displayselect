@@ -155,7 +155,7 @@ execute_command() {
 
 detect_connected_monitors() {
 	xrandr_output=$(xrandr)
-	printf "%b\n" "$xrandr_output" | grep " connected" | awk '{print $1}'
+	printf "%b\n" "$xrandr_output" | grep " connected" | awk '{print $1}' | sort -u
 }
 
 get_current_brightness() {
@@ -226,29 +226,28 @@ auto_detect_displays() {
 			highest_resolution="$(get_unique_resolutions "$monitor" | head -n1)"
 			if [ -n "$highest_resolution" ];then
 				highest_resolution="--mode $highest_resolution"
-			else
-				highest_resolution="--auto"
 			fi
 		fi
 		
 		show_message "YELLOW" "Setting resolution for $monitor to $highest_resolution..."
 		fix_script_monitor="$(printf '%s' "$monitor" | sed 's/-/_/g')"
 		tee -a "$display_script" <<- EOF2 >/dev/null 2>&1
+		${fix_script_monitor}_status="enabled"
+		if [ "\$${fix_script_monitor}_status" = "enabled" ];then
+			${fix_script_monitor}_status_command="--auto"
+		else
+			${fix_script_monitor}_status_command="--off"
+		fi
 		${fix_script_monitor}_resolution="$highest_resolution"
 		${fix_script_monitor}_primary=""
-		${fix_script_monitor}_enable=""
 		${fix_script_monitor}_extend=""
 		${fix_script_monitor}_brightness=""
 		${fix_script_monitor}_duplicate=""
 		${fix_script_monitor}_orientation="--rotate normal"
 		${fix_script_monitor}_arrangement=""
 		${fix_script_monitor}_scale="--scale 1x1"
-		${fix_script_monitor}_disable=""
-		if [ -z "\$${fix_script_monitor}_enable" ];then
-			xrandr --output $monitor \$${fix_script_monitor}_scale \$${fix_script_monitor}_resolution \$${fix_script_monitor}_primary \$${fix_script_monitor}_extend \$${fix_script_monitor}_brightness \$${fix_script_monitor}_duplicate \$${fix_script_monitor}_orientation \$${fix_script_monitor}_arrangement \$${fix_script_monitor}_disable
-		else
-			xrandr --output $monitor --mode $highest_resolution --auto
-		fi
+		xrandr --output $monitor \$${fix_script_monitor}_scale \$${fix_script_monitor}_resolution \$${fix_script_monitor}_primary \$${fix_script_monitor}_extend \$${fix_script_monitor}_brightness \$${fix_script_monitor}_duplicate \$${fix_script_monitor}_orientation \$${fix_script_monitor}_arrangement \$${fix_script_monitor}_status_command
+		
 		EOF2
 	done
 	postrun_message="Setting resolution for $monitor to $highest_resolution..."
@@ -353,7 +352,7 @@ set_primary_monitor() {
 }
 enable_monitor() {
     if [ "$MODE" = "monitor" ];then
-        edit_command "${picked_pass_monitor}_enable" "--auto"
+        edit_command "${picked_pass_monitor}_status" "enabled"
         return
     fi
 	postrun_title="Enabling monitor"
@@ -374,14 +373,14 @@ enable_monitor() {
 		fi
 		if confirm_action "Enable $monitor_name?"; then
 			show_message "GREEN" "Enabling $monitor_name"
-			edit_command "${monitor_name}_enable" "--auto"
+			edit_command "${monitor_name}_status" "enabled"
 			show_message "GREEN" "Monitor $monitor_name enabled successfully."
 			postrun_message="Monitor $monitor_name enabled successfully."
 		else
 			cancel_action
 		fi
 	else
-		edit_command "${monitor_array}_enable" "--auto"
+		edit_command "${monitor_array}_status" "enabled"
 		postrun_message="Monitor $monitor_name enabled successfully."
 	fi
 }
@@ -591,7 +590,7 @@ Set_scaling() {
 
 disable_monitor() {
     if [ "$MODE" = "monitor" ];then
-        edit_command "${picked_pass_monitor}_disable" "--off"
+        edit_command "${picked_pass_monitor}_status" "disabled"
         return
     fi
 	postrun_title="Disable Monitor"
@@ -613,7 +612,7 @@ disable_monitor() {
 	
 	if confirm_action "Auto-detect displays and set common resolution?"; then
 		show_message "GREEN" "Disabling $monitor_name"
-		edit_command "${monitor_name}_disable" "--off"
+		edit_command "${monitor_name}_status" "disabled"
 		show_message "GREEN" "Monitor $monitor_name disabled successfully."
 		postrun_message="Monitor $monitor_name disabled successfully."
 	else
@@ -623,7 +622,8 @@ disable_monitor() {
 
 reset_monitor() {
     if [ "$MODE" = "monitor" ];then
-        edit_command "${picked_pass_monitor}_resolution" "--auto"
+    	edit_command "${picked_pass_monitor}_status" "enabled"
+        edit_command "${picked_pass_monitor}_resolution" ""
         edit_command "${picked_pass_monitor}_primary" ""
         edit_command "${picked_pass_monitor}_enable" ""
         edit_command "${picked_pass_monitor}_extend" ""
@@ -654,7 +654,8 @@ reset_monitor() {
 	
 	if confirm_action "Auto-detect displays and set common resolution?"; then
 		show_message "GREEN" "Disabling $monitor_name"
-		edit_command "${monitor_name}_resolution" "--auto"
+		edit_command "${monitor_name}_status" "enabled"
+		edit_command "${monitor_name}_resolution" ""
         edit_command "${monitor_name}_primary" ""
         edit_command "${monitor_name}_enable" ""
         edit_command "${monitor_name}_extend" ""
