@@ -6,7 +6,7 @@ op__="$1"
 op2__="$2"
 wallpaper_layout="${3:-zoom}"
 
-. "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_system_files}/lib/common/WM"
 
 wallpapers_dir="${__distro_path_root}/my_wallpapers"
 

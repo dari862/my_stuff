@@ -1,18 +1,26 @@
 #!/bin/sh
-set -eu
-
+set -e
 op__="${1-}"
 op2__="${2-}"
-tldr_dir="$HOME/.local/share/tldr"
+. "$__distro_path_lib"
+tldr_dir="$__distro_for_all_path/tldr"
+
+git_clone(){
+	git clone --depth=1 $@
+}
 
 update_tldr_(){
+	[ ! -d "${tldr_dir}" ] && git_clone https://github.com/tldr-pages/tldr "${tldr_dir}"
 	cd "${tldr_dir}" >/dev/null 2>&1 && git pull 2> /dev/null
 }
 
 run_my_tldr_(){
-
-	[ ! -d "${tldr_dir}" ] && clone_repo https://github.com/tldr-pages/tldr "${tldr_dir}"
-	[ ! -d "${tldr_dir}/.git" ] && rm -rdf "${tldr_dir}" && clone_repo https://github.com/tldr-pages/tldr "${tldr_dir}"
+	command_to_look_for="${1-}"
+	if [ -z "$command_to_look_for" ];then
+		help
+	fi
+	[ ! -d "${tldr_dir}" ] && git_clone https://github.com/tldr-pages/tldr "${tldr_dir}"
+	[ ! -d "${tldr_dir}/.git" ] && rm -rdf "${tldr_dir}" && git_clone https://github.com/tldr-pages/tldr "${tldr_dir}"
 	
 	if [ "$(stat -c %y "${tldr_dir}/pages" 2>/dev/null | cut -d' ' -f1 | cut -d'-' -f1-2)" != "$(date +'%Y-%m')" ]
 	then
@@ -21,24 +29,26 @@ run_my_tldr_(){
 	
 	[ -n "$(cd "${tldr_dir}" >/dev/null 2>&1 && git checkout | sed '$ d')" ] && git checkout .
 
-	command_2_find_="$(find "${tldr_dir}/pages/" -name ${op2__}.md)"
+	command_2_find_="$(find "${tldr_dir}/pages/" -name ${command_to_look_for}.md)"
 	
 	if [ -z "${command_2_find_}" ]
 	then
-		echo "no tldr entry for ${op2__}" 
+		echo "no tldr entry for ${command_to_look_for}" 
 		exit 1
 	fi
 	grep_this="common|linux"
 	command_2_find_="$(echo "${command_2_find_}" | grep -E "$grep_this")"
-	cat ${command_2_find_}
+	bat --style=plain --paging=never ${command_2_find_}
 }
 
 help()
 {
-	echo "Usage:"
+	script_name="$(basename $0)"
+	echo "Usage: $script_name [-c|-u|-h] command2find "
 	echo "  -c  --cheat                 show cheat sheet"
-	echo "  -t  --tldr                  run tldr"
-	echo "  -tu  --tldr-update          update tldr"
+	echo "  -u  --update                update tldr"
+	echo "  -h  --help                  to show help menu"
+	exit
 }
 
 main()
@@ -48,13 +58,16 @@ case $op__ in
 		getURL '2term' "cheat.sh/$op2__"
 	;;
 	-t|--tldr)
-		run_my_tldr_
+		run_my_tldr_ "${op2__}"
 	;;
-	-tu|--tldr-update)
+	-u|--update)
 		update_tldr_
 	;;
-	*)
+	-h |--help)
 		help
+	;;
+	*)
+		run_my_tldr_ "${op__}"
 	;;
 esac
 }
