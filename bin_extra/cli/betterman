@@ -2,6 +2,8 @@
 set -e
 op__="${1-}"
 op2__="${2-}"
+__lang="${3-}"
+
 . "$__distro_path_lib"
 tldr_dir="$__distro_for_all_path/tldr"
 
@@ -28,8 +30,12 @@ run_my_tldr_(){
 	fi
 	
 	[ -n "$(cd "${tldr_dir}" >/dev/null 2>&1 && git checkout | sed '$ d')" ] && git checkout .
-
-	command_2_find_="$(find "${tldr_dir}/pages/" -name ${command_to_look_for}.md)"
+	
+	if [ -z "$__lang" ];then
+		__lang=".en"
+	fi
+	
+	command_2_find_="$(find "${tldr_dir}/pages${__lang}/" -name ${command_to_look_for}.md)"
 	
 	if [ -z "${command_2_find_}" ]
 	then

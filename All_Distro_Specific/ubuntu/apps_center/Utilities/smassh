@@ -1,0 +1,4 @@
+#!/bin/sh
+app_name="smassh"
+say "Installing ${app_name}..." 1
+repobin --root --ext sfx.py install kraanzu/smassh || failed_to_run "failed to run ${app_name} ."

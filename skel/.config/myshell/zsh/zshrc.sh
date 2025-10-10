@@ -67,12 +67,14 @@ setopt LIST_PACKED		  		# The completion menu takes less space.
 setopt AUTO_LIST           		# Automatically list choices on ambiguous completion.
 setopt COMPLETE_IN_WORD    		# Complete from both ends of a word.
 
-HISTFILE=$ZDOTDIR/zsh_history
-HIST_STAMPS=mm/dd/yyyy
-HISTSIZE=5000
-SAVEHIST=5000
-HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..|doas reboot|my-superuser reboot)"
-HISTDUP=erase
+export HISTFILE=$ZDOTDIR/zsh_history
+export HISTTIMEFORMAT="%F %T "
+export HIST_STAMPS=dd/mm/yyyy
+export HISTSIZE=5000
+export SAVEHIST=5000
+export HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..|doas reboot|my-superuser reboot)"
+export HISTDUP=erase
+
 ZLE_RPROMPT_INDENT=0
 WORDCHARS=${WORDCHARS//\/}
 PROMPT_EOL_MARK=
