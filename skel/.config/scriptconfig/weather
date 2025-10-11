@@ -5,7 +5,7 @@
 mode="auto"
 
 # Either set the location manually here, or leave it empty and script will attempts to get a geolocation from the IP address.
-place="Paris"
+place=""
 
 # Choose fahrenheit/Imperial or Celcius/metric:
 #units='imperial'

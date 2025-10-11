@@ -15,8 +15,7 @@ Weather_OPT_List="1 Show Weather Doppler |2 Show Weather Forecast Full |3 Show W
 
 #############################################################################
 Location_Picker(){ 
-	. "${__distro_path_root}/bin/not_add_2_path/weather/country_list"
-	chosen="$(printf "%s" "$country_list" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -sep "|" -p "Select a radar to use as default:")"
+	chosen="$(cat "${__distro_path_root}/bin/not_add_2_path/weather/country_list" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -sep "|" -p "Select a radar to use as default:")"
 	
 	# Set continent code and radar code.
 	continentcode=$(printf "%s" "$chosen" | cut -d':' -f1 | tr "[:lower:]" "[:upper:]")

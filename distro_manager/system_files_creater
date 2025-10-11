@@ -43,14 +43,14 @@ show_im(){
 
 copy_X11_blob_files(){
 	panel_name="${1:-}"
-	if command -v openbox >/dev/null 2>&1;then
+	if command_exist openbox;then
 		for theme in *;do
 			cp -r "${theme}/openboxrctheme" "${__distro_path_system_files}/blob/${panel_name}/${theme}" 
 		done
 	fi
 	for app in dunst openbox rofi;do
 		show_im "copy $app blob and blob_extra to system_files/blob ."
-		if command -v $app >/dev/null 2>&1;then
+		if command_exist $app;then
 			for theme in *;do
 				cp -r "${theme}/config/${app}" "${__distro_path_system_files}/blob/${panel_name}/${theme}/config" 
 			done
@@ -63,27 +63,27 @@ copy_X11_blob_files(){
 
 create_blob_system_files(){
 	mkdir -p "${__distro_path_system_files}/blob"
-	if command -v polybar >/dev/null 2>&1;then
+	if command_exist polybar;then
 		show_im "copy polybar blob_extra to system_files/blob ."
 		cp -r "${__distro_path_root}"/blob/polybar "${__distro_path_system_files}/blob"
 		cd "${__distro_path_root}"/blob_extra/polybar
 		copy_X11_blob_files "polybar"
 		for app in alacritty geany bspwm;do
 			show_im "copy tint2 $app blob and blob_extra to system_files/blob ."
-			if command -v $app >/dev/null 2>&1;then
+			if command_exist $app;then
 				for theme in *;do
 					cp -r "${theme}/config/${app}" "${__distro_path_system_files}/blob/polybar/${theme}/config" 
 				done
 			fi
 		done
-		if command -v plank >/dev/null 2>&1;then
+		if command_exist plank;then
 			show_im "copy tint2 plank blob and blob_extra to system_files/blob ."
 			for theme in *;do
 				cp -r "${theme}/config/plank" "${__distro_path_system_files}/blob/polybar/${theme}/config" 
 				cp -r "${theme}/cache" "${__distro_path_system_files}/blob/polybar/${theme}" 
 			done
 		fi
-		if command -v jgmenu >/dev/null 2>&1;then
+		if command_exist jgmenu;then
 			show_im "copy polybar jgmenu blob_extra to system_files/blob ."
 			for theme in *;do
 				cp -r "${theme}/jgmenu_theme" "${__distro_path_system_files}/blob/polybar/${theme}" 
@@ -91,20 +91,20 @@ create_blob_system_files(){
 		fi
 	fi
 
-	if command -v tint2 >/dev/null 2>&1;then
+	if command_exist tint2;then
 		show_im "copy tint2 blob and blob_extra to system_files/blob ."
 		cp -r "${__distro_path_root}"/blob/tint2 "${__distro_path_system_files}/blob" 
 		cd "${__distro_path_root}"/blob_extra/tint2
 		copy_X11_blob_files "tint2"
 		for app in lxterminal alacritty geany bspwm;do
-			if command -v $app >/dev/null 2>&1;then
+			if command_exist $app;then
 				show_im "copy tint2 $app blob and blob_extra to system_files/blob ."
 				for theme in *;do
 					cp -r "${theme}/config/${app}" "${__distro_path_system_files}/blob/tint2/${theme}/config" 
 				done
 			fi
 		done
-		if command -v jgmenu >/dev/null 2>&1;then
+		if command_exist jgmenu;then
 			show_im "copy tint2 jgmenu blob_extra to system_files/blob ."
 			for theme in *;do
 				cp -r "${theme}/jgmenu_theme" "${__distro_path_system_files}/blob/tint2/${theme}" 
@@ -114,31 +114,43 @@ create_blob_system_files(){
 }
 
 create_auto_completion_files(){
-	if command -v bash >/dev/null 2>&1;then
+	if command_exist bash;then
 		mkdir -p "$__distro_path_enabled_completion"/bash
 		
 		ln -sf "$__distro_path_disabled_completion"/bash/repobin.bash "$__distro_path_enabled_completion"/bash/repobin.bash
 		ln -sf "$__distro_path_disabled_completion"/bash/bash_completion "$__distro_path_enabled_completion"/bash/bash_completion
 		
-		command -v backports_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/bash/backports_install.bash "$__distro_path_enabled_completion"/bash/backports_install.bash
-		command -v kali_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/bash/kali_install_auto_completion.bash "$__distro_path_enabled_completion"/bash/kali_install_auto_completion.bash
-		command -v parrot_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/bash/parrot_install_auto_completion.bash "$__distro_path_enabled_completion"/bash/parrot_install_auto_completion.bash
-		if command -v fzf >/dev/null 2>&1;then
+		if command_exist backports_install;then
+			ln -sf "$__distro_path_disabled_completion"/bash/backports_install.bash "$__distro_path_enabled_completion"/bash/backports_install.bash
+		fi
+		if command_exist kali_install;then
+			ln -sf "$__distro_path_disabled_completion"/bash/kali_install_auto_completion.bash "$__distro_path_enabled_completion"/bash/kali_install_auto_completion.bash
+		fi
+		if command_exist parrot_install;then
+			ln -sf "$__distro_path_disabled_completion"/bash/parrot_install_auto_completion.bash "$__distro_path_enabled_completion"/bash/parrot_install_auto_completion.bash
+		fi
+		if command_exist fzf;then
 			ln -sf "$__distro_path_disabled_completion"/bash/key-bindings.bash "$__distro_path_enabled_completion"/bash/key-bindings.bash
 			ln -sf "$__distro_path_disabled_completion"/bash/completion.bash "$__distro_path_enabled_completion"/bash/completion.bash
 		fi
 	fi
 	
-	if command -v zsh >/dev/null 2>&1;then
+	if command_exist zsh;then
 		mkdir -p "$__distro_path_enabled_completion"/zsh
 		
 		ln -sf "$__distro_path_disabled_completion"/zsh/repobin.zsh "$__distro_path_enabled_completion"/zsh/repobin.zsh
 		ln -sf "$__distro_path_disabled_completion"/zsh/_zap "$__distro_path_enabled_completion"/zsh/_zap
 		
-		command -v backports_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/zsh/backports_install.zsh "$__distro_path_enabled_completion"/zsh/backports_install.zsh
-		command -v kali_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/zsh/kali_install_auto_completion.zsh "$__distro_path_enabled_completion"/zsh/kali_install_auto_completion.zsh
-		command -v parrot_install >/dev/null 2>&1 && ln -sf "$__distro_path_disabled_completion"/zsh/parrot_install_auto_completion.zsh "$__distro_path_enabled_completion"/zsh/parrot_install_auto_completion.zsh
-		if command -v fzf >/dev/null 2>&1;then
+		if command_exist backports_install;then
+			ln -sf "$__distro_path_disabled_completion"/zsh/backports_install.zsh "$__distro_path_enabled_completion"/zsh/backports_install.zsh
+		fi
+		if command_exist kali_install;then
+			ln -sf "$__distro_path_disabled_completion"/zsh/kali_install_auto_completion.zsh "$__distro_path_enabled_completion"/zsh/kali_install_auto_completion.zsh
+		fi
+		if command_exist parrot_install;then
+			ln -sf "$__distro_path_disabled_completion"/zsh/parrot_install_auto_completion.zsh "$__distro_path_enabled_completion"/zsh/parrot_install_auto_completion.zsh
+		fi
+		if command_exist fzf;then
 			ln -sf "$__distro_path_disabled_completion"/zsh/key-bindings.zsh "$__distro_path_enabled_completion"/zsh/key-bindings.zsh
 			ln -sf "$__distro_path_disabled_completion"/zsh/completion.zsh "$__distro_path_enabled_completion"/zsh/completion.zsh
 		fi
@@ -153,7 +165,7 @@ updatedb
 ############
 # terminator
 ############
-if command -v terminator >/dev/null 2>&1;then
+if command_exist terminator;then
 	show_im "fix terminator"
 	[ ! -d "/root/.config/terminator" ] && mkdir -p "/root/.config/terminator"
 	[ ! -f "/root/.config/terminator/config" ] && cp -r "${__distro_path_root}"/skel_extra/.config/terminator/config "/root/.config/terminator"
@@ -175,7 +187,7 @@ fi
 ############
 # Remove "Set as wallpaper" from Thunar Context Menu and replace it with  "Set as wallpaper" from thunar config uac file
 ############
-if command -v thunar >/dev/null 2>&1;then
+if command_exist thunar;then
 	show_im "fix thunar"
 	__thunar_wall_plug="$(locate thunar | grep "plugin.so" | grep "wall" | grep -v "\.backup" || :)"
 	[ -f "${__thunar_wall_plug}" ] && [ ! -f "${__thunar_wall_plug}.backup" ] && mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
@@ -191,9 +203,6 @@ if [ -d "${__distro_path_system_files}" ];then
 	rm -rdf "${__distro_path_system_files}"
 fi
 mkdir -p "${__distro_path_system_files}"
-
-show_im "copy doas.conf to correct location."
-cp -rp "${__distro_path_root}/lib/apps/doas/doas.conf" "${__distro_path_system_files}/doas.conf"
 
 show_im "create uniq system files"
 
@@ -241,156 +250,156 @@ mkdir -p "${__distro_path_system_files}"/skel/.config/mpd/playlists
 touch "${__distro_path_system_files}"/skel/.config/mpd/database
 mkdir -p "${__distro_path_system_files}"/skel/.local/share/bash_history
 
-if command -v conky >/dev/null 2>&1;then
+if command_exist conky;then
 	show_im "copy conky skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/conky" "${__distro_path_system_files}/skel/.config"
 	cp -r "${__distro_path_root}/bin/X11/session_managers/conky-session" "${__distro_path_system_files}"/binX11
 	copy_all__application_link_in_dir "conky"
 fi
-if command -v dunst >/dev/null 2>&1;then
+if command_exist dunst;then
 	show_im "copy dunst skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/dunst" "${__distro_path_system_files}/skel/.config"
 	cp -r "${__distro_path_root}/bin/X11/session_managers/notification-d-session" "${__distro_path_system_files}"/binX11
 fi
-if command -v openbox >/dev/null 2>&1;then
+if command_exist openbox;then
 	show_im "copy openbox skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/openbox" "${__distro_path_system_files}/skel/.config"
 	[ -d "/var/lib/openbox" ] && [ ! -f "/var/lib/openbox/debian-menu.xml" ] && [ -f "/etc/xdg/openbox/menu.xml" ] && cp -r "/etc/xdg/openbox/menu.xml" "/var/lib/openbox/debian-menu.xml"
 fi
-if command -v rofi >/dev/null 2>&1;then
+if command_exist rofi;then
 	show_im "copy rofi skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/rofi" "${__distro_path_system_files}/skel/.config"
 	copy_all__application_link_in_dir "rofi"
 fi
-if command -v xrdb >/dev/null 2>&1;then
+if command_exist xrdb;then
 	show_im "copy x11 skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/x11" "${__distro_path_system_files}/skel/.config"
 fi
 
-if command -v geany >/dev/null 2>&1;then
+if command_exist geany;then
 	show_im "copy geany skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/geany" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v lf >/dev/null 2>&1;then
+if command_exist lf;then
 	show_im "copy lf skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/lf" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v nsxiv >/dev/null 2>&1 || command -v sxiv >/dev/null 2>&1;then
+if command_exist nsxiv || command_exist sxiv;then
 	show_im "copy nsxiv skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/nsxiv" "${__distro_path_system_files}/skel/.config"
 	cp -r "${__distro_path_root}/skel_extra/.config/sxiv" "${__distro_path_system_files}/skel/.config"
 	cp -r "${__distro_path_root}/bin/X11/nsxiv"/* "${__distro_path_system_files}"/binX11
 fi
 
-if command -v viewnior >/dev/null 2>&1;then
+if command_exist viewnior;then
 	show_im "copy viewnior skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/viewnior" "${__distro_path_system_files}/skel/.config"
 fi
 
-if command -v terminator >/dev/null 2>&1;then
+if command_exist terminator;then
 	show_im "copy terminator skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/terminator" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v tmu >/dev/null 2>&1;then
+if command_exist tmu;then
 	show_im "copy tmu skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/tmu" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v pcmanfm >/dev/null 2>&1;then
+if command_exist pcmanfm;then
 	show_im "copy pcmanfm skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/pcmanfm" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v thunar >/dev/null 2>&1;then
+if command_exist thunar;then
 	show_im "copy gigolo skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/Thunar" "${__distro_path_system_files}/skel/.config"
 	cp -r "${__distro_path_root}/skel_extra/.config/xfce4" "${__distro_path_system_files}/skel/.config"
 fi
 
-if command -v gigolo >/dev/null 2>&1;then
+if command_exist gigolo;then
 	show_im "copy gigolo skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/gigolo" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v plank >/dev/null 2>&1;then
+if command_exist plank;then
 	show_im "copy plank skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/plank" "${__distro_path_system_files}/skel/.config" 
 	cp -r "${__distro_path_root}/skel_extra/.local/share/plank" "${__distro_path_system_files}/skel/.local/share/"
 	cp -r "${__distro_path_root}/bin/X11/session_managers/plank-session" "${__distro_path_system_files}"/binX11 
 fi
 
-if command -v xbindkey >/dev/null 2>&1;then
+if command_exist xbindkey;then
 	show_im "copy xbindkey skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.xbindkeysrc" "${__distro_path_system_files}/skel" 
 fi
 
-if command -v parcellite >/dev/null 2>&1;then
+if command_exist parcellite;then
 	show_im "copy parcellite skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/parcellite" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v clipit >/dev/null 2>&1;then
+if command_exist clipit;then
 	show_im "copy clipit skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/clipit" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v jgmenu >/dev/null 2>&1;then
+if command_exist jgmenu;then
 	show_im "copy jgmenu skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/jgmenu" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v greenclip >/dev/null 2>&1;then
+if command_exist greenclip;then
 	show_im "copy greenclip skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/greenclip.toml" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v zathura >/dev/null 2>&1;then
+if command_exist zathura;then
 	show_im "copy zathura skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/zathura" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v tint2 >/dev/null 2>&1;then
+if command_exist tint2;then
 	show_im "copy tint2 skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/tint2" "${__distro_path_system_files}/skel/.config"
 	cp -r "${__distro_path_root}/bin/X11/session_managers/tint2-session" "${__distro_path_system_files}"/binX11
 	copy_all__application_link_in_dir "tint2"
 fi
 
-if command -v lxterminal >/dev/null 2>&1;then
+if command_exist lxterminal;then
 	show_im "copy lxterminal skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/lxterminal" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v cava >/dev/null 2>&1;then
+if command_exist cava;then
 	show_im "copy cava skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/cava" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v cmus >/dev/null 2>&1;then
+if command_exist cmus;then
 	show_im "copy cmus skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/cmus" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v alacritty >/dev/null 2>&1;then
+if command_exist alacritty;then
 	show_im "copy alacritty skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/alacritty" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v bspwm >/dev/null 2>&1;then
+if command_exist bspwm;then
 	show_im "copy bspwm skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/bspwm" "${__distro_path_system_files}/skel/.config" 
 	cp -r "${__distro_path_root}/skel_extra/.config/sxhkd" "${__distro_path_system_files}/skel/.config" 
 fi
 
-if command -v dwm >/dev/null 2>&1;then
+if command_exist dwm;then
 	show_im "copy dwm skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/dwm" "${__distro_path_system_files}/skel/.config"
 fi
 
-if command -v polybar >/dev/null 2>&1;then
+if command_exist polybar;then
 	show_im "copy polybar skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/polybar" "${__distro_path_system_files}/skel/.config"
 	cp -r "${__distro_path_root}/bin/X11/session_managers/polybar-session" "${__distro_path_system_files}"/binX11
@@ -401,7 +410,7 @@ if command -v polybar >/dev/null 2>&1;then
 	"${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver
 fi
 
-if command -v yad >/dev/null 2>&1;then
+if command_exist yad;then
 	show_im "copy yad bin to system_files/bin ."
 	if [ -d "${__distro_path_root}/bin/X11/yad" ];then
 		ln -sf "${__distro_path_root}"/bin/X11/yad/* "${__distro_path_system_files}"/binX11
@@ -422,7 +431,7 @@ if [ -d "${__distro_path_root}/bin/X11/rofi" ];then
 	ln -sf "${__distro_path_root}"/bin/X11/rofi/* "${__distro_path_system_files}"/binX11
 fi
 
-if command -v picom >/dev/null 2>&1;then
+if command_exist picom;then
 	show_im "copy picom skell file to system_files/skel ."
 	if [ "$machine_type_are" = "vm" ];then
 		cp -r "${__distro_path_root}/skel_extra/.config/vm-picom.conf" "${__distro_path_system_files}/skel/.config/picom.conf"
@@ -472,7 +481,7 @@ fi
 if [ -d "${__distro_path_root}/bin/gui" ];then
 	show_im "gui bin files to system_files/bin ."
 	ln -sf "${__distro_path_root}"/bin/apps/* "${__distro_path_system_files}"/bin
-	if ! command -v systemctl >/dev/null 2>&1;then
+	if ! command_exist systemctl;then
 		rm -f "${__distro_path_system_files}"/bin/yautostart
 		rm -f "${__distro_path_system_files}"/bin/errcheck
 		rm -f "${__distro_path_system_files}"/bin/bootman
@@ -496,49 +505,61 @@ if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 	fi
 fi
 
-if command -v python >/dev/null 2>&1;then
+show_im "copy doas.conf to correct location."
+cp -rp "${__distro_path_root}/lib/apps/doas/doas.conf" "${__distro_path_system_files}/doas.conf"
+
+show_im "pick correct apps_as_root."
+if command_exist doas;then
+	ln -sf "${__distro_path_root}"/bin/doas/doasedit "${__distro_path_root}"/system_files/bin
+	cp -rp "${__distro_path_root}"/system_files/doas.conf /etc
+	if ! doas -C /etc/doas.conf;then
+		show_em "config error"
+	fi
+fi	
+
+if command_exist python;then
 	ln -sf "${__distro_path_root}"/bin/not_add_2_path/oops/oops.python "${__distro_path_system_files}"/bin/theoops
-elif command -v python3 >/dev/null 2>&1;then
+elif command_exist python3;then
 	ln -sf "${__distro_path_root}"/bin/not_add_2_path/oops/oops.python3 "${__distro_path_system_files}"/bin/theoops
 fi
 
-if command -v arandr >/dev/null 2>&1;then
+if command_exist arandr;then
 	create_applicationsdotdesktop_link "arandr"
 fi
 
-if command -v kvantummanager >/dev/null 2>&1;then
+if command_exist kvantummanager;then
 	create_applicationsdotdesktop_link "kvantummanager"
 fi
 
-if command -v lightdm-gtk-greeter-settings-pkexec >/dev/null 2>&1;then
+if command_exist lightdm-gtk-greeter-settings-pkexec;then
 	create_applicationsdotdesktop_link "lightdm-gtk-greeter-settings-pkexec"
 fi
 
-if command -v lxappearance >/dev/null 2>&1;then
+if command_exist lxappearance;then
 	create_applicationsdotdesktop_link "lxappearance"
 fi
 
-if command -v obconf >/dev/null 2>&1;then
+if command_exist obconf;then
 	create_applicationsdotdesktop_link "obconf"
 fi
 
-if command -v qt5ct >/dev/null 2>&1;then
+if command_exist qt5ct;then
 	create_applicationsdotdesktop_link "qt5ct"
 fi
 
-if command -v nvim >/dev/null 2>&1;then
+if command_exist nvim;then
 	create_applicationsdotdesktop_link "Neovim"
 fi
 
-if command -v docker >/dev/null 2>&1;then
+if command_exist docker;then
 	create_applicationsdotdesktop_link "Docker"
 fi
 
-if command -v google-chrome >/dev/null 2>&1;then
+if command_exist google-chrome;then
 	create_applicationsdotdesktop_link "WhatsApp"
 fi
 
-if command -v flatpak >/dev/null 2>&1;then
+if command_exist flatpak;then
 	if flatpak list | grep -q pinta;then
 		create_applicationsdotdesktop_link "pinta"
 	fi
@@ -579,7 +600,7 @@ show_im "Create keybinds."
 
 ln -sf "${__distro_path_root}"/distro_manager/full-upgrade "${__distro_path_system_files}"/bin
 
-if command -v conky >/dev/null 2>&1;then
+if command_exist conky;then
 	show_im "Create conky weather icons."
 	"${__distro_path_root}"/bin/X11/not_add_2_path/conky_weather_icon || show_em "failed to run not_add_2_path/conky_weather_icon"
 fi
@@ -588,7 +609,7 @@ show_im "Add SSH theme."
 if service_manager status ssh;then
 	show_im "copy shell skel file related to ssh file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.bash_profile" "${__distro_path_system_files}/skel"
-	if command -v zsh >/dev/null 2>&1;then
+	if command_exist zsh;then
 		cp -r "${__distro_path_root}/skel_extra/.zshenv" "${__distro_path_system_files}/skel"
 	fi
 fi
@@ -602,19 +623,33 @@ show_im "sed (((distro_path_root)) to ${__distro_path_root} ."
 sed_distro_path_root_var_2_correct_value "${__distro_path_system_files}/skel"
 sed_distro_path_root_var_2_correct_value "${__distro_path_system_files}/blob"
 
-if command -v openbox >/dev/null 2>&1;then
+if command_exist openbox;then
 	show_im "create ${__distro_name}_openbox to xsessions."
 	create_applicationsdotdesktop_4_xsessions "openbox" "openbox"
 fi
 
-if command -v dwm >/dev/null 2>&1;then
+if command_exist dwm;then
 	show_im "create ${__distro_name}_dwm to xsessions."
 	create_applicationsdotdesktop_4_xsessions "dwm" "dwm"
 fi
 
-if command -v bspwm >/dev/null 2>&1;then
+if command_exist bspwm;then
 	show_im "create ${__distro_name}_bspwm to xsessions."
 	create_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
 fi
+
+show_im "Configer Global get_weather."
+"${__distro_path_root}"/system_files/bin/get_weather --global "$__timezone"
+
+. "${__distro_path_root}/lib/common/DB"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+
+for app in podman distrobox;do
+	if command_exist ${app};then
+		dir_name="$(basename $(dirname $(find "${_APPS_LIBDIR}" "${_APPS_EXTRA_LIBDIR}" -type f -name ${app} )))"
+		[ ! -f "${apps_db_path}/$dir_name" ] && touch "${apps_db_path}/$dir_name"
+		echo "${app}" | tee -a "${apps_db_path}/$dir_name" >/dev/null 2>&1
+	fi
+done
 
 show_im "system_files_creater Done."

@@ -1,11 +1,4 @@
-
-####################################
-# US: KABR: Aberdeen, SD
-# 1    2      3
-# 1 cont
-# 2 loc if empty like this US: Northeast then loc and LOCATION are the same both =Northeast
-# 3 LOCATION
-country_list="US: Northeast
+US: Northeast
 US: Southeast
 US: PacNorthWest
 US: PacSouthWest
@@ -222,4 +215,4 @@ AF: TZ: Tanzania
 AF: TN: Tunisia
 AF: ZM: Zambia
 AF: KE: Kenya
-AF: AO: Angola"
+AF: AO: Angola

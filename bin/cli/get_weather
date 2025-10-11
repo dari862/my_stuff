@@ -1,31 +1,25 @@
 #!/bin/sh
+set -e
 
 __opt="${1-}"
 __opt2="${2-}"
-
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
-
+. "${__distro_path_root}/lib/common/common"
 show_Extra=false
-weather_script_config_path="${script_config_path}/weather"
 __weather_lib_path="${__distro_path_root}/bin/not_add_2_path/weather"
 
-[ ! -f "$weather_script_config_path" ] && cp -r "${__distro_path_root}/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
-. "$weather_script_config_path"
-
-if [ "$mode" = "auto" ];then
-	if myAPIman check openweather >/dev/null 2>&1;then
-		mode="openweather"
-	else
-		mode="wttr"
-	fi
-fi
-
-if [ -z "$place" ];then
-	. "${__weather_lib_path}/country_list"
-   	# Geolocate IP:
-   	place=$(get_geolocation)
-   	chosen="$(printf "%s" "$country_list" | grep "$place" )"
+fix_weather_script_config_var(){
+	say "set place var in $weather_script_config_path" 'green'
+	# Geolocate IP:
+   	passed_place="${__opt2}"
+   	if [ -z "$passed_place" ];then
+   		passed_place=$(get_geolocation)
+   		if [ -z "$passed_place" ];then
+   			failed_to_run "get_weather fix_weather_script_config_var second arg are empty"
+   		fi
+   	fi
+   	chosen="$(grep "$passed_place" "${__weather_lib_path}/country_list")"
 	
 	# Set continent code and radar code.
 	continentcode=$(printf "%s" "$chosen" | cut -d':' -f1 | tr "[:lower:]" "[:upper:]")
@@ -33,10 +27,37 @@ if [ -z "$place" ];then
 	place=$(printf "%s" "$chosen" | cut -d':' -f3 | cut -f1 -d',' | sed 's/^ //')
 	place="${place:-$radarcode}" # Default place to radarcode if not set
 
-	sed -i  -e "s/continentcode=.*/continentcode=\"$continentcode\"/" \
-			-e "s/radarcode=.*/radarcode=\"$radarcode\"/" \
-			-e "s/place=.*/place=\"$place\"/" \
-		"${weather_script_config_path}"
+	sed -i "s|continentcode=.*|continentcode=\"$continentcode\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed at continentcode"
+	sed -i "s|radarcode=.*|radarcode=\"$radarcode\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed at radarcode"
+	sed -i "s|place=.*|place=\"$place\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed at place"
+}
+
+if [ "$__opt" = "--global" ];then
+	weather_script_config_path="${__distro_path_root}/system_files/skel/.config/scriptconfig/weather"
+	. "$weather_script_config_path"
+	
+	if [ -z "$place" ];then
+   		fix_weather_script_config_var
+	fi
+else
+	weather_script_config_path="${script_config_path}/weather"
+	if [ ! -f "$weather_script_config_path" ];then
+		cp -r "${__distro_path_root}/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
+	fi
+	
+	. "$weather_script_config_path"
+		
+	if [ -z "$place" ];then
+   		fix_weather_script_config_var
+	fi	
+fi
+
+if [ "$mode" = "auto" ];then
+	if myAPIman check openweather >/dev/null 2>&1;then
+		mode="openweather"
+	else
+		mode="wttr"
+	fi
 fi
 
 if [ "$mode" = "wttr" ];then

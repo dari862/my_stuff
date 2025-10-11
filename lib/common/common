@@ -337,7 +337,11 @@ copy_blob_extra_2_system_files_blob(){
 
 command_exist() {
 	commad_2_check="${1:-}"
-	command -v "$commad_2_check" >/dev/null 2>&1 && return 0 || return 1
+	if command -v "$commad_2_check" >/dev/null 2>&1;then
+		return 0
+	else
+		return 1
+	fi
 }
 
 grub_updater_function() {
