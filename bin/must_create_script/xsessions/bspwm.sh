@@ -8,12 +8,6 @@ if [ -d "${__distro_path_root}/bin/X11/pipemenu" ] && command -v jgmenu >/dev/nu
    	PATH="${__distro_path_root}/bin/X11/pipemenu:$PATH"
 fi
 
-if [ -d "${__distro_path_root}/system_files/binX11" ];then
-	PATH="${__distro_path_root}/system_files/binX11:$PATH"
-else
-	echo "ERROR: ${__distro_path_root}/system_files/bin Does not exist."
-fi
-
 usr_autostart="$usr_confdir/bspwm/bspwmrc"
 default_autostart="${__distro_path_root}/system_files/skel/.config/bspwm"
 

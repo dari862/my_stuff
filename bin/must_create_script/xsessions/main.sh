@@ -71,3 +71,9 @@ case $SHELL in
 		. ${HOME}/.config/myshell/bash/bprofile.sh
 	;;
 esac
+
+if [ -d "${__distro_path_root}/system_files/binX11" ];then
+	PATH="${__distro_path_root}/system_files/binX11:$PATH"
+else
+	echo "ERROR: ${__distro_path_root}/system_files/bin Does not exist."
+fi

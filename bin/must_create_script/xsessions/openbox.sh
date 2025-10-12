@@ -11,12 +11,6 @@ if [ -d "${__distro_path_root}/bin/X11/pipemenu" ];then
    	PATH="${__distro_path_root}/bin/X11/pipemenu:$PATH"
 fi
 
-if [ -d "${__distro_path_root}/system_files/binX11" ];then
-	PATH="${__distro_path_root}/system_files/binX11:$PATH"
-else
-	echo "ERROR: ${__distro_path_root}/system_files/bin Does not exist."
-fi
-
 # Clean up after GDM (GDM sets the number of desktops to one).
 xprop -root -remove _NET_NUMBER_OF_DESKTOPS \
 	-remove _NET_DESKTOP_NAMES \

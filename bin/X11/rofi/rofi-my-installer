@@ -1,0 +1,3 @@
+#!/bin/sh
+. "$__distro_path_lib"
+"${__distro_path_root}"/bin/not_add_2_path/myinstaller_apps_list

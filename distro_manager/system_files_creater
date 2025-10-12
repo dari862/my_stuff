@@ -480,7 +480,7 @@ fi
 
 if [ -d "${__distro_path_root}/bin/gui" ];then
 	show_im "gui bin files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/apps/* "${__distro_path_system_files}"/bin
+	ln -sf "${__distro_path_root}"/bin/gui/* "${__distro_path_system_files}"/bin
 	if ! command_exist systemctl;then
 		rm -f "${__distro_path_system_files}"/bin/yautostart
 		rm -f "${__distro_path_system_files}"/bin/errcheck
