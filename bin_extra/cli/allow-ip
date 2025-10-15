@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : my-superuser
 set -eu
 
 check_4_dependencies_if_installed grep ip sed || exit 1

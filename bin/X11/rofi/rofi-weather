@@ -1,5 +1,6 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
+
 . "$__distro_path_lib"
 weather_script_config_path="$HOME/.config/scriptconfig/weather"
 Weather_OPT_="${1-}"

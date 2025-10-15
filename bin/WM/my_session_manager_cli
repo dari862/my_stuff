@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : my-superuser
 ## Commands Executed By Openbox Powermenu
 
 ## Rofi #############################################

@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# need superuser : called by my-installer
 app_name="timeshift"
 say 'Installing package...' 1
 

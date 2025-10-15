@@ -1,6 +1,6 @@
 #!/bin/bash
 # if this line exist script will be part of hub script.
-
+# need superuser : my-superuser
 # clear system cache
 set -eu
 unalias -a

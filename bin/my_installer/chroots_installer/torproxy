@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 set -e
 . "${__distro_path_root}/lib/env_torproxy.sh"
 start_tor_chroot_script_name="start-tor-chroot.sh"
@@ -95,8 +96,8 @@ my-superuser ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy
 EOF
 my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/stop_torproxy" || failed_to_run "Failed to set execute permission on launch script"
 
-my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
-my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy to ${__distro_path_root}/system_files/bin"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy to ${__distro_path_root}/system_files/bin"
 
 if [ -f "/etc/doas.conf" ];then
 	my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF

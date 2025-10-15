@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : my-superuser
 set -e
 __opt="${1-}"
 

@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 set -e
 app_name="gphoto2 v4l2loopback"
 say 'Installing gphoto2 and v4l2loopback...' 1

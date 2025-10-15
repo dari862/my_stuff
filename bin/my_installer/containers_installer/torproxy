@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by run_containers
 set -e
 torproxy_script_name="torproxy"
 extra_dir="${__distro_path_root}/bin/my_installer/containers_installer/Extra/${container_name}"
@@ -32,8 +33,8 @@ CONTAINER_RT build -t torproxy . ${__format} --no-cache \
 run_containers --install ${container_name}
 
 say "ln ${torproxy_script_name} script which rerouter all your trafic to ${container_name} container to bin dir..."
-my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy_container" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
-my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy_container" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy_container" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy_container to ${__distro_path_root}/system_files/bin"
+my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy_container" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy_container to ${__distro_path_root}/system_files/bin"
 
 say "${container_name} contain all nessery packages for routing to TOR."
 say

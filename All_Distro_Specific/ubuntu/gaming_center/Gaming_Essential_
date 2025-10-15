@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 my-installer --install-needed "GPU" || continue
 app_name="Gaming Essential"
 . "${__distro_path_root}/os-release"

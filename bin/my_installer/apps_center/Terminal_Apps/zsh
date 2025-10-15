@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# need superuser : called by my-installer
 app_name="zsh"
 extra_apps_="zsh-autosuggestions zsh-syntax-highlighting"
 

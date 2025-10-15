@@ -22,5 +22,3 @@ else
 	${PACKAGER} -Q 2>/dev/null > "$LIST"
 	echo " List genrated at = ${LIST}"
 fi
-# To re-install packages from a list:
-# my-superuser xargs -a $LIST apt install

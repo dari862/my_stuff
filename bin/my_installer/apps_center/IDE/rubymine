@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# need superuser : called by my-installer
 say 'Installing snapd ...' 1
 install_as_dependency snapd
 

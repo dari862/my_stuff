@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 _CUPS_NAME="cups"
 CUPS_GUI="chroot-cups-gui"
 ENABLE_CUPS="chroot-cups-enable-web"

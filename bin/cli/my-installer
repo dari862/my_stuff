@@ -1,4 +1,7 @@
 #!/bin/sh
+# need superuser : my-superuser
+# need superuser : var (_SUPERUSER)
+
 #    my-installer: a script to install Debian packages in a popup terminal window.
 # # distobox enter gaming -- "pacman -Qi package 1>/dev/null || echo yes"
 
@@ -12,6 +15,11 @@ Usage:  my-installer --install app_name
     --script    <string>    run installer script
     --tweek   a script to run Debian Tweeks in a popup terminal window.
 '
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
+	_SUPERUSER="my-superuser"
+fi
 skip_test=""
 source__file_location=false
 check_tweek=false
@@ -212,27 +220,27 @@ __run_(){
 		
 		if [ "${package_install}" = "true" ];then
 			remove_from_db "${file_name_}" "apps" || continue
-			"${pipemenu_creater}"/my-install-pipemenu.sh || continue
+			. "${pipemenu_creater}/my-install-pipemenu.sh" || continue
 		elif [ "${game_install}" = "true" ];then
 			if [ "$file_name_" != "Gaming_Essential_" ];then
 				remove_from_db "${file_name_}" "game" || continue
-				"${pipemenu_creater}"/gaming-pipemenu.sh || continue
+				. "${pipemenu_creater}/gaming-pipemenu.sh" || continue
 			fi
 		elif [ "${distrobox_install}" = "true" ];then
 			remove_from_db "${file_name_}" "distroboxs" || continue
-			"${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+			. "${pipemenu_creater}/containers-deployer-pipemenu.sh" || continue
 		elif [ "${container_install}" = "true" ];then
 			remove_from_db "${file_name_}" "containers" || continue
-			"${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+			. "${pipemenu_creater}/containers-deployer-pipemenu.sh" || continue
 		elif [ "${chroot_install}" = "true" ];then
 			remove_from_db "${file_name_}" "chroots" || continue
-			"${pipemenu_creater}"/containers-deployer-pipemenu.sh || continue
+			. "${pipemenu_creater}/containers-deployer-pipemenu.sh" || continue
 		elif [ "${running_fullenv}" = "true" ];then
 			remove_from_db "${file_name_}" "fullenv" || continue
-			"${pipemenu_creater}"/full_environment-pipemenu.sh || continue
+			. "${pipemenu_creater}/full_environment-pipemenu.sh" || continue
 		elif [ "${running_tweek}" = "true" ];then
 			remove_from_db "${file_name_}" "tweeks" || continue
-			"${pipemenu_creater}"/my-tweeks-pipemenu.sh || continue
+			. "${pipemenu_creater}/my-tweeks-pipemenu.sh" || continue
 		fi
 
 		end_superuser || continue

@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# need superuser : called by control_center
 # -------------------- Configuration -------------------- #
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 SEC_PATH="/root"

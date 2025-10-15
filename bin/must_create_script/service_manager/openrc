@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : var (_superuser)
 set -eu
 
 option=${1-}

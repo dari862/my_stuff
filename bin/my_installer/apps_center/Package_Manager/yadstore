@@ -1,6 +1,6 @@
 #!/bin/sh
 # X11 only package remove it from my-installer
-
+# need superuser : called by my-installer
 app_name="YadAppsStore"
 yadstore_dir="$__distro_path_updater/${app_name}"
 

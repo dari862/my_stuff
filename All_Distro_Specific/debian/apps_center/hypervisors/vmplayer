@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 
 app_name="vmplayer"
 extra_apps_="build-essential linux-headers-$(uname -r)"

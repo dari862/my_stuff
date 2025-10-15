@@ -20,5 +20,3 @@ else
 	dpkg-query -f '${binary:Package}\n' -W > "$LIST"
 	echo " List genrated at = ${LIST}"
 fi
-# To re-install packages from a list:
-# my-superuser xargs -a $LIST apt install

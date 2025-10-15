@@ -53,20 +53,10 @@ fi
 # --------------------------------- Settings ----------------------------------
 
 # --------------------------------- History ----------------------------------
-# Allow ctrl-S for history navigation (with ctrl-R)
-stty -ixon
-# Expand the history size
-export HISTTIMEFORMAT='%F %T '
-export HISTFILESIZE=10000
-export HISTSIZE=500
-export HISTIGNORE="ls:cd:pwd:exit:sudo reboot:history:cd -:cd ..:doas reboot:my-superuser reboot"
-export HISTFILE=$BASHDOTDIR/bash_history
+source "$BASHDOTDIR/history.sh"
 
-# Don't put duplicate lines in the history
-export HISTCONTROL=erasedups:ignoredups
-
-# Better history management
-shopt -s histappend              # Append to history, don't overwrite
+# --------------------------------- Others  ----------------------------------
+# Better management
 shopt -s checkwinsize            # Check window size after each command
 shopt -s cdspell                 # Autocorrect typos in path names when using cd
 shopt -s dirspell                # Correct directory name typos
@@ -85,9 +75,6 @@ shopt -s globstar
 
 # Disable the bell
 if [[ "$(expr index "$-" i)" -gt 0 ]];then bind "set bell-style visible"; fi
-
-# Immediately write history
-PROMPT_COMMAND='history -a'
 
 # ---------------------------------   binds  ----------------------------------
 # below line make bash when pressing ctrl+f runs commnad zi .

@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 browserName="Google Chrome Stable"
 browser_deb="google-chrome-stable_current_amd64.deb"
 browserUrl="https://dl.google.com/linux/direct/${browser_deb}"

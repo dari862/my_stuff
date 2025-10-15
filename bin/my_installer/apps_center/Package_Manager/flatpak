@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# need superuser : called by my-installer
 app_name="flatpak"
 
 say 'Installing package...' 1

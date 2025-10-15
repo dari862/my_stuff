@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# need superuser : called by my-installer
 app_name="samba"
 
 say 'Installing package...' 1

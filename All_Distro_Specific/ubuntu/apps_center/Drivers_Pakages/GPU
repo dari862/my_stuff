@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 tweek_as_dependency "enable_universe_multiverse" || continue
 app_name="GPU Drivers"
 if [ -z "$machine_type_are" ];then

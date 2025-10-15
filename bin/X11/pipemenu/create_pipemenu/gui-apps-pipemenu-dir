@@ -1,12 +1,11 @@
 #!/bin/sh
-. "$__distro_path_lib"
+# need superuser : var (_SUPERUSER)
+# need superuser : sourced by system_files_creater
 gui_scripts_dir="${__distro_path_root}/system_files/gui_scripts"
 mkdir -p "${gui_scripts_dir}"
 
 mkdir -p "${gui_scripts_dir}"
 _script_for_dir="$(grep -R "# if this line exist script will be part of gui scripts." "${__distro_path_root}/system_files/bin" "${__distro_path_root}/system_files/binX11" "${__distro_path_root}/system_files/binWayland" 2>/dev/null | awk -F: '{print $1}')"
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 for script in ${_script_for_dir};do
 	new_name="$(grep "# if this line exist script will be part of gui scripts." "$script" | awk -F= '{print $2}')"

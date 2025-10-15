@@ -1,9 +1,15 @@
 #!/bin/sh
+# need superuser : var (_SUPERUSER)
 set -e
 
 # Default to empty string if no option is provided
 opt="${1-}"
 
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
+	_SUPERUSER="my-superuser"
+fi
 # Import necessary libraries
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
@@ -35,16 +41,16 @@ create_db_from_dirs() {
 	fi
 
 	[ -d "$db_path" ] && rm -rdf "$db_path"
-	mkdir -p "$db_path"
+	$_SUPERUSER mkdir -p "$db_path"
 	if [ -n "$dirs2" ];then
 		find "${dirs}" "${dirs2}" -mindepth 1 -maxdepth 1 -type d $remove_this | while read -r d;do
 			dir_name=$(basename "$d")
 			
-			touch "${db_path}/$dir_name"
+			$_SUPERUSER touch "${db_path}/$dir_name"
 		
 			find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
 				if ! is_installed "$(basename "$app")" && ! grep -q "#hide_it#" "$app";then
-					basename "$app" >> "$db_path/$dir_name"
+					basename "$app" | $_SUPERUSER tee -a "$db_path/$dir_name" >/dev/null 2>&1
 				fi
 			done
 		done
@@ -52,11 +58,11 @@ create_db_from_dirs() {
 		find "${dirs}" -mindepth 1 -maxdepth 1 -type d $remove_this | while read -r d;do
 			dir_name=$(basename "$d")
 			
-			touch "${db_path}/$dir_name"
+			$_SUPERUSER touch "${db_path}/$dir_name"
 		
 			find "${d}" -mindepth 1 -maxdepth 1 -type f | while read -r app;do
 				if ! is_installed "$(basename "$app")" && ! grep -q "#hide_it#" "$app";then
-					basename "$app" >> "$db_path/$dir_name"
+					basename "$app" | $_SUPERUSER tee -a "$db_path/$dir_name" >/dev/null 2>&1
 				fi
 			done
 		done
@@ -79,15 +85,15 @@ create_tweeks_db() {
 	
 	check_tweek=true
 	
-	[ -f "${tweeks_db_path}" ] && rm -rf "${tweeks_db_path}"
-	touch "${tweeks_db_path}"
+	[ -f "${tweeks_db_path}" ] && $_SUPERUSER rm -rf "${tweeks_db_path}"
+	$_SUPERUSER touch "${tweeks_db_path}"
 
 	find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
 		tweek_enabled=false
 		tweek_basename="$(basename "$tweek")"
 		. "${tweek}"
 		if [ "$tweek_enabled" = false ];then
-			echo "$tweek_basename" >> "${tweeks_db_path}"
+			echo "$tweek_basename" | $_SUPERUSER tee -a "${tweeks_db_path}" >/dev/null 2>&1
 		else
 			echo "$tweek_basename are enabled." 
 		fi
@@ -97,11 +103,11 @@ create_tweeks_db() {
 create_full_environment_db() {
 	say "create DB for full_environment."
 
-	[ -f "${full_environment_db_path}" ] && rm -rf "${full_environment_db_path}"
-	touch "${full_environment_db_path}"
+	[ -f "${full_environment_db_path}" ] && $_SUPERUSER rm -rf "${full_environment_db_path}"
+	$_SUPERUSER touch "${full_environment_db_path}"
 	
 	find "${_FULL_ENVIRONMENT_LIBDIR}" "${_FULL_ENVIRONMENT_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r FE;do
-		basename "$FE" >> "${full_environment_db_path}"
+		basename "$FE" | $_SUPERUSER tee -a "${full_environment_db_path}" >/dev/null 2>&1
 	done
 }
 
@@ -113,12 +119,12 @@ create_distrobox_deploy_db() {
 	if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
 		for deploy in $list_of_deploys; do
 			if ! distrobox list | grep -q " ${deploy} ";then
-				echo "$deploy" >> "${distrobox_deploy_db_path}"
+				echo "$deploy" | $_SUPERUSER tee -a "${distrobox_deploy_db_path}" >/dev/null 2>&1
 			fi
 		done
 	else
 		for deploy in $list_of_deploys; do
-			echo "$deploy" >> "${distrobox_deploy_db_path}"
+			echo "$deploy" | $_SUPERUSER tee -a "${distrobox_deploy_db_path}" >/dev/null 2>&1
 		done
 	fi
 }
@@ -131,12 +137,12 @@ create_containers_deploy_db() {
 	if [ -f "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then
 		for container in $list_of_containers; do
 			if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ];then
-				echo "$container" >> "${containers_deploy_db_path}"
+				echo "$container" | $_SUPERUSER tee -a "${containers_deploy_db_path}" >/dev/null 2>&1
 			fi
 		done
 	else
 		for container in $list_of_containers; do
-			echo "$container" >> "${containers_deploy_db_path}"
+			echo "$container" | $_SUPERUSER tee -a "${containers_deploy_db_path}" >/dev/null 2>&1
 		done
 	fi
 }
@@ -148,19 +154,19 @@ create_chroots_deploy_db() {
 	if [ -d "${ROOT_CHROOT_DIR}" ];then
 		for chroot in $list_of_chroots; do
 			if [ ! -f "${_CHROOTS_INSTALLED_LIBDIR}/${chroot}" ];then
-				echo "$chroot" >> "${chroots_deploy_db_path}"
+				echo "$chroot" | $_SUPERUSER tee -a "${chroots_deploy_db_path}" >/dev/null 2>&1
 			fi
 		done
 	else
 		for chroot in $list_of_chroots; do
-			echo "$chroot" >> "${chroots_deploy_db_path}"
+			echo "$chroot" | $_SUPERUSER tee -a "${chroots_deploy_db_path}" >/dev/null 2>&1
 		done
 	fi
 }
 
 # Create all databases except the styles database
 create_all_db_except_style_db() {
-	mkdir -p "${db_dir}"
+	$_SUPERUSER mkdir -p "${db_dir}"
 
 	[ ! -f "${tweeks_db_path}" ] && create_tweeks_db
 	[ ! -f "${full_environment_db_path}" ] && create_full_environment_db
@@ -200,7 +206,7 @@ check_4_envycontrol() {
 	
 	if [ "$number_of_gpus" -le 1 ] && grep -rq "envycontrol" "${db_dir}";then
 		say "number of gpus = $number_of_gpus removing envycontrol from DB."
-		find "${db_dir}" -type f -exec sed -i "/^envycontrol$/d" {} +
+		$_SUPERUSER find "${db_dir}" -type f -exec sed -i "/^envycontrol$/d" {} +
 	else
 		say "number of gpus = $number_of_gpus keeping envycontrol in DB."
 		

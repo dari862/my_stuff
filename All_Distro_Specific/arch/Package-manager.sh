@@ -1,3 +1,5 @@
+#!/bin/sh
+# need superuser : called by my-installer
 if command -v yay >/dev/null 2>&1;then
 	package_manger="yay"
 elif command -v paru >/dev/null 2>&1;then

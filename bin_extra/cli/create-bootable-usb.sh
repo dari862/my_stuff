@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+# need superuser : my-superuser -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/Distro_Specific/info"
 

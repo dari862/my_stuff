@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+# need superuser : called by my-installer -e
 
 say 'Adding Repo...' 1
 my-superuser zypper ar https://repo.vivaldi.com/archive/vivaldi-suse.repo

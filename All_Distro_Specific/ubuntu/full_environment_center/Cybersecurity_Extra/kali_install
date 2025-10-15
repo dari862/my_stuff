@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# need superuser : called by my-superuser
 set -e
 
 app_is_="${@}"

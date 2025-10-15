@@ -1,3 +1,4 @@
 #!/bin/sh
+# need superuser : called by my-installer
 . "${__distro_display_manager_lib_path}"
 my-superuser "${__distro_path_root}/bin/my_installer/chroots_installer/EXTRA/firefox/chroot-firefox-launcher-${Display_server_are}"

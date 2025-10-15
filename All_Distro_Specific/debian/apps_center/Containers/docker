@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 pre_app_name="ca-certificates"
 app_name="docker-ce"
 extra_apps_="docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras"

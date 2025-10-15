@@ -1,3 +1,17 @@
 #!/bin/sh
 . "$__distro_path_lib"
-"${__distro_path_root}"/bin/not_add_2_path/myinstaller_apps_list
+. "${__distro_path_root}/lib/common/WM"
+. "${Distro_config_file}"
+
+
+picked_package_line="$("${__distro_path_root}"/bin/not_add_2_path/myinstaller_apps_list | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -l 10 )"
+
+if [ -n "$picked_package_line" ];then
+	picked_package="$(printf '%s' "$picked_package_line" | awk -F'|' '{print $1}')"
+	if printf '%s' "$picked_package_line" | grep -q "(Apps)";then
+		picked_package_cat="--install"
+	elif printf '%s' "$picked_package_line" | grep -q "(Gaming)";then
+		picked_package_cat="--game"
+	fi
+	popup_terminal ${picked_package_cat} ${picked_package}
+fi

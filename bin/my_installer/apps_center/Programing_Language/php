@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# need superuser : called by my-installer
 /bin/bash -c "$(getURL '2term' https://php.new/install/linux)"
 mv ~/.profile ~/.php_profile
 

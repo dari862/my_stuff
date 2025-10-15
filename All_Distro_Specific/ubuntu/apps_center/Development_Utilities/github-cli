@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 app_name="gh"
 download_key "download" "https://cli.github.com/packages/githubcli-archive-keyring.gpg" "/usr/share/keyrings/githubcli-archive-keyring.gpg"
 my-superuser chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg

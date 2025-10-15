@@ -1,13 +1,11 @@
 #!/bin/sh
-. "$__distro_path_lib"
+# need superuser : var (_SUPERUSER)
+# need superuser : sourced by create_DB.sh
 . "${__distro_path_root}/lib/common/pipemenu"
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 mkdir -p "${pipemenu_output_dir}"
-
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 create_exec_pipemenu(){
 	echo "<menu id=\"$1\" execute=\"$2\" label=\"$3\"/>"

@@ -1,3 +1,4 @@
+# need superuser : called by Dev-menu
 # Remove service
 my-superuser service_manager stop ollama
 my-superuser service_manager disable ollama

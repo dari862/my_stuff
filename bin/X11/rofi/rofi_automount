@@ -1,4 +1,5 @@
 #!/bin/bash
+# need superuser : called by popup_terminal
 unalias -a
 set -e
 __mode="rofi"

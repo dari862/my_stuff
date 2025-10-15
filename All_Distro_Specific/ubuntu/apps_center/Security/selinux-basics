@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 app_name="selinux-basics"
 extra_apps_="selinux-policy-default auditd"
 

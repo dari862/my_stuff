@@ -1,3 +1,5 @@
+#!/bin/sh
+# need superuser : called by my-installer
 if command -v nala >/dev/null 2>&1;then
 	package_manger="nala"
 	Package_installer_(){

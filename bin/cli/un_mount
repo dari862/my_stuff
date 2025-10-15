@@ -1,4 +1,6 @@
 #!/bin/bash
+# need superuser : my-superuser
+
 unalias -a
 set -e
 . "$__distro_path_lib"

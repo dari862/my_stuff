@@ -1,6 +1,9 @@
 #!/bin/sh
+# need superuser : called by start_torproxy and stop_torproxy
 set -e
-. "$__distro_path_lib"
+__arg_="${1-}"
+__distro_path_lib="${2:-$__distro_path_lib}"
+. "${__distro_path_lib}"
 . "${__distro_path_root}/lib/env_torproxy.sh"
 
 RULES="${__distro_path_root}/system_files/tor-router.save"
@@ -16,8 +19,6 @@ else
 	echo "[ERROR] $0 : please install nftables or iptables."
 	exit 1	
 fi
-
-__arg_="${1-}"
 
 if dpkg -s ufw >/dev/null 2>&1;then
 	ignore_ufw=false

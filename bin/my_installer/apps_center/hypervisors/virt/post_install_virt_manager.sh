@@ -1,4 +1,5 @@
-		
+#!/bin/sh
+# need superuser : called by my-installer		
 		if [ ! -e "/dev/kvm" ]; then
 			say "${RED}KVM is not available. Make sure you have CPU virtualization support enabled in your BIOS/UEFI settings. Please refer https://wiki.archlinux.org/title/KVM for more information.${RC}"
 		fi

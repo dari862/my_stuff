@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : installed by git installer code
 set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/Distro_Specific/disto_icon"

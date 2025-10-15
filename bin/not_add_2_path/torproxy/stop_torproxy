@@ -1,3 +1,4 @@
 #!/bin/sh
+# need superuser : my-superuser
 . "$__distro_path_lib"
-my-superuser ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy stop
+my-superuser ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy stop "$__distro_path_lib"

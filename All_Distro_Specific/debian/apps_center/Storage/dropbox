@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 app_name="dropbox"
 
 say 'Installing package...' 1
@@ -13,6 +14,7 @@ my-superuser ln -sf "${__distro_path_downloaded}"/dropbox/dropbox.py ${__distro_
 my-superuser mkdir -p "${__distro_path_updater}"
 my-superuser tee "${__distro_path_updater}"/dropbox_updater <<- 'EOF' > /dev/null
 #!/bin/sh
+# need superuser : called by my-installer
 nohup dropbox update >/dev/null 2>&1
 EOF
 my-superuser chmod +x "${__distro_path_updater}/dropbox_updater" || continue

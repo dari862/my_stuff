@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 
 app_name="secureMyLinux"
 secureMyLinux_dir="$__distro_path_git/${app_name}"

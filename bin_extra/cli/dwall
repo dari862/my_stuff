@@ -18,7 +18,7 @@ MAGENTABG="$(printf '\033[45m')"  CYANBG="$(printf '\033[46m')"  WHITEBG="$(prin
 ## Wallpaper directory
 dwall_script="${__distro_path_root}/bin/cli/dwall"
 wallpapers_folder_name="Dynamic_wallpapers"
-DIR="${__distro_path_root}/system_files/${wallpapers_folder_name}"
+DIR="${__distro_for_all_path}/${wallpapers_folder_name}"
 HOUR="$(date +%k)"
 
 ## Wordsplit in ZSH
@@ -233,44 +233,6 @@ Create_links_for_folders_now(){
 }
 
 ## Install script
-install_now_() {
-	# Path
-	if [ -f ${dwall_script} ];then 
-		echo -e ${GREEN}"[*] Already exsist. Execute 'dwall' to Run."${WHITE} 
-		reset_color
-		exit 0
-	fi
-	SCRIPT_ABSOLATE_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/$(basename "${BASH_SOURCE[0]}")"
-
-	## Make dirs
-	mkdir_dw() {
-		echo -e ${ORANGE}"[*] Installing Dynamic Wallpaper..."${WHITE}
-		if [[ -d $DIR ]];then
-			# delete old directory
-			my-superuser rm -rf $DIR
-			# create new directory
-			my-superuser mkdir -p $DIR
-		else
-			# create new directory
-			my-superuser mkdir -p $DIR
-		fi
-	}
-
-	## Copy files
-	copy_files() {
-		my-superuser cp "$SCRIPT_ABSOLATE_PATH" ${dwall_script}
-		# make script executable
-		my-superuser chmod +x ${dwall_script}
-		echo -e ${GREEN}"[*] Installed Successfully. Execute 'dwall' to Run."${WHITE}
-	}
-
-	## Install
-	mkdir_dw
-	copy_files
-	reset_color
-	Download_wallpapers_now
-}
-
 YES_OR_NO()
 {
 	while true; do
@@ -296,7 +258,7 @@ Download_wallpapers_now(){
 	echo "size wallpaper is 150 MB"
 	if YES_OR_NO;then
 		echo "Downloading 1-3 urls for wallpapers"
-		super_clone_repo https://github.com/adi1090x/dynamic-wallpaper			/tmp/$USER/dynamic-wallpaper
+		clone_repo https://github.com/adi1090x/dynamic-wallpaper			/tmp/$USER/dynamic-wallpaper
 		mv /tmp/$USER/dynamic-wallpaper/images/* /tmp/$USER/dynamic_wallpapers 2>/dev/null
 	else
 		echo "skipping Download..."
@@ -322,7 +284,7 @@ Download_wallpapers_now(){
 	echo "size 2.5 GB"
 	if YES_OR_NO;then
 		echo "Downloading 3-3 urls for wallpapers"
-		super_clone_repo https://github.com/saint-13/Linux_Dynamic_Wallpapers	/tmp/$USER/Linux_Dynamic_Wallpapers
+		clone_repo https://github.com/saint-13/Linux_Dynamic_Wallpapers	/tmp/$USER/Linux_Dynamic_Wallpapers
 		cd /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers
 		/bin/rm -f * 2>/dev/null
 		
@@ -387,35 +349,22 @@ Download_wallpapers_now(){
 		exit_0
 	fi
 	
-	my-superuser mkdir -p $DIR
-	echo $DIR
-	my-superuser cp -r /tmp/$USER/dynamic_wallpapers/* $DIR
-	echo $DIR
-	echo "Done"
-	exit_1
+	mkdir -p $DIR
+	if cp -r /tmp/$USER/dynamic_wallpapers/* $DIR;then
+		echo "Done"
+	else
+		exit_1
+	fi
+	exit_0
 }
 
 ## Uninstall script
 uninstall_now_() {
-	## Delete files
-	rmdir_dw() {
-		echo -e ${ORANGE}"[*] Uninstalling Dynamic Wallpaper..."${WHITE}
-		if [[ -d $DIR ]];then
-			# delete dwall directory
-			my-superuser rm -rf $DIR
-		fi
-	}
-
-	del_files() {
-		if [[ -f ${dwall_script} ]];then
-			my-superuser rm ${dwall_script}
-		fi
-		echo -e ${GREEN}"[*] Uninstalled Successfully."${WHITE}
-	}
-
-	## Uninstall
-	rmdir_dw
-	del_files
+	echo -e ${ORANGE}"[*] Uninstalling Dynamic Wallpaper..."${WHITE}
+	if [[ -d $DIR ]];then
+		# delete dwall directory
+		rm -rf $DIR
+	fi
 }
 
 #
@@ -470,7 +419,7 @@ while getopts ":dolachiugys:pb:c:z:" opt; do
 			exit_0
 			;;
 		i)
-			Set_installation_=true
+			Download_wallpapers_=true
 			;;
 		u)
 			Set_uninstall_=true
@@ -482,9 +431,6 @@ while getopts ":dolachiugys:pb:c:z:" opt; do
 			;;
 		z)
 			create_crontab_=true
-			;;
-		g)
-			Download_wallpapers_=true
 			;;
 		\?)
 			echo -e ${RED}"[!] Unknown option, run ${GREEN}`basename $0` -h"
@@ -508,11 +454,6 @@ if [[ "$do_you_want_2_convert_folder_2_Dywall" == true ]];then
 	exit_0
 fi
 
-if [[ "$Set_installation_" == true ]];then
-	install_now_
-	exit_0
-fi
-
 if [[ "$Set_uninstall_" == true ]];then
 	uninstall_now_
 	exit_0
@@ -523,6 +464,7 @@ if [[ "$Download_wallpapers_" == true ]] || [[ ! -d "$DIR" ]];then
 fi
 
 if [[ "$create_crontab_" == true ]];then
+	check_4_dependencies_if_installed crontab || exit 1
 	if [[ "$STYLE" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-s $STYLE")
 	fi
@@ -536,7 +478,6 @@ if [[ "$create_crontab_" == true ]];then
 fi
 
 ## Run
-check_4_dependencies_if_installed crontab || exit 1
 
 if [[ "$STYLE" ]];then
 	check_style "$STYLE"

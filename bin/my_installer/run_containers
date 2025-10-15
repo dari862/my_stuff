@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : installed by my-installer
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 containers_orginal_runner_path="${__distro_path_root}/bin/my_installer/containers_runner"

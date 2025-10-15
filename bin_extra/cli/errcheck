@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : my-superuser
 # if this line exist script will be part of hub script.
 
 # Purpose: Quick check of logged service failures and sys errors

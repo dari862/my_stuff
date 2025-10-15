@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+# need superuser : called by my-installer -e
 app_name="code"
 set_as_default_package=true
 prompt "  Do you want to set $app_name as default package?"  || set_as_default_package=false

@@ -1,4 +1,5 @@
 #!/bin/bash
+# need superuser : var (_SUPERUSER)
 set -euo pipefail
 unalias -a
 _SUPERUSER="my-superuser"

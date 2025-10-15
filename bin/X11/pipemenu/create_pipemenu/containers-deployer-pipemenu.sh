@@ -1,5 +1,7 @@
 #!/bin/sh
-. "$__distro_path_lib"
+# need superuser : var (_SUPERUSER)
+# need superuser : sourced by my-installer
+
 installation_script_name="popup_terminal"
 
 . "${__distro_path_root}/lib/common/DB"
@@ -10,8 +12,6 @@ CONTAINERS="$(cat "${containers_deploy_db_path}")"
 CHROOTS="$(cat "${chroots_deploy_db_path}")"
 
 . "${__distro_path_root}/lib/common/pipemenu"
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 {
 	menuStart "DeployFavouriteContainers" "Deploy containers using Distrobox and Containers softwares"

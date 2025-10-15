@@ -1,5 +1,6 @@
 #!/bin/sh
-. "$__distro_path_lib"
+# need superuser : var (_SUPERUSER)
+# need superuser : sourced by my-installer and create_DB.sh
 installation_script_name="popup_terminal"
 
 . "${__distro_path_root}/lib/common/DB"
@@ -9,8 +10,6 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
 
 . "${__distro_path_root}/lib/common/pipemenu"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 
 {
 	# This function is specific to this script.

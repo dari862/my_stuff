@@ -1,3 +1,4 @@
+# need superuser : called by Dev-menu
 my-superuser rm /etc/apt/sources.list.d/1password.list
 my-superuser rm /usr/share/keyrings/1password-archive-keyring.gpg
 my-superuser rm /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg

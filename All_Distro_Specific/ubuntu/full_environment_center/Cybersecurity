@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 . "$__distro_path_lib"

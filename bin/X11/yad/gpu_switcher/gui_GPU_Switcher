@@ -1,6 +1,6 @@
 #!/bin/sh
 # if this line exist script will be part of gui scripts.new_name=GPU_Switcher
-
+# need superuser : called by apps_as_root
 . "$__distro_path_lib"
 NVIDIA_VENDOR="NVIDIA Corporation"
 AMD_VENDOR="AMD"

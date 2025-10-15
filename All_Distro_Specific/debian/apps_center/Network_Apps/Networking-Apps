@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 
 app_name="iwd network-manager-openvpn network-manager-openvpn-gnome openssh-server wireguard-tools wireless-tools"
 

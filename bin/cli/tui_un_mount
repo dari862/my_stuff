@@ -1,6 +1,8 @@
 #!/bin/bash
+# need superuser : called by un_mount
+
 unalias -a
-set -u
+set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 unset GREP_OPTIONS

@@ -1,4 +1,5 @@
 #!/bin/bash
+# need superuser : called by popup_terminal
 unalias -a
 __mounter(){
 	# Mounts Android Phones and USB drives (encrypted or not). This script will

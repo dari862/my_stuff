@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : var (_SUPERUSER)
 #===================================================================================
 # UPDATE NOTIFICATION
 # FILE: update_notification

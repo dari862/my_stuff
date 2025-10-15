@@ -1,6 +1,11 @@
 #!/bin/sh
+# need superuser : my-superuser
 set -e
-
+if [ "$(id -u)" -ne 0 ]; then
+    my-superuser $0 "$__distro_path_lib"
+    exit
+fi
+__distro_path_lib="${1:-$__distro_path_lib}"
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/common"
@@ -576,7 +581,7 @@ fi
 create_auto_completion_files
 
 show_im "prepares gui scripts dir"
-"${pipemenu_creater}"/gui-apps-pipemenu-dir || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu-dir"
+. "${pipemenu_creater}/gui-apps-pipemenu-dir" || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu-dir"
 
 ##################################################################################
 

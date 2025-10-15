@@ -1,6 +1,9 @@
 #!/bin/sh
+# need superuser : my-superuser
 is_it_zero_byte=false
-
+if [ "$(id -u)" -eq 0 ]; then
+	echo "dont not run script as superuser."
+fi
 . "$__distro_path_lib"
 . "${__distro_path_uninstaller_var}"
 . "${__distro_path_root}/lib/common/common"

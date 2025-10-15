@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : my-superuser
 
 . "$__distro_path_lib"
 
@@ -29,6 +30,7 @@ init_color_temperature_adjuster() {
 		[ -f "${__distro_path_root}/system_files/bin/tray_gammastep" ] && return
 		tee "${__distro_path_root}/system_files/bin/tray_gammastep" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
+# need superuser : my-superuser
 		yad --notification \
 			--image="gtk-zoom-fit" \
 			--icon-size=22 \
@@ -42,6 +44,7 @@ init_color_temperature_adjuster() {
 		[ -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" ] && return
 		tee "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
+# need superuser : my-superuser
 		/usr/bin/${_command}
 		tray_gammastep
 		EOF
@@ -105,7 +108,7 @@ else
 	[ ! -f "${__distro_path_root}/system_files/bin/tray_gammastep" ] && echo "File does not exist: ${__distro_path_root}/system_files/bin/tray_gammastep" && exit_now=true
 	[ ! -f "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" ] && echo "File does not exist: ${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" && exit_now=true
 	if [ "$exit_now" = true ];then
-		echo "Run my-superuser color_temperature_adjuster_gui --init"
+		echo "Run my-superuser $0 --init"
 		exit 1
 	fi
 fi

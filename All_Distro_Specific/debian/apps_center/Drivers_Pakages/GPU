@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 app_name="GPU Drivers"
 if [ -z "$machine_type_are" ];then
 	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"

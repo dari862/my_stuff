@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : my-superuser
 __option="${1-}"
 __timezone="${2-}"
 

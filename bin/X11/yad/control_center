@@ -2,6 +2,7 @@
 # if this line exist script will be part of gui scripts.new_name=Control_Center
 # if this line exist script will be part of hub script.
 #
+# need superuser : called by popup_terminal
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"

@@ -1,6 +1,6 @@
 #!/bin/sh -e
 # if this line exist script will be part of gui scripts.new_name=Script_Hub
-
+# need superuser : var (_SUPERUSER)
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
@@ -9,11 +9,15 @@ _hub_script_dir="${__distro_path_root}/system_files/hub_script"
 opt___="${1-}"
 
 if [ "$opt___" = "create" ];then
-	# need superuser here
-	mkdir -p "${_hub_script_dir}"
+	if [ "$(id -u)" -eq 0 ];then
+		_SUPERUSER=""
+	else
+		_SUPERUSER="my-superuser"
+	fi
+	$_SUPERUSER mkdir -p "${_hub_script_dir}"
 	_script_for_hub="$(grep -RI "^# if this line exist script will be part of hub script." "${__distro_path_root}/bin" | awk -F: '{print $1}')"
 		for script in ${_script_for_hub};do
-			ln -sf "$script" "${_hub_script_dir}"
+			$_SUPERUSER ln -sf "$script" "${_hub_script_dir}"
 		done
 	exit
 elif [ -n "$opt___" ];then

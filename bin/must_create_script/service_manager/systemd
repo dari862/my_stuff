@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : var (_superuser)
 set -e
 option=${1-}
 service=${2-}

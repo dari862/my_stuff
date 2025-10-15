@@ -1,30 +1,77 @@
-#!/bin/sh
-. "$__distro_path_lib"
-. "${__distro_path_root}/lib/common/WM"
-. "${Distro_config_file}"
+#!/bin/bash
+set -e
+unalias -a
+#. "$__distro_path_lib"
+#wallpaper_dir="${__distro_path_root}/my_wallpapers"
+wallpaper_dir="$HOME/Desktop/my_stuff/my_wallpapers"
 
-if [ ! -d "$HOME/.config/nitrogen" ];then
-	mkdir -p "$HOME/.config/nitrogen"
+# Get terminal size for preview dimensions
+get_preview_dim() {
+  # Use FZF env vars if available; fallback to `stty size`
+  cols=${FZF_PREVIEW_COLUMNS}
+  lines=${FZF_PREVIEW_LINES}
+
+  if [ -z "$cols" ] || [ -z "$lines" ]; then
+    # stty size gives rows cols; switch order to colsxrows
+    lines=$(tput lines)
+	cols=$(tput cols)
+  fi
+
+  dim="${cols}x${lines}"
+
+  # Adjust if preview is at the bottom to avoid scrolling issues with Sixel
+  if [ -z "$KITTY_WINDOW_ID" ] && [ "$((FZF_PREVIEW_TOP + lines))" -eq "$lines" ]; then
+    dim="${cols}x$((lines - 1))"
+  fi
+
+  echo "$dim"
+}
+
+# Shared dim calculation for preview commands
+
+# Use Kitty's icat if running in Kitty or Ghostty and kitten is available
+if { [ -n "$KITTY_WINDOW_ID" ] || [ -n "$GHOSTTY_RESOURCES_DIR" ]; } && command -v kitten >/dev/null 2>&1; then
+  preview_command() {
+  	dim=$(get_preview_dim)
+    # 'memory' transfer mode is fastest; 'stream' allows scroll but slower
+    RESET=$(printf '\033[m')
+    kitten icat --clear --transfer-mode=memory --unicode-placeholder --stdin=no --place="${dim}@0x0" "$1" \
+      | sed '$d' | sed $'$s/$/\e[m/'  # Remove last newline and append ANSI reset
+  }
+elif command -v ueberzugpp >/dev/null 2>&1; then
+  :
+  # work on this : add ueberzugpp support
+elif command -v ueberzug >/dev/null 2>&1; then
+  :
+  # work on this : add ueberzug support
+# Use chafa with Sixel output if available
+elif command -v chafa >/dev/null 2>&1; then
+  preview_command() {
+  	dim=$(get_preview_dim)
+    chafa -s "$dim" "$1"
+    echo  # new line for fzf multiple previews
+  }
+
+# Use imgcat for iTerm2 if available
+elif command -v imgcat >/dev/null 2>&1; then
+  preview_command() {
+  	dim=$(get_preview_dim)
+    # Extract width and height from dim
+    w="${dim%x*}"
+    h="${dim#*x}"
+    imgcat -W "$w" -H "$h" "$1"
+  }
+
+# Fallback: use file command for preview
+else
+  preview_command() {
+    file "$1"
+  }
 fi
 
-if [ ! -f "$HOME/.config/nitrogen/nitrogen.cfg" ];then
-	tee "$HOME/.config/nitrogen/nitrogen.cfg" <<- EOF >/dev/null 2>&1
-	[geometry]
-	posx=0
-	posy=27
-	sizex=450
-	sizey=500
+export -f preview_command get_preview_dim
 
-	[nitrogen]
-	view=icon
-	recurse=true
-	sort=alpha
-	icon_caps=false
-	dirs=${__distro_path_root}/my_wallpapers;
-	EOF
-fi
-
-if nitrogen;then
-	picked_wallpaper="$(grep 'file=' "$HOME/.config/nitrogen/bg-saved.cfg" | awk -F= '{print $2}' )"
-	setbg -R "${picked_wallpaper}"
+picked_wallpaper="$(find "${wallpaper_dir}" -type f | fzf --preview='preview_command {}')"
+if [ -n "$picked_wallpaper" ];then
+	echo setbg -R "${picked_wallpaper}"
 fi

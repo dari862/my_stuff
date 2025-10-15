@@ -17,6 +17,7 @@ full_upgrade_(){
 	if prompt "Do you want to reboot now to apply the upgrade?" "Y";then
 		cat <<- EOF > "$HOME/.config/autostartscripts/full_upgrade_"
 		#!/bin/sh
+# need superuser : called by my-installer
 		set -e
 		popup_terminal --superuser "dnf autoremove && rm -rf \"$HOME/.config/autostartscripts/full_upgrade_\" && my-superuser dnf system-upgrade reboot"
 		EOF

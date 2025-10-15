@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 APP_NAME="firefox"
 make_chroot_browser_default_browser=false
 prompt "Do you want to set chroot-${APP_NAME} as default browser(my-www-browser)?" 'Y' && make_chroot_browser_default_browser=true

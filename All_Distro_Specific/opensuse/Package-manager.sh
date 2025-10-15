@@ -1,3 +1,5 @@
+#!/bin/sh
+# need superuser : called by my-installer
 Package_installer_(){
 	my-superuser zypper install -y $@
 }

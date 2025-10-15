@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : my-superuser
 # if this line exist script will be part of gui scripts.new_name=Bluetooth_Controller
 # Script for open blueman manager and install it if not installed
 # If BT is running open blueman-manager

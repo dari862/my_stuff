@@ -75,8 +75,8 @@ if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]] || [[ $# -eq 0 ]];then
     help; exit
 fi
 
-# superecho
-superecho () {
+# echoandnotif
+echoandnotif () {
     local msg="$1"
     if [[ -t 0 ]];then
         echo "$msg"
@@ -87,7 +87,7 @@ superecho () {
 
 # prepare config dir
 config="$HOME/.cache/beepmein"
-mkdir -p "$config" || superecho "$config not found, warning."
+mkdir -p "$config" || echoandnotif "$config not found, warning."
 
 # var
 delay="0"
@@ -162,7 +162,7 @@ done
 
 # test alarm sample path (no test for reminder sample)
 testAlarmPath () {
-    [[ -f "$alarmSample" ]] || { >&2 superecho "Note: alarmSample $alarmSample not found, Internal fail-safe beep will be used instead."; }
+    [[ -f "$alarmSample" ]] || { >&2 echoandnotif "Note: alarmSample $alarmSample not found, Internal fail-safe beep will be used instead."; }
 }
 
 # mpv or cvlc (by jr)
@@ -176,7 +176,7 @@ playa () {
     then
         cvlc --quiet --no-video "$file" vlc://quit
     else
-        superecho "no player"
+        echoandnotif "no player"
         return 1
     fi
 }
@@ -233,7 +233,7 @@ if [[ "$1" == "--set-alarm" ]];then
     else
         alarmpath="$(readlink -f -- "$2")" # must be absolute path
     fi
-    [[ -f "$alarmpath" ]] || { superecho "No valid alarm path given." ; beep "2"; exit 1; }
+    [[ -f "$alarmpath" ]] || { echoandnotif "No valid alarm path given." ; beep "2"; exit 1; }
     # f=force
     ln -fs "$alarmpath" "$config/alarm"
     exit
@@ -245,7 +245,7 @@ if [[ "$1" == "--set-remind" ]];then
     else
         remindpath="$(readlink -f -- "$2")" # must be absolute path
     fi
-    [[ -f "$remindpath" ]] || { superecho "No valid reminder path given." ; beep "2"; exit 1; }
+    [[ -f "$remindpath" ]] || { echoandnotif "No valid reminder path given." ; beep "2"; exit 1; }
     # f=force
     ln -fs "$remindpath" "$config/remind"
     exit
@@ -277,7 +277,7 @@ if [[ "$1" != "--reaction" ]];then
     fi
 
     # validate at time format, exit if fails
-    validate "$attime" || { >&2 superecho "at time format error." ; beep "2"; exit 1; } # beep two times for error
+    validate "$attime" || { >&2 echoandnotif "at time format error." ; beep "2"; exit 1; } # beep two times for error
 
     # user input reason
     if [[ $noreason != true ]];then
@@ -290,7 +290,7 @@ if [[ "$1" != "--reaction" ]];then
     (( setdelay )) && delay="$(date +'%_S.%N')"
 
     # set 'at'
-    at -M "$attime" <<< "$(echo "sleep $delay; DISPLAY=${DISPLAY} beepmein --reaction $alarm '${reason}'")" >/dev/null 2>&1 || { superecho "at input error." ; beep "2"; exit 1; } # beep two times for error
+    at -M "$attime" <<< "$(echo "sleep $delay; DISPLAY=${DISPLAY} beepmein --reaction $alarm '${reason}'")" >/dev/null 2>&1 || { echoandnotif "at input error." ; beep "2"; exit 1; } # beep two times for error
 
 else
     # reaction

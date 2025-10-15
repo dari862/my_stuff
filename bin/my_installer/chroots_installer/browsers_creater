@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 BROWSERS_CHROOT_NAME="chroot-browsers"
 chroot_default_browser_name="chroot-browser"
 SCRIPT_NAME="chroot-${APP_NAME}"

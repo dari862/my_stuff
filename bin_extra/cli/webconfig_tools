@@ -1,4 +1,5 @@
 #!/bin/bash
+# need superuser : my-superuser
 unalias -a
 # View Apache logs
 apachelog() {

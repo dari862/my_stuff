@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 app_name="thunar"
 extra_app_name="thunar-archive-plugin thunar-volman"
 set_as_default_package=true

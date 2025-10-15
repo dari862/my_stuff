@@ -1,2 +1,3 @@
 #!/bin/sh -e
+# need superuser : called by my-installer
 getURL '2term' "https://download.qoppa.com/pdfstudio/PDFStudio_linux64.sh" | my-superuser sh || continue

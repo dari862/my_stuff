@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 box_app_name="distrobox"
 box_app_location="$(find ${_APPS_LIBDIR}/ -name ${box_app_name})"
 must_create_file(){

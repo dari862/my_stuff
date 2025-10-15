@@ -1,9 +1,12 @@
 #!/bin/sh
+# need superuser : var (__SUPER_USER)
 # It runs full system upgrade in a text console
 opt="${1:-}"
 
 if [ "$(id -u)" -ne 0 ]; then
   __SUPER_USER="my-superuser"
+else
+	echo "dont not run script as superuser."
 fi
 
 if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then

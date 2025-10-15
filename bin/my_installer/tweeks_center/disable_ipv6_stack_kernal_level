@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by my-installer
 if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
