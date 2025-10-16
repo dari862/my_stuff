@@ -1,6 +1,5 @@
 #!/bin/sh
 # X11 only package remove it from my-installer
-# need superuser : called by my-installer
 app_name="polybar"
 #libnm-dev for networkmanager_dmenu
 extra_apps_="libnm-dev"
@@ -12,7 +11,7 @@ copy_from_extra_skel ".config/polybar" || continue
 say 'Copy bin from polybar...' 1
 # distro 
 if [ -d "${__distro_path_root}/bin/X11/polybar" ];then
-	my-superuser ln -sf "${__distro_path_root}/bin/X11/polybar/"* "${__distro_path_root}/system_files/bin" || continue
+	ln_sf_files_depth1 "${__distro_path_root}/bin/X11/polybar" "${__distro_path_root}/system_files/bin" || continue
 fi
 
 "${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver || continue

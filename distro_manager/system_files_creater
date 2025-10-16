@@ -162,6 +162,10 @@ create_auto_completion_files(){
 	fi
 }
 
+ln_sf_files_depth1(){
+	find "$1" -maxdepth 1 -type f -exec ln -sf {} "$2" \;
+}
+
 ##################################################################################
 
 show_im "update Databases ex: locate"
@@ -227,9 +231,9 @@ mkdir -p "${_distro_xsessions_desktop_path}"
 show_im "LN essional files"
 mkdir -p "${__distro_path_system_files}/bin"
 mkdir -p "${__distro_path_system_files}/binX11"
-ln -sf "${__distro_path_root}/bin/X11/bin"/* "${__distro_path_system_files}/binX11"
-ln -sf "${__distro_path_root}/bin/X11/session_managers/clipboard-manager-session" "${__distro_path_system_files}/binX11"
-ln -sf "${__distro_path_root}/bin/X11/WM"/* "${__distro_path_system_files}/binX11"
+ln_sf_files_depth1 "${__distro_path_root}/bin/X11/bin" "${__distro_path_system_files}/binX11"
+ln_sf_files_depth1 "${__distro_path_root}/bin/X11/session_managers/clipboard-manager-session" "${__distro_path_system_files}/binX11"
+ln_sf_files_depth1 "${__distro_path_root}/bin/X11/WM" "${__distro_path_system_files}/binX11"
 
 mkdir -p "${__distro_for_all_path}"
 chmod 777 "${__distro_for_all_path}"
@@ -410,7 +414,7 @@ if command_exist polybar;then
 	cp -r "${__distro_path_root}/bin/X11/session_managers/polybar-session" "${__distro_path_system_files}"/binX11
 	
 	if [ -d "${__distro_path_root}/bin/X11/polybar" ];then
-		ln -sf "${__distro_path_root}"/bin/X11/polybar/* "${__distro_path_system_files}"/binX11
+		ln_sf_files_depth1 "${__distro_path_root}/bin/X11/polybar" "${__distro_path_system_files}"/binX11
 	fi
 	"${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver
 fi
@@ -418,14 +422,14 @@ fi
 if command_exist yad;then
 	show_im "copy yad bin to system_files/bin ."
 	if [ -d "${__distro_path_root}/bin/X11/yad" ];then
-		ln -sf "${__distro_path_root}"/bin/X11/yad/* "${__distro_path_system_files}"/binX11
+		ln_sf_files_depth1 "${__distro_path_root}/bin/X11/yad" "${__distro_path_system_files}"/binX11
 	fi
 	copy_all__application_link_in_dir "yad"
 	if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 		show_im "yad laptop stuff."
 		if [ -d "${__distro_path_root}/bin/X11/yad/laptop" ];then
 			show_im "laptop bin files to system_files/binX11 ."
-			ln -sf "${__distro_path_root}/bin/X11/yad/laptop"/* "${__distro_path_system_files}"/binX11
+			ln_sf_files_depth1 "${__distro_path_root}/bin/X11/yad/laptop" "${__distro_path_system_files}"/binX11
 		fi
 		create_applicationsdotdesktop_link "yadtlp"
 	fi
@@ -433,7 +437,7 @@ fi
 
 if [ -d "${__distro_path_root}/bin/X11/rofi" ];then
 	show_im "rofi bin files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/X11/rofi/* "${__distro_path_system_files}"/binX11
+	ln_sf_files_depth1 "${__distro_path_root}/bin/X11/rofi" "${__distro_path_system_files}"/binX11
 fi
 
 if command_exist picom;then
@@ -458,34 +462,34 @@ show_im "LN bin files to system_files/bin ."
 
 if [ -d "${__distro_path_root}/bin/cli" ];then
 	show_im "bin cli files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/cli/* "${__distro_path_system_files}"/bin
+	ln_sf_files_depth1 "${__distro_path_root}/bin/cli" "${__distro_path_system_files}"/bin
 fi
 
 if [ -d "${__distro_path_root}/Distro_Specific/bin" ];then
 	show_im "bin Distro_Specific files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/Distro_Specific/bin/* "${__distro_path_system_files}"/bin
+	ln_sf_files_depth1 "${__distro_path_root}/Distro_Specific/bin" "${__distro_path_system_files}"/bin
 fi
 
 if [ -d "${__distro_path_root}/bin/WM" ];then
 	show_im "bin WM files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/WM/* "${__distro_path_system_files}"/bin
+	ln_sf_files_depth1 "${__distro_path_root}/bin/WM" "${__distro_path_system_files}"/bin
 	rm -f "${__distro_path_system_files}"/bin/create_DB.sh "${__distro_path_system_files}"/bin/pre_launch_wm "${__distro_path_system_files}"/bin/post_launch_wm 
 	
 fi
 
 if [ -d "${__distro_path_root}/bin_extra/cli" ];then
 	show_im "exra cli files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin_extra/cli/* "${__distro_path_system_files}"/bin
+	ln_sf_files_depth1 "${__distro_path_root}/bin_extra/cli" "${__distro_path_system_files}"/bin
 fi
 
 if [ -d "${__distro_path_root}/bin/status" ];then
 	show_im "status bin files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/status/* "${__distro_path_system_files}"/bin
+	ln_sf_files_depth1 "${__distro_path_root}/bin/status" "${__distro_path_system_files}"/bin
 fi
 
 if [ -d "${__distro_path_root}/bin/gui" ];then
 	show_im "gui bin files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/gui/* "${__distro_path_system_files}"/bin
+	ln_sf_files_depth1 "${__distro_path_root}/bin/gui" "${__distro_path_system_files}"/bin
 	if ! command_exist systemctl;then
 		rm -f "${__distro_path_system_files}"/bin/yautostart
 		rm -f "${__distro_path_system_files}"/bin/errcheck
@@ -495,7 +499,7 @@ fi
 
 if [ -d "${__distro_path_root}/bin/session_managers" ];then
 	show_im "session_managers bin files to system_files/bin ."
-	ln -sf "${__distro_path_root}"/bin/session_managers/* "${__distro_path_system_files}"/bin
+	ln_sf_files_depth1 "${__distro_path_root}/bin/session_managers" "${__distro_path_system_files}"/bin
 fi
 
 show_im "nbrowser bin files to system_files/bin ."
@@ -506,7 +510,7 @@ if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 	show_im "laptop stuff."
 	if [ -d "${__distro_path_root}/bin/X11/laptop" ];then
 		show_im "laptop bin files to system_files/binX11 ."
-		ln -sf "${__distro_path_root}/bin/X11/laptop"/* "${__distro_path_system_files}"/binX11
+		ln_sf_files_depth1 "${__distro_path_root}/bin/X11/laptop" "${__distro_path_system_files}"/binX11
 	fi
 fi
 
