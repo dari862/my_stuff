@@ -51,7 +51,7 @@ Task Manager (htop),sysinfo_script_ --process,htop
 Install Favourite Packages,^pipe(jgmenu_run ob --cmd="my-install-pipemenu" --tag="my-install-pipemenu")
 GUI Package Manager,sh -c 'gui_packagemanager',gui_packagemanager
 Login Settings,apps_as_root my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf,lightdm-settings
-Login Interface,lightdm-gtk-greeter-settings-pkexec,lightdm-settings
+Login Interface,(((distro_path_root)))/not_add_2_path/lightdm_login_changer,lightdm-settings
 GParted Partition Manager,apps_as_root gparted,gparted
 Set Default Browser,"""popup_terminal 'Select Default Browser' 'my-alternatives --set my-www-browser'""",web-browser
 Edit Alternatives,edit-alternatives,Edit-Alternatives

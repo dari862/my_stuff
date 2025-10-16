@@ -107,7 +107,7 @@
 			<item label="Login Interface">
 				<action name="Execute">
 					<command>
-						lightdm-gtk-greeter-settings-pkexec
+						(((distro_path_root)))/not_add_2_path/lightdm_login_changer
 					</command>
 				</action>
 			</item>

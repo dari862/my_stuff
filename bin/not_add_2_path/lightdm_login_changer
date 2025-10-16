@@ -1,0 +1,4 @@
+#!/bin/sh
+if command -v lightdm-gtk-greeter-settings-pkexec >/dev/null 2>&1;then
+	lightdm-gtk-greeter-settings-pkexec
+fi

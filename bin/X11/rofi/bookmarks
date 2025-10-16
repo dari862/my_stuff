@@ -6,16 +6,18 @@
 # A simple script for browser bookmarks
 
 database="${script_config_path}/bookmarks"
-[ ! -f "$database" ] && touch $database
+[ ! -f "$database" ] && touch "$database"
 
 database_contant="$(cat $database)"
 
-mark="$(printf '%s\nAdd to bookmark.' "$database" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Bookmarks:')"
+mark="$(printf '%s' "$database" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Bookmarks:')"
 
-if [ -n "$mark" ];then
-	if [ "$mark" = "Add to bookmark." ];then
+if grep -q "^${mark}$" "$database";then
+	my-www-browser "$mark"
+elif [ -n "${mark}" ];then
+	add_2_bookmark="$(printf '%s\nAdd to bookmark.' | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p ':')"
+	if [ "$add_2_bookmark" = "Add to bookmark." ];then
 		printf "%s" "$mark" >> "$database"
-	else
-		my-www-browser $mark
 	fi
+	my-www-browser "$mark"
 fi
