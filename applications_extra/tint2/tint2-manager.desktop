@@ -6,6 +6,6 @@ Keywords=tint2;settings;configurations;themes
 Comment=Choose tint2 panels to run in this session.
 Icon=tint2conf
 Exec=style-manager --tint2manager
+Terminal=false
 Categories=Settings;DesktopSettings;
 StartupNotify=false
-Terminal=false

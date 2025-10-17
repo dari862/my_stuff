@@ -1,0 +1,152 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=pmxkcd
+unalias -a
+. "$__distro_path_lib"
+pmrm=$(which rm)
+pmkl=$(which kill)
+json_get_var() {
+	get_this=${1-}
+	from_this=${2-pmxkcd_current}
+	sed 's/,/\n/g;s/"//g' /tmp/$USER/${from_this}.json | grep "${get_this}: " | awk -F': ' '{print $2}'
+}
+
+if command -v curl >/dev/null 2>&1;then
+	dl_tools="curl"
+	get_url_() {
+		path=${1-}
+		url=${2-}
+		curl -sSL -A "Mozilla/5.0 Gecko/20100101" --max-time 30 -o "${path}" "${url}"
+	}
+elif command -v wget >/dev/null 2>&1;then
+	dl_tools="wget"
+	get_url_() {
+    	path=${1-}
+    	url=${2-}
+    	wget --quiet --user-agent="Mozilla/5.0 Gecko/20100101" --timeout=30 --output-document="${path}" "${url}"
+	}
+fi
+
+download_failed_cleanup_() {
+    	getw_pid=$(pidof $dl_tools)
+    	if [ -z "$(echo "$getw_pid" | tr -d '[:space:]')" ];then
+			yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+        	if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
+				"$pmrm" -f /tmp/$USER/pmxkcd_random.json
+			fi
+        	pmxkcd_menu
+    	else
+        	"$pmkl" --signal -n 15 "$getw_pid"
+        	yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Download Failed" --text-align=center --text="\n\n\nFailed to download a random XKCD comic\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+        	"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+        	if [ -f "/tmp/$USER/pmxkcd_random.json" ];then
+            	"$pmrm" -f /tmp/$USER/pmxkcd_random.json
+        	fi
+       	pmxkcd_menu
+    fi
+}
+pmxkcd_random (){
+	get_url_ "/tmp/$USER/pmxkcd_current.json" "http://xkcd.com/info.0.json"
+	RETVAL=$?
+	if [ "$RETVAL" -ne 0 ];then
+		yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Connection Failed" --text-align=center --text="\n\n\nFailed to connect to xkcd.com\n\nCheck internet connection status\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+		"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+		pmxkcd_menu
+	else
+		if [ ! -d "${pmxkcd_dir}" ];then mkdir -p "${pmxkcd_dir}"; fi
+			comic_num=$(json_get_var num)
+			comic_rnd=$(shuf -i 1-"$comic_num" -n 1)
+			pmxkcd_img="${pmxkcd_dir}/${comic_rnd}"
+			if [ -f "$pmxkcd_img" ];then
+			xdg-open "$pmxkcd_img"
+			"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+			pmxkcd_menu
+		else
+			get_url_ "/tmp/$USER/pmxkcd_random.json" "http://xkcd.com/$comic_rnd/info.0.json"
+			RETVAL=$?
+			if [ "$RETVAL" -ne 0 ];then
+				yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Connection Failed" --text-align=center --text="\n\n\nFailed to connect to xkcd.com\n\nCheck internet connection status\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+				"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+				"$pmrm" -f /tmp/$USER/pmxkcd_random.json
+				pmxkcd_menu
+			else
+				comic_ttl=$(json_get_var title pmxkcd_random)
+				comic_url=$(json_get_var img pmxkcd_random)
+				get_url_ "$pmxkcd_img" "$comic_url"
+				RETVAL=$?
+				case "$RETVAL" in
+					0)
+					yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-info" --title="$comic_ttl" --text-align=center --text="\n\n\nXKCD comic \"$comic_ttl\" Downloaded\n\nSaved in \"$pmxkcd_dir\" Directory\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+					xdg-open "$pmxkcd_img"
+					"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+					"$pmrm" -f /tmp/$USER/pmxkcd_random.json
+					pmxkcd_menu
+					;;
+					*)
+					download_failed_cleanup_
+					;;
+				esac
+			fi
+		fi
+	fi
+}
+pmxkcd_current (){
+	get_url_ "/tmp/$USER/pmxkcd_current.json" "http://xkcd.com/info.0.json"
+	RETVAL=$?
+	if [ "$RETVAL" -ne 0 ];then
+		yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-error" --title="Connection Failed" --text-align=center --text="\n\n\nFailed to connect to xkcd.com\n\nCheck internet connection status\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+		"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+		pmxkcd_menu
+	else
+		if [ ! -d "${pmxkcd_dir}" ];then mkdir -p "${pmxkcd_dir}"; fi
+			comic_num=$(json_get_var num)
+			comic_ttl=$(json_get_var title)
+			comic_url=$(json_get_var img)
+			pmxkcd_img="${pmxkcd_dir}/${comic_num}"
+			if [ -f "$pmxkcd_img" ];then
+				xdg-open "$pmxkcd_img"
+				"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+				pmxkcd_menu
+			else
+				get_url_ "$pmxkcd_img" "$comic_url"
+				RETVAL=$?
+				case "$RETVAL" in
+				0)
+					yad --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="gtk-dialog-info" --title="$comic_ttl" --text-align=center --text="\n\n\nXKCD comic \"$comic_ttl\" Downloaded\n\nSaved in \"$pmxkcd_dir\" Directory\n\n" --buttons-layout=center --button="OK!gtk-ok!OK:0"
+					xdg-open "$pmxkcd_img"
+					"$pmrm" -f /tmp/$USER/pmxkcd_current.json
+					pmxkcd_menu
+				;;
+				*)
+					download_failed_cleanup_
+				;;
+				esac
+			fi
+	fi
+}
+pmxkcd_menu (){
+	pmxkcd_dir="${HOME}/Pictures/xkcd"
+	pmxkcd_ttl="PMXKCD"
+	pmxkcd_cls="$pmxkcd_ttl"
+	pmxkcd_ico="${__distro_path_themes}/icons/pmxkcd_icon.png"
+	pmxkcd_log="${__distro_path_themes}/icons/pmxkcd_logo.png"
+	pmxkcd_main=$(yad --width="300" --height="225" --center --on-top --no-markup --class="$pmxkcd_cls" --window-icon="$pmxkcd_ico" --image="$pmxkcd_log" --title="$pmxkcd_ttl" --buttons-layout=center --button="Current!gtk-new!View Current XKCD Comic:2" --button="Random!gtk-refresh!View Random XKCD Comic:3" --button="Exit!gtk-quit!Exit PMXKCD:1")
+	pmxkcd_main=$?
+	case "$pmxkcd_main" in
+		1 | 252)
+			printf "\033c"
+			exit 0
+		;;
+		2)
+			pmxkcd_current
+		;;
+		3)
+			pmxkcd_random
+		;;
+	esac
+}
+while :
+do
+	pmxkcd_menu
+done

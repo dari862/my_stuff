@@ -299,7 +299,7 @@ button_max_icon_size = 28
 
 # Exit dialog (Power icon)
 button = new
-#button_icon = (((distro_path_root)))/icons/exit/light/poweroff.png
+#button_icon = (((__distro_path_themes)))/icons/exit/light/poweroff.png
 button_icon = system-shutdown-symbolic
 button_text =
 button_tooltip = Logout/Shutdown...

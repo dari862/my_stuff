@@ -93,6 +93,7 @@ find "$HOME/.config/". -type f -exec sed -i "s|(((distro_path_root)))|${__distro
 find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_enabled_completion)))|${__distro_path_enabled_completion}|g" {} +
 find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_system_ready)))|${__distro_path_system_ready}|g" {} +
 find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_neverremove)))|${__distro_path_neverremove}|g" {} +
+find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_themes)))|${__distro_path_themes}|g" {} +
 
 . "${__distro_path_root}/Distro_Specific/disto_icon"
 find "$HOME/.config/". -type f -exec sed -i "s|(((distro_icon)))|${distro_icon}|g" {} +

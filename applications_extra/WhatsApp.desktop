@@ -4,7 +4,7 @@ Comment=WhatsApp Messenger
 Exec=google-chrome --app="https://web.whatsapp.com" --name=WhatsApp
 Terminal=false
 Type=Application
-Icon=(((distro_path_root)))/icons/WhatsApp.png
+Icon=(((__distro_path_themes)))/icons/WhatsApp.png
 Categories=GTK;
 MimeType=text/html;text/xml;application/xhtml_xml;
 StartupNotify=true

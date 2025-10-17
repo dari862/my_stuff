@@ -1,10 +1,10 @@
 #!/bin/bash
 unalias -a
 . "$__distro_path_lib"
-distro_dir="${__distro_path_root}"
-weather_icons_folder="${distro_dir}/icons/weather_icon"
-openweather_icons_folder="${distro_dir}/system_files/conky_weather_icons/openweather"
-wttr_icons_folder="${distro_dir}/system_files/conky_weather_icons/wttr"
+
+weather_icons_folder="${__distro_path_themes}/icons/weather_icon"
+openweather_icons_folder="${__distro_path_root}/system_files/conky_weather_icons/openweather"
+wttr_icons_folder="${__distro_path_root}/system_files/conky_weather_icons/wttr"
 
 mkdir -p "${openweather_icons_folder}"
 mkdir -p "${wttr_icons_folder}"

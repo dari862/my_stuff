@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE menu [
-  <!ENTITY icons "(((distro_path_root)))/icons">
+  <!ENTITY icons "(((__distro_path_themes)))/icons">
   <!ENTITY openboxconfig "~/.config/openbox">
 ]>
 <openbox_menu xmlns="http://openbox.org/"

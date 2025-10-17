@@ -20,7 +20,7 @@ _desktop_screenshot_as_lockscreen()
 {
 	if [ "$color" = "white" ]; then #white background image and black text
     	bw="black"
-    	icon="${__distro_path_root}/icons/lock/lockdark.png"
+    	icon="${__distro_path_themes}/icons/lock/lockdark.png"
     	param="--inside-color=0000001c --ring-color=0000003e \
         	--line-color=00000000 --keyhl-color=ffffff80 --ringver-color=ffffff00 \
         	--separator-color=22222260 --insidever-color=ffffff1c \
@@ -29,7 +29,7 @@ _desktop_screenshot_as_lockscreen()
         	--date-color=ffffff00 --layout-color=ffffff00"
 	else
     	bw="white"
-    	icon="${__distro_path_root}/icons/lock/lock.png"
+    	icon="${__distro_path_themes}/icons/lock/lock.png"
     	param="--inside-color=ffffff1c --ring-color=ffffff3e \
         	--line-color=ffffff00 --keyhl-color=00000080 --ringver-color=00000000 \
         	--separator-color=22222260 --insidever-color=0000001c \

@@ -27,8 +27,6 @@ if [ ! -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/doom
 	my-superuser chmod +x "${__distro_path_root}/system_files/skel/.config/autostartscripts/doom_daemon"
 fi
 
-create_applicationsdotdesktop_link "emacsclient" "emacsclient"
-
 for d in /home/*; do
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g) 
 	[ -d "$d/.emacs.d" ] && my-superuser rm -rdf "$d/.emacs.d"

@@ -11,8 +11,8 @@ unalias -a
 # export running directory variables for use later
 export YADSHOT_PATH="$(readlink -f $0)"
 export RUNNING_DIR="$(dirname ${YADSHOT_PATH})"
-if [ -f "${__distro_path_root}/icons/yadshot.svg" ];then
-    export ICON_PATH="${__distro_path_root}/icons/yadshot.svg"
+if [ -f "${__distro_path_themes}/icons/yadshot.svg" ];then
+    export ICON_PATH="${__distro_path_themes}/icons/yadshot.svg"
 else
     export ICON_PATH="gtk-fullscreen"
 fi

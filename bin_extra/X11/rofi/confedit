@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
+. "${Distro_config_file}"
+
+picked_cfg="${1-}"
+database="${script_config_path}/confedit-list"
+
+[ ! -f "$database" ] && cp -r "${__distro_path_root}/skel/.config/scriptconfig/confedit-list" "$database"
+
+if [ -z "$picked_cfg" ];then
+	picked_cfg=$(sed -e '/^[[:space:]]*$/d' -e '/^*/d' "$database" | column -s '##' -t | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Choose File to edit:' | grep -oP "\|.*" | sed 's/| //') || exit 1
+	picked_cfg_expanded=$(eval echo "$picked_cfg")
+fi
+
+on_terminal(){
+	if [ ! -t 1 ];then
+   		return 1
+   	fi
+}
+
+if [ -n "$picked_cfg_expanded" ];then
+	if on_terminal;then
+		$CLI_EDITER "$picked_cfg_expanded"
+	else
+		popup_terminal --editor "$picked_cfg_expanded"
+	fi
+fi

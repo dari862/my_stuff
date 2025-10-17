@@ -5,7 +5,7 @@
 . "$__distro_path_lib"
 title_name="Live wallpaper"
 icon_name="livewall_gui"
-icon="${__distro_path_root}/icons/${icon_name}.png"
+icon="${__distro_path_themes}/icons/${icon_name}.png"
 _dir_vid="$(livewall -p)"
 
 pick_it(){

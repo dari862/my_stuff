@@ -18,7 +18,7 @@ elif [ -n "$tint2_STYLE" ];then
 	CURRENT_STYLE_NAME="$tint2_STYLE"
 fi
 
-wall_dir="${__distro_path_root}/my_wallpapers"
+wall_dir="${__distro_path_themes}/my_wallpapers"
 temp_dir="/tmp/$USER/walls/$CURRENT_STYLE_NAME"
 # Create cache dir if not exists
 mkdir -p "${temp_dir}"

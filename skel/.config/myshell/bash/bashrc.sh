@@ -3,7 +3,7 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 # -------------------------------  Checks  -----------------------------------
-command -v pfetch &>/dev/null && pfetch
+distro_fetch
 
 # ------------------------------- variables -----------------------------------
 bashplugins=(

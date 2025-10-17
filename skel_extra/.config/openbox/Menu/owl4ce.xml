@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE menu [
-  <!ENTITY icons "(((distro_path_root)))/icons/eyecandy">
+  <!ENTITY icons "(((__distro_path_themes)))/icons/eyecandy">
   <!ENTITY owl4ce_scripts_path "(((distro_path_root)))/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts">
 ]>
 <openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/  file:///usr/share/openbox/menu.xsd">

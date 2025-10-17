@@ -1,9 +1,9 @@
 [Desktop Entry]
 Name=Activity
-Comment=System activity from btop
-Exec=popup_terminal btop
+Comment=System activity from distro top
+Exec=popup_terminal distro_top
 Terminal=false
 Type=Application
-Icon=htop
+Icon=(((__distro_path_themes)))/icons/activity.png
 Categories=GTK;
 StartupNotify=false

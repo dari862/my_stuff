@@ -484,7 +484,7 @@ main_yad(){
     	--tab="Radio" \
     	--tab="USB" \
     	--tab="ThinkPad_Battery" \
-    	--title="TLP" --image=${__distro_path_root}/icons/linux.png \
+    	--title="TLP" --image=${__distro_path_themes}/icons/linux.png \
     	--scroll --center --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  \
     	--text="$INTRO_TXT" \
     	--button="show simple statistics":"bash -c 'show_statistics simple'" \
@@ -1392,7 +1392,7 @@ _save_settings(){
 }
 
 _restore_default_value(){
-	popup_terminal --superuser "copy tlp.conf" "cp -r \"/usr/share/${Custom_distro_dir_name}/lib/tlp-defaults/tlp-${__tlp_version_}.conf\" /etc/tlp.conf"
+	popup_terminal --superuser "copy tlp.conf" "cp -r \"${__distro_path_root}/lib/tlp-defaults/tlp-${__tlp_version_}.conf\" /etc/tlp.conf"
 	exval=$?
 	case $exval in
         	0) yad --form --width="200" --height="100" --field="$0 restored config to default value:LBL" >/dev/null 2>&1;;

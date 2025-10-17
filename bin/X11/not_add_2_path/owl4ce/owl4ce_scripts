@@ -101,11 +101,11 @@ send_notification(){
 	_ttt="${5-}"
 	if [ -z "$_ttt" ];then
 		dunstify "$_SUMMARY" "$_BODY" -h string:synchronous:$_header \
-              	-i "${__distro_path_root}/icons/eyecandy/${_icon}" \
+              	-i "${__distro_path_themes}/icons/eyecandy/${_icon}" \
               	-u low
     else
     	dunstify "$_SUMMARY" "$_BODY" -h string:synchronous:$_header \
-              	-i "${__distro_path_root}/icons/eyecandy/${_icon}" \
+              	-i "${__distro_path_themes}/icons/eyecandy/${_icon}" \
               	-t $_ttt
     fi
 }

@@ -34,7 +34,7 @@ case $(glxinfo_vendor) in
 esac
 
 yad --notification \
-	--image="${__distro_path_root}/icons/GPU_ICONS/${gpu_vendor_icon}.svg" \
+	--image="${__distro_path_themes}/icons/GPU_ICONS/${gpu_vendor_icon}.svg" \
 	--icon-size=22 \
 	--command="gpu-switcher-session gui" \
 	--text="GPU Switcher"

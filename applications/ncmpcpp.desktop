@@ -4,6 +4,6 @@ Terminal=false
 Name=Ncmpcpp
 GenericName=Music Player
 Categories=AudioVideo;Audio;Player;
-Exec=sh -c "exec ncmpcpp_launcher"
+Exec=popup_terminal ncmpcpp_launcher
 Type=Application
 Icon=musique

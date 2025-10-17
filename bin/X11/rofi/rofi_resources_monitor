@@ -16,7 +16,7 @@ get_ips() {
 
 help()
 {
-	Options_list="1 htop
+	Options_list="1 distro top
 2 notify-send  about storage
 3 notify-send CPU hogs
 4 notify-send Memory hogs

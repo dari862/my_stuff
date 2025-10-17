@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Neovim
 Comment=Edit text files
-Exec=my-terminal-emulator -e nvim %F
+Exec=popup_terminal nvim %F
 Terminal=false
 Type=Application
 Icon=nvim

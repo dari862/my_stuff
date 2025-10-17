@@ -361,7 +361,7 @@ map V push $"$EDITOR"<space>
 map <c-z> stop
 
 # New forked terminal in current directory
-map W &{ nohup "${TERMINAL:-alacritty}" >/dev/null 2>&1& }
+map W &{ nohup "${TERMINAL:-kitty}" >/dev/null 2>&1& }
 
 # Copy selected file names
 map Y $printf "%s" "$fx" | xclip -selection clipboard

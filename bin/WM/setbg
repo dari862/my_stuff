@@ -8,7 +8,7 @@ wallpaper_layout="${3:-zoom}"
 
 . "${__distro_path_root}/lib/common/WM"
 
-wallpapers_dir="${__distro_path_root}/my_wallpapers"
+wallpapers_dir="${__distro_path_themes}/my_wallpapers"
 
 Prerequisite() {
 	. "${__distro_display_manager_lib_path}"	  

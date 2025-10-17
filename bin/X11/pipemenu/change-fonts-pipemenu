@@ -10,14 +10,14 @@
 . "${__distro_path_root}/lib/common/pipemenu"
 
 menuStart
-	menuItem 'Status Bar (polybar)' "$0 --bar"
-	menuItem 'Launchers (rofi)' "$0 --rofi"
-	menuItem 'Terminal (alacritty)' "$0 --terminal"
-	menuItem 'Desktop (openbox)' "$0 --openbox"
-	menuItem 'Notifications (dunst)' "$0 --dunst"
-	menuItem 'Applications (gtk)' "$0 --gtk"
+	menuItem 'Status Bar (polybar)' "change-fonts --bar"
+	menuItem 'Launchers (rofi)' "change-fonts --rofi"
+	menuItem 'Terminal (alacritty)' "change-fonts --terminal"
+	menuItem 'Desktop (openbox)' "change-fonts --openbox"
+	menuItem 'Notifications (dunst)' "change-fonts --dunst"
+	menuItem 'Applications (gtk)' "change-fonts --gtk"
 	menuSeparator
-	menuItem 'Change Globally' "$0 --all"
+	menuItem 'Change Globally' "change-fonts --all"
 menuEnd
 
 exit 0

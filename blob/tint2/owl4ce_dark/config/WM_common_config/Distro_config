@@ -9,11 +9,11 @@ CHK_MODE="artistic"
 
 CHK_OB_BUTTON_STYLE_artistic="Backslash"
 CHK_OB_BUTTON_LOC_artistic="left"
-CHK_WALLPAPER_artistic="(((distro_path_root)))/my_wallpapers/owl4ce_dark_wall-01.jpg"
+CHK_WALLPAPER_artistic="(((__distro_path_themes)))/my_wallpapers/owl4ce_dark_wall-01.jpg"
 	
 CHK_OB_BUTTON_STYLE_interactive="Nav"
 CHK_OB_BUTTON_LOC_interactive="right"
-CHK_WALLPAPER_interactive="(((distro_path_root)))/my_wallpapers/owl4ce_dark_wall-02.jpg"
+CHK_WALLPAPER_interactive="(((__distro_path_themes)))/my_wallpapers/owl4ce_dark_wall-02.jpg"
 
 CHK_PANEL_ORT="vertical"
 CHK_PANEL_ORT_V="left"

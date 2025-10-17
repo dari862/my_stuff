@@ -281,8 +281,13 @@ sed_distro_path_root_var_2_correct_value(){
 	if grep -rIq "(((distro_path_root)))" "${__path_2_sed}";then
 		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((distro_path_root)))|${__distro_path_root}|g" {} +
 	fi
+	
 	if grep -rIq "(((__distro_title)))" "${__path_2_sed}";then
-		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s/(((__distro_title)))/${__distro_title}/g" {} +
+		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_title)))|${__distro_title}|g" {} +
+	fi
+	
+	if grep -rIq "(((__distro_path_themes)))" "${__path_2_sed}";then
+		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_themes)))|${__distro_path_themes}|g" {} +
 	fi
 }
 

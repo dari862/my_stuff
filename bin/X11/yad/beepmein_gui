@@ -253,7 +253,7 @@ use_yad_(){
 	yad --notebook --tab-pos="left" --key=$KEY \
     --tab="Set Alarms" \
     --tab="Set sounds" \
-    --title="$title" --image=${__distro_path_root}/icons/linux.png \
+    --title="$title" --image=${__distro_path_themes}/icons/linux.png \
     --width="720" --height="420" --image-on-top --text-justify=right --text="$MCC"  --no-buttons > $out &
 }
 

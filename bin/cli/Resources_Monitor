@@ -30,7 +30,7 @@ get_ips() {
 }
 
 help(){
-echo "1 htop
+echo "1 distro top
 2 notify-send  about storage
 3 notify-send CPU hogs
 4 notify-send Memory hogs

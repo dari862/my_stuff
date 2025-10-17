@@ -24,7 +24,7 @@ case "$url" in
 	*png|*jpg|*jpe|*jpeg|*gif|*webp)
 		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && my-image-viewer "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
 	*pdf|*cbz|*cbr)
-		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && zathura "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
+		getURL '2term' "$url" > "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")" && my-pdf-reader "/tmp/$USER/$(echo "$url" | sed "s/.*\///;s/%20/ /g")"  >/dev/null 2>&1 & ;;
 	*mp3|*flac|*opus|*mp3?source*)
 		cd "/tmp/$USER"
 		getURL 'download' "$url" ;;

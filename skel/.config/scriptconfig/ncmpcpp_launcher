@@ -1,3 +1,3 @@
 #!/bin/sh
 __mode="kitty"
-_fallback_icon="(((distro_path_root)))/icons/cover_image.png"
+_fallback_icon="(((__distro_path_themes)))/icons/cover_image.png"

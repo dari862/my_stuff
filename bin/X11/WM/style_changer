@@ -11,5 +11,5 @@ setbg -r
 panel_launcher --reload
 
 if [ "${style}" != "owl4ce_dark" ] || [ "${style}" != "owl4ce_light" ];then
-	dunstify -u normal --replace=699 -i ${__distro_path_root}/icons/channelmixer.svg "Applying Style : ${style}"
+	dunstify -u normal --replace=699 -i ${__distro_path_themes}/icons/channelmixer.svg "Applying Style : ${style}"
 fi

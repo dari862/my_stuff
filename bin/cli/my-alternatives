@@ -29,11 +29,12 @@ MEDIAPLAYERS="my-mpv vlc banshee dragonplayer celluloid gxine kaffeine parole sm
 TEXTEDITORS="geany featherpad mousepad gedit jedit kate medit scite emacs"
 WWWBROWSERS="mullvad-browser librewolf firefox-esr firefox brave-browser chromium dillo google-chrome-stable chroot-browser"
 TERMINALEMULATORS="terminator alacritty kitty"
-OFFICES="libreoffice-writer"
+OFFICES="libreoffice"
 OFFICES="$OFFICES $TEXTEDITORS"
 IDES="nvim emacs code micro nano"
 IDES="$IDES $TEXTEDITORS"
 PDFREADERS="zathura"
+PDFREADERS="$PDFREADERS $OFFICES $WWWBROWSERS"
 IMAGEEDITORS="gimp display-im7.q16"
 VIDEOEDITORS="kdenlive $MEDIAPLAYERS"
 

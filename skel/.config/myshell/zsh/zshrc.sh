@@ -1,7 +1,7 @@
 #!/bin/zsh
 unsetopt PROMPT_SP 2>/dev/null
 
-command -v pfetch &>/dev/null && pfetch
+distro_fetch
 
 fpath+=("(((distro_path_root)))/system_files/completion/zsh")
 

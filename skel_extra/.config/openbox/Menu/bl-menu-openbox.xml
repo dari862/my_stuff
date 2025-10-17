@@ -83,7 +83,7 @@
 			</item>
 			<separator/>
 			<menu id="Printers" execute="printing-pipemenu" label="Printers"/>
-			<item label="Task Manager (htop)">
+			<item label="Task Manager">
 				<action name="Execute">
 					<command>
 						sysinfo_script_ --process

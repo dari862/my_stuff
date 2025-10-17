@@ -101,7 +101,7 @@ Updating_Distro(){
 	else
 		print_purple "==> Updating Distro."
 		
-		if ! $__SUPER_USER git diff --quiet HEAD -- blob/ blob_dynamic/ blob_extra/; then
+		if ! $__SUPER_USER git diff --quiet HEAD -- blob/ blob_extra/; then
   			blob_modified=true
 		fi
 		

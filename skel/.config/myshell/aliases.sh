@@ -117,7 +117,7 @@ alias sports="my-superuser ss -lntu"
 alias getpass="openssl rand -base64 20"
 alias www="python -m SimpleHTTPServer 8000"
 alias ka="killall"
-alias pdf="zathura"
+alias pdf="my-pdf-reader"
 
 # my trash script
 alias rm='trash_it'

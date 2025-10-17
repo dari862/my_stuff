@@ -4,7 +4,6 @@
 ## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 
 ## Openbox Pipemenu to display system stats/info
-sysinfo_script_="sysinfo_script_ --system"
 # Variables and functions
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/pipemenu"
@@ -12,7 +11,6 @@ sysinfo_script_="sysinfo_script_ --system"
 if  [ "$1" = "--more" ];then
 	menuStart
 	menuSeparator "SYSTEM INFO TOOLS"
-	menuItem "System Info Panel" "sysinfo_script_ --system"
 	menuItem "Hardware info" "sysinfo_script_ --hardware"
 	menuItem "Memory Usage" "sysinfo_script_ --memory"
 	menuItem "Process Monitor" "sysinfo_script_ --process"

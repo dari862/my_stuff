@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -e
 # if this line exist script will be part of gui scripts.new_name=Script_Hub
 # need superuser : var (_SUPERUSER)
 . "$__distro_path_lib"

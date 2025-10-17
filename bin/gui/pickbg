@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 unalias -a
-#. "$__distro_path_lib"
-#wallpaper_dir="${__distro_path_root}/my_wallpapers"
-wallpaper_dir="$HOME/Desktop/my_stuff/my_wallpapers"
+. "$__distro_path_lib"
+wallpaper_dir="${__distro_path_themes}/my_wallpapers"
+
 
 # Get terminal size for preview dimensions
 get_preview_dim() {

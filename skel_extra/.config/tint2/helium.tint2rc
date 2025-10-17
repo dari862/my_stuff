@@ -230,7 +230,7 @@ separator_padding = 0 8
 
 # Exit dialog
 button = new
-button_icon = (((distro_path_root)))/icons/exit/light/poweroff.png
+button_icon = (((__distro_path_themes)))/icons/exit/light/poweroff.png
 #button_icon = system-shutdown
 button_text =
 button_tooltip = Logout/Shutdown...

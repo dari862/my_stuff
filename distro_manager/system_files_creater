@@ -231,7 +231,7 @@ mkdir -p "${_distro_xsessions_desktop_path}"
 show_im "LN essional files"
 mkdir -p "${__distro_path_system_files}/bin"
 mkdir -p "${__distro_path_system_files}/binX11"
-ln_sf_files_depth1 "${__distro_path_root}/bin/X11/bin" "${__distro_path_system_files}/binX11"
+ln_sf_files_depth1 "${__distro_path_root}/bin/X11/cli" "${__distro_path_system_files}/binX11"
 ln_sf_files_depth1 "${__distro_path_root}/bin/X11/session_managers/clipboard-manager-session" "${__distro_path_system_files}/binX11"
 ln_sf_files_depth1 "${__distro_path_root}/bin/X11/WM" "${__distro_path_system_files}/binX11"
 
@@ -277,6 +277,11 @@ if command_exist openbox;then
 fi
 if command_exist rofi;then
 	show_im "copy rofi skell file to system_files/skel ."
+	if [ -d "${__distro_path_root}/bin/X11/rofi" ];then
+		show_im "rofi bin files to system_files/bin ."
+		ln_sf_files_depth1 "${__distro_path_root}/bin/X11/rofi" "${__distro_path_system_files}"/binX11
+		ln_sf_files_depth1 "${__distro_path_root}/bin_extra/X11/rofi" "${__distro_path_system_files}"/binX11
+	fi
 	cp -r "${__distro_path_root}/skel_extra/.config/rofi" "${__distro_path_system_files}/skel/.config"
 	copy_all__application_link_in_dir "rofi"
 fi
@@ -424,6 +429,9 @@ if command_exist yad;then
 	if [ -d "${__distro_path_root}/bin/X11/yad" ];then
 		ln_sf_files_depth1 "${__distro_path_root}/bin/X11/yad" "${__distro_path_system_files}"/binX11
 	fi
+	if [ -d "${__distro_path_root}/bin_extra/X11/yad" ];then
+		ln_sf_files_depth1 "${__distro_path_root}/bin_extra/X11/yad" "${__distro_path_system_files}"/binX11
+	fi
 	copy_all__application_link_in_dir "yad"
 	if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 		show_im "yad laptop stuff."
@@ -433,11 +441,6 @@ if command_exist yad;then
 		fi
 		create_applicationsdotdesktop_link "yadtlp"
 	fi
-fi
-
-if [ -d "${__distro_path_root}/bin/X11/rofi" ];then
-	show_im "rofi bin files to system_files/bin ."
-	ln_sf_files_depth1 "${__distro_path_root}/bin/X11/rofi" "${__distro_path_system_files}"/binX11
 fi
 
 if command_exist picom;then
@@ -491,7 +494,7 @@ if [ -d "${__distro_path_root}/bin/gui" ];then
 	show_im "gui bin files to system_files/bin ."
 	ln_sf_files_depth1 "${__distro_path_root}/bin/gui" "${__distro_path_system_files}"/bin
 	if ! command_exist systemctl;then
-		rm -f "${__distro_path_system_files}"/bin/yautostart
+		rm -f "${__distro_path_system_files}"/binX11/yautostart
 		rm -f "${__distro_path_system_files}"/bin/errcheck
 		rm -f "${__distro_path_system_files}"/bin/bootman
 	fi
@@ -503,7 +506,7 @@ if [ -d "${__distro_path_root}/bin/session_managers" ];then
 fi
 
 show_im "nbrowser bin files to system_files/bin ."
-ln -sf "${__distro_path_root}"/bin/X11/not_add_2_path/nbrowser/nbrowser "${__distro_path_system_files}"/bin
+ln -sf "${__distro_path_root}"/bin/X11/not_add_2_path/nbrowser/nbrowser "${__distro_path_system_files}"/binX11
 create_applicationsdotdesktop_link "nbrowser"
 
 if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
@@ -660,5 +663,19 @@ for app in podman distrobox;do
 		echo "${app}" | tee -a "${apps_db_path}/$dir_name" >/dev/null 2>&1
 	fi
 done
+
+if command_exist neofetch;then
+	ln -sf "$(which neofetch)" "${__distro_path_system_files}/bin/distro_fetch"
+else
+	ln -sf "${__distro_path_system_files}/bin/pfetch" "${__distro_path_system_files}/bin/distro_fetch"
+fi
+
+if command_exist btop;then
+	ln -sf "$(which btop)" "${__distro_path_system_files}/bin/distro_top"
+elif command_exist bpytop;then
+	ln -sf "$(which bpytop)" "${__distro_path_system_files}/bin/distro_top"
+elif command_exist htop;then
+	ln -sf "$(which htop)" "${__distro_path_system_files}/bin/distro_top"
+fi
 
 show_im "system_files_creater Done."

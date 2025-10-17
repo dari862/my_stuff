@@ -11,7 +11,7 @@ no_wall=false
 . "${__distro_path_root}/lib/common/openbox"
 
 GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
-GLOBALDYNAMICBLOBPATH="${__distro_path_root}/blob_dynamic/dynamic_theme"
+GLOBALDYNAMICBLOBPATH="${__distro_path_themes}/blob_dynamic/dynamic_theme"
 CONFIG_PATH="$HOME/.config"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"

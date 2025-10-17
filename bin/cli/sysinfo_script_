@@ -3,15 +3,6 @@
 opt="${1-}"
 . "$__distro_path_lib"
 case $opt in
-		--system) 
-		if hash btop 2>/dev/null;then
-        		popup_terminal btop
-		elif hash bpytop 2>/dev/null;then
-        		popup_terminal bpytop
-		elif hash htop 2>/dev/null;then
-        		popup_terminal htop
-		fi
-		;;
 		--hardware) popup_terminal '{ echo -e \"\e[1mHARDWARE INFO: hwinfo\e[0m\"; hwinfo --short; echo -e \"\n\n\e[1mHARDWARE INFO: inxi\e[0m\"; inxi -F; echo; read; }'
 		;;
 		--hardware2) popup_terminal 'inxi system info  (Q to close)' "inxi -F -d -J -l -o -p -r -u -x -z -c 2 | less -R"
@@ -22,7 +13,7 @@ case $opt in
 		;;
 		--memory) popup_terminal --superuser "cd ${__distro_path_root}/bin/cli && ./ps_mem"
 		;;
-		--process) popup_terminal htop 
+		--process) popup_terminal distro_top 
 		;;
 		--disk) popup_terminal '{ echo -e \"\e[1mHARDWARE INFO: lsblk\e[0m\"; lsblk -o name,size,type,mountpoint; echo -e \"\n\n\e[1mHARDWARE INFO: dfc\e[0m\"; dfc -f; read; }' 
 		;;
