@@ -1,2 +1,4 @@
 #!/bin/sh
-[ $(command -v pavucontrol 2>/dev/null) ] && pavucontrol
+if command -v pavucontrol 2>/dev/null;then
+	pavucontrol
+fi

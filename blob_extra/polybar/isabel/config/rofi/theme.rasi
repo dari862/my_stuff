@@ -9,5 +9,5 @@
     active: #81ae5f;
     urgent: #e06c75;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/isabel/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/isabel/rofi.jpg", width);
 }

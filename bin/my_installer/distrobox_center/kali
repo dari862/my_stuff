@@ -1,2 +1,3 @@
 #!/bin/sh
+#called by my-installer
 . "${__distro_path_root}/bin/my_installer/distrobox_installer/kali/installer"

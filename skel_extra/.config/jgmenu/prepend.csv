@@ -1,7 +1,7 @@
 # (((__distro_title))) Main Menu
 
 ## (((__distro_title))) User config files
-## All default (((__distro_title))) user config files are located in (((distro_path_root)))/skel.
+## All default (((__distro_title))) user config files are located in (((__distro_path_root)))/skel.
 ## The script skel_user_setup_ copies them to the user $HOME directory on first login.
 ## See more info with command 'skel_user_setup_ --help'
 
@@ -17,13 +17,13 @@ File Manager,my-file-manager,system-file-manager
 Text Editor,my-text-editor,text-editor
 Media Player,my-media-player,multimedia-player
 ^sep()
-Quick Screenshot+Upload,files-uploader
+Quick Screenshot+Upload,(((__distro_path_root)))/bin/not_add_2_path/files-uploader
 ^sep()
 Utilities,^checkout(bl-utilities),applications-utilities
 Places,^pipe(jgmenu_run ob --cmd="places-pipemenu" --tag="places-pipemenu"),folder
 Recent Files,^pipe(jgmenu_run ob --cmd="recent-files-pipemenu -rl15" --tag="bl-recent-files-pipemenu")
 ^sep()
-Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/bl'" --tag="preferences-system")
+Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/bl'" --tag="preferences-system")
 System,^checkout(bl-system),applications-system
 ^sep()
 Help &amp; Resources,^pipe(jgmenu_run ob --cmd="help-menu-openbox" --tag="help-contents")
@@ -44,14 +44,14 @@ App Finder,rofi-launcher
 
 System,^tag(bl-system)
 Back,^back()
-Quick System Info,sysinfo_script_ --hardware2
+Quick System Info,(((__distro_path_root)))/bin/not_add_2_path/sysinfo_script_ --hardware2
 ^sep()
 Printers,^pipe(jgmenu_run ob --cmd="printing-pipemenu" --tag="bl-printing-pipemenu"),printer
-Task Manager (distro top),sysinfo_script_ --process,distro_top
+Task Manager (distro top),(((__distro_path_root)))/bin/not_add_2_path/sysinfo_script_ --process,distro_top
 Install Favourite Packages,^pipe(jgmenu_run ob --cmd="my-install-pipemenu" --tag="my-install-pipemenu")
-GUI Package Manager,sh -c 'gui_packagemanager',gui_packagemanager
+GUI Package Manager,sh -c '(((__distro_path_root)))/bin/not_add_2_path/gui_packagemanager',gui_packagemanager
 Login Settings,apps_as_root my-text-editor /etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm.conf,lightdm-settings
-Login Interface,(((distro_path_root)))/not_add_2_path/lightdm_login_changer,lightdm-settings
+Login Interface,(((__distro_path_root)))/bin/not_add_2_path/lightdm_login_changer,lightdm-settings
 GParted Partition Manager,apps_as_root gparted,gparted
 Set Default Browser,"""popup_terminal 'Select Default Browser' 'my-alternatives --set my-www-browser'""",web-browser
 Edit Alternatives,edit-alternatives,Edit-Alternatives

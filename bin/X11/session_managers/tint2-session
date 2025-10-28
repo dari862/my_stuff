@@ -7,13 +7,13 @@ tint2_config="${config_dir}/tint2"
 . "${Distro_config_file}"
 
 stop() {
-	kill_process.sh tint2
+	"${__distro_path_root}"/bin/WM/kill_process.sh tint2
 }
 
 start() {
 	for theme in $tint2_sessionfile
 	do
-		(tint2 -c "$HOME$theme" >/dev/null 2>&1) &
+		(setsid tint2 -c "$HOME$theme" >/dev/null 2>&1) &
 		sleep 0.5
 	done
 }

@@ -9,5 +9,5 @@
     active: #a7c080;
     urgent: #e67e80;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/brenda/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/brenda/rofi.jpg", width);
 }

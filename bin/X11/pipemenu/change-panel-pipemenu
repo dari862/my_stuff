@@ -31,11 +31,11 @@
 		menuSeparator "Current Bar : $BAR"
 		
 		if [ "$BAR" != 'polybar' ] && [ "$polybar_installed" = true ];then
-		menuItem "Use Polybar as your statusbar" "panel_changer polybar"
+		menuItem "Use Polybar as your statusbar" "${__distro_path_root}/bin/WM/panel_changer polybar"
 		fi
 		
 		if [ "$BAR" != 'tint2' ] && [ "$tint2_installed" = true ];then
-		menuItem "Use Tint2 as your panel/taskbar" "panel_changer tint2"
+		menuItem "Use Tint2 as your panel/taskbar" "${__distro_path_root}/bin/WM/panel_changer tint2"
 		fi
 		
 		if [ "$polybar_installed" = false ];then

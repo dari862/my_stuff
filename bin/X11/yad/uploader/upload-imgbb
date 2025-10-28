@@ -28,7 +28,7 @@
 ########################################################################
 unalias -a
 . "$__distro_path_lib"
-check_4_dependencies_if_installed yad jq xdotool convert || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed yad jq xdotool convert || exit 1
 
 export API_URL="https://api.imgbb.com/"   # used by run_browser()
 #@#export BL_YAD_INCLUDES='/usr/lib/bunsen/common/yad-includes'

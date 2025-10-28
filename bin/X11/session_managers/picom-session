@@ -4,12 +4,12 @@
 picom_path="$HOME/.config/picom.conf"
 
 stop() {	
-	kill_process.sh picom
+	"${__distro_path_root}"/bin/WM/kill_process.sh picom
 }
 
 start() {
   	if ! pidof -q picom ;then
-  		exec picom --daemon --config "$picom_path" &
+  		setsid picom --daemon --config "$picom_path" &
 	fi
 }
 

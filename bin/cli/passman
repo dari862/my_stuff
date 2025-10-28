@@ -50,7 +50,7 @@ gpg_add_man() {
       			yn "Is this HOTP?" && {
       				otp_type=""
           			sread otp_counter "Initial counter value [default 0]: "
-          			[ -z "$counter" ] && counter=0 ;;
+          			[ -z "$counter" ] && counter=0 || :
       			} || otp_type="--totp"
     		else
       			die "Invalid secret or URL"

@@ -1,0 +1,27 @@
+#!/bin/sh
+# need superuser : my-superuser
+set -e
+
+if [ "$(id -u)" -ne 0 ]; then
+    my-superuser $0 "$__distro_path_lib"
+    exit
+fi
+
+__distro_path_lib="${1:-$__distro_path_lib}"
+. "$__distro_path_lib"
+openboxtheme_path="${__distro_path_themes}/openbox_themes"
+current_path="$(dirname "$0")"
+list_of_base_GTK_theme="$(find "${current_path}/baseGTK" -type f)"
+list_of_buttons="$(ls "${current_path}/OBB")"
+mkdir -p "${openboxtheme_path}"
+for t in ${list_of_base_GTK_theme};do
+	theme_name="$(basename "$t")"
+    OBBname="${theme_name#*_}"
+    newthemename="${theme_name%%_*}"
+    if [ "${newthemename}" = "openbox-Sweetly" ] || [ "${newthemename}" = "openbox-Fleon" ];then
+    	newthemename="${newthemename}${OBBname}"
+    fi
+	mkdir -p "${openboxtheme_path}/${newthemename}/openbox-3"
+	ln -sf "${t}" "${openboxtheme_path}/${newthemename}"/openbox-3/themerc
+	ln -sf "${current_path}/OBB/${OBBname}"/* "${openboxtheme_path}/${newthemename}"/openbox-3/
+done

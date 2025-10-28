@@ -89,11 +89,3 @@ chmod 700 "$HOME/.local/share/APIs/" "$HOME/.local/share/gnupg/"
 chmod 600 "$HOME/.local/share/gnupg/gpg-agent.conf"
 
 find "$HOME/.config/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
-find "$HOME/.config/". -type f -exec sed -i "s|(((distro_path_root)))|${__distro_path_root}|g" {} +
-find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_enabled_completion)))|${__distro_path_enabled_completion}|g" {} +
-find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_system_ready)))|${__distro_path_system_ready}|g" {} +
-find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_neverremove)))|${__distro_path_neverremove}|g" {} +
-find "$HOME/.config/". -type f -exec sed -i "s|(((__distro_path_themes)))|${__distro_path_themes}|g" {} +
-
-. "${__distro_path_root}/Distro_Specific/disto_icon"
-find "$HOME/.config/". -type f -exec sed -i "s|(((distro_icon)))|${distro_icon}|g" {} +

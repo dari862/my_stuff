@@ -9,5 +9,5 @@
     active: #42be65;
     urgent: #ee5396;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/yael/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/yael/rofi.jpg", width);
 }

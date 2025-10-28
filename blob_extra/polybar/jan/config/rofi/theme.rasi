@@ -9,5 +9,5 @@
     active: #a6e22e;
     urgent: #fb007a;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/jan/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/jan/rofi.jpg", width);
 }

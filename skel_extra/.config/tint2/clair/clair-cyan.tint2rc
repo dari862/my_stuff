@@ -214,7 +214,7 @@ battery_padding = 2 0
 battery_background_id = 0
 battery_hide = 96
 battery_lclick_command = power_manager_settings
-battery_rclick_command = batt_notifcation -n
+battery_rclick_command = (((distro_path_root)))/bin/not_add_2_path/batt_notifcation -n
 battery_mclick_command = 
 battery_uwheel_command = 
 battery_dwheel_command = 
@@ -233,14 +233,14 @@ separator_padding = 0 6
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = MC --now-playing
+execp_command = (((__distro_path_root)))/bin/not_add_2_path/MC --now-playing
 execp_interval = 4
 execp_has_icon = 0
 execp_cache_icon = 1
 execp_continuous = 0
 execp_markup = 1
-execp_lclick_command = MC --toggle
-execp_rclick_command = MC --next
+execp_lclick_command = (((__distro_path_root)))/bin/not_add_2_path/MC --toggle
+execp_rclick_command = (((__distro_path_root)))/bin/not_add_2_path/MC --next
 execp_mclick_command = 
 execp_uwheel_command = 
 execp_dwheel_command = 

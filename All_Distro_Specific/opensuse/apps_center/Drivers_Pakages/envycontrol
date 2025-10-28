@@ -1,4 +1,5 @@
 #!/bin/sh
+#called by my-installer
 app_name="envycontrol"
 
 Package_update_

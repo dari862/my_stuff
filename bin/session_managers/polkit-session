@@ -1,4 +1,5 @@
 #!/bin/sh
+. "$__distro_path_lib"
 
 polkit_gnome_path="/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1"
 xfce_polkit_path="/usr/lib/xfce-polkit/xfce-polkit"
@@ -14,11 +15,11 @@ else
 fi
 
 stop() {
-	kill_process.sh "$keyring_name"
+	"${__distro_path_root}"/bin/WM/kill_process.sh "$keyring_name"
 }
 
 start() {
-	pidof -q ${keyring_path} || ${keyring_path} &
+	pidof -q ${keyring_path} || setsid ${keyring_path} &
 }
 
 case "${1}" in

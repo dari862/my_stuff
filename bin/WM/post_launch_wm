@@ -1,9 +1,11 @@
 #!/bin/sh
-# Start panel		
-panel_launcher &
+# Start panel
+. "$__distro_path_lib"
+		
+"${__distro_path_root}"/bin/WM/panel_launcher &
 
 # update notifcation
-update-notification -n &
+"${__distro_path_root}"/bin/WM/update-notification -n &
 
 cd $HOME/.config/autostartscripts/
 autostartscripts_list="$(ls 2>/dev/null)"

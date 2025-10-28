@@ -3,11 +3,11 @@
 __arg="${1-}"
 
 interactive_upgrade(){
-	popup_terminal --commands "update-notification -i"
+	popup_terminal --commands "${__distro_path_root}/bin/WM/update-notification -i"
 }
 
 list_update(){
-	popup_terminal --commands "update-notification -l"
+	popup_terminal --commands "${__distro_path_root}/bin/WM/update-notification -l"
 }
 
 print_total_updates(){
@@ -17,7 +17,7 @@ print_total_updates(){
 	
 	UPDATES=$(cat "$updates_file" | wc -l)
 	
-	update-notification -n
+	"${__distro_path_root}"/bin/WM/update-notification -n
 
 	if grep -q "#EXO#" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
 		_output="$UPDATES"

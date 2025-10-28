@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#called by : my-installer
 app_name="playonlinux"
 if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
 	Distrobox_package_installer_ ${app_name} || continue

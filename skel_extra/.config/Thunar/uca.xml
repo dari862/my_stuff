@@ -67,7 +67,7 @@
 	<icon>rotation-locked-landscape</icon>
 	<name>Set as lockscreen</name>
 	<unique-id>1622799434407260-2</unique-id>
-	<command>notify-send &apos;Please wait...&apos; &amp;&amp; my-locker -s %f</command>
+	<command>notify-send &apos;Please wait...&apos; &amp;&amp; (((__distro_path_root)))/bin/X11/WM/my-locker -s %f</command>
 	<description>Set image as lockscreen background</description>
 	<patterns>*</patterns>
 	<image-files/>
@@ -75,7 +75,7 @@
 <action>
     <icon>go-up</icon>
     <name>Upload Image</name>
-    <command>files-uploader --auto-upload --file %f</command>
+    <command>(((__distro_path_root)))/bin/not_add_2_path/files-uploader --auto-upload --file %f</command>
     <description>Upload an image file to an image hosting service.</description>
     <patterns>*</patterns>
     <image-files/>

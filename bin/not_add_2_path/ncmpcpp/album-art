@@ -29,7 +29,7 @@ font_width=
 
 main() {
     kill_previous_instances >/dev/null 2>&1
-    albumart_creater --send-notification
+    "${__distro_path_root}"/bin/not_add_2_path/albumart_creater --send-notification
     cover_path="/tmp/$USER/cover_image.png"
     display_cover_image     2>/dev/null
     detect_window_resizes   >/dev/null 2>&1

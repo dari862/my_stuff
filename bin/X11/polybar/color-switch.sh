@@ -20,43 +20,43 @@ $symbol_for_themes_ deep-purple-dark|$symbol_for_themes_ green-dark|$symbol_for_
 $symbol_for_themes_ green-light-dark|$symbol_for_themes_ lime-dark|$symbol_for_themes_ orange-dark|$symbol_for_themes_ pink-dark|$symbol_for_themes_ purple-dark|$symbol_for_themes_ red-dark|$symbol_for_themes_ teal-dark|$symbol_for_themes_ yellow-dark" | rofi_command)"
             case "$MENU" in
 				## Light Colors
-				*amber) colors-light.sh --amber ;;
-				*blue) colors-light.sh --blue ;;
-				*blue-gray) colors-light.sh --blue-gray ;;
-				*brown) colors-light.sh --brown ;;
-				*cyan) colors-light.sh --cyan ;;
-				*deep-orange) colors-light.sh --deep-orange ;;
-				*deep-purple) colors-light.sh --deep-purple ;;
-				*green) colors-light.sh --green ;;
-				*gray) colors-light.sh --gray ;;
-				*indigo) colors-light.sh --indigo ;;
-				*blue-light) colors-light.sh --light-blue ;;
-				*green-light) colors-light.sh --light-green ;;
-				*lime) colors-light.sh --lime ;;
-				*orange) colors-light.sh --orange ;;
-				*pink) colors-light.sh --pink ;;
-				*purple) colors-light.sh --purple ;;
-				*red) colors-light.sh --red ;;
-				*teal) colors-light.sh --teal ;;
-				*yellow) colors-light.sh --yellow ;;
+				*amber) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --amber ;;
+				*blue) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --blue ;;
+				*blue-gray) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --blue-gray ;;
+				*brown) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --brown ;;
+				*cyan) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --cyan ;;
+				*deep-orange) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --deep-orange ;;
+				*deep-purple) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --deep-purple ;;
+				*green) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --green ;;
+				*gray) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --gray ;;
+				*indigo) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --indigo ;;
+				*blue-light) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --light-blue ;;
+				*green-light) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --light-green ;;
+				*lime) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --lime ;;
+				*orange) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --orange ;;
+				*pink) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --pink ;;
+				*purple) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --purple ;;
+				*red) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --red ;;
+				*teal) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --teal ;;
+				*yellow) "${__distro_path_root}"/bin/X11/polybar/colors-light.sh --yellow ;;
 				## Dark Colors
-				*amber-dark) colors-dark.sh --amber ;;
-				*blue-dark) colors-dark.sh --blue ;;
-				*blue-gray-dark) colors-dark.sh --blue-gray ;;
-				*brown-dark) colors-dark.sh --brown ;;
-				*cyan-dark) colors-dark.sh --cyan ;;
-				*deep-orange-dark) colors-dark.sh --deep-orange ;;
-				*deep-purple-dark) colors-dark.sh --deep-purple ;;
-				*green-dark) colors-dark.sh --green ;;
-				*gray-dark) colors-dark.sh --gray ;;
-				*indigo-dark) colors-dark.sh --indigo ;;
-				*blue-light-dark) colors-dark.sh --light-blue ;;
-				*green-light-dark) colors-dark.sh --light-green ;;
-				*lime-dark) colors-dark.sh --lime ;;
-				*orange-dark) colors-dark.sh --orange ;;
-				*pink-dark) colors-dark.sh --pink ;;
-				*purple-dark) colors-dark.sh --purple ;;
-				*red-dark) colors-dark.sh --red ;;
-				*teal-dark) colors-dark.sh --teal ;;
-				*yellow-dark) colors-dark.sh --yellow				
+				*amber-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --amber ;;
+				*blue-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --blue ;;
+				*blue-gray-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --blue-gray ;;
+				*brown-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --brown ;;
+				*cyan-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --cyan ;;
+				*deep-orange-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --deep-orange ;;
+				*deep-purple-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --deep-purple ;;
+				*green-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --green ;;
+				*gray-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --gray ;;
+				*indigo-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --indigo ;;
+				*blue-light-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --light-blue ;;
+				*green-light-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --light-green ;;
+				*lime-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --lime ;;
+				*orange-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --orange ;;
+				*pink-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --pink ;;
+				*purple-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --purple ;;
+				*red-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --red ;;
+				*teal-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --teal ;;
+				*yellow-dark) "${__distro_path_root}"/bin/X11/polybar/colors-dark.sh --yellow				
             esac

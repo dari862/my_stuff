@@ -1,0 +1,77 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+# if this line exist script will be part of gui scripts.new_name=live_wallpaper
+
+. "$__distro_path_lib"
+title_name="Live wallpaper"
+icon_name="livewall_gui"
+icon="${__distro_path_all_distro_themes}/icons/${icon_name}.png"
+_dir_vid="$(livewall -p)"
+
+pick_it(){
+	res=$(yad --form \
+    	--title="${title_name}" \
+    	--window-icon="$icon" \
+    	--width=400 \
+    	--height=100 \
+    	--text 'Select file to convert to live wallpaper'\
+    	--field ' :FL' '' \
+    	--file-filter '*.mp4 *.m4v' \
+    	--field 'Autorun Live Wallpaper':CHK TRUE \
+    	--button="Ok":10 \
+    	--button=Return:20)
+	ex_code=$?
+	if [ "$ex_code" -eq 10 ];then
+		video_path="$(echo $res | awk -F'|' '{print $1}')"
+		Autorun_live_wall="$(echo $res | awk -F'|' '{print $2}')"
+		live_it "$video_path" "$Autorun_live_wall"
+	elif [ "$ex_code" -eq 20 ];then
+		main
+	fi
+}
+
+live_it(){
+    [ -z "$1" ] && return
+	if [ "$2" = "TRUE" ];then
+		livewall -a "$video_path"
+	else
+		livewall "$video_path"
+    fi
+}
+
+list_it(){
+    menu="$(livewall -L)"
+    
+	yad_opts="--list
+			--width=400
+    		--height=350
+  			--column=Number
+  			--column=Name
+  			${menu}"
+	ans="$(yad ${yad_opts})"
+	number_is="$(echo "$ans" | awk -F'|' '{print $1}')"
+    livewall -I "$number_is"
+}
+
+main(){
+	yad --form \
+    	--title="${title_name}" \
+    	--window-icon="$icon" \
+    	--center \
+    	--button="File to live wallpaper":10 \
+    	--button="List live wallpaper":20 \
+    	--button="stop live wallpaper":30 \
+    	--button=Cancel:40
+	ex_code=$?
+	if [ "$ex_code" -eq 10 ];then
+		pick_it
+	elif [ "$ex_code" -eq 20 ];then
+		list_it
+	elif [ "$ex_code" -eq 30 ];then
+		livewall -q
+	elif [ "$ex_code" -eq 40 ];then
+		exit
+	fi
+}
+
+main

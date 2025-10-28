@@ -1,0 +1,651 @@
+#!/bin/bash
+# need superuser : called by un_mount
+
+unalias -a
+set -e
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
+unset GREP_OPTIONS
+
+EXIT_CONFIG=78
+EXIT_CMDNOTFOUND=127
+
+if ! . "$script_config_path" >/dev/null 2>&1; then
+    printf '%s\n' "un_mount: Failed to source configuration file."
+    exit $EXIT_CONFIG
+fi
+
+if (( udisks )); then
+	if type -p udisksctl >/dev/null 2>&1; then
+    	udisks=1
+	else
+    	printf '%s\n' "un_mount: 'udisksctl': command not found"
+    	udisks=0
+	fi
+else
+	udisks=0
+fi
+
+if ! type -p lsblk >/dev/null 2>&1; then
+    printf '%s\n' "un_mount: 'lsblk': command not found"
+    exit $EXIT_CMDNOTFOUND
+fi
+
+if (( colourize )); then
+    if tput setaf 0 >/dev/null 2>&1; then
+        ALL_OFF="$(tput sgr0)"
+        BOLD="$(tput bold)"
+        BLUE="${BOLD}$(tput setaf 4)"
+        GREEN="${BOLD}$(tput setaf 2)"
+        RED="${BOLD}$(tput setaf 1)"
+    else
+        ALL_OFF="\e[1;0m"
+        BOLD="\e[1;1m"
+        BLUE="${BOLD}\e[1;34m"
+        GREEN="${BOLD}\e[1;32m"
+        RED="${BOLD}\e[1;31m"
+    fi
+else
+    ALL_OFF=""
+    BOLD=""
+    BLUE=""
+    GREEN=""
+    RED=""
+fi
+ARROW="==>"
+
+info_fstype() {
+    lsblk -drno FSTYPE "$1" 2>/dev/null
+}
+
+msg() {
+    printf '\n%b\n\n' "${GREEN}${ARROW}${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
+}
+error() {
+    printf '\n%b\n\n' "${RED}${ARROW}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
+    enter_to_continue
+}
+enter_to_continue() {
+    printf '\n'
+    read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: "
+}
+
+invalid_command() {
+    printf '\n'
+    error "Invalid command. See the help menu."
+}
+
+info_type() {
+    lsblk -drno TYPE "$1" 2>/dev/null
+}
+
+info_uuid() {
+    lsblk -drno UUID "$1" 2>/dev/null
+}
+
+info_mountpath() {
+    findmnt -no TARGET "$1" 2>/dev/null
+}
+
+check_device() {
+    if [[ ! -b "$1" ]]; then
+        error "$1 is no longer available."
+        return 1
+    fi
+}
+
+check_mounted() {
+    findmnt -no TARGET "$1" >/dev/null 2>&1
+}
+
+(( ${#exclude[@]} == 0 )) && exclude=("${blacklist[@]}")
+
+print_commands() {
+    printf '\n\n'
+    print_separator_commands
+    printf '%s' " ${BLUE}e${ALL_OFF}: eject"
+    printf '%s' "          ${BLUE}i${ALL_OFF}: info"
+    printf '%s' "        ${BLUE}m${ALL_OFF}: mount"
+    printf '%s' "        ${BLUE}o${ALL_OFF}: open"
+    printf '%s' "        ${BLUE}u${ALL_OFF}: unmount"
+    printf '\n\n'
+    printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
+    printf '%s' "           ${BLUE}a${ALL_OFF}: unmount all"
+    printf '%s' "        ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "        ${BLUE}?${ALL_OFF}: help"
+    printf '\n\n'
+}
+
+print_main_commands() {
+    printf '\n\n'
+    print_separator_commands
+    printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
+    printf '%s' "           ${BLUE}a${ALL_OFF}: unmount all"
+    printf '%s' "        ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "        ${BLUE}?${ALL_OFF}: help"
+    printf '\n\n'
+}
+
+print_submenu_commands() {
+    printf '\n\n'
+    print_separator_commands
+    printf '%s' " ${BLUE}e${ALL_OFF}: eject"
+    printf '%s' "              ${BLUE}i${ALL_OFF}: info"
+    if check_mounted "$devname"; then
+        printf '%s' "               ${BLUE}u${ALL_OFF}: unmount"
+    else
+        printf '%s' "               ${BLUE}m${ALL_OFF}: mount  "
+    fi
+    printf '%s' "            ${BLUE}o${ALL_OFF}: open"
+    printf '\n\n'
+    printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
+    printf '%s' "      ${BLUE}b${ALL_OFF}: back"
+    printf '%s' "               ${BLUE}q${ALL_OFF}: quit"
+    printf '%s' "               ${BLUE}?${ALL_OFF}: help"
+    printf '\n\n'
+    printf '%s' " ${BLUE}1${ALL_OFF}: luksDump"
+    printf '%s' "           ${BLUE}2${ALL_OFF}: luksOpen"
+    printf '%s' "           ${BLUE}3${ALL_OFF}: luksClose"
+    printf '\n'
+
+    if (( custom4_show )) || (( custom5_show )) || (( custom6_show )); then
+        local -i col_width=18
+        printf '\n'
+        (( custom4_show )) && [[ -n "$custom4_desc" ]] \
+            && printf '%s' " ${BLUE}4${ALL_OFF}: $custom4_desc"
+        local -i custom4_desc_len="${#custom4_desc}"
+        if (( custom4_desc_len < col_width )); then
+            for (( i=18; i>custom4_desc_len; i-- )); do
+                printf '%s' " "
+            done
+        fi
+        (( custom5_show )) && [[ -n "$custom5_desc" ]] \
+            && printf '%s' " ${BLUE}5${ALL_OFF}: $custom5_desc"
+        local -i custom5_desc_len="${#custom5_desc}"
+        if (( custom5_desc_len < col_width )); then
+            for (( i=18; i>custom5_desc_len; i-- )); do
+                printf '%s' " "
+            done
+        fi
+        (( custom6_show )) && [[ -n "$custom6_desc" ]] \
+            && printf '%s' " ${BLUE}6${ALL_OFF}: $custom6_desc"
+        printf '\n'
+    fi
+}
+
+__print() {
+    printf "${BOLD}"
+    if (( pretty )); then
+        printf '%s\n\n' "$1" | sed -e "s/-/━/g"
+    else
+        printf '%s\n\n' "$1"
+    fi
+    printf "${ALL_OFF}"
+}
+print_separator() {
+    __print "-----------------------------------------------------------------------------"
+}
+print_separator_commands() {
+    __print "--------------------------------  Commands  ---------------------------------"
+}
+print_separator_device() {
+    __print "-------------------------------  Device Menu  -------------------------------"
+}
+print_separator_optical() {
+    __print "------------------------------  Optical Media  ------------------------------"
+}
+print_separator_removable() {
+    __print "-----------------------------  Removable Media  -----------------------------"
+}
+print_separator_internal() {
+    __print "-----------------------------  Internal Media  ------------------------------"
+}
+
+print_help() {
+    clear
+    print_commands
+    print_separator
+    printf '%b' "  ${GREEN}${ARROW}${ALL_OFF}  "
+    printf '%s' "${BOLD}To mount the first device, enter ${ALL_OFF}"
+    printf '%s' "${BLUE}1m${ALL_OFF}${BOLD}.${ALL_OFF}"
+    printf '\n\n'
+    printf '%b' "  ${GREEN}${ARROW}${ALL_OFF}  "
+    printf '%s' "${BOLD}To open the mountpath directory of the first${ALL_OFF}"
+    printf '\n\n'
+    printf '%s' "       ${BOLD}device (mounting if required), enter "
+    printf '%s' "${BLUE}1o${ALL_OFF}${BOLD}.${ALL_OFF}"
+    printf '\n\n'
+    printf '%b' "  ${GREEN}${ARROW}${ALL_OFF}  "
+    printf '%s' "${BOLD}To view a device sub-menu, just enter the number.${ALL_OFF}"
+    printf '\n\n'
+    printf '%b' "  ${GREEN}${ARROW}${ALL_OFF}  "
+    printf '%s' "${BLUE}[Enter]${ALL_OFF}"
+    printf '%s' "${BOLD}, "
+    printf '%s' "${BLUE}a${ALL_OFF}"
+    printf '%s' "${BOLD}, "
+    printf '%s' "${BLUE}q${ALL_OFF} "
+    printf '%s' "${BOLD}and "
+    printf '%s' "${BLUE}?${ALL_OFF} "
+    printf '%s' "${BOLD}do not require a number.${ALL_OFF}"
+    printf '\n\n'
+    print_separator
+    enter_to_continue
+}
+
+print_help_submenu() {
+    clear
+    print_submenu_commands
+    printf '\n'
+    print_separator
+    printf '%b' "  ${GREEN}${ARROW}${ALL_OFF}  "
+    printf '%s' "${BOLD}To perform a command, enter a character and press ${ALL_OFF}"
+    printf '%s' "${BLUE}[Enter]${ALL_OFF}${BOLD}.${ALL_OFF}"
+    printf '\n\n'
+    printf '%b' "  ${GREEN}${ARROW}${ALL_OFF}  "
+    printf '%s' "${BOLD}For example, to mount this device, type ${ALL_OFF}"
+    printf '%s' "${BLUE}m${ALL_OFF} and press ${BLUE}[Enter]${ALL_OFF}"
+    printf '%s' "${BOLD}.${ALL_OFF}"
+    printf '\n\n'
+    print_separator
+    enter_to_continue
+}
+
+print_device() {
+    local -i padding_name=13
+    local -i padding_label=18
+    local -i padding_size=6
+
+    local label="$(info_fslabel "$devname")"
+    local fstype="$(info_fstype "$devname")"
+
+    [[ -z "$label" ]] && (( $# == 1 )) && [[ "$1" == "optical" ]] \
+        && label="$(lsblk -dno MODEL "$devname")"
+    [[ -z "$label" ]] && label="$(info_partlabel "$devname")"
+    [[ -z "$label" ]] && [[ "$fstype" == "crypto_LUKS" ]] && label="crypto_LUKS"
+    [[ -z "$label" ]] && label="-"
+
+    label="$(printf '%s' "$label" | sed -e 's/\\x20/ /g')"
+
+    listed[device_number]="$devname"
+    (( device_number++ ))
+
+    printf '%s' " ${BLUE}${device_number})${ALL_OFF}"
+
+    devname_short="${devname##*/}"
+    label_short="$label"
+    if (( ${#devname_short} > padding_name )); then
+        len=$(( padding_name - 4 ))
+        devname_short="${devname_short:0:len}..."
+    elif (( ${#label} > padding_label )); then
+        label_len=$(( padding_label - 4 ))
+        label_short="${label:0:label_len}..."
+    fi
+
+    printf '%s' " ${devname_short}:"
+    for (( i=padding_name; i>${#devname_short}; i-- )); do
+        printf '%s' " "
+    done
+
+    printf '%s' " $label_short"
+    for (( i=padding_label; i>${#label_short}; i-- )); do
+        printf '%s' " "
+    done
+
+    size="$(info_size "$devname")"
+    printf '%s' " $size"
+    if (( ${#size} < padding_size )); then
+        for (( i=padding_size; i>${#size}; i-- )); do
+            printf '%s' " "
+        done
+    fi
+
+    if [[ "$fstype" == "crypto_LUKS" ]]; then
+        local uuid="$(info_uuid "$devname")"
+        if [[ -n "$uuid" ]]; then
+            for dev in "${all[@]}"; do
+                if [[ "$dev" == "/dev/mapper/luks-$uuid" ]]; then
+                    printf '%s' " ${GREEN}decrypted [luks-${uuid:0:4}...]${ALL_OFF}"
+                fi
+            done
+        fi
+    elif check_mounted "$devname"; then
+        mountpath="$(info_mountpath "$devname")"
+        printf '%s' " ${GREEN}[$mountpath]${ALL_OFF}"
+        mounted[${#mounted[*]}]="$devname"
+    fi
+    printf '\n'
+}
+# }}}
+
+action_info() {
+    check_device "$1" || return 1
+    if (( udisks )); then
+        udisksctl info -b "$1" | less
+    else
+        lsblk -po NAME,FSTYPE,SIZE,FSUSE%,MOUNTPOINT "$1" | less
+    fi
+}
+
+action_open() {
+    check_device "$1" || return 1
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ ! -b "$luks_child" ]]; then
+            action_mount "$1" || return 1
+        fi
+        action_open "$luks_child"
+        return $?
+    elif ! check_mounted "$1"; then
+        action_mount "$1" || return 1
+    fi
+    msg "Opening $1 ..."
+    filemanager "$(info_mountpath "$1")" || enter_to_continue
+}
+
+# {{{ ··· INFORMATION RETRIEVAL
+
+check_removable() {
+    [[ "$(lsblk -drno RM "$1")" == "1" ]]
+}
+
+info_fslabel() {
+    lsblk -drno LABEL "$1" 2>/dev/null
+}
+
+info_partlabel() {
+    lsblk -drno PARTLABEL "$1" 2>/dev/null
+}
+info_size() {
+    lsblk -drno SIZE "$1" 2>/dev/null
+}
+
+info_used() {
+    lsblk -drno FSUSE% "$1" 2>/dev/null
+}
+
+# }}}
+
+# {{{ ··· MENU FUNCTIONS
+list_devices() {
+    all=()          # all devices
+    listed=()       # all devices that are shown (ie, not hidden)
+    mounted=()      # all devices that are shown and mounted
+    device_number=0
+
+    local -a removable=()
+    local -a internal=()
+    local -a optical=()
+
+    while IFS='' read -r device; do
+        all+=( "$device" )
+    done < <(lsblk -plno NAME)
+
+    for devname in "${all[@]}"; do
+        # Hide excluded devices.
+        for string in "${exclude[@]}"; do
+            lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID "$devname" \
+                | grep -E "$string" >/dev/null 2>&1 || continue 2
+        done
+
+        # Sort devices into arrays removable, internal, and optical.
+        local device_type=$(info_type "$devname")
+        if [[ "$device_type" == "part" ]]; then
+            if check_removable "$devname"; then
+                removable[${#removable[*]}]="$devname"
+            else
+                internal[${#internal[*]}]="$devname"
+            fi
+        elif [[ "$device_type" == "crypt" ]]; then
+            # luks-xxxxx devices are never marked as removable, so we judge
+            # whether they are removable by their parent crypto_LUKS device.
+            local -i parent_found=0
+            for parent_devname in "${all[@]}"; do
+                local parent_uuid="$(info_uuid "$parent_devname")"
+                [[ -z "$parent_uuid" ]] && continue
+                if [[ "/dev/mapper/luks-$parent_uuid" == "$devname" ]]; then
+                    if check_removable "$parent_devname"; then
+                        removable[${#removable[*]}]="$devname"
+                        parent_found=1
+                        break
+                    else
+                        internal[${#internal[*]}]="$devname"
+                        parent_found=1
+                        break
+                    fi
+                fi
+            done
+            (( !parent_found )) && internal[${#internal[*]}]="$devname"
+        # Normally we don't want to see a "disk", but if it has no partitions
+        # (eg, internal storage on some portable media devices) then it should
+        # be visible.
+        elif [[ "$device_type" == "disk" ]]; then
+            for (( i=0; i<${#all[@]}; i++ )); do
+                [[ "${all[$i]}" =~ "$devname".+ ]] && continue 2
+            done
+            if check_removable "$devname"; then
+                removable[${#removable[*]}]="$devname"
+            else
+                internal[${#internal[*]}]="$devname"
+            fi
+        elif [[ "$device_type" == "rom" ]]; then
+            optical[${#optical[*]}]="$devname"
+        else
+            continue
+        fi
+    done
+
+    clear
+    # List internal media.
+    if (( show_internal )) && (( ${#internal[*]} )); then
+        print_separator_internal
+        for devname in "${internal[@]}"; do
+            print_device
+        done
+        printf '\n'
+    fi
+    # List removable media.
+    if (( show_removable )) && (( ${#removable[*]} )); then
+        print_separator_removable
+        for devname in "${removable[@]}"; do
+            print_device
+        done
+        printf '\n'
+    fi
+    # List optical media.
+    if (( show_optical )) && (( ${#optical[*]} )); then
+        print_separator_optical
+        for devname in "${optical[@]}"; do
+            print_device optical
+        done
+        printf '\n'
+    fi
+    (( !device_number )) && printf '%s\n' "No devices."
+}
+
+submenu() {
+	is_mounted=0
+    # Make sure device is still valid.
+    check_device "$devname" || return 1
+
+    # Try to use a useful label to identify the device.
+    local label="$(info_fslabel "$devname")"
+    [[ -z "$label" ]] && label="$(info_partlabel "$devname")"
+    [[ -z "$label" ]] && label="-"
+
+    local fstype="$(info_fstype "$devname")"
+    local size="$(info_size "$devname")"
+    local used="$(info_used "$devname")"
+    local uuid="$(info_uuid "$devname")"
+
+    check_mounted "$devname" && is_mounted=1
+
+    # Display the user interface.
+    clear
+    print_separator_device
+    printf '%s\n' " device    : $devname"
+    printf '%s\n' " label     : $label"
+    if [[ "$fstype" == "crypto_LUKS" ]]; then
+        printf '%s' " status    : "
+        local -i unlocked=0
+        if [[ -n "$uuid" ]]; then
+            for dev in "${all[@]}"; do
+                if [[ "$dev" == "/dev/mapper/luks-$uuid" ]]; then
+                    printf '%s\n' "${GREEN}decrypted [luks-${uuid:0:4}...]${ALL_OFF}"
+                    unlocked=1
+                    break
+                fi
+            done
+        fi
+        (( !unlocked )) && printf '%s\n' "encrypted"
+    else
+        printf '%s' " mounted   : "
+        if (( is_mounted )); then
+            printf '%s\n' "${GREEN}yes${ALL_OFF}"
+            printf '%s\n' " mountpath : $(info_mountpath "$devname")"
+        else
+            printf '%s\n' "${RED}no${ALL_OFF}"
+        fi
+    fi
+    printf '%s\n' " fstype    : $fstype"
+    printf '%s\n' " uuid      : $uuid"
+    printf '%s\n' " size      : $size"
+    (( is_mounted )) && printf '%s\n' " used      : $used"
+    if (( show_commands == 1 )); then
+        printf '\n'
+        print_submenu_commands
+    fi
+    printf '\n'
+    print_separator
+
+    # Receive user input.
+    if ! read -r -e -p "${BOLD}Command:${ALL_OFF} " action; then
+        # Exit on ctrl-d.
+        printf '\n'
+        exit 0
+    fi
+    case "$action" in
+        "e") un_mount -e "$devname" && return 1 || true;;
+        "i") action_info "$devname" && return 1  || true;;
+        "m") un_mount -m "$devname" && return 1 || true;;
+        "o") action_open "$devname" && return 1 || true;;
+        "u") un_mount -u "$devname" && return 1 || true;;
+        "b") return 1;;
+        ""|"r") return 0;;
+        "q") exit;;
+        "?") print_help_submenu; return 0;;
+        "1") un_mount -1 "$devname"; return 1;;
+        "2") msg "Opening luks volume ..."
+        	un_mount -2 "$devname"; return 1;;
+        "3") msg "Closing luks volume ..."
+        	un_mount -3 "$devname"; return 1;;
+        "4")
+            if (( custom4_show )); then
+                msg "Running custom command: $custom4_desc ..."
+                un_mount -4 "$devname"
+                enter_to_continue
+            else
+                invalid_command
+            fi
+            return 0;;
+        "5")
+            if (( custom5_show )); then
+                msg "Running custom command: $custom5_desc ..."
+                un_mount -5 "$devname"
+                enter_to_continue
+            else
+                invalid_command
+            fi
+            return 0;;
+        "6")
+            if (( custom6_show )); then
+                msg "Running custom command: $custom6_desc ..."
+                un_mount -6 "$devname"
+                enter_to_continue
+            else
+                invalid_command
+            fi
+            return 0;;
+         *) invalid_command; return 0;;
+    esac
+}
+
+select_action() {
+    local devname
+    local letter
+    print_separator
+    if ! read -r -e -p "${BOLD}Command:${ALL_OFF} " action; then
+        # Exit on ctrl-d.
+        printf '\n'
+        exit 0
+    fi
+    if [[ "$action" =~ ^[1-9] ]]; then
+        if [[ "$action" =~ ^[1-9][0-9]*$ ]]; then
+            # Zero-based numbering for array elements, so subtract one.
+            local number="$(( action - 1 ))"
+            if (( number >= device_number )); then
+                invalid_command
+                return 1
+            fi
+            devname=${listed[number]}
+            while true; do
+                submenu || break
+            done
+        elif [[ "$action" =~ ^[1-9][0-9]*[eimou]$ ]]; then
+            # Zero-based numbering for array elements, so subtract one.
+            local number="$(( ${action%?} - 1 ))"
+
+            if (( number >= device_number )); then
+                invalid_command
+                return 1
+            fi
+            devname="${listed[number]}"
+
+            letter="${action: -1}"
+            case "$letter" in
+                "e") echo yesyes && sleep 2 && un_mount -e "$devname";;
+                "i") action_info "$devname";;
+                "m") un_mount -m "$devname";;
+                "o") action_open "$devname";;
+                "u") un_mount -u "$devname";;
+                 *)  return 1;;
+            esac
+            return 0
+        else
+            invalid_command
+            return 1
+        fi
+    else
+        case "$action" in
+            "a")
+                if (( ! ${#mounted[*]} )); then
+                    error "No devices mounted."
+                    return 1
+                fi
+                printf '\n'
+                read -r -e -p "Unmount all devices [y/N]?: " unmount
+                [[ "$unmount" != "y" ]] && [[ "$unmount" != "Y" ]] && return 0
+                clear
+                for devname in "${mounted[@]}"; do
+                    un_mount -u "$devname" || continue
+                done
+                enter_to_continue
+                return 1;;
+            "r"|"") return 0;;
+            "q"|"b") exit 0;;
+            "?") print_help; return 0;;
+            *) invalid_command; return 1;;
+        esac
+    fi
+}
+# }}}
+
+declare -i device_number=0
+declare -a all=()
+declare -a listed=()
+declare -a mounted=()
+
+while true; do
+    list_devices
+    (( show_commands )) && print_main_commands
+    select_action
+done

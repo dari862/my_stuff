@@ -56,7 +56,7 @@ if [ "$skip_intro" = 1 ];then
 fi
 
 if [ "$use_external_menu" = "fzf" ];then
-	check_4_dependencies_if_installed sed grep fzf $player_function || exit 1
+	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed sed grep fzf $player_function || exit 1
 	multi_selection_flag="-m"
 	launcher() {
 		if [ -z "$1" ];then
@@ -65,7 +65,7 @@ if [ "$use_external_menu" = "fzf" ];then
 		fzf "$1" --reverse --cycle --prompt "$2"
 	}
 elif [ "$use_external_menu" = "rofi" ];then
-	check_4_dependencies_if_installed sed grep rofi $player_function || exit 1
+	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed sed grep rofi $player_function || exit 1
 	multi_selection_flag="-multi-select"
 	launcher() {
 		rofi "$1" -sort -dmenu -i -width 1500 -p "$2" "$3"

@@ -4,7 +4,7 @@
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-if [ "$@" ];then
+if [ -n "$@" ];then
 	sed -i "s/polybar_STYLE=.*/polybar_STYLE=\"$@\"/g" "${Distro_config_file}"
 	sed -i "s/ROFI_STYLE=.*/ROFI_STYLE=\"$@\"/g" "${Distro_config_file}"
 fi

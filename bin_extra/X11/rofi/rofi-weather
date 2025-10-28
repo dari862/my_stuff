@@ -1,6 +1,5 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
-
 . "$__distro_path_lib"
 weather_script_config_path="$HOME/.config/scriptconfig/weather"
 Weather_OPT_="${1-}"
@@ -10,7 +9,6 @@ Weather_OPT_="${1-}"
 . "$weather_script_config_path"
 
 #############################################################################
-
 # var
 Weather_OPT_List="1 Show Weather Doppler |2 Show Weather Forecast Full |3 Show Weather Forecast Today |4 Shows the current moon phase current |5 Shows_the_current_moon_phase Moon_phase |6 Location_Picker |7 edit_script"
 

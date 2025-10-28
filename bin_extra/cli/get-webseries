@@ -1,6 +1,6 @@
 #!/bin/sh
 # youtube-dl wrapper to download web series / playlists / etc.
-set -eu
+set -e
 START=""
 
 ask_question(){

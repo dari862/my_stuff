@@ -36,8 +36,8 @@ device_menu() {
     else
         connected="Connected: no"
     fi
-    paired=$(bluetooth.sh device_paired "$mac")
-    trusted=$(bluetooth.sh device_trusted "$mac")
+    paired=$("${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh device_paired "$mac")
+    trusted=$("${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh device_trusted "$mac")
     options="$connected\n$paired\n$trusted\n$divider\n$goback\nExit"
 
     # Open rofi menu, read chosen option
@@ -49,13 +49,13 @@ device_menu() {
             echo "No option chosen."
             ;;
         "$connected")
-           bluetooth.sh toggle_connection "$mac"
+           "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh toggle_connection "$mac"
             ;;
         "$paired")
-            bluetooth.sh toggle_paired "$mac"
+            "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh toggle_paired "$mac"
             ;;
         "$trusted")
-            bluetooth.sh toggle_trust "$mac"
+            "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh toggle_trust "$mac"
             ;;
         "$goback")
             show_menu
@@ -66,7 +66,7 @@ device_menu() {
 # Opens a rofi menu with current bluetooth status and options to connect
 show_menu() {
     # Get menu options
-    if bluetooth.sh power_on;then
+    if "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh power_on;then
         power="Power: on"
 
         # Human-readable names of devices, one per line
@@ -74,9 +74,9 @@ show_menu() {
         devices=$(bluetoothctl devices | grep Device | cut -d ' ' -f 3-)
 
         # Get controller flags
-        scan=$(bluetooth.sh scan_on)
-        pairable=$(bluetooth.sh pairable_on)
-        discoverable=$(bluetooth.sh discoverable_on)
+        scan=$("${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh scan_on)
+        pairable=$("${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh pairable_on)
+        discoverable=$("${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh discoverable_on)
 
         # Options passed to rofi
         options="$devices\n$divider\n$power\n$scan\n$pairable\n$discoverable\nExit"
@@ -94,16 +94,16 @@ show_menu() {
             echo "No option chosen."
             ;;
         "$power")
-            bluetooth.sh toggle_power
+            "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh toggle_power
             ;;
         "$scan")
-            bluetooth.sh toggle_scan
+            "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh toggle_scan
             ;;
         "$discoverable")
-            bluetooth.sh toggle_discoverable
+            "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh toggle_discoverable
             ;;
         "$pairable")
-            bluetooth.sh toggle_pairable
+            "${__distro_path_root}"/bin/not_add_2_path/bluetooth.sh toggle_pairable
             ;;
         *)
             device=$(bluetoothctl devices | grep "$chosen")

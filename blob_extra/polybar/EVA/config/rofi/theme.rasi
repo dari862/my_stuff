@@ -8,6 +8,6 @@ highlight:			#4f1e87;
 urgent:				#b081e5;
 on:					#9658dd;
 off:				#b081e5;
-img-background: url("(((distro_path_root)))/blob/polybar/EVA/preview.jpg", width);
+img-background: url("(((__distro_path_root)))/blob/polybar/EVA/preview.jpg", width);
 
 }

@@ -1,15 +1,24 @@
 #!/bin/sh
 
-FILE=/tmp/$USER/target
+FILE="/tmp/$USER/target"
 
 if [ $# -eq 0 ];then
 	if [ -e "$FILE" ];then
-		cat $FILE
+		cat "$FILE"
 	else
 		printf "No Target"
 	fi
 elif [ "$1" = "reset" ];then
-	rm /tmp/$USER/target
+	rm "/tmp/$USER/target"
+elif [ "$1" = "rofi" ];then
+	. "$__distro_path_lib"
+	. "${__distro_path_root}/lib/common/WM"
+	. "${Distro_config_file}"
+
+	picked_target="$(rofi -show run -theme "$HOME/.config/rofi/$ROFI_STYLE/runner.rasi")"
+	if [ -n "${picked_target}" ];then
+		printf '%s' "${picked_target}" > "$FILE"
+	fi
 else
-	echo $1 > $FILE
+	printf '%s' "$1" > "$FILE"
 fi

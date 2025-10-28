@@ -4,6 +4,6 @@ Comment=System activity from distro top
 Exec=popup_terminal distro_top
 Terminal=false
 Type=Application
-Icon=(((__distro_path_themes)))/icons/activity.png
+Icon=(((__distro_path_all_distro_themes)))/icons/activity.png
 Categories=GTK;
 StartupNotify=false

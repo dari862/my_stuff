@@ -8,6 +8,6 @@ highlight:			#74bee9;
 urgent:				#e05f65;
 on:					#78dba9;
 off:				#e05f65;
-img-background: url("(((distro_path_root)))/blob/polybar/JS_Coffee/preview.jpg", width);
+img-background: url("(((__distro_path_root)))/blob/polybar/JS_Coffee/preview.jpg", width);
 
 }

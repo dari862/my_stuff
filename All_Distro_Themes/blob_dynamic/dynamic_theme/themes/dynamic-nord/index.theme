@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=dynamic-nord
+Comment=GTK Theme
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=dynamic-nord
+MetacityTheme=dynamic-nord
+IconTheme=dynamic
+CursorTheme=Luna
+CursorSize=24

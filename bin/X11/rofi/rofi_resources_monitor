@@ -11,7 +11,7 @@ get_ips() {
   list_of_interfaces="$(ip -br l | awk '$1 !~ "lo" { print $1}')"
   list_of_interfaces="external_IP ${list_of_interfaces}"
   selected="$(echo "$list_of_interfaces" | sed 's/ /\n/g' | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "ips:" "$@")"
-  Resources_Monitor i "${selected}"
+  "${__distro_path_root}"/bin/not_add_2_path/Resources_Monitor i "${selected}"
 }
 
 help()
@@ -30,12 +30,12 @@ help()
 main()
 {
 	case $opt in
-		1) Resources_Monitor e ;;
-		2) Resources_Monitor S ;;
-		3) Resources_Monitor ch ;;
-		4) Resources_Monitor mh ;;
+		1) "${__distro_path_root}"/bin/not_add_2_path/Resources_Monitor e ;;
+		2) "${__distro_path_root}"/bin/not_add_2_path/Resources_Monitor S ;;
+		3) "${__distro_path_root}"/bin/not_add_2_path/Resources_Monitor ch ;;
+		4) "${__distro_path_root}"/bin/not_add_2_path/Resources_Monitor mh ;;
 		5) get_ips;;
-		6) Resources_Monitor E ;;
+		6) "${__distro_path_root}"/bin/not_add_2_path/Resources_Monitor E ;;
 		*) help ;;
 	esac
 }

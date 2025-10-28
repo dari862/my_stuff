@@ -74,7 +74,7 @@ if [ "$PREFERRED_SELECTOR" = "auto" ];then
 	fi
 fi
 
-check_4_dependencies_if_installed mpv jq $PREFERRED_SELECTOR || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv jq $PREFERRED_SELECTOR || exit 1
 
 CURRENT_TIME=$(date +%s)
 

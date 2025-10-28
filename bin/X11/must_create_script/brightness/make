@@ -1,6 +1,6 @@
 #!/bin/sh
 . "$__distro_path_lib"
-disto_brightness_controller_path="${__distro_path_root}/system_files/bin/disto_brightness_controller"
+disto_brightness_controller_path="${__distro_path_root}/system_files/disto_brightness_controller"
 
 if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
 	if command -v xbacklight >/dev/null 2>&1;then

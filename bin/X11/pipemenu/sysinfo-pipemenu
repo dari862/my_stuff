@@ -11,13 +11,13 @@
 if  [ "$1" = "--more" ];then
 	menuStart
 	menuSeparator "SYSTEM INFO TOOLS"
-	menuItem "Hardware info" "sysinfo_script_ --hardware"
-	menuItem "Memory Usage" "sysinfo_script_ --memory"
-	menuItem "Process Monitor" "sysinfo_script_ --process"
-	menuItem "Disks Usage" "sysinfo_script_ --disk"
-	menuItem "CPU Usage" "sysinfo_script_ --cpu"
+	menuItem "Hardware info" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --hardware"
+	menuItem "Memory Usage" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --memory"
+	menuItem "Process Monitor" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --process"
+	menuItem "Disks Usage" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --disk"
+	menuItem "CPU Usage" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --cpu"
 	if command -v iw >/dev/null 2>&1;then
-		menuItem "WIFI Scan Networks" "sysinfo_script_ --wifi"
+		menuItem "WIFI Scan Networks" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --wifi"
 	fi
 	menuEnd
 	
@@ -86,21 +86,21 @@ else
 	
 	menuStart
 	menuSeparator " $USER@$hostname  |   $(date +'%I:%M %p, %b %d %G')"
-	menuItem "  OS         :  $distro ∙ $os ∙ $machine" "$sysinfo_script_"
-	menuItem "  KERNEL     :  $kernel" "$sysinfo_script_"
-	menuItem "  CPU        : $cpu" "$sysinfo_script_"
-	menuItem "  MEMORY     :  $m_used ∙ $m_free ∙ $m_total" "$sysinfo_script_"
-	menuItem "  SWAP       :  $s_used ∙ $s_free ∙ $s_total ∙ $swappiness" "$sysinfo_script_"
-	menuItem "  INIT       :  $init" "$sysinfo_script_"
+	menuItem "  OS         :  $distro ∙ $os ∙ $machine" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
+	menuItem "  KERNEL     :  $kernel" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
+	menuItem "  CPU        : $cpu" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
+	menuItem "  MEMORY     :  $m_used ∙ $m_free ∙ $m_total" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
+	menuItem "  SWAP       :  $s_used ∙ $s_free ∙ $s_total ∙ $swappiness" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
+	menuItem "  INIT       :  $init" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
 	if command -v acpi >/dev/null 2>&1;then
-		menuItem "  BATTERY    :  $b_perc ∙ $b_stat ∙ Capacity, $b_cap" "$sysinfo_script_"
+		menuItem "  BATTERY    :  $b_perc ∙ $b_stat ∙ Capacity, $b_cap" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
 	fi
 	
 	if [ -n "$(ls /sys/class/backlight | head -n1)" ];then
-		menuItem "  BACKLIGHT  :  $backlight" "$sysinfo_script_"
+		menuItem "  BACKLIGHT  :  $backlight" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
 	fi
-	menuItem "  UPTIME     :  $uptime" "$sysinfo_script_"
-	menuItem "  LOAD       :  $load" "$sysinfo_script_"
-	menuItem "  WIFI       :  $interface ∙ $status ∙ $ssid" "$sysinfo_script_"
+	menuItem "  UPTIME     :  $uptime" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
+	menuItem "  LOAD       :  $load" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
+	menuItem "  WIFI       :  $interface ∙ $status ∙ $ssid" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_"
 	menuEnd
 fi

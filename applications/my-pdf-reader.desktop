@@ -46,7 +46,7 @@ Comment[uk_UA]=Простий переглядач документів
 Comment=A minimalistic document viewer
 Exec=my-pdf-reader %U
 # Translators: Icon of the desktop entry.
-Icon=(((__distro_path_themes)))/icons/pdf.png
+Icon=(((__distro_path_all_distro_themes)))/icons/pdf.png
 Terminal=false
 Categories=Office;Viewer;
 # Translators: Search terms to find this application. Do not translate or

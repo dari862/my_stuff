@@ -21,7 +21,7 @@
 ########################################################################
 unalias -a
 . "$__distro_path_lib"
-check_4_dependencies_if_installed yad jq xprop wmctrl xdotool || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed yad jq xprop wmctrl xdotool || exit 1
 
 USR_CFG_DIR="$HOME/.config/image-upload/imgur"
 CREDENTIALS_FILE="${USR_CFG_DIR}/credentials.conf"

@@ -1,6 +1,7 @@
 #!/bin/bash
 if [ -z "$ZDOTDIR" ];then
   	export My_shell_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myshell"
-  	export ZDOTDIR="${My_shell_DIR}/zsh"
+  	source "${My_shell_DIR}/distropath4SSH.sh"
 fi
+source "${My_shell_DIR}/distropath4SSH.sh"
 source "$ZDOTDIR/zshrc"

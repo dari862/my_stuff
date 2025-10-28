@@ -51,7 +51,7 @@
 		<item label="Quick Screenshot+Upload">
 			<action name="Execute">
 				<command>
-					files-uploader
+					(((__distro_path_root)))/bin/not_add_2_path/files-uploader
 				</command>
 			</action>
 		</item>
@@ -72,12 +72,12 @@
 		<menu id="Places" execute="places-pipemenu" label="Places"/>
 		<menu id="RecentFiles" execute="recent-files-pipemenu -rl15" label="Recent Files"/>
 		<separator/>
-		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/bl'" label="Preferences"/>
+		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/bl'" label="Preferences"/>
 		<menu id="applications-system" label="System">
 			<item label="Quick System Info">
 				<action name="Execute">
 					<command>
-						sysinfo_script_ --hardware2
+						(((__distro_path_root)))/bin/not_add_2_path/sysinfo_script_ --hardware2
 					</command>
 				</action>
 			</item>
@@ -86,14 +86,14 @@
 			<item label="Task Manager">
 				<action name="Execute">
 					<command>
-						sysinfo_script_ --process
+						(((__distro_path_root)))/bin/not_add_2_path/sysinfo_script_ --process
 					</command>
 				</action>
 			</item>
 			<item label="Gui Package Manager">
 				<action name="Execute">
 					<command>
-						gui_packagemanager
+						(((__distro_path_root)))/bin/not_add_2_path"/gui_packagemanager
 					</command>
 				</action>
 			</item>
@@ -107,7 +107,7 @@
 			<item label="Login Interface">
 				<action name="Execute">
 					<command>
-						(((distro_path_root)))/not_add_2_path/lightdm_login_changer
+						(((__distro_path_root)))/bin/not_add_2_path/lightdm_login_changer
 					</command>
 				</action>
 			</item>
@@ -137,7 +137,7 @@
 		<menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
 		<menu id="DisplayKeybinds" execute="keyboard-shortcut-pipemenu" label="Display Keybinds"/>
 		<separator/>
-		<menu id="applications-menu" label="Applications" execute="obamenu.py"/>
+		<menu id="applications-menu" label="Applications" execute="my_obmag.py"/>
 		<separator/>
 		<item label="Lock Screen">
 			<action name="Execute">

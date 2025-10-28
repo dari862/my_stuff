@@ -1,5 +1,6 @@
-#!/bin/sh -e
-my-installer --install-needed "GPU" || continue
+#!/bin/sh
+#called by my-installer
+"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed "GPU" || continue
 say 'Installing package...' 1
 copr_enable "wehagy/protonplus"
 Package_installer_ -y wine dbus git ffmpeg ffmpeg-libs steam lutris protonplus

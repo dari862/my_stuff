@@ -22,7 +22,7 @@ if [ -z "$ROFI_STYLE" ] || ( [ "$_panel_name_" = "polybar" ] && [ -z "$polybar_S
 fi
 
 if [ ! -f "$HOME/.config/polybar/$polybar_STYLE/system.ini" ];then
-	polybar_fixer
+	"${__distro_path_root}"/bin/X11/polybar/polybar_fixer
 fi
 
 if grep -q "#EXO#" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then

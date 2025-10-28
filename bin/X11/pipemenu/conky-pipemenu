@@ -46,8 +46,8 @@ CONKYDEFAULT="$CONKYPATH/conky.conf"
 . "${__distro_path_root}/lib/common/pipemenu"
 
 loadChooser(){
-    if type style-manager >/dev/null 2>&1;then
-        menuItem "Conky Manager" "style-manager --conkymanager"
+    if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
+        menuItem "Conky Manager" "${__distro_path_root}/bin/WM/style-manager --conkymanager"
     fi
 }
 
@@ -59,8 +59,8 @@ loadReload(){
 
 loadEditSubmenu(){
     menuSubmenu "EditConky" "Edit Conkys"
-        if type style-manager >/dev/null 2>&1;then  # style-manager --conkyedit script found
-            menuItem "Conky Editor" "style-manager --conkyedit"
+        if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
+            menuItem "Conky Editor" "${__distro_path_root}/bin/WM/style-manager --conkyedit"
         fi
         if pgrep -x -u "$USER" conky >/dev/null;then
             menuSubmenu "RunningConky" "Running Conkys"
@@ -78,8 +78,8 @@ loadEditSubmenu(){
 }
 
 loadMove(){
-    if type style-manager >/dev/null 2>&1;then
-        menuItem "Move a Conky" "style-manager --conkymove"
+    if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
+        menuItem "Move a Conky" "${__distro_path_root}/bin/WM/style-manager --conkymove"
     fi
 }
 

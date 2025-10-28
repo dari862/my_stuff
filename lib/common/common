@@ -5,7 +5,11 @@
 # Usage: connectiontest [attempts]
 # If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
 connectiontest() {
-	getURL_path="${__distro_path_root}/system_files/bin/getURL"
+	if [ "${2:-}" = "nomassage" ];then
+		_nomassage_=true
+	else
+		_nomassage_=false
+	fi
     TEXT_CHECKING='Checking internet connection...'
     TEXT_FAILED='Internet connection test failed!'
     TEXT_ASK_RETRY='\n\nThis script requires a working internet connection. Please configure your internet connection, then hit "Enter" to continue, else hit "q" to quit.'
@@ -15,21 +19,31 @@ connectiontest() {
     i=0
     attempts=${1:-0}
     while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
-        say "$TEXT_CHECKING" 'yellow'
-        if $getURL_path '2term' "http://network-test.debian.org/nm" | grep -q "NetworkManager is online";then
-            say "$TEXT_OK" 1
+    	if [ "${_nomassage_}" = false ];then
+        	say "$TEXT_CHECKING" 'yellow'
+        fi
+        if getURL '2term' "http://network-test.debian.org/nm" | grep -q "NetworkManager is online";then
+        	if [ "${_nomassage_}" = false ];then
+            	say "$TEXT_OK" 1
+            fi
             return 0
         fi
-        say "$TEXT_FAILED" 'red'
-        if [ "$i" -eq $((attempts - 1)) ];then # if last attempt
-            return 1
-        elif prompt "$TEXT_ASK_RETRY" Q;then # if user wants to quit
-            say "$TEXT_ABORT" 'yellow' 2
-            [ "$attempts" -eq 0 ] && exit 1 || return 1
+        if [ "${_nomassage_}" = false ];then
+        	say "$TEXT_FAILED" 'red'
+        	if [ "$i" -eq $((attempts - 1)) ];then # if last attempt
+            	return 1
+        	elif prompt "$TEXT_ASK_RETRY" Q;then # if user wants to quit
+            	say "$TEXT_ABORT" 'yellow' 2
+            	[ "$attempts" -eq 0 ] && exit 1 || return 1
+        	fi
+        	tput clear
         fi
-        tput clear
         i=$((i + 1))
     done
+    if [ "${_nomassage_}" = true ];then
+    	say ""
+    	return 1
+    fi
 }
 
 # Usage: say text [delayAfterText|pause]
@@ -182,8 +196,8 @@ create_applicationsdotdesktop_link(){
 	fi
     if [ -f "${__distro_path_root}/applications_extra/${__application_name}.desktop" ];then
     	$_SUPERUSER_2_use cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
-    	if grep -q "(((distro_path_root)))" "${__distro_path_root}/system_files/applications/${__application_name}.desktop";then
-    		$_SUPERUSER_2_use sed -i "s/(((distro_path_root)))/${__distro_path_root}/g" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
+    	if grep -q "(((__distro_path_root)))" "${__distro_path_root}/system_files/applications/${__application_name}.desktop";then
+    		$_SUPERUSER_2_use sed -i "s/(((__distro_path_root)))/${__distro_path_root}/g" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
     	fi
     	$_SUPERUSER_2_use ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
     else
@@ -278,8 +292,8 @@ sed_distro_path_root_var_2_correct_value(){
 		fi
 	fi
 	
-	if grep -rIq "(((distro_path_root)))" "${__path_2_sed}";then
-		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((distro_path_root)))|${__distro_path_root}|g" {} +
+	if grep -rIq "(((__distro_path_root)))" "${__path_2_sed}";then
+		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_root)))|${__distro_path_root}|g" {} +
 	fi
 	
 	if grep -rIq "(((__distro_title)))" "${__path_2_sed}";then

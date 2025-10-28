@@ -7,7 +7,7 @@
 
 _panel_name_="${1-}"
 
-style_changer "$_panel_name_" "default"
+"${__distro_path_root}"/bin/X11/WM/style_changer "$_panel_name_" "default"
 
 if grep -q " never remove this line menu style are :jgmenu " "${BACKUP_OB_RC_FILE}";then
 	change-ob-menu menu-icons.xml

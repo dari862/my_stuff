@@ -1,4 +1,6 @@
 #!/bin/sh
+. "$__distro_path_lib"
+
 dunstrc_path="$HOME/.config/dunst/dunstrc"
 
 __edit() {
@@ -6,11 +8,11 @@ __edit() {
 }
 
 stop() {
-	kill_process.sh dunst
+	"${__distro_path_root}"/bin/WM/kill_process.sh dunst
 }
 
 start() {
-	pidof -q dunst || exec dunst -config ${dunstrc_path} 2>/tmp/$USER/dunst_error &
+	pidof -q dunst || setsid dunst -config ${dunstrc_path} 2>/tmp/$USER/dunst_error &
 }
 
 case "${1}" in

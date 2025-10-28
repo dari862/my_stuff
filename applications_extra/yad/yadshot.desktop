@@ -2,7 +2,7 @@
 Name=yadshot
 Comment=Take screenshots. Upload screenshots, pastes, and files easily.
 Exec=yadshot
-Icon=(((__distro_path_themes)))/icons/yadshot.svg
+Icon=(((__distro_path_all_distro_themes)))/icons/yadshot.svg
 Type=Application
 Terminal=false
 StartupNotify=false

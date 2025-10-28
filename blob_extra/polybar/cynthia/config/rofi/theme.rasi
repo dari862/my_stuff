@@ -9,5 +9,5 @@
     active: #8a9a7b;
     urgent: #c4746e;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/cynthia/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/cynthia/rofi.jpg", width);
 }

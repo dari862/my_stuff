@@ -14,5 +14,5 @@ else
 	. "$HOME/.xprofile"
 fi
 
-ssh-agent (((distro_path_root)))/system_files/bin/xsessions/openbox
+ssh-agent (((__distro_path_root)))/system_files/bin/xsessions/openbox
 xsettingsd &

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=nvim
+Comment=Edit text files
+Exec=my-vim %F
+Terminal=false
+Type=Application
+Icon=nvim
+Categories=Utilities;TextEditor;
+StartupNotify=false
+Path=

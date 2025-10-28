@@ -1,0 +1,211 @@
+#!/bin/sh
+option="${1-}"
+option2="${2-}"
+
+livewallpaper_dir="${HOME}/.local/livewallpaper"
+video_dir="${livewallpaper_dir}/video"
+autorun_file="${livewallpaper_dir}/autorun"
+
+if [ "$option" = "-c" ] || [ "$option" = "--run-live-autorun-enabled" ];then
+	if [ -f "${autorun_file}" ];then
+		exit 0
+	else
+		exit 1
+	fi
+	exit 0
+fi
+if [ "$option" = "-h" ] || [ "$option" = "--help" ];then
+  cat <<EOF
+usage: ${0##*/} [options]
+  
+  Options:      
+    -q,--quit             Ends the loop
+    -L,--list-videos      Lists the videos that have already been used
+    -I,--set-video [N]    Use the video by the number listed in --list-videos
+    -h,--help             Display this help
+	no arg			      Add a video as Wallpaper
+  Examples:  
+    Add the video → '${0##*/} video.mp4'
+    Use the video already used and listed → '${0##*/} -I 3'
+
+* [N] Means that you need to use a number
+** Only videos in .mp4 format
+*** Only the first 10 seconds of the video will be displayed
+**** Use 3-digit images, example: 011
+EOF
+	exit
+fi
+
+# keep it after check
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed ffmpeg feh || exit 1
+
+Use_numbers="Use numbers indicated by"
+Preparingprocess_video="Preparing the video..."
+Use_numbers_from="Use numbers numbers from 1 to"
+Invalid_format="Invalid format."
+mp4_only="MP4 format only"
+Report_Video="Report Video"
+noprocess_videos="No videos."
+
+[ ! -d "${video_dir}" ] && mkdir -p "${video_dir}"
+
+checkprocess_video_exists_in_dir(){
+    if ! ls -d ${video_dir}/* 2>/dev/null >/dev/null;then
+        echo ${noprocess_videos}
+        exit 1
+    fi
+}
+
+handle_ctrl_c(){
+    exit 127
+}
+
+quit_loop(){
+	setbg -r
+	pid_2_kill=$(pgrep -f '/bin/sh.*livewall.*' | grep -v "^$$$")
+	if [ -n "$pid_2_kill" ];then
+		kill -9 $pid_2_kill 2>/dev/null
+	fi
+}
+
+check_if_positive_integer(){
+    case "$1" in
+        ''|*[!0-9]* )  # Reject anything with non-digit characters
+            echo "[ERROR] $(basename $0): It's not a positive integer at ($2)."
+            return 1
+            ;;
+        *): ;;
+    esac
+}
+
+convertprocess_video_to_live_wallpaper(){
+	[ -z "$video_path" ] && { echo "${Report_Video}"; exit 1; }
+	mime_type=$(file -b --mime-type "$video_path" | cut -d"/" -f1)
+	if [ "$mime_type" != "video" ];then
+    	echo "$Invalid_format"
+    	exit 1
+	fi
+		
+	extension=$(file -b --mime-type "$video_path" | cut -d"/" -f2)
+	case "$extension" in
+    	mp4|x-m4v)
+       		# Valid formats
+       		;;
+    	*)
+       		echo "$mp4_only"
+       		exit 1
+       		;;
+	esac
+	a=1     
+	for i in "$video_dir"/*/; do
+		if [ -d "$video_dir/$a" ];then
+			a=$((a + 1))
+		fi
+	done
+	
+	mkdir -p "$video_dir/$a"
+	
+	printf "${Preparingprocess_video}...\n"
+	ffmpeg -y -ss 00:00 -i "$video_path" -t 10 "${video_dir}/${a}/filename%05d.jpg" > "${video_dir}/${a}"/video.info 2>&1
+	echo "$video_path" > "${video_dir}/${a}"/video.info
+}
+
+process_video(){
+	video_path="$option2"
+	[ -z "$video_path" ] && video_path="$option"
+	a=""
+	quit_loop
+	if grep -qR "$video_path" "${video_dir}";then
+		vid_dir_name="$(grep -R "$video_path" "${video_dir}" | awk -F'/video.info' '{print $1}')"
+		a="$(basename "${vid_dir_name}")"
+	else
+		convertprocess_video_to_live_wallpaper
+	fi
+	start_live_wallpaper "${a}" &
+}
+
+setup_autorun(){
+	video_number="$option2"
+	[ -z "$video_number" ] && video_number="$option"
+	
+	if [ -z "$video_number" ];then
+		if [ -f "${autorun_file}" ];then
+			rm -f "${autorun_file}"
+		else
+			:
+		fi
+	elif check_if_positive_integer "$video_number" "setup_autorun";then
+		if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ];then
+        	echo "${Use_numbers} '${0##*/} --list-videos'."
+        	echo "${Use_numbers_from} $(ls -d1 ${video_dir}/* | wc -l)"
+        	exit 1
+    	fi
+		echo "$video_number" > "${autorun_file}"
+		start_live_wallpaper "$video_number" &
+	else
+		process_video
+	fi
+}
+
+start_live_wallpaper(){
+	video_number="${1-}"
+
+	t=$(ls "${video_dir}/$video_number"/* | wc -l)
+	t=$((t - 1))
+	i=1
+    # handle_ctrl_c
+    while : ; do
+        feh --bg-scale "$(ls -1 "${video_dir}/$video_number"/* | sed -n "${i}p")"
+        sleep 0.01
+        i=$((i + 1))
+        [ "${i}" -gt "${t}" ] && i=1              
+    done
+}
+
+runprocess_video_by_the_number(){
+	video_number="$option2"
+	check_if_positive_integer "$video_number" "runprocess_video_by_the_number"
+    checkprocess_video_exists_in_dir
+    if [ -z "$(echo "$video_number" | sed -n -r '/^[0-9]+$/p')" ] || [ "$video_number" -gt "$(ls -d1 "${video_dir}"/* | wc -l)" ];then
+        echo "${Use_numbers} '${0##*/} --list-videos'."
+        echo "${Use_numbers_from} $(ls -d1 ${video_dir}/* | wc -l)"
+        exit 1
+    else
+		start_live_wallpaper "$video_number" &
+    fi
+}
+
+run_autorun(){
+	if [ -f "${autorun_file}" ];then
+		video_name="$(cat "${autorun_file}")"
+		process_video "${video_name}"
+	fi
+}
+
+list_videos(){
+    checkprocess_video_exists_in_dir
+    video_numbers="$(cd ${video_dir} && ls)"
+    if [ -z "$video_numbers" ];then
+        exit
+    fi
+    for i in ${video_numbers}; do
+    	#videonumber   videoname
+    	echo "${i} '$(cat ${video_dir}/${i}/video.info)'"
+    done
+}
+
+__print_liveprocess_video_path(){
+	echo "${video_dir}"
+}
+
+case "${option}" in
+	-h|--help) show_help ;;
+	-p|--print-video-directory) __print_liveprocess_video_path ;;
+	-q|--quit) quit_loop ;;
+	-L|--list-videos) list_videos ;;
+	-I|--select-video) runprocess_video_by_the_number ;;
+	-a|--enable-autorun) setup_autorun ;;
+	-r|--run-live-wallpaper) run_autorun ;;
+	*) process_video ;;
+esac

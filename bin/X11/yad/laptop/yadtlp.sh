@@ -8,7 +8,7 @@ __tlp_version_="$(tlp-stat -s | head -1)"
 
 . "${__distro_path_root}/lib/languages/tlp/yadtlp_configdescriptions"
 
-check_4_dependencies_if_installed tlp || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed tlp || exit 1
 
 if [ -f "$__config_path" ];then
 	source <(sed '/^# /d;/^#!/d;s/#//g' "$__config_path")
@@ -484,7 +484,7 @@ main_yad(){
     	--tab="Radio" \
     	--tab="USB" \
     	--tab="ThinkPad_Battery" \
-    	--title="TLP" --image=${__distro_path_themes}/icons/linux.png \
+    	--title="TLP" --image=${__distro_path_all_distro_themes}/icons/linux.png \
     	--scroll --center --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  \
     	--text="$INTRO_TXT" \
     	--button="show simple statistics":"bash -c 'show_statistics simple'" \

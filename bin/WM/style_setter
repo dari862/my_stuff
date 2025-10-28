@@ -4,14 +4,12 @@ set -e
 . "$__distro_path_lib"
 _panel_name_="${1:-polybar}"
 _style="${2:-default}"
-__opt2_="${3:-}"
-no_wall=false
 
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
 
 GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
-GLOBALDYNAMICBLOBPATH="${__distro_path_themes}/blob_dynamic/dynamic_theme"
+GLOBALDYNAMICBLOBPATH="${__distro_path_all_distro_themes}/blob_dynamic/dynamic_theme"
 CONFIG_PATH="$HOME/.config"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
@@ -58,9 +56,6 @@ if [ -d "${STYLEPATH}/cache" ];then
 fi
 
 if [ "${_style}" = "dynamic" ];then
-	if [ "$__opt2_" = '--no-wall' ];then
-		no_wall=true
-	fi
 	mkdir -p "$HOME/.themes"
 	mkdir -p "$HOME/.icons"
 	ln -sf "${BLOBPATH}/dynamic_theme/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${BLOBPATH}/themes to $HOME/.themes"
@@ -105,20 +100,12 @@ fi
 Set_Style_ || show_em "failed to run Set_Style_"
 
 if [ "$_panel_name_" = 'polybar' ];then
-	polybar_alternative_style
-	polybar_launch_creater
+	"${__distro_path_root}"/bin/X11/polybar/polybar_alternative_style
+	"${__distro_path_root}"/bin/X11/polybar/polybar_launch_creater
 fi
 
 if pgrep openbox >/dev/null 2>&1;then
 	reconfigure-openbox || show_em "failed to run reconfigure-openbox "
 fi
 
-reload_gtk23 || show_em "failed to run reload_gtk23"
-
-if [ "$no_wall" = 'false' ];then
-	if [ -f "${STYLEPATH}/random_wallpaper" ];then
-		setbg --random "${_style}" || show_em "failed to run setbg -d ${_style}"
-	else
-		setbg -r "${_style}" || show_em "failed to run setbg -r"
-	fi
-fi
+"${__distro_path_root}"/bin/X11/WM/reload_gtk23 || show_em "failed to run reload_gtk23"

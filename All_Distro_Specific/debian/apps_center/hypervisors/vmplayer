@@ -3,7 +3,7 @@
 
 app_name="vmplayer"
 extra_apps_="build-essential linux-headers-$(uname -r)"
-my-installer --tweek "Enable_IOMMU_support" || continue
+"${__distro_path_root}"/bin/not_add_2_path/my-installer --tweek "Enable_IOMMU_support" || continue
 
 say "Installing ${extra_apps_}..." 1
 Package_installer_ "${extra_apps_}" || continue

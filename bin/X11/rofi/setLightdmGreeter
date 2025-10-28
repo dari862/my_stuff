@@ -4,6 +4,12 @@ greeter_theme_name="${2-}"
 greeter_icon_theme_name="${3-}"
 greeter_font_name="${4-}"
 greeter_position="${5-}"
+
+if [ -z "$greeter_background" ] && [ -z "$greeter_theme_name" ] && [ -z "$greeter_icon_theme_name" ] && [ -z "$greeter_font_name" ] && [ -z "$greeter_position" ];then
+	printf '%s' "ERROR: greeter_background, greeter_theme_name, greeter_icon_theme_name, greeter_font_name and greeter_position needed to set lightdm greeter"
+	exit 1
+fi
+
 LDMF="$(ls /usr/share/lightdm/lightdm-gtk-greeter.conf.d/50_*.conf | head -1)"
 sed -i "s|background = .*|background = ${greeter_background}|g" "$LDMF"
 sed -i "s/theme-name = .*/theme-name = ${greeter_theme_name}/g" "$LDMF"

@@ -1,4 +1,5 @@
 #!/bin/sh
+. "$__distro_path_lib"
 
 sleep_time="${2:-0}"
 if command -v xfce4-clipman >/dev/null 2>&1;then
@@ -28,7 +29,7 @@ stop() {
 	done
 		
 	for kill in ${prosses2kill};do
-		kill_process.sh $kill &
+		"${__distro_path_root}"/bin/WM/kill_process.sh $kill &
 	done
 	
 	if pgrep -f "yad.*--class=yadclip" >/dev/null 2>&1;then
@@ -39,7 +40,7 @@ stop() {
 start() {
 	if ! pidof -q ${clipboard_manager_command};then
 		sleep ${sleep_time}
-		${clipboard_manager_command} &
+		setsid ${clipboard_manager_command} &
 	fi
 }
 

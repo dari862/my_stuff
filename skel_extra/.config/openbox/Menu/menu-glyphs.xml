@@ -30,14 +30,14 @@
 		<separator/>
 		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine"/>
 	    <separator/>
-		<menu id="app-menu" execute="obamenu.py" label=" Applications"/>
+		<menu id="app-menu" execute="my_obmag.py" label=" Applications"/>
 		<menu id="apps_as_root" execute="apps_as_root-pipemenu" label="Apps As Root"/>
 		<menu id="TakeScreenshot" execute="screenshot-pipemenu" label=" Screenshot"/>
 		<menu id="record-pipemenu" execute="record-pipemenu" label=" Screen Recorder"/>
 		<separator/>
 		<menu id="places-pipemenu" execute="places-pipemenu --recent ~/" label=" Places"/>
 		<menu id="ac-recent" execute="recent-files-pipemenu" label=" Recent Files"/>
-		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/ac'" label=" Preferences"/>
+		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/ac'" label=" Preferences"/>
 		<menu id="HelpAndResources" execute="help-menu-openbox" label=" Help &amp; Resources"/>
 		<menu id="KeybindsPipeMenu" execute="keyboard-shortcut-pipemenu" label=" Keybinds"/>
 		<separator/>

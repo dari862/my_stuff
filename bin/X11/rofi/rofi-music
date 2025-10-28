@@ -45,7 +45,7 @@ active=""
 urgent=""
 
 # Gets the current status of mpd
-status="$(MC --status)"
+status="$("${__distro_path_root}/bin/not_add_2_path"/MC --status)"
 
 # Defines the Play / Pause option content
 if echo "$status" | grep -q "\[playing\]" ;then
@@ -81,24 +81,24 @@ options="$toggle\n$button_stop\n$button_previous\n$button_next\n$tog_repeat\n$to
 chosen="$(printf "$options" | rofi -dmenu -p "$prompt" -mesg "$mesg" "$active" "$urgent" -markup-rows -theme "$RASI")"
 case $chosen in
     "$button_previous")
-        MC --previous 
-        albumart_creater --send-notification
+        "${__distro_path_root}/bin/not_add_2_path"/MC --previous 
+        "${__distro_path_root}"/bin/not_add_2_path/albumart_creater --send-notification
         ;;
     "$toggle")
-        MC --toggle
-        albumart_creater --send-notification
+        "${__distro_path_root}/bin/not_add_2_path"/MC --toggle
+        "${__distro_path_root}"/bin/not_add_2_path/albumart_creater --send-notification
         ;;
     "$button_stop")
-        MC --stop
+        "${__distro_path_root}/bin/not_add_2_path"/MC --stop
         ;;
     "$button_next")
-        MC --next
-        albumart_creater --send-notification
+        "${__distro_path_root}/bin/not_add_2_path"/MC --next
+        "${__distro_path_root}"/bin/not_add_2_path/albumart_creater --send-notification
         ;;
     "$tog_repeat")
-        MC --repeat
+        "${__distro_path_root}/bin/not_add_2_path"/MC --repeat
         ;;
     "$tog_random")
-        MC --random
+        "${__distro_path_root}/bin/not_add_2_path"/MC --random
         ;;
 esac

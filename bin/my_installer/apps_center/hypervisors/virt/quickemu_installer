@@ -19,7 +19,7 @@ Type=Application
 Name=QuickEmu GUI
 Description=Quickly download, create and run VM of any operating system.
 Exec=sh -c quickemu_gui
-Icon=${__distro_path_themes}/icons/openbox-menu/virtualbox.png
+Icon=${__distro_path_all_distro_themes}/icons/openbox-menu/virtualbox.png
 Categories=System;Virtualization;
 EOF
 

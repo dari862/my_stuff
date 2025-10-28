@@ -14,5 +14,5 @@
     on:             #7CBF9EFF;
     off:            #C2454EFF;
     urgent:         #C2454EFF;
-    img-background: url("(((distro_path_root)))/blob/polybar/hack/preview.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/hack/preview.jpg", width);
 }

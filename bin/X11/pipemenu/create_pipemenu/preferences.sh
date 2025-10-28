@@ -33,7 +33,7 @@ create_exec_pipemenu(){
 	create_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
 	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	menuItem "Appearance" "appearance_settings_"
-	menuItem "Reload GTK" "reload_gtk23"
+	menuItem "Reload GTK" "${__distro_path_root}/bin/X11/WM/reload_gtk23"
 	menuItem "Font configuration" "my-text-editor ~/.config/fontconfig/fonts.conf"
 	menuItem "Wallpaper" "pickbg"
 	menuItem "Notifications" "notification-d-session edit"
@@ -87,7 +87,7 @@ create_exec_pipemenu(){
 	menuSeparator
 	menuItem "Power Settings" "power_manager_settings"
 	menuItem "Audio Settings" "volume_controller"
-	menuItem "Settings Manager" "settings_manager_"
+	menuItem "Settings Manager" "${__distro_path_root}/bin/not_add_2_path/settings_manager_"
 	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
 } | $_SUPERUSER tee "${pipemenu_output_dir}/ac" >/dev/null 2>&1
@@ -130,7 +130,7 @@ create_exec_pipemenu(){
 	
 	menuSubmenu "autostart" "Autostarted programs"
     	menuItem "Edit Openbox Autostart" "my-text-editor &openboxconfig;/autostart"
-    	menuItem "Show XDG autostarted programs" "sysinfo_script_ --autostart"
+    	menuItem "Show XDG autostarted programs" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --autostart"
 	menuSubmenuEnd
 	
 	menuSubmenu "shortcuts" "Keyboard and mouse shortcuts"
@@ -147,8 +147,8 @@ create_exec_pipemenu(){
 	menuItem "Display" "arandr"
 	
 	menuSeparator "SYSTEM PREFERENCES"
-	menuItem "GUI Package Manager" "gui_packagemanager"
-	menuItem "Check Pending Updates" "update-notification -n"
+	menuItem "GUI Package Manager" "${__distro_path_root}/bin/not_add_2_path/gui_packagemanager"
+	menuItem "Check Pending Updates" "${__distro_path_root}/bin/WM/update-notification -n"
 	menuItem "Alternatives" "edit-alternatives"
 	menuItem "Power Management" "power_manager_settings"
 	menuItem "Network Configuration" "nm-connection-editor"

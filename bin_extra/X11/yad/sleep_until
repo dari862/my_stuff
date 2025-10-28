@@ -5,7 +5,8 @@
 # This script uses YAD to create a GUI for setting sleep time using rtcwake.
 # Make sure the hardware clock is set to UTC or modify the rtcwake call accordingly.
 #######################################################################
-check_4_dependencies_if_installed yad rtcwake || exit 1
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed yad rtcwake || exit 1
 
 # Input parameters on GUI
 frmdata=$(yad --title "Sleep Until" --form --field "Today / Tomorrow" --field="Time (24h format)")

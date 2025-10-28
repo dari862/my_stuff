@@ -130,14 +130,14 @@ update_interval = 1,
 conky.text = [[
 ${color1}• ${color} Hello, ${execi 60 whoami}
 
-${color2}• ${color} Today will be ${execi 1800 conky_scripts get_weather -d}
+${color2}• ${color} Today will be ${execi 1800 (((__distro_path_root)))/bin/X11/conky/get_weather -d}
 
-${color3}• ${color} ${execi 1800 conky_scripts get_weather -t}
+${color3}• ${color} ${execi 1800 (((__distro_path_root)))/bin/X11/conky/get_weather -t}
 
 ${color4}• ${color} Here is some wise words for You..
 
 ## If You prefer an editable offline quotes, replace "quote-online" with "quotes-offline"
 ## You can edit the quotes value by editing the "res/quote-offline" file
 ## 600 is the gap between the refresh (in seconds), You can decrease or increase the value by editing the number
-${execi 600 conky_scripts quote-online}
+${execi 600 (((__distro_path_root)))/bin/X11/conky/quote-online}
 ]];

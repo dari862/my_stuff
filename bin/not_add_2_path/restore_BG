@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+if command -v livewall >/dev/null 2>&1;then
+	if livewall --run-live-autorun-enabled >/dev/null 2>&1;then
+		( livewall --run-live ) &
+	fi
+else
+	setbg -r
+fi

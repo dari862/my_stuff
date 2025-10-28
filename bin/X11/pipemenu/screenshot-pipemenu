@@ -73,34 +73,34 @@ obmenu_options(){
 
     menuSubmenu 'imgur' 'Imgur - Upload Screenshot'
 	# Upload Screenshot
-    if files-uploader --imgur --test-account >/dev/null 2>&1 ;then
+    if "${__distro_path_root}"/bin/not_add_2_path/files-uploader --imgur --test-account >/dev/null 2>&1 ;then
        	# take screenshot and upload to account (BBCode is returned)
        	menuSubmenu 'imgur_acct' 'Upload to Account'
-           	menuItem "screenshot Now" "files-uploader --imgur -l"
-           	menuItem "screenshot In 5 secs..." "files-uploader --imgur -l -d 5"
-           	menuItem "screenshot In 10 secs..." "files-uploader --imgur -l -d 10"	
+           	menuItem "screenshot Now" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l"
+           	menuItem "screenshot In 5 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -d 5"
+           	menuItem "screenshot In 10 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -d 10"	
            	if command -v slop >/dev/null 2>&1;then
-				menuItem "screenshot Select Area" "files-uploader --imgur -l -s"
+				menuItem "screenshot Select Area" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -s"
 			else
 				menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
 			fi
-           	menuItem "screenshot Current Window" "files-uploader --imgur -l -w"
+           	menuItem "screenshot Current Window" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -w"
 	   	else
-       	menuItem "Setup Imgur Account" "files-uploader --imgur --register"
+       	menuItem "Setup Imgur Account" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur --register"
     fi
     menuSubmenuEnd
     
     # take screenshot and upload anonymously (BBCode is returned)
     menuSubmenu 'imgur_anon' 'Anonymous Upload'
-       	menuItem "screenshot Now" "files-uploader --imgur"
-       	menuItem "screenshot In 5 secs..." "files-uploader --imgur -d 5"
-       	menuItem "screenshot In 10 secs..." "files-uploader --imgur -d 10"
+       	menuItem "screenshot Now" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur"
+       	menuItem "screenshot In 5 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -d 5"
+       	menuItem "screenshot In 10 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -d 10"
        	if command -v slop >/dev/null 2>&1;then
-			menuItem "screenshot Select Area" "files-uploader --imgur -s"
+			menuItem "screenshot Select Area" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -s"
 		else
 			menuItem 'install slop for Screenshot Area' 'popup_terminal --install slop'
 		fi
-       	menuItem "screenshot Current Window" "files-uploader --imgur -w"
+       	menuItem "screenshot Current Window" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -w"
     menuSubmenuEnd
     
     menuEnd
@@ -123,33 +123,33 @@ jgmenu_options(){
     jgmenuSubmenu 'root' 'imgur' 'Imgur - Upload Screenshot'
 	
 	# Upload Screenshot
-    if files-uploader --imgur --test-account;then
+    if "${__distro_path_root}"/bin/not_add_2_path/files-uploader --imgur --test-account;then
         # take screenshot and upload to account (BBCode is returned)
         jgmenuSubmenu 'imgur' 'imgur_acct' 'Upload to Account'
-        jgmenuItem 'imgur_acct' "screenshot Now" "files-uploader --imgur -l"
-        jgmenuItem 'imgur_acct' "screenshot In 5 secs..." "files-uploader --imgur -l -d 5"
-        jgmenuItem 'imgur_acct' "screenshot In 10 secs..." "files-uploader --imgur -l -d 10"
+        jgmenuItem 'imgur_acct' "screenshot Now" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l"
+        jgmenuItem 'imgur_acct' "screenshot In 5 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -d 5"
+        jgmenuItem 'imgur_acct' "screenshot In 10 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -d 10"
         if command -v slop >/dev/null 2>&1;then
-			jgmenuItem 'imgur_acct' "screenshot Select Area" "files-uploader --imgur -l -s"
+			jgmenuItem 'imgur_acct' "screenshot Select Area" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -s"
 		else
 			jgmenuItem 'imgur_acct' 'install slop for Screenshot Area' 'popup_terminal --install slop'
 		fi
-        jgmenuItem 'imgur_acct' "screenshot Current Window" "files-uploader --imgur -l -w"
+        jgmenuItem 'imgur_acct' "screenshot Current Window" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -l -w"
     else
-        jgmenuItem 'imgur' "Setup Imgur Account" "files-uploader --imgur --register"
+        jgmenuItem 'imgur' "Setup Imgur Account" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur --register"
     fi
 	
     # take screenshot and upload anonymously (BBCode is returned)
     jgmenuSubmenu 'imgur' 'imgur_anon' 'Anonymous Upload'
-        jgmenuItem 'imgur_anon' "screenshot Now" "files-uploader --imgur"
-        jgmenuItem 'imgur_anon' "screenshot In 5 secs..." "files-uploader --imgur -d 5"
-        jgmenuItem 'imgur_anon' "screenshot In 10 secs..." "files-uploader --imgur -d 10"
+        jgmenuItem 'imgur_anon' "screenshot Now" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur"
+        jgmenuItem 'imgur_anon' "screenshot In 5 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -d 5"
+        jgmenuItem 'imgur_anon' "screenshot In 10 secs..." "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -d 10"
         if command -v slop >/dev/null 2>&1;then
-			jgmenuItem 'imgur_anon' "screenshot Select Area" "files-uploader --imgur -s"
+			jgmenuItem 'imgur_anon' "screenshot Select Area" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -s"
 		else
 			jgmenuItem 'imgur_anon' 'install slop for Screenshot Area' 'popup_terminal --install slop'
 		fi
-        jgmenuItem 'imgur_anon' "screenshot Current Window" "files-uploader --imgur -w"
+        jgmenuItem 'imgur_anon' "screenshot Current Window" "${__distro_path_root}/bin/not_add_2_path/files-uploader --imgur -w"
 	jgmenuEnd
 }	
 

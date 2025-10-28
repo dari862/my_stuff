@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#called by get_weather
 api_prefix="api.openweathermap.org/data/2.5/"
 
 which_timestamp_to_traget_in_jq(){

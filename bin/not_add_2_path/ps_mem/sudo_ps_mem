@@ -17,7 +17,7 @@ printf "Text to resalt: "
 read t
 while true; do 
 	clear
-	out=$(./ps_mem.py -S)
+	out=$(./ps_mem.python3 -S)
 	outl=$(echo "$out" | wc -l)
 	sl=$(tput lines)
 	if [ "$sl" -lt "$outl" ];then

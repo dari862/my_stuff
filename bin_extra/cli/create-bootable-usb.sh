@@ -4,7 +4,7 @@
 . "${__distro_path_root}/Distro_Specific/info"
 
 DEPENDENCIES="xz gzip bzip2 jq"
-check_4_dependencies_if_installed ${DEPENDENCIES} || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed ${DEPENDENCIES} || exit 1
 
 RC='\033[0m'
 RED='\033[31m'

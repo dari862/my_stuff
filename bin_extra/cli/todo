@@ -1,8 +1,8 @@
 #!/bin/bash
 # Task/Todo management function
 unalias -a
-local BUTTERBASH_NOTES_DIR="$HOME/Documents"
-local todo_file="${BUTTERBASH_NOTES_DIR}/tasks"
+BUTTERBASH_NOTES_DIR="$HOME/Documents"
+todo_file="${BUTTERBASH_NOTES_DIR}/tasks"
 
 [ ! -d "$BUTTERBASH_NOTES_DIR" ] && mkdir -p "${BUTTERBASH_NOTES_DIR}"
 [ ! -f "$todo_file" ] && touch "$todo_file"
@@ -11,7 +11,7 @@ case "$1" in
     ""|list)
         if [ -s "$todo_file" ]; then
             echo "📋 Tasks:"
-            local count=1
+            count=1
             while IFS= read -r line; do
                 if [[ "$line" == "[ ]"* ]]; then
                     echo -e "  \033[1;33m[$count]\033[0m ☐ ${line:4}"
@@ -20,8 +20,8 @@ case "$1" in
                     echo -e "  \033[90m[✓] ~~${line:4}~~\033[0m"
                 fi
             done < "$todo_file"
-            local active=$(grep -c "^\[ \]" "$todo_file" 2>/dev/null || echo 0)
-            local done=$(grep -c "^\[x\]" "$todo_file" 2>/dev/null || echo 0)
+            active=$(grep -c "^\[ \]" "$todo_file" 2>/dev/null || echo 0)
+            done=$(grep -c "^\[x\]" "$todo_file" 2>/dev/null || echo 0)
             echo -e "\n  \033[90m$active active, $done completed\033[0m"
         else
             echo "No tasks yet. Use 'todo <task>' to add your first task."
@@ -34,7 +34,7 @@ case "$1" in
             return 1
         fi
 
-        local task_num="$2"
+        task_num="$2"
         if ! [[ "$task_num" =~ ^[0-9]+$ ]]; then
             echo "⚠️  Task number must be a number, not '$task_num'"
             echo "Usage: todo done <number>"
@@ -42,9 +42,9 @@ case "$1" in
             return 1
         fi
 
-        local count=1
-        local temp_file="$todo_file.tmp"
-        local found=false
+        count=1
+        temp_file="$todo_file.tmp"
+        found=false
 
         while IFS= read -r line; do
             if [[ "$line" == "[ ]"* ]]; then
@@ -72,9 +72,9 @@ case "$1" in
 
     clear|clean)
         # Remove completed (struck-through) tasks
-        local temp_file="$todo_file.tmp"
+        temp_file="$todo_file.tmp"
         grep "^\[ \]" "$todo_file" > "$temp_file" 2>/dev/null || true
-        local removed_count=$(grep -c "^\[x\]" "$todo_file" 2>/dev/null || echo 0)
+        removed_count=$(grep -c "^\[x\]" "$todo_file" 2>/dev/null || echo 0)
         mv "$temp_file" "$todo_file"
         echo "🗑️ Cleared $removed_count completed tasks"
     ;;
@@ -86,16 +86,16 @@ case "$1" in
             return 1
         fi
 
-        local task_num="$2"
+        task_num="$2"
         if ! [[ "$task_num" =~ ^[0-9]+$ ]]; then
             echo "⚠️  Task number must be a number, not '$task_num'"
             echo "Usage: todo rm <number>"
             return 1
         fi
 
-        local count=1
-        local temp_file="$todo_file.tmp"
-        local found=false
+        count=1
+        temp_file="$todo_file.tmp"
+        found=false
 
         while IFS= read -r line; do
             if [[ "$line" == "[ ]"* ]]; then

@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#called by : my-installer
 app_name="polychromatic"
 extra_apps_="openrazer-meta"
 

@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Neovim
-Comment=Edit text files
-Exec=popup_terminal nvim %F
-Terminal=false
-Type=Application
-Icon=nvim
-Categories=Utilities;TextEditor;
-StartupNotify=false

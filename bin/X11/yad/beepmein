@@ -18,6 +18,9 @@
 # A little wrapper around linux 'at' command, that will beep you at specific time, see --help.
 # On Debian systems make sure 'at' is installed with --no-install-recommends.
 
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed at speaker-test notify-send || exit 1
+
 # help
 unalias -a
 help () {
@@ -98,9 +101,6 @@ reminderSample="$config/remind" # shorter sample
 
 # Will kill all children with 'killall beepmein'
 trap 'kill $(jobs -p) >/dev/null 2>&1' EXIT
-
-# required
-check_4_dependencies_if_installed at speaker-test notify-send || exit 1
 
 # reminder sound, needs speaker-test (alsa-utils)
 beep () {

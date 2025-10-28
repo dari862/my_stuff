@@ -9,5 +9,5 @@
     active: #9bced7;
     urgent: #ea6f91;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/cristina/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/cristina/rofi.jpg", width);
 }

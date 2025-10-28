@@ -5,7 +5,7 @@ set -e
 
 [ ! -f "${script_config_path}/kb_layout.ini" ] && echo "$(setxkbmap -query | grep layout | awk '{print $2}')" > "${script_config_path}/kb_layout.ini"
 
-if [ "$(cat "${script_config_path}/kb_layout.ini" | wc -l)" = 1 ];then
+if [ "$(cat "${script_config_path}/kb_layout.ini" | wc -l)" = 1 ] || [ "${1:-}" = "--force" ] || [ "${1:-}" = "-f" ];then
 	set_kb_layout 1
 fi
 

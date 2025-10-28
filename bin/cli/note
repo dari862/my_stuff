@@ -1,17 +1,17 @@
 #!/bin/bash
 # Note taking function with clipboard support
 unalias -a
-local BUTTERBASH_NOTES_DIR="$HOME/Documents"
-local note_file="${BUTTERBASH_NOTES_DIR}/notes"
+BUTTERBASH_NOTES_DIR="$HOME/Documents"
+note_file="${BUTTERBASH_NOTES_DIR}/notes"
 
 [ ! -d "$BUTTERBASH_NOTES_DIR" ] && mkdir -p "${BUTTERBASH_NOTES_DIR}"
 
 if [ "$#" -eq 0 ]; then
 	if [ -f "$note_file" ]; then
 		echo "📝 Notes:"
-		local count=1
-		local in_note=false
-		local note_content=""
+		count=1
+		in_note=false
+		note_content=""
 		
 		while IFS= read -r line; do
 			# Check if line starts with timestamp pattern
@@ -41,7 +41,7 @@ if [ "$#" -eq 0 ]; then
 	fi
 elif [ "$1" = "clip" ] || [ "$1" = "clipboard" ]; then
 	# Get clipboard content
-	local clip_content=""
+	clip_content=""
 	if command -v xclip >/dev/null 2>&1; then
 		clip_content=$(xclip -selection clipboard -o 2>/dev/null)
 	elif command -v xsel >/dev/null 2>&1; then
@@ -85,15 +85,15 @@ elif [ "$1" = "rm" ]; then
 	fi
 	
 	if [ -f "$note_file" ]; then
-		local notes_to_remove=()
+		notes_to_remove=()
 		shift # Remove 'remove' from arguments
 		
 		# Parse all note numbers/ranges
 		for arg in "$@"; do
 			if [[ "$arg" =~ ^([0-9]+)-([0-9]+)$ ]]; then
 				# Handle range like "2-5"
-				local start="${BASH_REMATCH[1]}"
-				local end="${BASH_REMATCH[2]}"
+				start="${BASH_REMATCH[1]}"
+				end="${BASH_REMATCH[2]}"
 				for ((i=start; i<=end; i++)); do
 					notes_to_remove+=("$i")
 				done
@@ -107,18 +107,18 @@ elif [ "$1" = "rm" ]; then
 		done
 		
 		# Sort and remove duplicates, then reverse order
-		local sorted_notes=($(printf '%s\n' "${notes_to_remove[@]}" | sort -rnu))
+		sorted_notes=($(printf '%s\n' "${notes_to_remove[@]}" | sort -rnu))
 		
 		# Create temp file for the new content
-		local temp_file="$note_file.tmp"
+		temp_file="$note_file.tmp"
 		> "$temp_file"
 		
 		# Parse notes and skip the ones to be removed
-		local count=1
-		local in_note=false
-		local note_content=""
-		local note_start_line=""
-		local should_skip=false
+		count=1
+		in_note=false
+		note_content=""
+		note_start_line=""
+		should_skip=false
 		
 		while IFS= read -r line; do
 			# Check if line starts with timestamp pattern

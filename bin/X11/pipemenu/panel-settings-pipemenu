@@ -7,7 +7,9 @@
 unalias -a
 
 if [ "$_panel_name_" = "polybar" ];then
-	[ ! -f "${style_pipemenu_file}_${_panel_name_}" ] && "${__distro_path_root}"/bin/X11/pipemenu/create_pipemenu/style.sh
+	if [ ! -f "${style_pipemenu_file}_${_panel_name_}" ]
+		"${__distro_path_root}"/bin/X11/pipemenu/create_pipemenu/style.sh
+	fi
 	menuStart "PolybarMenu" "Polybar"
 	menuItem 'Open Your polybar Folder' "my-file-manager ~/.config/polybar/"
 	menuItem 'How to configure Polybar?' 'my-www-browser "https://github.com/polybar/polybar/wiki" "https://wiki.archlinux.org/title/Polybar"'
@@ -43,11 +45,10 @@ elif [ "$_panel_name_" = "tint2" ];then
 	
 	TINT2PATH="$HOME/.config/tint2"
 	TINT2DEFAULT="$TINT2PATH/tint2rc"
-	TMGR="style-manager --tint2manager"
 	
 	loadChooser(){
-    	if type $TMGR >/dev/null 2>&1;then  # style-manager --tint2manager script found
-        	menuItem "Tint2 Manager" "$TMGR"
+    	if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
+        	menuItem "Tint2 Manager" "${__distro_path_root}/bin/WM/style-manager --tint2manager"
     	fi
 	}
 	
@@ -65,8 +66,8 @@ elif [ "$_panel_name_" = "tint2" ];then
 	
 	loadEditSubmenu(){
     	menuSubmenu "EditTint2" "Edit Tint2s"
-        	if type style-manager >/dev/null 2>&1;then
-            	menuItem "Tint2 Editor" "style-manager --tint2edit"
+        	if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
+            	menuItem "Tint2 Editor" "${__distro_path_root}/bin/WM/style-manager --tint2edit"
         	fi
 	# tint2conf removed here but still available from "Applications" menu as Settings > Panel Manager
 	#        menuItem "Tint2 Config GUI" "tint2conf"

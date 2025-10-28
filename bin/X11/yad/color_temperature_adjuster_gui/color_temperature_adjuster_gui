@@ -171,7 +171,7 @@ Period:${Period}
 
 Save_(){
 	kill_commnad(){
-		kill_process.sh ${_command}
+		"${__distro_path_root}"/bin/WM/kill_process.sh ${_command}
 	}
 	Suspend_command(){
 		sleep ${1}m && ${_command}

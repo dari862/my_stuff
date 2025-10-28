@@ -2,7 +2,7 @@
 # Variables and functions
 
 . "$__distro_path_lib"
-icons_dir="${__distro_path_themes}/icons/dunst"
+icons_dir="${__distro_path_all_distro_themes}/icons/dunst"
 
 # File
 time=$(date +%Y-%m-%d_%H-%M-%S)

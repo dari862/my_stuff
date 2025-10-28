@@ -4,8 +4,8 @@ set -euo pipefail
 unalias -a
 _SUPERUSER="my-superuser"
 [ "$(id -u)" -eq 0 ] && _SUPERUSER=""
-
-check_4_dependencies_if_installed blkid grep mkswap swapoff swapon || exit 1
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed blkid grep mkswap swapoff swapon || exit 1
 
 show_error() {
   local red=$'\033[0;91m'

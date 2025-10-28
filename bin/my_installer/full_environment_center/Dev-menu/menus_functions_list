@@ -1,4 +1,5 @@
 #!/bin/bash
+#called by Dev-menu
 unalias -a
 main_menu(){
 	options=("Font-size" "Update" "Install" "Uninstall" "Quit")
@@ -121,13 +122,13 @@ select_dev_storage_menu(){
 		for db in $dbs; do
 			case $db in
 			MySQL)
-				my-installer --container mysql
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --container mysql
 				;;
 			Redis)
-				my-installer --container redis
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --container redis
 				;;
 			PostgreSQL)
-				my-installer --container postgres
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --container postgres
 				;;
 			esac
 		done
@@ -146,28 +147,28 @@ select_dev_language_menu(){
 		for language in $languages; do
 			case $language in
 			Ruby)
-				my-installer --install-needed ruby
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed ruby
 				;;
 			Node.js)
-				my-installer --install-needed node
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed node
 				;;
 			Go)
-				my-installer --install-needed go
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed go
 				;;
 			PHP)
-				my-installer --install-needed php
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed php
 				;;
 			Python)
-				my-installer --install-needed python
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed python
 				;;
 			Elixir)
-				my-installer --install-needed elixir
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed elixir
 				;;
 			Rust)
-				my-installer --install-needed rust
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed rust
 				;;
 			Java)
-				my-installer --install-needed java
+				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed java
 				;;
 			esac
 		done

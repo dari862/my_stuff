@@ -4,13 +4,13 @@
 # Script for open blueman manager and install it if not installed
 # If BT is running open blueman-manager
 # If BT is not installed installl BT and open manager
-
+. "$__distro_path_lib"
 # NO BT INSTALLED
 if [ "$1" = "-I" ];then
     # INSTALL BT
     if ! dpkg -l blueman >/dev/null 2>&1 || ! dpkg -l bluez 2>/dev/null | grep -q "^ii";then
         # Install package
-		my-installer --install bluetooth-packages
+		"${__distro_path_root}"/bin/not_add_2_path/my-installer --install bluetooth-packages
 
         # Adduser to bluetooth
 		clear
@@ -29,7 +29,7 @@ if [ "$1" = "-I" ];then
         echo
         echo "Press enter to open bluetooth manager"
         read -r blu
-        blueman-manager
+        setsid blueman-manager
     # START BT
     else
         echo "Bluetooth is installed but not running"
@@ -41,7 +41,7 @@ if [ "$1" = "-I" ];then
     fi
 # OPEN BT ADMIN
 elif service_manager is-active bluetooth.service && which blueman-manager >/dev/null 2>&1;then
-    blueman-manager
+    setsid blueman-manager
     exit
 else
     popup_terminal "$(readlink -f "$0") -I"

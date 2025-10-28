@@ -1,5 +1,6 @@
-#!/bin/sh -e
-my-installer --install-needed "GPU" || continue
+#!/bin/sh
+#called by my-installer
+"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed "GPU" || continue
 
 app_name="Gaming Essential"
 extra_apps="wine dbus git gnutls lib32-gnutls base-devel gtk2 gtk3 lib32-gtk2 lib32-gtk3 libpulse lib32-libpulse alsa-lib lib32-alsa-lib \

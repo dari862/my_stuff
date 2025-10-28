@@ -10,7 +10,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 # lf (as in "list files") is a terminal file
 # lfub is warper for lf
-alias lf="(((distro_path_root)))/bin/not_add_2_path/LF/lfub"
+alias lf="(((__distro_path_root)))/bin/not_add_2_path/LF/lfub"
 
 # Alias's to modified commands
 alias cp='cp -iv'

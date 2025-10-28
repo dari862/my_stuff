@@ -4,7 +4,7 @@
 . "$__distro_path_lib"
 title_name="URL Downloader"
 icon_name="url_downloader"
-icon="${__distro_path_themes}/icons/${icon_name}.png"
+icon="${__distro_path_all_distro_themes}/icons/${icon_name}.png"
 
 download_it()
 {

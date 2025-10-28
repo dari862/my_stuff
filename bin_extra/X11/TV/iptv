@@ -34,7 +34,7 @@ if [ "$use_external_menu" = "auto" ];then
 	fi
 fi
 
-check_4_dependencies_if_installed mpv $use_external_menu || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv $use_external_menu || exit 1
 
 if [ "$use_external_menu" = "fzf" ];then
 	launcher() {	
@@ -54,7 +54,7 @@ elif [ "$use_external_menu" = "rofi" ];then
 fi
 
 if [ "${TERMV_SWALLOW}" = true ];then
-	check_4_dependencies_if_installed xdo || exit 1
+	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed xdo || exit 1
 	_play() {
 		printf '%s\n' "Fetching channel, please wait..."
 		WID=$(xdo id)

@@ -36,4 +36,4 @@ else
 	selected="$default_style"
 fi
 # If a valid option was selected, write the value to the configuration file and change theme.
-[ -n "$selected" ] && [ "$selected" != "$current_style" ] && style_changer "$_panel_name_" "${selected}"
+[ -n "$selected" ] && [ "$selected" != "$current_style" ] && "${__distro_path_root}"/bin/X11/WM/style_changer "$_panel_name_" "${selected}"

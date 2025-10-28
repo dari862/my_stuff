@@ -2,7 +2,7 @@
 <!-- Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com> -->
 <!-- Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 -->
 <!DOCTYPE menu [
-  <!ENTITY icons "(((__distro_path_themes)))/icons">
+  <!ENTITY icons "(((__distro_path_all_distro_themes)))/icons">
   <!ENTITY openboxconfig "~/.config/openbox">
 ]>
 <openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/  file:///usr/share/openbox/menu.xsd">
@@ -34,7 +34,7 @@
 		<separator/>
 		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine" icon="&icons;/virtualbox.png"/>
 		<separator/>
-		<menu icon="&icons;/apps.png" id="applications-menu" label="Applications" execute="obamenu.py"/>
+		<menu icon="&icons;/apps.png" id="applications-menu" label="Applications" execute="my_obmag.py"/>
 		<separator/>
 		<menu icon="&icons;/shots.png" id="TakeScreenshot" execute="screenshot-pipemenu" label="Screenshot"/>
 		<menu icon="&icons;/root.png" id="apps_as_root-pipemenu" execute="apps_as_root-pipemenu" label="Apps As Root"/>
@@ -47,7 +47,7 @@
 		<separator/>
 		<menu icon="&icons;/recents.png" id="ac-recent" execute="recent-files-pipemenu" label="Recent Files"/>
 		<separator/>
-		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
 		<separator/>
 		<menu icon="&icons;/help.png" id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
 		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="keyboard-shortcut-pipemenu" label="Keybinds"/>

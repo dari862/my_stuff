@@ -108,10 +108,7 @@ send_notifcation_msg () {
 
 install_it () {
 	set_superuser	
-	if [ ! -f "${__distro_path_root}/system_files/bin/update-notification" ] ;then
-		$_SUPERUSER ln -sf "$script_full_path" "${__distro_path_root}/system_files/bin"
-	fi
-	
+
 	$_SUPERUSER ln -sf "$script_full_path" "/etc/cron.$cron_when"	
 	
 	if [ ! -f "$updates_file" ];then 

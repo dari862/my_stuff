@@ -2,7 +2,7 @@
 <!-- Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com> -->
 <!-- Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 -->
 <!DOCTYPE menu [
-  <!ENTITY icons "(((__distro_path_themes)))/icons/openbox-menu">
+  <!ENTITY icons "(((__distro_path_all_distro_themes)))/icons/openbox-menu">
   <!ENTITY openboxconfig "~/.config/openbox">
 ]>
 <openbox_menu xmlns="http://openbox.org/"
@@ -50,11 +50,11 @@
             </action>
         </item>
 
-        <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="obamenu.py" />
+        <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="my_obmag.py" />
 		
         <separator/>
 
-		<menu id="preferences" execute="sh -c 'cat (((distro_path_root)))/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
  
 		<menu id="info" execute="sysinfo-pipemenu --more" label="System info" icon="&icons;/stats.png"/>
 

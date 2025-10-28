@@ -1,6 +1,6 @@
 #!/bin/sh
 . "$__distro_path_lib"
-volume_cli_control_path="${__distro_path_root}/system_files/bin/volume_cli_control"
+volume_cli_control_path="${__distro_path_root}/system_files/volume_cli_control"
 if command -v pactl > /dev/null 2>&1;then
 	pak=pactl.sh
 elif command -v pulsemixer > /dev/null 2>&1;then

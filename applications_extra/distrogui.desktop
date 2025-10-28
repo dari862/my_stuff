@@ -2,6 +2,6 @@
 Exec=distrogui
 Type=Application
 Name=DistroGUI
-Icon=(((__distro_path_themes)))/icons/dg-icon.svg
+Icon=(((__distro_path_all_distro_themes)))/icons/dg-icon.svg
 Categories=Application;
 Terminal=false

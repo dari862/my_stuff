@@ -4,7 +4,7 @@
 # Variables
 #########################################
 . "$__distro_path_lib"
-icons_dir="${__distro_path_themes}/icons/dunst"
+icons_dir="${__distro_path_all_distro_themes}/icons/dunst"
 error_log="/tmp/$USER/my-shots"
 __no_notify=false
 __no_copy=false
@@ -169,13 +169,14 @@ fi
 # Send notification if not disabled
 if [ "$__no_notify" = false ];then
 	notify_cmd_shot="notify-send -u low -i ${icons_dir}/picture.png"
-	${notify_cmd_shot} "Copied to clipboard."
+	notify_message="Copied to clipboard."
 	paplay /usr/share/sounds/freedesktop/stereo/screen-capture.oga >/dev/null 2>&1 &
 	if [ -e "$IMAGE_FILE" ];then
-		${notify_cmd_shot} "Screenshot Saved."
+		notify_message="${notify_message}\nScreenshot Saved."
 	else
-		${notify_cmd_shot} "Screenshot Deleted."
+		notify_message="${notify_message}\nScreenshot Deleted."
 	fi
+	${notify_cmd_shot} "$IMAGE_FILE" "$notify_message"
 fi
 
 # View the image if not disabled

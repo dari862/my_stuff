@@ -16,8 +16,8 @@ if [ ! -f "${Distro_config_file}" ];then
 fi
 
 if [ ! -f "${WM_config_dir}/rofi_picked" ];then	
-	_picked_panel_="$(panel_picker)"
-	style_setter "$_picked_panel_"
+	_picked_panel_="$("${__distro_path_root}"/bin/WM/panel_picker)"
+	"${__distro_path_root}"/bin/WM/style_setter "$_picked_panel_"
 	touch "${WM_config_dir}/rofi_picked"
 fi
 
@@ -27,12 +27,12 @@ if [ -n "$dotscreenlayout_profile" ];then
 elif [ -f "$display_script" ];then
 	"$display_script"
 else
-	displayselect auto noninteractive
+	"${__distro_path_root}"/bin/X11/WM/displayselect auto noninteractive
 fi
 
-displayselect watch &
+#"${__distro_path_root}"/bin/X11/WM/displayselect watch &
 
-setbg -r
+"${__distro_path_root}"/bin/not_add_2_path/restore_BG
 
 #polkit-session start &
 

@@ -2,7 +2,8 @@
 # need superuser : my-superuser
 set -euo pipefail
 unalias -a
-check_4_dependencies_if_installed drill ufw nmcli || exit 1
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed drill ufw nmcli || exit 1
 
 #
 # Functions

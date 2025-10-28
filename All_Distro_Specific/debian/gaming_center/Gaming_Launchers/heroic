@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#called by : my-installer
 app_name="heroic"
 if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
 	app_name="heroic-games-launcher-bin"

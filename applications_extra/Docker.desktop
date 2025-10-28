@@ -4,6 +4,6 @@ Comment=Manage Docker containers with LazyDocker
 Exec=popup_terminal lazydocker
 Terminal=false
 Type=Application
-Icon=(((__distro_path_themes)))/icons/Docker.png
+Icon=(((__distro_path_all_distro_themes)))/icons/Docker.png
 Categories=GTK;
 StartupNotify=false

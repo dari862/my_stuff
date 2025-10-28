@@ -9,5 +9,5 @@
     active: #50fa7b;
     urgent: #ff6e6e;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/marisol/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/marisol/rofi.jpg", width);
 }

@@ -1,0 +1,76 @@
+#!/bin/sh
+set -e
+
+. "$__distro_path_lib"
+op__="$1"
+op2__="$2"
+wallpaper_layout="${3:-zoom}"
+
+. "${__distro_path_root}/lib/common/WM"
+
+wallpapers_dir="${__distro_path_themes}/my_wallpapers"
+
+Prerequisite() {
+	. "${__distro_display_manager_lib_path}"	  
+	
+	if [ "$Display_server_are" = "X11" ];then
+		SETTER="xwallpaper --stretch"
+	elif [ "$Display_server_are" = "wayland" ];then
+		if [ -n "$SWAYSOCK" ];then
+			SETTER="eval ogurictl output '*' --image"
+		elif echo "$DESKTOP_SESSION" | grep -q "sway";then
+			SETTER="swaybg -i"
+		fi
+	fi
+}
+
+__restore(){
+	Prerequisite
+	. "${Distro_config_file}"
+	sleep 0.5
+	( sleep 2 && $SETTER "$wallpaper_are" ) &
+}
+
+random_wall(){
+	Prerequisite
+	__Style_name="${op2__}"
+	op2__="$(find ${wallpapers_dir}/ -type f -name "${__Style_name}_*" | shuf -n 1)"
+	N=6
+	random_wall_animation () {
+		N=6
+		ls "${wallpapers_dir}/${__Style_name}_"* | sort -R | tail -$N | while read file; do
+			$SETTER $file
+			sleep 0.1
+		done
+	}
+	random_wall_animation
+	save_wall
+}
+
+save_and_restore(){
+	save_wall
+	__restore
+}
+
+save_wall(){
+	. "${Distro_config_file}"
+	if [ "$CHK_THEME" = "owl4ce_dark" ] || [ "$CHK_THEME" = "owl4ce_light" ];then
+		sed -i "s|CHK_WALLPAPER_${CHK_MODE}=.*|CHK_WALLPAPER_${CHK_MODE}=\"$op2__\"|" "${Distro_config_file}"
+	else
+		sed -i "s|wallpaper_are=.*|wallpaper_are=\"$op2__\"|" "${Distro_config_file}"
+	fi
+	sed -i "s|wallpaper_layout_are=.*|wallpaper_layout_are=\"$wallpaper_layout\"|" "${Distro_config_file}"
+}
+
+main()
+{
+	case $op__ in
+		-r) __restore ;;
+		-s) save_wall ;;
+		-d|--random) random_wall ;;
+		-R) save_and_restore ;;
+		*) pickbg ;;
+	esac
+}
+
+main

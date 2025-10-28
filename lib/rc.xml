@@ -9,6 +9,7 @@
   <!ENTITY font_var "themerc_font">
   <!ENTITY size_var "themerc_size">
 ]>
+<!--# work on this : kswitch -->
 <openbox_config xmlns="http://openbox.org/3.4/rc"
         xmlns:xi="http://www.w3.org/2001/XInclude">
 
@@ -205,6 +206,7 @@
   <!-- ##  end of auto edited by shortcuts script  ## -->
   </keyboard>
   <!-- ################################ Mouse Settings ################################ -->
+  <!--# work on this : <mouse> -->
   <mouse>
     <dragThreshold>8</dragThreshold>
     <!-- number of pixels the mouse must move before a drag begins -->

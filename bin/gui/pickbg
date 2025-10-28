@@ -73,5 +73,5 @@ export -f preview_command get_preview_dim
 
 picked_wallpaper="$(find "${wallpaper_dir}" -type f | fzf --preview='preview_command {}')"
 if [ -n "$picked_wallpaper" ];then
-	echo setbg -R "${picked_wallpaper}"
+	setbg -R "${picked_wallpaper}"
 fi

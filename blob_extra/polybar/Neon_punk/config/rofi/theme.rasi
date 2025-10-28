@@ -8,6 +8,6 @@ highlight:			#B332E6;
 urgent:				#9d059e;
 on:					#870540;
 off:				#9d059e;
-img-background: url("(((distro_path_root)))/blob/polybar/Neon_punk/preview.jpg", width);
+img-background: url("(((__distro_path_root)))/blob/polybar/Neon_punk/preview.jpg", width);
 
 }

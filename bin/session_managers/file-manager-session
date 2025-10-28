@@ -1,4 +1,5 @@
 #!/bin/sh
+. "$__distro_path_lib"
 
 file_manager_name="my-file-manager"
 file_manager_real="$(basename $(realpath $(which my-file-manager)))"
@@ -11,11 +12,11 @@ else
 fi
 
 stop() {
-	kill_process.sh $file_manager_name
+	"${__distro_path_root}"/bin/WM/kill_process.sh $file_manager_name
 }
 
 start() {
-	pidof -q ${file_manager_real} || ${file_manager_command} &
+	pidof -q ${file_manager_real} || setsid ${file_manager_command} &
 }
 
 case "${1}" in

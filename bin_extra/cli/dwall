@@ -252,7 +252,7 @@ YES_OR_NO()
 
 Download_wallpapers_now(){
 	. "${__distro_path_root}/lib/common/common"
-	check_4_dependencies_if_installed git || exit 1
+	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed git || exit 1
 	mkdir -p /tmp/$USER/dynamic_wallpapers
 	echo "Download wallpapers for https://github.com/adi1090x/dynamic-wallpaper"
 	echo "size wallpaper is 150 MB"
@@ -464,7 +464,7 @@ if [[ "$Download_wallpapers_" == true ]] || [[ ! -d "$DIR" ]];then
 fi
 
 if [[ "$create_crontab_" == true ]];then
-	check_4_dependencies_if_installed crontab || exit 1
+	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed crontab || exit 1
 	if [[ "$STYLE" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-s $STYLE")
 	fi

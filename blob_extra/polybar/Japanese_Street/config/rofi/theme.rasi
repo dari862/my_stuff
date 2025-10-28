@@ -8,6 +8,6 @@ highlight:			#56b6c2;
 urgent:				#e06c75;
 on:					#98c379;
 off:				#e06c75;
-img-background: url("(((distro_path_root)))/blob/polybar/Japanese_Street/preview.jpg", width);
+img-background: url("(((__distro_path_root)))/blob/polybar/Japanese_Street/preview.jpg", width);
 
 }

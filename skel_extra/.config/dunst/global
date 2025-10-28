@@ -173,7 +173,7 @@ history_length = 20
 ### Misc/Advanced ###
 
 # dmenu path.
-dmenu = "(((distro_path_root)))/bin/X11/not_add_2_path/dunst/rofi-action"
+dmenu = "(((__distro_path_root)))/bin/X11/not_add_2_path/dunst/rofi-action"
 
 # Browser for opening urls in context menu.
 browser = my-www-browser

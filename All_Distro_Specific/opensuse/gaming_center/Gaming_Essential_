@@ -1,4 +1,5 @@
-#!/bin/sh -e
-my-installer --install-needed "GPU" || continue
+#!/bin/sh
+#called by my-installer
+"${__distro_path_root}"/bin/not_add_2_path/my-installer-installer --install-needed "GPU" || continue
 say 'Installing package...' 1
 Package_installer_ -y wine dbus git lutris protonplus

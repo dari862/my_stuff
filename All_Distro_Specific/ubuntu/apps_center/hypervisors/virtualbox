@@ -1,7 +1,7 @@
 #!/bin/sh
 # need superuser : called by my-installer
 app_name="virtualbox"
-my-installer --tweek "Enable_IOMMU_support" || continue
+"${__distro_path_root}"/bin/not_add_2_path/my-installer --tweek "Enable_IOMMU_support" || continue
 virtualbox_version="$(getURL '2term' "https://download.virtualbox.org/virtualbox/LATEST.TXT" | cut -d '.' -f1,2)"
 ep_url="https://download.virtualbox.org/virtualbox/${virtualbox_version}.0/Oracle_VirtualBox_Extension_Pack-${virtualbox_version}.0.vbox-extpack"
 temp_dir=$(mktemp -d)

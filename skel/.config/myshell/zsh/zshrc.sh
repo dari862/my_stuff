@@ -3,12 +3,13 @@ unsetopt PROMPT_SP 2>/dev/null
 
 distro_fetch
 
-fpath+=("(((distro_path_root)))/system_files/completion/zsh")
+fpath+=("(((__distro_path_root)))/system_files/completion/zsh")
 
 # --------- theme Applyer ------
 if [[ -n "$SSH_CONNECTION" ]];then
 	ZSH_THEME="$SSH_THEME"
 	SSH_MESS="-ssh"
+	PATH="${__distro_path_root}/system_files/binX11:$PATH"
 else
 	SSH_THEME=""
 	SSH_MESS=""

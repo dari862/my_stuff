@@ -154,7 +154,7 @@ battery_padding = 2 0
 battery_background_id = 0
 battery_hide = 96
 battery_lclick_command = power_manager_settings
-battery_rclick_command = batt_notifcation -n
+battery_rclick_command = (((distro_path_root)))/bin/not_add_2_path/batt_notifcation -n
 battery_mclick_command = 
 battery_uwheel_command = 
 battery_dwheel_command = 
@@ -164,7 +164,7 @@ ac_disconnected_cmd =
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = echo '(((distro_path_root)))/Distro_Specific/icons/user.svg'
+execp_command = echo '(((__distro_path_root)))/Distro_Specific/icons/user.svg'
 execp_interval = 0
 execp_has_icon = 1
 execp_cache_icon = 1

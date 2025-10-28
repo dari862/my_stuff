@@ -7,14 +7,14 @@ conkys_path="$HOME/.config/conky"
 conky_sessionfile="$(echo $conky_sessionfile | sed "s|;||g")"
 
 stop() {
-	kill_process.sh conky
+	"${__distro_path_root}"/bin/WM/kill_process.sh conky
 }
 
 start() {
 	sleep 3
 	for theme in $conky_sessionfile
 	do
-		(conky -c $HOME/$theme >/dev/null 2>&1) &
+		(setsid conky -c $HOME/$theme >/dev/null 2>&1) &
   		sleep 0.5
 	done
 }

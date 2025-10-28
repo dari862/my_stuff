@@ -1,2 +1,6 @@
 #!/bin/bash
+if [ -z "$BASHDOTDIR" ];then
+  	export My_shell_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myshell"
+fi
+source "${My_shell_DIR}/distropath4SSH.sh"
 source ~/.bashrc

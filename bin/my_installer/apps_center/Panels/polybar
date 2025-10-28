@@ -1,5 +1,6 @@
 #!/bin/sh
 # X11 only package remove it from my-installer
+#called by my-installer
 app_name="polybar"
 #libnm-dev for networkmanager_dmenu
 extra_apps_="libnm-dev"
@@ -16,4 +17,4 @@ fi
 
 "${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver || continue
 
-polybar_launch_creater || continue
+"${__distro_path_root}"/bin/X11/polybar/polybar_launch_creater || continue

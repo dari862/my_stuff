@@ -1,0 +1,75 @@
+#!/bin/bash
+unalias -a
+. "$__distro_path_lib"
+
+weather_icons_folder="${__distro_path_all_distro_themes}/icons/weather_icon"
+openweather_icons_folder="${__distro_path_root}/system_files/conky_weather_icons/openweather"
+wttr_icons_folder="${__distro_path_root}/system_files/conky_weather_icons/wttr"
+
+mkdir -p "${openweather_icons_folder}"
+mkdir -p "${wttr_icons_folder}"
+
+declare -A openweather_icons=(
+    ["iconCloudy.png"]="801.png 802.png"
+    ["iconFlag.png"]="951.png 952.png 953.png 954.png"
+    ["iconFog.png"]="701.png 711.png 721.png 741.png"
+    ["iconHeavyRain.png"]="503.png 504.png 502.png 520.png 521.png 522.png 531.png"
+    ["iconHeavyShowers.png"]="313.png 314.png 321.png"
+    ["iconHeavySnow.png"]="600.png 6001.png 6002.png 6003.png"
+    ["iconHeavySnowShowers.png"]="620.png 602.png 621.png 622.png"
+    ["iconHeavyWind.png"]="731.png 751.png 761.png"
+    ["iconHurricane.png"]="901.png 902.png 962.png"
+    ["iconHVolcano.png"]="200.png 210.png 211.png 212.png 221.png 230.png 231.png"
+    ["iconLightFog.png"]="781.png 900.png"
+    ["iconLightRain.png"]="302.png 501.png 310.png 311.png 312.png"
+    ["iconLightShowers.png"]="300.png 301.png 500.png"
+    ["iconLightSleet.png"]="615.png 616.png 6155.png 6161.png 6151.png 6152.png 6162.png 6153.png 6154.png"
+    ["iconLightSleetShowers.png"]="611.png 6111.png 6112.png 6113.png"
+    ["iconLightSnow.png"]="601.png 6012.png"
+    ["iconLightSnowShowers.png"]="6013.png 6014.png 6011.png"
+    ["iconPartlyCloudy.png"]="803.png"
+    ["iconSunny.png"]="800.png"
+    ["iconThunderyHeavyRain.png"]="612.png"
+    ["iconThunderyShowers.png"]="201.png 202.png 232.png 960.png 961.png"
+    ["iconThunderySnowShowers.png"]="906.png"
+    ["iconVeryCloudy.png"]="804.png"
+    ["iconVeryCold.png"]="511.png"
+    ["iconVeryHot.png"]="904.png"
+    ["iconVolcano.png"]="762.png"
+    ["iconWarning.png"]="903.png"
+    ["iconWind.png"]="771.png 905.png 955.png 956.png 957.png 958.png 959.png"
+    ["null.png"]="null.png"
+)
+
+declare -A wttr_icons=(
+    ["iconCloudy.png"]="119.png"
+    ["iconFog.png"]="143.png 248.png 260.png"
+    ["iconHeavyRain.png"]="302.png 308.png 359.png"
+    ["iconHeavyShowers.png"]="299.png 305.png 356.png"
+    ["iconHeavySnow.png"]="230.png 329.png 332.png 338.png"
+    ["iconHeavySnowShowers.png"]="335.png 371.png 395.png"
+    ["iconLightRain.png"]="266.png 293.png 296.png"
+    ["iconLightShowers.png"]="176.png 263.png 353.png"
+    ["iconLightSleet.png"]="182.png 185.png 281.png 284.png 311.png 314.png 317.png 350.png 377.png"
+    ["iconLightSleetShowers.png"]="179.png 362.png 365.png 374.png"
+    ["iconLightSnow.png"]="227.png 320.png"
+    ["iconLightSnowShowers.png"]="323.png 326.png 368.png"
+    ["iconPartlyCloudy.png"]="116.png"
+    ["iconSunny.png"]="113.png"
+    ["iconThunderyHeavyRain.png"]="389.png"
+    ["iconThunderyShowers.png"]="200.png 386.png"
+    ["iconThunderySnowShowers.png"]="392.png"
+    ["iconVeryCloudy.png"]="122.png"
+)
+
+for icon_name in "${!openweather_icons[@]}"; do
+    for icon_file in ${openweather_icons[$icon_name]}; do
+        ln -sf "${weather_icons_folder}/${icon_name}" "${openweather_icons_folder}/${icon_file}"
+    done
+done
+
+for icon_name in "${!wttr_icons[@]}"; do
+    for icon_file in ${wttr_icons[$icon_name]}; do
+        ln -sf "${weather_icons_folder}/${icon_name}" "${wttr_icons_folder}/${icon_file}"
+    done
+done

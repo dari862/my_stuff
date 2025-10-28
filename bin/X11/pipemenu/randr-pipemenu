@@ -28,6 +28,7 @@
 # scaled-out mode or 'zoom in' to a higher resolution in panning mode.
 #
 unalias -a
+. "$__distro_path_lib"
 HOME="$HOME"
 RCFILE=".ob-randrrc"
 
@@ -61,7 +62,7 @@ mk_position_controls() {
 				if [[ "${passed_output}" != "$other" ]];then
 					echo "<item label=\"$other\">"
 					echo "<action name=\"execute\">"
-					echo "<command>displayselect manage_arrangement monitor ${passed_output} $position $other</command>"
+					echo "<command>${__distro_path_root}/bin/X11/WM/displayselect manage_arrangement monitor ${passed_output} $position $other</command>"
 					echo "</action>"
 					echo "</item>"
 				fi
@@ -80,13 +81,13 @@ mk_exe_node() {
     
     echo "<item label=\"$name\">"
     echo "<action name=\"execute\">"
-    echo "<command>displayselect $command monitor $output $command_value</command>"
+    echo "<command>${__distro_path_root}/bin/X11/WM/displayselect $command monitor $output $command_value</command>"
     echo "</action>"
     echo "<action name=\"execute\">"
-    echo "<command>setbg -r</command>"
+    echo "<command>${__distro_path_root}/bin/not_add_2_path/restore_BG</command>"
     echo "</action>"
     echo "<action name=\"execute\">"
-    echo "<command>panel_launcher --reload</command>"
+    echo "<command>${__distro_path_root}/bin/WM/panel_launcher</command>"
     echo "</action>"
     echo "</item>"
 }
@@ -163,14 +164,14 @@ done < <(get_xrandr_info)
 echo "<separator label=\"Shortcuts\" />"
 echo "<item label=\"Automatic\">"
 echo "<action name=\"execute\">"
-echo "<command>displayselect auto noninteractive</command>"
+echo "<command>${__distro_path_root}/bin/X11/WM/displayselect auto noninteractive</command>"
 echo "</action>"
 echo "</item>"
 
 echo "<separator label=\"GUI Select Display Resolution\" />"
-echo "<item label=\"displayselect manual_selection\">"
+echo "<item label=\"${__distro_path_root}/bin/X11/WM/displayselect manual_selection\">"
 echo "<action name=\"execute\">"
-echo "<command>displayselect manual_selection</command>"
+echo "<command>${__distro_path_root}/bin/X11/WM/displayselect manual_selection</command>"
 echo "</action>"
 echo "</item>"
 

@@ -8,6 +8,6 @@ highlight:			#00AAAA;
 urgent:				#AA0000;
 on:					#00AA00;
 off:				#AA0000;
-img-background: url("(((distro_path_root)))/blob/polybar/BlackArch/preview.jpg", width);
+img-background: url("(((__distro_path_root)))/blob/polybar/BlackArch/preview.jpg", width);
 
 }

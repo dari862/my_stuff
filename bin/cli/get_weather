@@ -1,4 +1,5 @@
 #!/bin/sh
+# work on this : Doppler not working
 set -e
 
 __opt="${1-}"
@@ -32,64 +33,18 @@ fix_weather_script_config_var(){
 	sed -i "s|place=.*|place=\"$place\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed at place"
 }
 
-if [ "$__opt" = "--global" ];then
-	weather_script_config_path="${__distro_path_root}/system_files/skel/.config/scriptconfig/weather"
-	. "$weather_script_config_path"
-	
-	if [ -z "$place" ];then
-   		fix_weather_script_config_var
-	fi
-else
-	weather_script_config_path="${script_config_path}/weather"
-	if [ ! -f "$weather_script_config_path" ];then
-		cp -r "${__distro_path_root}/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
-	fi
-	
-	. "$weather_script_config_path"
-		
-	if [ -z "$place" ];then
-   		fix_weather_script_config_var
-	fi	
-fi
-
-if [ "$mode" = "auto" ];then
-	if myAPIman check openweather >/dev/null 2>&1;then
-		mode="openweather"
-	else
-		mode="wttr"
-	fi
-fi
-
-if [ "$mode" = "wttr" ];then
-	weatherreport="$wttr_weatherreport"
-elif [ "$mode" = "openweather" ];then
-	weatherreport="$ow_weatherreport"
-fi
-
-[ "$__opt2" = "extra" ] && show_Extra=true
-
-connectiontest() {
-    i=0
-    attempts=${1:-0}
-    while [ "$i" -lt "$attempts" ] || [ "$attempts" -eq 0 ]; do
-        if getURL '2term' 'http://ftp.debian.org/debian/README' >/dev/null 2>&1;then
-            return 0
-        fi
-        i=$((i + 1))
-    done
-    echo ""
-    echo "No internet connection. Weather information unavailable."
-    exit 1
-}
-
 get_moon_phase() { 
 	# Moon Phase should be updated only once a day.
-	[ ! -s "$moonfile" ] && [ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" != "$(date +'%Y-%m-%d')" ] && (getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || echo "[ERROR] $0 : failed to run get_moon_phase")
+	if [ ! -f "$moonfile" ] || [ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" != "$(date +'%Y-%m-%d')" ];then
+		getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || echo "[ERROR] $0 : failed to run get_moon_phase"
+	fi
 	cat "$moonfile" && echo ""
 }
 
 getdoppler() {
-	[ -s "$doppler" ] && [ $(($(date +'%s') - $(stat -c %Y "$doppler"))) -le "$secs" ] && return
+	if [ -s "$doppler" ] && [ $(($(date +'%s') - $(stat -c %Y "$doppler"))) -le "$secs" ];then
+		return
+	fi
 	case "$continentcode" in
 		"US") getURL '2term' "https://radar.weather.gov/ridge/standard/${radarcode}_loop.gif" > "$doppler" ;;
 		"EU") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rainTMC/2/" > "$doppler" ;;
@@ -101,7 +56,7 @@ getdoppler() {
 
 main() {	
 	if old_weather_data_;then
-		connectiontest 10 && get_weather_data_ >/dev/null 2>&1
+		connectiontest 10 icon && get_weather_data_ >/dev/null 2>&1
 	fi
 
 	if [ "$__opt" = "-m" ];then
@@ -127,8 +82,52 @@ main() {
 	fi
 }
 
-mkdir -p "$weather_script_data_path" || echo "[ERROR] $0 : mkdir -p $weather_script_data_path"
+if [ "$__opt" = "--global" ];then
+	weather_script_config_path="${__distro_path_root}/system_files/skel/.config/scriptconfig/weather"
+	. "$weather_script_config_path"
 	
+	if [ -z "$place" ];then
+   		fix_weather_script_config_var
+	fi
+	
+	exit 0
+else
+	weather_script_config_path="${script_config_path}/weather"
+	if [ ! -f "$weather_script_config_path" ];then
+		cp -r "${__distro_path_root}/system_files/skel/.config/scriptconfig/weather" "${script_config_path}"
+	fi
+	
+	. "$weather_script_config_path"
+		
+	if [ -z "$place" ];then
+   		fix_weather_script_config_var
+	fi	
+fi
+
+if [ "$__opt" = "moon" ];then
+	connectiontest 10 icon && get_moon_phase
+elif [ "$__opt" = "doppler" ];then
+	connectiontest 10 icon && getdoppler
+fi
+
+if [ "$mode" = "auto" ];then
+	if myAPIman check openweather >/dev/null 2>&1;then
+		mode="openweather"
+	else
+		mode="wttr"
+	fi
+fi
+
+if [ "$mode" = "wttr" ];then
+	weatherreport="$wttr_weatherreport"
+elif [ "$mode" = "openweather" ];then
+	weatherreport="$ow_weatherreport"
+fi
+
+[ "$__opt2" = "extra" ] && show_Extra=true
+
+mkdir -p "$weather_script_data_path" || echo "[ERROR] $0 : mkdir -p $weather_script_data_path"
+
 if [ "$units" = "metric" ];then
    	scaleT="°C"
    	scaleV="m/s"
@@ -137,11 +136,7 @@ else
    	scaleV="mph"
 fi
 
-if [ "$__opt" = "moon" ];then
-	connectiontest 10 && get_moon_phase
-elif [ "$__opt" = "doppler" ];then
-	connectiontest 10 && getdoppler
-elif [ "$mode" = "wttr" ];then
+if [ "$mode" = "wttr" ];then
 	. "${__weather_lib_path}/wttr"
 	main
 elif [ "$mode" = "openweather" ];then

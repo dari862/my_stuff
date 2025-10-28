@@ -9,5 +9,5 @@
     active: #adb5bd;
     urgent: #dee2e6;
 
-    img-background: url("(((distro_path_root)))/blob/polybar/varinka/rofi.jpg", width);
+    img-background: url("(((__distro_path_root)))/blob/polybar/varinka/rofi.jpg", width);
 }

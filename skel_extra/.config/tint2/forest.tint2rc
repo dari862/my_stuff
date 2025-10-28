@@ -204,7 +204,7 @@ battery_padding = 10 0
 battery_background_id = 2
 battery_hide = 100
 battery_lclick_command = power_manager_settings
-battery_rclick_command = batt_notifcation -n
+battery_rclick_command = (((distro_path_root)))/bin/not_add_2_path/batt_notifcation -n
 battery_mclick_command = 
 battery_uwheel_command = 
 battery_dwheel_command = 
@@ -214,7 +214,7 @@ ac_disconnected_cmd = dunstify -u low -h string:x-dunst-stack-tag:tint2 'Charger
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = volume_cli_control --get
+execp_command = (((__distro_path_root)))/system_files/volume_cli_control --get
 execp_interval = 0
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -222,11 +222,11 @@ execp_continuous = 0
 execp_markup = 1
 execp_monitor = all
 execp_tooltip = Volume
-execp_lclick_command = volume_cli_control --toggle
-execp_rclick_command = volume_cli_control --toggle-mic
+execp_lclick_command = (((__distro_path_root)))/system_files/volume_cli_control --toggle
+execp_rclick_command = (((__distro_path_root)))/system_files/volume_cli_control --toggle-mic
 execp_mclick_command = volume_controller
-execp_uwheel_command = volume_cli_control --inc
-execp_dwheel_command = volume_cli_control --dec
+execp_uwheel_command = (((__distro_path_root)))/system_files/volume_cli_control --inc
+execp_dwheel_command = (((__distro_path_root)))/system_files/volume_cli_control --dec
 execp_font = JetBrainsMono Nerd Font 10
 execp_font_color = #c4c7c5 100
 execp_padding = 10 0
@@ -238,7 +238,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 2
 execp = new
-execp_command = disto_brightness_controller
+execp_command = (((__distro_path_root)))/system_files/disto_brightness_controller
 execp_interval = 0
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -249,8 +249,8 @@ execp_tooltip = Brightness
 execp_lclick_command = 
 execp_rclick_command = 
 execp_mclick_command = 
-execp_uwheel_command = disto_brightness_controller --inc
-execp_dwheel_command = disto_brightness_controller --dec
+execp_uwheel_command = (((__distro_path_root)))/system_files/disto_brightness_controller --inc
+execp_dwheel_command = (((__distro_path_root)))/system_files/disto_brightness_controller --dec
 execp_font = JetBrainsMono Nerd Font 10
 execp_font_color = #c4c7c5 100
 execp_padding = 10 0
@@ -262,7 +262,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 3
 execp = new
-execp_command = bluetooth.sh
+execp_command = (((__distro_path_root)))/bin/not_add_2_path/bluetooth.sh
 execp_interval = 1
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -271,7 +271,7 @@ execp_markup = 1
 execp_monitor = all
 execp_tooltip = Bluetooth
 execp_lclick_command = rofi-bluetooth
-execp_rclick_command = bluetooth_manager
+execp_rclick_command = (((__distro_path_root)))/bin/not_add_2_path/bluetooth_manager
 execp_mclick_command = 
 execp_uwheel_command = 
 execp_dwheel_command = 
@@ -334,7 +334,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Button 1
 button = new
-button_icon = (((distro_path_root)))/Distro_Specific/icons/user.svg
+button_icon = (((__distro_path_root)))/Distro_Specific/icons/user.svg
 button_text = 
 button_tooltip = Application Launcher
 button_lclick_command = rofi-launcher

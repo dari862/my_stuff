@@ -35,6 +35,7 @@ fi
 
 if [[ -n "$SSH_CONNECTION" ]];then
 	BASH_THEME="$SSH_THEME"
+	PATH="${__distro_path_root}/system_files/binX11:$PATH"
 else
 	SSH_THEME=""
 	SSH_MESS=""
@@ -120,8 +121,8 @@ for bashplugin in ${bashplugins[@]}; do
 done
 
 # ---------------------------------  completion  ----------------------------------
-if [ -d "(((distro_path_root)))/system_files/completion/bash" ];then
-	for f in "(((distro_path_root)))/system_files/completion/bash"/*;do
+if [ -d "(((__distro_path_root)))/system_files/completion/bash" ];then
+	for f in "(((__distro_path_root)))/system_files/completion/bash"/*;do
 		[ -f "$f" ] && source $f
 	done
 fi

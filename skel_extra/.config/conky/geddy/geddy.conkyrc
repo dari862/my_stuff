@@ -130,9 +130,9 @@ update_interval = 1,
 conky.text = [[
 ${voffset 6}${offset 20}${color0}${font mplus Nerd Font:size=24}${time %H:%M}${font}${color}
 ${font Noto Sans:Regular:size=24}${voffset 20}${time %A, %-d %B}${font}
-${voffset 18}Today will be ${execi 1800 conky_scripts get_weather -d}
-${voffset 6}${execi 1800 conky_scripts get_weather -t}
+${voffset 18}Today will be ${execi 1800 (((__distro_path_root)))/bin/X11/conky/get_weather -d}
+${voffset 6}${execi 1800 (((__distro_path_root)))/bin/X11/conky/get_weather -t}
 ${voffset 6}Have a nice day ${execi 600 whoami}! Here is some wise words for You :)
-${voffset 6}${execi 600 conky_scripts quote-online}
+${voffset 6}${execi 600 (((__distro_path_root)))/bin/X11/conky/quote-online}
 ${image ~/.config/conky/geddy/res/bg.png -p 0,4}
 ]];

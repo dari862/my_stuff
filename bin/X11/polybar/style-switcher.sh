@@ -125,7 +125,7 @@ then
 		setbg -R "${__distro_path_themes}/my_wallpapers/$bg"
 		
 		# Restarting polybar
-		polybar_launch_creater
+		"${__distro_path_root}"/bin/X11/polybar/polybar_launch_creater
 		polybar-session restart &
 	}
 fi

@@ -101,11 +101,11 @@ send_notification(){
 	_ttt="${5-}"
 	if [ -z "$_ttt" ];then
 		dunstify "$_SUMMARY" "$_BODY" -h string:synchronous:$_header \
-              	-i "${__distro_path_themes}/icons/eyecandy/${_icon}" \
+              	-i "${__distro_path_all_distro_themes}/icons/eyecandy/${_icon}" \
               	-u low
     else
     	dunstify "$_SUMMARY" "$_BODY" -h string:synchronous:$_header \
-              	-i "${__distro_path_themes}/icons/eyecandy/${_icon}" \
+              	-i "${__distro_path_all_distro_themes}/icons/eyecandy/${_icon}" \
               	-t $_ttt
     fi
 }
@@ -374,7 +374,7 @@ ___theme(){
 		owl4ce_light) CHK_THEME="owl4ce_dark";;
 	esac
 
-	style_changer "tint2" "$CHK_THEME"
+	"${__distro_path_root}"/bin/X11/WM/style_changer "tint2" "$CHK_THEME"
 	
    	case "${CHK_THEME}" in
    		owl4ce_dark) BODY='Dark Theme'

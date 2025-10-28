@@ -11,13 +11,13 @@ if [ "$(id -u)" -ne 0 ];then
 		
 		{
 		count=1
-		menuItem "Default" "style_changer $_panel_name_ default"
-		menuItem "Dynamic" "style_changer $_panel_name_ dynamic"
+		menuItem "Default" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ default"
+		menuItem "Dynamic" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ dynamic"
 		menuSeparator "| Simple |"
 		for style in ${styles}; do
 			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
 			better_style_name="$(echo "$style" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')"
-			menuItem "${count}. ${better_style_name}" "style_changer $_panel_name_ ${style}"
+			menuItem "${count}. ${better_style_name}" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ ${style}"
 			count=$(($count+1))
 		done
 		menuSeparator "| Menus |"
@@ -27,13 +27,13 @@ if [ "$(id -u)" -ne 0 ];then
 		
 		{
 		count=1
-		menuItem "Default" "style_changer $_panel_name_ default"
-		menuItem "Dynamic" "style_changer $_panel_name_ dynamic"
+		menuItem "Default" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ default"
+		menuItem "Dynamic" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ dynamic"
 		menuSeparator "| Simple |"
 		for style in ${styles}; do
 			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
 			better_style_name="$(echo "$style" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')"
-			menuItem "${count}. ${better_style_name}" "style_changer $_panel_name_ ${style}"
+			menuItem "${count}. ${better_style_name}" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ ${style}"
 			count=$(($count+1))
 		done
 		menuSeparator "| Menus |"

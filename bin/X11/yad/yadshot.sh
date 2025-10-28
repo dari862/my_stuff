@@ -11,13 +11,13 @@ unalias -a
 # export running directory variables for use later
 export YADSHOT_PATH="$(readlink -f $0)"
 export RUNNING_DIR="$(dirname ${YADSHOT_PATH})"
-if [ -f "${__distro_path_themes}/icons/yadshot.svg" ];then
-    export ICON_PATH="${__distro_path_themes}/icons/yadshot.svg"
+if [ -f "${__distro_path_all_distro_themes}/icons/yadshot.svg" ];then
+    export ICON_PATH="${__distro_path_all_distro_themes}/icons/yadshot.svg"
 else
     export ICON_PATH="gtk-fullscreen"
 fi
 
-check_4_dependencies_if_installed yad ffmpeg || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed yad ffmpeg || exit 1
 
 if type xclip >/dev/null 2>&1;then
 	export Xclip_installed=TRUE
@@ -134,7 +134,7 @@ function displayss() {
             cp /tmp/$USER/"$SS_NAME" "$FILE"
             # upload screenshots and files to Filebin.net; set FAILED=1 if upload fails
     		echo -n "" | xclip -i -selection clipboard
-    		files-uploader --filebiner up -f "$FILE"
+    		"${__distro_path_root}"/bin/not_add_2_path/files-uploader --filebiner up -f "$FILE"
     		FILE_URL="$(xclip -o -selection clipboard)"
     		if [[ -z "$FILE_URL" ]];then
         		echo 'error uploading file!\n'
@@ -173,7 +173,7 @@ function yadshotpaste() {
             ;;
     esac
     echo -n "" | xclip -i -selection clipboard
-    files-uploader --filebiner up -f /tmp/$USER/yadshotpaste.txt
+    "${__distro_path_root}"/bin/not_add_2_path/files-uploader --filebiner up -f /tmp/$USER/yadshotpaste.txt
     PASTE_URL="$(xclip -o -selection clipboard)"
     rm -f /tmp/$USER/yadshotpaste.txt
     if [[ -z "$PASTE_URL" ]];then
@@ -191,7 +191,7 @@ function yadshotfileselect() {
         0)
             # upload screenshots and files to Filebin.net; set FAILED=1 if upload fails
     		echo -n "" | xclip -i -selection clipboard
-    		files-uploader --filebiner up -f "$FILE"
+    		"${__distro_path_root}"/bin/not_add_2_path/files-uploader --filebiner up -f "$FILE"
     		FILE_URL="$(xclip -o -selection clipboard)"
     		if [[ -z "$FILE_URL" ]];then
         		echo 'error uploading file!\n'
@@ -211,7 +211,7 @@ export -f yadshotfileselect
 
 # function to view upload list from tray
 function upload_list() {
-    LIST_ITEM="$(files-uploader --filebiner ls | tail -n +2 | yad --window-icon="$ICON_PATH" --borders=10 --center --list --height 600 --width 800 --title="yadshot" --text="\nDouble click an item to copy it to the clipboard." --dclick-action="bash -c 'echo -n %s | xclip -i -selection clipboard'" --separator="" --column="Uploads" --button="Delete Selected!gtk-delete!Delete Selected:0" --button="Close!gtk-cancel!Close:1")"
+    LIST_ITEM="$("${__distro_path_root}"/bin/not_add_2_path/files-uploader --filebiner ls | tail -n +2 | yad --window-icon="$ICON_PATH" --borders=10 --center --list --height 600 --width 800 --title="yadshot" --text="\nDouble click an item to copy it to the clipboard." --dclick-action="bash -c 'echo -n %s | xclip -i -selection clipboard'" --separator="" --column="Uploads" --button="Delete Selected!gtk-delete!Delete Selected:0" --button="Close!gtk-cancel!Close:1")"
     case $? in
         1)
             sleep 0
@@ -307,7 +307,7 @@ Imugr_upload(){
 	else
 		SELECTION_arg="-w"
 	fi
-	files-uploader --imgur "${__mode}" "${SELECTION_arg}" -d ${SS_DELAY}
+	"${__distro_path_root}"/bin/not_add_2_path/files-uploader --imgur "${__mode}" "${SELECTION_arg}" -d ${SS_DELAY}
 }
 export -f Imugr_upload
 # main yadshot window

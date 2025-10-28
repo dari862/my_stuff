@@ -5,29 +5,27 @@ set -e
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
+if [ "$_panel_name_" = "polybar" ];then 
+	"${__distro_path_root}"/bin/X11/polybar/polybar_workspace_fixer
+fi
+
 clipboard-manager-session stop
 #audio-session stop
 power-manager-session stop
 
 sleep 0.5
-	
-if [ "${1-}" = "--reload" ] || [ "${1-}" = "-r" ];then
-	polybar-session stop
-	tint2-session stop
-fi
 
 conky-session restart &
 notification-d-session restart &
 #plank-session restart &
 
 if [ "$_panel_name_" = "polybar" ];then 
-	polybar_workspace_fixer
-   	polybar-session start
+   	polybar-session restart
    	power-manager-session restart &
    	clipboard-manager-session start 3 &
 elif [ "$_panel_name_" =  "tint2" ];then
 	#audio-session start
-	tint2-session start
+	tint2-session restart
 	power-manager-session start 3 &
 	clipboard-manager-session start-gui 3 &
 fi

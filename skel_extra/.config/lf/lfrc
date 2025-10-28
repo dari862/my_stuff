@@ -23,8 +23,8 @@ set period 1
 #set number
 set hidden!
 set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
-set cleaner '(((distro_path_root)))/bin/not_add_2_path/LF/cleaner'
-set previewer '(((distro_path_root)))/bin/not_add_2_path/LF/previewer'
+set cleaner '(((__distro_path_root)))/bin/not_add_2_path/LF/cleaner'
+set previewer '(((__distro_path_root)))/bin/not_add_2_path/LF/previewer'
 set promptfmt "
 \033[48;2;35;38;39;38;2;28;220;156m (((distro_icon))) 
 \033[38;2;35;38;39;48;2;202;31;31m

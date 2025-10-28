@@ -1,6 +1,6 @@
 #!/bin/sh
 # need superuser : called by my-installer
-my-installer --install-needed "GPU" || continue
+"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed "GPU" || continue
 app_name="Gaming Essential"
 . "${__distro_path_root}/os-release"
 distro_name_and_ver_3=$(printf "%s" "$distro_name_and_ver_2" | cut -c1 | tr '[:lower:]' '[:upper:]')$(printf "%s" "$distro_name_and_ver_2" | cut -c2-)

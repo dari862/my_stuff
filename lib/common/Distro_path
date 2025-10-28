@@ -4,6 +4,7 @@ __distro_name="my_stuff"
 __distro_path_root="/usr/share/${__distro_name}"
 __distro_path_system_files="${__distro_path_root}/system_files"
 __distro_path_themes="${__distro_path_root}/Theme_Stuff"
+__distro_path_all_distro_themes="${__distro_path_root}/All_Distro_Themes"
 __distro_for_all_path="${__distro_path_system_files}/for_all"
 __distro_path_bin="${__distro_path_system_files}/bin"
 

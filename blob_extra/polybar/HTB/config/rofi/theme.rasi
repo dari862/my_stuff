@@ -8,6 +8,6 @@ highlight:			#539e06;
 urgent:				#3c7802;
 on:					#00fa5c;
 off:				#3c7802;
-img-background: url("(((distro_path_root)))/blob/polybar/HTB/preview.jpg", width);
+img-background: url("(((__distro_path_root)))/blob/polybar/HTB/preview.jpg", width);
 
 }

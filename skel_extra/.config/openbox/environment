@@ -1,5 +1,5 @@
 # (((__distro_title))) User config files
-# All default (((__distro_title))) user config files are located in (((distro_path_root)))/skel.
+# All default (((__distro_title))) user config files are located in (((__distro_path_root)))/skel.
 # The script skel_user_setup_ copies them to the user $HOME directory on first login.
 # See more info with command 'skel_user_setup_ --help'
 

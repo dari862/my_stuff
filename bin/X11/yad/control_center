@@ -347,8 +347,8 @@ INTRO_TXT=$(cat <<EOF
 EOF
 )
 
-gui_package_manager="gui_packagemanager"
-gui_package_manager_update="gui_packagemanager --updates"
+gui_package_manager="${__distro_path_root}/bin/not_add_2_path/gui_packagemanager"
+gui_package_manager_update="${__distro_path_root}/bin/not_add_2_path/gui_packagemanager --updates"
 
 #INTRO
 yad --plug=$KEY --tabnum=1 --borders=10 \
@@ -381,7 +381,7 @@ yad --plug=$KEY --tabnum=2 --borders=20 \
 --columns=1 --form \
 --field="$T_RESTART:FBTN" "tint2-session restart" \
 --field="$ADVANCED:LBL" "" \
---field="$T_CHOOSE:FBTN" "style-manager --tint2manager" \
+--field="$T_CHOOSE:FBTN" "${__distro_path_root}/bin/WM/style-manager --tint2manager" \
 --field="$TINT_DIR:FBTN" "my-text-editor $HOME/.config/tint2/" \
 > $res2 &
 
@@ -411,8 +411,8 @@ yad --plug=$KEY --tabnum=6 --borders=20 \
 --form \
 --field="$CONKY_RESTART:FBTN" "conky-session restart" \
 --field="$ADVANCED :LBL" "" \
---field="$CONKY_CHOOSE:FBTN" "style-manager --conkymanager" \
---field="$CONKY_EDIT:FBTN" "style-manager --conkyedit" \
+--field="$CONKY_CHOOSE:FBTN" "${__distro_path_root}/bin/WM/style-manager --conkymanager" \
+--field="$CONKY_EDIT:FBTN" "${__distro_path_root}/bin/WM/style-manager --conkyedit" \
 --field="$OPEN_CONKYDIR:FBTN" "my-text-editor $HOME/.config/conky/" \
 > $res6 &
 
@@ -435,7 +435,7 @@ yad --plug=$KEY --tabnum=8 --borders=0 --text="$SYSTEM_DESC" --columns=2 --align
 --field="LXRandR:FBTN" "lxrandr" \
 --field=" :LBL" "" \
 --field="<b>Info</b>:LBL" "" \
---field=" inxi -CGAD!utilities-terminal!:FBTN" "sysinfo_script_ --hardware3" \
+--field=" inxi -CGAD!utilities-terminal!:FBTN" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --hardware3" \
 --field=" distro_fetch!utilities-terminal!:FBTN" "popup_terminal 'distro_fetch ; read -n 1 -r -s'" \
 --field=" distro_top!utilities-terminal!:FBTN" "popup_terminal 'prosses system info' distro_top" \
 > $res8 &
@@ -461,7 +461,7 @@ yad --notebook --tab-pos="left" --key=$KEY \
     --tab="<i>$COMPOSITOR</i>" \
     --tab="$SYSTEM" \
     --tab="$HELP"\
-    --title="$TITLE" --image=${__distro_path_themes}/icons/linux.png \
+    --title="$TITLE" --image=${__distro_path_all_distro_themes}/icons/linux.png \
     --width="720" --height="420" --image-on-top --text-justify=right --text="$acc"  --no-buttons > $out &
 }
 
