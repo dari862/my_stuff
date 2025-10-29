@@ -160,7 +160,7 @@ ac_disconnected_cmd =
 #-------------------------------------
 # Button 1
 button = new
-button_icon = ~/.config/tint2/popside/icons/search-green.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/search-green.png
 button_text = Search
 button_lclick_command = rofi-launcher
 button_rclick_command = 

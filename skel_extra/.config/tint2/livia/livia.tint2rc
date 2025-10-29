@@ -193,7 +193,7 @@ ac_disconnected_cmd =
 #-------------------------------------
 # Button 1
 button = new
-button_icon = ~/.config/tint2/livia/apps.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/apps.png
 button_text = 
 button_lclick_command = rofi-launcher
 button_rclick_command = 

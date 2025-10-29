@@ -190,7 +190,7 @@ separator_padding = 12 2
 #-------------------------------------
 # Button 1
 button = new
-button_icon = ~/.config/tint2/cats/icons/search.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/dark_search.png
 button_text = Search
 button_lclick_command = rofi-launcher
 button_rclick_command = 

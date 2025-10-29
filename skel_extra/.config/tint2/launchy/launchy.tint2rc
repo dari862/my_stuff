@@ -217,7 +217,7 @@ separator_padding = 4 4
 #-------------------------------------
 # Button 1
 button = new
-button_icon = ~/.config/tint2/launchy/icons/launch.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/launch.png
 button_text = 
 button_lclick_command = rofi-runner
 button_rclick_command = 
@@ -233,7 +233,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 2
 button = new
-button_icon = ~/.config/tint2/launchy/icons/terminal.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/terminal.png
 button_text = 
 button_lclick_command = my-terminal-emulator
 button_rclick_command = 
@@ -249,7 +249,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 3
 button = new
-button_icon = ~/.config/tint2/launchy/icons/thunar.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/thunar.png
 button_text = 
 button_lclick_command = my-file-manager
 button_rclick_command = 
@@ -265,7 +265,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 4
 button = new
-button_icon = ~/.config/tint2/launchy/icons/firefox.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/firefox.png
 button_text = 
 button_lclick_command = my-www-browser
 button_rclick_command = 
@@ -281,7 +281,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 5
 button = new
-button_icon = ~/.config/tint2/launchy/icons/my-text-editor.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/my-text-editor.png
 button_text = 
 button_lclick_command = my-text-editor
 button_rclick_command = 
@@ -297,7 +297,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 6
 button = new
-button_icon = ~/.config/tint2/launchy/icons/googleplus.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/googleplus.png
 button_text = 
 button_lclick_command = my-www-browser plus.google.com
 button_rclick_command = 
@@ -313,7 +313,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 7
 button = new
-button_icon = ~/.config/tint2/launchy/icons/googlemail.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/googlemail.png
 button_text = 
 button_lclick_command = my-www-browser gmail.com
 button_rclick_command = 
@@ -329,7 +329,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 8
 button = new
-button_icon = ~/.config/tint2/launchy/icons/deviantart.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/deviantart.png
 button_text = 
 button_lclick_command = my-www-browser deviantart.com
 button_rclick_command = 
@@ -345,7 +345,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 9
 button = new
-button_icon = ~/.config/tint2/launchy/icons/telegram.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/telegram.png
 button_text = 
 button_lclick_command = my-www-browser web.telegram.org
 button_rclick_command = 
@@ -361,7 +361,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 10
 button = new
-button_icon = ~/.config/tint2/launchy/icons/github.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/github.png
 button_text = 
 button_lclick_command = my-www-browser github.com
 button_rclick_command = 
@@ -377,7 +377,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 11
 button = new
-button_icon = ~/.config/tint2/launchy/icons/reddit.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/reddit.png
 button_text = 
 button_lclick_command = my-www-browser reddit.com
 button_rclick_command = 

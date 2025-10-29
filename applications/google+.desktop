@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=Google+
 Type=Link
 URL=http://plus.google.com
-Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/google+.png
+Icon=(((__distro_path_all_distro_themes)))/icons/dots/red-dot.png
 Exec=my-www-browser -new-tab http://plus.google.com

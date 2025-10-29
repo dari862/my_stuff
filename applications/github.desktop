@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=GitHub
 Type=Link
 URL=http://github.com
-Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/github.png
+Icon=(((__distro_path_all_distro_themes)))/icons/dots/yellow-dot.png
 Exec=my-www-browser -new-tab http://github.com

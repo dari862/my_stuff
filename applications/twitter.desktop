@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=Twitter
 Type=Link
 URL=http://twitter.com
-Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/twitter.png
+Icon=(((__distro_path_all_distro_themes)))/icons/dots/babyblue-dot.png
 Exec=my-www-browser -new-tab http://twitter.com

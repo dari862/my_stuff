@@ -155,7 +155,7 @@ ac_disconnected_cmd =
 #-------------------------------------
 # Button 1
 button = new
-button_icon = ~/.config/tint2/Fmaj7/icons/search.png
+button_icon = ~/.config/tint2/Fmaj7/icons/gray_search.png
 button_text = SEARCH..
 button_lclick_command = rofi-runner
 button_rclick_command = 
@@ -172,7 +172,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 2
 button = new
-button_icon = ~/.config/tint2/Fmaj7/icons/expose.png
+button_icon = ~/.config/tint2/Fmaj7/icons/gray_expose.png
 button_text = EXPOSE..
 button_lclick_command = rofi-windows
 button_rclick_command = 

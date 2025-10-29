@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=Reddit
 Type=Link
 URL=http://reddit.com
-Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/reddit.png
+Icon=(((__distro_path_all_distro_themes)))/icons/dots/greenblue-dot.png
 Exec=my-www-browser -new-tab http://reddit.com

@@ -201,7 +201,7 @@ ac_disconnected_cmd =
 #-------------------------------------
 # Button 1
 button = new
-button_icon = ~/.config/tint2/starty/launch.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/gradient-launch.png
 button_text = 
 button_lclick_command = rofi-launcher
 button_rclick_command = 
@@ -217,7 +217,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 2
 button = new
-button_icon = ~/.config/tint2/starty/skippy.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/gradient-skippy.png
 button_text = 
 button_lclick_command = rofi-windows
 button_rclick_command = 
@@ -233,7 +233,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 3
 button = new
-button_icon = ~/.config/tint2/starty/screeny.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/gradient-screeny.png
 button_text = 
 button_lclick_command = my-shots
 button_rclick_command = 
@@ -249,7 +249,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 4
 button = new
-button_icon = ~/.config/tint2/starty/power.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/gradient-power.png
 button_text = 
 button_lclick_command = my_session_manager_menu logout
 button_rclick_command = 

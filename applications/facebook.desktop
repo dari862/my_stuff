@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=Facebook
 Type=Link
 URL=http://facebook.com
-Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/facebook.png
+Icon=(((__distro_path_all_distro_themes)))/icons/dots/lavander-dot.png
 Exec=my-www-browser -new-tab http://facebook.com

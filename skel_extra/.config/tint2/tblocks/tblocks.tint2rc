@@ -129,7 +129,7 @@ ac_disconnected_cmd =
 #-------------------------------------
 # Button 1
 button = new
-button_icon = ~/.config/tint2/tblocks/icons/youtube.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/colored-youtube.png
 button_text = 
 button_lclick_command = my-www-browser youtube.com
 button_rclick_command = 
@@ -145,7 +145,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 2
 button = new
-button_icon = ~/.config/tint2/tblocks/icons/deviantart.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/colored-deviantart.png
 button_text = 
 button_lclick_command = my-www-browser deviantart.com
 button_rclick_command = 
@@ -161,7 +161,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 3
 button = new
-button_icon = ~/.config/tint2/tblocks/icons/github.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/colored-github.png
 button_text = 
 button_lclick_command = my-www-browser github.com
 button_rclick_command = 
@@ -177,7 +177,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 4
 button = new
-button_icon = ~/.config/tint2/tblocks/icons/reddit.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/colored-reddit.png
 button_text = 
 button_lclick_command = my-www-browser reddit.com
 button_rclick_command = 
@@ -193,7 +193,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 5
 button = new
-button_icon = ~/.config/tint2/tblocks/icons/telegram.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/colored-telegram.png
 button_text = 
 button_lclick_command = my-www-browser web.telegram.org
 button_rclick_command = 
@@ -209,7 +209,7 @@ button_max_icon_size = 0
 #-------------------------------------
 # Button 6
 button = new
-button_icon = ~/.config/tint2/blocks/icons/googleplus.png
+button_icon = (((__distro_path_all_distro_themes)))/icons/conky/colored-googleplus.png
 button_text = 
 button_lclick_command = my-www-browser plus.google.com
 button_rclick_command = 

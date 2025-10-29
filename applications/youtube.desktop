@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=YouTube
 Type=Link
 URL=http://youtube.com
-Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/youtube.png
+Icon=(((__distro_path_all_distro_themes)))/icons/dots/pink-dot.png
 Exec=my-www-browser -new-tab http://youtube.com

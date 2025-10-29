@@ -3,5 +3,5 @@ Encoding=UTF-8
 Name=DeviantArt
 Type=Link
 URL=http://deviantart.com
-Icon=~/.config/tint2/unleashed/.bookmarks-dot/icons/deviantart.png
+Icon=(((__distro_path_all_distro_themes)))/icons/dots/lime-dot.png
 Exec=my-www-browser -new-tab http://deviantart.com
