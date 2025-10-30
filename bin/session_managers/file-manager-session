@@ -6,7 +6,7 @@ file_manager_real="$(basename $(realpath $(which my-file-manager)))"
 if [ "${file_manager_real}" = "pcmanfm" ];then
 	file_manager_command="exec my-file-manager -d"
 elif [ "${file_manager_real}" = "thunar" ];then
-	file_manager_command="exec my-file-manager --daemon"
+	file_manager_command="my-file-manager --daemon"
 else
 	exit
 fi
