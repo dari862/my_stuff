@@ -1,5 +1,5 @@
 #!/bin/sh
 
-_external=$(dig +short myip.opendns.com @resolver1.opendns.com)
+_external=$(getURL '2term' "https://ifconfig.co/ip")
 
 echo "${_external}"
