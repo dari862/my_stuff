@@ -1,4 +1,5 @@
 #!/bin/sh
+# work on this : high IO pressure from mpd `cat /proc/pressure/io` only on debian 13
 . "$__distro_path_lib"
 mpdconf_path="$HOME/.config/mpd/mpd.conf"
 

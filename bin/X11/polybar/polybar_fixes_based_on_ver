@@ -2,9 +2,9 @@
 . "$__distro_path_lib"
 
 polybar_ver=$(polybar -v|head -n 1|sed 's/polybar//g;s/ //g;s/\n//g;s/\.//g')
-polybar_ver=$(echo "${polybar_ver}0000000000" | cut -c 1-9)
+polybar_ver="${polybar_ver}0000000000"
 
-[ "$polybar_ver" -lt "370" ] && exit
+[ "${polybar_ver}" -lt "3700000000000" ] && exit
 
 find "${__distro_path_root}/system_files/skel/.config"/polybar -type f -name config.ini -exec sed -i 's/ notray_m/ tray_m/g' {} +
 find "${__distro_path_root}/system_files/skel/.config"/polybar -type f -exec sed -i 's/^content/format/g' {} +

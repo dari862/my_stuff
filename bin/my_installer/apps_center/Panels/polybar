@@ -15,6 +15,6 @@ if [ -d "${__distro_path_root}/bin/X11/polybar" ];then
 	ln_sf_files_depth1 "${__distro_path_root}/bin/X11/polybar" "${__distro_path_root}/system_files/bin" || continue
 fi
 
-"${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver || continue
+"${__distro_path_root}"/bin/X11/polybar/polybar_fixes_based_on_ver || continue
 
 "${__distro_path_root}"/bin/X11/polybar/polybar_launch_creater || continue

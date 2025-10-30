@@ -2,8 +2,8 @@
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
-mpd-session start
-mpd-session db &
+mc-session start
+mc-session db &
 
 if mkdir -p "/tmp/$USER";then
 	chmod 700 "/tmp/$USER"

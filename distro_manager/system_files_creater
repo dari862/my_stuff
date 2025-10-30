@@ -418,7 +418,7 @@ if command_exist polybar;then
 	show_im "copy polybar skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/polybar" "${__distro_path_system_skel_files}/.config"
 	cp -r "${__distro_path_root}/bin/X11/session_managers/polybar-session" "${__distro_path_system_files}"/binX11
-	"${__distro_path_root}"/bin/X11/not_add_2_path/polybar/polybar_fixes_based_on_ver
+	"${__distro_path_root}"/bin/X11/polybar/polybar_fixes_based_on_ver
 fi
 
 if command_exist yad;then
