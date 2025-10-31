@@ -181,7 +181,7 @@ loadDialog() {
         conky-session --kill-running "$SESSIONFILE" # conky-session can handle desktops too
     else # this code should seldom be needed
         # kill all conkys
-        if pgrep -x -u "$USER" conky >/dev/null;then
+        if pgrep -x -u "$USER" conky >/dev/null 2>&1;then 
             killall -u "$USER" conky
             sleep 0.5 # make sure killed conkys are not running at next iteration of getRunning()
         fi

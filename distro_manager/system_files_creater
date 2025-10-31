@@ -423,7 +423,7 @@ fi
 
 if command_exist alacritty;then
 	show_im "copy alacritty skell file to system_files/skel ."
-	cp -r "${__distro_path_root}/skel_extra/.config/alacritty" "${__distro_path_system_skel_files}/.config" 
+	cp -r "${__distro_path_root}/skel_extra/.config/alacritty" "${__distro_path_system_skel_files}/.config"
 fi
 
 if command_exist bspwm;then
@@ -731,6 +731,16 @@ if ! command_exist magick;then
 	show_im "Create symboliclink to magick from convert."
 	if command_exist convert;then
 		ln -sf "$(which convert)" /usr/bin/magick
+	fi
+fi
+
+fzf_version_output="$(fzf --version | awk '{print $1}')"
+fzf_version_major="$(printf "%s" "$fzf_version_output" | awk -F'.' '{print $1}')"
+fzf_version_minor="$(printf "%s" "$fzf_version_output" | awk -F'.' '{print $2}')"
+
+if [ "$fzf_version_major" -eq 0 ];then
+	if [ "$fzf_version_minor" -le 38 ];then
+		sed -i 's/--style minimal //g' "${__distro_path_system_skel_files}/.config/myshell/profile.sh" 
 	fi
 fi
 

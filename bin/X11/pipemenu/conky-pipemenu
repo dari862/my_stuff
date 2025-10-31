@@ -62,7 +62,7 @@ loadEditSubmenu(){
         if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
             menuItem "Conky Editor" "${__distro_path_root}/bin/WM/style-manager --conkyedit"
         fi
-        if pgrep -x -u "$USER" conky >/dev/null;then
+        if pgrep -x -u "$USER" conky >/dev/null 2>&1;then 
             menuSubmenu "RunningConky" "Running Conkys"
             pgrep -x 'conky' -u "$USER" | while read -r pid; do
                 mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'

@@ -5,7 +5,7 @@ unalias -a
 check_command() {
   local state=true
   for package in "${@}"; do
-    if ! command -v "${package}" >/dev/null;then
+    if ! command -v "${package}" >/dev/null 2>&1;then 
       echo "MISSING: ${package} not installed."
       state=false
     fi

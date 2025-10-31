@@ -230,7 +230,7 @@ function delete_local(){    # delete local screenshot; don't delete if '--file' 
         ret="$?"
 
         if (( ret == 0 ));then
-            if gio trash "${img_file}" >/dev/null;then # send to 'Wastebasket'
+            if gio trash "${img_file}" >/dev/null 2>&1;then # send to 'Wastebasket'
                 gio trash "${thumbnail}"
             else
                 rm -f "${img_file}"
@@ -608,7 +608,7 @@ function main(){
 
     # Show 'Delete' button until image has been deleted
     while true;do
-        if getURL 'head' "${del_url}" | grep "HTTP/1.1 200 OK" >/dev/null;then # page exists
+        if getURL 'head' "${del_url}" | grep "HTTP/1.1 200 OK" >/dev/null 2>&1;then # page exists
             ret=$(${DIALOG} --image-on-top --image="${thumb_tempfile}" "${TITLE}" \
                 --width=680 ${T}"${TEXT}" --text-align=left \
                 --form \

@@ -53,7 +53,7 @@ elif [ "$_panel_name_" = "tint2" ];then
 	}
 	
 	loadRestart(){
-    	if pgrep -x -u "$USER" tint2 >/dev/null;then
+    	if pgrep -x -u "$USER" tint2 >/dev/null 2>&1;then 
             menuItem "Restart Tint2" "tint2-session restart"
     	fi
 	}
@@ -72,7 +72,7 @@ elif [ "$_panel_name_" = "tint2" ];then
 	# tint2conf removed here but still available from "Applications" menu as Settings > Panel Manager
 	#        menuItem "Tint2 Config GUI" "tint2conf"
         	menuItem "Default tint2rc" "my-text-editor '$TINT2DEFAULT'"
-        	if pgrep -x -u "$USER" tint2 >/dev/null;then
+        	if pgrep -x -u "$USER" tint2 >/dev/null 2>&1;then 
             	menuSubmenu "RunningTint2" "Running Tint2s"
             	pgrep -x 'tint2' -u "$USER" | while read -r pid; do
                 	mapfile -d '' -t command < "/proc/${pid}/cmdline" # use NULL delimiter to split cmdline into array 'command'

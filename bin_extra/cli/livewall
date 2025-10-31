@@ -51,7 +51,7 @@ noprocess_videos="No videos."
 [ ! -d "${video_dir}" ] && mkdir -p "${video_dir}"
 
 checkprocess_video_exists_in_dir(){
-    if ! ls -d ${video_dir}/* 2>/dev/null >/dev/null;then
+    if ! ls -d ${video_dir}/* 2>/dev/null >/dev/null 2>&1;then 
         echo ${noprocess_videos}
         exit 1
     fi

@@ -17,10 +17,10 @@ case "$XDG_SESSION_TYPE" in
 	*) err "Unknown display server";; 
 esac
 
-if command -v colorpicker >/dev/null;then
+if command -v colorpicker >/dev/null 2>&1;then 
 	colorpicker --short --one-shot --preview | cp2cb
 else
-	if command -v gpick >/dev/null;then
+	if command -v gpick >/dev/null 2>&1;then 
 		color=$(gpick -so 2>/dev/null)
 	else
 		err "please install colorpicker or gpick ."

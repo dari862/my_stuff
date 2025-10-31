@@ -1,11 +1,11 @@
 #!/bin/sh
 #===================================================================================
 . "$__distro_path_lib"
-if command -v lxappearance >/dev/null ;then
+if command -v lxappearance >/dev/null 2>&1;then
 	if [ "$HOME" = "/root" ];then
 		lxappearance
 	else
-		lxappearance && ${__distro_path_root}/system_files/bin/reload_gtk23
+		lxappearance && ${__distro_path_root}/bin/X11/WM/reload_gtk23
 	fi
 else
 	RiceSelector
