@@ -704,4 +704,11 @@ for e in "${__distro_path_all_distro_themes}"/fonts/*;do
 	ln -sf "$e" /usr/share/fonts
 done
 
+if ! command_exist magick;then
+	show_im "Create symboliclink to magick from convert."
+	if command_exist convert;then
+		ln -sf "$(which convert)" /usr/bin/magick
+	fi
+fi
+
 show_im "system_files_creater Done."

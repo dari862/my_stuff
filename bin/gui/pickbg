@@ -7,66 +7,69 @@ wallpaper_dir="${__distro_path_themes}/my_wallpapers"
 
 # Get terminal size for preview dimensions
 get_preview_dim() {
-  # Use FZF env vars if available; fallback to `stty size`
-  cols=${FZF_PREVIEW_COLUMNS}
-  lines=${FZF_PREVIEW_LINES}
+	# Use FZF env vars if available; fallback to `stty size`
+	cols=${FZF_PREVIEW_COLUMNS}
+	lines=${FZF_PREVIEW_LINES}
 
-  if [ -z "$cols" ] || [ -z "$lines" ]; then
-    # stty size gives rows cols; switch order to colsxrows
-    lines=$(tput lines)
-	cols=$(tput cols)
-  fi
+	if [ -z "$cols" ] || [ -z "$lines" ]; then
+		# stty size gives rows cols; switch order to colsxrows
+		lines=$(tput lines)
+		cols=$(tput cols)
+	fi
 
-  dim="${cols}x${lines}"
+	dim="${cols}x${lines}"
 
-  # Adjust if preview is at the bottom to avoid scrolling issues with Sixel
-  if [ -z "$KITTY_WINDOW_ID" ] && [ "$((FZF_PREVIEW_TOP + lines))" -eq "$lines" ]; then
-    dim="${cols}x$((lines - 1))"
-  fi
+	# Adjust if preview is at the bottom to avoid scrolling issues with Sixel
+	if [ -z "$KITTY_WINDOW_ID" ] && [ "$((FZF_PREVIEW_TOP + lines))" -eq "$lines" ]; then
+		dim="${cols}x$((lines - 1))"
+	fi
 
-  echo "$dim"
+	echo "$dim"
 }
 
 # Shared dim calculation for preview commands
 
 # Use Kitty's icat if running in Kitty or Ghostty and kitten is available
 if { [ -n "$KITTY_WINDOW_ID" ] || [ -n "$GHOSTTY_RESOURCES_DIR" ]; } && command -v kitten >/dev/null 2>&1; then
-  preview_command() {
-  	dim=$(get_preview_dim)
-    # 'memory' transfer mode is fastest; 'stream' allows scroll but slower
-    RESET=$(printf '\033[m')
-    kitten icat --clear --transfer-mode=memory --unicode-placeholder --stdin=no --place="${dim}@0x0" "$1" \
-      | sed '$d' | sed $'$s/$/\e[m/'  # Remove last newline and append ANSI reset
-  }
+	preview_command() {
+		dim=$(get_preview_dim)
+		# 'memory' transfer mode is fastest; 'stream' allows scroll but slower
+		RESET=$(printf '\033[m')
+		kitten icat --clear --transfer-mode=memory --unicode-placeholder --stdin=no --place="${dim}@0x0" "$1" \
+			| sed '$d' | sed $'$s/$/\e[m/'	# Remove last newline and append ANSI reset
+	}
 elif command -v ueberzugpp >/dev/null 2>&1; then
-  :
-  # work on this : add ueberzugpp support
+	preview_command() {
+		echo	"# work on this : add ueberzugpp support"
+	}
+ 
 elif command -v ueberzug >/dev/null 2>&1; then
-  :
-  # work on this : add ueberzug support
+	preview_command() {
+		echo	"# work on this : add ueberzug support"
+	}
 # Use chafa with Sixel output if available
 elif command -v chafa >/dev/null 2>&1; then
-  preview_command() {
-  	dim=$(get_preview_dim)
-    chafa -s "$dim" "$1"
-    echo  # new line for fzf multiple previews
-  }
+	preview_command() {
+		dim=$(get_preview_dim)
+		chafa -s "$dim" "$1"
+		echo	# new line for fzf multiple previews
+	}
 
 # Use imgcat for iTerm2 if available
 elif command -v imgcat >/dev/null 2>&1; then
-  preview_command() {
-  	dim=$(get_preview_dim)
-    # Extract width and height from dim
-    w="${dim%x*}"
-    h="${dim#*x}"
-    imgcat -W "$w" -H "$h" "$1"
-  }
+	preview_command() {
+		dim=$(get_preview_dim)
+		# Extract width and height from dim
+		w="${dim%x*}"
+		h="${dim#*x}"
+		imgcat -W "$w" -H "$h" "$1"
+	}
 
 # Fallback: use file command for preview
 else
-  preview_command() {
-    file "$1"
-  }
+	preview_command() {
+		file "$1"
+	}
 fi
 
 export -f preview_command get_preview_dim

@@ -7,7 +7,7 @@
 unalias -a
 
 if [ "$_panel_name_" = "polybar" ];then
-	if [ ! -f "${style_pipemenu_file}_${_panel_name_}" ]
+	if [ ! -f "${style_pipemenu_file}_${_panel_name_}" ];then
 		"${__distro_path_root}"/bin/X11/pipemenu/create_pipemenu/style.sh
 	fi
 	menuStart "PolybarMenu" "Polybar"
