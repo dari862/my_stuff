@@ -7,7 +7,7 @@ say "Installing ${app_name} ..." 1
 
 Package_installer_ "${app_name} ${extra_apps_}" || continue
 
-say "Add ${__distro_name}_bspwm to /usr/share/xsessions..." 1
+say "Add ${__custom_distro_name}_bspwm to /usr/share/xsessions..." 1
 create_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
 say
 copy_from_extra_skel ".config/bspwm" || continue

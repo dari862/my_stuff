@@ -3,11 +3,7 @@
 # It runs full system upgrade in a text console
 opt="${1:-}"
 
-if [ "$(id -u)" -ne 0 ]; then
-  __SUPER_USER="my-superuser"
-else
-	echo "dont not run script as superuser."
-fi
+__SUPER_USER="my-superuser"
 
 if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 	echo ""
@@ -26,13 +22,13 @@ update_full_upgrade_script(){
 	print_purple "==> check if full upgrade need update. "
 	do_full_upgrade_need_update=false
 	$__SUPER_USER mkdir -p /tmp/root/disto_updater
-	$__SUPER_USER $getURL_path 'download2' "https://raw.githubusercontent.com/dari862/${__distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
+	$__SUPER_USER $getURL_path 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
 	$__SUPER_USER chmod +x "/tmp/root/disto_updater/full-upgrade"
 	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
 		print_purple "==> running new version of full-upgrade. "
-		$__SUPER_USER /tmp/root/disto_updater/full-upgrade --skip-internet-check && exit || ( print_RED "failed to do full upgrade" && exit 1 )
+		/tmp/root/disto_updater/full-upgrade --skip-internet-check && exit || ( print_RED "failed to do full upgrade" && exit 1 )
 	else
 		print_GREEN "==> full upgrade up to date."
 	fi
@@ -88,7 +84,7 @@ Updating_Distro(){
 	blob_modified=false
 	skel_modified=false
 	print_purple "==> Fetching Distro repo."
-	$__SUPER_USER git remote set-url origin "https://github.com/dari862/${__distro_name}.git" >/dev/null 2>&1
+	$__SUPER_USER git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
 	$__SUPER_USER git fetch >/dev/null 2>&1
 	if $(git status | grep -q "^Your branch is up to date" || :);then
 		print_GREEN "==> Distro is up to date." 
@@ -145,32 +141,8 @@ Updating_opt(){
 }
 
 post_updating(){
-	create_new_os_release_file
 	print_purple "==> running system_files_creater."
-	$__SUPER_USER ${__distro_path_root}/distro_manager/system_files_creater
-}
-
-create_new_os_release_file(){
-	print_purple "==> running create_new_os_release_file."
-	if [ -f /etc/os-release ];then
-		. /etc/os-release
-		version_="$(echo "${VERSION_ID}" | tr -d '.')"
-		distro_name="$ID"
-		distro_desc="$PRETTY_NAME"
-		distro_name_and_ver_="$ID$version_"
-		distro_name_and_ver_2="${ID}_${version_}"
-		version_codename="${VERSION_CODENAME}"
-		VERSION_ID="$VERSION_ID"
-	fi
-	$__SUPER_USER tee "${__distro_path_root}/os-release" <<- EOF > /dev/null 2>&1
-	version_="$version_"
-	distro_name="$distro_name"
-	distro_desc="$distro_desc"
-	distro_name_and_ver_="$distro_name_and_ver_"
-	distro_name_and_ver_2="$distro_name_and_ver_2"
-	version_codename="${version_codename}"
-	VERSION_ID="$VERSION_ID"
-	EOF
+	${__distro_path_root}/distro_manager/system_files_creater
 }
 
 ##########################################################################################################################3

@@ -238,8 +238,8 @@ create_applicationsdotdesktop_4_xsessions(){
 	fi
 	
 	$_SUPERUSER_2_use mkdir -p "${_distro_xsessions_desktop_path}"
-    if [ ! -f "${_distro_xsessions_desktop_path}/${__distro_name}_${__application_name}.desktop" ];then
-    	$_SUPERUSER_2_use tee "${_distro_xsessions_desktop_path}/${__distro_name}_${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    if [ ! -f "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" ];then
+    	$_SUPERUSER_2_use tee "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" <<- EOF >/dev/null 2>&1
 		[Desktop Entry]
 		Name=${__distro_title} ${__application_name}
 		Comment=Log in to a ${__distro_title} ${__application_name} session
@@ -249,8 +249,8 @@ create_applicationsdotdesktop_4_xsessions(){
 		Type=Xsession
 		EOF
     fi
-    if [ ! -f "/usr/share/xsessions/${__distro_name}_${__application_name}.desktop" ];then
-    	$_SUPERUSER_2_use ln -sf "${_distro_xsessions_desktop_path}/${__distro_name}_${__application_name}.desktop" "/usr/share/xsessions"
+    if [ ! -f "/usr/share/xsessions/${__custom_distro_name}_${__application_name}.desktop" ];then
+    	$_SUPERUSER_2_use ln -sf "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" "/usr/share/xsessions"
     fi
 }
 

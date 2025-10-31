@@ -206,6 +206,29 @@ fi
 mkdir -p "/root/Templates"
 
 ##################################################################################
+
+show_im "Create Custom OS release file."
+if [ -f /etc/os-release ];then
+	. /etc/os-release
+	version_="$(echo "${VERSION_ID}" | tr -d '.')"
+	distro_name="$ID"
+	distro_desc="$PRETTY_NAME"
+	distro_name_and_ver_="$ID$version_"
+	distro_name_and_ver_2="${ID}_${version_}"
+	version_codename="${VERSION_CODENAME}"
+	VERSION_ID="$VERSION_ID"
+fi
+
+tee "${__distro_path_root}/os-release" <<- EOF > /dev/null 2>&1
+version_="$version_"
+distro_name="$distro_name"
+distro_desc="$distro_desc"
+distro_name_and_ver_="$distro_name_and_ver_"
+distro_name_and_ver_2="$distro_name_and_ver_2"
+version_codename="${version_codename}"
+VERSION_ID="$VERSION_ID"
+EOF
+
 show_im "creating missing dir"
 mkdir -p "${__distro_path_root}"/bin/my_installer/distrobox_center/Apps
 mkdir -p "${__distro_path_root}"/bin/my_installer/distrobox_center/Gaming
@@ -627,17 +650,17 @@ sed_distro_path_root_var_2_correct_value "${__distro_path_system_skel_files}"
 sed_distro_path_root_var_2_correct_value "${__distro_path_system_blob_files}"
 
 if command_exist openbox;then
-	show_im "create ${__distro_name}_openbox to xsessions."
+	show_im "create ${__custom_distro_name}_openbox to xsessions."
 	create_applicationsdotdesktop_4_xsessions "openbox" "openbox"
 fi
 
 if command_exist dwm;then
-	show_im "create ${__distro_name}_dwm to xsessions."
+	show_im "create ${__custom_distro_name}_dwm to xsessions."
 	create_applicationsdotdesktop_4_xsessions "dwm" "dwm"
 fi
 
 if command_exist bspwm;then
-	show_im "create ${__distro_name}_bspwm to xsessions."
+	show_im "create ${__custom_distro_name}_bspwm to xsessions."
 	create_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
 fi
 
