@@ -10,7 +10,7 @@ Packages_are="
 
 . "${__distro_path_root}/os-release"
 
-if [ "$distro_name" = "ubuntu" ];then
+if [ "$root_distro_name" = "ubuntu" ];then
 	Packages_are="${Packages_are} libmysqlclient-dev"
 fi
 

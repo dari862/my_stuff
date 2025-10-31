@@ -211,17 +211,17 @@ show_im "Create Custom OS release file."
 if [ -f /etc/os-release ];then
 	. /etc/os-release
 	version_="$(echo "${VERSION_ID}" | tr -d '.')"
-	distro_name="$ID"
+	root_distro_name="$ID"
 	distro_desc="$PRETTY_NAME"
-	distro_name_and_ver_="$ID$version_"
-	distro_name_and_ver_2="${ID}_${version_}"
+	distro_name_and_ver_="$root_distro_name$version_"
+	distro_name_and_ver_2="${root_distro_name}_${version_}"
 	version_codename="${VERSION_CODENAME}"
 	VERSION_ID="$VERSION_ID"
 fi
 
 tee "${__distro_path_root}/os-release" <<- EOF > /dev/null 2>&1
 version_="$version_"
-distro_name="$distro_name"
+root_distro_name="$root_distro_name"
 distro_desc="$distro_desc"
 distro_name_and_ver_="$distro_name_and_ver_"
 distro_name_and_ver_2="$distro_name_and_ver_2"

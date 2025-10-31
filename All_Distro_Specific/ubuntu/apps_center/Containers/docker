@@ -17,7 +17,7 @@ if [ ! -f "${__distro_path_root}/system_files/Container_Group_docker" ];then
 	
 	if [ ! -f /etc/apt/sources.list.d/docker.list ];then
 		# Add the repository to Apt sources:
-		add_repo "docker" "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$distro_name $version_codename stable"
+		add_repo "docker" "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$root_distro_name $version_codename stable"
 	fi
 	
 	Package_update_

@@ -53,7 +53,7 @@ create_system_file_ini() {
 	;; AC_only_content = \${system.AC_only_content}
 	;; temperature = \${system.temperature}
 	;; distro_icon = \${system.distro_icon}
-	;; distro_name = \${system.distro_name}
+	;; distro_name = \${system.root_distro_name}
 	;; NO_BT_content = \${system.NO_BT_content}
 	;;
 	;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -68,7 +68,7 @@ create_system_file_ini() {
 	AC_only_content = " AC only "
 	temperature = $TemperaturePath
 	distro_icon = $distro_icon
-	distro_name = "$distro_name"
+	root_distro_name = "$root_distro_name"
 	NO_BT_content = " "
 	workspace_name = "$workspace_name"
 	saved_WM_name = "$saved_WM_name"

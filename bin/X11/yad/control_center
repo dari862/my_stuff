@@ -338,7 +338,7 @@ KERN=$(uname -r | cut -d'-' -f1 | sed 's/linux//' | tr '[:upper:]' '[:lower:]')
 RESOLUTION=$(xdpyinfo | awk '/^ +dimensions/ {print $2}')
 
 INTRO_TXT=$(cat <<EOF
-\t<big> <i>$distro_name</i> $VERSION_ID</big>
+\t<big> <i>$root_distro_name</i> $VERSION_ID</big>
 \t<small><i>$MABOX_DESC</i></small>\n
 \t<small><tt>$INSTALLED </tt></small><b>$INST</b> <small>$DAGO</small>
 \t<small><tt>wm:            </tt></small><b>$XDG_SESSION_DESKTOP</b>
