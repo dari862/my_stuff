@@ -1,7 +1,6 @@
 #!/bin/sh
 . "$__distro_path_lib"
 skel_keybinds_dir="${__distro_path_root}/system_files/skel/.config/keybinds"
-usr_setup_flag_file="$HOME/.local/share/usr-flag-setup"
 
 file_to_cat="General"
 if command -v openbox > /dev/null 2>&1;then

@@ -1,6 +1,4 @@
 usr_confdir="${XDG_CONFIG_HOME:-$HOME/.config}"
-usr_locl_share_dir="$HOME/.local/share"
-usr_setup_flag_file="$usr_locl_share_dir/usr-flag-setup"
 usr_xsessionrc="$HOME/.xsessionrc"
 usr_resources="$HOME/.config/x11/xresources"
 xsessions_lib_path="${__distro_path_root}/lib/xsessions"
@@ -21,8 +19,8 @@ fi
 if [ ! -f "$usr_setup_flag_file" ];then
     # Import user config files
     if [ -x "${xsessions_lib_path}"/skel_user_setup_ ];then
-        if "${xsessions_lib_path}"/skel_user_setup_ "$usr_setup_flag_file";then
-        	"${xsessions_lib_path}"/skel_user_setup_ "$usr_setup_flag_file" || echo "failed to run skel_user_setup_"
+        if "${xsessions_lib_path}"/skel_user_setup_;then
+        	"${xsessions_lib_path}"/skel_user_setup_ || printf "\nfailed to run skel_user_setup_\n"
         fi
     fi
 

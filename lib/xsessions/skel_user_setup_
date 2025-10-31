@@ -1,7 +1,6 @@
 #!/bin/sh
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
-usr_setup_flag_file="$1"
 backup_date="$(date +'%d-%m-%Y-%HH%mm')"
 backup_file_name=".backup-${backup_date}"
 backup_file_path="${HOME}/${backup_file_name}"
@@ -70,8 +69,6 @@ if the_copyed_skel_are_correpted;then
 	exit 1
 fi
 
-touch "$usr_setup_flag_file"
-
 cd $HOME
 
 for hf in .bash_histor*;do
@@ -89,3 +86,5 @@ chmod 700 "$HOME/.local/share/APIs/" "$HOME/.local/share/gnupg/"
 chmod 600 "$HOME/.local/share/gnupg/gpg-agent.conf"
 
 find "$HOME/.config/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
+
+touch "$usr_setup_flag_file"

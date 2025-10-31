@@ -19,13 +19,7 @@ fi
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
-. "${__distro_path_root}/lib/common/Distro_path"
 
-x_session_picker_path="${__distro_path_root}/system_files/bin/xsessions/openbox"
-
-usr_flag_setup_dir="$(grep "usr_locl_share_dir=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' |sed 's|$HOME/||g' || :)"
-usr_flag_setup_name="$(grep "usr_setup_flag_file=" $x_session_picker_path  | awk -F= '{print $2}' | sed 's/"//g' | sed 's|$usr_locl_share_dir/||g' || :)"
-usr_flag_setup_path="${usr_flag_setup_dir}/${usr_flag_setup_name}"
 getURL_path="$(which getURL)"
 
 update_full_upgrade_script(){
