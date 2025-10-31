@@ -82,7 +82,7 @@ create_exec_pipemenu(){
 	create_exec_pipemenu "SchemePipeMenu" "change-scheme-pipemenu" "Terminal Color Scheme"
 	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	menuSeparator
-	menuItem "Change Wallpaper" "pickbg"
+	menuItem "Change Wallpaper" "popup_terminal pickbg"
 	menuItem "Appearance Settings" "appearance_settings_"
 	menuSeparator
 	menuItem "Power Settings" "power_manager_settings"

@@ -19,7 +19,7 @@ stop(){
 start() {
 	sleep $sleep_time 
 	"${__distro_path_root}"/bin/WM/kill_process.sh xfce4-power-manager
-	( pgrep -f my_power_manager 2>/dev/null || setsid "${__distro_path_root}"/bin/X11/WM/my_power_manager ) &
+	( pgrep -f my_power_manager >/dev/null 2>&1 || setsid "${__distro_path_root}"/bin/X11/WM/my_power_manager ) &
 }
 
 case "${1}" in
