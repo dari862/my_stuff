@@ -56,11 +56,8 @@ getdoppler() {
 
 main() {	
 	if old_weather_data_;then
-		if connectiontest 10 icon >/dev/null 2>&1;then
+		if connectiontest 10 icon;then
 			get_weather_data_
-		else
-			printf "%s" ""
-			exit
 		fi
 	fi
 

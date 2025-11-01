@@ -5,7 +5,11 @@
 # Usage: connectiontest [attempts]
 # If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
 connectiontest() {
-	if [ "${2:-}" = "nomassage" ];then
+	_show_icon=false
+	if [ "${2:-}" = "icon" ];then
+		_nomassage_=true
+		_show_icon=true
+	elif [ "${2:-}" = "nomassage" ];then
 		_nomassage_=true
 	else
 		_nomassage_=false
@@ -41,7 +45,9 @@ connectiontest() {
         i=$((i + 1))
     done
     if [ "${_nomassage_}" = true ];then
-    	say ""
+    	if [ "${_show_icon}" = true ];then
+    		say ""
+    	fi
     	return 1
     fi
 }
