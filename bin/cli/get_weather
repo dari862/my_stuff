@@ -36,9 +36,9 @@ fix_weather_script_config_var(){
 get_moon_phase() { 
 	# Moon Phase should be updated only once a day.
 	if [ ! -f "$moonfile" ] || [ "$(stat -c %y "$moonfile" 2>/dev/null | cut -d' ' -f1)" != "$(date +'%Y-%m-%d')" ];then
-		getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || echo "[ERROR] $0 : failed to run get_moon_phase"
+		getURL '2term' "${WTTRURL}/${place}?format=%m" > "$moonfile" || printf "[ERROR] %s : failed to run get_moon_phase" "$0"
 	fi
-	cat "$moonfile" && echo ""
+	cat "$moonfile" && printf "\n"
 }
 
 getdoppler() {
@@ -49,15 +49,18 @@ getdoppler() {
 		"US") getURL '2term' "https://radar.weather.gov/ridge/standard/${radarcode}_loop.gif" > "$doppler" ;;
 		"EU") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rainTMC/2/" > "$doppler" ;;
 		"AF") getURL '2term' "https://api.sat24.com/animated/${radarcode}/rain/2/" > "$doppler" ;;
-		"DE") radarcode="$(echo "$radarcode" | tr "[:upper:]" "[:lower:]")"
+		"DE") radarcode="$(printf '%s' "$radarcode" | tr "[:upper:]" "[:lower:]")"
 				getURL '2term' "https://www.dwd.de/DWD/wetter/radar/radfilm_${radarcode}_akt.gif" > "$doppler" ;;
 	esac
 }
 
 main() {	
 	if old_weather_data_;then
-		if connectiontest 10 icon;then
+		if connectiontest 10 icon >/dev/null 2>&1;then
 			get_weather_data_
+		else
+			printf '%s' ""
+			exit
 		fi
 	fi
 
@@ -73,11 +76,11 @@ main() {
 			weather_TEXT=""
 		fi
 		if  [ "$__opt" = "-i" ];then
-   			echo "${weather_ICON} ${WEATHER_TEMP}${scaleT}"
+   			printf "%s %s%s" "${weather_ICON}" "${WEATHER_TEMP}" "${scaleT}"
    		elif  [ "$__opt" = "-t" ];then
-   			echo "${weather_description}"
+   			printf "%s" "${weather_description}"
 		elif  [ "$__opt" = "-d" ];then
-   			echo "${weather_TEXT} ${WEATHER_TEMP}${scaleT}"
+   			printf "%s %s%s" "${weather_TEXT}" "${WEATHER_TEMP}" "${scaleT}"
    		elif  [ "$__opt" = "-n" ];then
    			printf "%s %s%s \n %s \n" "${weather_ICON}" "${WEATHER_TEMP}" "${scaleT}" "${weather_description}"
    		fi
@@ -128,7 +131,7 @@ fi
 
 [ "$__opt2" = "extra" ] && show_Extra=true
 
-mkdir -p "$weather_script_data_path" || echo "[ERROR] $0 : mkdir -p $weather_script_data_path"
+mkdir -p "$weather_script_data_path" || printf "[ERROR] %s : mkdir -p %s" "$0" "$weather_script_data_path"
 
 if [ "$units" = "metric" ];then
    	scaleT="°C"
