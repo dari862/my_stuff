@@ -6,6 +6,7 @@
 # DESCRIPTION: Checks updates and show it to user in tint2 taskbar
 #===================================================================================
 # CONFIG
+__distro_path_lib="${2:-$__distro_path_lib}"
 . "$__distro_path_lib"
 __arg="${1-}"
 script_name="update-notification"

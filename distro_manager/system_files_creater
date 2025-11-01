@@ -11,6 +11,8 @@ __distro_path_lib="${1:-$__distro_path_lib}"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
+mkdir -p "${__distro_path_neverremove}"
+
 if [ ! -f "${__distro_path_neverremove}/machine_type" ];then
 	. "${__distro_path_root}/lib/common/machine_type"
 	machine_type_are="$(check_machine_type)"
@@ -248,7 +250,6 @@ mkdir -p "${__distro_path_external}"/auto_completion
 mkdir -p "${__distro_path_system_files}"/applications
 
 mkdir -p "${__distro_path_system_ready}"
-mkdir -p "${__distro_path_neverremove}"
 
 mkdir -p "${_distro_xsessions_desktop_path}"
 
@@ -709,6 +710,18 @@ done
 show_im "Create openbox themes"
 "${__distro_path_all_distro_themes}"/openbox_themes_creater/prepare_themes "$__distro_path_lib"
 
+show_im "Running my-alternatives"
+"${__distro_path_root}"/bin/cli/my-alternatives --install "$__distro_path_lib"
+
+show_im "copy manpages."
+ln -sf ${__distro_path_root}/lib/manpage/* /usr/share/man/man1
+	
+show_im "installing update-notification"
+"${__distro_path_root}"/bin/WM/update-notification -I "$__distro_path_lib"
+
+show_im "Create lightdm.conf."
+"${__distro_path_root}"/bin/not_add_2_path/setLightdmGreeter --initial-step "$__distro_path_lib" "$switch_default_xsession_to"
+
 show_im "Adding themes"
 mkdir -p /usr/share/themes
 for d in "${__distro_path_themes}"/system-themes/* "${__distro_path_themes}"/openbox_themes/*;do
@@ -726,6 +739,12 @@ mkdir -p /usr/share/fonts
 for e in "${__distro_path_all_distro_themes}"/fonts/*;do
 	ln -sf "$e" /usr/share/fonts
 done
+
+show_im "update fonts cache."
+fc-cache -vf
+	
+show_im "update icons cache."
+gtk-update-icon-cache
 
 if ! command_exist magick;then
 	show_im "Create symboliclink to magick from convert."
