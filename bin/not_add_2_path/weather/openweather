@@ -123,8 +123,15 @@ get_weather_report_more(){
 }
 
 old_weather_data_(){
-	[ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ] && return
-	[ ! -s "$forecastreport" ] && [ "$(stat -c %y "$forecastreport" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ] && return
+	if [ ! -s "$weatherreport" ] && [ "$(stat -c %y "$weatherreport" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ];then
+		return
+	fi
+
+	if [ ! -s "$forecastreport" ] && [ "$(stat -c %y "$forecastreport" 2>/dev/null | cut -d' ' -f1)" != "$(date +%Y-%m-%d)" ];then
+		return
+	fi
+	
+	return 1
 }
 
 get_weather_data_(){

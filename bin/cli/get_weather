@@ -56,7 +56,12 @@ getdoppler() {
 
 main() {	
 	if old_weather_data_;then
-		connectiontest 10 icon && get_weather_data_ >/dev/null 2>&1
+		if connectiontest 10 icon >/dev/null 2>&1;then
+			get_weather_data_
+		else
+			printf "%s" ""
+			exit
+		fi
 	fi
 
 	if [ "$__opt" = "-m" ];then
@@ -100,7 +105,7 @@ else
 	. "$weather_script_config_path"
 		
 	if [ -z "$place" ];then
-   		fix_weather_script_config_var
+   		fix_weather_script_config_var >/dev/null 2>&1
 	fi	
 fi
 

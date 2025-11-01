@@ -192,6 +192,7 @@ __run_(){
 			install_container_software || continue
 			install_distrobox || continue
 		fi
+		
 		if [ "${container_install}" = "true" ];then
 			install_container_software || continue
 		fi

@@ -5,13 +5,19 @@ set -e
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-if [ "$_panel_name_" = "polybar" ];then 
+if [ "$_panel_name_" = "polybar" ];then
 	"${__distro_path_root}"/bin/X11/polybar/polybar_workspace_fixer
 fi
 
 clipboard-manager-session stop
 #audio-session stop
 power-manager-session stop
+
+if [ "$_panel_name_" = "polybar" ];then
+	tint2-session stop
+elif [ "$_panel_name_" = "tint2" ];then
+	polybar-session stop
+fi
 
 sleep 0.5
 
