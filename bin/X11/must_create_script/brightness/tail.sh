@@ -4,13 +4,12 @@ check_icon_exists() {
                   -type f -name "${icon_name}*.png" -o -name "${icon_name}*.svg" 2>/dev/null | head -n 1)
 
     if [ -n "$icon_path" ]; then
-        return 0  # icon found
+        return 0
     else
-        return 1  # icon not found
+        return 1
     fi
 }
 
-# Get icons
 get_icon() {
 	backlight="$(get_backlight)"
 	current="${backlight%%%}"
@@ -39,19 +38,13 @@ get_icon() {
 }
 
 #####################################################################################
-# Get status
 get_status() {
 	get_icon
 	echo "$icon $(get_backlight)"
 }
-
-# Execute accordingly
-if [[ "$1" == "--get" ]];then
-	get_status
-elif [[ "$1" == "--inc" ]];then
-	inc_backlight
-elif [[ "$1" == "--dec" ]];then
-	dec_backlight
-else
-	get_status
-fi
+case "$1" in
+	"--get") get_status ;;
+	"--inc") inc_backlight ;;
+	"--dec") dec_backlight ;;
+	*) get_status ;;
+esac

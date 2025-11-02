@@ -707,8 +707,14 @@ for f in "${__distro_path_root}"/applications/*;do
 	ln -sf "$f" /usr/share/applications
 done
 
+show_im "Create gtk themes"
+"${__distro_path_all_distro_themes}"/gtk_themes_creater/create "$__distro_path_lib"
+
 show_im "Create openbox themes"
-"${__distro_path_all_distro_themes}"/openbox_themes_creater/prepare_themes "$__distro_path_lib"
+"${__distro_path_all_distro_themes}"/openbox_themes_creater/create "$__distro_path_lib"
+
+show_im "Create icons"
+"${__distro_path_all_distro_themes}"/gtk_icons_creater/create "$__distro_path_lib"
 
 show_im "Running my-alternatives"
 "${__distro_path_root}"/bin/cli/my-alternatives --install "$__distro_path_lib"
