@@ -1298,8 +1298,8 @@ EOF
     generate_openbox_keybind "$Execute_mpc_prev" "Execute" "mpc prev"
     generate_openbox_keybind "$Execute_mpc_next" "Execute" "mpc next"
     echo "<!--  Brightness Control -->"
-    generate_openbox_keybind "$Execute_disto_brightness_controller_inc" "Execute" "(((__distro_path_root)))/system_files/disto_brightness_controller --inc"
-    generate_openbox_keybind "$Execute_disto_brightness_controller_dec" "Execute" "(((__distro_path_root)))/system_files/disto_brightness_controller --dec"
+    generate_openbox_keybind "$Execute_disto_brightness_controller_inc" "Execute" "(((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --inc"
+    generate_openbox_keybind "$Execute_disto_brightness_controller_dec" "Execute" "(((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --dec"
     echo "<!--  Launch Applications -->"
     generate_openbox_keybind "$Execute_show_menu_" "Execute" "show_menu_"
     generate_openbox_keybind "$Execute_music" "Execute" "my-audio-player"
@@ -1913,8 +1913,8 @@ create_pipemenu_file(){
 		[ -n "${Execute_mpc_next}" ] && menuItem "${Execute_mpc_next}	-	mpc next" "mpc next"
         		
 		menuSeparator "Brightness Control"
-		[ -n "${Execute_disto_brightness_controller_inc}" ] && menuItem "${Execute_disto_brightness_controller_inc}	-	brightness inc" "(((__distro_path_root)))/system_files/disto_brightness_controller --inc"
-		[ -n "${Execute_disto_brightness_controller_dec}" ] && menuItem "${Execute_disto_brightness_controller_dec}	-	brightness dec" "(((__distro_path_root)))/system_files/disto_brightness_controller --dec"
+		[ -n "${Execute_disto_brightness_controller_inc}" ] && menuItem "${Execute_disto_brightness_controller_inc}	-	brightness inc" "(((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --inc"
+		[ -n "${Execute_disto_brightness_controller_dec}" ] && menuItem "${Execute_disto_brightness_controller_dec}	-	brightness dec" "(((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --dec"
 		
 		menuSeparator "Launch Applications"
 		menuSeparator "Apps"

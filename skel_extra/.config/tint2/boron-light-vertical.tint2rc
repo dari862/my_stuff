@@ -342,7 +342,7 @@ execp_icon_h = 0
 #-------------------------------------
 # Executor 2
 execp = new
-execp_command = (((__distro_path_root)))/system_files/disto_brightness_controller
+execp_command = (((__distro_path_root)))/bin/X11/WM/disto_brightness_controller
 execp_interval = 0
 execp_has_icon = 0
 execp_cache_icon = 0
@@ -353,8 +353,8 @@ execp_tooltip = Brightness
 execp_lclick_command = 
 execp_rclick_command = 
 execp_mclick_command = 
-execp_uwheel_command = (((__distro_path_root)))/system_files/disto_brightness_controller --inc
-execp_dwheel_command = (((__distro_path_root)))/system_files/disto_brightness_controller --dec
+execp_uwheel_command = (((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --inc
+execp_dwheel_command = (((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --dec
 execp_font = Noto Sans Regular 10
 execp_font_color = #353535 100
 execp_padding = 10 0

@@ -1,0 +1,96 @@
+#!/bin/sh
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
+
+__monitor_="${1:-All}"
+
+if [ "${__monitor_}" = "All" ];then
+	monitor_brightness_var="_brightness="
+	screen_Brightness="$(grep "${monitor_brightness_var}" "$display_script" | grep -o '[0-9.]*' | head -n 1)"
+else
+	monitor_brightness_var="${__monitor_}_brightness"
+	screen_Brightness="$(grep "${monitor_brightness_var}" "$display_script" | grep -o '[0-9.]*' || :)"
+fi
+
+if [ -z "$screen_Brightness" ];then
+	echo "$0: screen_Brightness var is empty"
+	exit 0
+fi
+
+#####################################################################################
+# awk "BEGIN {print ($screen_Brightness > 1)}" return 1 if true
+# awk "BEGIN {print ($screen_Brightness < 0)}" return 1 if true
+
+inc_brightness() {
+	screen_Brightness=$(awk "BEGIN {print $screen_Brightness + 0.1}")
+	if [ $(awk "BEGIN {print ($screen_Brightness > 1)}") -eq 1 ]; then
+		screen_Brightness=1
+	fi
+	run_brightness	
+}
+
+dec_brightness() {
+	screen_Brightness=$(awk "BEGIN {print $screen_Brightness - 0.1}")
+	if [ $(awk "BEGIN {print ($screen_Brightness < 0)}") -eq 1 ]; then
+		screen_Brightness=0
+	fi
+	run_brightness
+}
+
+run_brightness(){
+	sed -i "s|${monitor_brightness_var}=.*|${monitor_brightness_var}=${screen_Brightness}|g" "$display_script"
+	"${display_script}" && get_icon && dunstify -u low --replace=69 -i "$icon" "Brightness : ${screen_Brightness}"
+}
+
+check_icon_exists() {
+    icon_name="$1"
+    icon_path=$(find /usr/share/icons ~/.icons ~/.local/share/icons \
+                  -type f -name "${icon_name}*.png" -o -name "${icon_name}*.svg" 2>/dev/null | head -n 1)
+
+    if [ -n "$icon_path" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+get_icon() {
+	backlight="${screen_Brightness}"
+	current="${backlight%%%}"
+	if [ "$current" -eq 0 ]; then
+		icon_string=''
+		icon_gtk='notification-display-brightness-off'
+	elif [ "$current" -lt "50" ];then
+		icon_string=''
+		icon_gtk='notification-display-brightness-low'
+	elif [ "$current" -lt "75" ];then
+		icon_string=''
+		icon_gtk='notification-display-brightness-medium'
+	elif [ "$current" -lt "100" ];then
+		icon_string=''
+		icon_gtk='notification-display-brightness-high'
+	else
+		icon_string=''
+		icon_gtk='notification-display-brightness-full'
+	fi
+	
+	if ! check_icon_exists "$icon_gtk"; then
+		icon="$icon_string"
+	else
+		icon="$icon_gtk"
+	fi
+}
+
+#####################################################################################
+
+get_status() {
+	get_icon
+	echo "$icon ${screen_Brightness}"
+}
+
+case "$1" in
+	"--get") get_status ;;
+	"--inc") inc_brightness ;;
+	"--dec") dec_brightness ;;
+	*) get_status ;;
+esac
