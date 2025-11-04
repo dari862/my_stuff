@@ -1,10 +1,14 @@
 #!/bin/sh
-default_panel="polybar"
+default_panel="tint2"
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
-. "${Distro_config_file}"
+if [ ! -f "${Distro_config_file}" ];then
+	ROFI_STYLE="default"
+else
+	. "${Distro_config_file}"
+fi
 
 count=0
 spliter1="|"
@@ -14,7 +18,7 @@ _jgmenu_=""
 mkdir -p "$WM_config_dir"
 
 if command -v polybar >/dev/null 2>&1;then
-	default_panel="tint2"
+	default_panel="polybar"
 	polybar_in_rofi="polybar"
 	count=$((count + 1))
 	_picked_panel_="polybar"
@@ -34,6 +38,7 @@ if [ "$count" -gt 1 ];then
 fi
 
 cp -r "${GLOBAL_OB_RC_FILE}" "${BACKUP_OB_RC_PATH}"
+
 if [ -z "$_picked_panel_" ];then
 	_picked_panel_="$default_panel"
 elif [ "$_picked_panel_" = "tint2" ];then

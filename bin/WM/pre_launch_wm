@@ -11,14 +11,14 @@ else
 	echo "$0: ERROR failed to create /tmp/$USER"
 fi
 
-if [ ! -f "${Distro_config_file}" ];then
-	cp -r "${__distro_path_root}/system_files/blob/polybar/default/config/WM_common_config/Distro_config" "$WM_config_dir"
-fi
-
-if [ ! -f "${WM_config_dir}/rofi_picked" ];then	
+if [ ! -f "${WM_config_dir}/menu_picked" ];then	
 	_picked_panel_="$("${__distro_path_root}"/bin/WM/panel_picker)"
 	"${__distro_path_root}"/bin/WM/style_setter "$_picked_panel_"
-	touch "${WM_config_dir}/rofi_picked"
+	touch "${WM_config_dir}/menu_picked"
+fi
+
+if [ ! -f "${Distro_config_file}" ];then
+	cp -r "${__distro_path_root}/system_files/blob/${_picked_panel_}/default/config/WM_common_config/Distro_config" "$WM_config_dir"
 fi
 
 dotscreenlayout_profile="$(ls ~/.screenlayout/*.sh 2>/dev/null | head -1 || :)"
