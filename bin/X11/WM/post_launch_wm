@@ -2,7 +2,7 @@
 # Start panel
 . "$__distro_path_lib"
 		
-"${__distro_path_root}"/bin/WM/panel_launcher &
+"${__distro_path_root}"/bin/X11/WM/panel_launcher &
 
 # update notifcation
 "${__distro_path_root}"/bin/WM/update-notification -n &

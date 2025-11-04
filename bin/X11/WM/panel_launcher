@@ -15,7 +15,7 @@ power-manager-session stop
 
 if [ "$_panel_name_" = "polybar" ];then
 	tint2-session stop
-elif [ "$_panel_name_" = "tint2" ];then
+elif [ "$_panel_name_" = "tint2" ] && command -v polybar-session >/dev/null 2>&1;then
 	polybar-session stop
 fi
 

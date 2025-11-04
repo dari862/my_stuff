@@ -381,7 +381,7 @@ yad --plug=$KEY --tabnum=2 --borders=20 \
 --columns=1 --form \
 --field="$T_RESTART:FBTN" "tint2-session restart" \
 --field="$ADVANCED:LBL" "" \
---field="$T_CHOOSE:FBTN" "${__distro_path_root}/bin/WM/style-manager --tint2manager" \
+--field="$T_CHOOSE:FBTN" "${__distro_path_root}/bin/X11/WM/style-manager --tint2manager" \
 --field="$TINT_DIR:FBTN" "my-text-editor $HOME/.config/tint2/" \
 > $res2 &
 
@@ -411,8 +411,8 @@ yad --plug=$KEY --tabnum=6 --borders=20 \
 --form \
 --field="$CONKY_RESTART:FBTN" "conky-session restart" \
 --field="$ADVANCED :LBL" "" \
---field="$CONKY_CHOOSE:FBTN" "${__distro_path_root}/bin/WM/style-manager --conkymanager" \
---field="$CONKY_EDIT:FBTN" "${__distro_path_root}/bin/WM/style-manager --conkyedit" \
+--field="$CONKY_CHOOSE:FBTN" "${__distro_path_root}/bin/X11/WM/style-manager --conkymanager" \
+--field="$CONKY_EDIT:FBTN" "${__distro_path_root}/bin/X11/WM/style-manager --conkyedit" \
 --field="$OPEN_CONKYDIR:FBTN" "my-text-editor $HOME/.config/conky/" \
 > $res6 &
 

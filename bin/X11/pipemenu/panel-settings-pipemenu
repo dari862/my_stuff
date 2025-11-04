@@ -47,8 +47,8 @@ elif [ "$_panel_name_" = "tint2" ];then
 	TINT2DEFAULT="$TINT2PATH/tint2rc"
 	
 	loadChooser(){
-    	if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
-        	menuItem "Tint2 Manager" "${__distro_path_root}/bin/WM/style-manager --tint2manager"
+    	if [ -f "${__distro_path_root}/bin/X11/WM/style-manager" ];then
+        	menuItem "Tint2 Manager" "${__distro_path_root}/bin/X11/WM/style-manager --tint2manager"
     	fi
 	}
 	
@@ -66,8 +66,8 @@ elif [ "$_panel_name_" = "tint2" ];then
 	
 	loadEditSubmenu(){
     	menuSubmenu "EditTint2" "Edit Tint2s"
-        	if [ -f "${__distro_path_root}/bin/WM/style-manager" ];then
-            	menuItem "Tint2 Editor" "${__distro_path_root}/bin/WM/style-manager --tint2edit"
+        	if [ -f "${__distro_path_root}/bin/X11/WM/style-manager" ];then
+            	menuItem "Tint2 Editor" "${__distro_path_root}/bin/X11/WM/style-manager --tint2edit"
         	fi
 	# tint2conf removed here but still available from "Applications" menu as Settings > Panel Manager
 	#        menuItem "Tint2 Config GUI" "tint2conf"

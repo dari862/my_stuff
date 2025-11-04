@@ -13,7 +13,7 @@
 ## More information about this can be found at: http://openbox.org/wiki/Help:Autostart
 
 #### Pre Launch      #################################################################################
-(((__distro_path_root)))/bin/WM/pre_launch_wm
+(((__distro_path_root)))/bin/X11/WM/pre_launch_wm
 
 # Start compositor
 picom-session start &
@@ -40,5 +40,5 @@ if [ -f "(((__distro_path_system_ready)))/this_is_laptop" ];then
 fi
 
 #### START APPLICATIONS ###############################################################################
-(((__distro_path_root)))/bin/WM/post_launch_wm
+(((__distro_path_root)))/bin/X11/WM/post_launch_wm
 (((__distro_path_root)))/bin/X11/WM/extra_post_launch_wm
