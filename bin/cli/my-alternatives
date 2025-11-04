@@ -81,8 +81,8 @@ usage() {
 create_cli_filemanager(){
 	package="${1:-}"
 	[ -e "${my_alternatives_path}/my-file-manager" ] && $_SUPERUSER rm -rf "${my_alternatives_path}/my-file-manager"
-	echo '#!/bin/sh' | $_SUPERUSER tee "${my_alternatives_path}/my-file-manager"
-	echo "popup_terminal \"$package\"" | $_SUPERUSER tee -a "${my_alternatives_path}/my-file-manager"
+	echo '#!/bin/sh' | $_SUPERUSER tee "${my_alternatives_path}/my-file-manager" >/dev/null 2>&1
+	echo "popup_terminal \"$package\"" | $_SUPERUSER tee -a "${my_alternatives_path}/my-file-manager" >/dev/null 2>&1
 	$_SUPERUSER chmod +x "${my_alternatives_path}/my-file-manager"
 }
 
