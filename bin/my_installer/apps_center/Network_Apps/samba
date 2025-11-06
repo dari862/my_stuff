@@ -12,7 +12,7 @@ SAMBA_GROUP="sambashare"
 CURRENT_USER=$(whoami)
 SHARED_DIR="/srv/samba/SecureShare"
 
-if getent group "$SAMBA_GROUP" > /dev/null; then
+if getent group "$SAMBA_GROUP" >/dev/null 2>&1; then
     say "Group '$SAMBA_GROUP' already exists."
 else
     say "Creating Samba group '$SAMBA_GROUP'..."
@@ -20,7 +20,7 @@ else
 fi
 
 # Create user if not exists
-if id "$SAMBA_USER" &>/dev/null; then
+if id "$SAMBA_USER" >/dev/null 2>&1; then
     say "User '$SAMBA_USER' already exists."
 else
     say "Creating system user '$SAMBA_USER'..."
