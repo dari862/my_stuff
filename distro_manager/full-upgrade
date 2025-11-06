@@ -11,7 +11,7 @@ if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 	echo ""
 	exit 0
 fi
-
+__distro_path_lib="${2:-$__distro_path_lib}"
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
@@ -28,7 +28,7 @@ update_full_upgrade_script(){
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
 		print_purple "==> running new version of full-upgrade. "
-		/tmp/root/disto_updater/full-upgrade --skip-internet-check && exit || ( print_RED "failed to do full upgrade" && exit 1 )
+		/tmp/root/disto_updater/full-upgrade --skip-internet-check "$__distro_path_lib" && exit || ( print_RED "failed to do full upgrade" && exit 1 )
 	else
 		print_GREEN "==> full upgrade up to date."
 	fi
