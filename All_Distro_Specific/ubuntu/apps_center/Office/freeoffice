@@ -1,5 +1,5 @@
-#!/bin/sh
-# need superuser : called by my-installer -e
+#!/bin/sh -e
+# need superuser : called by my-installer
 app_name="freeoffice.sh"
 
 say "Installing ${app_name}..." 1

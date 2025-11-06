@@ -1,4 +1,5 @@
 #!/bin/sh
+# need superuser : called by apps_as_root
 opt="${1:-}"
 if [ -f "/usr/sbin/synaptic" ];then
 	apps_as_root "/usr/sbin/synaptic"

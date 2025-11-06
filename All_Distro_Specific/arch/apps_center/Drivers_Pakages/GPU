@@ -1,5 +1,5 @@
-#!/bin/sh
-# need superuser : called by my-installer -e
+#!/bin/sh -e
+# need superuser : called by my-installer
 tweek_as_dependency "Enable_multilib" || continue
 LIBVA_DIR="$HOME/.local/share/linutil/libva"
 MPV_CONF="$HOME/.config/mpv/mpv.conf"

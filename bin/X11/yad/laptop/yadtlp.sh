@@ -1,6 +1,7 @@
 #!/bin/bash
 # if this line exist script will be part of gui scripts.new_name=GUI_TLP
 # need superuser : called by popup_terminal
+# need superuser : called by apps_as_root
 unalias -a
 . "$__distro_path_lib"
 __config_path="/etc/tlp.conf"

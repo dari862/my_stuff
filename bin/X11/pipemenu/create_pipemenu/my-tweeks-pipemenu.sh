@@ -1,6 +1,7 @@
 #!/bin/sh
 # need superuser : var (_SUPERUSER)
-# need superuser : sourced by my-installer and create_DB.sh
+# need superuser : sourced by my-installer
+# need superuser : sourced by create_DB.sh
 run_tweeks_script_="popup_terminal"
 
 . "${__distro_path_root}/lib/common/pipemenu"

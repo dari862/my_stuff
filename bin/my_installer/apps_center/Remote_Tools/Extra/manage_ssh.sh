@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
-# need superuser : called by my-superuser and install by my-installer
+# need superuser : called by my-superuser
+# need superuser : install by my-installer
 ssh_config_dir="$HOME/.ssh/config"
 
 hostname=${hostname:-${HOST:-$(hostname)}}

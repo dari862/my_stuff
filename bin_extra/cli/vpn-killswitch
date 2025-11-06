@@ -1,5 +1,5 @@
 #!/bin/bash
-# need superuser : my-superuser
+# need superuser : use my-superuser
 set -euo pipefail
 unalias -a
 . "$__distro_path_lib"

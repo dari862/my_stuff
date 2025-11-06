@@ -1,5 +1,5 @@
 #!/bin/sh
-# need superuser : my-superuser
+# need superuser : called by my-superuser
 set -e
 
 if [ "$(id -u)" -ne 0 ]; then

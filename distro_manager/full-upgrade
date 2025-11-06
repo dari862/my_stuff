@@ -1,9 +1,9 @@
 #!/bin/sh
-# need superuser : var (__SUPER_USER)
+# need superuser : var (_SUPERUSER)
 # It runs full system upgrade in a text console
 opt="${1:-}"
 
-__SUPER_USER="my-superuser"
+_SUPERUSER="my-superuser"
 
 if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 	echo ""
@@ -21,9 +21,9 @@ getURL_path="$(which getURL)"
 update_full_upgrade_script(){
 	print_purple "==> check if full upgrade need update. "
 	do_full_upgrade_need_update=false
-	$__SUPER_USER mkdir -p /tmp/root/disto_updater
-	$__SUPER_USER $getURL_path 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
-	$__SUPER_USER chmod +x "/tmp/root/disto_updater/full-upgrade"
+	$_SUPERUSER mkdir -p /tmp/root/disto_updater
+	$_SUPERUSER $getURL_path 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
+	$_SUPERUSER chmod +x "/tmp/root/disto_updater/full-upgrade"
 	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
@@ -50,19 +50,19 @@ print_purple() {
 
 __upgrade_current_repo_(){
 	  print_purple "==> status"
-	  __git_status="$($__SUPER_USER git status 2>&1 | grep 'fatal: unknown index entry format' || :)"
+	  __git_status="$($_SUPERUSER git status 2>&1 | grep 'fatal: unknown index entry format' || :)"
 	  if [ -n "$__git_status" ];then
-	  	$__SUPER_USER rm -f .git/index
-	  	$__SUPER_USER git status || :
+	  	$_SUPERUSER rm -f .git/index
+	  	$_SUPERUSER git status || :
 	  fi
       print_purple "==> Fetching"
-      $__SUPER_USER git fetch  || print_RED "git fetch failed... "
+      $_SUPERUSER git fetch  || print_RED "git fetch failed... "
       
       print_purple "==> Stash (dont apply local changes)."
-      $__SUPER_USER git stash  || print_RED "git stash failed... "
+      $_SUPERUSER git stash  || print_RED "git stash failed... "
       
       print_purple "==> Pulling"
-      $__SUPER_USER git pull  || print_RED "git pull failed... "
+      $_SUPERUSER git pull  || print_RED "git pull failed... "
 }
 
 update_packages(){
@@ -84,18 +84,18 @@ Updating_Distro(){
 	blob_modified=false
 	skel_modified=false
 	print_purple "==> Fetching Distro repo."
-	$__SUPER_USER git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
-	$__SUPER_USER git fetch >/dev/null 2>&1
+	$_SUPERUSER git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
+	$_SUPERUSER git fetch >/dev/null 2>&1
 	if $(git status | grep -q "^Your branch is up to date" || :);then
 		print_GREEN "==> Distro is up to date." 
 	else
 		print_purple "==> Updating Distro."
 		
-		if ! $__SUPER_USER git diff --quiet HEAD -- blob/ blob_extra/; then
+		if ! $_SUPERUSER git diff --quiet HEAD -- blob/ blob_extra/; then
   			blob_modified=true
 		fi
 		
-		if ! $__SUPER_USER git diff --quiet HEAD -- skel/ skel_extra/; then
+		if ! $_SUPERUSER git diff --quiet HEAD -- skel/ skel_extra/; then
   			skel_modified=true
 		fi
 		
@@ -105,16 +105,16 @@ Updating_Distro(){
     			f="${d}/${usr_flag_setup_path}"
     			[ ! -f "$f" ] && continue
     			if [ "$skel_modified" = true ];then
-					$__SUPER_USER rm -f "${f}"
+					$_SUPERUSER rm -f "${f}"
 				fi
     			if [ "$blob_modified" = true ];then
 					user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 					if [ -d "$d/.config/blob" ];then
-						$__SUPER_USER cp -r "${__distro_path_root}/system_files/blob"/* "$d/.config/blob"
+						$_SUPERUSER cp -r "${__distro_path_root}/system_files/blob"/* "$d/.config/blob"
 					else
-						$__SUPER_USER cp -r "${__distro_path_root}/system_files/blob" "$d/.config"
+						$_SUPERUSER cp -r "${__distro_path_root}/system_files/blob" "$d/.config"
 					fi
-					$__SUPER_USER chown -R "$user_and_group" "$d"
+					$_SUPERUSER chown -R "$user_and_group" "$d"
 				fi
 			done
 		else
@@ -171,7 +171,7 @@ if [ -d "$__distro_path_updater" ];then
 fi
 
 if command -v yt-dlp >/dev/null 2>&1;then
-	$__SUPER_USER yt-dlp -U
+	$_SUPERUSER yt-dlp -U
 fi
 
 Updating_Distro

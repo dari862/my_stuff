@@ -1,5 +1,5 @@
 #!/bin/sh
-# need superuser : my-superuser
+# need superuser : use my-superuser
 
 # Unified LUKS container script with keyfile support (local or USB)
 

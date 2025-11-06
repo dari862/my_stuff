@@ -1,5 +1,6 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
+# need superuser : called by apps_as_root
 
 #######################################################################
 # This script uses YAD to create a GUI for setting sleep time using rtcwake.

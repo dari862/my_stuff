@@ -1,9 +1,10 @@
 #!/bin/sh
-
+# need superuser : var (_SUPERUSER)
 ########################################################################
 # Check the connection by downloading a file from ftp.debian.org. No disk space used.
 # Usage: connectiontest [attempts]
 # If attempt count is not specified or 0, then it will loop forever and exit(!) your main program with 1 exit status.
+
 connectiontest() {
 	_show_icon=false
 	if [ "${2:-}" = "icon" ];then
@@ -172,43 +173,43 @@ failed_but_continue() {
 copy_all__application_link_in_dir(){
 	__application_link_dir="${1:-}"
 	if [ "$(id -u)" -eq 0 ];then
-		_SUPERUSER_2_use=""
+		_SUPERUSER=""
 	else
 		if command_exist my-superuser;then
-			_SUPERUSER_2_use="my-superuser"
+			_SUPERUSER="my-superuser"
 		elif command_exist sudo;then
-			_SUPERUSER_2_use="sudo"
+			_SUPERUSER="sudo"
 		elif command_exist doas;then
-			_SUPERUSER_2_use="doas"
+			_SUPERUSER="doas"
 		fi
 	fi
-    $_SUPERUSER_2_use cp -r "${__distro_path_root}/applications_extra/${__application_link_dir}"/* "${__distro_path_root}/system_files/applications"
-    $_SUPERUSER_2_use ln -sf "${__distro_path_root}/system_files/applications/${__application_link_dir}"/* "/usr/share/applications"
+    $_SUPERUSER cp -r "${__distro_path_root}/applications_extra/${__application_link_dir}"/* "${__distro_path_root}/system_files/applications"
+    $_SUPERUSER ln -sf "${__distro_path_root}/system_files/applications/${__application_link_dir}"/* "/usr/share/applications"
 }
 
 create_applicationsdotdesktop_link(){
 	__application_name="${1:-}"
 	__application_command="${2:-}"
 	if [ "$(id -u)" -eq 0 ];then
-		_SUPERUSER_2_use=""
+		_SUPERUSER=""
 	else
 		if command_exist my-superuser;then
-			_SUPERUSER_2_use="my-superuser"
+			_SUPERUSER="my-superuser"
 		elif command_exist sudo;then
-			_SUPERUSER_2_use="sudo"
+			_SUPERUSER="sudo"
 		elif command_exist doas;then
-			_SUPERUSER_2_use="doas"
+			_SUPERUSER="doas"
 		fi
 	fi
     if [ -f "${__distro_path_root}/applications_extra/${__application_name}.desktop" ];then
-    	$_SUPERUSER_2_use cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
+    	$_SUPERUSER cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
     	if grep -q "(((__distro_path_root)))" "${__distro_path_root}/system_files/applications/${__application_name}.desktop";then
-    		$_SUPERUSER_2_use sed -i "s/(((__distro_path_root)))/${__distro_path_root}/g" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
+    		$_SUPERUSER sed -i "s/(((__distro_path_root)))/${__distro_path_root}/g" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
     	fi
-    	$_SUPERUSER_2_use ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    	$_SUPERUSER ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
     else
     	[ -z "$__application_command" ] && __application_command="${__application_name}"
-    	$_SUPERUSER_2_use tee "${__distro_path_root}/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	$_SUPERUSER tee "${__distro_path_root}/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
     	[Desktop Entry]
 		Name=${__application_name}
 		Comment=${__application_name}
@@ -220,7 +221,7 @@ create_applicationsdotdesktop_link(){
 		MimeType=text/html;text/xml;application/xhtml_xml;
 		StartupNotify=true
 		EOF
-    	$_SUPERUSER_2_use ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    	$_SUPERUSER ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
     fi
 }
 
@@ -232,20 +233,20 @@ create_applicationsdotdesktop_4_xsessions(){
 	fi
 	
 	if [ "$(id -u)" -eq 0 ];then
-		_SUPERUSER_2_use=""
+		_SUPERUSER=""
 	else
 		if command_exist my-superuser;then
-			_SUPERUSER_2_use="my-superuser"
+			_SUPERUSER="my-superuser"
 		elif command_exist sudo;then
-			_SUPERUSER_2_use="sudo"
+			_SUPERUSER="sudo"
 		elif command_exist doas;then
-			_SUPERUSER_2_use="doas"
+			_SUPERUSER="doas"
 		fi
 	fi
 	
-	$_SUPERUSER_2_use mkdir -p "${_distro_xsessions_desktop_path}"
+	$_SUPERUSER mkdir -p "${_distro_xsessions_desktop_path}"
     if [ ! -f "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" ];then
-    	$_SUPERUSER_2_use tee "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	$_SUPERUSER tee "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" <<- EOF >/dev/null 2>&1
 		[Desktop Entry]
 		Name=${__distro_title} ${__application_name}
 		Comment=Log in to a ${__distro_title} ${__application_name} session
@@ -256,7 +257,7 @@ create_applicationsdotdesktop_4_xsessions(){
 		EOF
     fi
     if [ ! -f "/usr/share/xsessions/${__custom_distro_name}_${__application_name}.desktop" ];then
-    	$_SUPERUSER_2_use ln -sf "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" "/usr/share/xsessions"
+    	$_SUPERUSER ln -sf "${_distro_xsessions_desktop_path}/${__custom_distro_name}_${__application_name}.desktop" "/usr/share/xsessions"
     fi
 }
 
@@ -287,27 +288,27 @@ sed_distro_path_root_var_2_correct_value(){
 	__path_2_sed="${1:-}"
 	
 	if [ "$(id -u)" -eq 0 ];then
-		_SUPERUSER_2_use=""
+		_SUPERUSER=""
 	else
 		if command_exist my-superuser;then
-			_SUPERUSER_2_use="my-superuser"
+			_SUPERUSER="my-superuser"
 		elif command_exist sudo;then
-			_SUPERUSER_2_use="sudo"
+			_SUPERUSER="sudo"
 		elif command_exist doas;then
-			_SUPERUSER_2_use="doas"
+			_SUPERUSER="doas"
 		fi
 	fi
 	
 	if grep -rIq "(((__distro_path_root)))" "${__path_2_sed}";then
-		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_root)))|${__distro_path_root}|g" {} +
+		$_SUPERUSER find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_root)))|${__distro_path_root}|g" {} +
 	fi
 	
 	if grep -rIq "(((__distro_title)))" "${__path_2_sed}";then
-		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_title)))|${__distro_title}|g" {} +
+		$_SUPERUSER find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_title)))|${__distro_title}|g" {} +
 	fi
 	
 	if grep -rIq "(((__distro_path_themes)))" "${__path_2_sed}";then
-		$_SUPERUSER_2_use find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_themes)))|${__distro_path_themes}|g" {} +
+		$_SUPERUSER find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_themes)))|${__distro_path_themes}|g" {} +
 	fi
 }
 

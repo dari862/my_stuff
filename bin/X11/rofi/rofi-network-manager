@@ -11,6 +11,7 @@ unalias -a
 # Configuration
 network_manager_script_config="${script_config_path}/network-manager-script.conf"
 THEME_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/${ROFI_STYLE}/networkmenu.rasi"
+ASKPASS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/${ROFI_STYLE}/askpass.rasi"
 DIRECTIONS=("Center" "Northwest" "North" "Northeast" "East" "Southeast" "South" "Southwest" "West")
 
 function check_and_create_config_file() {
@@ -156,13 +157,8 @@ get_input() {
     local network_name="${4:-}"
     
     if [[ "$is_password" == "true" ]]; then
-        rofi_cmd -theme-str 'mainbox{children:["message","inputbar"];}'\
-                 -theme-str 'inputbar{background-image:none;padding:7px;}'\
-                 -theme-str 'message{margin:3px;}textbox{background-color:#656291;font:"JetBrains Mono Nerd Font Propo 10";padding:10px;expand:false;}'\
-                 -theme-str 'textbox-prompt-colon{background-color:	#6670ad;str:"  ";}'\
-                 -theme-str 'entry { placeholder:"Password";}'\
-                 -theme-str 'listview{lines:0;}'\
-                -dmenu -p "$prompt" -password -lines "$lines" -mesg "  | $network_name"
+    	rofi -theme "$ASKPASS_FILE" -theme-str "window{width:450px;location: ${DIRECTIONS[LOCATION]};}" \
+    		-theme-str 'textbox-prompt-colon {str:"  | $network_name : ";}' -dmenu -password
     else
         rofi_cmd -dmenu -p "$prompt" -lines "$lines" -p "@"
     fi

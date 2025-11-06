@@ -1,6 +1,7 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
 # need superuser : called by popup_terminal
+# need superuser : called by apps_as_root
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"

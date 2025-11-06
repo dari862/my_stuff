@@ -1,5 +1,5 @@
-#!/bin/sh
-# need superuser : called by my-installer -e
+#!/bin/sh -e
+# need superuser : called by my-installer
 
 say "Installing libfuse2..." 1
 Package_installer_ libfuse2

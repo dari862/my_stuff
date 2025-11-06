@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
-# need superuser : called by my-superuser and install by my-installer
+# need superuser : called by my-superuser
+# need superuser : install by my-installer
 # Function to display the menu
 display_menu() {
     clear

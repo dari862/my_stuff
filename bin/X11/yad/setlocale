@@ -1,5 +1,4 @@
 #!/bin/bash
-# need superuser : my-superuser
 #
 #    setlocale: a script to choose a user locale
 

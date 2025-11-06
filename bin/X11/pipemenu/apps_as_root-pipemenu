@@ -1,6 +1,7 @@
 #!/bin/sh
 ## Openbox Pipemenu to change openbox menu style
 # Variables and functions
+# need superuser : called by apps_as_root
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/pipemenu"
 

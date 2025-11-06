@@ -1,5 +1,5 @@
-#!/bin/sh
-# need superuser : called by my-installer -e
+#!/bin/sh -e
+# need superuser : called by my-installer
 installKernel() {
     if ! "$PACKAGER" -Q | grep -q "\blinux-neptune"; then
         say "Installing linux-neptune..."

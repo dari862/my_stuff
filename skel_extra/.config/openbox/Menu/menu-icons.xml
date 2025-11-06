@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com> -->
-<!-- Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 -->
+<!-- # need superuser : called by apps_as_root -->
 <!DOCTYPE menu [
   <!ENTITY icons "(((__distro_path_all_distro_themes)))/icons">
   <!ENTITY openboxconfig "~/.config/openbox">

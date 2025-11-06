@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
-# need superuser : called by my-superuser and install by my-installer
+# need superuser : called by my-superuser
+# need superuser : install by my-installer
 distro_path="${__distro_path_root}/system_files"
 skel_path="${distro_path}/skel"
 nvim_skel_path="${skel_path}/.config/nvim"

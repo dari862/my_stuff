@@ -1,5 +1,4 @@
 #!/bin/sh
-# need superuser : my-superuser
 # need superuser : var (_SUPERUSER)
 # work on this : add way to contiune install after login for distrobox container
 #    my-installer: a script to install Debian packages in a popup terminal window.
@@ -18,7 +17,7 @@ Usage:  my-installer --install app_name
 if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
-	_SUPERUSER="my-superuser"
+	_SUPERUSER="${_SUPERUSER}"
 fi
 skip_test=""
 source__file_location=false
@@ -66,17 +65,17 @@ need_logout(){
 
 create_system_ready_file(){
 	file_2_create_system_ready=${1:-}
-	my-superuser touch "${__distro_path_system_ready}/${file_2_create_system_ready}"
+	${_SUPERUSER} touch "${__distro_path_system_ready}/${file_2_create_system_ready}"
 }
 
 remove_system_ready_file(){
 	file_2_remove_system_ready=${1:-}
-	my-superuser rm -rf "${__distro_path_system_ready}/${file_2_remove_system_ready}"
+	${_SUPERUSER} rm -rf "${__distro_path_system_ready}/${file_2_remove_system_ready}"
 }
 
 update_pipemenu(){
 	which_pipemenu_2_update=${1:-}
-	my-superuser "${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/${which_pipemenu_2_update}"
+	${_SUPERUSER} "${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/${which_pipemenu_2_update}"
 }
 
 install_as_dependency(){
@@ -139,10 +138,10 @@ install_container_software(){
 		container_software_path="$(which $container_software)"
 	###################################################################
 		if groups | grep -q "${__newGroup}";then
-			my-superuser ln -sf "$container_software_path" "${__distro_path_root}/system_files/bin/CONTAINER_RT"
-			my-superuser ln -sf "${__distro_path_root}/bin/my_installer/create_containers" "${__distro_path_root}/system_files/bin"
-			my-superuser ln -sf "${__distro_path_root}/bin/my_installer/run_containers" "${__distro_path_root}/system_files/bin"
-			[ -f "${__distro_path_root}/system_files/Container_Group_${container_software}" ] && my-superuser rm -f "${__distro_path_root}/system_files/Container_Group_${container_software}"
+			${_SUPERUSER} ln -sf "$container_software_path" "${__distro_path_root}/system_files/bin/CONTAINER_RT"
+			${_SUPERUSER} ln -sf "${__distro_path_root}/bin/my_installer/create_containers" "${__distro_path_root}/system_files/bin"
+			${_SUPERUSER} ln -sf "${__distro_path_root}/bin/my_installer/run_containers" "${__distro_path_root}/system_files/bin"
+			[ -f "${__distro_path_root}/system_files/Container_Group_${container_software}" ] && ${_SUPERUSER} rm -f "${__distro_path_root}/system_files/Container_Group_${container_software}"
 		fi
 	fi
 }
@@ -170,7 +169,7 @@ __run_(){
 			prompt '  Run the installer now?' || break
 		fi
 
-		my-superuser true || continue
+		${_SUPERUSER} true || continue
 		
 		say
 		
@@ -204,7 +203,7 @@ __run_(){
 		elif [ "${running_chroot}" = "true" ];then
 			say 'Createing Chroot...' 1
 			if ! command -v create_chroot >/dev/null 2>&1;then
-				my-superuser ln -sf "${__distro_path_root}/bin/my_installer/create_chroot" "${__distro_path_root}/system_files/bin" || continue
+				${_SUPERUSER} ln -sf "${__distro_path_root}/bin/my_installer/create_chroot" "${__distro_path_root}/system_files/bin" || continue
 			fi
 		elif [ "${running_tweek}" = "true" ];then
 			tweek_title="$(echo ${file_name_} | sed 's/_/ /g')"
@@ -216,7 +215,7 @@ __run_(){
 		. "${__file_location}"
 		
 		if [ "${container_install}" = "true" ];then
-			my-superuser touch "${deployed_folder}" || continue
+			${_SUPERUSER} touch "${deployed_folder}" || continue
 		fi
 		
 		if [ "${package_install}" = "true" ];then
@@ -276,7 +275,7 @@ remove_from_db(){
 	elif [ "${from_db}" = "fullenv" ];then
 		from_db="${full_environment_db_path}"
 	fi
-	my-superuser sed -i "/^${file_to_remove}$/d" "${from_db}" || :
+	${_SUPERUSER} sed -i "/^${file_to_remove}$/d" "${from_db}" || :
 }
 
 

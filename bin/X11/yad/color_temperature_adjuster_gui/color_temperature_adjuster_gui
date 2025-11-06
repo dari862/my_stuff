@@ -1,5 +1,5 @@
 #!/bin/sh
-# need superuser : my-superuser
+# need superuser : use my-superuser
 
 . "$__distro_path_lib"
 
@@ -30,7 +30,7 @@ init_color_temperature_adjuster() {
 		[ -f "${__distro_path_root}/system_files/bin/tray_gammastep" ] && return
 		tee "${__distro_path_root}/system_files/bin/tray_gammastep" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
-# need superuser : my-superuser
+# need superuser : use my-superuser
 		yad --notification \
 			--image="gtk-zoom-fit" \
 			--icon-size=22 \
@@ -44,7 +44,7 @@ init_color_temperature_adjuster() {
 		[ -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" ] && return
 		tee "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
-# need superuser : my-superuser
+# need superuser : use my-superuser
 		/usr/bin/${_command}
 		tray_gammastep
 		EOF

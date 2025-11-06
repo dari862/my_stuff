@@ -49,6 +49,7 @@ textbox-prompt-colon {
     background-color:            @background;
     text-color:                  @foreground;
 }
+
 entry {
     enabled:                     true;
     background-color:            @background;

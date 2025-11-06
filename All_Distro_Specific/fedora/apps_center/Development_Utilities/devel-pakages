@@ -1,5 +1,5 @@
-#!/bin/sh
-# need superuser : called by my-installer -e
+#!/bin/sh -e
+# need superuser : called by my-installer
 devel_pakages='tar tree multitail tldr trash-cli unzip cmake make jq glibc-devel.i686 libgcc.i686'
 Package_update_
 

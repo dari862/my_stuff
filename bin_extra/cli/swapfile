@@ -1,9 +1,15 @@
 #!/bin/bash
-# need superuser : var (_SUPERUSER)
+# need superuser : called by my-superuser
 set -euo pipefail
 unalias -a
-_SUPERUSER="my-superuser"
-[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
+
+__distro_path_lib="${1:-$__distro_path_lib}"
+
+if [ "$(id -u)" -ne 0 ]; then
+    my-superuser $0 "$__distro_path_lib"
+    exit
+fi
+
 . "$__distro_path_lib"
 "${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed blkid grep mkswap swapoff swapon || exit 1
 
@@ -58,32 +64,32 @@ function set_swap_on {
   local swapdir
   swapdir="$(dirname "${SWAPFILE}")"
   if [ "${swapdir}" != '/' ] && ! [ -d "${swapdir}" ];then
-    ${_SUPERUSER} mkdir -p "${swapdir}"
+    mkdir -p "${swapdir}"
   fi
 
   # Create swapfile if it doesn't exist.
   if ! [ -f "${SWAPFILE}" ];then
     show_info "Creating ${SWAPFILE@Q}"
-    ${_SUPERUSER} dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
-    ${_SUPERUSER} sync
+    dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
+    sync
   fi
 
   # Set permissions.
   if [[ "$(stat -c "%a" "${SWAPFILE}")" != 600 ]];then
     show_info "Setting ${SWAPFILE@Q} permissions"
-    ${_SUPERUSER} chmod 0600 "${SWAPFILE}"
+    chmod 0600 "${SWAPFILE}"
   fi
 
   # Create UUID.
-  if ! ${_SUPERUSER} blkid -o value "${SWAPFILE}" | grep -q "^swap$";then
+  if ! blkid -o value "${SWAPFILE}" | grep -q "^swap$";then
     show_info "Setting ${SWAPFILE@Q} UUID"
-    ${_SUPERUSER} mkswap -U clear "${SWAPFILE}"
+    mkswap -U clear "${SWAPFILE}"
   fi
 
   # Check if swap partition active. If not run
-  if ! ${_SUPERUSER} swapon --show | grep -q "^${SWAPFILE}\s";then
+  if ! swapon --show | grep -q "^${SWAPFILE}\s";then
     show_info "Activating ${SWAPFILE@Q}"
-    ${_SUPERUSER} swapon "${SWAPFILE}"
+    swapon "${SWAPFILE}"
   fi
 }
 
@@ -95,19 +101,19 @@ function set_swap_off {
   fi
 
   # Disable swap partition if it is active.
-  if ${_SUPERUSER} swapon --show | grep -q "^${SWAPFILE}\s";then
+  if swapon --show | grep -q "^${SWAPFILE}\s";then
     show_info "Flushing cache"
-    ${_SUPERUSER} sync
-    [ -e /proc/sys/vm/drop_caches ] && echo 3 | ${_SUPERUSER} tee /proc/sys/vm/drop_caches >/dev/null 2>&1
-    ${_SUPERUSER} sync
+    sync
+    [ -e /proc/sys/vm/drop_caches ] && echo 3 | tee /proc/sys/vm/drop_caches >/dev/null 2>&1
+    sync
     show_info "Deactivating ${SWAPFILE@Q}"
-    ${_SUPERUSER} swapoff "${SWAPFILE}"
+    swapoff "${SWAPFILE}"
   fi
 
   # Delete swap file if it exists.
   if [ -f "${SWAPFILE}" ];then
     show_info "Deleting ${SWAPFILE@Q}"
-    ${_SUPERUSER} rm "${SWAPFILE}"
+    rm "${SWAPFILE}"
   fi
 }
 

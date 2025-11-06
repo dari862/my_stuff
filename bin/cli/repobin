@@ -1,5 +1,5 @@
 #!/bin/bash
-# need superuser : my-superuser
+# need superuser : use my-superuser
 unalias -a
 set -e
 run_reinstall=false
@@ -26,17 +26,17 @@ while true; do
     --ext) extension="$2"; shift 2 ;;
     --file) File_to_link="$2"; shift 2 ;;
     --file-repo) repo_to_find="$2"; shift 2 ;;
-    --root) __superuser="my-superuser"; shift ;;
+    --root) _SUPERUSER="my-superuser"; shift ;;
     *) break ;;
   esac
 done
 
-if [ "$(id -u)" -eq 0 ] || [ -n "$__superuser" ]; then
+if [ "$(id -u)" -eq 0 ] || [ -n "$_SUPERUSER" ]; then
 	user_root_dir=true	
 fi
 
 if [ "$user_root_dir" = true ]; then
-	[ "$(id -u)" -eq 0 ] && __superuser=""
+	[ "$(id -u)" -eq 0 ] && _SUPERUSER=""
 	BIN_DIR="$ROOT_BIN_DIR"
 	CORE_BIN_DIR="$ROOT_CORE_BIN_DIR"
 	CONFIG_DIR="$ROOT_CONFIG_DIR"
@@ -48,9 +48,9 @@ else
 	CONFIG_FILE="$USER_CONFIG_FILE"
 fi
 
-[ ! -d "$BIN_DIR" ] && $__superuser mkdir -p "$BIN_DIR"
-[ ! -d "$CORE_BIN_DIR" ] && $__superuser mkdir -p "$CORE_BIN_DIR"
-[ ! -d "$CONFIG_DIR" ] && $__superuser mkdir -p "$CONFIG_DIR"
+[ ! -d "$BIN_DIR" ] && $_SUPERUSER mkdir -p "$BIN_DIR"
+[ ! -d "$CORE_BIN_DIR" ] && $_SUPERUSER mkdir -p "$CORE_BIN_DIR"
+[ ! -d "$CONFIG_DIR" ] && $_SUPERUSER mkdir -p "$CONFIG_DIR"
 
 declare -A config
 if [ -f "$CONFIG_FILE" ]; then
@@ -76,33 +76,33 @@ find_binary_executable() {
 
 safe_mv() {
   [ -n "${extension}" ] && extension=".${extension}"
-  $__superuser mv "$tmpfile" "$CORE_BIN_DIR/${bin_name}${extension}"
-  $__superuser chmod +x "$CORE_BIN_DIR/${bin_name}${extension}"
+  $_SUPERUSER mv "$tmpfile" "$CORE_BIN_DIR/${bin_name}${extension}"
+  $_SUPERUSER chmod +x "$CORE_BIN_DIR/${bin_name}${extension}"
 }
 
 Installing_deb() {
 	log "Installing deb file."
 	CONFIG_DIR="$ROOT_CONFIG_DIR"
 	CONFIG_FILE="$ROOT_CONFIG_FILE"
-  [ "$(id -u)" -ne 0 ] && __superuser="my-superuser"
-  [ ! -d "$CONFIG_DIR" ] && $__superuser mkdir -p "$CONFIG_DIR"
-  $__superuser mv "${tmpfile}" "${tmpfile}".deb
-  $__superuser apt-get install -y -f "${tmpfile}".deb
+  [ "$(id -u)" -ne 0 ] && _SUPERUSER="my-superuser"
+  [ ! -d "$CONFIG_DIR" ] && $_SUPERUSER mkdir -p "$CONFIG_DIR"
+  $_SUPERUSER mv "${tmpfile}" "${tmpfile}".deb
+  $_SUPERUSER apt-get install -y -f "${tmpfile}".deb
 }
 
 mv_appimage() {
   log "appimage detected."
-  [ -d "${bin_name}.appimage" ] && $__superuser rm -rdf "$CORE_BIN_DIR/${bin_name}.appimage"
+  [ -d "${bin_name}.appimage" ] && $_SUPERUSER rm -rdf "$CORE_BIN_DIR/${bin_name}.appimage"
   safe_mv "appimage"
   cd "$CORE_BIN_DIR"
-  if ! $__superuser ./"${bin_name}.appimage" --version;then
-  	if $__superuser ./"${bin_name}.appimage" --appimage-extract;then
-    	$__superuser rm -rf "${bin_name}.appimage"
-		$__superuser mv "squashfs-root" "${bin_name}.appimage"
-		$__superuser ln -sf "$CORE_BIN_DIR/${bin_name}.appimage/AppRun" "$BIN_DIR/${bin_name}"
+  if ! $_SUPERUSER ./"${bin_name}.appimage" --version;then
+  	if $_SUPERUSER ./"${bin_name}.appimage" --appimage-extract;then
+    	$_SUPERUSER rm -rf "${bin_name}.appimage"
+		$_SUPERUSER mv "squashfs-root" "${bin_name}.appimage"
+		$_SUPERUSER ln -sf "$CORE_BIN_DIR/${bin_name}.appimage/AppRun" "$BIN_DIR/${bin_name}"
   	fi
   else
-  	$__superuser ln -sf "${CORE_BIN_DIR}/${bin_name}.appimage" "${BIN_DIR}/${bin_name}"
+  	$_SUPERUSER ln -sf "${CORE_BIN_DIR}/${bin_name}.appimage" "${BIN_DIR}/${bin_name}"
   fi
 }
 
@@ -146,11 +146,11 @@ extract_and_find_binary() {
     safe_mv
     final_bin="$CORE_BIN_DIR/${bin_name}${extension}"
   elif [ "$repobinMODE" = "full" ];then
-	$__superuser mv "$tmpdir_extracted" "$CORE_BIN_DIR/${bin_name}"
+	$_SUPERUSER mv "$tmpdir_extracted" "$CORE_BIN_DIR/${bin_name}"
     final_bin=$(find_binary_executable "$CORE_BIN_DIR/${bin_name}" "$File_to_link")
-    $__superuser chmod +x "$final_bin"
+    $_SUPERUSER chmod +x "$final_bin"
   fi
-  $__superuser ln -sf "${final_bin}" "${BIN_DIR}/${bin_name}"
+  $_SUPERUSER ln -sf "${final_bin}" "${BIN_DIR}/${bin_name}"
   rm -rf "$tmpdir"
 }
 
@@ -266,7 +266,7 @@ install_repo() {
     *.appimage) mv_appimage ;;
     *.zip) extract_and_find_binary "zip" ;;
     *.tar.gz|*.tgz) extract_and_find_binary "tar.gz" ;;
-    *) safe_mv "$extension"; $__superuser mv "$CORE_BIN_DIR/${bin_name}${extension}" "${BIN_DIR}" ;;
+    *) safe_mv "$extension"; $_SUPERUSER mv "$CORE_BIN_DIR/${bin_name}${extension}" "${BIN_DIR}" ;;
   esac
 
   log "Installed $bin_name@$version"
@@ -316,12 +316,12 @@ save_config() {
 	[ "$save_2_config_file" = false ] && return
 	reponame="${1:-}"
 	value_of_repo="${2:-}"
-	printf '%s=%s\n' "$reponame" "$value_of_repo" | $__superuser tee -a "$CONFIG_FILE" >/dev/null 2>&1
+	printf '%s=%s\n' "$reponame" "$value_of_repo" | $_SUPERUSER tee -a "$CONFIG_FILE" >/dev/null 2>&1
 	log "Done."
 }
 
 remove_repo_from_config(){
-	$__superuser sed -i "\|${1:-}\|${2:-}|d" "$CONFIG_FILE"
+	$_SUPERUSER sed -i "\|${1:-}\|${2:-}|d" "$CONFIG_FILE"
 }
 
 remove_installed() {
@@ -332,7 +332,7 @@ remove_installed() {
   target="$CORE_BIN_DIR/$bin_name"
 
   if [ -e "$target" ]; then
-    $__superuser rm -rdf "$target"
+    $_SUPERUSER rm -rdf "$target"
     log "Removed binary: $target"
   else
     warn "Binary file not found: $target"
@@ -358,7 +358,7 @@ info_installed() {
 }
 
 clean_installed() {
-  $__superuser rm -rfd  /tmp/repobin_*
+  $_SUPERUSER rm -rfd  /tmp/repobin_*
   log "Removed temp file."
 }
 

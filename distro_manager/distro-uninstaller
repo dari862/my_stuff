@@ -1,5 +1,5 @@
 #!/bin/sh
-# need superuser : my-superuser
+# need superuser : use my-superuser
 is_it_zero_byte=false
 if [ "$(id -u)" -eq 0 ]; then
 	echo "dont not run script as superuser."

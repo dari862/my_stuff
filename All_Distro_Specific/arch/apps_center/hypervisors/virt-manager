@@ -1,5 +1,5 @@
-#!/bin/sh
-# need superuser : called by my-installer -e
+#!/bin/sh -e
+# need superuser : called by my-installer
 tweek_as_dependency "Enable_IOMMU_support" || continue
 
 app_name="virt-manager"

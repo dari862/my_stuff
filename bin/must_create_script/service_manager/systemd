@@ -1,40 +1,40 @@
 #!/bin/sh
-# need superuser : var (_superuser)
+# need superuser : var (_SUPERUSER)
 set -e
 option=${1-}
 service=${2-}
 user=""
 if [ "$(id -u)" -eq 0 ];then
-	_superuser=""
+	_SUPERUSER=""
 else
-	_superuser="my-superuser"
+	_SUPERUSER="my-superuser"
 fi
 if [ "${service}" = "user" ];then
 	user="--user"
 	service=${3-}
-	_superuser=""
+	_SUPERUSER=""
 fi
 
 if [ "${option}" = "start" ];then
-	$_superuser systemctl start ${service}
+	$_SUPERUSER systemctl start ${service}
 elif [ "${option}" = "restart" ];then
-	$_superuser systemctl restart ${service}
+	$_SUPERUSER systemctl restart ${service}
 elif [ "${option}" = "is-enable" ];then
 	systemctl is-enabled --quiet ${service}
 elif [ "${option}" = "is-active" ];then
 	systemctl is-active --quiet ${service}
 elif [ "${option}" = "stop" ];then
-	$_superuser systemctl stop ${service}.
+	$_SUPERUSER systemctl stop ${service}.
 elif [ "${option}" = "enable" ];then
-	$_superuser systemctl ${user} enable --now ${service}
+	$_SUPERUSER systemctl ${user} enable --now ${service}
 elif [ "${option}" = "disable" ];then
-	$_superuser systemctl ${user} disable --now ${service}
+	$_SUPERUSER systemctl ${user} disable --now ${service}
 elif [ "${option}" = "cleanup" ];then
-	$_superuser journalctl --vacuum-time=3d
+	$_SUPERUSER journalctl --vacuum-time=3d
 elif [ "${option}" = "reload" ];then
-	$_superuser systemctl daemon-reload
+	$_SUPERUSER systemctl daemon-reload
 elif [ "${option}" = "status" ];then
-	$_superuser systemctl is-enabled --quiet ${service} && $_superuser systemctl is-active --quiet ${service}
+	$_SUPERUSER systemctl is-enabled --quiet ${service} && $_SUPERUSER systemctl is-active --quiet ${service}
 else
 	echo "option are enable is-enable is-active disable start restart stop"
 fi

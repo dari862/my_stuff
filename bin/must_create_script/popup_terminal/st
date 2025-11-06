@@ -1,5 +1,5 @@
 #!/bin/sh
-# need superuser : my-superuser
+# need superuser : use my-superuser
 #===================================================================================
 . "$__distro_path_lib"
 my_installer_script_name="${__distro_path_root}/bin/not_add_2_path/my-installer"

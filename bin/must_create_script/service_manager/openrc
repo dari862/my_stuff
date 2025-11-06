@@ -1,19 +1,19 @@
 #!/bin/sh
-# need superuser : var (_superuser)
+# need superuser : var (_SUPERUSER)
 set -eu
 
 option=${1-}
 service=${2-}
 user=""
 if [ "$(id -u)" -eq 0 ];then
-	_superuser=""
+	_SUPERUSER=""
 else
-	_superuser="my-superuser"
+	_SUPERUSER="my-superuser"
 fi
 if [ "${service}" = "user" ];then
 	user="--user"
 	service=${3-}
-	_superuser=""
+	_SUPERUSER=""
 fi
 
 _usage() {
@@ -31,44 +31,35 @@ _usage() {
     exit 1
 }
 
-if [ "${#}" -ge 2 ]
-then
+if [ "${#}" -ge 2 ];then
     # start
-    if [ "${option}" = "start" ]
-    then
+    if [ "${option}" = "start" ];then
         rc-service "${service}" start
 
     # stop
-    elif [ "${option}" = "stop" ]
-    then
+    elif [ "${option}" = "stop" ];then
         rc-service "${service}" stop
 
     # restart
-    elif [ "${option}" = "restart" ]
-    then
+    elif [ "${option}" = "restart" ];then
         rc-service "${service}" restart
 
     # status
-    elif [ "${option}" = "status" ]
-    then
+    elif [ "${option}" = "status" ];then
         rc-service "${service}" status
  # status
-    elif [ "${option}" = "is-enable" ]
-    then
+    elif [ "${option}" = "is-enable" ];then
         rc-service "${service}" status
  # status
-    elif [ "${option}" = "is-active" ]
-    then
+    elif [ "${option}" = "is-active" ];then
         rc-service "${service}" status
 
     # enable
-    elif [ "${option}" = "enable" ]
-    then
+    elif [ "${option}" = "enable" ];then
         rc-update add "${service}" default
 
     # disable
-    elif [ "${option}" = "disable" ]
-    then
+    elif [ "${option}" = "disable" ];then
         rc-update del "${service}" default
     else
         _usage
@@ -76,8 +67,7 @@ then
 elif [ "${#}" -eq 1 ]
 then
     # list
-    if [ "${option}" = "list" ]
-    then
+    if [ "${option}" = "list" ];then
         rc-update -v show
     elif [ "${option}" = "cleanup" ];then
 		:
