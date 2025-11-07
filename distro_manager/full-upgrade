@@ -2,9 +2,8 @@
 # need superuser : var (_SUPERUSER)
 # It runs full system upgrade in a text console
 opt="${1:-}"
-getURL_path="${2:-$(which getURL)}"
-
-__distro_path_lib="${1:-$__distro_path_lib}"
+export __distro_path_lib="${1:-$__distro_path_lib}"
+export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:$PATH" 
 
 if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 	echo ""
@@ -14,7 +13,7 @@ if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 fi
 
 if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__distro_path_lib" "$getURL_path"
+    my-superuser $0 "$__distro_path_lib"
     exit
 fi
 
@@ -26,7 +25,7 @@ update_full_upgrade_script(){
 	print_purple "==> check if full upgrade need update. "
 	do_full_upgrade_need_update=false
 	mkdir -p /tmp/root/disto_updater
-	$getURL_path 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
+	getURL 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
 	chmod +x "/tmp/root/disto_updater/full-upgrade"
 	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
 	

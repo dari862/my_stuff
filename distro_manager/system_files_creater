@@ -6,7 +6,9 @@ if [ "$(id -u)" -ne 0 ]; then
     my-superuser $0 "$__distro_path_lib"
     exit
 fi
-__distro_path_lib="${1:-$__distro_path_lib}"
+
+export __distro_path_lib="${1:-$__distro_path_lib}"
+
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/common"
