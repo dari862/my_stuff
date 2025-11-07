@@ -1,7 +1,7 @@
 #!/bin/sh
 # need superuser : called by my-superuser
 export __distro_path_lib="${1:-$__distro_path_lib}"
-__opt="${1:-$__distro_path_lib}"
+__opt="${2:-$__distro_path_lib}"
 
 if [ "$__opt" = "help" ] || [ "$__opt" = "--help" ] || [ "$__opt" = "-h" ];then
 	echo ""
@@ -63,7 +63,7 @@ __upgrade_current_repo_(){
 	  fi
 	  
       print_purple "==> Fetching"
-      git fetch  || print_RED "git fetch failed... "
+      git fetch || print_RED "git fetch failed... "
       
       print_purple "==> Stash (dont apply local changes)."
       git stash  || print_RED "git stash failed... "
@@ -92,7 +92,7 @@ Updating_Distro(){
 	skel_modified=false
 	print_purple "==> Fetching Distro repo."
 	git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
-	git fetch >/dev/null 2>&1
+	git fetch || print_RED "git fetch failed... "
 	if git status | grep -q "^Your branch is up to date";then
 		print_GREEN "==> Distro is up to date." 
 	  	return
@@ -135,15 +135,11 @@ Updating_Distro(){
 
 Updating_Themes(){
 	cd "${__distro_path_root}/${Theme_repo_name}"
-	print_purple "==> Fetching ${Theme_repo_name} repo."
 	git remote set-url origin "https://github.com/dari862/${Theme_repo_name}.git" >/dev/null 2>&1
-	git fetch >/dev/null 2>&1
-	if git status | grep -q "^Your branch is up to date";then
+	if __upgrade_current_repo_;then
 		print_GREEN "==> ${Theme_repo_name} is up to date." 
-	  	return
 	else
-		print_purple "==> Updating ${Theme_repo_name}."
-		__upgrade_current_repo_
+		print_RED "Updating ${Theme_repo_name} Failed... "
 	fi
 }
 
