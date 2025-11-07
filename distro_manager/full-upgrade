@@ -150,7 +150,7 @@ Updating_opt(){
 
 post_updating(){
 	print_purple "==> running system_files_creater."
-	${__distro_path_root}/distro_manager/system_files_creater
+	${__distro_path_root}/distro_manager/system_files_creater "$__distro_path_lib"
 }
 
 ##########################################################################################################################3
