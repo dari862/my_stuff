@@ -2,6 +2,8 @@
 # need superuser : var (_SUPERUSER)
 # It runs full system upgrade in a text console
 opt="${1:-}"
+getURL_path="${2:-$(which getURL)}"
+
 __distro_path_lib="${1:-$__distro_path_lib}"
 
 if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
@@ -12,15 +14,13 @@ if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 fi
 
 if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__distro_path_lib"
+    my-superuser $0 "$__distro_path_lib" "$getURL_path"
     exit
 fi
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
-
-getURL_path="$(which getURL)"
 
 update_full_upgrade_script(){
 	print_purple "==> check if full upgrade need update. "
