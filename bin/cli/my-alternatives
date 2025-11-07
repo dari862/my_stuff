@@ -183,7 +183,7 @@ existing_alt_packages=""
     done
 	echo "Enter package number: "
     read -r picked_package_number
-    selected_package=$(echo $alt_packages | cut -d " " -f $picked_package_number )
+    selected_package=$(echo $existing_alt_packages | cut -d " " -f $picked_package_number )
   else
     for package in $alt_packages; do
     	if package_exists "$package";then

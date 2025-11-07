@@ -62,7 +62,7 @@ mk_position_controls() {
 				if [[ "${passed_output}" != "$other" ]];then
 					echo "<item label=\"$other\">"
 					echo "<action name=\"execute\">"
-					echo "<command>${__distro_path_root}/bin/X11/WM/displayselect manage_arrangement monitor ${passed_output} $position $other</command>"
+					echo "<command>${__distro_path_root}/bin/X11/WM/displayselect manage_arrangement monitor ${passed_output} --${position} $other</command>"
 					echo "</action>"
 					echo "</item>"
 				fi
