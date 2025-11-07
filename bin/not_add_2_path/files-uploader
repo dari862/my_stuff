@@ -7,7 +7,7 @@
 unalias -a
 # var
 . "$__distro_path_lib"
-. "${__distro_path_root}/display_server/X11"
+. "${__distro_display_manager_lib_path}"
 
 __to_where_="${1-}"
 shift 1

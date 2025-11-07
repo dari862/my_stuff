@@ -1,15 +1,10 @@
 #!/bin/sh
-
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
 Style="$1"
-if [ "$Style" != "hack" ]
-then
+if [ "$Style" != "hack" ];then
     disconnected=""
     disconnected2=""
     disconnected3=""
-    if [ "$Style" = "beach" ]
-    then
+    if [ "$Style" = "beach" ];then
         disconnected4=""
     fi
     wireless_connected=""
@@ -23,7 +18,7 @@ fi
 
 ID="$(ip route | awk '/default/ { print $5 }')"
 
-if ! echo "$polybar_STYLE" | grep -q "hack";then
+if [ "$Style" != "hack" ];then
     while true; do       
 		if echo "$ID" | grep "^e";then
             echo "$ethernet_connected" ; sleep 25
@@ -33,8 +28,7 @@ if ! echo "$polybar_STYLE" | grep -q "hack";then
             echo "$disconnected" ; sleep 0.5
             echo "$disconnected2" ; sleep 0.5
             echo "$disconnected3" ; sleep 0.5
-            if [ "$Style" = "beach" ]
-            then
+            if [ "$Style" = "beach" ];then
                 echo "$disconnected4" ; sleep 0.5
             fi
         fi

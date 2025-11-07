@@ -50,6 +50,12 @@ if [ -n "${dependencies_not_installed}" ];then
 	else
 		. "${__distro_path_root}/lib/common/WM"
 		. "${Distro_config_file}"
-		rofi -e "Missing dependencies, please install : ${not_installed_apps_are}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi && return 1
+		. "${__distro_display_manager_lib_path}"	  
+	
+		if [ "$Display_server_are" = "X11" ];then
+			rofi -e "Missing dependencies, please install : ${not_installed_apps_are}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi && return 1
+		elif [ "$Display_server_are" = "wayland" ];then
+			:
+		fi
 	fi
 fi

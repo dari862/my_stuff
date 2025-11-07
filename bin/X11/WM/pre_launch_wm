@@ -13,7 +13,7 @@ fi
 
 if [ ! -f "${WM_config_dir}/menu_picked" ];then	
 	_picked_panel_="$("${__distro_path_root}"/bin/X11/WM/panel_picker)"
-	"${__distro_path_root}"/bin/WM/style_setter "$_picked_panel_"
+	"${__distro_path_root}"/bin/X11/WM/style_setter "$_picked_panel_"
 	touch "${WM_config_dir}/menu_picked"
 fi
 

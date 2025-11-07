@@ -8,7 +8,7 @@ mkdir -p "$CPU_DIR"
 
 # Defaults
 SHOW_ICON=false
-POLYBAR_MODE=false
+COLORLESS_MODE=false
 SHOW_AVG=false
 SHOW_BARS=false
 SHOW_TOP=false
@@ -30,7 +30,7 @@ BARS=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
 for arg in "$@"; do
   case "$arg" in
     -i|--icon) SHOW_ICON=true ;;
-    --polybar) POLYBAR_MODE=true ;;
+    --colorless) COLORLESS_MODE=true ;;
     --avg) SHOW_AVG=true ;;
     --bars) SHOW_BARS=true ;;
     --top) SHOW_TOP=true ;;
@@ -99,7 +99,7 @@ while read -r line; do
   fi
 
   # Select color
-  if [[ "$usage" == "?" || "$POLYBAR_MODE" == true ]]; then
+  if [[ "$usage" == "?" || "$COLORLESS_MODE" == true ]]; then
     color=""; reset=""
   elif [[ "$usage" -lt $LOW ]]; then
     color=$GREEN; reset=$RESET
@@ -130,7 +130,7 @@ done < <(grep '^cpu[0-9]\+' /proc/stat)
 if $SHOW_AVG && [[ $core_count -gt 0 ]]; then
   avg=$(((total_usage + core_count / 2) / core_count))
   avg_label="Avg: ${avg}%"
-  if [[ "$POLYBAR_MODE" == false ]]; then
+  if [[ "$COLORLESS_MODE" == false ]]; then
     if [[ $avg -lt $LOW ]]; then color=$GREEN
     elif [[ $avg -lt $MEDIUM ]]; then color=$YELLOW
     else color=$RED; fi

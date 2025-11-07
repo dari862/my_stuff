@@ -6,7 +6,7 @@ _panel_name_="${1:-}"
 style="${2:-}"
 no_wallpaper_option="${3:-}"
 
-"${__distro_path_root}"/bin/WM/style_setter "${_panel_name_}" "${style}"
+"${__distro_path_root}"/bin/X11/WM/style_setter "${_panel_name_}" "${style}"
 
 if [ "$no_wallpaper_option" = '--no-wall' ];then
 	no_wall=true
