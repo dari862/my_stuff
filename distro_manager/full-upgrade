@@ -1,10 +1,9 @@
 #!/bin/sh
-# need superuser : var (_SUPERUSER)
-# It runs full system upgrade in a text console
-opt="${1:-}"
+# need superuser : called by my-superuser
 export __distro_path_lib="${1:-$__distro_path_lib}"
+__opt="${1:-$__distro_path_lib}"
 
-if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
+if [ "$__opt" = "help" ] || [ "$__opt" = "--help" ] || [ "$__opt" = "-h" ];then
 	echo ""
 	echo "runs full system and distro upgrade."
 	echo ""
@@ -12,7 +11,7 @@ if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 fi
 
 if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__distro_path_lib"
+    my-superuser $0 "$__distro_path_lib" "$__opt"
     exit
 fi
 
@@ -33,7 +32,7 @@ update_full_upgrade_script(){
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
 		print_purple "==> running new version of full-upgrade. "
-		/tmp/root/disto_updater/full-upgrade --skip-internet-check "$__distro_path_lib" && exit || ( print_RED "failed to do full upgrade" && exit 1 )
+		/tmp/root/disto_updater/full-upgrade "$__distro_path_lib" --skip-internet-check && exit || ( print_RED "failed to do full upgrade" && exit 1 )
 	else
 		print_GREEN "==> full upgrade up to date."
 	fi
@@ -132,7 +131,9 @@ Updating_Distro(){
 
 		print_GREEN "==> Distro is up to date." 
 	fi
-	
+}
+
+Updating_Themes(){
 	cd "${__distro_path_root}/${Theme_repo_name}"
 	print_purple "==> Fetching ${Theme_repo_name} repo."
 	git remote set-url origin "https://github.com/dari862/${Theme_repo_name}.git" >/dev/null 2>&1
@@ -168,7 +169,7 @@ post_updating(){
 
 ##########################################################################################################################3
 
-if [ "${opt}" != "--skip-internet-check" ];then
+if [ "${__opt}" != "--skip-internet-check" ];then
 	connectiontest
 	update_full_upgrade_script
 fi
@@ -196,6 +197,7 @@ if command -v yt-dlp >/dev/null 2>&1;then
 fi
 
 Updating_Distro
+Updating_Themes
 
 if [ -d "${__distro_path_root}/opt/git" ];then
 	print_purple "==> updating git repository(s)."
