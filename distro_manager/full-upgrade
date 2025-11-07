@@ -3,7 +3,6 @@
 # It runs full system upgrade in a text console
 opt="${1:-}"
 export __distro_path_lib="${1:-$__distro_path_lib}"
-export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:$PATH" 
 
 if [ "$opt" = "help" ] || [ "$opt" = "--help" ] || [ "$opt" = "-h" ];then
 	echo ""
@@ -20,6 +19,8 @@ fi
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+
+export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:$PATH" 
 
 update_full_upgrade_script(){
 	print_purple "==> check if full upgrade need update. "
