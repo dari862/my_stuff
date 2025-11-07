@@ -21,6 +21,7 @@ fi
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 
 export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:$PATH" 
+Theme_repo_name="Theme_Stuff"
 
 update_full_upgrade_script(){
 	print_purple "==> check if full upgrade need update. "
@@ -130,6 +131,18 @@ Updating_Distro(){
 		fi
 
 		print_GREEN "==> Distro is up to date." 
+	fi
+	
+	cd "${__distro_path_root}/${Theme_repo_name}"
+	print_purple "==> Fetching ${Theme_repo_name} repo."
+	git remote set-url origin "https://github.com/dari862/${Theme_repo_name}.git" >/dev/null 2>&1
+	git fetch >/dev/null 2>&1
+	if git status | grep -q "^Your branch is up to date";then
+		print_GREEN "==> ${Theme_repo_name} is up to date." 
+	  	return
+	else
+		print_purple "==> Updating ${Theme_repo_name}."
+		__upgrade_current_repo_
 	fi
 }
 
