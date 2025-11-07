@@ -158,7 +158,7 @@ get_input() {
     
     if [[ "$is_password" == "true" ]]; then
     	rofi -theme "$ASKPASS_FILE" -theme-str "window{width:450px;location: ${DIRECTIONS[LOCATION]};}" \
-    		-theme-str 'textbox-prompt-colon {str:"  | $network_name : ";}' -dmenu -password
+    		-theme-str "textbox-prompt-colon {str:\"  | $network_name : \";}" -dmenu -password
     else
         rofi_cmd -dmenu -p "$prompt" -lines "$lines" -p "@"
     fi
@@ -223,10 +223,10 @@ format_network_line() {
 }
 
 get_networks_list() {
-    local current_ssid=$(get_current_wifi_ssid)
-    
-    echo " SSID                          BARS  SIGNAL  SECURITY   BANDWIDTH  MODE   CHAN  RATE        BSSID"
-    nmcli -f SSID,BARS,SIGNAL,SECURITY,BANDWIDTH,MODE,CHAN,RATE,BSSID device wifi list | awk 'NR==1 || $1 != "--"' | tail -n +2 | while read -r line; do
+	local current_ssid=$(get_current_wifi_ssid)
+	
+    echo " SSID                        BSSID              BARS  SIGNAL  SECURITY   BANDWIDTH  MODE   CHAN  RATE"
+    nmcli -f SSID,BSSID,BARS,SIGNAL,SECURITY,BANDWIDTH,MODE,CHAN,RATE device wifi list | awk 'NR==1 || $1 != "--"' | tail -n +2 | while read -r line; do
         format_network_line "$line" "$current_ssid"
     done
 }
