@@ -169,7 +169,7 @@ echo "</action>"
 echo "</item>"
 
 echo "<separator label=\"GUI Select Display Resolution\" />"
-echo "<item label=\"${__distro_path_root}/bin/X11/WM/displayselect manual_selection\">"
+echo "<item label=\"GUI Display Resolution\">"
 echo "<action name=\"execute\">"
 echo "<command>${__distro_path_root}/bin/X11/WM/displayselect manual_selection</command>"
 echo "</action>"

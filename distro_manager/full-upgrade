@@ -1,17 +1,24 @@
 #!/bin/sh
 # need superuser : called by my-superuser
-export __distro_path_lib="${1:-$__distro_path_lib}"
-__opt="${2:-$__distro_path_lib}"
+
+skip_internet_check=false
+
+__opt="${1:-}"
 
 if [ "$__opt" = "help" ] || [ "$__opt" = "--help" ] || [ "$__opt" = "-h" ];then
 	echo ""
 	echo "runs full system and distro upgrade."
 	echo ""
 	exit 0
+elif [ "$__opt" = "--skip-internet-check" ];then
+	skip_internet_check=true
+	export __distro_path_lib="${2:-$__distro_path_lib}"
+else
+	export __distro_path_lib="${1:-$__distro_path_lib}"
 fi
 
 if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__distro_path_lib" "$__opt"
+    my-superuser $0 "$__opt" "$__distro_path_lib"
     exit
 fi
 
@@ -28,11 +35,13 @@ update_full_upgrade_script(){
 	mkdir -p /tmp/root/disto_updater
 	getURL 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
 	chmod +x "/tmp/root/disto_updater/full-upgrade"
-	[ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ] && do_full_upgrade_need_update=true
+	if [ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ];then
+		do_full_upgrade_need_update=true
+	fi
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
 		print_purple "==> running new version of full-upgrade. "
-		/tmp/root/disto_updater/full-upgrade "$__distro_path_lib" --skip-internet-check && exit || ( print_RED "failed to do full upgrade" && exit 1 )
+		/tmp/root/disto_updater/full-upgrade --skip-internet-check "$__distro_path_lib" && exit || ( print_RED "failed to do full upgrade" && exit 1 )
 	else
 		print_GREEN "==> full upgrade up to date."
 	fi
@@ -73,15 +82,8 @@ __upgrade_current_repo_(){
 }
 
 update_packages(){
-	cd "$__distro_path_updater"
-	updaters_list="$(ls)"
-	first_updater_file="$(echo "$updaters_list" | head -n 1)"
-	if [ -f "${updaters_list}" ];then
-		for updater in "${updaters_list}";do
-			print_purple "==> runing $updater updater."
-			./$updater
-		done
-	fi
+	print_purple "==> runing repobin updater."
+	repobin update
 }
 
 Updating_Distro(){
@@ -165,7 +167,7 @@ post_updating(){
 
 ##########################################################################################################################3
 
-if [ "${__opt}" != "--skip-internet-check" ];then
+if [ "${skip_internet_check}" = false ];then
 	connectiontest
 	update_full_upgrade_script
 fi

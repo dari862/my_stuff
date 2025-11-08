@@ -746,5 +746,5 @@ esac
 
 execute_command "$display_script"
 my_session_manager_cli reload
-notification-d-session restart
+panel_launcher
 notify_send_and_exit
