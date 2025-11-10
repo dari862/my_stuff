@@ -34,25 +34,25 @@ create_sourcemainbindkey_conf_file(){
 	sed -i '/#__App__name# :: .*/d' keybinds_to_sourcemainbindkey.conf
 	csplit -z keybinds_to_sourcemainbindkey.conf /#csplit_file_here#/ '{*}' >/dev/null 2>&1
 	
-	sed -i 's/super/Mod4/g' xx00
+	sed -i 's/super/Mod4/g' xx15
 	
-	for file in xx02 xx04 xx05 xx06 xx07 xx09 xx11 xx13 xx14 xx16;do
+	for file in xx01 xx02 xx03 xx05 xx06 xx08 xx10 xx11 xx12 xx14;do
 		sed -i 's/ //g' $file	
 	done
 	
-	for file in xx08 xx09 xx11 xx14;do
+	for file in xx07 xx08 xx10 xx12;do
 		sed -i 's/+/-/g' $file
 		
 	done
 	
-	for file in xx00 xx03 xx07 xx14;do
+	for file in xx02 xx06 xx12 xx15;do
 		sed -i 's/ctrl/Ctrl/g' $file
 		sed -i 's/alt/Alt/g' $file
 		sed -i 's/super/Super/g' $file
 		sed -i 's/shift/Shift/g' $file
 	done
 	
-	for file in xx02 xx04 xx06 xx13 xx16;do
+	for file in xx01 xx03 xx05 xx11 xx14;do
 		sed -i 's/ctrl/<Ctrl>/g' $file
 		sed -i 's/alt/<Alt>/g' $file
 		sed -i 's/super/<Primary>/g' $file
@@ -60,40 +60,40 @@ create_sourcemainbindkey_conf_file(){
 		sed -i 's/+//g' $file
 	done
 	
-	for file in xx00 xx01 xx03 xx04 xx08 xx14;do
+	for file in xx00 xx02 xx03 xx07 xx12 xx15;do
 		sed -i 's/ctrl/Control/g' $file
 		sed -i 's/Ctrl/Control/g' $file
 	done
 
-	sed -i 's/Backspace/BS/g' xx07
-	sed -i 's/Space/IDEOGRAPHIC_SPACE/g' xx07
-	sed -i 's/Page_Down/PGDWN/g' xx07
-	sed -i 's/Page_Up/PGUP/g' xx07
-	sed -i 's/Tab/TAB/g' xx07
+	sed -i 's/Backspace/BS/g' xx06
+	sed -i 's/Space/IDEOGRAPHIC_SPACE/g' xx06
+	sed -i 's/Page_Down/PGDWN/g' xx06
+	sed -i 's/Page_Up/PGUP/g' xx06
+	sed -i 's/Tab/TAB/g' xx06
 	
-	sed -i 's/keepitCtrol/C/g' xx08
-	sed -i 's/ - /-/g' xx08
+	sed -i 's/keepitCtrol/C/g' xx07
+	sed -i 's/ - /-/g' xx07
 	
-	sed -i 's/ctrl/C/g' xx11
-	sed -i 's/alt/A/g' xx11
-	sed -i 's/super/W/g' xx11
-	sed -i 's/shift/S/g' xx11
+	sed -i 's/ctrl/C/g' xx10
+	sed -i 's/alt/A/g' xx10
+	sed -i 's/super/W/g' xx10
+	sed -i 's/shift/S/g' xx10
+	
+	sed -i 's/<Alt>=/alt=/g' xx11
+	sed -i 's/<Alt>1=/alt1=/g' xx11
+	sed -i 's/<Alt>2=/alt2=/g' xx11
+	sed -i 's/<Alt>3=/alt3=/g' xx11
+	sed -i 's/<Alt>4=/alt4=/g' xx11
+	sed -i 's/<Alt>5=/alt5=/g' xx11
+	sed -i 's/<Alt>6=/alt6=/g' xx11
 		
-	sed -i 's/sed_it_to_backtick/grave/g' xx12
-	sed -i 's/button/~button/g' xx12
+	sed -i 's/sed_it_to_backtick/grave/g' xx16
+	sed -i 's/button/~button/g' xx16
 	
-	sed -i 's/<Alt>=/alt=/g' xx13
-	sed -i 's/<Alt>1=/alt1=/g' xx13
-	sed -i 's/<Alt>2=/alt2=/g' xx13
-	sed -i 's/<Alt>3=/alt3=/g' xx13
-	sed -i 's/<Alt>4=/alt4=/g' xx13
-	sed -i 's/<Alt>5=/alt5=/g' xx13
-	sed -i 's/<Alt>6=/alt6=/g' xx13
+	mv xx00 xx00xx
 	
-	mv xx01 xx01xx
-	
-	echo '#csplit_file_here#' > xx01
-	grep -v '^#' xx01xx | while IFS= read -r line; do
+	echo '#csplit_file_here#' > xx00
+	grep -v '^#' xx00xx | while IFS= read -r line; do
     	key=$(echo "$line" | cut -d '=' -f 1)
     	value=$(echo "$line" | cut -d '=' -f 2)
 
@@ -109,7 +109,7 @@ create_sourcemainbindkey_conf_file(){
   		esac
 
   		printf '%s=%s,       %s       \n' "$key" "$key_combo" "$mods"
-	done >> xx01
+	done >> xx00
 	
 	cat xx00 xx01 xx02 xx03 xx04 xx05 xx06 xx07 xx08 xx09 xx10 xx11 xx12 xx13 xx14 xx15 xx16 > sourcemainbindkey.conf
 	

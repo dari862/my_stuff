@@ -13,6 +13,8 @@ getURL 'download2' "${browserUrl}" "/tmp/$USER/${browser_deb}" || continue
 install_deb ${browser_deb} || continue
 rm -f /tmp/$USER/${browser_deb} || continue
 
-my-superuser ln -sf ${__distro_path_root}/appearance_applications/WhatsApp.desktop /usr/share/applications
+my-superuser ln -sf "${__distro_path_root}"/appearance_applications/WhatsApp.desktop /usr/share/applications || continue
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-www-browser" "${app_name}" || continue
+fi

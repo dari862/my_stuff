@@ -12,6 +12,8 @@ say "Update Repo..." 1
 Package_update_
 
 say "Installing ${app_name}..." 1
-Package_installer_ "${app_name}"
+Package_installer_ "${app_name}" || continue
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-ide" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-ide" "${app_name}" || continue
+fi

@@ -1,0 +1,32 @@
+#!/bin/sh
+. "$__distro_path_lib"
+__opt="${1:-openbox}" #bspwm openbox
+
+keybinds_config_path="$HOME/.config/sxhkd/sxhkdrc_${__opt}"
+
+stop() {	
+	"${__distro_path_root}"/bin/WM/kill_process.sh sxhkd
+}
+
+start() {
+  	if ! pidof -q sxhkd ;then
+  		setsid sxhkd &
+  		#setsid sxhkd -c "${keybinds_config_path}" &
+	fi
+}
+
+case "${1}" in
+	""|restart)
+		stop
+		start		
+	;;
+	start)
+		start		
+	;;
+	stop)	
+		stop	
+	;;
+	*)	
+		echo "Usage: keybinds-session [start|stop|restart]"
+	;;
+esac

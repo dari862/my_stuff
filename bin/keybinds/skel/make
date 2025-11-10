@@ -1,5 +1,10 @@
 #!/bin/sh
+# need superuser : used by keybinds
+__distro_path_lib="${1:-$__distro_path_lib}"
+current_script_path="${2:-}"
+
 . "$__distro_path_lib"
+
 command_exist() {
 	if command -v $1 > /dev/null 2>&1;then
 		return
@@ -9,6 +14,8 @@ command_exist() {
 }
 
 skel_keybinds_dir="${__distro_path_root}/system_files/skel/.config/keybinds"
+
+cd "${current_script_path}/skel"
 
 file_to_cat="General"
 

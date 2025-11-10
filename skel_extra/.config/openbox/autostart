@@ -39,6 +39,9 @@ if [ -f "(((__distro_path_system_ready)))/this_is_laptop" ];then
 	syndaemon -i .5 -K -t -R -d & 											
 fi
 
+# Lauch keybindings daemon
+keybinds-session openbox
+
 #### START APPLICATIONS ###############################################################################
 (((__distro_path_root)))/bin/X11/WM/post_launch_wm
 (((__distro_path_root)))/bin/X11/WM/extra_post_launch_wm

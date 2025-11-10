@@ -17,7 +17,7 @@ Usage:  my-installer --install app_name
 if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
-	_SUPERUSER="${_SUPERUSER}"
+	_SUPERUSER="my-superuser"
 fi
 skip_test=""
 source__file_location=false

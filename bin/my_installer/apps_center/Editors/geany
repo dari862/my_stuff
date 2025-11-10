@@ -10,4 +10,6 @@ Package_installer_ "${app_name}" ${extra_app_name} || continue
 copy_from_extra_skel ".config/geany" || continue
 copy_blob_extra_2_system_files_blob "geany" || continue
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-text-editor" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-text-editor" "${app_name}" || continue
+fi

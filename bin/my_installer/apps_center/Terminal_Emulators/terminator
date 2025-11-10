@@ -27,5 +27,6 @@ else
 	my-superuser sed -i 's/xxxxxxxxxxxxxxxxxxxxx/  hide_window = F10/g' "/root/.config/terminator/config"
 fi
 
-
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-terminal-emulator" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-terminal-emulator" "${app_name}" || continue
+fi

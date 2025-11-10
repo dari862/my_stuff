@@ -7,4 +7,6 @@ say 'Installing package...' 1
 
 Package_installer_ "${app_name}" || continue
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-office" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-office" "${app_name}" || continue
+fi

@@ -1,21 +1,15 @@
 #!/bin/sh
 # my-alternatives: A script to manage alternatives.
 # need superuser : var (_SUPERUSER)
-__distro_path_lib="${2:-$__distro_path_lib}"
 . "$__distro_path_lib"
+
 if [ "$(id -u)" -eq 0 ];then
 	_SUPERUSER=""
 else
-	for package in sudo doas; do
-  		if command -v "$package" > /dev/null 2>&1;then
-    		_SUPERUSER="$package"
-      		break
-    	fi
-  	done
+	_SUPERUSER="my-superuser"
 fi
 
 my_superuser_path="/usr/bin/my-superuser"
-my_alternatives_path="${__distro_path_root}/system_files/bin"
 ACTION="${1-}"
 alt_package="${2-}"
 MYALTS="my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide my-pdf-reader my-image-editor my-video-editor"
@@ -42,7 +36,11 @@ SUPERUSERS="doas sudo"
 
 # Helper function to check if a package exists
 package_exists() {
-  command -v "$1" > /dev/null 2>&1
+  if command -v "$1" > /dev/null 2>&1;then
+    return
+  else
+    return 1
+  fi
 }
 
 # Helper function to link a package
@@ -80,19 +78,21 @@ usage() {
 
 create_cli_filemanager(){
 	package="${1:-}"
-	[ -e "${my_alternatives_path}/my-file-manager" ] && $_SUPERUSER rm -rf "${my_alternatives_path}/my-file-manager"
-	echo '#!/bin/sh' | $_SUPERUSER tee "${my_alternatives_path}/my-file-manager" >/dev/null 2>&1
-	echo "popup_terminal \"$package\"" | $_SUPERUSER tee -a "${my_alternatives_path}/my-file-manager" >/dev/null 2>&1
-	$_SUPERUSER chmod +x "${my_alternatives_path}/my-file-manager"
+	[ -e "${__distro_path_root}/system_files/bin/my-file-manager" ] && $_SUPERUSER rm -rf "${__distro_path_root}/system_files/bin/my-file-manager"
+	echo '#!/bin/sh' | $_SUPERUSER tee "${__distro_path_root}/system_files/bin/my-file-manager" >/dev/null 2>&1
+	echo "popup_terminal \"$package\"" | $_SUPERUSER tee -a "${__distro_path_root}/system_files/bin/my-file-manager" >/dev/null 2>&1
+	$_SUPERUSER chmod +x "${__distro_path_root}/system_files/bin/my-file-manager"
 }
 
 # Install default alternatives
 install_alternatives() {
+  __distro_path_lib="${1:-$__distro_path_lib}"
+  . "$__distro_path_lib"
   echo "Installing default alternatives..."
 
   # Ensure alternatives directory exists
-  if [ ! -d "$my_alternatives_path" ];then
-    $_SUPERUSER mkdir -p "$my_alternatives_path"
+  if [ ! -d "${__distro_path_root}/system_files/bin" ];then
+    $_SUPERUSER mkdir -p "${__distro_path_root}/system_files/bin"
   fi
 
   for alternative_name in $MYALTS; do
@@ -102,7 +102,7 @@ install_alternatives() {
     # Try to find and link the first valid package for the alternative
     for package in $alt_packages; do
       if package_exists "$package";then
-      	link_package "$package" "${my_alternatives_path}/$alternative_name"
+      	link_package "$package" "${__distro_path_root}/system_files/bin/$alternative_name"
         break
       fi
     done
@@ -116,7 +116,7 @@ install_alternatives() {
     fi
   done
   
-  myfilemanagerpackagename="$(basename $(realpath "${my_alternatives_path}/my-file-manager"))"
+  myfilemanagerpackagename="$(basename $(realpath "${__distro_path_root}/system_files/bin/my-file-manager"))"
   for package in $FILEMANAGERSCLI; do
   	if [ "$package" = "$myfilemanagerpackagename" ];then
 		create_cli_filemanager "$package"
@@ -130,7 +130,7 @@ remove_alternatives() {
   if [ -z "$alt_package" ];then
     # Remove all alternatives
     for alternative_name in $MYALTS; do
-      $_SUPERUSER rm -f "${my_alternatives_path}/$alternative_name"
+      $_SUPERUSER rm -f "${__distro_path_root}/system_files/bin/$alternative_name"
     done
     echo "All alternatives removed."
   else
@@ -139,13 +139,14 @@ remove_alternatives() {
       echo "Error: Invalid alternative '$alt_package'." >&2
       exit 1
     fi
-    $_SUPERUSER rm -f "${my_alternatives_path}/$alt_package"
+    $_SUPERUSER rm -f "${__distro_path_root}/system_files/bin/$alt_package"
     echo "Removed alternative: $alt_package"
   fi
 }
 
 # Set a specific alternative
 set_alternatives() {
+  selected_package="${1:-}"
   if [ -z "$alt_package" ];then
     echo "Which ${__distro_title} alternative would you like to change?"
     echo "================================="
@@ -197,7 +198,7 @@ existing_alt_packages=""
     exit 1
   fi
 
-  if link_package "$selected_package" "${my_alternatives_path}/$alt_package";then
+  if link_package "$selected_package" "${__distro_path_root}/system_files/bin/$alt_package";then
     echo "$alt_package alternative set successfully to $selected_package."
   else
     echo "Failed to set $alt_package alternative." >&2
@@ -208,7 +209,7 @@ existing_alt_packages=""
 # List all alternatives
 list_alternatives() {
   for alternative_name in $MYALTS; do
-    link=$(readlink "${my_alternatives_path}/$alternative_name")
+    link=$(readlink "${__distro_path_root}/system_files/bin/$alternative_name")
     if [ -n "$link" ];then
       printf "%-22.22s uses %s\n" "$alternative_name" "$link"
       alt_packages_var_name="$(echo "$alternative_name" | sed -e 's/^my-//' -e 's/-//' | tr '[:lower:]' '[:upper:]')S"
@@ -227,13 +228,10 @@ list_alternatives() {
 
 # Main action handling
 case "$ACTION" in
-	--install|-i) install_alternatives ;;
+	--install|-i) install_alternatives "${2:-$__distro_path_lib}" ;;
 	--list|-l) list_alternatives ;;
 	--remove|-r) remove_alternatives ;;
-	--set|-s) 
-		selected_package="${3-}"
-  		set_alternatives
-		;;
+	--set|-s) set_alternatives "${3-}" ;;
 	""|*help|-h) usage ;;
 	*) echo "Unknown action: $ACTION" >&2; usage ;;
 esac

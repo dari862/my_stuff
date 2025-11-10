@@ -10,4 +10,6 @@ getURL '2term' 'https://rpm.librewolf.net/librewolf-repo.repo' | my-superuser te
 say 'Installing package...' 1
 Package_installer_ librewolf
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-www-browser" "${app_name}" || continue
+fi

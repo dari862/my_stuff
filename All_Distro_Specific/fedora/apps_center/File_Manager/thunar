@@ -10,6 +10,13 @@ Package_installer_ "${app_name}" ${extra_app_name} || continue
 copy_from_extra_skel ".config/Thunar" || continue
 copy_from_extra_skel ".config/xfce4" || continue
 __thunar_wall_plug="$(locate thunar | grep "plugin.so" | grep "wall" | grep -v "\.backup" || :)"
-[ -f "${__thunar_wall_plug}" ] && [ ! -f "${__thunar_wall_plug}.backup" ] && my-superuser mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-file-manager" "${app_name}" || continue
+
+if [ -f "${__thunar_wall_plug}" ] && [ ! -f "${__thunar_wall_plug}.backup" ];then
+	my-superuser mv "${__thunar_wall_plug}" "${__thunar_wall_plug}.backup"
+fi
+
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-file-manager" "${app_name}" || continue
+fi
+
 file-manager-session start

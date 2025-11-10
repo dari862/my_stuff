@@ -25,5 +25,10 @@ clear
 say "Installing ${app_name}..." 1
 Package_installer_ "${app_name}" || continue
 
-[ "$remove_esr_firefox" = true ] && Package_remove_ "${app_name}-esr"
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"
+if [ "$remove_esr_firefox" = true ];then
+	Package_remove_ "${app_name}-esr"
+fi
+
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-www-browser" "${app_name}" || continue
+fi

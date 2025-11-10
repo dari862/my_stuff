@@ -59,9 +59,6 @@ xcape -e 'Super_R=Alt_L|F1' &
 # Fix cursor
 xsetroot -cursor_name left_ptr
 
-#Set Keyboard Layout
-setxkbmap -layout us
-
 # To support other applications that don't work on WMs #
 # May have to install wmname
 #wmname LG3D
@@ -121,7 +118,7 @@ bspc rule -a Wrapper-2.0 state=floating border=off focus=on
 
 #### Autostart ###############################################################################
 # Lauch keybindings daemon
-sxhkd &
+keybinds-session bspwm
 
 if command -v urxvtc >/dev/null 2>&1;then
 	#urxvtc

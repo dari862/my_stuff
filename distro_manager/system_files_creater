@@ -522,7 +522,10 @@ if [ -d "${__distro_path_root}/bin/session_managers" ];then
 	ln_sf_files_depth1 "${__distro_path_root}/bin/session_managers" "${__distro_path_system_files}"/bin
 fi
 
-show_im "nbrowser bin files to system_files/bin ."
+show_im "keybinds bin file to system_files/bin ."
+ln -sf "${__distro_path_root}/bin/keybinds/keybinds" "${__distro_path_system_files}"/bin
+
+show_im "nbrowser bin file to system_files/bin ."
 ln -sf "${__distro_path_root}"/bin/X11/not_add_2_path/nbrowser/nbrowser "${__distro_path_system_files}"/binX11
 create_applicationsdotdesktop_link "nbrowser"
 
@@ -626,7 +629,7 @@ for script_dir in "${__distro_path_root}"/bin/X11/must_create_script/*;do
 done
 
 show_im "Create keybinds."
-"${__distro_path_system_files}"/binX11/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
+"${__distro_path_system_files}"/bin/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
 
 ln -sf "${__distro_path_root}"/distro_manager/full-upgrade "${__distro_path_system_files}"/bin
 

@@ -14,4 +14,6 @@ rm -f /tmp/$USER/${browser_deb} || continue
 
 create_applicationsdotdesktop_link "WhatsApp"
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-www-browser" "${app_name}" || continue
+fi

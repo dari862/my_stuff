@@ -25,4 +25,6 @@ done
 
 my-superuser sed -i 's/export VISUAL=.*/export VISUAL=emacs/g' "${Disto_path}/system_files/skel/.config/myshell/profile.sh" || continue
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-text-editor" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-text-editor" "${app_name}" || continue
+fi

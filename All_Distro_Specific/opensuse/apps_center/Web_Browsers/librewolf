@@ -12,6 +12,8 @@ say 'Updating Repo...' 1
 Package_update_
 
 say 'Installing package...' 1
-Package_installer_ librewolf
+Package_installer_ librewolf || continue
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-www-browser" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-www-browser" "${app_name}" || continue
+fi

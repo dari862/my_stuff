@@ -49,4 +49,6 @@ my-superuser su root << EOF
 	unset PASSWORD
 EOF
 
-[ "$set_as_default_package" = true ] && my-alternatives --set "my-superuser" "${app_name}"
+if [ "$set_as_default_package" = true ];then
+	my-alternatives --set "my-superuser" "${app_name}" || continue
+fi

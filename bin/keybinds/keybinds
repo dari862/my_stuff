@@ -1,0 +1,43 @@
+#!/bin/sh
+# need superuser : use my-superuser
+set -e
+__opt="${1-}"
+
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
+
+current_script_path="${__distro_path_root}/bin/keybinds"
+
+if [ $(id -u) -ne 0 ];then
+	if [ "$__opt" = "--initial-step" ];then
+    	my-superuser "${current_script_path}"/keybinds_builder "${__distro_path_lib}" "$current_script_path"
+    	exit
+    elif [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
+    	my-superuser "${current_script_path}"/skel/make "${__distro_path_lib}" "$current_script_path"
+    	exit
+   	fi
+else
+	if [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
+		"${current_script_path}"/skel/make "${__distro_path_lib}" "$current_script_path"
+		exit
+	elif [ "$__opt" = "--initial-step" ];then
+		"${current_script_path}"/keybinds_builder "${__distro_path_lib}" "$current_script_path"
+		exit
+	else
+		echo "you should never run script with ${__opt} arg as super user."
+		exit 1
+	fi
+fi
+
+if [ "$__opt" = "--edit" ] || [ "$__opt" = "-e" ];then
+	my-text-editor "$HOME/.config/keybinds/keybinds.conf"
+elif [ "$__opt" = "--gui" ] || [ "$__opt" = "-g" ];then
+	. "${__distro_path_root}/lib/common/openbox"
+	yad --text-info --title="Keybinds" --window-icon="${__distro_path_root}"/Distro_Specific/icons/linux.svg \
+    	--filename="${script_config_path}/openbox_keybinds" --width=700 --height=700 \
+    	--fontname=Monospace --button=gtk-close
+elif [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
+	"${current_script_path}"/skel/make "${__distro_path_lib}" "$current_script_path"
+else
+	"${current_script_path}"/keybinds_builder "${__distro_path_lib}" "$current_script_path"
+fi
