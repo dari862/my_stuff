@@ -2,6 +2,7 @@
 # need superuser : use my-superuser
 set -e
 __opt="${1-}"
+__package_name="${2:-}"
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
@@ -15,6 +16,9 @@ if [ $(id -u) -ne 0 ];then
     elif [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
     	my-superuser "${current_script_path}"/skel/make "${__distro_path_lib}" "$current_script_path"
     	exit
+    elif [ "$__opt" = "--add" ];then
+		my-superuser "${current_script_path}"/keybinds_add "${__package_name}" "${__distro_path_lib}" "$current_script_path"
+		exit
    	fi
 else
 	if [ "$__opt" = "--update" ] || [ "$__opt" = "-u" ];then
@@ -22,6 +26,9 @@ else
 		exit
 	elif [ "$__opt" = "--initial-step" ];then
 		"${current_script_path}"/keybinds_builder "${__distro_path_lib}" "$current_script_path"
+		exit
+	elif [ "$__opt" = "--add" ];then
+		"${current_script_path}"/keybinds_add "${__package_name}" "${__distro_path_lib}" "$current_script_path"
 		exit
 	else
 		echo "you should never run script with ${__opt} arg as super user."

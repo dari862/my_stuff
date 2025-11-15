@@ -30,6 +30,8 @@ create_exec_pipemenu(){
     	menuItem "Restart" "restart-openbox"
 	menuSubmenuEnd
 	create_exec_pipemenu "Compositor" "compositor-pipemenu" "Compositor"
+	create_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
+	create_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
 	create_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
 	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	menuItem "Appearance" "appearance_settings_"

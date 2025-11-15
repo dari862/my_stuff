@@ -12,3 +12,4 @@ create_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
 say
 copy_from_extra_skel ".config/bspwm" || continue
 copy_from_extra_skel ".config/sxhkd" || continue
+add_keybinds "$app_name"

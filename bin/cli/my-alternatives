@@ -12,7 +12,7 @@ fi
 my_superuser_path="/usr/bin/my-superuser"
 ACTION="${1-}"
 alt_package="${2-}"
-MYALTS="my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide my-pdf-reader my-image-editor my-video-editor"
+MYALTS="my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide my-image-editor my-video-editor my-pdf-reader"
 
 # Arrays of packages for each category (using variables instead of arrays)
 FILEMANAGERSCLI="lf ranger"
@@ -27,8 +27,7 @@ OFFICES="libreoffice"
 OFFICES="$OFFICES $TEXTEDITORS"
 IDES="nvim emacs code micro nano"
 IDES="$IDES $TEXTEDITORS"
-PDFREADERS="zathura"
-PDFREADERS="$PDFREADERS $OFFICES $WWWBROWSERS"
+PDFREADERS="zathura my-www-browser my-office"
 IMAGEEDITORS="gimp display-im7.q16"
 VIDEOEDITORS="kdenlive $MEDIAPLAYERS"
 

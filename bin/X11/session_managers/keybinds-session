@@ -1,6 +1,6 @@
 #!/bin/sh
 . "$__distro_path_lib"
-__opt="${1:-openbox}" #bspwm openbox
+__opt="${2:-openbox}"
 
 keybinds_config_path="$HOME/.config/sxhkd/sxhkdrc_${__opt}"
 
@@ -10,12 +10,11 @@ stop() {
 
 start() {
   	if ! pidof -q sxhkd ;then
-  		setsid sxhkd &
-  		#setsid sxhkd -c "${keybinds_config_path}" &
+  		setsid sxhkd -c "${keybinds_config_path}" &
 	fi
 }
 
-case "${1}" in
+case "${1:-}" in
 	""|restart)
 		stop
 		start		

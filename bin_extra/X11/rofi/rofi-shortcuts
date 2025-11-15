@@ -4,11 +4,8 @@
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-shortcut_rofi_file_path="${script_config_path}/shortcut_rofi"
+which_wm_to_use="$(cat "${WM_name_file_path}")"
+shortcut_rofi_file_path="${script_config_path}/shortcut_rofi_${which_wm_to_use}"
 RASI="$HOME/.config/rofi/$ROFI_STYLE/launcher.rasi"
 
-_rofi() {
-	rofi -show run -dmenu -i -p "" -no-show-icons -l 10 -theme ${RASI} "$@"
-}
-
-column -t -s " | " "$shortcut_rofi_file_path" | _rofi "$@"
+column -t -s " | " "$shortcut_rofi_file_path" | rofi -show run -dmenu -i -p "" -no-show-icons -l 10 -theme "${RASI}"

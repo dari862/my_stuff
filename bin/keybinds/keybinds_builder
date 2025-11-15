@@ -82,14 +82,6 @@ if [ -f "${openboxrc_file_path}" ];then
 	create_openboxrc_tmp_file
 fi
 
-if [ -f "${sxhkd_file_path}" ];then
-	create_sxhkd_tmp_file
-fi
-
-if command -v rofi > /dev/null 2>&1;then
-	create_sxhkd_tmp_file "rofi"
-fi
-
 if [ -f "${Thunar_file_path}" ];then
 	create_Thunar_tmp_file
 fi
@@ -116,6 +108,16 @@ fi
 
 if [ -f "${lxterminal_file_path}" ];then
 	sed_lxterminal
+fi
+
+if command -v sxhkd > /dev/null 2>&1;then
+	create_sxhkd_bspwm_file
+	create_sxhkd_openbox_file
+fi
+
+if command -v rofi > /dev/null 2>&1;then
+	create_rofi_tmp_file "openbox"
+	create_rofi_tmp_file "bspwm"
 fi
 
 create_shortcut_read_file

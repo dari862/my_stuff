@@ -259,7 +259,8 @@ mkdir -p "${_distro_xsessions_desktop_path}"
 show_im "LN essional files"
 mkdir -p "${__distro_path_system_files}/bin"
 mkdir -p "${__distro_path_system_files}/binX11"
-ln_sf_files_depth1 "${__distro_path_root}/bin/X11/session_managers/clipboard-manager-session" "${__distro_path_system_files}/binX11"
+ln -sf "${__distro_path_root}/bin/X11/session_managers/keybinds-session" "${__distro_path_system_files}/binX11"
+ln -sf "${__distro_path_root}/bin/X11/session_managers/clipboard-manager-session" "${__distro_path_system_files}/binX11"
 ln_sf_files_depth1 "${__distro_path_root}/bin/X11/cli" "${__distro_path_system_files}/binX11"
 ln_sf_files_depth1 "${__distro_path_root}/bin_extra/X11/cli" "${__distro_path_system_files}/binX11"
 
@@ -432,8 +433,7 @@ fi
 
 if command_exist bspwm;then
 	show_im "copy bspwm skell file to system_files/skel ."
-	cp -r "${__distro_path_root}/skel_extra/.config/bspwm" "${__distro_path_system_skel_files}/.config" 
-	cp -r "${__distro_path_root}/skel_extra/.config/sxhkd" "${__distro_path_system_skel_files}/.config" 
+	cp -r "${__distro_path_root}/skel_extra/.config/bspwm" "${__distro_path_system_skel_files}/.config"
 fi
 
 if command_exist dwm;then

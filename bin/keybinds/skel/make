@@ -23,7 +23,11 @@ if command_exist openbox;then
 	file_to_cat="${file_to_cat} openbox"
 fi
 if command_exist sxhkd;then
-	file_to_cat="${file_to_cat} sxhkd"
+	file_to_cat="${file_to_cat} sxhkd_general"
+	if command_exist bspwm;then
+		file_to_cat="${file_to_cat} sxhkd_bspwm"
+	fi
+	file_to_cat="${file_to_cat} sxhkd_z_end"
 fi
 if command_exist alacritty;then
 	file_to_cat="${file_to_cat} alacritty"

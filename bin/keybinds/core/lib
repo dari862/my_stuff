@@ -78,6 +78,7 @@ create_sourcemainbindkey_conf_file(){
 	sed -i 's/alt/A/g' xx10
 	sed -i 's/super/W/g' xx10
 	sed -i 's/shift/S/g' xx10
+	#sed -i 's/tab/Tab/g' xx10
 	
 	sed -i 's/<Alt>=/alt=/g' xx11
 	sed -i 's/<Alt>1=/alt1=/g' xx11
@@ -89,7 +90,9 @@ create_sourcemainbindkey_conf_file(){
 		
 	sed -i 's/sed_it_to_backtick/grave/g' xx16
 	sed -i 's/button/~button/g' xx16
-	
+	sed -i 's/Space/space/g' xx16
+	sed -i 's/shift_L/Shift_L/g' xx16
+	sed -i 's/alt_L/Alt_L/g' xx16
 	mv xx00 xx00xx
 	
 	echo '#csplit_file_here#' > xx00
@@ -1255,8 +1258,6 @@ EOF
       echo "    <chainQuitKey>$chainQuitKey</chainQuitKey>"
       echo
     fi
-    echo "<!--  Switch Keyboard Language -->"
-    generate_openbox_keybind "$Switch_Keyboard_Languge" "Execute" "kswitch"
     echo "<!--  Change Workspace/Desktop -->"
     generate_openbox_keybind "$GoToDesktop_GoToDesktop_left" "GoToDesktop" "left"
     generate_openbox_keybind "$GoToDesktop_GoToDesktop_right" "GoToDesktop" "right"
@@ -1290,54 +1291,14 @@ EOF
     generate_openbox_keybind "$Send_Application_to_window_switching_DirectionalCycleWindows_Left" "DirectionalCycleWindows" "left"
     generate_openbox_keybind "$Send_Application_to_window_switching_DirectionalCycleWindows_Up" "DirectionalCycleWindows" "up"
     generate_openbox_keybind "$Send_Application_to_window_switching_DirectionalCycleWindows_Down" "DirectionalCycleWindows" "down"
-    echo "<!--  Media Controls -->"
-    generate_openbox_keybind "$Execute_volume_cli_control_inc" "Execute" "${__distro_path_root}/system_files/volume_cli_control --inc"
-    generate_openbox_keybind "$Execute_volume_cli_control_dec" "Execute" "${__distro_path_root}/system_files/volume_cli_control --dec"
-    generate_openbox_keybind "$Execute_volume_cli_control_toggle" "Execute" "${__distro_path_root}/system_files/volume_cli_control --toggle"
-    generate_openbox_keybind "$Execute_mpc_stop" "Execute" "mpc stop"
-    generate_openbox_keybind "$Execute_mpc_toggle" "Execute" "mpc toggle"
-    generate_openbox_keybind "$Execute_mpc_prev" "Execute" "mpc prev"
-    generate_openbox_keybind "$Execute_mpc_next" "Execute" "mpc next"
-    echo "<!--  Brightness Control -->"
-    generate_openbox_keybind "$Execute_disto_brightness_controller_inc" "Execute" "(((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --inc"
-    generate_openbox_keybind "$Execute_disto_brightness_controller_dec" "Execute" "(((__distro_path_root)))/bin/X11/WM/disto_brightness_controller --dec"
     echo "<!--  Launch Applications -->"
     generate_openbox_keybind "$Execute_show_menu_" "Execute" "show_menu_"
-    generate_openbox_keybind "$Execute_music" "Execute" "my-audio-player"
-    generate_openbox_keybind "$Execute_colorpick_sh" "Execute" "colorpick.sh"
-    echo "<!--  Rofi -->"
-    generate_openbox_keybind "$Execute_rofi_launcher" "Execute" "rofi-launcher"
-    generate_openbox_keybind "$Execute_rofi_runner" "Execute" "rofi-runner"
-    generate_openbox_keybind "$Execute_rofi_network_manager" "Execute" "rofi-network-manager"
-    generate_openbox_keybind "$Execute_rofi_powermenu" "Execute" "my_session_manager_menu"
-    generate_openbox_keybind "$Execute_rofi_screenshot" "Execute" "rofi-screenshot"
-    generate_openbox_keybind "$Execute_my_terminal_emulator" "Execute" "my-terminal-emulator"
-    generate_openbox_keybind "$Execute_my_www_browser" "Execute" "my-www-browser"
-    generate_openbox_keybind "$Execute_my_file_manager" "Execute" "my-file-manager"
-    generate_openbox_keybind "$Execute_my_text_editor" "Execute" "my-text-editor"
-    generate_openbox_keybind "$Execute_my_media_player" "Execute" "my-media-player"
-    generate_openbox_keybind "$Execute_volume_controller" "Execute" "volume_controller"
-    echo "<!--  CLI Apps -->"
-    generate_openbox_keybind "$Execute_popup_terminal_editor_temp" "Execute" "popup_terminal --editor \"/tmp/\$USER/temp.txt\""
-    generate_openbox_keybind "$Execute_popup_terminal_ranger" "Execute" "popup_terminal lf"
-    generate_openbox_keybind "$Execute_sysinfo_script_process" "Execute" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --process"
-    echo "<!--  Openbox (Lockscreen, Iconify, etc.) -->"
-    generate_openbox_keybind "$Execute_my_session_manager_lock" "Execute" "my_session_manager_cli lock"
+    echo "<!--  Openbox (Iconify, ToggleMaximize,etc.) -->"
+    generate_openbox_keybind "$Reconfigure" "Reconfigure"
     generate_openbox_keybind "$Iconify" "Iconify"
     generate_openbox_keybind "$ToggleMaximize" "ToggleMaximize"
     generate_openbox_keybind "$ToggleDecorations" "ToggleDecorations"
     generate_openbox_keybind "$ToggleShowDesktopp" "ToggleShowDesktop"
-    generate_openbox_keybind "$Exit" "Exit"
-    generate_openbox_keybind "$Restart" "Restart"
-    generate_openbox_keybind "$Reconfigure" "Reconfigure"
-    generate_openbox_keybind "$Openbox_Close" "Close"
-    generate_openbox_keybind "$Execute_window_kill" "Execute" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse"
-    echo "<!--  Screenshot Keys -->"
-    generate_openbox_keybind "$Print_Screen" "Execute" "my-shots"
-    generate_openbox_keybind "$Execute_ac_shots_delay_5" "Execute" "my-shots --delay 5"
-    generate_openbox_keybind "$Execute_ac_shots_delay_10" "Execute" "my-shots --delay 10"
-    generate_openbox_keybind "$Execute_ac_shots_win" "Execute" "my-shots --win"
-    generate_openbox_keybind "$Execute_ac_shots_area" "Execute" "my-shots --area"
     echo "<!-- jgmenu is now launched by Mod4 + space in ~/.xbindkeysrc -->"
 echo "<!--
     <keybind key=\"${Execute_jgmenu_run}\">
@@ -1397,40 +1358,101 @@ echo "<!--
   } > "$temp_openboxrc_file_path"
 }
 
-create_sxhkd_tmp_file(){
-	mode="${1:-}"
-	if [ "$mode" = "rofi" ];then
-		temp_sxhkd_file_path="$shortcut_rofi_file_path"
-		sxhkd_file_path="$shortcut_rofi_file_path"
-    	append_sxhkd() {
-        	sxhkd_var_name="$1"
-        	sxhkd_command_line="$2"
-        	sxhkd_comment="$3"
-        	if [ -n "$sxhkd_var_name" ];then
-            	echo "${sxhkd_comment} | ${sxhkd_var_name} | ${sxhkd_command_line}" >> "$temp_sxhkd_file_path"
-        	fi
-    	}
-    else
-    	append_sxhkd() {
-        	sxhkd_var_name="$1"
-        	sxhkd_command_line="$2"
-        	sxhkd_comment="$3"
-        	if [ -n "$sxhkd_var_name" ];then
-            	[ -n "$sxhkd_comment" ] && echo "# ${sxhkd_comment}" >> "$temp_sxhkd_file_path"
-            	echo "${sxhkd_var_name}" >> "$temp_sxhkd_file_path"
-            	echo "	${sxhkd_command_line}" >> "$temp_sxhkd_file_path"
-            	echo "" >> "$temp_sxhkd_file_path"
-        	fi
-    	}
-    fi
-    : > "$temp_sxhkd_file_path"
-    if command -v bspterm >/dev/null 2>&1;then
-		[ "$mode" != "rofi" ] && echo "##---------- Keybindings for bspterm ----------##" >> "$temp_sxhkd_file_path"
-		append_sxhkd "$Terminal_my_terminal_emulator" "bspterm" "Terminal (my-terminal-emulator)"
-		append_sxhkd "$Terminal_floating" "bspterm -f" "Terminal (floating)"
-		append_sxhkd "$Terminal_fullscreen" "bspterm -s" "Terminal (fullscreen)"
-	fi
-	[ "$mode" != "rofi" ] && echo "##---------- Rofi Launcher & Menus ----------##" >> "$temp_sxhkd_file_path"
+create_sxhkd_openbox_file(){
+	mkdir -p "$sxhkd_dir_path"
+	
+	append_sxhkd() {
+       	sxhkd_var_name="$1"
+       	sxhkd_command_line="$2"
+       	sxhkd_comment="$3"
+       	if [ -n "$sxhkd_var_name" ];then
+           	[ -n "$sxhkd_comment" ] && printf '%s\n' "# ${sxhkd_comment}" >> "$sxhkd_openbox_file_path"
+           	printf '%s\n' "${sxhkd_var_name}" >> "$sxhkd_openbox_file_path"
+           	if [ -n "${sxhkd_command_line}" ];then
+           		printf '%b%s\n' "	${sxhkd_command_line}" >> "$sxhkd_openbox_file_path"
+           		printf '%s\n' "" >> "$sxhkd_openbox_file_path"
+           	fi
+       	fi
+    }
+    
+    : > "$sxhkd_openbox_file_path"
+    
+    append_sxhkd "##-------------- Volume Control---- ----------##"
+	append_sxhkd "$sxhkd_Execute_volume_controller" "volume_controller" "Volume Control"
+	append_sxhkd "$Volume_mute" "${__distro_path_root}/system_files/volume_cli_control --toggle" "Toggle mute/unmute volume"
+	append_sxhkd "$Volume_control" "${__distro_path_root}/system_files/volume_cli_control{ --inc, --dec}" "Volume control"
+	append_sxhkd "$Music_control" "mpc {next,prev,toggle,stop}" "Music control"
+	
+	append_sxhkd "##---------- Rofi Launcher & Menus ----------##"
+	append_sxhkd "$Rofi_App_Launcher" "rofi-launcher" "Rofi App Launcher"
+	append_sxhkd "$Rofi_App_Runner" "rofi-runner" "Rofi App Runner"
+	append_sxhkd "$Rofi_Network_Menu" "rofi-network-manager" "Rofi Network Menu"
+	append_sxhkd "$Rofi_Themes_Menu" "RiceSelector" "Rofi Themes Menu"
+	append_sxhkd "$Rofi_rofi_screenshot" "rofi-screenshot" 'Rofi Menus/Applets'
+	append_sxhkd "$Rofi_rofi_music" "rofi-music" "Rofi control music"
+	append_sxhkd "$Rofi_rofi_root" "rofi-root" "Rofi Root apps"
+	append_sxhkd "$Rofi_rofi_powermenu" "my_session_manager_menu" "Rofi power manager"
+		
+	append_sxhkd "##---------- Applications ----------##"
+	append_sxhkd "$Terminal_Apps_CLI_EDITER_ranger" 'popup_terminal {${CLI_EDITER},lf}' "Terminal Apps"
+	append_sxhkd "$Launch_Apps_my_file_manager" "my-file-manager" "my_file_manager"
+	append_sxhkd "$Launch_Apps_my_www_browser" "my-www-browser" "my_www_browser"
+	append_sxhkd "$Launch_Apps_my_text_editor" "my-text-editor" "my-text-editor"
+	append_sxhkd "$Launch_Apps_my_Media_Player" "my-media-player" "my-media-player"
+	append_sxhkd "$Execute_audio_player" "my-audio-player" "my-audio-player"
+	append_sxhkd "$Terminal_my_terminal_emulator" "my-terminal-emulator" "my-terminal-emulator"
+	append_sxhkd "$Terminal_Apps_htop" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --process" "Terminal Apps"
+	append_sxhkd "$Color_Picker" "colorpick.sh" "Color Picker"
+	append_sxhkd "$Lockscreen" "my_session_manager_cli lock" "Lockscreen"
+	
+	append_sxhkd "##---------- System Keys ----------##"
+	append_sxhkd "$show_shortcut" 'yad --button=Exit:1 --text-info --title="Openbox Keybinds" --filename=$script_config_path\openbox_keybinds --width=750 --height=600' "show shortcut"
+	append_sxhkd "$switch_keyboard_languge" "kswitch" "switch keyboard languge"
+	append_sxhkd "$Take_a_screenshot" "my-shots" "Take a screenshot"
+	append_sxhkd "$Take_screenshot_in_5_second" "my-shots --delay 5" "Take screenshot in 5 second"
+	append_sxhkd "$Take_screenshot_in_10_second" "my-shots --delay 10" "Take screenshot in 10 second"
+	append_sxhkd "$Take_screenshot_of_active_window" "my-shots --win" "Take screenshot of active window"
+	append_sxhkd "$Take_screenshot_of_area" "my-shots --area" "Take screenshot of area"
+	append_sxhkd "$Brighness_control" "brightness{ --inc, --dec}" "Brighness control"
+	append_sxhkd "$Reload_Keybindings" "pkill -USR1 -x sxhkd" "Reload Keybindings"
+	append_sxhkd "$kill_window" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse" "kill window"
+	append_sxhkd "$Restart_WM" "my_session_manager_cli reload" "Restart openbox"
+	append_sxhkd "$Quit_WM" "my_session_manager_cli logout" "Quit openbox"
+
+	sed_all_back "${sxhkd_openbox_file_path}"
+}
+
+create_sxhkd_bspwm_file(){
+	mkdir -p "$sxhkd_dir_path"
+	
+	append_sxhkd() {
+       	sxhkd_var_name="$1"
+       	sxhkd_command_line="$2"
+       	sxhkd_comment="$3"
+       	if [ -n "$sxhkd_var_name" ];then
+           	[ -n "$sxhkd_comment" ] && printf '%s\n' "# ${sxhkd_comment}" >> "$sxhkd_bspwm_file_path"
+           	printf '%s\n' "${sxhkd_var_name}" >> "$sxhkd_bspwm_file_path"
+           	if [ -n "${sxhkd_command_line}" ];then
+           		printf '%b%s\n' "	${sxhkd_command_line}" >> "$sxhkd_bspwm_file_path"
+           		printf '%s\n' "" >> "$sxhkd_bspwm_file_path"
+           	fi
+       	fi
+    }
+    
+    : > "$sxhkd_bspwm_file_path"
+    
+    append_sxhkd "##---------- Keybindings for bspterm ----------##"
+	append_sxhkd "$Terminal_my_terminal_emulator" "bspterm" "Terminal (my-terminal-emulator)"
+	append_sxhkd "$Terminal_floating" "bspterm -f" "Terminal (floating)"
+	append_sxhkd "$Terminal_fullscreen" "bspterm -s" "Terminal (fullscreen)"
+	
+	append_sxhkd "##-------------- Volume Control---- ----------##"
+	append_sxhkd "$sxhkd_Execute_volume_controller" "volume_controller" "Volume Control"
+	append_sxhkd "$Volume_mute" "${__distro_path_root}/system_files/volume_cli_control --toggle" "Toggle mute/unmute volume"
+	append_sxhkd "$Volume_control" "${__distro_path_root}/system_files/volume_cli_control{ --inc, --dec}" "Volume control"
+	append_sxhkd "$Music_control" "mpc {next,prev,toggle,stop}" "Music control"
+	
+	append_sxhkd "##---------- Rofi Launcher & Menus ----------##"
 	append_sxhkd "$Rofi_App_Launcher" "rofi-launcher" "Rofi App Launcher"
 	append_sxhkd "$Rofi_App_Runner" "rofi-runner" "Rofi App Runner"
 	append_sxhkd "$Rofi_Network_Menu" "rofi-network-manager" "Rofi Network Menu"
@@ -1441,23 +1463,19 @@ create_sxhkd_tmp_file(){
 	append_sxhkd "$Rofi_rofi_root" "rofi-root" "Rofi Root apps"
 	append_sxhkd "$Rofi_rofi_powermenu" "my_session_manager_menu" "Rofi power manager"
 		
-	if [ "$mode" != "rofi" ];then
-		echo "##---------- Applications ----------##" >> "$temp_sxhkd_file_path"
-		append_sxhkd "$Terminal_Apps_CLI_EDITER_ranger" 'popup_terminal {${CLI_EDITER},lf}' "Terminal Apps"
-	else
-		append_sxhkd "$Terminal_Apps_CLI_EDITER_ranger" 'popup_terminal ${CLI_EDITER}' "Terminal Apps (CLI_EDITER)"
-		append_sxhkd "$Terminal_Apps_CLI_EDITER_ranger" 'popup_terminal lf' "Terminal Apps (lf)"
-	fi
+	append_sxhkd "##---------- Applications ----------##"
+	append_sxhkd "$Terminal_Apps_CLI_EDITER_ranger" 'popup_terminal {${CLI_EDITER},lf}' "Terminal Apps"
 	append_sxhkd "$JGmenu_run" "run_JGmenu" "jgmenu"
 	append_sxhkd "$Launch_Apps_my_file_manager" "my-file-manager" "my_file_manager"
 	append_sxhkd "$Launch_Apps_my_www_browser" "my-www-browser" "my_www_browser"
 	append_sxhkd "$Launch_Apps_my_text_editor" "my-text-editor" "my-text-editor"
 	append_sxhkd "$Launch_Apps_my_Media_Player" "my-media-player" "my-media-player"
+	append_sxhkd "$Execute_audio_player" "my-audio-player" "my-audio-player"
 	append_sxhkd "$Terminal_Apps_htop" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --process" "Terminal Apps"
 	append_sxhkd "$Color_Picker" "colorpick.sh" "Color Picker"
 	append_sxhkd "$Lockscreen" "my_session_manager_cli lock" "Lockscreen"
 	
-	[ "$mode" != "rofi" ] && echo "##---------- System Keys ----------##" >> "$temp_sxhkd_file_path"
+	append_sxhkd "##---------- System Keys ----------##"
 	append_sxhkd "$show_shortcut" 'yad --button=Exit:1 --text-info --title="Bspwm Keybinds" --filename=$script_config_path\sxhkd_keybinds --width=750 --height=600' "show shortcut"
 	append_sxhkd "$switch_keyboard_languge" "kswitch" "switch keyboard languge"
 	append_sxhkd "$Take_a_screenshot" "my-shots" "Take a screenshot"
@@ -1465,80 +1483,113 @@ create_sxhkd_tmp_file(){
 	append_sxhkd "$Take_screenshot_in_10_second" "my-shots --delay 10" "Take screenshot in 10 second"
 	append_sxhkd "$Take_screenshot_of_active_window" "my-shots --win" "Take screenshot of active window"
 	append_sxhkd "$Take_screenshot_of_area" "my-shots --area" "Take screenshot of area"
-	append_sxhkd "$Volume_mute" "${__distro_path_root}/system_files/volume_cli_control --toggle" "Toggle mute/unmute volume"
-	if [ "$mode" != "rofi" ];then
-		append_sxhkd "$Volume_control" "${__distro_path_root}/system_files/volume_cli_control{ --inc, --dec}" "Volume control"
-		append_sxhkd "$Brighness_control" "brightness{ --inc, --dec}" "Brighness control"
-		append_sxhkd "$Music_control" "mpc {next,prev,toggle,stop}" "Music control"
-	else
-		append_sxhkd "$Volume_control" "${__distro_path_root}/system_files/volume_cli_control --inc" "inc Volume control"
-		append_sxhkd "$Volume_control" "${__distro_path_root}/system_files/volume_cli_control --dec" "dec Volume control"
-		append_sxhkd "$Brighness_control" "brightness --dec" "dec Brighness control"
-		append_sxhkd "$Brighness_control" "brightness --inc" "inc Brighness control"
-		append_sxhkd "$Music_control" "mpc next" "Next Music"
-		append_sxhkd "$Music_control" "mpc prev" "Prev Music"
-		append_sxhkd "$Music_control" "mpc toggle" "Toggle mute/unmute Music"
-		append_sxhkd "$Music_control" "mpc stop" "Stop Music"
-	fi
-	if [ "$mode" != "rofi" ];then
-		echo "##---------- Bspwm ----------##" >> "$temp_sxhkd_file_path"
-		append_sxhkd "$Close_App" "bspc node -{c,k}" "Close App"
-		append_sxhkd "$Reload_Keybindings" "pkill -USR1 -x sxhkd" "Reload Keybindings"
-		append_sxhkd "$kill_window" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse" "kill window"
-		append_sxhkd "$Restart_bspwm" "bspc wm -r" "Restart bspwm"
-		append_sxhkd "$Quit_bspwm" "bspc quit" "Quit bspwm"
-		append_sxhkd "$Split_horizontal_vertical_or_cancel" "bspc node -p {east,south,cancel}" "Split horizontal, vertical or cancel"
-		append_sxhkd "$Preselect_the_ratio" "bspc node -o 0.{1-9}" "Preselect the ratio"
-		append_sxhkd "$alternate_between_the_tiled_and_monocle_layout" "bspc desktop -l next" "alternate between the tiled and monocle layout"
-		append_sxhkd "$Fullscreen_or_Monocle" 'bspc node -t "~"fullscreen' "Fullscreen or Monocle"
-		append_sxhkd "$Toggle_beetwen_floating_and_tiled" 'bspc node -t "~"{floating,tiled}' "Toggle beetwen floating & tiled"
-		append_sxhkd "$Pseudo_Tiled_and_tiled_mode" 'bspc node -t "~"{pseudo_tiled,tiled}' "Pseudo Tiled & tiled mode"
-		append_sxhkd "$send_the_newest_marked_node_to_the_newest_preselected_node" "bspc node newest.marked.local -n newest.!automatic.local" "send the newest marked node to the newest preselected node"
-		append_sxhkd "$swap_the_current_node_and_the_biggest_window" "bspc node -s biggest.window" "swap the current node and the biggest window"
-		append_sxhkd "$Set_the_node_flags_marked_locked_sticky_private" "bspc node -g {marked,locked,sticky,private}" "Set the node flags"
-		append_sxhkd "$Send_the_window_to_another_edge_of_the_screen_west_south_north_east" "bspc node -{f,s} {west,south,north,east}" "Send the window to another edge of the screen"
-		append_sxhkd "$Change_focus_to_next_window_including_floating_window_next_local_prev_local" "bspc node -f {next.local,prev.local}" "Change focus to next window, including floating window"
-		append_sxhkd "$Switch_workspace_prev_local_next_local" "bspc desktop -f {prev.local,next.local}" "Switch workspace"
-		append_sxhkd "$Switch_to_last_opened_workspace" "bspc {node,desktop} -f last" "Switch to last opened workspace"
-		append_sxhkd "$Send_focused_window_to_another_workspace" 'bspc {desktop -f,node -d} "^{1-8}"' "Send focused window to another workspace"
-		append_sxhkd "$Expanding_windows" 'bspc node -z {left -20 0,right 20 0,top 0 -20,bottom 0 20}' "Expanding windows"
-		append_sxhkd "$Shrinking_windows" 'bspc node -z {left 20 0,right -20 0,top 0 20,bottom 0 -20}' "Shrinking windows"
-		append_sxhkd "$Move_floating_windows" 'bspc node -v {-20 0,0 20,0 -20,20 0}' "move a floating window"
-		append_sxhkd "$Hide_Unhide_Window" "winmask" "Hide/Unhide Window"
-		
-		echo "##- focus/swap -##" >> "$temp_sxhkd_file_path"
-		append_sxhkd "$focus_the_node_in_the_given_direction" 'bspc node -{f,s} {west,south,north,east}' "focus the node in the given direction"
-		append_sxhkd "$focus_the_node_for_the_given_path_jump_parent_brother_first_second" 'bspc node -f @{parent,brother,first,second}' "focus the node for the given path jump"
-		append_sxhkd "$focus_the_next_previous_window_in_the_current_desktop" 'bspc node -f {next,prev}.local.!hidden.window' "focus the next/previous window in the current desktop"
-		append_sxhkd "$focus_the_next_previous_desktop_in_the_current_monitor" 'bspc desktop -f {prev,next}.local' "focus the next/previous desktop in the current monitor"
-		append_sxhkd "$focus_the_last_node_desktop" 'bspc {node,desktop} -f last' "focus the last node/desktop"
-		
-		if [ -n "$focus_the_older_or_newer_node_in_the_focus_history" ];then
-echo "# focus the older or newer node in the focus history
-${focus_the_older_or_newer_node_in_the_focus_history}
-	bspc wm -h off; sed_it_to_backslashes
-	bspc node {older,newer} -f; sed_it_to_backslashes
-	bspc wm -h on
-" >> "${temp_sxhkd_file_path}"
-		fi
-		if [ -n "$focus_or_send_to_the_given_desktop" ];then
-echo "# focus or send to the given desktop
-${focus_or_send_to_the_given_desktop}
-	bspc {desktop -f,node -d} '^{1-9,10}'
-" >> "${temp_sxhkd_file_path}"
-		fi	
+	append_sxhkd "$Brighness_control" "brightness{ --inc, --dec}" "Brighness control"
+	append_sxhkd "$Reload_Keybindings" "pkill -USR1 -x sxhkd" "Reload Keybindings"
+	append_sxhkd "$kill_window" "/usr/share/my_stuff/bin/X11/not_add_2_path/kill_window_with_mouse" "kill window"
+	append_sxhkd "$Restart_WM" "my_session_manager_cli reload" "Restart bspwm"
+	append_sxhkd "$Quit_WM" "my_session_manager_cli logout" "Quit bspwm"
 	
-		echo "##- preselect -##" >> "$temp_sxhkd_file_path"
-		append_sxhkd "$preselect_the_direction" 'bspc node -p {west,south,north,east}' "preselect the direction"
-		append_sxhkd "$preselect_the_ratio" 'bspc node -o 0.{1-9}' "preselect the ratio"
-		append_sxhkd "$cancel_the_preselection_for_the_focused_node" 'bspc node -p cancel' "cancel the preselection for the focused node"
-		append_sxhkd "$cancel_the_preselection_for_the_focused_desktop" 'bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel' "cancel the preselection for the focused desktop"
-		
-		echo "##- move/resize -##" >> "$temp_sxhkd_file_path"
-		append_sxhkd "$expand_a_window_by_moving_one_of_its_side_outward" 'bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}' "expand a window by moving one of its side outward"
-		append_sxhkd "$contract_a_window_by_moving_one_of_its_side_inward" 'bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}' "contract a window by moving one of its side inward"
-		append_sxhkd "$move_a_floating_window" 'bspc node -v {-20 0,0 20,0 -20,20 0}' "move a floating window"
+	append_sxhkd "##---------- Bspwm ----------##"
+	append_sxhkd "$Close_App" "bspc node -{c,k}" "Close App"
+	append_sxhkd "$Split_horizontal_vertical_or_cancel" "bspc node -p {east,south,cancel}" "Split horizontal, vertical or cancel"
+	append_sxhkd "$Preselect_the_ratio" "bspc node -o 0.{1-9}" "Preselect the ratio"
+	append_sxhkd "$alternate_between_the_tiled_and_monocle_layout" "bspc desktop -l next" "alternate between the tiled and monocle layout"
+	append_sxhkd "$Fullscreen_or_Monocle" 'bspc node -t "~"fullscreen' "Fullscreen or Monocle"
+	append_sxhkd "$Toggle_beetwen_floating_and_tiled" 'bspc node -t "~"{floating,tiled}' "Toggle beetwen floating & tiled"
+	append_sxhkd "$Pseudo_Tiled_and_tiled_mode" 'bspc node -t "~"{pseudo_tiled,tiled}' "Pseudo Tiled & tiled mode"
+	append_sxhkd "$send_the_newest_marked_node_to_the_newest_preselected_node" "bspc node newest.marked.local -n newest.!automatic.local" "send the newest marked node to the newest preselected node"
+	append_sxhkd "$swap_the_current_node_and_the_biggest_window" "bspc node -s biggest.window" "swap the current node and the biggest window"
+	append_sxhkd "$Set_the_node_flags_marked_locked_sticky_private" "bspc node -g {marked,locked,sticky,private}" "Set the node flags"
+	append_sxhkd "$Send_the_window_to_another_edge_of_the_screen_west_south_north_east" "bspc node -{f,s} {west,south,north,east}" "Send the window to another edge of the screen"
+	append_sxhkd "$Change_focus_to_next_window_including_floating_window_next_local_prev_local" "bspc node -f {next.local,prev.local}" "Change focus to next window, including floating window"
+	append_sxhkd "$Switch_workspace_prev_local_next_local" "bspc desktop -f {prev.local,next.local}" "Switch workspace"
+	append_sxhkd "$Switch_to_last_opened_workspace" "bspc {node,desktop} -f last" "Switch to last opened workspace"
+	append_sxhkd "$Send_focused_window_to_another_workspace" 'bspc {desktop -f,node -d} "^{1-8}"' "Send focused window to another workspace"
+	append_sxhkd "$Expanding_windows" 'bspc node -z {left -20 0,right 20 0,top 0 -20,bottom 0 20}' "Expanding windows"
+	append_sxhkd "$Shrinking_windows" 'bspc node -z {left 20 0,right -20 0,top 0 20,bottom 0 -20}' "Shrinking windows"
+	append_sxhkd "$Move_floating_windows" 'bspc node -v {-20 0,0 20,0 -20,20 0}' "move a floating window"
+	append_sxhkd "$Hide_Unhide_Window" "winmask" "Hide/Unhide Window"
+
+	append_sxhkd "##- focus/swap -##"
+	append_sxhkd "$focus_the_node_in_the_given_direction" 'bspc node -{f,s} {west,south,north,east}' "focus the node in the given direction"
+	append_sxhkd "$focus_the_node_for_the_given_path_jump_parent_brother_first_second" 'bspc node -f @{parent,brother,first,second}' "focus the node for the given path jump"
+	append_sxhkd "$focus_the_next_previous_window_in_the_current_desktop" 'bspc node -f {next,prev}.local.!hidden.window' "focus the next/previous window in the current desktop"
+	append_sxhkd "$focus_the_next_previous_desktop_in_the_current_monitor" 'bspc desktop -f {prev,next}.local' "focus the next/previous desktop in the current monitor"
+	append_sxhkd "$focus_the_last_node_desktop" 'bspc {node,desktop} -f last' "focus the last node/desktop"
+	
+	if [ -n "$focus_the_older_or_newer_node_in_the_focus_history" ];then
+		append_sxhkd "${focus_the_older_or_newer_node_in_the_focus_history}" "bspc wm -h off; sed_it_to_backslashes\n	bspc node {older,newer} -f; sed_it_to_backslashes \n	bspc wm -h on" "# focus the older or newer node in the focus history"
 	fi
+	
+	if [ -n "$focus_or_send_to_the_given_desktop" ];then
+		append_sxhkd "${focus_or_send_to_the_given_desktop}" "bspc {desktop -f,node -d} '^{1-9,10}'" "# focus or send to the given desktop"
+	fi	
+
+	append_sxhkd "##- preselect -##"
+	append_sxhkd "$preselect_the_direction" 'bspc node -p {west,south,north,east}' "preselect the direction"
+	append_sxhkd "$preselect_the_ratio" 'bspc node -o 0.{1-9}' "preselect the ratio"
+	append_sxhkd "$cancel_the_preselection_for_the_focused_node" 'bspc node -p cancel' "cancel the preselection for the focused node"
+	append_sxhkd "$cancel_the_preselection_for_the_focused_desktop" 'bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel' "cancel the preselection for the focused desktop"
+	
+	append_sxhkd "##- move/resize -##"
+	append_sxhkd "$expand_a_window_by_moving_one_of_its_side_outward" 'bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}' "expand a window by moving one of its side outward"
+	append_sxhkd "$contract_a_window_by_moving_one_of_its_side_inward" 'bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}' "contract a window by moving one of its side inward"
+	append_sxhkd "$move_a_floating_window" 'bspc node -v {-20 0,0 20,0 -20,20 0}' "move a floating window"
+	sed_all_back "${sxhkd_bspwm_file_path}"
+}
+
+create_rofi_tmp_file(){
+	__mode="${1:-}"
+	shortcut_rofi_wm_file_path="${shortcut_rofi_file_path}_${__mode}"
+   	append_rofi() {
+       	rofi_var_name="$1"
+       	rofi_command_line="$2"
+       	rofi_comment="$3"
+       	if [ -n "$rofi_var_name" ];then
+           	echo "${rofi_comment} | ${rofi_var_name} | ${rofi_command_line}" >> "$shortcut_rofi_wm_file_path"
+       	fi
+    }
+    : > "$shortcut_rofi_wm_file_path"
+    if [ "$__mode" = "bspwm" ];then
+		append_rofi "$Terminal_my_terminal_emulator" "bspterm" "Terminal (my-terminal-emulator)"
+		append_rofi "$Terminal_floating" "bspterm -f" "Terminal (floating)"
+		append_rofi "$Terminal_fullscreen" "bspterm -s" "Terminal (fullscreen)"
+	fi
+	append_rofi "$Rofi_App_Launcher" "rofi-launcher" "Rofi App Launcher"
+	append_rofi "$Rofi_App_Runner" "rofi-runner" "Rofi App Runner"
+	append_rofi "$Rofi_Network_Menu" "rofi-network-manager" "Rofi Network Menu"
+	append_rofi "$Rofi_Themes_Menu" "RiceSelector" "Rofi Themes Menu"
+	append_rofi "$Rofi_rofi_screenshot" "rofi-screenshot" 'Rofi Menus/Applets'
+	append_rofi "$Rofi_rofi_music" "rofi-music" "Rofi control music"
+	append_rofi "$Rofi_rofi_windows" "rofi-windows" "Rofi control windows"
+	append_rofi "$Rofi_rofi_root" "rofi-root" "Rofi Root apps"
+	append_rofi "$Rofi_rofi_powermenu" "my_session_manager_menu" "Rofi power manager"
+	append_rofi "$Terminal_Apps_CLI_EDITER_ranger" 'popup_terminal ${CLI_EDITER}' "Terminal Apps (CLI_EDITER)"
+	append_rofi "$Terminal_Apps_CLI_EDITER_ranger" 'popup_terminal lf' "Terminal Apps (lf)"
+	append_rofi "$JGmenu_run" "run_JGmenu" "jgmenu"
+	append_rofi "$Launch_Apps_my_file_manager" "my-file-manager" "my_file_manager"
+	append_rofi "$Launch_Apps_my_www_browser" "my-www-browser" "my_www_browser"
+	append_rofi "$Launch_Apps_my_text_editor" "my-text-editor" "my-text-editor"
+	append_rofi "$Launch_Apps_my_Media_Player" "my-media-player" "my-media-player"
+	append_rofi "$Terminal_Apps_htop" "${__distro_path_root}/bin/not_add_2_path/sysinfo_script_ --process" "Terminal Apps"
+	append_rofi "$Color_Picker" "colorpick.sh" "Color Picker"
+	append_rofi "$Lockscreen" "my_session_manager_cli lock" "Lockscreen"
+	append_rofi "$show_shortcut" 'yad --button=Exit:1 --text-info --title="Bspwm Keybinds" --filename=$script_config_path\rofi_keybinds --width=750 --height=600' "show shortcut"
+	append_rofi "$switch_keyboard_languge" "kswitch" "switch keyboard languge"
+	append_rofi "$Take_a_screenshot" "my-shots" "Take a screenshot"
+	append_rofi "$Take_screenshot_in_5_second" "my-shots --delay 5" "Take screenshot in 5 second"
+	append_rofi "$Take_screenshot_in_10_second" "my-shots --delay 10" "Take screenshot in 10 second"
+	append_rofi "$Take_screenshot_of_active_window" "my-shots --win" "Take screenshot of active window"
+	append_rofi "$Take_screenshot_of_area" "my-shots --area" "Take screenshot of area"
+	append_rofi "$Volume_mute" "${__distro_path_root}/system_files/volume_cli_control --toggle" "Toggle mute/unmute volume"
+	append_rofi "$Volume_control" "${__distro_path_root}/system_files/volume_cli_control --inc" "inc Volume control"
+	append_rofi "$Volume_control" "${__distro_path_root}/system_files/volume_cli_control --dec" "dec Volume control"
+	append_rofi "$Brighness_control" "brightness --dec" "dec Brighness control"
+	append_rofi "$Brighness_control" "brightness --inc" "inc Brighness control"
+	append_rofi "$Music_control" "mpc next" "Next Music"
+	append_rofi "$Music_control" "mpc prev" "Prev Music"
+	append_rofi "$Music_control" "mpc toggle" "Toggle mute/unmute Music"
+	append_rofi "$Music_control" "mpc stop" "Stop Music"
 }
 
 create_Thunar_tmp_file(){
@@ -2155,13 +2206,6 @@ finalize_it(){
     if [ -f "${temp_openboxrc_file_path}" ];then
         $_SUPERUSER sed -i -e "/##  auto edited by shortcuts script  ##/,/##  end of auto edited by shortcuts script  ##/!b;//!d;/##  end of auto edited by shortcuts script  ##/e cat ${temp_openboxrc_file_path}" "${openboxrc_file_path}"
         sed_all_back "${openboxrc_file_path}"
-    fi
-    #create_sxhkd_tmp_file
-    if [ -f "${temp_sxhkd_file_path}" ];then
-        if [ "$mode" != "rofi" ];then
-            $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_sxhkd_file_path}" "${sxhkd_file_path}"
-        fi
-        sed_all_back "${sxhkd_file_path}"
     fi
     #create_Thunar_tmp_file
     if [ -f "${temp_Thunar_file_path}" ];then

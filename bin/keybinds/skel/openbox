@@ -6,17 +6,17 @@
 chain Quit Key=Ctrl + g
 #;Change Workspace/Desktop
 #;#########
-GoToDesktop GoToDesktop prekey=Ctrl + Alt + 
+GoToDesktop GoToDesktop prekey=Super + Ctrl + 
 GoToDesktop GoToDesktop left=Left
 GoToDesktop GoToDesktop right=Right
 GoToDesktop GoToDesktop up=Up
 GoToDesktop GoToDesktop down=Down
-SendToDesktop SendToDesktop prekey=Shift + Alt +  
+SendToDesktop SendToDesktop prekey=Super + Alt +  
 SendToDesktop SendToDesktop left=Left
 SendToDesktop SendToDesktop right=Right
 SendToDesktop SendToDesktop up=Up
 SendToDesktop SendToDesktop down=Down
-GoToDesktop GoToDesktop 2 prekey=Super + 
+GoToDesktop GoToDesktop 2 prekey=Super + Shift + 
 GoToDesktop GoToDesktop 1=F1
 GoToDesktop GoToDesktop 2=F2
 GoToDesktop GoToDesktop 3=F3
@@ -29,50 +29,27 @@ client-menu ShowMenu=Alt + space
 LowerToBottom=Alt + Escape
 #;Switch b/w Applications
 #;#########
-NextWindow NextWindowRaise=Ctrl + Tab
-NextWindow NextWindow (1)=Shift + Tab
-NextWindow PreviousWindow=Alt + Shift + Tab
-NextWindow NextWindow (3)=Ctrl + Alt + Tab
-Send Application to prev Desktop SendToDesktopLeft=Super + Shift + Left
-Send Application to next Desktop SendToDesktopRight=Super + Shift + Right
+NextWindow NextWindowRaise=Super + Alt + j
+NextWindow NextWindow (1)=Super + Alt + k
+NextWindow PreviousWindow=Super + Alt + i
+NextWindow NextWindow (3)=Super + Alt + l
+Send Application to prev Desktop SendToDesktopLeft=Super + Alt + y
+Send Application to next Desktop SendToDesktopRight=Super + Alt + u
 #;Keybindings for window switching with the arrow keys
 #;#########
 Send Application to window switching DirectionalCycleWindows Right=Super + Shift + Right
 Send Application to window switching DirectionalCycleWindows Left=Super + Shift + Left
 Send Application to window switching DirectionalCycleWindows Up=Super + Shift + Up
 Send Application to window switching DirectionalCycleWindows Down=Super + Shift + Down
-#;Media Controls
-#;#########
-Execute volume_cli_control --inc=XF86AudioRaiseVolume
-Execute volume_cli_control --dec=XF86AudioLowerVolume
-Execute volume_cli_control --toggle=XF86AudioMute
-Execute mpc stop=XF86AudioStop
-Execute mpc toggle=XF86AudioPlay
-Execute mpc prev=XF86AudioPrev
-Execute mpc next=XF86AudioNext
-#;Brightness Control
-#;#########
-Execute disto_brightness_controllerShift + inc=XF86MonBrightnessUp
-Execute disto_brightness_controllerShift + dec=XF86MonBrightnessDown
-#;Launch Applications
+
+#;Show Menu
 #;#########
 Execute show_menu_=Shift + space
-
-#;CLI Apps
-#;#########
-Execute popup_terminal --editor temp.txt=Shift + Alt + v
-Execute popup_terminal ranger=Shift + Alt + r
 
 #;binds for Openbox
 #;#########
 ToggleDecorations=Alt + F7
 ToggleShowDesktopp=Super + d
-
-#;Screenshot Keys
-#;#########
-Execute my-shots --delay 5=Alt + Print
-Execute my-shots --win=Ctrl + Print
-ShowMenu (2)=Alt + Ctrl + q
 
 #;Window Tiling: Snap feature
 #;#########
@@ -97,11 +74,11 @@ Windows Tiling 5=Shift + KP_6
 Windows Tiling 6=Shift + KP_7
 Windows Tiling 7=Shift + KP_8
 Windows Tiling 8=Shift + KP_9
-Move MoveRelative prekey=Shift + Alt + 
-Move up MoveRelative=Up
-Move down MoveRelative=Down
-Move left MoveRelative=Left
-Move right MoveRelative=Right
+Move MoveRelative prekey=Super + Shift + 
+Move up MoveRelative=j
+Move down MoveRelative=k
+Move left MoveRelative=h
+Move right MoveRelative=l
 Resize right ResizeRelative=Ctrl + Alt + Right
 Resize left ResizeRelative=Ctrl + Alt + Left
 Resize down ResizeRelative=Ctrl + Alt + Down

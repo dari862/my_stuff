@@ -3,18 +3,18 @@
 #; lxterminal
 #;#############################
 ##############################
-new_window_accel=Super + Shift + n
-new_tab_accel=Super + Shift + t
-close_tab_accel=Super + Shift + w
-close_window_accel=Super + Shift + q
-copy_accel=Super + Shift + c
-paste_accel=Super + Shift + v
-name_tab_accel=Super + Shift + i
-previous_tab_accel=Super + Page_Up
-next_tab_accel=Super + Page_Down
-move_tab_left_accel=Super + Shift + Page_Up
-move_tab_right_accel=Super + Shift + Page_Down
-zoom_in_accel=Super + Shift + plus
-zoom_out_accel=Super + Shift + underscore
-zoom_reset_accel=Super + Shift + parenright
+new_window_accel=Ctrl + Alt + n
+new_tab_accel=Ctrl + Alt + t
+close_tab_accel=Ctrl + Alt + w
+close_window_accel=Ctrl + Alt + q
+copy_accel=Ctrl + Alt + c
+paste_accel=Ctrl + Alt + v
+name_tab_accel=Ctrl + Alt + i
+previous_tab_accel=Alt + Page_Up
+next_tab_accel=Alt + Page_Down
+move_tab_left_accel=Ctrl + Alt + Page_Up
+move_tab_right_accel=Ctrl + Alt + Page_Down
+zoom_in_accel=Ctrl + Alt + plus
+zoom_out_accel=Ctrl + Alt + underscore
+zoom_reset_accel=Ctrl + Alt + parenright
 #;

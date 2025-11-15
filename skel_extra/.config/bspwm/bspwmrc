@@ -118,7 +118,7 @@ bspc rule -a Wrapper-2.0 state=floating border=off focus=on
 
 #### Autostart ###############################################################################
 # Lauch keybindings daemon
-keybinds-session bspwm
+keybinds-session start bspwm
 
 if command -v urxvtc >/dev/null 2>&1;then
 	#urxvtc

@@ -1,0 +1,19 @@
+##############################
+#;#############################
+#; sxhkd
+#;#############################
+##############################
+Reload Keybindings=Super + y
+#;##---------- Rofi Launcher & Menus ----------##
+Rofi Themes Menu=ctrl + alt + t
+Rofi rofi-root=Super + r
+#;##---------- Applications ----------##
+Terminal Apps {$CLI_EDITER,ranger}=ctrl + alt + {v,r}
+#;##---------- System Keys ----------##
+show shortcut=F1
+Take screenshot in 5 second=alt + Print	
+Take screenshot of active window=ctrl + Print
+Brighness control=XF86MonBrightness{Up,Down}
+Volume control=XF86Audio{RaiseVolume,LowerVolume}
+Volume mute=XF86AudioMute
+Music control=XF86Audio{Next,Prev,Play,Stop}

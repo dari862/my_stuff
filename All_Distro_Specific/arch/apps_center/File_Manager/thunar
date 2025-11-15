@@ -9,6 +9,8 @@ say 'Installing thunar...' 1
 Package_installer_ "${app_name}" ${extra_app_name} || continue
 copy_from_extra_skel ".config/Thunar" || continue
 copy_from_extra_skel ".config/xfce4" || continue
+add_keybinds "$app_name" || continue
+
 __thunar_wall_plug="$(locate thunar | grep "plugin.so" | grep "wall" | grep -v "\.backup" || :)"
 
 if [ -f "${__thunar_wall_plug}" ] && [ ! -f "${__thunar_wall_plug}.backup" ];then

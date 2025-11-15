@@ -37,7 +37,7 @@ _reload(){
 	if [ "$current_wm_name" = "openbox" ];then
 		reconfigure-openbox &
 	elif [ "$current_wm_name" = "bspwm" ];then
-		bspc --restart
+		bspc wm -r
 	elif [ "$current_wm_name" = "dwm" ];then	
 		#"${__distro_path_root}"/bin/WM/kill_process.sh dwm
 		:

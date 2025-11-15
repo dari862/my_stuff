@@ -6,3 +6,4 @@ say 'Installing package...' 1
 
 Package_installer_ "${app_name}" || continue
 
+add_keybinds "$app_name"

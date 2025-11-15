@@ -746,5 +746,5 @@ esac
 
 execute_command "$display_script"
 my_session_manager_cli reload
-panel_launcher
+"${__distro_path_root}"/bin/X11/WM/panel_launcher
 notify_send_and_exit

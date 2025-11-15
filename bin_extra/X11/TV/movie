@@ -1,1 +1,94 @@
-iptv
+#!/bin/bash
+# work on this : this iptv script work on adding movie
+set -e
+unalias -a
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
+tv_config_dir="${script_config_path}/My_TV"
+tv_config_file="${tv_config_dir}/termv.conf"
+TERMV_DIR="${__distro_for_all_path}/termv"
+Channels_List_DB="${TERMV_DIR}/Channels_List.txt"
+
+[ ! -d "${tv_config_dir}" ] && mkdir -p "$tv_config_dir" || :
+
+if [ ! -f "$tv_config_file" ];then
+    tee "$tv_config_file" <<- 'EOF' >/dev/null 2>&1
+    use_external_menu="auto"
+    
+    TERMV_CATEGORY=""
+    TERMV_LANGUAGE=""
+    TERMV_COUNTRY=""
+    TERMV_FILTER=""
+
+    TERMV_SWALLOW=false
+    TERMV_MPV_FLAGS="--no-resume-playback"
+EOF
+fi
+
+. "$tv_config_file"
+use_external_menu="rofi"
+if [ "$use_external_menu" = "auto" ];then
+	if [ -t 1 ];then #on_terminal
+		use_external_menu=fzf
+	else
+		use_external_menu=rofi
+	fi
+fi
+
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv $use_external_menu || exit 1
+
+if [ "$use_external_menu" = "fzf" ];then
+	launcher() {	
+		cat "${Channels_List_DB}" |\
+		fzf -e -i --reverse --cycle --with-nth="1..-2"\
+			--bind "enter:execute(_play {})"\
+			--bind "double-click:execute(_play {})"\
+			--header="Select channel (press Escape to exit)" -q "${*:-}"
+	}
+elif [ "$use_external_menu" = "rofi" ];then
+	. "${Distro_config_file}"
+	launcher() {
+		Chosen_channel="$(cat "${Channels_List_DB}" |\
+	    rofi -dmenu -i -p "Select channel (press Escape to exit)" -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -width 1500)"
+	    _play "${Chosen_channel}"
+	}
+fi
+
+if [ "${TERMV_SWALLOW}" = true ];then
+	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed xdo || exit 1
+	_play() {
+		printf '%s\n' "Fetching channel, please wait..."
+		WID=$(xdo id)
+		xdo hide
+		# shellcheck disable=SC2086
+		mpv "${*##* }" ${TERMV_MPV_FLAGS} --force-media-title="${*%%  *}" --force-window=immediate
+		xdo show "$WID" && xdo activate "$WID"
+	}
+else
+	_play() {
+		printf '%s\n' "Fetching channel, please wait..."
+		# shellcheck disable=SC2086
+		mpv "${*##* }" ${TERMV_MPV_FLAGS} --force-media-title="${*%%  *}"
+	}
+fi
+export -f _play
+
+mkdir -p "${TERMV_DIR}"
+
+if [ ! -f "${Channels_List_DB}" ] || [ ! "$(stat -c %y "${Channels_List_DB}" 2>/dev/null | cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ];then
+	 curl https://raw.githubusercontent.com/iptv-org/database/refs/heads/master/data/channels.csv | awk -F, '{print $1 "," $7 "," $6 "," $NF }' | column -t -s ',' > "$Channels_List_DB"
+	 if [ -n "$TERMV_CATEGORY" ];then
+	 	:
+	 fi
+	 if [ -n "$TERMV_LANGUAGE" ];then
+	 	:
+	 fi
+	 if [ -n "$TERMV_COUNTRY" ];then
+	 	:
+	 fi
+	 if [ -n "$TERMV_FILTER" ];then
+	 	:
+	 fi
+fi
+
+launcher
