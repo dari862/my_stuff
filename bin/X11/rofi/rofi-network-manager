@@ -2,7 +2,6 @@
 # if this line exist script will be part of hub script.
 # work on this : add vpn support
 # work on this : random wifi disconnect
-# work on this : when disable network polybar fail to run network module
 unalias -a
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"

@@ -1,0 +1,38 @@
+#!/bin/sh
+# need superuser : var (_SUPERUSER)
+
+__distro_path_root="${1:-$__distro_path_root}"
+if [ "$(id -u)" -eq 0 ]; then
+	_SUPERUSER=""
+else
+	_SUPERUSER="my-superuser"
+fi
+
+. "${__distro_path_root}/os-release"
+packages_2_fix_path="${__distro_path_root}/All_Distro_Specific/packages_fixer/${root_distro_name}/${version_}"
+if [ ! -d "${packages_2_fix_path}" ];then
+	exit
+fi
+
+show_im(){
+	message="${1-}"
+	printf '%b' "\\033[1;34m[*] \\033[0m${message}\n"
+}
+
+command_exist() {
+	if command -v $1 > /dev/null 2>&1;then
+		return
+	else
+		return 1
+	fi
+}
+	
+show_im "Fix some packages."
+cd "${packages_2_fix_path}"
+for p in *;do
+	if command_exist "$p";then
+		show_im "Fixing $p."
+		__dirname="$(dirname "$(which "$p")")"
+		$_SUPERUSER cp -r "$p" "$__dirname"
+	fi
+done

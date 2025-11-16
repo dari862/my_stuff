@@ -3,7 +3,7 @@
 #; General
 #;#############################
 ##############################
-Switch Keyboard Languge=Shift_L + Alt_L
+Switch Keyboard Languge=Shift_L + Alt
 switch to NextWindow=Alt + Tab
 Print Screen=Print
 Print Screen area=Alt + Print

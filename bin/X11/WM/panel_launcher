@@ -25,7 +25,8 @@ conky-session restart &
 notification-d-session restart &
 #plank-session restart &
 
-if [ "$_panel_name_" = "polybar" ];then 
+if [ "$_panel_name_" = "polybar" ];then
+	nmcli networking on || printf '%s\n' "ncmcli: Failed to enable networking"
    	polybar-session restart
    	power-manager-session restart &
    	clipboard-manager-session start 3 &
