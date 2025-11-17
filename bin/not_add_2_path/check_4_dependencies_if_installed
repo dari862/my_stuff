@@ -46,14 +46,14 @@ done
 if [ -n "${dependencies_not_installed}" ];then
 	if on_terminal;then
 			_pem "Missing dependencies, please install: ${dependencies_not_installed%??}."
-			Do_want_to_install_dependencies || return 1
+			Do_want_to_install_dependencies || exit 1
 	else
 		. "${__distro_path_root}/lib/common/WM"
 		. "${Distro_config_file}"
 		. "${__distro_display_manager_lib_path}"	  
 	
 		if [ "$Display_server_are" = "X11" ];then
-			rofi -e "Missing dependencies, please install : ${not_installed_apps_are}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi && return 1
+			rofi -e "Missing dependencies, please install : ${not_installed_apps_are}" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi && exit 1
 		elif [ "$Display_server_are" = "wayland" ];then
 			:
 		fi
