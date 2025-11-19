@@ -1,9 +1,23 @@
-/* colors */
+/**
+ *
+ * theme : adaptive
+ * 
+ * Colors
+ **/
 
 * {
-  al:   #00000000;
-  bg:   #232832FF;
-  bga:  #1C2028FF;
-  fg:   #EAEAEAFF;
-  ac:   #039BE5FF;
+    background:     #232832FF;
+    background-alt: #1C2028FF;
+    foreground:     #EAEAEAFF;
+    selected:       #00000000;
+    active:         #039BE5FF;
+    urgent:         #1C2028FF;
+}
+
+* {
+  al:   #;
+  bg:   #;
+  bga:  #;
+  fg:   #;
+  ac:   #;
 }
