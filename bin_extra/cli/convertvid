@@ -1,8 +1,8 @@
 #!/bin/bash
-set -euo pipefail
+set -e
 unalias -a
 . "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed bc ffmpeg ffprobe sed || exit 1
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed bc || exit 1
 
 show_error() {
   local red=$'\033[0;91m'

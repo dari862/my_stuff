@@ -30,7 +30,7 @@ fi
 
 theme_color_creater_output_folder="/tmp/$USER/theme_color_creater_output"
 
-${__distro_path_root}/bin/dynamic_theme_scripts/theme_color_creater "${style}" "$theme_color_creater_output_folder" "${wallpaper}" || show_em "failed to run system_default_colors"
+"${__distro_path_root}"/bin/dynamic_theme_scripts/theme_color_creater "${style}" "$theme_color_creater_output_folder" "${wallpaper}" || show_em "failed to run system_default_colors"
 
 blob_dunstrc_theme_path="${STYLEPATH}/config/dunst"
 mkdir -p "$blob_dunstrc_theme_path"

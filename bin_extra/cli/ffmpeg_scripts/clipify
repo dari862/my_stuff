@@ -1,19 +1,7 @@
 #!/bin/bash
 # cut clips out of videos
-set -eu
+set -e
 unalias -a
-check_command() {
-  local state=true
-  for package in "${@}"; do
-    if ! command -v "${package}" >/dev/null 2>&1;then 
-      echo "MISSING: ${package} not installed."
-      state=false
-    fi
-  done
-  "${state}" && return 0 || return 1
-}
-
-! check_command ffmpeg && exit 3
 
 # Global functions.
 function print_usage() {
