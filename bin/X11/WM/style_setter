@@ -9,8 +9,10 @@ _style="${2:-default}"
 . "${__distro_path_root}/lib/common/openbox"
 
 GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
-GLOBALDYNAMICBLOBPATH="${__distro_path_all_distro_themes}/blob_dynamic/dynamic_theme"
+GLOBALDYNAMICBLOBPATH="${__distro_path_all_distro_themes}/dynamic_theme"
 CONFIG_PATH="$HOME/.config"
+LOCAL_PATH="$HOME/.local"
+DYNAMICBLOBPATH="${LOCAL_PATH}/dynamic_theme"
 BLOBPATH="$CONFIG_PATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
 
@@ -22,7 +24,7 @@ show_em(){
 
 OB_themeing(){
 	. "$STYLEPATH/openboxrctheme"
-	cp -r ${BACKUP_OB_RC_FILE} "${OBPATH}"
+	cp -r "${BACKUP_OB_RC_FILE}" "${OBPATH}"
 	
 	sed -i 's/theme_var "'.*'"/theme_var "'"$theme"'"/g' "${OBPATH}"/rc.xml
 	sed -i 's/titleLayout_var "'.*'"/titleLayout_var "'"$titleLayout"'"/g' "${OBPATH}"/rc.xml
@@ -45,21 +47,24 @@ Set_Style_(){
 if [ ! -d "${BLOBPATH}" ];then
 	cp -r "${GLOBALBLOBPATH}" "${CONFIG_PATH}" || show_em "failed to cp -r \"${GLOBALBLOBPATH}\" \"${BLOBPATH}\""
 	find "${BLOBPATH}/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} + || show_em "failed to change MmdmdmdmdmdmdmdmdmM to $USER"
-	cp -r "${GLOBALDYNAMICBLOBPATH}" "${BLOBPATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${BLOBPATH}\""
+fi
+
+if [ ! -d "${DYNAMICBLOBPATH}" ];then
+	cp -r "${GLOBALDYNAMICBLOBPATH}" "${LOCAL_PATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
 fi
 
 cp -r "${STYLEPATH}/config"/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
 . "${Distro_config_file}"
 
 if [ -d "${STYLEPATH}/cache" ];then
-	cp -r "${STYLEPATH}/cache $HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
+	cp -r "${STYLEPATH}/cache" "$HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
 fi
 
 if [ "${_style}" = "dynamic" ];then
 	mkdir -p "$HOME/.themes"
 	mkdir -p "$HOME/.icons"
-	ln -sf "${BLOBPATH}/dynamic_theme/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${BLOBPATH}/themes to $HOME/.themes"
-	ln -sf "${BLOBPATH}/dynamic_theme/icons"/* "$HOME/.icons" || show_em "failed to create symplic link for contain of ${BLOBPATH}/icons to $HOME/.icons"
+	ln -sf "${DYNAMICBLOBPATH}/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/themes to $HOME/.themes"
+	ln -sf "${DYNAMICBLOBPATH}/icons"/* "$HOME/.icons" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/icons to $HOME/.icons"
 fi
 
 if command -v geany >/dev/null 2>&1;then

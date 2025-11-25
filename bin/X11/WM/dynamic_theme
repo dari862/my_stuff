@@ -19,13 +19,7 @@ fi
 . "${Distro_config_file}"
 
 style="dynamic"
-BLOBPATH="$HOME/.config/blob"
-if [ "$_panel_name_" = 'polybar' ];then
-	CONFIGPATH="${BLOBPATH}/polybar"
-elif [ "$_panel_name_" = 'tint2' ];then
-	CONFIGPATH="${BLOBPATH}/tint2"
-fi
-STYLEPATH="${CONFIGPATH}/$style"
+STYLEPATH="$HOME/.local/dynamic_theme"
 
 if [ -z "${wallpaper}" ];then
 	wallpaper="${wallpaper_are}"
@@ -42,7 +36,7 @@ blob_dunstrc_theme_path="${STYLEPATH}/config/dunst"
 mkdir -p "$blob_dunstrc_theme_path"
 cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "$blob_dunstrc_theme_path/theme.dunstrc"
 
-blob_gtk_theme_path="${BLOBPATH}/dynamic_theme/themes"
+blob_gtk_theme_path="${STYLEPATH}/themes"
 cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-dark.css > "$blob_gtk_theme_path"/dynamic-nord/general/dark.css
 cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-nord-gtkrc > "$blob_gtk_theme_path"/dynamic-nord/gtk-2.0/gtkrc
 cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-gtkrc > "$blob_gtk_theme_path"/dynamic/gtk-2.0/gtkrc
@@ -50,18 +44,17 @@ cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.0.css > "$blob_gtk_th
 cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.20.css > "$blob_gtk_theme_path"/dynamic/gtk-3.20/gtk.css
 cat "${theme_color_creater_output_folder}/gtk_theme"/openbox-3 > "$blob_gtk_theme_path"/dynamic/openbox-3/themerc
 
-blob_gtk_icon_path="${BLOBPATH}/dynamic_theme/icons/dynamic"
+blob_gtk_icon_path="${STYLEPATH}/icons/dynamic"
 mkdir -p "$blob_gtk_icon_path"
 cp -r "${theme_color_creater_output_folder}/gtk-icons"/* "$blob_gtk_icon_path"
 
 if [ "$_panel_name_" = 'polybar' ];then
-	[ ! -d "$HOME/.config/polybar/${style}" ] && cp -r "$HOME/.config/polybar/dynamic" "$HOME/.config/polybar/${style}" 
 	cp -r "${theme_color_creater_output_folder}/colors-polybar.conf" "$HOME/.config/polybar/${style}/colors.ini"
 elif [ "$_panel_name_" = 'tint2' ];then
 	echo "/.config/tint2/${style}.tint2rc" > "${STYLEPATH}/config/tint2/tint2-sessionfile"
 	cp -r "${theme_color_creater_output_folder}/colors-tint2rc.conf" "$HOME/.config/tint2/${style}.tint2rc"
 	sed -i "s/(((__distro_path_root)))/${__distro_path_root}/g" "$HOME/.config/tint2/${style}.tint2rc"
-	sed -i "s|greeter_background=.*|greeter_background=\"${wallpaper}\"|g" "$STYLEPATH/$style/lightdm-gtk-greeter.conf"
+	sed -i "s|greeter_background=.*|greeter_background=\"${wallpaper}\"|g" "$STYLEPATH/${style}/lightdm-gtk-greeter.conf"
 fi
 	
 if command -v jgmenu >/dev/null 2>&1;then
@@ -127,4 +120,6 @@ if command -v bspwm >/dev/null 2>&1;then
 	cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "${STYLEPATH}/config/bspwm/theme.conf"
 fi
 
-"${__distro_path_root}"/bin/X11/WM/style_changer "$_panel_name_" "$style" --no-wall
+"${__distro_path_root}"/bin/X11/WM/style_setter "${_panel_name_}" "${style}"
+"${__distro_path_root}"/bin/X11/WM/panel_launcher
+dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${style}"

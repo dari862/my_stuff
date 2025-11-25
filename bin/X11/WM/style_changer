@@ -4,26 +4,17 @@ set -e
 
 _panel_name_="${1:-}"
 style="${2:-}"
-no_wallpaper_option="${3:-}"
 
 "${__distro_path_root}"/bin/X11/WM/style_setter "${_panel_name_}" "${style}"
 
-if [ "$no_wallpaper_option" = '--no-wall' ];then
-	no_wall=true
+if [ -f "$HOME/.config/blob/${_panel_name_}/${style}/random_wallpaper" ];then
+	setbg --random "${style}" || show_em "failed to run setbg -d ${style}"
 else
-	no_wall=false
-fi
-
-if [ "$no_wall" = 'false' ];then
-	if [ -f "$HOME/.config/blob/${_panel_name_}/${style}/random_wallpaper" ];then
-		setbg --random "${style}" || show_em "failed to run setbg -d ${style}"
-	else
-		setbg -r "${style}" || show_em "failed to run setbg -r"
-	fi
+	setbg -r "${style}" || show_em "failed to run setbg -r"
 fi
 
 "${__distro_path_root}"/bin/X11/WM/panel_launcher
 
 if [ "${style}" != "owl4ce_dark" ] || [ "${style}" != "owl4ce_light" ];then
-	dunstify -u normal --replace=699 -i ${__distro_path_all_distro_themes}/icons/channelmixer.svg "Applying Style : ${style}"
+	dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${style}"
 fi
