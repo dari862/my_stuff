@@ -10,10 +10,10 @@ _style="${2:-default}"
 
 GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
 GLOBALDYNAMICBLOBPATH="${__distro_path_all_distro_themes}/dynamic_theme"
-CONFIG_PATH="$HOME/.config"
+CONFIGPATH="$HOME/.config"
 LOCAL_PATH="$HOME/.local"
 DYNAMICBLOBPATH="${LOCAL_PATH}/dynamic_theme"
-BLOBPATH="$CONFIG_PATH/blob"
+BLOBPATH="$CONFIGPATH/blob"
 CURSESSION="$WM_config_dir/tint2_style"
 
 STYLEPATH="${BLOBPATH}/${_panel_name_}/${_style}"
@@ -37,47 +37,55 @@ OB_themeing(){
 }
 
 Set_Style_(){
-	[ ! -f "$HOME/.config/dunst/global" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/global" "$HOME/.config/dunst" || :
-	[ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/experimental" "$HOME/.config/dunst" || :
-	[ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/theme.dunstrc" "$HOME/.config/dunst" || :
-	cat $HOME/.config/dunst/global $HOME/.config/dunst/theme.dunstrc > $HOME/.config/dunst/dunstrc
+	[ ! -f "${CONFIGPATH}/dunst/global" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/global" "${CONFIGPATH}/dunst" || :
+	[ ! -f "${CONFIGPATH}/dunst/experimental" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/experimental" "${CONFIGPATH}/dunst" || :
+	[ ! -f "${CONFIGPATH}/dunst/theme.dunstrc" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/theme.dunstrc" "${CONFIGPATH}/dunst" || :
+	cat ${CONFIGPATH}/dunst/global ${CONFIGPATH}/dunst/theme.dunstrc > "${CONFIGPATH}"/dunst/dunstrc
 	OB_themeing
 }
 
 if [ ! -d "${BLOBPATH}" ];then
-	cp -r "${GLOBALBLOBPATH}" "${CONFIG_PATH}" || show_em "failed to cp -r \"${GLOBALBLOBPATH}\" \"${BLOBPATH}\""
+	cp -r "${GLOBALBLOBPATH}" "${CONFIGPATH}" || show_em "failed to cp -r \"${GLOBALBLOBPATH}\" \"${BLOBPATH}\""
 	find "${BLOBPATH}/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} + || show_em "failed to change MmdmdmdmdmdmdmdmdmM to $USER"
 fi
 
-if [ ! -d "${DYNAMICBLOBPATH}" ];then
-	cp -r "${GLOBALDYNAMICBLOBPATH}" "${LOCAL_PATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
-fi
-
-cp -r "${STYLEPATH}/config"/* $HOME/.config || show_em "failed to copy ${STYLEPATH}/config/* to $HOME/.config"
+cp -r "${STYLEPATH}/config"/* "${CONFIGPATH}" || show_em "failed to copy ${STYLEPATH}/config/* to ${CONFIGPATH}"
 . "${Distro_config_file}"
 
 if [ -d "${STYLEPATH}/cache" ];then
 	cp -r "${STYLEPATH}/cache" "$HOME/.cache" || show_em "failed to copy ${STYLEPATH}/cache to $HOME/.cache"
 fi
 
-if [ "${_style}" = "dynamic" ];then
-	mkdir -p "$HOME/.themes"
-	mkdir -p "$HOME/.icons"
-	ln -sf "${DYNAMICBLOBPATH}/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/themes to $HOME/.themes"
-	ln -sf "${DYNAMICBLOBPATH}/icons"/* "$HOME/.icons" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/icons to $HOME/.icons"
+if [ ! -d "${DYNAMICBLOBPATH}" ];then
+	cp -r "${GLOBALDYNAMICBLOBPATH}" "${LOCAL_PATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
 fi
 
-if command -v geany >/dev/null 2>&1;then
+if [ "${_style}" = "dynamic" ];then
+	if [ ! -d "$HOME/.themes/dynamic" ] && [ ! -d "$HOME/.themes/dynamic" ];then
+		mkdir -p "$HOME/.themes"
+		mkdir -p "$HOME/.icons"
+		ln -sf "${DYNAMICBLOBPATH}/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/themes to $HOME/.themes"
+		ln -sf "${DYNAMICBLOBPATH}/icons"/* "$HOME/.icons" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/icons to $HOME/.icons"
+	else
+		cp -r "${GLOBALDYNAMICBLOBPATH}" "${LOCAL_PATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
+	fi
+
+	if [ "$_panel_name_" = 'polybar' ];then
+		cp -r "${CONFIGPATH}/polybar/${_style}/colors.ini.org" "${CONFIGPATH}/polybar/${_style}/colors.ini"
+	fi
+fi
+
+if [ -d "${CONFIGPATH}/geany" ];then
 	theme_geany || show_em "failed to run theme_geany"
 fi
 
-if command -v jgmenu >/dev/null 2>&1;then
+if [ -d "${CONFIGPATH}/jgmenu" ];then
 	if [ ! -f "$HOME/.cache/jgmenu/.last-gtktheme" ];then
 		mkdir -p "$HOME/.cache/jgmenu"
 		touch "$HOME/.cache/jgmenu/.last-gtktheme"
 	fi
 	. "${STYLEPATH}/jgmenu_theme"
-	jgmenurc_file="$HOME/.config/jgmenu/jgmenurc"
+	jgmenurc_file="${CONFIGPATH}/jgmenu/jgmenurc"
 	#create jgmenu theme file
 	sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
 	sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
