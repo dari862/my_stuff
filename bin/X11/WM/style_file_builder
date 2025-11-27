@@ -41,30 +41,7 @@ create_lightdm(){
 }
 
 create_jgmenu(){
-	. "${theme_color_creater_output_folder}/colors-jgmenu.conf"
-	jgmenurc_file="${CONFIGPATH}/jgmenu/jgmenurc"
-	#create jgmenu theme file
-	sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
-	sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
-	sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border/g" "$jgmenurc_file"
-	sed -i "s/color_norm_bg .*/color_norm_bg       = $color_norm_bg/g" "$jgmenurc_file"
-	sed -i "s/color_norm_fg .*/color_norm_fg       = $color_norm_fg/g" "$jgmenurc_file"
-	sed -i "s/color_sel_bg .*/color_sel_bg        = $color_sel_bg/g" "$jgmenurc_file"
-	sed -i "s/color_sel_fg .*/color_sel_fg        = $color_sel_fg/g" "$jgmenurc_file"
-	sed -i "s/color_sel_border .*/color_sel_border    = $color_sel_border/g" "$jgmenurc_file"
-	sed -i "s/color_title_bg .*/color_title_bg      = $color_title_bg/g" "$jgmenurc_file"
-	sed -i "s/color_title_fg .*/color_title_fg      = $color_title_fg/g" "$jgmenurc_file"
-	sed -i "s/color_title_border .*/color_title_border  = $color_title_border/g" "$jgmenurc_file"
-	sed -i "s/color_sep_fg .*/color_sep_fg        = $color_sep_fg/g" "$jgmenurc_file"
-	sed -i "s/stay_alive .*/stay_alive        = $stay_alive/g" "$jgmenurc_file"
-	sed -i "s/menu_padding_right .*/menu_padding_right        = $menu_padding_right/g" "$jgmenurc_file"
-	sed -i "s/menu_padding_bottom .*/menu_padding_bottom        = $menu_padding_bottom/g" "$jgmenurc_file"
-	sed -i "s/menu_padding_left .*/menu_padding_left        = $menu_padding_left/g" "$jgmenurc_file"
-	sed -i "s/menu_radius .*/menu_radius        = $menu_radius/g" "$jgmenurc_file"
-	sed -i "s/sep_halign .*/sep_halign        = $sep_halign/g" "$jgmenurc_file"
-	sed -i "s/icon_size .*/icon_size        = $icon_size/g" "$jgmenurc_file"
-	sed -i "s/icon_theme .*/icon_theme        = $icon_theme/g" "$jgmenurc_file"
-	sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
+	jgmenu_theme_file="${CONFIGPATH}/jgmenu/jgmenu_theme"
 }
 
 create_geany(){
