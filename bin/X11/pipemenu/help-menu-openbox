@@ -7,6 +7,7 @@
 # Pipemenu
 menuStart
 	menuItem "Welcome tips" "welcome"
+	
 	menuSeparator
 	
 	menuSeparator "Offline Help"
@@ -14,7 +15,6 @@ menuStart
 	menuItem "Conky & Tint2 Manager Help" "yad --button='OK':0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title='Conky & Tint2 Manager Help' --filename=${__distro_path_root}/lib/docs/conkytint2-manager.txt --width=900 --height=700"
 	
 	menuSeparator "man pages"
-	
 	menuItem "Tint2 man page" "popup_terminal --man tint2"
 	menuItem "Conky man pages" "popup_terminal --man conky"
 	menuItem "Compositor" "popup_terminal --man picom"
@@ -23,7 +23,6 @@ menuStart
 	menuItem "xrandr" "popup_terminal --man xrandr"
 	
 	menuSeparator
-	
 	menuSubmenu "Distro_Help_Files" "$__distro_title Help Files"
 		menuItem "How to Edit Menu" "yad --button='OK':0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title='How to Edit the Menu' --filename=${__distro_path_root}/lib/docs/menu.txt --width=900 --height=700"
 		menuItem "About BLOB" "yad --button='OK':0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title='About BLOB' --filename=${__distro_path_root}/lib/docs/blob.txt --width=900 --height=700"
@@ -33,7 +32,6 @@ menuStart
 	menuSubmenuEnd
 
 	menuSeparator "Online Top Guides"
-
 	menuItem "commandline Guide" "my-www-browser https://www.commandlinefu.com/commands/browse"
 	menuItem "Arch wiki" "my-www-browser https://wiki.archlinux.org/title/Main_page"
 	menuItem "Debian wiki" "my-www-browser https://wiki.debian.org/"	
@@ -47,7 +45,6 @@ menuStart
 	menuItem " Linux Documentation Project Guides" "my-www-browser https://tldp.org/guides.html"
 
 	menuSeparator "Online Help"
-	
 	menuItem "Getting Started" "my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=21"
 	menuItem "Getting Started" "my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=21"
 	menuItem "Tutorials" "my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=25"
@@ -67,8 +64,8 @@ menuStart
 	menuSubmenuEnd
 	
 	menuItem "Arch Wiki" "my-www-browser https://wiki.archlinux.org/index.php/Table_of_contents"
-	menuSeparator
 	
+	menuSeparator
 	menuSubmenu "help_Openbox" "Openbox"
 		menuSubmenu "help_Openbox_Website" "Openbox Website"
 			menuItem "Openbox Homepage" "my-www-browser http://openbox.org/"
@@ -93,7 +90,6 @@ menuStart
 	menuSubmenuEnd
 	
 	menuSeparator
-	
 	menuSubmenu "help_Theme_Resources" "Theme Resources"
 		menuItem "bunsenlabs on DeviantArt" "my-www-browser http://bunsenlabs.deviantart.com/"
 		menuItem "Box-Look.org" "my-www-browser http://www.box-look.org"
