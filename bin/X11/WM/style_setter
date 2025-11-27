@@ -84,7 +84,7 @@ if [ -d "${CONFIGPATH}/jgmenu" ];then
 		mkdir -p "$HOME/.cache/jgmenu"
 		touch "$HOME/.cache/jgmenu/.last-gtktheme"
 	fi
-	. "${STYLEPATH}/jgmenu_theme"
+	. "${CONFIGPATH}/jgmenu/jgmenu_theme"
 	jgmenurc_file="${CONFIGPATH}/jgmenu/jgmenurc"
 	#create jgmenu theme file
 	sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
