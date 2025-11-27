@@ -7,27 +7,40 @@ show_em(){
 }
 
 CONFIGPATH="$HOME/.config"
-# Distro_config
-##############
-# wallpaper_mode
-##############
 
-# bspwm
-##############
+create_Distro_config(){
+	# Distro_config
+	##############
+	# wallpaper_mode
+	##############
+	:
+}
 
-# dunstrc
-##############
+create_dunstrc(){
+	# dunstrc
+	##############
+	:
+}
 
-# gtkrc_theme
-##############
+create_gtk(){
+	# gtkrc_theme
+	##############
+	:
+}
 
-# plank
-##############
+create_plank(){
+	# plank
+	##############
+	:
+}
 
-# lightdm-greeter
-##############
+create_lightdm(){
+	# lightdm-greeter
+	##############
+	:
+}
 
-if [ -d "${CONFIGPATH}/jgmenu" ];then
+create_jgmenu(){
 	. "${theme_color_creater_output_folder}/colors-jgmenu.conf"
 	jgmenurc_file="${CONFIGPATH}/jgmenu/jgmenurc"
 	#create jgmenu theme file
@@ -52,38 +65,76 @@ if [ -d "${CONFIGPATH}/jgmenu" ];then
 	sed -i "s/icon_size .*/icon_size        = $icon_size/g" "$jgmenurc_file"
 	sed -i "s/icon_theme .*/icon_theme        = $icon_theme/g" "$jgmenurc_file"
 	sed -i "s/menu_border .*/menu_border        = $menu_border/g" "$jgmenurc_file"
-fi
+}
 
-if [ -d "${CONFIGPATH}/geany" ];then
+create_geany(){
 	blob_geany_theme_path="${CONFIGPATH}/geany"
 	echo "${_style}.conf" > "${blob_geany_theme_path}/theme.conf"
-fi
+}
 
-if [ -d "${CONFIGPATH}/kitty" ];then
+create_kitty(){
 	blob_kitty_theme_path="${CONFIGPATH}/kitty"
 	echo "background_opacity 0.8" > "${blob_kitty_theme_path}/theme.conf"
 	echo "# color scheme" >> "${blob_kitty_theme_path}/theme.conf"
 	echo "include ./themes/${_style}.conf" >> "${blob_kitty_theme_path}/theme.conf"
+}
+
+create_alacritty(){
+	blob_alacritty_theme_path="${CONFIGPATH}/alacritty"
+	( cd "$blob_alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
+}
+
+create_rofi(){
+	cp -r "${theme_color_creater_output_folder}/colors-rofi.rasi" "${CONFIGPATH}/rofi/theme.rasi"
+}
+
+create_Xresources(){
+	cp -r "${theme_color_creater_output_folder}/colors.Xresources" "${CONFIGPATH}/x11/Xresources.d/themes/${_style}"
+	( cd "${CONFIGPATH}/x11/Xresources.d" && ln -sf "themes/${_style}" "colors" )
+}
+
+create_bspwm(){
+	cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "${CONFIGPATH}/bspwm/theme.conf"
+}
+
+create_openbox(){
+	reconfigure-openbox || show_em "failed to run reconfigure-openbox "
+}
+
+create_Distro_config
+create_lightdm
+create_plank
+create_gtk
+create_dunstrc
+
+if [ -d "${CONFIGPATH}/jgmenu" ];then
+	create_jgmenu
+fi
+
+if [ -d "${CONFIGPATH}/geany" ];then
+	create_geany
+fi
+
+if [ -d "${CONFIGPATH}/kitty" ];then
+	create_kitty
 fi
 
 if [ -d "${CONFIGPATH}/alacritty" ];then
-	blob_alacritty_theme_path="${CONFIGPATH}/alacritty"
-	( cd "$blob_alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
+	create_alacritty
 fi
 
 if [ -d "${CONFIGPATH}/rofi" ];then
-	cp -r "${theme_color_creater_output_folder}/colors-rofi.rasi" "${CONFIGPATH}/rofi/theme.rasi"
+	create_rofi
 fi
 
 if [ -d "${CONFIGPATH}/x11/Xresources.d" ];then
-	cp -r "${theme_color_creater_output_folder}/colors.Xresources" "${CONFIGPATH}/x11/Xresources.d/themes/${_style}"
-	( cd "${CONFIGPATH}/x11/Xresources.d" && ln -sf "themes/${_style}" "colors" )
+	create_Xresources
 fi
 
 if [ -d "${CONFIGPATH}/bspwm" ];then
-	cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "${CONFIGPATH}/bspwm/theme.conf"
+	create_bspwm
 fi
 
 if [ -d "${CONFIGPATH}/openbox" ];then
-	reconfigure-openbox || show_em "failed to run reconfigure-openbox "
+	create_openbox
 fi
