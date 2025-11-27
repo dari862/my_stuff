@@ -9,39 +9,271 @@ show_em(){
 CONFIGPATH="$HOME/.config"
 
 create_Distro_config(){
-	# Distro_config
-	##############
-	# wallpaper_mode
-	##############
-	:
+	_panel_name_="polybar"
+	ROFI_STYLE="cyber"
+	polybar_STYLE="adaptive"
+	conky_sessionfile=".config/conky/openbox-conky.conf"
+	tint2_sessionfile="/.config/tint2/adaptive.tint2rc"
+	wallpaper_are="/usr/share/my_stuff/Theme_Stuff/my_wallpapers/adaptive_wall-01.png"
+	layout_are="zoom"
+	wallpaper_mode=""
 }
 
 create_dunstrc(){
-	# dunstrc
-	##############
-	:
+	# Align icons left/right/off
+	icon_position = left
+	
+	# Paths to default icons.
+	icon_theme = "Luv-Folders-Dark"
+	
+	# Defines color of the frame around the notification window.
+	frame_color = "#212B30"
+	
+	# Define a color for the separator.
+	# possible values are:
+	#  * auto: dunst tries to find a color fitting to the background;
+	#  * foreground: use the same color as the foreground;
+	#  * frame: use the same color as the frame;
+	#  * anything else will be interpreted as a X color.
+	separator_color = auto
+	
+	# The transparency of the window.  Range: [0; 100].
+	# This option will only work if a compositing window manager is
+	# present (e.g. xcompmgr, compiz, etc.).
+	transparency = 0
+	
+	# Position the notification in the top right corner
+	origin = top-right
+	
+	# Offset from the origin
+	offset = (10, 44)
+	
+	# Defines width in pixels of frame around the notification window.
+	# Set to 0 to disable.
+	frame_width = 0
+	
+	### Text ###
+	
+	font = JetBrainsMono 9
+	
+	# The format of the message.  Possible variables are:
+	#   %a  appname
+	#   %s  summary
+	#   %b  body
+	#   %i  iconname (including its path)
+	#   %I  iconname (without its path)
+	#   %p  progress value if set ([  0%] to [100%]) or nothing
+	#   %n  progress value if set without any extra characters
+	#   %%  Literal %
+	format = "<b>%a</b>\n%s\n%b"
+	
+	# IMPORTANT: colors have to be defined in quotation marks.
+	# Otherwise the "#" and following would be interpreted as a comment.
+	[urgency_low]
+	timeout = 2
+	background = "#212B30"
+	foreground = "#C4C7C5"
+	frame_color = "#4DD0E1"
+	
+	[urgency_normal]
+	timeout = 5
+	background = "#212B30"
+	foreground = "#C4C7C5"
+	frame_color = "#4DD0E1"
+	
+	[urgency_critical]
+	timeout = 0
+	background = "#212B30"
+	foreground = "#EC407A"
+	frame_color = "#EC407A"
 }
 
 create_gtk(){
-	# gtkrc_theme
-	##############
-	:
+		gtk2
+	========================
+	gtk-theme-name="Adapta-Nokto"
+	gtk-icon-theme-name="Luv-Folders-Dark"
+	gtk-font-name="Noto Sans 9"
+	gtk-cursor-theme-name="Vimix"
+	gtk-cursor-theme-size=0
+	gtk-toolbar-style=GTK_TOOLBAR_ICONS
+	gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+	gtk-button-images=0
+	gtk-menu-images=1
+	gtk-enable-event-sounds=0
+	gtk-enable-input-feedback-sounds=0
+	gtk-xft-antialias=1
+	gtk-xft-hinting=1
+	gtk-xft-hintstyle="hintslight"
+	gtk-xft-rgba="rgb"
+	
+	
+		gtk3
+	========================
+	[Settings]
+	gtk-application-prefer-dark-theme=false
+	gtk-enable-animations=true
+	gtk-theme-name=Adapta-Nokto
+	gtk-icon-theme-name=Luv-Folders-Dark
+	gtk-cursor-theme-name=Vimix
+	gtk-font-name=Noto Sans 9
+	gtk-cursor-theme-size=0
+	gtk-toolbar-style=GTK_TOOLBAR_ICONS
+	gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+	gtk-button-images=0
+	gtk-menu-images=1
+	gtk-enable-event-sounds=0
+	gtk-enable-input-feedback-sounds=0
+	gtk-xft-antialias=1
+	gtk-xft-hinting=1
+	gtk-xft-hintstyle=hintslight
+	gtk-xft-rgba=rgb
 }
 
 create_plank(){
-	# plank
+	# cache
 	##############
-	:
+	[dock1]
+	alignment='center'
+	auto-pinning=true
+	current-workspace-only=false
+	dock-items=['settings_manager.dockitem', 'my-terminal-emulator.dockitem', 'my-file-manager.dockitem', 'my-www-browser.dockitem', 'my-text-editor.dockitem']
+	hide-delay=0
+	hide-mode='auto'
+	icon-size=32
+	items-alignment='center'
+	lock-items=false
+	monitor=''
+	offset=0
+	pinned-only=false
+	position=bottom
+	pressure-reveal=false
+	show-dock-item=false
+	theme='Transparent'
+	tooltips-enabled=true
+	unhide-delay=0
+	zoom-enabled=true
+	zoom-percent=120
+	# conf
+	##############
+	yes
 }
 
 create_lightdm(){
-	# lightdm-greeter
-	##############
-	:
+	greeter_background="(((__distro_path_themes)))/my_wallpapers/adaptive_wall-01.jpg"
+	greeter_theme_name="KanagawaDragon-zk"
+	greeter_icon_theme_name="Bunsen-lightdm"
+	greeter_font_name="Noto Sans 10"
+	greeter_position="57%,start 22%,start"
+}
+
+create_rofi(){
+#font
+######################3
+/**/
+
+* {
+  font:			  "Comfortaa Bold 12";
+  text-font:      @font;
+  icon-font:      "Material 14";
+}
+
+#theme
+######################3
+#owl
+/* Color-Scheme,Theme-Scheme, and Text Font */
+
+* {
+  accent1:          #f48ee8;
+  accent2:          #fa74b2;
+  button-gradient:  linear-gradient(90, #f48ee8, #fa74b2);
+  background-alpha: #373e4df7;
+  background:       #373e4d;
+  background-light: #3b4252;
+  background-focus: #434c5e;
+  foreground:       #f9f9f9;
+  foreground-list:  #f9f9f9;
+  on:               #2be491;
+  off:              #fa5aa4;
+  urgent:           #fa946e;
+  icon-theme:       "Papirus-Dark-Custom";
+  background:       @background-alpha;
+  background-alt:   @background-light;
+  selected:         @accent2;
+  active:           @background-focus;
+}
+#backgrounds
+// Rofi colors for Aline
+
+* {
+    background: #faf4ed;
+    bg-alt: #f2e9e1;
+    background-alt: #faf4edE0;
+    foreground: #575279;
+    selected: #d7827e;
+    active: #286983;
+    urgent: #ea9d34;
+
+    img-background: url("(((__distro_path_root)))/blob/polybar/aline/rofi.jpg", width);
+}
+#exo
+* {
+
+background:			#000000;
+background-alt:		#FA454C;
+foreground:			#ff0000;
+selected:			#D2030D;
+highlight:			#E5131E;
+urgent:				#6A0106;
+on:					#8D0209;
+off:				#6A0106;
+img-background: url("(((__distro_path_root)))/blob/polybar/Black_And_Red/preview.jpg", width);
+
+}
+#else
+/**
+ *
+ * theme : adaptive
+ * 
+ * Colors
+ **/
+
+* {
+    background:     #222D32FF;
+    background-alt: #29353BFF;
+    foreground:     #B8C2C6FF;
+    selected:       #00BCD4FF;
+    active:         #21FF90FF;
+    urgent:         #FF4B60FF;
+}
 }
 
 create_jgmenu(){
 	jgmenu_theme_file="${CONFIGPATH}/jgmenu/jgmenu_theme"
+	font="JetBrainsMono"
+	size="9"
+	color_menu_bg="#263238 100"
+	color_menu_border="#222D32 100"
+	color_norm_bg="#222D32 00"
+	color_norm_fg="#C4C7C5 100"
+	color_sel_bg="#00BCD4 100"
+	color_sel_fg="#222D32 100"
+	color_sel_border="#00BCD4 100"
+	color_title_bg="#263238 100"
+	color_title_fg="#00BCD4 100"
+	color_title_border="#263238 100"
+	color_sep_fg="#222D32 100"
+	item_margin_x="1"
+	item_margin_y="1"
+	stay_alive="1"
+	menu_padding_right="0"
+	menu_padding_bottom="0"
+	menu_padding_left="0"
+	menu_radius="1"
+	sep_halign="right"
+	icon_size="0"
+	icon_theme="Material-Solarized-Suru++"
+	menu_border="0"
 }
 
 create_geany(){
@@ -61,21 +293,43 @@ create_alacritty(){
 	( cd "$blob_alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
 }
 
-create_rofi(){
-	cp -r "${theme_color_creater_output_folder}/colors-rofi.rasi" "${CONFIGPATH}/rofi/theme.rasi"
-}
-
 create_Xresources(){
 	cp -r "${theme_color_creater_output_folder}/colors.Xresources" "${CONFIGPATH}/x11/Xresources.d/themes/${_style}"
 	( cd "${CONFIGPATH}/x11/Xresources.d" && ln -sf "themes/${_style}" "colors" )
 }
 
 create_bspwm(){
-	cp -r "${theme_color_creater_output_folder}/colors-dunstrc.conf" "${CONFIGPATH}/bspwm/theme.conf"
+	## Bspwm colors
+	BSPWM_FBC="#bfbaac"
+	BSPWM_NBC="#ec7875"
+	BSPWM_ABC="#61c766"
+	BSPWM_PFC="#ec7875"
+	BSPWM_PBC="#ec7875"
+	
+	## Bspwm appearance
+	BSPWM_BORDER="1"
+	BSPWM_GAP="10"
+	BSPWM_SRATIO="0.50"
+	
+	## Bspwm Extra
+	BSP_BORDERLESS_MONOCLE=true
+	BSP_GAPLESS_MONOCLE=true
+	BSP_PADDINGLESS_MONOCLE=true
+	BSP_SINGLE_MONOCLE=false
+	BSP_FOCUS_FOLLOWS_POINTER=true
+	BSP_PRESEL_FEEDBACK=true
 }
 
 create_openbox(){
-	reconfigure-openbox || show_em "failed to run reconfigure-openbox "
+	bottom=10
+	top=0
+	right=10
+	left=10
+	font=JetBrainsMono
+	size=9
+	theme=openbox-Adapta-Nokto
+	titleLayout=MLC
+	gtk_icon_name="Luv-Folders-Dark"
 }
 
 create_Distro_config
