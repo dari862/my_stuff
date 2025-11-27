@@ -31,9 +31,24 @@ menuStart
 		menuItem "About ${__distro_title} Autostart" "yad --button='OK':0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title='About ${__distro_title} Autostart' --filename=${__distro_path_root}/lib/docs/blautostart.txt --width=900 --height=700"
 		menuItem "About ${__distro_title} Alternatives" "yad --button='OK':0 --center --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --text-info --title='About ${__distro_title} Alternatives' --filename=${__distro_path_root}/lib/docs/alternatives.txt --width=900 --height=700"
 	menuSubmenuEnd
-	
+
+	menuSeparator "Online Top Guides"
+
+	menuItem "commandline Guide" "my-www-browser https://www.commandlinefu.com/commands/browse"
+	menuItem "Arch wiki" "my-www-browser https://wiki.archlinux.org/title/Main_page"
+	menuItem "Debian wiki" "my-www-browser https://wiki.debian.org/"	
+	menuItem "Gentoo wiki" "my-www-browser https://wiki.gentoo.org/wiki/Main_Page"
+	menuItem "shellcheck online" "my-www-browser https://www.shellcheck.net/"
+	menuItem "Linux Performance Guide" "my-www-browser https://www.brendangregg.com/linuxperf.html"
+	menuItem "Filesystem Hierarchy Standard" "my-www-browser https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html"
+	menuItem "Linux Guide Game" "my-www-browser https://overthewire.org/wargames/"
+	menuItem "Awesome URL Lists" "my-www-browser https://github.com/sindresorhus/awesome?tab=readme-ov-file"
+	menuItem "Booting from GPT Guide" "my-www-browser https://www.rodsbooks.com/gdisk/booting.html"
+	menuItem " Linux Documentation Project Guides" "my-www-browser https://tldp.org/guides.html"
+
 	menuSeparator "Online Help"
 	
+	menuItem "Getting Started" "my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=21"
 	menuItem "Getting Started" "my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=21"
 	menuItem "Tutorials" "my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=25"
 	menuItem "Basic Help & Support" "my-www-browser https://forums.bunsenlabs.org/viewforum.php?id=2"
