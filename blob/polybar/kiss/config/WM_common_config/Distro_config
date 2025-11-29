@@ -1,7 +1,0 @@
-_panel_name_="polybar"
-ROFI_STYLE="simple"
-polybar_STYLE="kiss"
-conky_sessionfile=".config/conky/openbox-conky.conf"
-tint2_sessionfile="/.config/tint2/default.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/kiss_wall-01.png"
-layout_are="zoom"

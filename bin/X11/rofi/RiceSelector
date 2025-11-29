@@ -9,10 +9,10 @@ unalias -a
 default_style="default"
 
 if [ "$_panel_name_" = 'polybar' ];then
-	rices_path="${__distro_path_root}/system_files/blob/polybar"
+	rices_path="${__distro_path_root}/blob/polybar"
 	current_style="${polybar_STYLE}"
 elif [ "$_panel_name_" = 'tint2' ];then
-	rices_path="${__distro_path_root}/system_files/blob/tint2"
+	rices_path="${__distro_path_root}/blob/tint2"
 	current_style="${tint2_STYLE}"
 fi
 

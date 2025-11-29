@@ -7,5 +7,3 @@ say 'Installing package...' 1
 Package_installer_ "${app_name}" || continue
 copy_from_extra_skel ".config/plank" || continue
 copy_from_extra_skel ".local/share/plank" || continue
-
-copy_blob_extra_2_system_files_blob "plank" "cache" || continue

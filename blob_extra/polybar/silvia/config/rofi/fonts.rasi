@@ -1,7 +1,0 @@
-/**/
-
-* {
-  font: "scientifica 12";
-  text-font:      @font;
-  icon-font:      @font;
-}

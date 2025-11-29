@@ -1,7 +1,0 @@
-/**/
-
-* {
-  font:			"Terminess Nerd Font Mono Bold 10";
-  text-font:      @font;
-  icon-font:      @font;
-}

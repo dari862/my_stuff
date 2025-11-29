@@ -1,7 +1,0 @@
-_panel_name_="tint2"
-ROFI_STYLE="default"
-tint2_STYLE="crunchbang"
-conky_sessionfile=".config/conky/Classic-conky.conf"
-tint2_sessionfile="/.config/tint2/crunchbang.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/crunchbang_wall-01.png"
-layout_are="zoom"

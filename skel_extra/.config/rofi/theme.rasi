@@ -1,5 +1,5 @@
 /* Color-Scheme,Theme-Scheme, and Text Font */
-/* # need superuser : called by apps_as_root */
+
 * {
     background:     #2F343FFF;
     background-alt: #383C4AFF;

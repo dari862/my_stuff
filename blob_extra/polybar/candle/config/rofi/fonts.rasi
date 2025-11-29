@@ -1,7 +1,0 @@
-/**/
-
-* {
-  font:			  "Noto Sans Regular 14";
-  text-font:      @font;
-  icon-font:      "Material 14";
-}

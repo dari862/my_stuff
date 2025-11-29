@@ -1,7 +1,0 @@
-_panel_name_="tint2"
-ROFI_STYLE="default"
-tint2_STYLE="helium_beam"
-conky_sessionfile=".config/conky/BL-Helium-conky.conf"
-tint2_sessionfile="/.config/tint2/helium.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/helium_beam_wall-01.png"
-layout_are="zoom"

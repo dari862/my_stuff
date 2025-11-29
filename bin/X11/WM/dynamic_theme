@@ -1,4 +1,5 @@
 #!/bin/sh
+# work on this : fix it
 . "$__distro_path_lib"
 wallpaper="${1:-}"
 
@@ -41,16 +42,16 @@ cat "$CONFIGPATH"/dunst/global "$CONFIGPATH"/dunst/theme.dunstrc > "$CONFIGPATH"
 
 dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${_style}"
 
-blob_gtk_theme_path="$HOME/.themes"
-cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-dark.css > "$blob_gtk_theme_path"/dynamic-nord/general/dark.css
-cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-nord-gtkrc > "$blob_gtk_theme_path"/dynamic-nord/gtk-2.0/gtkrc
-cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-gtkrc > "$blob_gtk_theme_path"/dynamic/gtk-2.0/gtkrc
-cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.0.css > "$blob_gtk_theme_path"/dynamic/gtk-3.0/gtk.css
-cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.20.css > "$blob_gtk_theme_path"/dynamic/gtk-3.20/gtk.css
-cat "${theme_color_creater_output_folder}/gtk_theme"/openbox-3 > "$blob_gtk_theme_path"/dynamic/openbox-3/themerc
+gtk_theme_path="$HOME/.themes"
+cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-dark.css > "$gtk_theme_path"/dynamic-nord/general/dark.css
+cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-nord-gtkrc > "$gtk_theme_path"/dynamic-nord/gtk-2.0/gtkrc
+cat "${theme_color_creater_output_folder}/gtk_theme"/dynamic-gtkrc > "$gtk_theme_path"/dynamic/gtk-2.0/gtkrc
+cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.0.css > "$gtk_theme_path"/dynamic/gtk-3.0/gtk.css
+cat "${theme_color_creater_output_folder}/gtk_theme"/gtk-3.20.css > "$gtk_theme_path"/dynamic/gtk-3.20/gtk.css
+cat "${theme_color_creater_output_folder}/gtk_theme"/openbox-3 > "$gtk_theme_path"/dynamic/openbox-3/themerc
 
-blob_gtk_icon_path="$HOME/.icons"
-cp -r "${theme_color_creater_output_folder}/gtk-icons"/* "$blob_gtk_icon_path"
+gtk_icon_path="$HOME/.icons/dynamic"
+cp -r "${theme_color_creater_output_folder}/gtk-icons"/* "${gtk_icon_path}"
 
 if [ "$_panel_name_" = 'polybar' ];then
 	cp -r "${theme_color_creater_output_folder}/colors-polybar.conf" "${CONFIGPATH}/polybar/${_style}/colors.ini"
@@ -89,25 +90,25 @@ if [ -d "${CONFIGPATH}/jgmenu" ];then
 fi
 
 if [ -d "${CONFIGPATH}/geany" ];then
-	blob_geany_theme_path="${CONFIGPATH}/geany"
-	echo "${_style}_new.conf" > "${blob_geany_theme_path}/theme.conf"
-	cp -r "${theme_color_creater_output_folder}/colors-geany.conf" "$blob_geany_theme_path/colorschemes/${_style}_new.conf"
+	geany_theme_path="${CONFIGPATH}/geany"
+	echo "${_style}_new.conf" > "${geany_theme_path}/theme.conf"
+	cp -r "${theme_color_creater_output_folder}/colors-geany.conf" "$geany_theme_path/colorschemes/${_style}_new.conf"
 fi
 
 if [ -d "${CONFIGPATH}/kitty" ];then
-	blob_kitty_theme_path="${CONFIGPATH}/kitty"
-	mkdir -p "$blob_kitty_theme_path/themes"
-	echo "background_opacity 0.8" > "${blob_kitty_theme_path}/theme.conf"
-	echo "# color scheme" >> "${blob_kitty_theme_path}/theme.conf"
-	echo "include ./themes/${_style}_new.conf" >> "${blob_kitty_theme_path}/theme.conf"
-	cp -r "${theme_color_creater_output_folder}/colors-kitty.conf" "$blob_kitty_theme_path/themes/${_style}_new.conf"
+	kitty_theme_path="${CONFIGPATH}/kitty"
+	mkdir -p "$kitty_theme_path/themes"
+	echo "background_opacity 0.8" > "${kitty_theme_path}/theme.conf"
+	echo "# color scheme" >> "${kitty_theme_path}/theme.conf"
+	echo "include ./themes/${_style}_new.conf" >> "${kitty_theme_path}/theme.conf"
+	cp -r "${theme_color_creater_output_folder}/colors-kitty.conf" "$kitty_theme_path/themes/${_style}_new.conf"
 fi
 
 if [ -d "${CONFIGPATH}/alacritty" ];then
-	blob_alacritty_theme_path="${CONFIGPATH}/alacritty"
-	mkdir -p "$blob_alacritty_theme_path/colorschemes"
-	cp -r "${theme_color_creater_output_folder}/colors-alacritty.yml" "$blob_alacritty_theme_path/colorschemes/${_style}_new.yml"
-	( cd "$blob_alacritty_theme_path" && ln -sf "colorschemes/${_style}_new.yml" "colors.yml" )
+	alacritty_theme_path="${CONFIGPATH}/alacritty"
+	mkdir -p "$alacritty_theme_path/colorschemes"
+	cp -r "${theme_color_creater_output_folder}/colors-alacritty.yml" "$alacritty_theme_path/colorschemes/${_style}_new.yml"
+	( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}_new.yml" "colors.yml" )
 fi
 
 if [ -d "${CONFIGPATH}/rofi" ];then

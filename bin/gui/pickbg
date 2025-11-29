@@ -2,7 +2,7 @@
 set -e
 unalias -a
 . "$__distro_path_lib"
-wallpaper_dir="${__distro_path_themes}/my_wallpapers"
+wallpaper_dir="${__distro_path_wallpaper}"
 
 
 # Get terminal size for preview dimensions
@@ -79,5 +79,5 @@ FZF_CTRL_R_OPTS=""
 
 picked_wallpaper="$(find "${wallpaper_dir}" -type f | fzf --preview='preview_command {}')"
 if [ -n "$picked_wallpaper" ];then
-	setbg -R "${picked_wallpaper}"
+	setbg -T "${picked_wallpaper}"
 fi

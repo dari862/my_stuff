@@ -1,7 +1,0 @@
-_panel_name_="tint2"
-ROFI_STYLE="default"
-tint2_STYLE="carina"
-conky_sessionfile=".config/conky/informant/inf-lavender.conkyrc"
-tint2_sessionfile="/.config/tint2/carina/carina.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/carina_wall-01.jpg"
-layout_are="zoom"

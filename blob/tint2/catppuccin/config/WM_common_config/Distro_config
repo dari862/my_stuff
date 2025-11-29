@@ -1,7 +1,0 @@
-_panel_name_="tint2"
-ROFI_STYLE="default"
-tint2_STYLE="catppuccin"
-conky_sessionfile=".config/conky/informant/inf-lavender.conkyrc"
-tint2_sessionfile="/.config/tint2/uncreative/uncreative.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/catppuccin_wall-01.png"
-layout_are="zoom"

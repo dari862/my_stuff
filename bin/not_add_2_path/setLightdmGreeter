@@ -27,7 +27,7 @@ initial_step(){
 	else
 		_SUPERUSER="my-superuser"
 	fi
-	lightdm_background="${__distro_path_themes}/my_wallpapers/default_wall-01.jpg"
+	lightdm_background="${__distro_path_wallpaper}/default_wall-01.jpg"
 	
 	$_SUPERUSER mkdir -p "/usr/share/lightdm/lightdm.conf.d"
 	$_SUPERUSER mkdir -p "/usr/share/lightdm/lightdm-gtk-greeter.conf.d"

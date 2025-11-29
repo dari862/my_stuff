@@ -1,9 +1,0 @@
-bottom=15
-top=0
-right=15
-left=15
-font=JetBrainsMono
-size=9
-theme=openbox-Nordic
-titleLayout=LIMC
-gtk_icon_name="Arc-Circle"

@@ -1,7 +1,0 @@
-_panel_name_="tint2"
-ROFI_STYLE="default"
-tint2_STYLE="zug"
-conky_sessionfile=".config/conky/curva/curva.conkyrc"
-tint2_sessionfile="/.config/tint2/zug/zug.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/zug_wall-01.jpg"
-layout_are="zoom"

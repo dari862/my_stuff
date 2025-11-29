@@ -13,12 +13,13 @@ fi
 
 if [ ! -f "${WM_config_dir}/menu_picked" ];then	
 	_picked_panel_="$("${__distro_path_root}"/bin/X11/WM/panel_picker)"
+	"${__distro_path_root}"/bin/X11/WM/style_file_builder "${_picked_panel_}"
 	"${__distro_path_root}"/bin/X11/WM/style_setter "$_picked_panel_"
 	touch "${WM_config_dir}/menu_picked"
 fi
 
 if [ ! -f "${Distro_config_file}" ];then
-	cp -r "${__distro_path_root}/system_files/blob/${_picked_panel_}/default/config/WM_common_config/Distro_config" "$WM_config_dir"
+	cp -r "${__distro_path_root}/skel/.config/WM_common_config/Distro_config" "$WM_config_dir"
 fi
 
 dotscreenlayout_profile="$(ls ~/.screenlayout/*.sh 2>/dev/null | head -1 || :)"

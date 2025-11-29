@@ -90,7 +90,6 @@ Updating_Distro(){
 	print_purple "==> checking Distro for update."
 	cd "${__distro_path_root}"
 	
-	blob_modified=false
 	skel_modified=false
 	print_purple "==> Fetching Distro repo."
 	git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
@@ -100,10 +99,6 @@ Updating_Distro(){
 	  	return
 	else
 		print_purple "==> Updating Distro."
-		
-		if ! git diff --quiet HEAD -- blob/ blob_extra/; then
-  			blob_modified=true
-		fi
 		
 		if ! git diff --quiet HEAD -- skel/ skel_extra/; then
   			skel_modified=true
@@ -116,15 +111,6 @@ Updating_Distro(){
     			[ ! -f "$f" ] && continue
     			if [ "$skel_modified" = true ];then
 					rm -f "${f}"
-				fi
-    			if [ "$blob_modified" = true ];then
-					user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-					if [ -d "$d/.config/blob" ];then
-						cp -r "${__distro_path_root}/system_files/blob"/* "$d/.config/blob"
-					else
-						cp -r "${__distro_path_root}/system_files/blob" "$d/.config"
-					fi
-					chown -R "$user_and_group" "$d"
 				fi
 			done
 		else

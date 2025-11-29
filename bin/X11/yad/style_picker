@@ -2,6 +2,7 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=Style_Manager
 # need superuser : called by apps_as_root
+# work on this : fix it
 
 unalias -a
 
@@ -9,6 +10,8 @@ unalias -a
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
 . "${Distro_config_file}"
+
+WM_config_blob_dir_name="config/$WM_config_name"
 
 GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
 BLOBPATH="$HOME/.config"

@@ -6,7 +6,7 @@
 
 if [ "$(id -u)" -ne 0 ];then
 	for _panel_name_ in polybar tint2;do
-		dir="${__distro_path_root}/system_files/blob/${_panel_name_}"	
+		dir="${__distro_path_root}/blob/${_panel_name_}"	
 		styles="$(find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name "default" ! -name "dynamic" -exec basename {} \; | sort)"
 		
 		{

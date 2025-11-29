@@ -1,7 +1,0 @@
-/**/
-
-* {
-  font:			  "Comfortaa Bold 12";
-  text-font:      @font;
-  icon-font:      "Material 14";
-}

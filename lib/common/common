@@ -310,6 +310,10 @@ sed_distro_path_root_var_2_correct_value(){
 	if grep -rIq "(((__distro_path_themes)))" "${__path_2_sed}";then
 		$_SUPERUSER find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_themes)))|${__distro_path_themes}|g" {} +
 	fi
+	
+	if grep -rIq "(((__distro_path_wallpaper)))" "${__path_2_sed}";then
+		$_SUPERUSER find "${__path_2_sed}" -type f -exec sed -i "s|(((__distro_path_wallpaper)))|${__distro_path_wallpaper}|g" {} +
+	fi
 }
 
 copy_from_extra_skel() {
@@ -332,33 +336,6 @@ copy_from_extra_skel() {
         my-superuser cp -r "${__distro_path_root}/system_files/skel/${__copythis}" "$d/${__copythis}"
         my-superuser chown -R "$user_and_group" "$d"
     done
-}
-
-copy_blob_extra_2_system_files_blob(){
-	say 'Copy Files from  blob_extra...' 1
-	package2copy="${1:-}"
-	copycache="${2:-}"
-	cd "${__distro_path_root}/blob_extra/tint2" || failed_to_run "cd to ${__distro_path_root}/blob_extra/tint2 ..." 1
-	if [ -d "default/config/${package2copy}" ];then
-		for theme in *;do
-			my-superuser cp -r "${theme}/config/${package2copy}" "${__distro_path_root}/system_files/blob/tint2/${theme}/config"
-		done
-	fi
-	cd "${__distro_path_root}/blob_extra/polybar" || failed_to_run "cd to ${__distro_path_root}/blob_extra/tint2 ..." 1
-	if [ -d "default/config/${package2copy}" ];then
-		for theme in *;do
-			my-superuser cp -r "${theme}/config/${package2copy}" "${__distro_path_root}/system_files/blob/polybar/${theme}/config"
-			[ "$copycache" = "cache" ] && my-superuser cp -r "${theme}/cache" "${__distro_path_root}/system_files/blob/tint2/${theme}"
-		done
-	fi
-	
-	sed_distro_path_root_var_2_correct_value "${__distro_path_root}/system_files/blob"
-	
-	for d in /home/*; do
-		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-		my-superuser cp -rf "${__distro_path_root}/system_files/blob"/* "$d/.config/blob"
-		my-superuser chown -R "$user_and_group" "$d"
-	done
 }
 
 add_keybinds(){

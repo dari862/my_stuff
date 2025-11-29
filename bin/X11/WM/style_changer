@@ -1,13 +1,17 @@
 #!/bin/sh
 set -e
 . "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
 
 _panel_name_="${1:-}"
 style="${2:-}"
 
+"${__distro_path_root}"/bin/X11/WM/style_file_builder "${_panel_name_}" "${style}"
 "${__distro_path_root}"/bin/X11/WM/style_setter "${_panel_name_}" "${style}"
 
-if [ -f "$HOME/.config/blob/${_panel_name_}/${style}/random_wallpaper" ];then
+. "${Distro_config_file}"
+
+if [ "$random_wallpaper" = true ];then
 	setbg --random "${style}" || show_em "failed to run setbg -d ${style}"
 else
 	setbg -r "${style}" || show_em "failed to run setbg -r"
@@ -15,6 +19,4 @@ fi
 
 "${__distro_path_root}"/bin/X11/WM/panel_launcher
 
-if [ "${style}" != "owl4ce_dark" ] || [ "${style}" != "owl4ce_light" ];then
-	dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${style}"
-fi
+dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${style}"

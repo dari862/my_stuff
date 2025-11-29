@@ -1,3 +1,9 @@
+# Align icons left/right/off
+icon_position = left
+
+# Paths to default icons.
+icon_theme = "Zafiro"
+
 # Defines color of the frame around the notification window.
 frame_color = "#282C33"
 
@@ -27,7 +33,7 @@ frame_width = 6
 
 ### Text ###
 
-font = JetBrains Mono 10
+font = JetBrainsMono 9
 
 # The format of the message.  Possible variables are:
 #   %a  appname

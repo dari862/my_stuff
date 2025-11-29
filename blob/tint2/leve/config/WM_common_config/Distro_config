@@ -1,7 +1,0 @@
-_panel_name_="tint2"
-ROFI_STYLE="default"
-tint2_STYLE="leve"
-conky_sessionfile=".config/conky/informant/inf-lime.conkyrc"
-tint2_sessionfile="/.config/tint2/leve/leve-orange.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/leve_wall-01.png"
-layout_are="zoom"

@@ -3,7 +3,6 @@ WM_name_file_name="wm_name"
 scriptconfig_name="scriptconfig"
 Distro_config_file_name="Distro_config"
 
-WM_config_blob_dir_name="config/$WM_config_name"
 WM_config_dir_name=".config/$WM_config_name"
 WM_config_dir="$HOME/$WM_config_dir_name"
 WM_name_file_path="$WM_config_dir/$WM_name_file_name"

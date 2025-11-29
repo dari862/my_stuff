@@ -1,7 +1,0 @@
-_panel_name_="polybar"
-ROFI_STYLE="panels/budgie"
-polybar_STYLE="panels/budgie"
-conky_sessionfile=".config/conky/openbox-conky.conf"
-tint2_sessionfile="/.config/tint2/default.tint2rc"
-wallpaper_are="(((__distro_path_themes)))/my_wallpapers/panels_budgie.jpg"
-layout_are="zoom"

@@ -37,7 +37,7 @@ create_exec_pipemenu(){
 	menuItem "Appearance" "appearance_settings_"
 	menuItem "Reload GTK" "${__distro_path_root}/bin/X11/WM/reload_gtk23"
 	menuItem "Font configuration" "my-text-editor ~/.config/fontconfig/fonts.conf"
-	menuItem "Wallpaper" "pickbg"
+	menuItem "Wallpaper" "popup_terminal pickbg"
 	menuItem "Notifications" "notification-d-session edit"
 	menuItem "Power Management" "power_manager_settings"
 	menuSubmenu "preferences-rofi" "rofi"
@@ -144,7 +144,7 @@ create_exec_pipemenu(){
 	
 	menuItem "GTK Appearance" "appearance_settings_"
 	menuItem "Font Configuration" "my-text-editor ~/.config/fontconfig/fonts.conf"
-	menuItem "Wallpaper" "pickbg"
+	menuItem "Wallpaper" "popup_terminal pickbg"
 	menuItem "Notifications" "notification-d-session edit"
 	menuItem "Display" "arandr"
 	

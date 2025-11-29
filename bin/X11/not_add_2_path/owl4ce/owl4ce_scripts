@@ -1,17 +1,16 @@
 #!/bin/sh
+# work on this : improve owl4ce
 . "$__distro_path_lib"
 exec 3>&1 # show output if redirected to  >&3 
 exec >/dev/null 2>&1 # show nothing
 
 . "${__distro_path_root}/lib/common/WM"
-. "${__distro_path_root}/bin/X11/not_add_2_path/owl4ce/owl4ce_vars.sh"
-
 . "${Distro_config_file}"
 
 OB_DIR="$HOME/.config/openbox"
 OB_CONFIG="${OB_DIR}/rc.xml"
-BLOB_Theme_path="$HOME/.config/blob/tint2/${CHK_THEME}"
-BLOB_OB_THEME_file="${BLOB_Theme_path}/openboxrctheme"
+Theme_path="$HOME/.config/owl4ce/${CHK_THEME}"
+OB_THEME_file="${Theme_path}/openboxrctheme"
 
 TINT2_DIR="$HOME/.config/tint2"
 OB_MARGIN='10'
@@ -26,13 +25,13 @@ sed_Distro_config()
 	var_value="$2"
 	
 	sed -i "s|^${var_key}=.*|${var_key}=\"${var_value}\"|g" "${Distro_config_file}"
-	cp -r "${Distro_config_file}" "${BLOB_Theme_path}/${WM_config_blob_dir_name}"
+	cp -r "${Distro_config_file}" "${Theme_path}/${WM_config_dir_name}"
 }
 
 set_dunst_config() {
 	origin="$1"
 	offset="$2"
-	theme_file="$HOME/.config/blob/tint2/${CHK_THEME}/dunst/$3.dunstrc"
+	theme_file="$HOME/.config/owl4ce/${CHK_THEME}/dunst/$3.dunstrc"
     sed -e "/^origin[ ]*/s|[^[ ]*]*$|$origin|" \
         -e "/^offset[ ]*/s|[^[ ]*]*$|$offset|" \
         -s -i "$theme_file"
@@ -67,17 +66,17 @@ set_openbox_config() {
 	sed -i 's/right_var "'.*'"/right_var "'"$right"'"/g' "OB_CONFIG"
 	sed -i 's/left_var "'.*'"/left_var "'"$left"'"/g' "OB_CONFIG"
 	
-	sed -i "s/top=.*/top=$top/g" "BLOB_OB_THEME_file"
-	sed -i "s/bottom=.*/bottom=$bottom/g" "BLOB_OB_THEME_file"
-	sed -i "s/right=.*/right=$right/g" "BLOB_OB_THEME_file"
-	sed -i "s/left=.*/left=$left/g" "BLOB_OB_THEME_file"
+	sed -i "s/top=.*/top=$top/g" "OB_THEME_file"
+	sed -i "s/bottom=.*/bottom=$bottom/g" "OB_THEME_file"
+	sed -i "s/right=.*/right=$right/g" "OB_THEME_file"
+	sed -i "s/left=.*/left=$left/g" "OB_THEME_file"
 }
 
 sed_openbox_rc_titleLayout()
 {
 	var_value="$1"
 	sed -i 's/titleLayout_var "'.*'"/titleLayout_var "'"$var_value"'"/g' "${OB_CONFIG}"
-	sed -i "s/titleLayout=.*/titleLayout=$var_value/g" "${BLOB_OB_THEME_file}"
+	sed -i "s/titleLayout=.*/titleLayout=$var_value/g" "${OB_THEME_file}"
 }
 
 sed_openbox_decor(){
@@ -89,7 +88,7 @@ sed_openbox_decor(){
 sed_openbox_theme_name(){
 	_THEME_NAME="${1:-}"
 	sed -i 's/theme_var "'.*'"/theme_var "'"$_THEME_NAME"'"/g' "$OB_CONFIG"
-	sed -i "s/theme=.*/theme=$_THEME_NAME/g" "$BLOB_OB_THEME_file"
+	sed -i "s/theme=.*/theme=$_THEME_NAME/g" "$OB_THEME_file"
 	
 }
 
@@ -148,14 +147,14 @@ __set_wallpaper(){
 }
 
 ___generate_wallpaper(){
-	WALLPAPERS_DIR="$HOME/wallpaper"
+	__distro_path_wallpaper="$HOME/wallpaper"
 	RAW="$(basename "$wallpaper_are")"
 
-	if [ -f "${WALLPAPERS_DIR}/${RAW}" ];then
-		send_notification '' "Nothing to generate!\n<span size='small'>Puts in <u>~/${WALLPAPERS_DIR##*/}</u></span>" "wallpaper-set" "wallpaper.png"
+	if [ -f "${__distro_path_wallpaper}/${RAW}" ];then
+		send_notification '' "Nothing to generate!\n<span size='small'>Puts in <u>~/${__distro_path_wallpaper##*/}</u></span>" "wallpaper-set" "wallpaper.png"
 		exit
 	elif [ -f "$wallpaper_are" ] && GET_WP_SIZE="$(identify -format %w "$wallpaper_are")" && [ -n "$GET_WP_SIZE" ]; then
-		mkdir -p "$WALLPAPERS_DIR"
+		mkdir -p "$__distro_path_wallpaper"
 		send_notification '' "Generating wallpaper ..\n<span size='small'><u>${wallpaper_are}</u></span>" "wallpaper-set" "wallpaper.png" "1000"
 		if [ "$GET_WP_SIZE" -lt 1920 ]; then
 			RES='_HD'
@@ -179,7 +178,7 @@ ___generate_wallpaper(){
 			RES='_ULTRA'
 		fi
 		
-		new_wallpaper_path="${WALLPAPERS_DIR}/${RAW%.*}${RES}.jpg"
+		new_wallpaper_path="${__distro_path_wallpaper}/${RAW%.*}${RES}.jpg"
 		
 		case "$CHK_THEME" in
 		owl4ce_dark) magick "$wallpaper_are" \
@@ -290,11 +289,19 @@ ___music(){
 }
 
 __set_button(){
-	BUTTON="${opt2}"
-	[ -n "$BUTTON" ] || exit ${?}
-	GTK_THEME_NAME="$(awk -F= '/^gtk-theme-name=/{print $2}' $HOME/.config/gtk-3.0/settings.ini)"
-	sed_openbox_theme_name "openbox${GTK_THEME_NAME}${BUTTON}"
-	sed_Distro_config "CHK_OB_BUTTON_STYLE_${CHK_MODE}" "${BUTTON}"
+	openbox_button_file_name="${opt2}"
+	if [ -z "$openbox_button_file_name" ];then
+		exit ${?}
+	fi
+	button_name="${openbox_button_file_name##*_}"
+	openbox_theme_button_name="$(printf '%s' "${openbox_button_file_name}" | sed 's/_//g')"
+	openbox_theme_button_path="${__distro_path_themes}/openbox_themes/${openbox_theme_button_name}"
+	if [ ! -d "${openbox_theme_button_path}" ];then
+		printf "Failed to locate openbox_theme_button_name = %s at \n%s" "$openbox_theme_button_name" "${openbox_theme_button_path}"
+		exit
+	fi
+	sed_openbox_theme_name "${openbox_theme_button_name}"
+	sed_Distro_config "CHK_OB_BUTTON_STYLE_${CHK_MODE}" "${button_name}"
 	reconfigure-openbox &
 }
 
@@ -329,7 +336,7 @@ ___mode(){
 	for M in artistic interactive; do
 		[ "$CHK_MODE" != "$M" ] || continue
 		CHK_MODE="$M"
-		cat "$HOME/.config/blob/tint2/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/dunst/theme.dunstrc"
+		cat "$HOME/.config/owl4ce/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/dunst/theme.dunstrc"
 		sed_Distro_config "CHK_MODE" "$CHK_MODE"
 		
     	GTK_THEME_NAME="$(awk -F= '/^gtk-theme-name=/{print $2}' $HOME/.config/gtk-3.0/settings.ini)"
@@ -431,8 +438,8 @@ ___orientation(){
         		set_openbox_config "$((30+OB_MARGIN))" "$OB_MARGIN" "$OB_MARGIN" "$OB_MARGIN"
         		;;
 		esac
-		cat "$HOME/.config/blob/tint2/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/dunst/theme.dunstrc"
-		cat "$HOME/.config/blob/tint2/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/blob/tint2/${CHK_THEME}/config/dunst/theme.dunstrc"
+		cat "$HOME/.config/owl4ce/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/dunst/theme.dunstrc"
+		cat "$HOME/.config/owl4ce/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/owl4ce/${CHK_THEME}/config/dunst/theme.dunstrc"
 	}
 	
 	case "${opt2}" in

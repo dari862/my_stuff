@@ -25,7 +25,6 @@ else
 fi
 
 __distro_path_system_skel_files="${__distro_path_system_files}/skel"
-__distro_path_system_blob_files="${__distro_path_system_files}/blob"
 pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
 
 PATH="${__distro_path_root}/bin/cli:$PATH"
@@ -50,78 +49,6 @@ show_em(){
 show_im(){
 	message="${1-}"
 	printf '%b' "\\033[1;34m[*] \\033[0m${message}\n"
-}
-
-copy_X11_blob_files(){
-	panel_name="${1:-}"
-	if command_exist openbox;then
-		for theme in *;do
-			cp -r "${theme}/openboxrctheme" "${__distro_path_system_blob_files}/${panel_name}/${theme}" 
-		done
-	fi
-	for app in dunst openbox rofi;do
-		show_im "copy $app blob and blob_extra to system_files/blob ."
-		if command_exist $app;then
-			for theme in *;do
-				cp -r "${theme}/config/${app}" "${__distro_path_system_blob_files}/${panel_name}/${theme}/config" 
-			done
-		fi
-	done
-	for theme in *;do
-		cp -r "${theme}/config/x11" "${__distro_path_system_blob_files}/${panel_name}/${theme}/config" 
-	done
-}
-
-create_blob_system_files(){
-	mkdir -p "${__distro_path_system_blob_files}"
-	if command_exist polybar;then
-		show_im "copy polybar blob_extra to system_files/blob ."
-		cp -r "${__distro_path_root}"/blob/polybar "${__distro_path_system_blob_files}"
-		cd "${__distro_path_root}"/blob_extra/polybar
-		copy_X11_blob_files "polybar"
-		for app in alacritty geany bspwm;do
-			show_im "copy tint2 $app blob and blob_extra to system_files/blob ."
-			if command_exist $app;then
-				for theme in *;do
-					cp -r "${theme}/config/${app}" "${__distro_path_system_blob_files}/polybar/${theme}/config" 
-				done
-			fi
-		done
-		if command_exist plank;then
-			show_im "copy tint2 plank blob and blob_extra to system_files/blob ."
-			for theme in *;do
-				cp -r "${theme}/config/plank" "${__distro_path_system_blob_files}/polybar/${theme}/config" 
-				cp -r "${theme}/cache" "${__distro_path_system_blob_files}/polybar/${theme}" 
-			done
-		fi
-		if command_exist jgmenu;then
-			show_im "copy polybar jgmenu blob_extra to system_files/blob ."
-			for theme in *;do
-				cp -r "${theme}/jgmenu_theme" "${__distro_path_system_blob_files}/polybar/${theme}" 
-			done
-		fi
-	fi
-
-	if command_exist tint2;then
-		show_im "copy tint2 blob and blob_extra to system_files/blob ."
-		cp -r "${__distro_path_root}"/blob/tint2 "${__distro_path_system_blob_files}" 
-		cd "${__distro_path_root}"/blob_extra/tint2
-		copy_X11_blob_files "tint2"
-		for app in lxterminal alacritty geany bspwm;do
-			if command_exist $app;then
-				show_im "copy tint2 $app blob and blob_extra to system_files/blob ."
-				for theme in *;do
-					cp -r "${theme}/config/${app}" "${__distro_path_system_blob_files}/tint2/${theme}/config" 
-				done
-			fi
-		done
-		if command_exist jgmenu;then
-			show_im "copy tint2 jgmenu blob_extra to system_files/blob ."
-			for theme in *;do
-				cp -r "${theme}/jgmenu_theme" "${__distro_path_system_blob_files}/tint2/${theme}" 
-			done
-		fi
-	fi
 }
 
 create_auto_completion_files(){
@@ -647,14 +574,11 @@ if service_manager status ssh;then
 	fi
 fi
 
-create_blob_system_files
-
 show_im "prepares hub script dir"
 "${__distro_path_root}"/bin/X11/rofi/hub create || show_em "failed to run hub create"
 
 show_im "sed (((distro_path_root)) to ${__distro_path_root} ."
 sed_distro_path_root_var_2_correct_value "${__distro_path_system_skel_files}"
-sed_distro_path_root_var_2_correct_value "${__distro_path_system_blob_files}"
 
 if command_exist openbox;then
 	show_im "create ${__custom_distro_name}_openbox to xsessions."
