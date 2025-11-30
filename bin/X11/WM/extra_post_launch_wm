@@ -2,3 +2,6 @@
 eval $(/usr/bin/gnome-keyring-daemon --start --components=secrets,ssh)
 start-pulseaudio-x11 &
 xdg-user-dirs-update &
+
+# update notifcation
+"${__distro_path_root}"/bin/WM/update-notification -n

@@ -95,3 +95,63 @@ trim() {
 	var="${var%"${var##*[![:space:]]}"}" # remove trailing whitespace characters
 	echo -n "$var"
 }
+
+fzf_history(){
+	# Default filters
+	local AFTER=""
+	local BEFORE=""
+	local AFTER_TS=""
+	local BEFORE_TS=""
+	
+	local CMD=""
+	
+	if [[ "$#" -eq 0 ]];then
+		local run_read=false
+	else
+		local run_read=true	
+	fi
+	
+	# Parse args
+	while [[ "$#" -gt 0 ]]; do
+    	case "$1" in
+        	--after)
+            	AFTER_TS=$(date -d "$2" +%s)
+            	shift 2
+            	;;
+        	--before)
+            	BEFORE_TS=$(date -d "$2" +%s)
+            	shift 2
+            	;;
+        	*)
+            	CMD="$1"
+            	shift
+            	;;
+    	esac
+	done
+	
+	if [ "$run_read" = true ];then
+		$(history | while read -r num date time rest; do
+    		# Convert date/time to timestamp
+    		entry_ts=$(date -d "$date $time" +%s 2>/dev/null)
+    		
+    		# Filter by time
+    		if [[ -n "$AFTER_TS" && "$entry_ts" -lt "$AFTER_TS" ]];then
+    			continue
+    		fi
+    		
+    		if [[ -n "$BEFORE_TS" && "$entry_ts" -gt "$BEFORE_TS" ]];then
+    			continue
+    		fi
+		
+    		# Filter by command
+    		if [[ -n "$CMD" && "$rest" != *"$CMD"* ]]; then
+        		continue
+    		fi
+		
+    		# Print formatted line (optional: keep full timestamp)
+    		printf "%s %s %s %s\n" "$num" "$date" "$time" "$rest"
+		done | fzf --no-preview --prompt="> " --height=50 --reverse --border | awk '{$1=$2=$3=""; print substr($0,4)}')
+	else
+		$(history | fzf --no-preview --prompt="> " --height=50 --reverse --border | awk '{$1=$2=$3=""; print substr($0,4)}')	
+	fi
+}

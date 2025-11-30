@@ -43,22 +43,22 @@ update_system () {
 	Package_update_
 	
 	plain "Checking updates and saving in $updates_file..."
-	Upgradeable_Packages_count_ | $_SUPERUSER tee "$updates_file" > /dev/null 2>&1
-
+	Upgradeable_Packages_list_ | $_SUPERUSER tee "${updates_file}" > /dev/null 2>&1
+	cat "${updates_file}" | wc -l | $_SUPERUSER tee "${updates_count_file}" > /dev/null 2>&1
 	# No updates
-	if [ ! -s "$updates_file" ];then
+	if [ ! -s "${updates_file}" ];then
 		msg "NO PENDING UPDATES"
 	# Pending updates
 	else
 		warning "PENDING UPDATES"
-		cat "$updates_file"
+		cat "${updates_count_file}"
 	fi
 }
 
 interactive_upgrade() {
 	update_system
 	printf ""
-	if [ ! -s "$updates_file" ];then
+	if [ ! -s "${updates_file}" ];then
 		printf "Press any key to exit..."
 		read pause
 		exit 0
@@ -68,23 +68,24 @@ interactive_upgrade() {
 	read pause
 	printf ""
 	
-	Packages_upgrade_
-	
-	if ! [ $? -eq 0 ];then 
+	if Packages_upgrade_;then
+		printf "" | $_SUPERUSER tee "${updates_file}" > /dev/null 2>&1
+		printf "" | $_SUPERUSER tee "${updates_count_file}" > /dev/null 2>&1
+		printf ""
+		printf "Update complete!"
+		read pause
+		exit
+	else
 		read pause 
 		exit 1
 	fi
-
-	printf "" | $_SUPERUSER tee "$updates_file" > /dev/null 2>&1
-	printf ""
-	printf "Update complete!"
-	read pause
-	exit
 }
 
 send_notifcation_msg () {
-	[ ! -s "$updates_file" ] && exit 0
-	UPDATES=$(cat "$updates_file")
+	if [ ! -s "${updates_file}" ];then
+		exit 0
+	fi
+	UPDATES=$(cat "${updates_count_file}")
 	if [ "$UPDATES" -gt 50 ];then
 		notify-send -u critical -i $NOTIFY_ICON \
 			"You really need to update!!" "$UPDATES New packages"
@@ -103,9 +104,11 @@ install_it () {
 
 	$_SUPERUSER ln -sf "$script_full_path" "/etc/cron.$cron_when"	
 	
-	if [ ! -f "$updates_file" ];then 
-		$_SUPERUSER touch "$updates_file"
-		$_SUPERUSER chmod a+w "$updates_file"
+	if [ ! -f "${updates_file}" ];then 
+		$_SUPERUSER touch "${updates_file}"
+		$_SUPERUSER chmod a+w "${updates_file}"
+		$_SUPERUSER touch "${updates_count_file}"
+		$_SUPERUSER chmod a+w "${updates_count_file}"
 	fi
 	
 	exit 
@@ -118,22 +121,27 @@ uninstall_it (){
 	[ -f "/etc/cron.weekly/${script_name}" ] && $_SUPERUSER rm "/etc/cron.weekly/${script_name}"
 	[ -f "/etc/cron.daily/${script_name}" ] && $_SUPERUSER rm "/etc/cron.daily/${script_name}"
 	[ -f "/etc/cron.hourly/${script_name}" ] && $_SUPERUSER rm "/etc/cron.hourly/${script_name}"
-	printf "Deleting $updates_file..."
-	$_SUPERUSER rm -f "$updates_file"
+	printf "Deleting $updates_file and $updates_count_file ..."
+	$_SUPERUSER rm -f "${updates_file}"
+	$_SUPERUSER rm -f "${updates_count_file}"
 	exit 
 }
 
 list_update(){
 	# No updates
-	if [ ! -s "$updates_file" ];then
+	if [ ! -s "${updates_file}" ];then
 		msg "NO PENDING UPDATES"
 	# Pending updates
 	else
 		warning "PENDING UPDATES"
-		cat "$updates_file"
+		cat "${updates_count_file}"
+		printf "Press any key to continue ..."
+		read pause
+		cat "${updates_file}"
+		printf "Press any key to exit ..."
+		read pause
 	fi
-	printf "Press any key to continue ..."
-	read pause
+	exit
 }
 
 help() {
@@ -156,6 +164,6 @@ case "$__arg" in
 	-I) install_it ;;
 	-U) uninstall_it ;;
 	-l) list_update;;
-	-c) cat "$updates_file";;
+	-c) cat "${updates_count_file}";;
 	*) help;;
 esac

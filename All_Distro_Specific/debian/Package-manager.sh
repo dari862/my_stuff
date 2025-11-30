@@ -32,7 +32,11 @@ full_upgrade_(){
 }
 
 Packages_upgrade_(){
-	my-superuser "${package_manger}" -y upgrade
+	if my-superuser "${package_manger}" -y upgrade;then
+		exit
+	else
+		exit 1
+	fi
 }
 
 Package_remove_(){
@@ -65,8 +69,8 @@ Package_list_(){
 	done
 }
 
-Upgradeable_Packages_count_(){
-	apt list --upgradable 2> /dev/null | grep -c upgradable
+Upgradeable_Packages_list_(){
+	apt list --upgradable 2> /dev/null | grep upgradable
 }
 	
 install_deb(){

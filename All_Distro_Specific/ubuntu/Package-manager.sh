@@ -13,7 +13,11 @@ if command -v nala >/dev/null 2>&1;then
 		my-superuser nala -y upgrade
 	}
 	Packages_upgrade_(){
-		my-superuser apt-get -y upgrade
+		if my-superuser apt-get -y upgrade;then
+			exit
+		else
+			exit 1
+		fi
 	}
 	Package_remove_(){
 		my-superuser nala purge -y "$@"
@@ -41,7 +45,11 @@ else
 		my-superuser apt-get -y full-upgrade
 	}
 	Packages_upgrade_(){
-		my-superuser apt-get -y upgrade
+		if my-superuser apt-get -y upgrade;then
+			exit
+		else
+			exit 1
+		fi
 	}
 	Package_remove_(){
 		my-superuser apt-get purge -y "$@"
@@ -79,8 +87,8 @@ Package_list_(){
 	done
 }
 
-Upgradeable_Packages_count_(){
-	apt list --upgradable 2> /dev/null | grep -c upgradable
+Upgradeable_Packages_list_(){
+	apt list --upgradable 2> /dev/null | grep upgradable
 }
 	
 install_deb(){

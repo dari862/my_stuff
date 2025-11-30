@@ -17,8 +17,6 @@ print_total_updates(){
 	
 	UPDATES=$(cat "$updates_file" | wc -l)
 	
-	"${__distro_path_root}"/bin/WM/update-notification -n
-
 	if grep -q "#EXO#" "$HOME/.config/polybar/${polybar_STYLE}/config.ini";then
 		_output="$UPDATES"
 	elif [ "$UPDATES" -eq 0 ];then
@@ -29,11 +27,10 @@ print_total_updates(){
 		_output="$UPDATES Updates"
 	fi
 	
-	echo "$_output"
+	printf '%s' "$_output"
 }
 
-case $__arg in
-	"") print_total_updates;;
+case "$__arg" in
 	--upgrade) interactive_upgrade ;;
 	--list-update) list_update;;
 	*) print_total_updates;;

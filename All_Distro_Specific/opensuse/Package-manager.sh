@@ -20,11 +20,15 @@ Package_remove_(){
 Package_list_(){
 	:
 }
-Upgradeable_Packages_count_(){
-	zypper list-updates | wc -l
+Upgradeable_Packages_list_(){
+	zypper list-updates
 }
 Packages_upgrade_(){
-	my-superuser zypper -y upgrade
+	if my-superuser zypper -y upgrade;then
+		exit
+	else
+		exit 1
+	fi
 }
 Package_cleanup() {
 	my-superuser zypper clean -a

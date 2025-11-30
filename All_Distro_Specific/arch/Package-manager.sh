@@ -21,7 +21,11 @@ full_upgrade_(){
 	${package_manger} -Syu --noconfirm
 }
 Packages_upgrade_(){
-	${package_manger} -y upgrade
+	if ${package_manger} -y upgrade;then
+		exit
+	else
+		exit 1
+	fi
 }
 Package_remove_(){
 	packges="$@"
@@ -35,8 +39,8 @@ Package_remove_(){
 Package_list_(){
 	:
 }
-Upgradeable_Packages_count_(){
-	checkupdates 2> /dev/null | wc -l
+Upgradeable_Packages_list_(){
+	checkupdates 2> /dev/null
 }
 Package_cleanup() {
 	my-superuser "$package_manger" -Scc --noconfirm

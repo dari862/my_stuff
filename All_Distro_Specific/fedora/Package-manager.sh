@@ -38,11 +38,15 @@ Package_list_(){
 	:
 }
 
-Upgradeable_Packages_count_(){
-	dnf updateinfo -q --list | wc -l
+Upgradeable_Packages_list_(){
+	dnf updateinfo -q --list
 }
 Packages_upgrade_(){
-	my-superuser dnf -y upgrade
+	if my-superuser dnf -y upgrade;then
+		exit
+	else
+		exit 1
+	fi
 }
 Package_cleanup() {
 	my-superuser dnf clean all

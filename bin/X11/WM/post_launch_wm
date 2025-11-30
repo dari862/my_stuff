@@ -4,9 +4,6 @@
 		
 "${__distro_path_root}"/bin/X11/WM/panel_launcher &
 
-# update notifcation
-"${__distro_path_root}"/bin/WM/update-notification -n &
-
 cd $HOME/.config/autostartscripts/
 autostartscripts_list="$(ls 2>/dev/null)"
 for script in ${autostartscripts_list};do
