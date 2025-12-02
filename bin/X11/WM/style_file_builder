@@ -24,6 +24,7 @@ create_Distro_config(){
 mkdir -p "${CONFIGPATH}"/WM_common_config
 if [ "$_style" = "owl4ce_light" ] || [ "$_style" = "owl4ce_dark" ];then
 cat << EOF > "${CONFIGPATH}"/WM_common_config/Distro_config
+Style_name="$Style_name"
 _panel_name_="$_panel_name_"
 ROFI_STYLE="$ROFI_STYLE"
 tint2_STYLE="$tint2_STYLE"
@@ -62,6 +63,7 @@ random_wallpaper="${random_wallpaper}"
 EOF
 else
 cat << EOF > "${CONFIGPATH}"/WM_common_config/Distro_config
+Style_name="$Style_name"
 _panel_name_="$_panel_name_"
 ROFI_STYLE="$ROFI_STYLE"
 polybar_STYLE="$polybar_STYLE"

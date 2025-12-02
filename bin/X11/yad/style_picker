@@ -2,7 +2,7 @@
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=Style_Manager
 # need superuser : called by apps_as_root
-# work on this : fix it
+# work on this : fix saveStyle
 
 unalias -a
 
@@ -15,26 +15,99 @@ WM_config_blob_dir_name="config/$WM_config_name"
 
 GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
 BLOBPATH="$HOME/.config"
-CURSESSION="$WM_config_dir/tint2_style"
 
 if [ "$_panel_name_" = 'polybar' ];then
 	CONFIGPATH="${BLOBPATH}/blob/polybar"
+	#CURSESSION="$Style_name"
+	CURSESSION="$polybar_STYLE"
 elif [ "$_panel_name_" = 'tint2' ];then
 	CONFIGPATH="${BLOBPATH}/blob/tint2"
+	CURSESSION="$Style_name"
 fi
 
-if [ ! -d "${BLOBPATH}/blob" ];then
-	cp -r ${GLOBALBLOBPATH} ${BLOBPATH}
-	find "${BLOBPATH}/blob/". -type f -exec sed -i "s|MmdmdmdmdmdmdmdmdmM|$USER|g" {} +
-fi
+TITLE="BLOB Config Manager"
+
+DIALOG="yad --center --undecorated --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
+DIALOGDEC="yad --center  --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
+yadWarning="yad --center  --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --title Alert  --button='Ok:1' --button='Cancel:0' --text"
+
+CANCEL="--button=Cancel:1"
+EXIT="--button=Quit:1"
+CLOSE="--button=Close:1"
+	
+T="--text="
+OK="--button=OK:0"
+
+MAIN_TEXT="Double-click selection, or <b>Enter</b>, or use the <b>Restore</b> button to restore settings\n"
+RESTORE="Restore:0"
+DELETE="Delete:2"
+VIEW_IMG="View image:4"
+ADD="Add New:3"
+ABOUT="About:5"
+SAVE_SETTINGS="Save Settings:0"
+VIEW_SAVED="View Saved:2"
+ACTIVE="Last set"
+NAME="Config Name"
+SCREEN_SHOT="Screenshot"
+CHOOSE_BEFORE_DELETE="Make a selection before trying to delete"
+DELETE_FOR_SURE="Delete saved configurations <b>$FPATH</b>\nand screenshot?"
+SETTINGS_SAVED="Settings were saved as"
+CHOOSE_IMAGE="Make a selection"
+OVERWRITE_SESSION="Overwrite existing session?"
+
+MENUMODIFIER="super+space"  # keybind for show root-menu
+MOUSECMD="click 3"          # mouse r-click
+KEYDOWN=4           # adjust this for where "Preferences" is in the menu
 
 saveStyle(){
-	Style_name="${1-}"
-	if [ -z "$Style_name" ] ;then
+	# set __style_name
+	MSG="  Configurations will be saved to a new directory in  \
+    \n  $CONFIGPATH\n\n  Enter name of new collection...  "
+    MSG2="  No file specified for new saved session.\n\n  Try again?"
+    DEL=0
+    while true;do  # loop dialog if nothing is selected
+        ANS=$($DIALOG --entry \
+           	$CANCEL --button="OK:0" \
+           	"$T$MSG" \
+           	2>/dev/null )
+        if [ "$?" -eq 1 ];then # Cancel was selected
+           	return
+        elif [[ ! "$ANS" ]] ;then     # entry was empty
+           	$DIALOG --image="dialog-question" \
+           	"$CANCEL" "$OK" \
+           	"$T$MSG2" \
+           	2>/dev/null
+           	if [ "$?" -eq 0 ];then
+               	continue
+           	else
+               	return
+           	fi
+        else
+            ANS=$(echo $ANS | sed -e 's/ /_/g')    # replace any spaces in dir name
+            CONFIGDIR="$CONFIGPATH/$ANS"
+           	if [[ -d "$CONFIGDIR" ]];then
+               	if $DIALOG --form --image="dialog-question" --text="$OVERWRITE_SESSION" "$CANCEL" "$OK" --width=300 2>/dev/null;then
+                   	mv "$CONFIGDIR" "${CONFIGDIR}_BKP" && mkdir -p "$CONFIGDIR"
+                   	break
+               	else
+                   	continue
+               	fi
+			else
+               	mkdir -p "$CONFIGDIR"
+           		break	
+			fi
+		fi
+	done
+	
+    ########################################
+	# create style file
+	########################################
+	__style_name="${ANS}"
+	if [ -z "$__style_name" ] ;then
 		CONFIG_DIR="${CONFIGDIR}"
 	else
-		Style_name=$(echo $Style_name | sed -e 's/ /_/g')    # replace any spaces in dir name
-		CONFIG_DIR="${CONFIGPATH}/${Style_name}"
+		__style_name=$(echo "$__style_name" | sed -e 's/ /_/g')    # replace any spaces in dir name
+		CONFIG_DIR="${CONFIGPATH}/${__style_name}"
 	fi
 	RCFILE="$OBPATH/rc.xml"
 	FEHFILE="$HOME/.fehbg"
@@ -121,28 +194,100 @@ saveStyle(){
 		echo "titleLayout=${titleLayout_var}" >> "$CONFIG_DIR/openboxrctheme"
 	fi
 	############ end of get
+	########################################
+	# take screenshot
+	########################################
+    pid=""
+   	TMPSCREENSHOT=$(mktemp --tmpdir blob.XXXX)
+   	SCREENSHOT_PATH="$CONFIGPATH/$ANS"
+   	CURRDTOP=$(xprop -root _NET_CURRENT_DESKTOP | tail -c -2) # desktop number
+   	MONS=$(xrandr -q | grep -c " connected")    # number of monitors
+   	# Set mouse position, for appearance of root-menu
+   	screenW=$(xrandr -q | awk '/Screen/ {print $8}')
+   	screenH=$(xrandr -q | awk '/Screen/ {print $10}')
+   	screenH=${screenH%,}
+
+   	if [ "$MONS" -eq 1 ];then # single monitor
+       	appX=$(( (screenW/20)*8 ))
+       	menuX=$(( (screenW/20)*2 ))
+   	else
+       	appX=$(( (screenW/20)*4 ))
+       	menuX=$(( (screenW/20)*1 ))
+   	fi
+   	appY=$(( (screenH/20)*4 ))
+   	menuY=$(( (screenH/20)*2 ))
+	
+   	wmctrl -l -x > "$TMPSCREENSHOT"      # store window list in tempfile
+   	wmctrl -k on                    # hide windows, show desktop
+   	# show any conkys which have been hidden by wmctrl, (ie not own_window_type desktop);
+   	# unless Conkys weren't selected to be saved
+   	if [ "$(pidof conky)" ] ;then
+   		for CONK in $(xdotool search --classname "Conky");do
+       		xdotool windowactivate "$CONK" 2>/dev/null
+   		done
+   	fi
+
+   	# start lxappearance
+   	[ ! "$(pidof lxappearance)" ] && lxappearance &
+   	pid=$!
+   	sleep 0.5
+
+    # get lx window, make sure it loses focus, then move mouse and start root-menu
+    LX=$(xdotool getwindowfocus)
+    xdotool windowmove --sync "$LX" "$appX" "$appY" && sleep 0.1 && \
+    xdotool mousemove --sync --window "$LX" -- -50 0 && xdotool click 1
+    xdotool mousemove --sync "$menuX" "$menuY" && xdotool key --clearmodifiers "$MENUMODIFIER"
+
+	i=1
+	while (( $i <= $KEYDOWN ));do
+		xdotool key --delay 100 Down
+		i=$(( $i+1 ))
+	done
+	xdotool key --delay 20 Right && sleep 0.3
+	
+	# take screenshot and make thumbnail @9% fullsize
+	my-shots --no-view --no-notify --no-copy --thumb 9 --path "${SCREENSHOT_PATH}" --name "${ANS}.jpg"
+	mv "${SCREENSHOT_PATH}"/"${ANS}.jpg" "${SCREENSHOT_PATH}"/preview.jpg
+	(cd "${SCREENSHOT_PATH}" && cd .. && ln -sf "${ANS}"/preview.jpg .)
+	
+	# close root menu
+	xdotool mousemove_relative --sync --polar 0 10 click 3
+    	
+	# kill lxappearance
+	if pgrep lxappearance | grep "$pid";then
+		kill -9 $pid >/dev/null 2>&1
+    fi
+	
+	# restore hidden windows
+    while read line; do
+       	WINDOW=$(echo $line | awk '{print $1}') # Window_ID is first field
+       	DTOP=$(echo $line | awk '{print $2}' )  # Desktop number is second field
+       	if [ "$DTOP" -eq "$CURRDTOP" ];then
+           	xdotool windowactivate "$WINDOW"
+       	fi
+    done < "$TMPSCREENSHOT"
+    
+    # restore any hidden Conkys
+    for CONK in $(xdotool search --classname "Conky");do
+       	xdotool windowactivate "$CONK" 2>/dev/null
+    done
+    
+    [ -f "$TMPSCREENSHOT" ] && rm -f "$TMPSCREENSHOT"
+   	
+   	#############################################################################
+	
+	$DIALOG --text="$SETTINGS_SAVED <b>$ANS</b>" --image="gtk-save" "$OK" 2>/dev/null
+	if [[ -d "$CONFIGDIR-BKP" ]];then
+		rm -rf "$CONFIGDIR-BKP"
+		echo -e "\n  Temporary $CONFIGDIR deleted\n"
+	fi
 }
 
 Show_help_(){
 	echo "CLI"
 }
-
-Launch_YAD_(){
-	CONFIGDIR=""
-	NUMDIRS=0
-	### CONFIGS VARIABLES
-	XFILE="$HOME/.Xresources"
-	BKP_SFX=".$(date +'%Y%m%d-%H%M%S').blob~"
-	### END CONFIGS VARIABLES
 	
-	### DIALOG VARIABLES
-	DIALOG="yad --center --undecorated --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
-	DIALOGDEC="yad --center  --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg"
-	yadWarning="yad --center  --borders=20 --window-icon=${__distro_path_root}/Distro_Specific/icons/linux.svg --title Alert  --button='Ok:1' --button='Cancel:0' --text"
-	TITLE="BLOB Config Manager"
-	CANCEL="--button=Cancel:1"
-	EXIT="--button=Quit:1"
-	CLOSE="--button=Close:1"
+Intro(){
 	TXTINTRO="<big><b>${__distro_title}\n\nOpenbox Configuration Manager</b></big>\n\n\n \
 	<b>Save or Restore settings for:</b>\n\n \
 	\tOpenbox theme\n \
@@ -151,244 +296,22 @@ Launch_YAD_(){
 	\tTint2\n \
 	\tDesktop Background\n \
 	\t+ Screenshot\n\n"
-	MAIN_TEXT="Double-click selection, or <b>Enter</b>, or use the <b>Restore</b> button to restore settings\n"
-	RESTORE="Restore:0"
-	DELETE="Delete:2"
-	VIEW_IMG="View image:4"
-	ADD="Add New:3"
-	ABOUT="About:5"
-	SAVE_SETTINGS="Save Settings:0"
-	VIEW_SAVED="View Saved:2"
-	ACTIVE="Last set"
-	NAME="Config Name"
-	SCREEN_SHOT="Screenshot"
-	CHOOSE_BEFORE_DELETE="Make a selection before trying to delete"
-	DELETE_FOR_SURE="Delete saved configurations <b>$FPATH</b>\nand screenshot?"
-	SETTINGS_SAVED="Settings were saved as"
-	CHOOSE_IMAGE="Make a selection"
-	OVERWRITE_SESSION="Overwrite existing session?"
+	$DIALOGDEC --image=mbs_trans_64 "$T$TXTINTRO" \
+		--title="$TITLE" \
+		$CLOSE --borders=30 \
+		2>/dev/null
+}
 	
-	IMG="--image=mbs_trans_64"
-	T="--text="
-	OK="--button=OK:0"
+Launch_YAD_(){
+	CONFIGDIR=""
 	
-	### END DIALOG VARIABLES
-	
-	### USER SETTINGS
-	IMGCMD="my-image-viewer"    # application command to view screenshot
-	MENUMODIFIER="super+space"  # keybind for show root-menu
-	MOUSECMD="click 3"          # mouse r-click
-	KEYDOWN=4           # adjust this for where "Preferences" is in the menu
-	#### END VARIABLES #####################################################
-	
-	### FUNCTIONS ##########################################################
-	
-	Intro(){
-    	local INTRO RET
-    	getSet
-    	#  If blob/ is empty, then don't display "Save Settings" option in Intro dialog
-    	if (( $NUMDIRS > 0 ));then
-        	INTRO=$($DIALOGDEC $IMG "$T$TXTINTRO" \
-        	--title="$TITLE" \
-        	--button="$SAVE_SETTINGS" --button="$VIEW_SAVED" $CLOSE \
-        	--borders=30 \
-        	2>/dev/null )
-    	else
-        	INTRO=$($DIALOGDEC $IMG \
-        	--title="$TITLE" \
-        	"$T$TXTINTRO" \
-        	--button="$SAVE_SETTINGS" $CLOSE \
-        	--borders=30 \
-        	2>/dev/null )
-    	fi
-    	RET=$?
-    	case $RET in
-        	0)  setName
-            	saveStyle
-            	getScreenshot
-            	if [[ -d "$CONFIGDIR-BKP" ]];then
-                	rm -rf "$CONFIGDIR-BKP"
-                	echo -e "\n  Temporary $CONFIGDIR deleted\n"
-            	fi
-            	restoreSettings
-            	;;
-        	1)  echo "CANCELLED..."
-            	exit 0
-            	;;
-        	2)  getSet
-            	restoreSettings
-            	;;
-        	*)  echo "RETURN ERROR" 2>&1
-            	;;
-    	esac
+	getSet(){
+		. "${Distro_config_file}"
+    	SET="$Style_name"
 	}
 	
-	getSet(){      # get name of currently set BLOB config
-    	NUMDIRS=0
-    	NUMDIRS=$(ls -l "$CONFIGPATH" | grep -c ^d) # check if any dirs present
-    	if (( $NUMDIRS == 0 ));then
-        	if [[ -f "$CURSESSION" ]];then
-            	rm $CURSESSION
-        	fi
-    	elif (( "$NUMDIRS" > 0 )) && [[ -f "$CURSESSION" ]];then
-        	SET=$(cat $CURSESSION)
-    	fi
-	}
-	
-	countMonitors(){ #test for more than 2 monitors connected.
-    	MON=$(xrandr -q | grep -c " connected")
-    	PRIMARY=$(xrandr -q | awk '/ connected/ {if ($3=="primary") print $4; else print $3}')
-    	PSIZE=${PRIMARY%%x*}    # Primary monitor width
-    	case $MON in
-        	1|2|3)  # Set width and height for View dialog
-    				# param $MON = num screens; param $PSIZE = primary screen width
-    				desktopW=$(xrandr -q | awk '/Screen/ {print $8}')  # total desktop width
-    				desktopH=$(xrandr -q | awk '/Screen/ {print $10}') # desktop height
-    				desktopH=${desktopH%%,*}    # remove trailing comma
-    				if (( $MON == 1 ));then
-        				W=$(( $desktopW / 3 ))  # 1/3 width
-    				else
-        				W=$(( $PSIZE / 3 ))  # 1/3 width primary monitor
-    				fi
-    				H=$(( ($desktopH / 3)*2 ))  # 2/3 height
-                	;;
-        	* )     W=600
-                	H=600
-                	echo -e "\n  Script cannot deal with these monitors.\
-                	\n  Setting dialog width height = 600 x 600" 2>&1
-    	esac
-	}
-	
-	setName(){  # set name of collection, make dir and session settings file
-    	MSG="  Configurations will be saved to a new directory in  \
-    	\n  $CONFIGPATH\n\n  Enter name of new collection...  "
-    	MSG2="  No file specified for new saved session.\n\n  Try again?"
-    	LOOP=1
-    	DEL=0
-    	while [[ "$LOOP" ]];do  # loop dialog if nothing is selected
-        	ANS=$($DIALOG --entry \
-            	$CANCEL --button="OK:0" \
-            	"$T$MSG" \
-            	2>/dev/null )
-        	if (( $? == 1 )) ;then # Cancel was selected
-            	Intro
-        	elif [[ ! "$ANS" ]] ;then     # entry was empty
-            	$DIALOG --image="dialog-question" \
-            	"$CANCEL" "$OK" \
-            	"$T$MSG2" \
-            	2>/dev/null
-            	RET=$?
-            	echo -e "\n  Nie podano nazwy dla kolekcji!" 2>&1
-            	if (( $RET == 0 ));then
-                	continue
-            	else
-                	Intro
-            	fi
-        	else
-            	ANS=$(echo $ANS | sed -e 's/ /_/g')    # replace any spaces in dir name
-            	CONFIGDIR="$CONFIGPATH/$ANS"
-            	if [[ -d "$CONFIGDIR" ]];then
-                	echo -e "\n  $CONFIGDIR już istnieje"
-	
-                	if $DIALOG --form --image="dialog-question" --text="$OVERWRITE_SESSION" "$CANCEL" "$OK" --width=300 2>/dev/null;then
-                    	mv {"$CONFIGDIR","$CONFIGDIR-BKP"} && mkdir -p "$CONFIGDIR"
-                    	TXT="  (Existing session overwritten)"
-                    	break
-                	else
-                		TXT=""
-                    	continue
-                	fi
-            	fi
-            	mkdir -p "$CONFIGDIR"
-            	break
-        	fi
-    	done
-	}
-
-	getScreenshot(){
-    	pid=""
-    	TMPSCREENSHOT=$(mktemp --tmpdir blob.XXXX)
-    	SCREENSHOT_PATH="$CONFIGPATH/$ANS"
-    	CURRDTOP=$(xprop -root _NET_CURRENT_DESKTOP | tail -c -2) # desktop number
-    	MONS=$(xrandr -q | grep -c " connected")    # number of monitors
-    	# Set mouse position, for appearance of root-menu
-    	screenW=$(xrandr -q | awk '/Screen/ {print $8}')
-    	screenH=$(xrandr -q | awk '/Screen/ {print $10}')
-    	screenH=${screenH%,}
-	
-    	if (( $MONS == 1 ));then # single monitor
-        	appX=$(( (screenW/20)*8 ))
-        	menuX=$(( (screenW/20)*2 ))
-    	else
-        	appX=$(( (screenW/20)*4 ))
-        	menuX=$(( (screenW/20)*1 ))
-    	fi
-    	appY=$(( (screenH/20)*4 ))
-    	menuY=$(( (screenH/20)*2 ))
-	
-    	wmctrl -l -x > "$TMPSCREENSHOT"      # store window list in tempfile
-    	wmctrl -k on                    # hide windows, show desktop
-    	# show any conkys which have been hidden by wmctrl, (ie not own_window_type desktop);
-    	# unless Conkys weren't selected to be saved
-    	if [ "$(pidof conky)" ] ;then
-    		for CONK in $(xdotool search --classname "Conky");do
-        		xdotool windowactivate "$CONK" 2>/dev/null
-    		done
-    	fi
-    	
-    	# start lxappearance
-    	[ ! "$(pidof lxappearance)" ] && lxappearance &
-    	pid=$!
-    	sleep 0.5
-    	
-    	# get lx window, make sure it loses focus, then move mouse and start root-menu
-    	LX=$(xdotool getwindowfocus)
-    	xdotool windowmove --sync "$LX" "$appX" "$appY" && sleep 0.1 && \
-    	xdotool mousemove --sync --window "$LX" -- -50 0 && xdotool click 1
-    	xdotool mousemove --sync "$menuX" "$menuY" && xdotool key --clearmodifiers "$MENUMODIFIER"
-	
-    	i=1
-    	while (( $i <= $KEYDOWN ));do
-        	xdotool key --delay 100 Down
-        	i=$(( $i+1 ))
-    	done
-    	xdotool key --delay 20 Right && sleep 0.3
-	
-    	# take screenshot and make thumbnail @9% fullsize
-    	my-shots --no-view --no-notify --no-copy --thumb 9 --path "${SCREENSHOT_PATH}" --name "${ANS}.jpg"
-    	mv "${SCREENSHOT_PATH}"/"${ANS}.jpg" "${SCREENSHOT_PATH}"/preview.jpg
-    	(cd "${SCREENSHOT_PATH}" && cd .. && ln -sf "${ANS}"/preview.jpg .)
-	
-    	# close root menu
-    	xdotool mousemove_relative --sync --polar 0 10 click 3
-    	
-    	# kill lxappearance
-    	if pgrep lxappearance | grep "$pid";then
-        	kill -9 $pid >/dev/null 2>&1
-    	fi
-	
-    	# restore hidden windows
-    	while read line; do
-        	WINDOW=$(echo $line | awk '{print $1}') # Window_ID is first field
-        	DTOP=$(echo $line | awk '{print $2}' )  # Desktop number is second field
-        	if (( $DTOP == $CURRDTOP )) >/dev/null 2>&1;then
-            	xdotool windowactivate "$WINDOW"
-        	fi
-    	done < "$TMPSCREENSHOT"
-    	
-    	# restore any hidden Conkys
-    	for CONK in $(xdotool search --classname "Conky");do
-        	xdotool windowactivate "$CONK" 2>/dev/null
-    	done
-    	
-    	[ -f "$TMPSCREENSHOT" ] && rm -f "$TMPSCREENSHOT"
-	}
-
-	ViewRestoreDialog(){  #   Display saved theme collections
+	restoreSettings(){
     	getSet          # get name of latest set BLOB config
-    	if (( $NUMDIRS == 0 ));then   # no saved configs; go back to Intro dialog
-        	Intro
-    	fi
     	DLGLIST=""
     	setARR=()
     	namesARR=()
@@ -417,13 +340,8 @@ Launch_YAD_(){
     	for ((j=0; j<${#namesARR[*]}; j++));do
         	DLGLIST="$DLGLIST ${setARR[j]} ${namesARR[j]} ${thumbsARR[j]}"
     	done
-	}
-	
-	restoreSettings(){
-    	ViewRestoreDialog
     	FPATH=""
-    	LOOP=1
-    	while [[ "$LOOP" ]] ;do
+    	while true ;do
         	CONFIG=$($DIALOGDEC --list --title="$TITLE" --image=preferences-desktop-theme\
             	--text="$MAIN_TEXT" \
             	--separator=" " \
@@ -445,7 +363,7 @@ Launch_YAD_(){
         	fi
         	case $RET in
             	0)  # RESTORE
-                	echo $(basename $FPATH) > "$CURSESSION"
+                	CURSESSION="$(basename $FPATH)"
                 	break
                 	;;
             	1)  # EXIT
@@ -454,7 +372,7 @@ Launch_YAD_(){
             	2)  # DELETE
             		if [[ ! "$CONFIG" ]];then
                     	$DIALOG --text="$CHOOSE_BEFORE_DELETE" "$EXIT" "$OK" 2>/dev/null
-                    	if (( $? == 0 ));then
+                    	if [ "$?" -eq 0 ];then
                         	continue
                     	else
                         	exit 0
@@ -465,10 +383,10 @@ Launch_YAD_(){
                     	[ -f "$FPATH" ] && rm -rf "$FPATH"
                     	[ -f "$FPATH.jpg" ] && rm "$FPATH.jpg"
                     	echo -e "\n$Style DELETED"
-                    	currentsession=$(cat $CURSESSION)
+                    	currentsession="$CURSESSION"
                     	fpath=$(basename $FPATH)
                     	if [[ $currentsession = $fpath ]];then
-                        	echo "" > "$CURSESSION"
+                        	CURSESSION=""
                     	fi
                     	restoreSettings
                 	else
@@ -476,60 +394,38 @@ Launch_YAD_(){
                 	fi
                 	;;
             	3)  #ADD
-            		setName
                 	saveStyle
-                	getScreenshot
-                	$DIALOG --text="$SETTINGS_SAVED <b>$ANS</b>" --image="gtk-save" "$OK" 2>/dev/null
-                	if [[ -d "$CONFIGDIR-BKP" ]];then
-                    	rm -rf "$CONFIGDIR-BKP"
-                    	echo -e "\n  Temporary $CONFIGDIR deleted\n"
-                	fi
                 	restoreSettings
                 	;;
             	4)  # show screenshot in image viewer
-                	SEL=$(echo "$CONFIG" | awk -F'[>|<]' '{print $3}' )
-                	if [[ "$SEL" ]];then
-                    	img="$CONFIGPATH/$SEL.jpg"
-                    	$IMGCMD "$img"
-                	else
-                    	$DIALOG --text="$CHOOSE_IMAGE" 2>/dev/null
-                	fi
+                	getSet
+                	my-image-viewer "$CONFIGPATH/${SEL}.jpg" || echo "failed to locate: $CONFIGPATH/${SEL}.jpg"
                 	restoreSettings
                 	;;
             	5)  # ABOUT
             		Intro
                 	;;
-            	*)  if (( $RET == 252 ));then
-                    	echo -e "\n  Exited with \"ESC\" key"
-                	else
-                    	echo -e "\n  Error= $RET" 2>&1
-                	fi
-                	exit 1
-                	;;
+            	*)  exit ;;
         	esac
     	done
-		"${__distro_path_root}"/bin/X11/WM/style_changer "$_panel_name_" "$(cat $CURSESSION)"
+		"${__distro_path_root}"/bin/X11/WM/style_changer "$_panel_name_" "$CURSESSION"
 		if . "$FPATH/lightdm-gtk-greeter.conf";then
     		apps_as_root "${__distro_path_root}/bin/not_add_2_path/setLightdmGreeter" "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position" \
     			|| rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
     	fi
     	restoreSettings   
 	}
-	
-	### END FUNCTIONS ######################################################
-	# test for blobthemes config directory, create if it doesn't exist
-	mkdir -p "$CONFIGPATH"
-	# create file to hold most recent saved configuration name
-	if [[ ! -f "$CURSESSION" ]] >/dev/null 2>&1;then
-    	touch "$CURSESSION"
-	fi
-	countMonitors
+	# set yad H and W
+    PRIMARY=$(xrandr -q | awk '/ connected/ {if ($3=="primary") print $4; else print $3}')
+    PSIZE=${PRIMARY%%x*}    # Primary monitor width
+    desktopW=$(xrandr -q | awk '/Screen/ {print $8}')  # total desktop width
+    desktopH=$(xrandr -q | awk '/Screen/ {print $10}') # desktop height
+    desktopH=${desktopH%%,*}    # remove trailing comma
+    W=$(( $PSIZE / 3 ))  # 1/3 width primary monitor
+    H=$(( ($desktopH / 3)*2 ))  # 2/3 height
+    
 	getSet
-	if (( "$NUMDIRS" == 0 ));then
-    	Intro
-	else
-    	restoreSettings
-	fi
+	restoreSettings
 	exit 0
 }
 

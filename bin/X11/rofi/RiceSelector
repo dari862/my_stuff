@@ -10,10 +10,10 @@ default_style="default"
 
 if [ "$_panel_name_" = 'polybar' ];then
 	rices_path="${__distro_path_root}/blob/polybar"
-	current_style="${polybar_STYLE}"
+	current_style="${Style_name}"
 elif [ "$_panel_name_" = 'tint2' ];then
 	rices_path="${__distro_path_root}/blob/tint2"
-	current_style="${tint2_STYLE}"
+	current_style="${Style_name}"
 fi
 
 if [ -n "$current_style" ];then

@@ -8,16 +8,12 @@ unalias -a
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-if [ -n "$polybar_STYLE" ];then
-	if echo "$polybar_STYLE" | grep -q "panels/" ;then
-		CURRENT_STYLE_NAME="panels"
-	else
-		CURRENT_STYLE_NAME="$(echo "$polybar_STYLE" | cut -d'/' -f1)"
-	fi
-elif [ -n "$tint2_STYLE" ];then
-	CURRENT_STYLE_NAME="$tint2_STYLE"
+if echo "$Style_name" | grep -q "panels/" ;then
+	CURRENT_STYLE_NAME="panels"
+else
+	CURRENT_STYLE_NAME="$Style_name"
 fi
-
+	
 wall_dir="${__distro_path_wallpaper}"
 temp_dir="/tmp/$USER/walls/$CURRENT_STYLE_NAME"
 # Create cache dir if not exists
