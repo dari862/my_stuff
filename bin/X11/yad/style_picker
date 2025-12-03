@@ -13,15 +13,17 @@ unalias -a
 
 WM_config_blob_dir_name="config/$WM_config_name"
 
-GLOBALBLOBPATH="${__distro_path_root}/system_files/blob"
-BLOBPATH="$HOME/.config"
+CONFIGHOMEPATH="$HOME/.config"
+GLOBALBLOBPATH="${__distro_path_root}/blob"
+BLOBPATH="${CONFIGHOMEPATH}/blob"
 
 if [ "$_panel_name_" = 'polybar' ];then
-	CONFIGPATH="${BLOBPATH}/blob/polybar"
-	#CURSESSION="$Style_name"
-	CURSESSION="$polybar_STYLE"
+	GLOBALCONFIGPATH="${GLOBALBLOBPATH}/polybar"
+	CONFIGPATH="${BLOBPATH}/polybar"
+	CURSESSION="$Style_name"
 elif [ "$_panel_name_" = 'tint2' ];then
-	CONFIGPATH="${BLOBPATH}/blob/tint2"
+	GLOBALCONFIGPATH="${GLOBALBLOBPATH}/tint2"
+	CONFIGPATH="${BLOBPATH}/polybar"
 	CURSESSION="$Style_name"
 fi
 
@@ -103,96 +105,115 @@ saveStyle(){
 	# create style file
 	########################################
 	__style_name="${ANS}"
-	if [ -z "$__style_name" ] ;then
-		CONFIG_DIR="${CONFIGDIR}"
-	else
-		__style_name=$(echo "$__style_name" | sed -e 's/ /_/g')    # replace any spaces in dir name
-		CONFIG_DIR="${CONFIGPATH}/${__style_name}"
-	fi
-	RCFILE="$OBPATH/rc.xml"
-	FEHFILE="$HOME/.fehbg"
-	CONKYPATH="$HOME/.config/conky"
-	CONKYSESSION="$CONKYPATH/conky-sessionfile"
-	TINTSESSION="$HOME/.config/tint2/tint2-sessionfile"
-	POLYBAR_AND_ROFI="$HOME/$WM_config_dir_name"
-	GTK2="$HOME/.config/gtk-2.0"
-	GTK3="$HOME/.config/gtk-3.0"
-	PLANK_CACHE="$HOME/.cache/plank.conf"
-	PLANK="$HOME/.config/plank"
-	DUNSTDir="$HOME/.config/dunst"
+tee "$CONFIGDIR"/style.conf << EOF >/dev/null 2>&1
+Style_name="${__style_name}"
 
-	# getplank
-    if [[ -f "$PLANK_CACHE" ]];then
-        mkdir -p "$CONFIG_DIR/cache"
-        cp "$PLANK_CACHE" "$CONFIG_DIR/cache"
-        mkdir -p "$PLANK"
-        [ -f "$PLANK/plank_" ] && cp "$PLANK/plank_" "$CONFIG_DIR/config/plank"
-    fi
-    
-    # getdunst
-	if [[ -f "$DUNSTDir/theme.dunstrc" ]];then
-        mkdir -p "$CONFIG_DIR/config/dunst"
-        cp "$DUNSTDir/theme.dunstrc" "$CONFIG_DIR/config/dunst"
-    fi
+# Distro_config
+##############
+$(cat "$CONFIGHOMEPATH"/WM_common_config/Distro_config 2>/dev/null || :)
 
-	# getConky
-    conky_sessionfile_file="$CONFIG_DIR/config/conky/conky-sessionfile"
-    mkdir -p "$CONFIG_DIR/config/conky"
-    pgrep -a conky | while read pid CMD;do
-    	echo "$CMD" >> "$conky_sessionfile_file"
-    done
-    sed -i "s|conky -c $HOME||g" "${conky_sessionfile_file}" 
-    sed -i '/^$/d' "${conky_sessionfile_file}" 
-    while IFS="" read -r theme
-	do
-		mkdir -p "$CONFIG_DIR/config/conky"
-		cp -r "${HOME}${theme}" "$CONFIG_DIR/config/conky" >/dev/null 2>&1
-	done < ${conky_sessionfile_file}
-	
-	# getGTKtheme
-    GTKTHEMES=( "$GTK2" "$GTK3")
-    mkdir -p "$CONFIG_DIR/config"
-    for d in "${GTKTHEMES[@]}";do
-    	cp -r "$d" "$CONFIG_DIR/config"
-    done
+# dunstrc
+##############
+dunstrc_icon_position=$(grep '^icon_position' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_frame_color="$(grep '^frame_color' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' | head -n1 || :)"
+dunstrc_separator_color=$(grep '^separator_color' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_transparency=$(grep '^transparency' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_origin=$(grep '^origin' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_offset="$(grep '^offset' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)"
+dunstrc_frame_width=$(grep '^frame_width' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_format=$(grep '^format' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_low_timeout=$(awk '/\[urgency_low\]/ {f=1} f && /timeout/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_low_background="$(awk '/\[urgency_low\]/ {f=1} f && /background/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_low_foreground="$(awk '/\[urgency_low\]/ {f=1} f && /foreground/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_low_frame_color="$(awk '/\[urgency_low\]/ {f=1} f && /frame_color/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_normal_timeout=$(awk '/\[urgency_normal\]/ {f=1} f && /timeout/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_normal_background="$(awk '/\[urgency_normal\]/ {f=1} f && /background/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_normal_foreground="$(awk '/\[urgency_normal\]/ {f=1} f && /foreground/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_normal_frame_color="$(awk '/\[urgency_normal\]/ {f=1} f && /frame_color/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_critical_timeout=$(awk '/\[urgency_critical\]/ {f=1} f && /timeout/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'= ' '{print $2}' || :)
+dunstrc_critical_background="$(awk '/\[urgency_critical\]/ {f=1} f && /background/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_critical_foreground="$(awk '/\[urgency_critical\]/ {f=1} f && /foreground/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
+dunstrc_critical_frame_color="$(awk '/\[urgency_critical\]/ {f=1} f && /frame_color/ {print} f && /^$/ {f=0}' "${CONFIGHOMEPATH}/dunst/dunstrc" | awk -F'"' '{print $2}' || :)"
 
-	# getTint
-    if pgrep -a tint2 >/dev/null 2>&1;then
-    	tint2_sessionfile_file="$CONFIG_DIR/config/tint2/tint2-sessionfile"
-    	mkdir -p "$CONFIG_DIR/config/tint2"
-    	pgrep -a tint2 | while read pid cmd;do
-    		if [[ "${cmd%% *}" = tint2 ]];then
-    			TPATH=$(echo "$cmd" | awk '{print $NF}')
-    			echo "$TPATH" >> "$tint2_sessionfile_file"
-    		fi
-    	done
-    	
-    	sed -i "s|$HOME||g" "${tint2_sessionfile_file}" 
-    	sed -i '/^$/d' "${tint2_sessionfile_file}"    
-    	
-    	while IFS="" read -r theme
-		do
-			cp -r "${HOME}${theme}" "$CONFIG_DIR/config/tint2" >/dev/null 2>&1
-		done < ${tint2_sessionfile_file}
-	elif pgrep -a polybar >/dev/null 2>&1;then
-		mkdir -p "$CONFIG_DIR/$WM_config_blob_dir_name"
-    	cp "$WM_config_dir/Polybar_style" "$CONFIG_DIR/$WM_config_blob_dir_name"
-    	cp "$WM_config_dir/Rofi_style" "$CONFIG_DIR/$WM_config_blob_dir_name"
-	fi
-	# getOBtheme
-	if pgrep -a openbox >/dev/null 2>&1;then
-		while IFS= read -r line; do
-  			eval "$line"
-		done < <(grep "\!ENTITY" "$RCFILE" | grep _var | sed 's/<!ENTITY//g;s/>//g;s/ //g;s/_var/_var=/g')
-		echo "bottom=${bottom_var}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "top=${top_var}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "right=${right_var}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "left=${left_var}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "font=${font_var}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "size=${size_var}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "theme=${theme_var}" >> "$CONFIG_DIR/openboxrctheme"
-		echo "titleLayout=${titleLayout_var}" >> "$CONFIG_DIR/openboxrctheme"
-	fi
+# gtkrc_theme
+##############
+gtk_theme_name="$(grep '^gtk-theme-name' "${CONFIGHOMEPATH}/gtk-3.0/settings.ini" | awk -F= '{print $2}' || :)"
+gtk_icon_name="$(grep '^gtk-icon-theme-name' "${CONFIGHOMEPATH}/gtk-3.0/settings.ini" | awk -F= '{print $2}' || :)"
+gtk_font_name="$(grep '^gtk-font-name' "${CONFIGHOMEPATH}/gtk-3.0/settings.ini" | awk -F= '{print $2}' || :)"
+gtk_cursor_name="$(grep '^gtk-cursor-theme-name' "${CONFIGHOMEPATH}/gtk-3.0/settings.ini" | awk -F= '{print $2}' || :)"
+
+# openbox
+##############
+openbox_menu=$(ls -al "${CONFIGHOMEPATH}/openbox/menu.xml" | awk '{print $11}' || :)
+openbox_bottom=$(grep "ENTITY bottom_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_top=$(grep "ENTITY top_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_right=$(grep "ENTITY right_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_left=$(grep "ENTITY left_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_font=$(grep "ENTITY font_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_size=$(grep "ENTITY size_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_theme=$(grep "ENTITY theme_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_titleLayout=$(grep "ENTITY titleLayout_var" "${CONFIGHOMEPATH}/openbox/rc.xml" | awk -F'"' '{print $2}' || :)
+openbox_gtk_icon_name="$(grep '^gtk-theme-name' "${CONFIGHOMEPATH}/gtk-3.0/settings.ini" | awk -F= '{print $2}' || :)"
+
+# rofi
+##############
+rofi_background="$(grep 'background:' "${CONFIGHOMEPATH}/rofi/theme.rasi" | sed "s/;//g" | awk -F'#' '{print "#" $2}' || :)"
+rofi_active="$(grep 'active:' "${CONFIGHOMEPATH}/rofi/theme.rasi" | sed "s/;//g" | awk -F'#' '{print "#" $2}' || :)"
+rofi_background_alt="$(grep 'background_alt:' "${CONFIGHOMEPATH}/rofi/theme.rasi" | sed "s/;//g" | awk -F'#' '{print "#" $2}' || :)"
+rofi_foreground="$(grep 'foreground:' "${CONFIGHOMEPATH}/rofi/theme.rasi" | sed "s/;//g" | awk -F'#' '{print "#" $2}' || :)"
+rofi_selected="$(grep 'selected:' "${CONFIGHOMEPATH}/rofi/theme.rasi" | sed "s/;//g" | awk -F'#' '{print "#" $2}' || :)"
+rofi_urgent="$(grep 'urgent:' "${CONFIGHOMEPATH}/rofi/theme.rasi" | sed "s/;//g" | awk -F'#' '{print "#" $2}' || :)"
+rofi_font="$(grep ' font:' "${CONFIGHOMEPATH}/rofi/fonts.rasi" | awk -F'"' '{print $2}' || :)"
+rofi_text_font="$(grep 'text-font:' "${CONFIGHOMEPATH}/rofi/fonts.rasi" | awk -F'"' '{print $2}' || echo '@font')"
+rofi_icon_font="$(grep 'icon-font:' "${CONFIGHOMEPATH}/rofi/fonts.rasi" | awk -F'"' '{print $2}' || echo '@font')"
+
+# bspwm
+##############
+$(cat "$CONFIGHOMEPATH"/bspwm/theme-bspwm.conf 2>/dev/null || :)
+
+# alacritty
+##############
+alacritty_family="$([ -f "${CONFIGHOMEPATH}/alacritty/fonts.yml" ] && grep 'family:' "${CONFIGHOMEPATH}/alacritty/fonts.yml" 2>/dev/null | head -n1 | awk -F': ' '{print $2}' | sed 's/"//g' || echo "JetBrainsMono Nerd Font")"
+alacritty_size=$([ -f "${CONFIGHOMEPATH}/alacritty/fonts.yml" ] && grep 'size:' "${CONFIGHOMEPATH}/alacritty/fonts.yml" 2>/dev/null | head -n1 | awk -F': ' '{print $2}' | sed 's/"//g' || echo "10")
+
+# jgmenu
+##############
+jgmenu_font="$(grep '^font' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' | awk '{$NF=""; print $0}' || :)"
+jgmenu_size="$(grep '^font' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' | awk '{print $NF}' || :)"
+jgmenu_color_menu_bg="$(grep '^color_menu_bg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_menu_border="$(grep '^color_menu_border' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_norm_bg="$(grep '^color_norm_bg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_norm_fg="$(grep '^color_norm_fg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_sel_bg="$(grep '^color_sel_bg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_sel_fg="$(grep '^color_sel_fg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_sel_border="$(grep '^color_sel_border' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_title_bg="$(grep '^color_title_bg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_title_fg="$(grep '^color_title_fg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_title_border="$(grep '^color_title_border' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_color_sep_fg="$(grep '^color_sep_fg' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_item_margin_x="$(grep '^item_margin_x' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_item_margin_y="$(grep '^item_margin_y' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_stay_alive="$(grep '^stay_alive' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_menu_padding_right="$(grep '^menu_padding_right' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_menu_padding_bottom="$(grep '^menu_padding_bottom' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_menu_padding_left="$(grep '^menu_padding_left' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_menu_radius="$(grep '^menu_radius' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_sep_halign="$(grep '^sep_halign' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_icon_size="$(grep '^icon_size' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_icon_theme="$(grep '^icon_theme' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+jgmenu_menu_border="$(grep '^menu_border' "${CONFIGHOMEPATH}/jgmenu/jgmenurc" | awk -F'= '  '{print $2}' || :)"
+
+# lightdm-greeter
+##############
+$(cat "$CONFIGHOMEPATH"/WM_common_config/lightdm-greeter.conf 2>/dev/null || :)
+
+# plank
+##############
+plank_use_plank="$(pidof -q plank && echo yes || echo no)"
+plank_hide_mode=$(grep '^hide-mode' "$HOME"/.cache/plank.conf 2>/dev/null | awk -F= '{print $2}' || :)
+plank_offset=$(grep '^offset' "$HOME"/.cache/plank.conf 2>/dev/null | awk -F= '{print $2}' || :)
+plank_position=$(grep '^position' "$HOME"/.cache/plank.conf 2>/dev/null | awk -F= '{print $2}' || :)
+EOF
 	############ end of get
 	########################################
 	# take screenshot
@@ -277,9 +298,8 @@ saveStyle(){
    	#############################################################################
 	
 	$DIALOG --text="$SETTINGS_SAVED <b>$ANS</b>" --image="gtk-save" "$OK" 2>/dev/null
-	if [[ -d "$CONFIGDIR-BKP" ]];then
-		rm -rf "$CONFIGDIR-BKP"
-		echo -e "\n  Temporary $CONFIGDIR deleted\n"
+	if [[ -d "${CONFIGDIR}_BKP" ]];then
+		rm -rf "${CONFIGDIR}_BKP"
 	fi
 }
 
@@ -317,7 +337,7 @@ Launch_YAD_(){
     	namesARR=()
     	thumbsARR=()
     	i=0
-    	for dir in "$CONFIGPATH"/* ;do
+    	for dir in "$GLOBALCONFIGPATH"/* "$CONFIGPATH"/* ;do
         	if [[ -d "$dir" ]];then
             	d=$(echo $dir | sed -e 's/ /_/g')    # replace any spaces in dir name
             	namesARR[$i]="<big>$(basename $d)</big>" # add theme collection name to array
@@ -359,7 +379,11 @@ Launch_YAD_(){
         	RET=$?
         	if [[ "$CONFIG" ]];then
             	Style=$(echo "$CONFIG" | awk -F'[>|<]' '{print $3}' )
-            	FPATH="$CONFIGPATH/$Style"
+            	if [ -d "$CONFIGPATH/$Style" ];then
+            		FPATH="$CONFIGPATH/$Style"
+            	else
+            		FPATH="$GLOBALCONFIGPATH/$Style"
+            	fi
         	fi
         	case $RET in
             	0)  # RESTORE
@@ -399,7 +423,11 @@ Launch_YAD_(){
                 	;;
             	4)  # show screenshot in image viewer
                 	getSet
-                	my-image-viewer "$CONFIGPATH/${SEL}.jpg" || echo "failed to locate: $CONFIGPATH/${SEL}.jpg"
+                	if [ -f "$CONFIGPATH/${SEL}.jpg" ];then
+            			my-image-viewer "$CONFIGPATH/${SEL}.jpg"
+            		else
+            			my-image-viewer "$GLOBALCONFIGPATH/${SEL}.jpg" || echo "failed to locate: $GLOBALCONFIGPATH/${SEL}.jpg"
+            		fi
                 	restoreSettings
                 	;;
             	5)  # ABOUT
@@ -409,10 +437,10 @@ Launch_YAD_(){
         	esac
     	done
 		"${__distro_path_root}"/bin/X11/WM/style_changer "$_panel_name_" "$CURSESSION"
-		if . "$FPATH/lightdm-gtk-greeter.conf";then
-    		apps_as_root "${__distro_path_root}/bin/not_add_2_path/setLightdmGreeter" "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position" \
-    			|| rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
-    	fi
+		#if . "$FPATH/lightdm-gtk-greeter.conf";then
+    	#	apps_as_root "${__distro_path_root}/bin/not_add_2_path/setLightdmGreeter" "$greeter_background" "$greeter_theme_name" "$greeter_icon_theme_name" "$greeter_font_name" "$greeter_position" \
+    	#		|| rofi -e "\n  LightdmGreeter File Restored. \n" -theme "$HOME/.config/rofi/$ROFI_STYLE"/massage.rasi
+    	#fi
     	restoreSettings   
 	}
 	# set yad H and W

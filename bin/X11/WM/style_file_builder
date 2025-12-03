@@ -160,20 +160,29 @@ format = "${dunstrc_format}"
 timeout = ${dunstrc_low_timeout}
 background = "${dunstrc_low_background}"
 foreground = "${dunstrc_low_foreground}"
-frame_color = "${dunstrc_low_frame_color}"
-
+EOF
+if [ -n "$dunstrc_low_frame_color" ];then
+	echo "frame_color = \"${dunstrc_low_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+fi
+cat << EOF >> "${CONFIGPATH}"/dunst/theme.dunstrc
 [urgency_normal]
 timeout = ${dunstrc_normal_timeout}
 background = "${dunstrc_normal_background}"
 foreground = "${dunstrc_normal_foreground}"
-frame_color = "${dunstrc_normal_frame_color}"
-
+EOF
+if [ -n "$dunstrc_normal_frame_color" ];then
+	echo "frame_color = \"${dunstrc_normal_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+fi
+cat << EOF >> "${CONFIGPATH}"/dunst/theme.dunstrc
 [urgency_critical]
 timeout = ${dunstrc_critical_timeout}
 background = "${dunstrc_critical_background}"
 foreground = "${dunstrc_critical_foreground}"
-frame_color = "${dunstrc_critical_frame_color}"
 EOF
+if [ -n "$dunstrc_critical_frame_color" ];then
+	echo "frame_color = \"${dunstrc_critical_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+fi
+
 }
 
 create_gtk(){
