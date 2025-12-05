@@ -242,14 +242,14 @@ EOF
    	wmctrl -k on                    # hide windows, show desktop
    	# show any conkys which have been hidden by wmctrl, (ie not own_window_type desktop);
    	# unless Conkys weren't selected to be saved
-   	if [ "$(pidof conky)" ] ;then
+   	if pidof -q conky ;then
    		for CONK in $(xdotool search --classname "Conky");do
        		xdotool windowactivate "$CONK" 2>/dev/null
    		done
    	fi
 
    	# start lxappearance
-   	[ ! "$(pidof lxappearance)" ] && lxappearance &
+   	pidof -q lxappearance || lxappearance &
    	pid=$!
    	sleep 0.5
 
