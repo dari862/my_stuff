@@ -2,6 +2,7 @@
 # need superuser : called by my-superuser
 
 skip_internet_check=false
+packages_only=false
 
 __opt="${1:-}"
 
@@ -13,6 +14,8 @@ if [ "$__opt" = "help" ] || [ "$__opt" = "--help" ] || [ "$__opt" = "-h" ];then
 elif [ "$__opt" = "--skip-internet-check" ];then
 	skip_internet_check=true
 	export __distro_path_lib="${2:-$__distro_path_lib}"
+elif [ "$__opt" = "--packages-only" ] || [ "$__opt" = "-p" ];then
+	packages_only=true
 else
 	export __distro_path_lib="${1:-$__distro_path_lib}"
 fi
@@ -30,7 +33,11 @@ export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/st
 Theme_repo_name="Theme_Stuff"
 
 update_full_upgrade_script(){
-	print_purple "==> check if full upgrade need update. "
+	if [ "${skip_internet_check}" = true ];then
+		return
+	fi
+	connectiontest
+	print_purple "check if full upgrade need update. "
 	do_full_upgrade_need_update=false
 	mkdir -p /tmp/root/disto_updater
 	getURL 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
@@ -40,65 +47,105 @@ update_full_upgrade_script(){
 	fi
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
-		print_purple "==> running new version of full-upgrade. "
+		print_purple "running new version of full-upgrade. "
 		/tmp/root/disto_updater/full-upgrade --skip-internet-check "$__distro_path_lib" && exit || ( print_RED "failed to do full upgrade" && exit 1 )
 	else
-		print_GREEN "==> full upgrade up to date."
+		print_GREEN "full upgrade up to date."
 	fi
 }
 
 print_RED() {
 	_msg_="${1-}"
-	printf "\n\033[0;31m${_msg_}\033[0m\n"
+	printf "\n\033[0;31m==> ${_msg_}\033[0m\n"
 	exit 1
 }
+
 print_GREEN() {
 	_msg_="${1-}"
-	printf "\n\033[0;32m${_msg_}\033[0m\n"
+	printf "\n\033[0;32m==> ${_msg_}\033[0m\n"
 }
+
 print_purple() {
 	_msg_="${1-}"
-	printf "\n\033[1;35m${_msg_}\033[0m\n"
+	printf "\n\033[1;35m==> ${_msg_}\033[0m\n"
 }
 
 __upgrade_current_repo_(){
-	  print_purple "==> status"
+	  print_purple "status"
 	  if git status | grep -q "^Your branch is up to date";then
-	  	print_GREEN "==> Distro is up to date." 
+	  	print_GREEN "Distro is up to date." 
 	  	return
 	  elif git status 2>&1 | grep -q 'fatal: unknown index entry format';then
 	  	rm -f .git/index
 	  	git status || :
 	  fi
 	  
-      print_purple "==> Fetching"
+      print_purple "Fetching"
       git fetch || print_RED "git fetch failed... "
       
-      print_purple "==> Stash (dont apply local changes)."
+      print_purple "Stash (dont apply local changes)."
       git stash  || print_RED "git stash failed... "
       
-      print_purple "==> Pulling"
+      print_purple "Pulling"
       git pull  || print_RED "git pull failed... "
 }
 
 update_packages(){
-	print_purple "==> runing repobin updater."
-	repobin update
+	print_purple "sync package repositories"
+	Package_update_
+	print_GREEN "sync completed"
+
+	print_purple "full system upgrade"
+	full_upgrade_
+	print_GREEN "full system upgraded"
+	
+	print_purple "upgrade linux kernel"
+	update_linux_kernel
+	print_GREEN "linux kernel upgraded"
+	
+	print_purple "clean package repository and remove orphan packages"
+	Package_remove_ || :
+	print_GREEN "orphan packages removed "
+
+	if [ -d "$__distro_path_updater" ];then
+		print_purple "updating packages(s)."
+		update_packages
+		print_GREEN "updating packages(s) completed. "
+	fi
+
+	if command -v yt-dlp >/dev/null 2>&1;then
+		yt-dlp -U
+	fi
+	
+	if [ -f "${__distro_path_neverremove}/installs.json" ];then
+		print_purple "runing repobin updater."
+		"${__distro_path_root}"/bin/cli/repobin update
+	fi
+	
+	if command -v flatpak >/dev/null 2>&1;then
+		print_purple "updating flatpak(s)."
+		flatpak update -y
+		print_GREEN "fully flatpak(s) updated."
+	fi
+	
+	if [ "${packages_only}" = true ];then
+		exit
+	fi
 }
 
 Updating_Distro(){
-	print_purple "==> checking Distro for update."
+	print_purple "checking Distro for update."
 	cd "${__distro_path_root}"
 	
 	skel_modified=false
-	print_purple "==> Fetching Distro repo."
+	print_purple "Fetching Distro repo."
 	git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
 	git fetch || print_RED "git fetch failed... "
 	if git status | grep -q "^Your branch is up to date";then
-		print_GREEN "==> Distro is up to date." 
+		print_GREEN "Distro is up to date." 
 	  	return
 	else
-		print_purple "==> Updating Distro."
+		print_purple "Updating Distro."
 		
 		if ! git diff --quiet HEAD -- skel/ skel_extra/; then
   			skel_modified=true
@@ -117,7 +164,7 @@ Updating_Distro(){
 			print_RED "Updating Distro Failed... "
 		fi
 
-		print_GREEN "==> Distro is up to date." 
+		print_GREEN "Distro is up to date." 
 	fi
 }
 
@@ -125,79 +172,32 @@ Updating_Themes(){
 	cd "${__distro_path_root}/${Theme_repo_name}"
 	git remote set-url origin "https://github.com/dari862/${Theme_repo_name}.git" >/dev/null 2>&1
 	if __upgrade_current_repo_;then
-		print_GREEN "==> ${Theme_repo_name} is up to date." 
+		print_GREEN "${Theme_repo_name} is up to date." 
 	else
 		print_RED "Updating ${Theme_repo_name} Failed... "
 	fi
 }
 
-Updating_opt(){
-	cd "${__distro_path_root}/opt/git/"
-	__git_dir_to_update_="$(ls)"
-	first__git_dir_to_update_file="$(echo "$__git_dir_to_update_" | head -n 1)"
-	if [ -d "${first__git_dir_to_update_file}" ];then
-		for __repo_ in ${__git_dir_to_update_};do
-			print_purple "==> ${__repo_} repository."
-			cd "${__repo_}"
-			__upgrade_current_repo_
-			cd ..
-			print_GREEN "==> ${__repo_} repository updated."
-		done
-	fi
-}
-
 post_updating(){
-	print_purple "==> running system_files_creater."
+	print_purple "post updating."
+	print_purple "running system_files_creater."
 	${__distro_path_root}/distro_manager/system_files_creater "$__distro_path_lib"
+	print_GREEN "post updating completed ."
 }
 
+__Done(){
+	print_GREEN "Done"
+	exit 0
+}
 ##########################################################################################################################3
 
-if [ "${skip_internet_check}" = false ];then
-	connectiontest
-	update_full_upgrade_script
-fi
+update_packages
 
-print_purple "==> sync package repositories"
-Package_update_
-print_GREEN "==> sync completed"
-
-print_purple "==> full system upgrade"
-full_upgrade_
-print_GREEN "==> full system upgraded"
-
-print_purple "==> clean package repository and remove orphan packages"
-Package_remove_ || :
-print_GREEN "==> orphan packages removed "
-
-if [ -d "$__distro_path_updater" ];then
-	print_purple "==> updating packages(s)."
-	update_packages
-	print_GREEN "==> updating packages(s) completed. "
-fi
-
-if command -v yt-dlp >/dev/null 2>&1;then
-	yt-dlp -U
-fi
+update_full_upgrade_script
 
 Updating_Distro
 Updating_Themes
 
-if [ -d "${__distro_path_root}/opt/git" ];then
-	print_purple "==> updating git repository(s)."
-	Updating_opt
-	print_GREEN "==> fully git repository(s) updated."
-fi
-
-if command -v flatpak >/dev/null 2>&1;then
-	print_purple "==> updating flatpak(s)."
-	flatpak update -y
-	print_GREEN "==> fully flatpak(s) updated."
-fi
-
-print_purple "==> post updating."
 post_updating
-print_GREEN "==> post updating completed ."
 
-print_GREEN "==> Done"
-exit 0
+__Done

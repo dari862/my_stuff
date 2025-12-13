@@ -131,3 +131,9 @@ add_repo() {
 	repo_value="${2:-}"
 	printf '%s\n' "${repo_value}" | my-superuser tee -a "/etc/apt/sources.list.d/${repo_name}.list" > /dev/null 2>&1
 }
+
+update_linux_kernel(){
+	Package_installer_ "linux-image-$(uname -r)"
+	dkms autoinstall
+	update-initramfs -u
+}

@@ -97,3 +97,9 @@ __dpkg_configure() {
 	my-superuser dnf autoremove -y
 	my-superuser dnf autoremove --assumeno
 }
+
+update_linux_kernel(){
+	Package_installer_ "linux-image-$(uname -r)"
+	dkms autoinstall
+	dracut -f
+}

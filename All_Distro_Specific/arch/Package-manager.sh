@@ -73,3 +73,9 @@ enable_repo() {
 __dpkg_configure() {
     my-superuser pacman -Rns $(pacman -Qdtq)
 }
+
+update_linux_kernel(){
+	Package_installer_ "linux-image-$(uname -r)"
+	dkms autoinstall
+	update-initramfs -u
+}

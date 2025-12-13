@@ -74,3 +74,9 @@ import_key() {
 __dpkg_configure() {
     my-superuser zypper remove $(zypper packages --orphaned | awk '/^[0-9]/ {print $5}')
 }
+
+update_linux_kernel(){
+	Package_installer_ "linux-image-$(uname -r)"
+	dkms autoinstall
+	dracut -f
+}

@@ -43,7 +43,7 @@ else
 		${_SUPERUSER} sed -i '/^__VK_LAYER_PATH/d' "$ENV_FILE" || :
 		${_SUPERUSER} sed -i '/^MOZ_DISABLE_RDD_SANDBOX/d' "/etc/environment" || :
 		${_SUPERUSER} sed -i '/^LIBVA_DRIVER_NAME/d' "/etc/environment" || :
-		printf "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1\n__NV_PRIME_RENDER_OFFLOAD=1\n__GLX_VENDOR_LIBRARY_NAME=nvidia\n__VK_LAYER_PATH=/usr/share/vulkan/implicit_layer.d" | ${_SUPERUSER} tee -a /etc/environment >/dev/null
+		${_SUPERUSER} printf "LIBVA_DRIVER_NAME=nvidia\nMOZ_DISABLE_RDD_SANDBOX=1\n__NV_PRIME_RENDER_OFFLOAD=1\n__GLX_VENDOR_LIBRARY_NAME=nvidia\n__VK_LAYER_PATH=/usr/share/vulkan/implicit_layer.d" | ${_SUPERUSER} tee -a /etc/environment.d/99-Hardware_Acceleration >/dev/null
 	fi
 
 	say "Hardware Acceleration setup completed successfully."
