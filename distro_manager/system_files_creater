@@ -177,15 +177,24 @@ mkdir -p "${__distro_path_git}"
 mkdir -p "${_DEPLOYED_CONTAINERS_LIBDIR}"
 mkdir -p "${__distro_path_external}"/auto_completion
 
-mkdir -p "${__distro_path_system_files}"/applications
+mkdir -p "${__distro_path_neverremove}/applications"
 
 mkdir -p "${__distro_path_system_ready}"
 
 mkdir -p "${_distro_xsessions_desktop_path}"
 
+mkdir -p "${__distro_path_neverremove}/bin"
+
 show_im "LN essional files"
 mkdir -p "${__distro_path_system_files}/bin"
 mkdir -p "${__distro_path_system_files}/binX11"
+
+if [ "$(ls -A "${__distro_path_neverremove}/bin")" ]; then
+	for b in "${__distro_path_neverremove}/bin"/*;do
+		ln -sf "$b" "${__distro_path_root}/system_files/bin"
+	done
+fi
+
 ln -sf "${__distro_path_root}/bin/X11/session_managers/keybinds-session" "${__distro_path_system_files}/binX11"
 ln -sf "${__distro_path_root}/bin/X11/session_managers/clipboard-manager-session" "${__distro_path_system_files}/binX11"
 ln_sf_files_depth1 "${__distro_path_root}/bin/X11/cli" "${__distro_path_system_files}/binX11"
@@ -372,6 +381,7 @@ if command_exist polybar;then
 	show_im "copy polybar skell file to system_files/skel ."
 	cp -r "${__distro_path_root}/skel_extra/.config/polybar" "${__distro_path_system_skel_files}/.config"
 	cp -r "${__distro_path_root}/bin/X11/session_managers/polybar-session" "${__distro_path_system_files}"/binX11
+	ln_sf_files_depth1 "${__distro_path_root}/bin/X11/polybar" "${__distro_path_root}/system_files/binX11"
 	"${__distro_path_root}"/bin/X11/polybar/polybar_fixes_based_on_ver "$__distro_path_lib"
 fi
 
@@ -636,6 +646,8 @@ show_im "Adding applications desktop files"
 for f in "${__distro_path_root}"/applications/*;do
 	ln -sf "$f" /usr/share/applications
 done
+
+ln -sf "${__distro_path_neverremove}/applications"/* "/usr/share/applications"
 
 show_im "Create gtk themes"
 "${__distro_path_all_distro_themes}"/gtk_themes_creater/create "$__distro_path_lib"

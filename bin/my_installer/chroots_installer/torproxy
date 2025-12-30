@@ -69,7 +69,7 @@ EOF
 my-superuser chmod +x "$CHROOT_SCRIPT_PATH/$start_tor_chroot_script_name" || failed_to_run "Failed to set execute permission on launch script"
 
 say "ln ${torproxy_script_name} script which rerouter all your trafic to chroot to bin dir..."
-my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
+create_never_remove_bin "${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/torproxy to ${__distro_path_root}/system_files/bin"
 
 my-superuser sed -i "s/__GUID=.*/__GUID=$__GUID/g" "${__distro_path_root}/system_files/bin/torproxy"
 my-superuser sed -i "s/__UUID=.*/__UUID=$__UUID/g" "${__distro_path_root}/system_files/bin/torproxy"
@@ -96,8 +96,8 @@ my-superuser ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy
 EOF
 my-superuser chmod +x "$LAUNCH_SCRIPT_PATH/stop_torproxy" || failed_to_run "Failed to set execute permission on launch script"
 
-my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy to ${__distro_path_root}/system_files/bin"
-my-superuser cp -r "${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy" "${__distro_path_root}/system_files/bin" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy to ${__distro_path_root}/system_files/bin"
+create_never_remove_bin "${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/start_torproxy to ${__distro_path_root}/system_files/bin"
+create_never_remove_bin "${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy" || failed_to_run "Failed to ln ${__distro_path_root}/bin/not_add_2_path/torproxy/stop_torproxy to ${__distro_path_root}/system_files/bin"
 
 if [ -f "/etc/doas.conf" ];then
 	my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF

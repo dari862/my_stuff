@@ -1,5 +1,5 @@
 # need superuser : called by my-installer
-my-superuser cp -r "${_APPS_LIBDIR}/hypervisors/virt/virtual_machine" "${__distro_path_root}/system_files/bin"
+create_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virtual_machine"
 say
 say "$app_name has been installed successfully."
 say

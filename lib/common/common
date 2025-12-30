@@ -183,8 +183,7 @@ copy_all__application_link_in_dir(){
 			_SUPERUSER="doas"
 		fi
 	fi
-    $_SUPERUSER cp -r "${__distro_path_root}/applications_extra/${__application_link_dir}"/* "${__distro_path_root}/system_files/applications"
-    $_SUPERUSER ln -sf "${__distro_path_root}/system_files/applications/${__application_link_dir}"/* "/usr/share/applications"
+    $_SUPERUSER cp -r "${__distro_path_root}/applications_extra/${__application_link_dir}"/* "${__distro_path_neverremove}/applications"
 }
 
 create_applicationsdotdesktop_link(){
@@ -202,14 +201,14 @@ create_applicationsdotdesktop_link(){
 		fi
 	fi
     if [ -f "${__distro_path_root}/applications_extra/${__application_name}.desktop" ];then
-    	$_SUPERUSER cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
-    	if grep -q "(((__distro_path_root)))" "${__distro_path_root}/system_files/applications/${__application_name}.desktop";then
-    		$_SUPERUSER sed -i "s/(((__distro_path_root)))/${__distro_path_root}/g" "${__distro_path_root}/system_files/applications/${__application_name}.desktop"
+    	$_SUPERUSER cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_neverremove}/applications/${__application_name}.desktop"
+    	if grep -q "(((__distro_path_root)))" "${__distro_path_neverremove}/applications/${__application_name}.desktop";then
+    		$_SUPERUSER sed -i "s/(((__distro_path_root)))/${__distro_path_root}/g" "${__distro_path_neverremove}/applications/${__application_name}.desktop"
     	fi
-    	$_SUPERUSER ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    	$_SUPERUSER ln -sf "${__distro_path_neverremove}/applications/${__application_name}.desktop" "/usr/share/applications"
     else
     	[ -z "$__application_command" ] && __application_command="${__application_name}"
-    	$_SUPERUSER tee "${__distro_path_root}/system_files/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	$_SUPERUSER tee "${__distro_path_neverremove}/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
     	[Desktop Entry]
 		Name=${__application_name}
 		Comment=${__application_name}
@@ -221,7 +220,7 @@ create_applicationsdotdesktop_link(){
 		MimeType=text/html;text/xml;application/xhtml_xml;
 		StartupNotify=true
 		EOF
-    	$_SUPERUSER ln -sf "${__distro_path_root}/system_files/applications/${__application_name}.desktop" "/usr/share/applications"
+    	$_SUPERUSER ln -sf "${__distro_path_neverremove}/applications/${__application_name}.desktop" "/usr/share/applications"
     fi
 }
 
@@ -400,4 +399,16 @@ fi
 
 ln_sf_files_depth1(){
 	$_SUPERUSER find "$1" -maxdepth 1 -type f -exec ln -sf {} "$2" \;
+}
+
+create_never_remove_bin(){
+	bin_to_lnsf="${1:-}"
+	new_name_for_bin="${2:-}"
+	bin_name="$(basename "$bin_to_lnsf")"
+	my-superuser cp -r "${bin_to_lnsf}" "${__distro_path_neverremove}/bin"
+	if [ -z "$new_name_for_bin" ];then
+		my-superuser ln -sf "${__distro_path_neverremove}/bin/${bin_name}" "${__distro_path_root}/system_files/bin"
+	else
+		my-superuser ln -sf "${__distro_path_neverremove}/bin/${bin_name}" "${__distro_path_root}/system_files/bin/${new_name_for_bin}"
+	fi
 }

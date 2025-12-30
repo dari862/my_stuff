@@ -1,5 +1,6 @@
 #!/bin/sh
 # download audio from URL and set ID3v2 metadata
+# work on this : improve
 set -eu
 
 ask_question(){

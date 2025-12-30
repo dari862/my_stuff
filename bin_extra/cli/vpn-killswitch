@@ -1,5 +1,6 @@
 #!/bin/bash
 # need superuser : use my-superuser
+# work on this : improve
 set -euo pipefail
 unalias -a
 . "$__distro_path_lib"

@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# work on this : improve
 # Requires ffmpeg
 
 [ ! -f "$2" ] && printf "The first file should be the audio, the second should be the timecodes.\\n" && exit

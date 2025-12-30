@@ -6,5 +6,5 @@ say 'Installing gphoto2 and v4l2loopback...' 1
 Package_installer_ "${app_name}" || continue
 
 super_clone_repo https://github.com/cowtoolz/webcamize.git "${__distro_path_git}"/webcamize
-my-superuser ln -sf "${__distro_path_git}"/webcamize/webcamize "${__distro_path_root}/system_files/bin"
+create_never_remove_bin "${__distro_path_git}"/webcamize/webcamize
 

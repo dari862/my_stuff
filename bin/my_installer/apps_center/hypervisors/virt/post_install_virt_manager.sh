@@ -69,21 +69,21 @@
 		prompt '  Do you want to auto deploy windows VM?' && auto_windows_vm=true
 
 		if [ "$install_quickemu" = "true" ];then
-			. "${_APPS_LIBDIR}/hypervisors/virt/quickemu_installer"
+			. "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/quickemu_installer"
 		else
-			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/quickemu_installer" ${__distro_path_root}/system_files/bin
+			create_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/quickemu_installer"
 		fi
 		
 		if [ "$install_QuickPassthrough" = "true" ];then
-			. "${_APPS_LIBDIR}/hypervisors/virt/QuickPassthrough_installer"
+			. "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/QuickPassthrough_installer"
 		else
-			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/QuickPassthrough_installer" ${__distro_path_root}/system_files/bin
+			create_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/QuickPassthrough_installer"
 		fi
 		
 		if [ "$auto_windows_vm" = "true" ];then
-			. "${_APPS_LIBDIR}/hypervisors/virt/windows_vm_installer"
+			"${_APPS_LIBDIR}/hypervisors/virt/virt_manager/windows_vm_installer"
 		else
-			my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/windows_vm_installer" ${__distro_path_root}/system_files/bin
+			create_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/windows_vm_installer"
 		fi
 
 		# end

@@ -1,4 +1,5 @@
 #!/bin/sh
+# work on this : improve
 option="${1-}"
 option2="${2-}"
 

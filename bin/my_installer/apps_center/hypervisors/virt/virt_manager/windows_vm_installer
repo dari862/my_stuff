@@ -1,0 +1,1603 @@
+#!/bin/sh
+#called by my-installer
+set -e
+
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/lib/common/VM"
+
+OS="windows"
+I18N="English International"
+
+os_name="${OS}-${RELEASE}"
+VIRTIO_FILE="virtio-win.iso"
+FILE_NAME="${os_name}.iso"
+
+libvirt_image_path="/var/lib/libvirt/images"
+ROOT_VM_PATH_Builder="/var/tmp/auto_installed_vm_virt_manager"
+virt_manager_script_path="${_APPS_LIBDIR}/hypervisors/virt/virt_manager"
+
+VM_PATH_Builder="${ROOT_VM_PATH_Builder}/${os_name}"
+VIRTIO_DIR="${VM_PATH_Builder}"
+VIRTIO_PATH="${VM_PATH_Builder}/${VIRTIO_FILE}"
+WINDOWS_ISO_DIR="${VM_PATH_Builder}"
+WINDOWS_ISO_PATH="${WINDOWS_ISO_DIR}/${FILE_NAME}"
+VM_XML="${VM_PATH_Builder}/vm.xml"
+unattended_iso_path="${VM_PATH_Builder}/unattended.iso"
+unattended_files_dir="${VM_PATH_Builder}/unattended"
+
+virt_storage_name="${VM_NAME}.qcow2"
+virt_storage="${libvirt_image_path}/${virt_storage_name}"
+
+ARCH=$(uname -m)
+say "Detected architecture: $ARCH"
+case "$ARCH" in
+    x86_64) picked_ARCH="amd64" ;;
+    arm*) picked_ARCH="$ARCH" ;;
+    aarch64) picked_ARCH="aarch64" ;;
+    *) exit 1 ;;
+esac
+
+case "$ram_size" in
+    *K)
+        ram_size_2_convert="${ram_size%K}"
+        converted_ram_size="$ram_size_2_convert"
+    ;;
+    *M)
+        ram_size_2_convert="${ram_size%M}"
+        converted_ram_size=$((ram_size_2_convert * 1024))
+    ;;
+    *G)
+        ram_size_2_convert="${ram_size%G}"
+        converted_ram_size=$((ram_size_2_convert * 1024 * 1024))
+    ;;
+esac
+
+req_dir_path="${VM_PATH_Builder}/req_dir"
+iso_download_link=""
+
+vmbuildpoolname="vmbuildpool"
+
+export LIBVIRT_DEFAULT_URI=qemu:///system
+export LC_ALL=en_US.UTF-8
+
+user_agent1="Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0"
+user_agent2="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+
+        
+handle_url_error() {
+	error_code="$1"
+	fatal_error_action=2
+	case "$error_code" in
+		6) say "Failed to resolve Microsoft servers! Is there an Internet connection? Exiting..." 'red' ; return "$fatal_error_action" ;;
+		7) say "Failed to contact Microsoft servers! Is there an Internet connection or is the server down?" 'red' ;;
+		8) say "Microsoft servers returned a malformed HTTP response!" 'red' ;;
+		22) say "Microsoft servers returned a failing HTTP status code!" 'red' ;;
+		23) say "Failed at writing Windows media to disk! Out of disk space or permission error? Exiting..." 'red' ; return "$fatal_error_action" ;;
+		26) say "Ran out of memory during download! Exiting..." 'red' ; return "$fatal_error_action" ;;
+		36) say "Failed to continue earlier download!" 'red' ;;
+		63) say "Microsoft servers returned an unexpectedly large response!" 'red' ;;
+			# POSIX defines exit statuses 1-125 as usable by us
+			# https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_08_02
+			$((error_code <= 125)))
+			# Must be some other server or network error (possibly with this specific request/file)
+			# This is when accounting for all possible errors in the curl manual assuming a correctly formed curl command and an HTTP(S) request, using only the curl features we're using, and a sane build
+			say "Miscellaneous server or network error!" 'red' ;;
+			# Exit statuses are undefined by POSIX beyond this point
+		*)
+		case "$(kill -l "$error_code")" in
+			# Signals defined to exist by POSIX:
+			# https://pubs.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html
+			INT) say "$__url_handler_command was interrupted!" 'red' ;;
+			# There could be other signals but these are most common
+			SEGV | ABRT ) say "$__url_handler_command crashed! Failed exploitation attempt? Please report any core dumps to $__url_handler_command developers. Exiting..." 'red' ; return "$fatal_error_action" ;;
+			*) say "$__url_handler_command terminated due to a fatal signal!" 'red';;
+		esac
+	esac
+	return 1
+}
+        
+if command -v "curl" >/dev/null 2>/dev/null;then
+	__url_handler_command=curl
+	
+    run_url_handling_command() {
+        mode="$1"
+        shift
+        
+        base_curl(){
+            curl --fail --proto '=https' --tlsv1.2 --http1.1 "$@"
+        }
+        
+        case "$mode" in
+            check_url_1m) base_curl --silent --header 'Accept:' --max-filesize 1M --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            check_url_100k_discard) base_curl --silent --header 'Accept:' --max-filesize 100K --output /dev/null --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            check_url_100k) base_curl --silent --max-filesize 100K --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            referer_fetch) referer="$1" ; shift ; base_curl --silent --referer "$referer" --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            resolve_final_url) base_curl --silent --location --head --write-out '%{url_effective}' --output /dev/null --user-agent "$user_agent2" "$@" ;;
+            download_iso) output_path="$1" ; shift ;base_curl --progress-bar --location --continue-at - --output "$output_path" --user-agent "$user_agent2" "$@" ;;
+            *) say "Unknown mode: $mode" 'red' ; return 1 ;;
+        esac
+    }
+elif command -v "wget" >/dev/null 2>/dev/null;then
+    __url_handler_command=wget
+    
+    run_url_handling_command() {
+    	mode="$1"
+    	shift
+		
+    	base_wget() {
+        	wget --quiet --no-check-certificate "$@"
+    	}
+    
+    	case "$mode" in
+        	check_url_1m) base_wget --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	check_url_100k_discard) base_wget --output-document=/dev/null --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	check_url_100k) base_wget --max-filesize=100K --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	referer_fetch) referer="$1" ; shift ; base_wget --referer="$referer" --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	resolve_final_url) base_wget --max-redirect=10 --server-response --spider --user-agent "$user_agent2" "$@" 2>&1 | grep -i "Location:" | tail -1 | awk '{print $2}' || ( handle_url_error $? ; return $? ) ;;
+        	download_iso) output_path="$1" ; shift ; base_wget --progress=bar:force --continue --output-document="$output_path" --user-agent="$user_agent2" "$@" ;;
+        	*) say "Unknown mode: $mode" 'red' ; return 1 ;;
+    	esac
+	}
+fi
+
+GET_WINDOWS_ISO_URL() {
+    session_id=""
+    iso_download_page_html=""
+    product_edition_id=""
+    language_skuid_table_json=""
+    sku_id=""
+    iso_download_link_json=""
+
+    say "Downloading Windows ${RELEASE} (${I18N})"
+    # This function is adapted from the Mido project:
+    # https://github.com/ElliotKillick/Mido
+    # Download newer consumer Windows versions from behind gated Microsoft API
+
+    url="https://www.microsoft.com/en-us/software-download/windows$RELEASE"
+    case "$RELEASE" in
+        10) url="${url}ISO";;
+    esac
+
+    session_id="$(cat /proc/sys/kernel/random/uuid)"
+
+    # Get product edition ID for latest release of given Windows version
+    # Product edition ID: This specifies both the Windows release (e.g. 22H2) and edition ("multi-edition" is default, either Home/Pro/Edu/etc., we select "Pro" in the answer files) in one number
+    # This is the *only* request we make that Fido doesn't. Fido manually maintains a list of all the Windows release/edition product edition IDs in its script (see: $WindowsVersions array). This is helpful for downloading older releases (e.g. Windows 10 1909, 21H1, etc.) but we always want to get the newest release which is why we get this value dynamically
+    # Also, keeping a "$WindowsVersions" array like Fido does would be way too much of a maintenance burden
+    # Remove "Accept" header that url_handling_command sends by default
+    say " - Parsing download page: ${url}"
+    iso_download_page_html="$(run_url_handling_command check_url_1m "$url")"
+    
+    say " - Getting Product edition ID: "
+    # tr: Filter for only numerics to prevent HTTP parameter injection
+    # head -c was recently added to POSIX: https://austingroupbugs.net/view.php?id=407
+    product_edition_id="$(echo "$iso_download_page_html" | grep -Eo '<option value="[0-9]+">Windows' | cut -d '"' -f 2 | head -n 1 | tr -cd '0-9' | head -c 16)"
+    echo "$product_edition_id"
+
+    say " - Permit Session ID: $session_id"
+    # Permit Session ID
+    # "org_id" is always the same value
+    vlscppe_microsoft_url="https://vlscppe.microsoft.com/tags?org_id=y6jn8c31&session_id=$session_id"
+    run_url_handling_command check_url_100k_discard "$vlscppe_microsoft_url"
+
+    profile="606624d44113"
+
+    say " - Getting language SKU ID: "
+    # Get language -> skuID association table
+    language_skuID_url="https://www.microsoft.com/software-download-connector/api/getskuinformationbyproductedition?profile=${profile}&ProductEditionId=${product_edition_id}&SKU=undefined&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}"
+    language_skuid_table_json="$(run_url_handling_command check_url_100k "$language_skuID_url")"
+    
+    sku_id="$(echo "${language_skuid_table_json}" | jq -r '.Skus[] | select(.LocalizedLanguage=="'"${I18N}"'" or .Language=="'"${I18N}"'").Id')"
+    echo "$sku_id"
+
+    say " - Getting ISO download link..."
+    # Get ISO download link
+    # If any request is going to be blocked by Microsoft it's always this last one (the previous requests always seem to succeed)
+    # --referer: Required by Microsoft servers to allow request
+    Microsoft_url_2_download_link="https://www.microsoft.com/software-download-connector/api/GetProductDownloadLinksBySku?profile=${profile}&productEditionId=undefined&SKU=${sku_id}&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}"
+    iso_download_link_json="$(run_url_handling_command referer_fetch "$url" "$Microsoft_url_2_download_link")"
+
+    failed=0
+
+    if [ -z "$iso_download_link_json" ]; then
+        # This should only happen if there's been some change to how this API works
+        say " - Microsoft servers gave us an empty response to our request for an automated download." 'red'
+        failed=1
+    elif echo "$iso_download_link_json" | grep -q "Sentinel marked this request as rejected."; then
+        say " - WARNING! Microsoft blocked the automated download request based on your IP address." 'red'
+        failed=1
+    fi
+
+    if [ "${failed}" -eq 1 ]; then
+        say "   Manually download the Windows ${RELEASE} ISO using a web browser from: ${url}" 'red'
+        say "   Save the downloaded ISO to: $WINDOWS_ISO_DIR" 'red'
+        say "   Continuing with the VM creation process..." 'red'
+        return 1
+    fi
+
+    # Filter for 64-bit ISO download URL
+    iso_download_link="$(echo "${iso_download_link_json}" | jq -r '.ProductDownloadOptions[].Uri' | grep x64)"
+
+    if [ -z "$iso_download_link" ]; then
+        # This should only happen if there's been some change to the download endpoint web address
+        say " - Microsoft servers gave us no download link to our request for an automated download. Please manually download this ISO in a web browser: $url" 'red'
+        return 1
+    fi
+}
+
+download_windows_iso() {
+    say " - Download ISO"
+    say " - URL: ${iso_download_link%%\?*}"
+    say " - Resolving redirect URL"
+    REDIRECT_URL=$(run_url_handling_command resolve_final_url "$iso_download_link")
+    if [ "${REDIRECT_URL}" != "${iso_download_link}" ]; then
+        say " - Setting iso_download_link to redirected url."
+        iso_download_link="${REDIRECT_URL}"
+    fi
+    say " - Final URL resolved"
+    say " - Downloading ${FILE_NAME} to ${WINDOWS_ISO_DIR} ."
+    if ! run_url_handling_command download_iso "${WINDOWS_ISO_DIR}/${FILE_NAME}" "$iso_download_link"; then
+        say "ERROR! Failed to download ${iso_download_link} with $__url_handler_command ." 'red'
+        rm -f "${WINDOWS_ISO_DIR}/${FILE_NAME}"
+    fi
+    say " - Done Downloading ${FILE_NAME}." 'green'
+}
+
+get_windows() {
+	if [ -f "${WINDOWS_ISO_PATH}" ];then
+        return
+    fi
+    say " Downloading Windows ${RELEASE} iso!"
+    GET_WINDOWS_ISO_URL
+    download_windows_iso
+}
+
+create_autounattend_xml() {
+    if [ -f "${unattended_files_dir}/autounattend.xml" ];then
+        return
+    fi
+
+tee "${unattended_files_dir}/autounattend.xml" << 'EOF' > /dev/null 2>&1
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+	<!--https://schneegans.de/windows/unattend-generator/?LanguageMode=Unattended&UILanguage=en-GB&Locale=en-US&Keyboard=00000409&GeoLocation=244&ProcessorArchitecture={picked_ARCH}&BypassRequirementsCheck=true&BypassNetworkCheck=true&ComputerNameMode=Random&CompactOsMode=Default&TimeZoneMode=Implicit&PartitionMode=Interactive&DiskAssertionMode=Skip&WindowsEditionMode=Custom&ProductKey=W269N-WFGWX-YVC9B-4J6C9-T83GX&InstallFromMode=Name&InstallFromName=Windows+%7BRELEASE%7D+Pro&PEMode=Default&UserAccountMode=Unattended&AccountName0=%7Busername%7D&AccountDisplayName0=%7Busername%7D&AccountPassword0=%7Bpasswd%7D&AccountGroup0=Administrators&AutoLogonMode=Own&PasswordExpirationMode=Unlimited&LockoutMode=Default&HideFiles=None&ShowFileExtensions=true&ClassicContextMenu=true&LaunchToThisPC=true&ShowEndTask=true&TaskbarSearch=Hide&TaskbarIconsMode=Empty&DisableWidgets=true&LeftTaskbar=true&HideTaskViewButton=true&ShowAllTrayIcons=true&DisableBingResults=true&StartTilesMode=Empty&StartPinsMode=Empty&DisableUac=true&DisableFastStartup=true&EnableRemoteDesktop=true&HardenSystemDriveAcl=true&DeleteJunctions=true&AllowPowerShellScripts=true&DisableLastAccess=true&PreventAutomaticReboot=true&TurnOffSystemSounds=true&DisableAppSuggestions=true&PreventDeviceEncryption=true&HideEdgeFre=true&DisableEdgeStartupBoost=true&DisableCoreIsolation=true&DeleteWindowsOld=true&EffectsMode=Performance&DesktopIconsMode=Custom&IconControlPanel=true&IconDownloads=true&IconNetwork=true&IconRecycleBin=true&IconThisPC=true&IconUserFiles=true&StartFoldersMode=Default&WifiMode=Skip&ExpressSettings=DisableAll&LockKeysMode=Skip&StickyKeysMode=Disabled&ColorMode=Default&WallpaperMode=Default&LockScreenMode=Default&Remove3DViewer=true&RemoveBingSearch=true&RemoveCalculator=true&RemoveCamera=true&RemoveClipchamp=true&RemoveClock=true&RemoveCopilot=true&RemoveCortana=true&RemoveDevHome=true&RemoveWindowsHello=true&RemoveFamily=true&RemoveFeedbackHub=true&RemoveGameAssist=true&RemoveGetHelp=true&RemoveHandwriting=true&RemoveMailCalendar=true&RemoveMaps=true&RemoveMathInputPanel=true&RemoveMediaFeatures=true&RemoveMixedReality=true&RemoveZuneVideo=true&RemoveNews=true&RemoveNotepad=true&RemoveOffice365=true&RemoveOneDrive=true&RemoveOneNote=true&RemoveOneSync=true&RemoveOpenSSHClient=true&RemoveOutlook=true&RemovePaint=true&RemovePaint3D=true&RemovePeople=true&RemovePhotos=true&RemovePowerAutomate=true&RemovePowerShell2=true&RemovePowerShellISE=true&RemoveQuickAssist=true&RemoveRecall=true&RemoveSkype=true&RemoveSnippingTool=true&RemoveSolitaire=true&RemoveSpeech=true&RemoveStepsRecorder=true&RemoveStickyNotes=true&RemoveTeams=true&RemoveGetStarted=true&RemoveToDo=true&RemoveVoiceRecorder=true&RemoveWallet=true&RemoveWeather=true&RemoveFaxAndScan=true&RemoveWindowsMediaPlayer=true&RemoveZuneMusic=true&RemoveWordPad=true&RemoveXboxApps=true&RemoveYourPhone=true&SystemScript0=powercfg+-h+off&SystemScriptType0=Cmd&FirstLogonScript0=foreach%28+%24letter+in+%27DEFGHIJKLMNOPQRSTUVWXYZ%27.ToCharArray%28%29+%29+%7B%0D%0A%09%24exe+%3D+%22%24%7Bletter%7D%3A%5Cvirtio-win-guest-tools.exe%22%3B%0D%0A%09if%28+Test-Path+-LiteralPath+%24exe+%29+%7B%0D%0A%09%09msiexec+%2Fi+%24%7Bletter%7D%3A%5Cguest-agent%5Cqemu-ga-x86_64.msi+%2Fquiet+%2Fpassive+%2Fqn%0D%0A%09%09msiexec+%2Fi+%24%7Bletter%7D%3A%5Cvirtio-win-guest-tools.exe+%2Fquiet+%2Fpassive+%2Fqn%0D%0A%09%7D%0D%0A%7D%0D%0Aforeach%28+%24letter+in+%27DEFGHIJKLMNOPQRSTUVWXYZ%27.ToCharArray%28%29+%29+%7B%0D%0A%09%24exe+%3D+%22%24%7Bletter%7D%3A%5Cinstall.bat%22%3B%0D%0A%09if%28+Test-Path+-LiteralPath+%24exe+%29+%7B%0D%0A%09%09msiexec+%2Fi+%24%7Bletter%7D%3A%5Cspice-webdavd-x64.msi+%2Fquiet+%2Fpassive+%2Fqn%0D%0A%09%09msiexec+%2Fi+%24%7Bletter%7D%3A%5CUsbDk-x64.msi+%2Fquiet+%2Fpassive+%2Fqn%0D%0A%09%09msiexec+%2Fi+%24%7Bletter%7D%3A%5Cspice-vdagent-x64.msi+%2Fquiet+%2Fpassive+%2Fqn%0D%0A%09%09Start-Process+%22%24%7Bletter%7D%3A%5Cinstall.bat%22+-Wait%3B%0D%0A%09%09regedit.exe+%2Fs+%22%24%7Bletter%7D%3A%5CRDPApps.reg%22%3B%0D%0A%09%09return%3B%0D%0A%09%7D%0D%0A%7D&FirstLogonScriptType0=Ps1&FirstLogonScript1=%26+%28%5Bscriptblock%5D%3A%3ACreate%28%28irm+%22https%3A%2F%2Fdebloat.raphi.re%2F%22%29%29%29+-RunDefaults+-Silent&FirstLogonScriptType1=Ps1&WdacMode=Skip&AppLockerMode=Skip&ComponentContent0=%3CDriverPaths%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%222%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cviostor%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%223%22%3E%0D%0A%09%09%3CPath%3EE%3A%5CNetKVM%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%224%22%3E%0D%0A%09%09%3CPath%3EE%3A%5CBalloon%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%225%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cpvpanic%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%226%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cqemupciserial%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%227%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cqxldod%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%228%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cvioinput%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%229%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cviorng%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%2210%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cvioscsi%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%09%3CPathAndCredentials+wcm%3Aaction%3D%22add%22+wcm%3AkeyValue%3D%2211%22%3E%0D%0A%09%09%3CPath%3EE%3A%5Cvioserial%5Cw%7BRELEASE%7D%5C{picked_ARCH}%3C%2FPath%3E%0D%0A%09%3C%2FPathAndCredentials%3E%0D%0A%3C%2FDriverPaths%3E&Component0=Microsoft-Windows-PnpCustomizationsWinPE-windowsPE&ComponentContent1=%3CDiskConfiguration%3E%0D%0A%3CDisk+wcm%3Aaction%3D%22add%22%3E%0D%0A%09%3CCreatePartitions%3E%0D%0A%09%09%3CCreatePartition+wcm%3Aaction%3D%22add%22%3E%0D%0A%09%09%09%3COrder%3E1%3C%2FOrder%3E%0D%0A%09%09%09%3CType%3EPrimary%3C%2FType%3E%0D%0A%09%09%09%3CExtend%3Etrue%3C%2FExtend%3E%0D%0A%09%09%3C%2FCreatePartition%3E%0D%0A%09%3C%2FCreatePartitions%3E%0D%0A%09%3CModifyPartitions%3E%0D%0A%09%09%3CModifyPartition+wcm%3Aaction%3D%22add%22%3E%0D%0A%09%09%09%3CActive%3Etrue%3C%2FActive%3E%0D%0A%09%09%09%3CExtend%3Efalse%3C%2FExtend%3E%0D%0A%09%09%09%3CFormat%3ENTFS%3C%2FFormat%3E%0D%0A%09%09%09%3CLetter%3EC%3C%2FLetter%3E%0D%0A%09%09%09%3COrder%3E1%3C%2FOrder%3E%0D%0A%09%09%09%3CPartitionID%3E1%3C%2FPartitionID%3E%0D%0A%09%09%09%3CLabel%3EWindows%3C%2FLabel%3E%0D%0A%09%09%3C%2FModifyPartition%3E%0D%0A%09%3C%2FModifyPartitions%3E%0D%0A%09%3CDiskID%3E0%3C%2FDiskID%3E%0D%0A%09%3CWillWipeDisk%3Etrue%3C%2FWillWipeDisk%3E%0D%0A%3C%2FDisk%3E%0D%0A%3C%2FDiskConfiguration%3E%0D%0A%3CImageInstall%3E%0D%0A%09%3COSImage%3E%0D%0A%09%09%3CInstallFrom%3E%0D%0A%09%09%09%3CMetaData+wcm%3Aaction%3D%22add%22%3E%0D%0A%09%09%09%09%3CKey%3E%2FIMAGE%2FNAME%3C%2FKey%3E%0D%0A%09%09%09%09%3CValue%3EWindows+%7BRELEASE%7D+Pro%3C%2FValue%3E%0D%0A%09%09%09%3C%2FMetaData%3E%0D%0A%09%09%3C%2FInstallFrom%3E%0D%0A%09%09%3CInstallTo%3E%0D%0A%09%09%09%3CDiskID%3E0%3C%2FDiskID%3E%0D%0A%09%09%09%3CPartitionID%3E1%3C%2FPartitionID%3E%0D%0A%09%09%3C%2FInstallTo%3E%0D%0A%09%3C%2FOSImage%3E%0D%0A%3C%2FImageInstall%3E%0D%0A%3CUserData%3E%0D%0A%09%3CProductKey%3E%0D%0A%09%09%3CKey%3EW269N-WFGWX-YVC9B-4J6C9-T83GX%3C%2FKey%3E%0D%0A%09%09%3CWillShowUI%3EOnError%3C%2FWillShowUI%3E%0D%0A%09%3C%2FProductKey%3E%0D%0A%09%3CAcceptEula%3Etrue%3C%2FAcceptEula%3E%0D%0A%3C%2FUserData%3E%0D%0A%3CUseConfigurationSet%3Efalse%3C%2FUseConfigurationSet%3E%0D%0A%3CRunSynchronous%3E%0D%0A%09%3CRunSynchronousCommand+wcm%3Aaction%3D%22add%22%3E%0D%0A%09%09%3COrder%3E1%3C%2FOrder%3E%0D%0A%09%09%3CPath%3Ereg.exe+add+%22HKLM%5CSYSTEM%5CSetup%5CLabConfig%22+%2Fv+BypassTPMCheck+%2Ft+REG_DWORD+%2Fd+1+%2Ff%3C%2FPath%3E%0D%0A%09%3C%2FRunSynchronousCommand%3E%0D%0A%09%3CRunSynchronousCommand+wcm%3Aaction%3D%22add%22%3E%0D%0A%09%09%3COrder%3E2%3C%2FOrder%3E%0D%0A%09%09%3CPath%3Ereg.exe+add+%22HKLM%5CSYSTEM%5CSetup%5CLabConfig%22+%2Fv+BypassSecureBootCheck+%2Ft+REG_DWORD+%2Fd+1+%2Ff%3C%2FPath%3E%0D%0A%09%3C%2FRunSynchronousCommand%3E%0D%0A%09%3CRunSynchronousCommand+wcm%3Aaction%3D%22add%22%3E%0D%0A%09%09%3COrder%3E3%3C%2FOrder%3E%0D%0A%09%09%3CPath%3Ereg.exe+add+%22HKLM%5CSYSTEM%5CSetup%5CLabConfig%22+%2Fv+BypassRAMCheck+%2Ft+REG_DWORD+%2Fd+1+%2Ff%3C%2FPath%3E%0D%0A%09%3C%2FRunSynchronousCommand%3E%0D%0A%3C%2FRunSynchronous%3E&Component1=Microsoft-Windows-Setup-windowsPE-->
+	<settings pass="offlineServicing"></settings>
+	<settings pass="windowsPE">
+		<component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="{picked_ARCH}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<UILanguage>en-{LANG}</UILanguage>
+		</component>
+		<component name="Microsoft-Windows-Setup" processorArchitecture="{picked_ARCH}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<DiskConfiguration>
+				<Disk wcm:action="add">
+					<CreatePartitions>
+						<CreatePartition wcm:action="add">
+							<Order>1</Order>
+							<Type>Primary</Type>
+							<Extend>true</Extend>
+						</CreatePartition>
+					</CreatePartitions>
+					<ModifyPartitions>
+						<ModifyPartition wcm:action="add">
+							<Active>true</Active>
+							<Extend>false</Extend>
+							<Format>NTFS</Format>
+							<Letter>C</Letter>
+							<Order>1</Order>
+							<PartitionID>1</PartitionID>
+							<Label>Windows</Label>
+						</ModifyPartition>
+					</ModifyPartitions>
+					<DiskID>0</DiskID>
+					<WillWipeDisk>true</WillWipeDisk>
+				</Disk>
+			</DiskConfiguration>
+			<ImageInstall>
+				<OSImage>
+					<InstallFrom>
+						<MetaData wcm:action="add">
+							<Key>/IMAGE/NAME</Key>
+							<Value>Windows {RELEASE} Pro</Value>
+						</MetaData>
+					</InstallFrom>
+					<InstallTo>
+						<DiskID>0</DiskID>
+						<PartitionID>1</PartitionID>
+					</InstallTo>
+				</OSImage>
+			</ImageInstall>
+			<UserData>
+				<ProductKey>
+					<Key>W269N-WFGWX-YVC9B-4J6C9-T83GX</Key>
+					<WillShowUI>OnError</WillShowUI>
+				</ProductKey>
+				<AcceptEula>true</AcceptEula>
+			</UserData>
+			<UseConfigurationSet>false</UseConfigurationSet>
+			<RunSynchronous>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>1</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassTPMCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>2</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassSecureBootCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>3</Order>
+					<Path>reg.exe add "HKLM\SYSTEM\Setup\LabConfig" /v BypassRAMCheck /t REG_DWORD /d 1 /f</Path>
+				</RunSynchronousCommand>
+			</RunSynchronous>
+		</component>
+		<component name="Microsoft-Windows-PnpCustomizationsWinPE" processorArchitecture="{picked_ARCH}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<DriverPaths>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="2">
+					<Path>E:\viostor\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="3">
+					<Path>E:\NetKVM\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="4">
+					<Path>E:\Balloon\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="5">
+					<Path>E:\pvpanic\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="6">
+					<Path>E:\qemupciserial\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="7">
+					<Path>E:\qxldod\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="8">
+					<Path>E:\vioinput\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="9">
+					<Path>E:\viorng\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="10">
+					<Path>E:\vioscsi\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+				<PathAndCredentials wcm:action="add" wcm:keyValue="11">
+					<Path>E:\vioserial\w{RELEASE}\{picked_ARCH}</Path>
+				</PathAndCredentials>
+			</DriverPaths>
+		</component>
+	</settings>
+	<settings pass="generalize"></settings>
+	<settings pass="specialize">
+		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="{picked_ARCH}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<ProductKey>W269N-WFGWX-YVC9B-4J6C9-T83GX</ProductKey>
+		</component>
+		<component name="Microsoft-Windows-Deployment" processorArchitecture="{picked_ARCH}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<RunSynchronous>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>1</Order>
+					<Path>powershell.exe -WindowStyle "Normal" -NoProfile -Command "$xml = [xml]::new(); $xml.Load('C:\Windows\Panther\unattend.xml'); $sb = [scriptblock]::Create( $xml.unattend.Extensions.ExtractScript ); Invoke-Command -ScriptBlock $sb -ArgumentList $xml;"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>2</Order>
+					<Path>powershell.exe -WindowStyle "Normal" -ExecutionPolicy "Unrestricted" -NoProfile -File "C:\Windows\Setup\Scripts\Specialize.ps1"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>3</Order>
+					<Path>reg.exe load "HKU\DefaultUser" "C:\Users\Default\NTUSER.DAT"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>4</Order>
+					<Path>powershell.exe -WindowStyle "Normal" -ExecutionPolicy "Unrestricted" -NoProfile -File "C:\Windows\Setup\Scripts\DefaultUser.ps1"</Path>
+				</RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+					<Order>5</Order>
+					<Path>reg.exe unload "HKU\DefaultUser"</Path>
+				</RunSynchronousCommand>
+			</RunSynchronous>
+		</component>
+	</settings>
+	<settings pass="auditSystem"></settings>
+	<settings pass="auditUser"></settings>
+	<settings pass="oobeSystem">
+		<component name="Microsoft-Windows-International-Core" processorArchitecture="{picked_ARCH}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<InputLocale>0409:00000409</InputLocale>
+			<SystemLocale>en-{LANG}</SystemLocale>
+			<UILanguage>en-{LANG}</UILanguage>
+			<UserLocale>en-{LANG}</UserLocale>
+		</component>
+		<component name="Microsoft-Windows-Shell-Setup" processorArchitecture="{picked_ARCH}" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
+			<UserAccounts>
+				<LocalAccounts>
+					<LocalAccount wcm:action="add">
+						<Name>{username}</Name>
+						<DisplayName>{username}</DisplayName>
+						<Group>Administrators</Group>
+						<Password>
+							<Value>{passwd}</Value>
+							<PlainText>true</PlainText>
+						</Password>
+					</LocalAccount>
+				</LocalAccounts>
+			</UserAccounts>
+			<AutoLogon>
+				<Username>{username}</Username>
+				<Enabled>true</Enabled>
+				<LogonCount>1</LogonCount>
+				<Password>
+					<Value>{passwd}</Value>
+					<PlainText>true</PlainText>
+				</Password>
+			</AutoLogon>
+			<OOBE>
+				<ProtectYourPC>3</ProtectYourPC>
+				<HideEULAPage>true</HideEULAPage>
+				<HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+				<HideOnlineAccountScreens>false</HideOnlineAccountScreens>
+			</OOBE>
+			<FirstLogonCommands>
+				<SynchronousCommand wcm:action="add">
+					<Order>1</Order>
+					<CommandLine>powershell.exe -WindowStyle "Normal" -ExecutionPolicy "Unrestricted" -NoProfile -File "C:\Windows\Setup\Scripts\FirstLogon.ps1"</CommandLine>
+				</SynchronousCommand>
+			</FirstLogonCommands>
+		</component>
+	</settings>
+	<Extensions xmlns="https://schneegans.de/windows/unattend-generator/">
+		<ExtractScript>
+param(
+    [xml] $Document
+);
+
+foreach( $file in $Document.unattend.Extensions.File ) {
+    $path = [System.Environment]::ExpandEnvironmentVariables( $file.GetAttribute( 'path' ) );
+    mkdir -Path( $path | Split-Path -Parent ) -ErrorAction 'SilentlyContinue';
+    $encoding = switch( [System.IO.Path]::GetExtension( $path ) ) {
+        { $_ -in '.ps1', '.xml' } { [System.Text.Encoding]::UTF8; }
+        { $_ -in '.reg', '.vbs', '.js' } { [System.Text.UnicodeEncoding]::new( $false, $true ); }
+        default { [System.Text.Encoding]::Default; }
+    };
+    $bytes = $encoding.GetPreamble() + $encoding.GetBytes( $file.InnerText.Trim() );
+    [System.IO.File]::WriteAllBytes( $path, $bytes );
+}
+		</ExtractScript>
+		<File path="C:\Windows\Setup\Scripts\RemovePackages.ps1">
+$selectors = @(
+	'Microsoft.Microsoft3DViewer';
+	'Microsoft.BingSearch';
+	'Microsoft.WindowsCalculator';
+	'Microsoft.WindowsCamera';
+	'Clipchamp.Clipchamp';
+	'Microsoft.WindowsAlarms';
+	'Microsoft.Copilot';
+	'Microsoft.549981C3F5F10';
+	'Microsoft.Windows.DevHome';
+	'MicrosoftCorporationII.MicrosoftFamily';
+	'Microsoft.WindowsFeedbackHub';
+	'Microsoft.Edge.GameAssist';
+	'Microsoft.GetHelp';
+	'Microsoft.Getstarted';
+	'microsoft.windowscommunicationsapps';
+	'Microsoft.WindowsMaps';
+	'Microsoft.MixedReality.Portal';
+	'Microsoft.BingNews';
+	'Microsoft.WindowsNotepad';
+	'Microsoft.MicrosoftOfficeHub';
+	'Microsoft.Office.OneNote';
+	'Microsoft.OutlookForWindows';
+	'Microsoft.Paint';
+	'Microsoft.MSPaint';
+	'Microsoft.People';
+	'Microsoft.Windows.Photos';
+	'Microsoft.PowerAutomateDesktop';
+	'MicrosoftCorporationII.QuickAssist';
+	'Microsoft.SkypeApp';
+	'Microsoft.ScreenSketch';
+	'Microsoft.MicrosoftSolitaireCollection';
+	'Microsoft.MicrosoftStickyNotes';
+	'MicrosoftTeams';
+	'MSTeams';
+	'Microsoft.Todos';
+	'Microsoft.WindowsSoundRecorder';
+	'Microsoft.Wallet';
+	'Microsoft.BingWeather';
+	'Microsoft.Xbox.TCUI';
+	'Microsoft.XboxApp';
+	'Microsoft.XboxGameOverlay';
+	'Microsoft.XboxGamingOverlay';
+	'Microsoft.XboxIdentityProvider';
+	'Microsoft.XboxSpeechToTextOverlay';
+	'Microsoft.GamingApp';
+	'Microsoft.YourPhone';
+	'Microsoft.ZuneMusic';
+	'Microsoft.ZuneVideo';
+);
+$getCommand = {
+  Get-AppxProvisionedPackage -Online;
+};
+$filterCommand = {
+  $_.DisplayName -eq $selector;
+};
+$removeCommand = {
+  [CmdletBinding()]
+  param(
+    [Parameter( Mandatory, ValueFromPipeline )]
+    $InputObject
+  );
+  process {
+    $InputObject | Remove-AppxProvisionedPackage -AllUsers -Online -ErrorAction 'Continue';
+  }
+};
+$type = 'Package';
+$logfile = 'C:\Windows\Setup\Scripts\RemovePackages.log';
+&amp; {
+	$installed = &amp; $getCommand;
+	foreach( $selector in $selectors ) {
+		$result = [ordered] @{
+			Selector = $selector;
+		};
+		$found = $installed | Where-Object -FilterScript $filterCommand;
+		if( $found ) {
+			$result.Output = $found | &amp; $removeCommand;
+			if( $? ) {
+				$result.Message = "$type removed.";
+			} else {
+				$result.Message = "$type not removed.";
+				$result.Error = $Error[0];
+			}
+		} else {
+			$result.Message = "$type not installed.";
+		}
+		$result | ConvertTo-Json -Depth 3 -Compress;
+	}
+} *&gt;&amp;1 | Out-String -Width 1KB -Stream &gt;&gt; $logfile;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\RemoveCapabilities.ps1">
+$selectors = @(
+	'Print.Fax.Scan';
+	'Language.Handwriting';
+	'MathRecognizer';
+	'OneCoreUAP.OneSync';
+	'OpenSSH.Client';
+	'Microsoft.Windows.MSPaint';
+	'Microsoft.Windows.PowerShell.ISE';
+	'App.Support.QuickAssist';
+	'Microsoft.Windows.SnippingTool';
+	'Language.Speech';
+	'Language.TextToSpeech';
+	'App.StepsRecorder';
+	'Hello.Face.18967';
+	'Hello.Face.Migration.18967';
+	'Hello.Face.20134';
+	'Media.WindowsMediaPlayer';
+	'Microsoft.Windows.WordPad';
+);
+$getCommand = {
+  Get-WindowsCapability -Online | Where-Object -Property 'State' -NotIn -Value @(
+    'NotPresent';
+    'Removed';
+  );
+};
+$filterCommand = {
+  ($_.Name -split '~')[0] -eq $selector;
+};
+$removeCommand = {
+  [CmdletBinding()]
+  param(
+    [Parameter( Mandatory, ValueFromPipeline )]
+    $InputObject
+  );
+  process {
+    $InputObject | Remove-WindowsCapability -Online -ErrorAction 'Continue';
+  }
+};
+$type = 'Capability';
+$logfile = 'C:\Windows\Setup\Scripts\RemoveCapabilities.log';
+&amp; {
+	$installed = &amp; $getCommand;
+	foreach( $selector in $selectors ) {
+		$result = [ordered] @{
+			Selector = $selector;
+		};
+		$found = $installed | Where-Object -FilterScript $filterCommand;
+		if( $found ) {
+			$result.Output = $found | &amp; $removeCommand;
+			if( $? ) {
+				$result.Message = "$type removed.";
+			} else {
+				$result.Message = "$type not removed.";
+				$result.Error = $Error[0];
+			}
+		} else {
+			$result.Message = "$type not installed.";
+		}
+		$result | ConvertTo-Json -Depth 3 -Compress;
+	}
+} *&gt;&amp;1 | Out-String -Width 1KB -Stream &gt;&gt; $logfile;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\RemoveFeatures.ps1">
+$selectors = @(
+	'MediaPlayback';
+	'MicrosoftWindowsPowerShellV2Root';
+	'Recall';
+	'Microsoft-SnippingTool';
+);
+$getCommand = {
+  Get-WindowsOptionalFeature -Online | Where-Object -Property 'State' -NotIn -Value @(
+    'Disabled';
+    'DisabledWithPayloadRemoved';
+  );
+};
+$filterCommand = {
+  $_.FeatureName -eq $selector;
+};
+$removeCommand = {
+  [CmdletBinding()]
+  param(
+    [Parameter( Mandatory, ValueFromPipeline )]
+    $InputObject
+  );
+  process {
+    $InputObject | Disable-WindowsOptionalFeature -Online -Remove -NoRestart -ErrorAction 'Continue';
+  }
+};
+$type = 'Feature';
+$logfile = 'C:\Windows\Setup\Scripts\RemoveFeatures.log';
+&amp; {
+	$installed = &amp; $getCommand;
+	foreach( $selector in $selectors ) {
+		$result = [ordered] @{
+			Selector = $selector;
+		};
+		$found = $installed | Where-Object -FilterScript $filterCommand;
+		if( $found ) {
+			$result.Output = $found | &amp; $removeCommand;
+			if( $? ) {
+				$result.Message = "$type removed.";
+			} else {
+				$result.Message = "$type not removed.";
+				$result.Error = $Error[0];
+			}
+		} else {
+			$result.Message = "$type not installed.";
+		}
+		$result | ConvertTo-Json -Depth 3 -Compress;
+	}
+} *&gt;&amp;1 | Out-String -Width 1KB -Stream &gt;&gt; $logfile;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\TaskbarLayoutModification.xml">
+&lt;LayoutModificationTemplate xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification" xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout" Version="1"&gt;
+	&lt;CustomTaskbarLayoutCollection PinListPlacement="Replace"&gt;
+		&lt;defaultlayout:TaskbarLayout&gt;
+			&lt;taskbar:TaskbarPinList&gt;
+				&lt;taskbar:DesktopApp DesktopApplicationLinkPath="#leaveempty" /&gt;
+			&lt;/taskbar:TaskbarPinList&gt;
+		&lt;/defaultlayout:TaskbarLayout&gt;
+	&lt;/CustomTaskbarLayoutCollection&gt;
+&lt;/LayoutModificationTemplate&gt;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\UnlockStartLayout.vbs">
+HKU = &amp;H80000003
+Set reg = GetObject("winmgmts://./root/default:StdRegProv")
+Set fso = CreateObject("Scripting.FileSystemObject")
+
+If reg.EnumKey(HKU, "", sids) = 0 Then
+	If Not IsNull(sids) Then
+		For Each sid In sids
+			key = sid + "\Software\Policies\Microsoft\Windows\Explorer"
+			name = "LockedStartLayout"
+			If reg.GetDWORDValue(HKU, key, name, existing) = 0 Then
+				reg.SetDWORDValue HKU, key, name, 0
+			End If
+		Next
+	End If
+End If
+		</File>
+		<File path="C:\Windows\Setup\Scripts\UnlockStartLayout.xml">
+&lt;Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task"&gt;
+	&lt;Triggers&gt;
+		&lt;EventTrigger&gt;
+			&lt;Enabled&gt;true&lt;/Enabled&gt;
+			&lt;Subscription&gt;&amp;lt;QueryList&amp;gt;&amp;lt;Query Id="0" Path="Application"&amp;gt;&amp;lt;Select Path="Application"&amp;gt;*[System[Provider[@Name='UnattendGenerator'] and EventID=1]]&amp;lt;/Select&amp;gt;&amp;lt;/Query&amp;gt;&amp;lt;/QueryList&amp;gt;&lt;/Subscription&gt;
+		&lt;/EventTrigger&gt;
+	&lt;/Triggers&gt;
+	&lt;Principals&gt;
+		&lt;Principal id="Author"&gt;
+			&lt;UserId&gt;S-1-5-18&lt;/UserId&gt;
+			&lt;RunLevel&gt;LeastPrivilege&lt;/RunLevel&gt;
+		&lt;/Principal&gt;
+	&lt;/Principals&gt;
+	&lt;Settings&gt;
+		&lt;MultipleInstancesPolicy&gt;IgnoreNew&lt;/MultipleInstancesPolicy&gt;
+		&lt;DisallowStartIfOnBatteries&gt;false&lt;/DisallowStartIfOnBatteries&gt;
+		&lt;StopIfGoingOnBatteries&gt;false&lt;/StopIfGoingOnBatteries&gt;
+		&lt;AllowHardTerminate&gt;true&lt;/AllowHardTerminate&gt;
+		&lt;StartWhenAvailable&gt;false&lt;/StartWhenAvailable&gt;
+		&lt;RunOnlyIfNetworkAvailable&gt;false&lt;/RunOnlyIfNetworkAvailable&gt;
+		&lt;IdleSettings&gt;
+			&lt;StopOnIdleEnd&gt;true&lt;/StopOnIdleEnd&gt;
+			&lt;RestartOnIdle&gt;false&lt;/RestartOnIdle&gt;
+		&lt;/IdleSettings&gt;
+		&lt;AllowStartOnDemand&gt;true&lt;/AllowStartOnDemand&gt;
+		&lt;Enabled&gt;true&lt;/Enabled&gt;
+		&lt;Hidden&gt;false&lt;/Hidden&gt;
+		&lt;RunOnlyIfIdle&gt;false&lt;/RunOnlyIfIdle&gt;
+		&lt;WakeToRun&gt;false&lt;/WakeToRun&gt;
+		&lt;ExecutionTimeLimit&gt;PT72H&lt;/ExecutionTimeLimit&gt;
+		&lt;Priority&gt;7&lt;/Priority&gt;
+	&lt;/Settings&gt;
+	&lt;Actions Context="Author"&gt;
+		&lt;Exec&gt;
+			&lt;Command&gt;C:\Windows\System32\wscript.exe&lt;/Command&gt;
+			&lt;Arguments&gt;C:\Windows\Setup\Scripts\UnlockStartLayout.vbs&lt;/Arguments&gt;
+		&lt;/Exec&gt;
+	&lt;/Actions&gt;
+&lt;/Task&gt;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\ShowAllTrayIcons.ps1">
+if( [System.Environment]::OSVersion.Version.Build -lt 20000 ) {
+	# Windows 10
+	Set-ItemProperty -LiteralPath 'Registry::HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer' -Name 'EnableAutoTray' -Type 'DWord' -Value 0 -Force;
+} else {
+	# Windows 11
+	Register-ScheduledTask -TaskName 'ShowAllTrayIcons' -Xml $(
+		Get-Content -LiteralPath "C:\Windows\Setup\Scripts\ShowAllTrayIcons.xml" -Raw;
+	);
+}
+		</File>
+		<File path="C:\Windows\Setup\Scripts\ShowAllTrayIcons.xml">
+&lt;Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task"&gt;
+	&lt;Triggers&gt;
+		&lt;LogonTrigger&gt;
+			&lt;Repetition&gt;
+				&lt;Interval&gt;PT1M&lt;/Interval&gt;
+				&lt;StopAtDurationEnd&gt;false&lt;/StopAtDurationEnd&gt;
+			&lt;/Repetition&gt;
+			&lt;Enabled&gt;true&lt;/Enabled&gt;
+		&lt;/LogonTrigger&gt;
+	&lt;/Triggers&gt;
+	&lt;Principals&gt;
+		&lt;Principal id="Author"&gt;
+			&lt;GroupId&gt;S-1-5-32-545&lt;/GroupId&gt;
+			&lt;RunLevel&gt;LeastPrivilege&lt;/RunLevel&gt;
+		&lt;/Principal&gt;
+	&lt;/Principals&gt;
+	&lt;Settings&gt;
+		&lt;MultipleInstancesPolicy&gt;IgnoreNew&lt;/MultipleInstancesPolicy&gt;
+		&lt;DisallowStartIfOnBatteries&gt;false&lt;/DisallowStartIfOnBatteries&gt;
+		&lt;StopIfGoingOnBatteries&gt;false&lt;/StopIfGoingOnBatteries&gt;
+		&lt;AllowHardTerminate&gt;true&lt;/AllowHardTerminate&gt;
+		&lt;StartWhenAvailable&gt;false&lt;/StartWhenAvailable&gt;
+		&lt;RunOnlyIfNetworkAvailable&gt;false&lt;/RunOnlyIfNetworkAvailable&gt;
+		&lt;IdleSettings&gt;
+			&lt;StopOnIdleEnd&gt;true&lt;/StopOnIdleEnd&gt;
+			&lt;RestartOnIdle&gt;false&lt;/RestartOnIdle&gt;
+		&lt;/IdleSettings&gt;
+		&lt;AllowStartOnDemand&gt;true&lt;/AllowStartOnDemand&gt;
+		&lt;Enabled&gt;true&lt;/Enabled&gt;
+		&lt;Hidden&gt;false&lt;/Hidden&gt;
+		&lt;RunOnlyIfIdle&gt;false&lt;/RunOnlyIfIdle&gt;
+		&lt;WakeToRun&gt;false&lt;/WakeToRun&gt;
+		&lt;ExecutionTimeLimit&gt;PT72H&lt;/ExecutionTimeLimit&gt;
+		&lt;Priority&gt;7&lt;/Priority&gt;
+	&lt;/Settings&gt;
+	&lt;Actions Context="Author"&gt;
+		&lt;Exec&gt;
+			&lt;Command&gt;C:\Windows\System32\wscript.exe&lt;/Command&gt;
+			&lt;Arguments&gt;C:\Windows\Setup\Scripts\ShowAllTrayIcons.vbs&lt;/Arguments&gt;
+		&lt;/Exec&gt;
+	&lt;/Actions&gt;
+&lt;/Task&gt;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\ShowAllTrayIcons.vbs">
+HKCU = &amp;H80000001
+key = "Control Panel\NotifyIconSettings"
+Set reg = GetObject("winmgmts://./root/default:StdRegProv")
+If reg.EnumKey(HKCU, key, names) = 0 Then
+	If Not IsNull(names) Then
+		For Each name In names
+			reg.SetDWORDValue HKCU, key + "\" + name, "IsPromoted", 1
+		Next
+	End If
+End If
+		</File>
+		<File path="C:\Windows\Setup\Scripts\MoveActiveHours.vbs">
+HKLM = &amp;H80000002
+key = "SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"
+Set reg = GetObject("winmgmts://./root/default:StdRegProv")
+current = Hour(Now)
+reg.SetDWORDValue HKLM, key, "ActiveHoursStart", ( current + 23 ) Mod 24
+reg.SetDWORDValue HKLM, key, "ActiveHoursEnd", ( current + 11 ) Mod 24
+reg.SetDWORDValue HKLM, key, "SmartActiveHoursState", 2
+		</File>
+		<File path="C:\Windows\Setup\Scripts\MoveActiveHours.xml">
+&lt;Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task"&gt;
+	&lt;Triggers&gt;
+		&lt;BootTrigger&gt;
+			&lt;Repetition&gt;
+				&lt;Interval&gt;PT4H&lt;/Interval&gt;
+				&lt;StopAtDurationEnd&gt;false&lt;/StopAtDurationEnd&gt;
+			&lt;/Repetition&gt;
+			&lt;Enabled&gt;true&lt;/Enabled&gt;
+		&lt;/BootTrigger&gt;
+		&lt;RegistrationTrigger&gt;
+			&lt;Repetition&gt;
+				&lt;Interval&gt;PT4H&lt;/Interval&gt;
+				&lt;StopAtDurationEnd&gt;false&lt;/StopAtDurationEnd&gt;
+			&lt;/Repetition&gt;
+			&lt;Enabled&gt;true&lt;/Enabled&gt;
+		&lt;/RegistrationTrigger&gt;
+	&lt;/Triggers&gt;
+	&lt;Principals&gt;
+		&lt;Principal id="Author"&gt;
+			&lt;UserId&gt;S-1-5-19&lt;/UserId&gt;
+			&lt;RunLevel&gt;LeastPrivilege&lt;/RunLevel&gt;
+		&lt;/Principal&gt;
+	&lt;/Principals&gt;
+	&lt;Settings&gt;
+		&lt;MultipleInstancesPolicy&gt;IgnoreNew&lt;/MultipleInstancesPolicy&gt;
+		&lt;DisallowStartIfOnBatteries&gt;false&lt;/DisallowStartIfOnBatteries&gt;
+		&lt;StopIfGoingOnBatteries&gt;false&lt;/StopIfGoingOnBatteries&gt;
+		&lt;AllowHardTerminate&gt;true&lt;/AllowHardTerminate&gt;
+		&lt;StartWhenAvailable&gt;false&lt;/StartWhenAvailable&gt;
+		&lt;RunOnlyIfNetworkAvailable&gt;false&lt;/RunOnlyIfNetworkAvailable&gt;
+		&lt;IdleSettings&gt;
+			&lt;StopOnIdleEnd&gt;true&lt;/StopOnIdleEnd&gt;
+			&lt;RestartOnIdle&gt;false&lt;/RestartOnIdle&gt;
+		&lt;/IdleSettings&gt;
+		&lt;AllowStartOnDemand&gt;true&lt;/AllowStartOnDemand&gt;
+		&lt;Enabled&gt;true&lt;/Enabled&gt;
+		&lt;Hidden&gt;false&lt;/Hidden&gt;
+		&lt;RunOnlyIfIdle&gt;false&lt;/RunOnlyIfIdle&gt;
+		&lt;WakeToRun&gt;false&lt;/WakeToRun&gt;
+		&lt;ExecutionTimeLimit&gt;PT72H&lt;/ExecutionTimeLimit&gt;
+		&lt;Priority&gt;7&lt;/Priority&gt;
+	&lt;/Settings&gt;
+	&lt;Actions Context="Author"&gt;
+		&lt;Exec&gt;
+			&lt;Command&gt;C:\Windows\System32\wscript.exe&lt;/Command&gt;
+			&lt;Arguments&gt;C:\Windows\Setup\Scripts\MoveActiveHours.vbs&lt;/Arguments&gt;
+		&lt;/Exec&gt;
+	&lt;/Actions&gt;
+&lt;/Task&gt;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\TurnOffSystemSounds.ps1">
+$excludes = Get-ChildItem -LiteralPath 'Registry::HKU\DefaultUser\AppEvents\EventLabels' |
+    Where-Object -FilterScript { ($_ | Get-ItemProperty).ExcludeFromCPL -eq 1; } |
+    Select-Object -ExpandProperty 'PSChildName';
+Get-ChildItem -Path 'Registry::HKU\DefaultUser\AppEvents\Schemes\Apps\*\*' |
+    Where-Object -Property 'PSChildName' -NotIn $excludes |
+    Get-ChildItem -Include '.Current' | Set-ItemProperty -Name '(Default)' -Value '';
+		</File>
+		<File path="C:\Windows\Setup\Scripts\SetStartPins.ps1">
+$json = '{"pinnedList":[]}';
+if( [System.Environment]::OSVersion.Version.Build -lt 20000 ) {
+	return;
+}
+$key = 'Registry::HKLM\SOFTWARE\Microsoft\PolicyManager\current\device\Start';
+New-Item -Path $key -ItemType 'Directory' -ErrorAction 'SilentlyContinue';
+Set-ItemProperty -LiteralPath $key -Name 'ConfigureStartPins' -Value $json -Type 'String';
+		</File>
+		<File path="C:\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml">
+&lt;LayoutModificationTemplate Version="1" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"&gt;
+	&lt;LayoutOptions StartTileGroupCellWidth="6" /&gt;
+	&lt;DefaultLayoutOverride&gt;
+		&lt;StartLayoutCollection&gt;
+			&lt;StartLayout GroupCellWidth="6" xmlns="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" /&gt;
+		&lt;/StartLayoutCollection&gt;
+	&lt;/DefaultLayoutOverride&gt;
+&lt;/LayoutModificationTemplate&gt;
+		</File>
+		<File path="C:\Windows\Setup\Scripts\unattend-01.cmd">
+powercfg -h off
+		</File>
+		<File path="C:\Windows\Setup\Scripts\unattend-02.ps1">
+foreach( $letter in 'DEFGHIJKLMNOPQRSTUVWXYZ'.ToCharArray() ) {
+	$exe = "${letter}:\virtio-win-guest-tools.exe";
+	if( Test-Path -LiteralPath $exe ) {
+		msiexec /i ${letter}:\guest-agent\qemu-ga-x86_64.msi /quiet /passive /qn
+		msiexec /i ${letter}:\virtio-win-guest-tools.exe /quiet /passive /qn
+	}
+}
+foreach( $letter in 'DEFGHIJKLMNOPQRSTUVWXYZ'.ToCharArray() ) {
+	$exe = "${letter}:\install.bat";
+	if( Test-Path -LiteralPath $exe ) {
+		msiexec /i ${letter}:\spice-webdavd-x64.msi /quiet /passive /qn
+		msiexec /i ${letter}:\UsbDk-x64.msi /quiet /passive /qn
+		msiexec /i ${letter}:\spice-vdagent-x64.msi /quiet /passive /qn
+		Start-Process "${letter}:\install.bat" -Wait;
+		regedit.exe /s "${letter}:\RDPApps.reg";
+		return;
+	}
+}
+		</File>
+		<File path="C:\Windows\Setup\Scripts\unattend-03.ps1">
+&amp; ([scriptblock]::Create((irm "https://debloat.raphi.re/"))) -RunDefaults -Silent
+		</File>
+		<File path="C:\Windows\Setup\Scripts\Specialize.ps1">
+$scripts = @(
+	{
+		reg.exe add "HKLM\SYSTEM\Setup\MoSetup" /v AllowUpgradesWithUnsupportedTPMOrCPU /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE" /v BypassNRO /t REG_DWORD /d 1 /f;
+	};
+	{
+		Remove-Item -LiteralPath 'Registry::HKLM\Software\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\DevHomeUpdate' -Force -ErrorAction 'SilentlyContinue';
+	};
+	{
+		reg.exe add "HKCR\.txt\ShellNew" /v ItemName /t REG_EXPAND_SZ /d "@C:\Windows\system32\notepad.exe,-470" /f;
+		reg.exe add "HKCR\.txt\ShellNew" /v NullFile /t REG_SZ /f;
+		reg.exe add "HKCR\txtfilelegacy" /v FriendlyTypeName /t REG_EXPAND_SZ /d "@C:\Windows\system32\notepad.exe,-469" /f;
+		reg.exe add "HKCR\txtfilelegacy" /ve /t REG_SZ /d "Text Document" /f;
+	};
+	{
+		Remove-Item -LiteralPath 'C:\Users\Default\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk', 'C:\Windows\System32\OneDriveSetup.exe', 'C:\Windows\SysWOW64\OneDriveSetup.exe' -ErrorAction 'Continue';
+	};
+	{
+		Remove-Item -LiteralPath 'Registry::HKLM\Software\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\OutlookUpdate' -Force -ErrorAction 'SilentlyContinue';
+	};
+	{
+		reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Communications" /v ConfigureChatAutoInstall /t REG_DWORD /d 0 /f;
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\RemovePackages.ps1';
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\RemoveCapabilities.ps1';
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\RemoveFeatures.ps1';
+	};
+	{
+		net.exe accounts /maxpwage:UNLIMITED;
+	};
+	{
+		reg.exe add "HKLM\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableCloudOptimizedContent" /t REG_DWORD /d 1 /f;
+		[System.Diagnostics.EventLog]::CreateEventSource( 'UnattendGenerator', 'Application' );
+	};
+	{
+		Register-ScheduledTask -TaskName 'UnlockStartLayout' -Xml $( Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\UnlockStartLayout.xml' -Raw );
+	};
+	{
+		reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v EnableLUA /t REG_DWORD /d 0 /f
+	};
+	{
+		netsh.exe advfirewall firewall set rule group="@FirewallAPI.dll,-28752" new enable=Yes;
+		reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f;
+	};
+	{
+		icacls.exe C:\ /remove:g "*S-1-5-11"
+	};
+	{
+		Set-ExecutionPolicy -Scope 'LocalMachine' -ExecutionPolicy 'RemoteSigned' -Force;
+	};
+	{
+		fsutil.exe behavior set disableLastAccess 1;
+	};
+	{
+		reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v AUOptions /t REG_DWORD /d 4 /f;
+		reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v NoAutoRebootWithLoggedOnUsers /t REG_DWORD /d 1 /f;
+	};
+	{
+		Register-ScheduledTask -TaskName 'MoveActiveHours' -Xml $( Get-Content -LiteralPath 'C:\Windows\Setup\Scripts\MoveActiveHours.xml' -Raw );
+	};
+	{
+		reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f;
+	};
+	{
+		reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v AllowNewsAndInterests /t REG_DWORD /d 0 /f;
+	};
+	{
+		reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" /v DisableStartupSound /t REG_DWORD /d 1 /f;
+		reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\EditionOverrides" /v UserSetting_DisableStartupSound /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKLM\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\BitLocker" /v "PreventDeviceEncryption" /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKLM\Software\Policies\Microsoft\Edge" /v HideFirstRunExperience /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKLM\Software\Policies\Microsoft\Edge\Recommended" /v BackgroundModeEnabled /t REG_DWORD /d 0 /f;
+		reg.exe add "HKLM\Software\Policies\Microsoft\Edge\Recommended" /v StartupBoostEnabled /t REG_DWORD /d 0 /f;
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\SetStartPins.ps1';
+	};
+	{
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\ControlAnimations" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\AnimateMinMax" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\TaskbarAnimations" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\DWMAeroPeekEnabled" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\MenuAnimation" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\TooltipAnimation" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\SelectionFade" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\DWMSaveThumbnailEnabled" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\CursorShadow" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\ListviewShadow" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\ThumbnailsOrIcon" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\ListviewAlphaSelect" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\DragFullWindows" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\ComboBoxAnimation" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\FontSmoothing" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\ListBoxSmoothScrolling" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+		Set-ItemProperty -LiteralPath "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects\DropShadow" -Name 'DefaultValue' -Value 0 -Type 'DWord' -Force;
+	};
+	{
+		reg.exe add "HKU\.DEFAULT\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d 10 /f;
+	};
+	{
+		  reg.exe add "HKLM\System\CurrentControlSet\Control\DeviceGuard" /v "EnableVirtualizationBasedSecurity" /t REG_DWORD /d 0 /f;
+		  reg.exe add "HKLM\System\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "Enabled" /t REG_DWORD /d 0 /f;
+		  reg.exe add "HKLM\System\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "EnabledBootId" /t REG_DWORD /d 0 /f;
+		  reg.exe add "HKLM\System\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity" /v "WasEnabledBy" /t REG_DWORD /d 0 /f;
+	};
+	{
+		C:\Windows\Setup\Scripts\unattend-01.cmd;
+	};
+);
+
+&amp; {
+  [float] $complete = 0;
+  [float] $increment = 100 / $scripts.Count;
+  foreach( $script in $scripts ) {
+    Write-Progress -Activity 'Running scripts to customize your Windows installation. Do not close this window.' -PercentComplete $complete;
+    '*** Will now execute command &#xAB;{0}&#xBB;.' -f $(
+      $str = $script.ToString().Trim() -replace '\s+', ' ';
+      $max = 100;
+      if( $str.Length -le $max ) {
+        $str;
+      } else {
+        $str.Substring( 0, $max - 1 ) + '&#x2026;';
+      }
+    );
+    $start = [datetime]::Now;
+    &amp; $script;
+    '*** Finished executing command after {0:0} ms.' -f [datetime]::Now.Subtract( $start ).TotalMilliseconds;
+    "`r`n" * 3;
+    $complete += $increment;
+  }
+} *&gt;&amp;1 | Out-String -Width 1KB -Stream &gt;&gt; "C:\Windows\Setup\Scripts\Specialize.log";
+		</File>
+		<File path="C:\Windows\Setup\Scripts\UserOnce.ps1">
+$scripts = @(
+	{
+		Get-AppxPackage -Name 'Microsoft.Windows.Ai.Copilot.Provider' | Remove-AppxPackage;
+	};
+	{
+		[System.Diagnostics.EventLog]::WriteEntry( 'UnattendGenerator', "User '$env:USERNAME' has requested to unlock the Start menu layout.", [System.Diagnostics.EventLogEntryType]::Information, 1 );
+	};
+	{
+		@(
+		  Get-ChildItem -LiteralPath $env:USERPROFILE -Force -Recurse -Depth 2;
+		) | Where-Object -FilterScript {
+			$_.Attributes.HasFlag( [System.IO.FileAttributes]::ReparsePoint );
+		} | Remove-Item -Force -Recurse -Verbose;
+	};
+	{
+		Set-ItemProperty -LiteralPath 'Registry::HKCU\AppEvents\Schemes' -Name '(Default)' -Type 'String' -Value '.None';
+	};
+	{
+		reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /f;
+	};
+	{
+		Set-ItemProperty -LiteralPath 'Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'LaunchTo' -Type 'DWord' -Value 1;
+	};
+	{
+		Set-ItemProperty -LiteralPath 'Registry::HKCU\Software\Microsoft\Windows\CurrentVersion\Search' -Name 'SearchboxTaskbarMode' -Type 'DWord' -Value 0;
+	};
+	{
+		Set-ItemProperty -LiteralPath 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' -Name 'VisualFXSetting' -Type 'DWord' -Value 2 -Force;
+	};
+	{
+		New-Item -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Force;
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{5399e694-6ce5-4d6c-8fce-1d8870fdcba0}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{b4bfcc3a-db2c-424c-b029-7fe99a87c641}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{a8cdff1c-4878-43be-b5fd-f8091c1c60d0}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{374de290-123f-4565-9164-39c4925e467b}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{f874310e-b6b7-47dc-bc84-b9e6b38f5903}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{1cf1260c-4dd0-4ebb-811f-33c572699fde}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{f02c1a0d-be21-4350-88b0-7367fc96ef3c}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{3add1653-eb32-4cb0-bbd7-dfa0abb5acca}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{645ff040-5081-101b-9f08-00aa002f954e}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{20d04fe0-3aea-1069-a2d8-08002b30309d}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{59031a47-3f72-44a7-89c5-5595fe6b30ee}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu' -Name '{a0953c92-50dc-43bf-be83-3742fed03c9c}' -Value 1 -Type 'DWord';
+		New-Item -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Force;
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{5399e694-6ce5-4d6c-8fce-1d8870fdcba0}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{b4bfcc3a-db2c-424c-b029-7fe99a87c641}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{a8cdff1c-4878-43be-b5fd-f8091c1c60d0}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{374de290-123f-4565-9164-39c4925e467b}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{f874310e-b6b7-47dc-bc84-b9e6b38f5903}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{1cf1260c-4dd0-4ebb-811f-33c572699fde}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{f02c1a0d-be21-4350-88b0-7367fc96ef3c}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{3add1653-eb32-4cb0-bbd7-dfa0abb5acca}' -Value 1 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{645ff040-5081-101b-9f08-00aa002f954e}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{20d04fe0-3aea-1069-a2d8-08002b30309d}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{59031a47-3f72-44a7-89c5-5595fe6b30ee}' -Value 0 -Type 'DWord';
+		Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' -Name '{a0953c92-50dc-43bf-be83-3742fed03c9c}' -Value 1 -Type 'DWord';
+	};
+	{
+		Get-Process -Name 'explorer' -ErrorAction 'SilentlyContinue' | Where-Object -FilterScript {
+			$_.SessionId -eq ( Get-Process -Id $PID ).SessionId;
+		} | Stop-Process -Force;
+	};
+    {
+        Start-Sleep 60; Stop-Computer -Force
+    };
+);
+
+&amp; {
+  [float] $complete = 0;
+  [float] $increment = 100 / $scripts.Count;
+  foreach( $script in $scripts ) {
+    Write-Progress -Activity 'Running scripts to configure this user account. Do not close this window.' -PercentComplete $complete;
+    '*** Will now execute command &#xAB;{0}&#xBB;.' -f $(
+      $str = $script.ToString().Trim() -replace '\s+', ' ';
+      $max = 100;
+      if( $str.Length -le $max ) {
+        $str;
+      } else {
+        $str.Substring( 0, $max - 1 ) + '&#x2026;';
+      }
+    );
+    $start = [datetime]::Now;
+    &amp; $script;
+    '*** Finished executing command after {0:0} ms.' -f [datetime]::Now.Subtract( $start ).TotalMilliseconds;
+    "`r`n" * 3;
+    $complete += $increment;
+  }
+} *&gt;&amp;1 | Out-String -Width 1KB -Stream &gt;&gt; "$env:TEMP\UserOnce.log";
+		</File>
+		<File path="C:\Windows\Setup\Scripts\DefaultUser.ps1">
+$scripts = @(
+	{
+		reg.exe add "HKU\DefaultUser\Software\Policies\Microsoft\Windows\WindowsCopilot" /v TurnOffWindowsCopilot /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Notepad" /v ShowStoreBanner /t REG_DWORD /d 0 /f;
+	};
+	{
+		Remove-ItemProperty -LiteralPath 'Registry::HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Run' -Name 'OneDriveSetup' -Force -ErrorAction 'Continue';
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Policies\Microsoft\Windows\Explorer" /v "StartLayoutFile" /t REG_SZ /d "C:\Windows\Setup\Scripts\TaskbarLayoutModification.xml" /f;
+		reg.exe add "HKU\DefaultUser\Software\Policies\Microsoft\Windows\Explorer" /v "LockedStartLayout" /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideFileExt" /t REG_DWORD /d 0 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowSuperHidden" /t REG_DWORD /d 1 /f;
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\ShowAllTrayIcons.ps1';
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowTaskViewButton /t REG_DWORD /d 0 /f;
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\TurnOffSystemSounds.ps1';
+	};
+	{
+		$names = @(
+		  'ContentDeliveryAllowed';
+		  'FeatureManagementEnabled';
+		  'OEMPreInstalledAppsEnabled';
+		  'PreInstalledAppsEnabled';
+		  'PreInstalledAppsEverEnabled';
+		  'SilentInstalledAppsEnabled';
+		  'SoftLandingEnabled';
+		  'SubscribedContentEnabled';
+		  'SubscribedContent-310093Enabled';
+		  'SubscribedContent-338387Enabled';
+		  'SubscribedContent-338388Enabled';
+		  'SubscribedContent-338389Enabled';
+		  'SubscribedContent-338393Enabled';
+		  'SubscribedContent-353694Enabled';
+		  'SubscribedContent-353696Enabled';
+		  'SubscribedContent-353698Enabled';
+		  'SystemPaneSuggestionsEnabled';
+		);
+		
+		foreach( $name in $names ) {
+		  reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v $name /t REG_DWORD /d 0 /f;
+		}
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" /v TaskbarEndTask /t REG_DWORD /d 1 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d 10 /f;
+	};
+	{
+		reg.exe add "HKU\DefaultUser\Software\Microsoft\Windows\CurrentVersion\RunOnce" /v "UnattendedSetup" /t REG_SZ /d "powershell.exe -WindowStyle \""Normal\"" -ExecutionPolicy \""Unrestricted\"" -NoProfile -File \""C:\Windows\Setup\Scripts\UserOnce.ps1\""" /f;
+	};
+);
+
+&amp; {
+  [float] $complete = 0;
+  [float] $increment = 100 / $scripts.Count;
+  foreach( $script in $scripts ) {
+    Write-Progress -Activity 'Running scripts to modify the default user&#x2019;&#x2019;s registry hive. Do not close this window.' -PercentComplete $complete;
+    '*** Will now execute command &#xAB;{0}&#xBB;.' -f $(
+      $str = $script.ToString().Trim() -replace '\s+', ' ';
+      $max = 100;
+      if( $str.Length -le $max ) {
+        $str;
+      } else {
+        $str.Substring( 0, $max - 1 ) + '&#x2026;';
+      }
+    );
+    $start = [datetime]::Now;
+    &amp; $script;
+    '*** Finished executing command after {0:0} ms.' -f [datetime]::Now.Subtract( $start ).TotalMilliseconds;
+    "`r`n" * 3;
+    $complete += $increment;
+  }
+} *&gt;&amp;1 | Out-String -Width 1KB -Stream &gt;&gt; "C:\Windows\Setup\Scripts\DefaultUser.log";
+		</File>
+		<File path="C:\Windows\Setup\Scripts\FirstLogon.ps1">
+$scripts = @(
+	{
+		Set-ItemProperty -LiteralPath 'Registry::HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name 'AutoLogonCount' -Type 'DWord' -Force -Value 0;
+	};
+	{
+		@(
+			Get-ChildItem -LiteralPath 'C:\' -Force;
+			Get-ChildItem -LiteralPath 'C:\Users' -Force;
+			Get-ChildItem -LiteralPath 'C:\Users\Default' -Force -Recurse -Depth 2;
+			Get-ChildItem -LiteralPath 'C:\Users\Public' -Force -Recurse -Depth 2;
+			Get-ChildItem -LiteralPath 'C:\ProgramData' -Force;
+		) | Where-Object -FilterScript {
+			$_.Attributes.HasFlag( [System.IO.FileAttributes]::ReparsePoint );
+		} | Remove-Item -Force -Recurse -Verbose;
+	};
+	{
+		cmd.exe /c "rmdir C:\Windows.old";
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\unattend-02.ps1';
+	};
+	{
+		&amp; 'C:\Windows\Setup\Scripts\unattend-03.ps1';
+	};
+	{
+		Remove-Item -LiteralPath @(
+		  'C:\Windows\Panther\unattend.xml';
+		  'C:\Windows\Panther\unattend-original.xml';
+		  'C:\Windows\Setup\Scripts\Wifi.xml';
+		) -Force -ErrorAction 'SilentlyContinue' -Verbose;
+	};
+);
+
+&amp; {
+  [float] $complete = 0;
+  [float] $increment = 100 / $scripts.Count;
+  foreach( $script in $scripts ) {
+    Write-Progress -Activity 'Running scripts to finalize your Windows installation. Do not close this window.' -PercentComplete $complete;
+    '*** Will now execute command &#xAB;{0}&#xBB;.' -f $(
+      $str = $script.ToString().Trim() -replace '\s+', ' ';
+      $max = 100;
+      if( $str.Length -le $max ) {
+        $str;
+      } else {
+        $str.Substring( 0, $max - 1 ) + '&#x2026;';
+      }
+    );
+    $start = [datetime]::Now;
+    &amp; $script;
+    '*** Finished executing command after {0:0} ms.' -f [datetime]::Now.Subtract( $start ).TotalMilliseconds;
+    "`r`n" * 3;
+    $complete += $increment;
+  }
+} *&gt;&amp;1 | Out-String -Width 1KB -Stream &gt;&gt; "C:\Windows\Setup\Scripts\FirstLogon.log";
+		</File>
+	</Extensions>
+</unattend>
+
+EOF
+    sed -i "s/{picked_ARCH}/${picked_ARCH}/g" "${unattended_files_dir}/autounattend.xml"
+    sed -i "s/{RELEASE}/${RELEASE}/g" "${unattended_files_dir}/autounattend.xml"
+    sed -i "s/{LANG}/${LANG}/g" "${unattended_files_dir}/autounattend.xml"
+    sed -i "s/{username}/${username}/g" "${unattended_files_dir}/autounattend.xml"
+    sed -i "s/{passwd}/${passwd}/g" "${unattended_files_dir}/autounattend.xml"
+}
+
+download_file(){
+    url="${1:-}"
+    path="${2:-}"
+    newname="${3:-}"
+    massage="${4:-}"
+    if [ -f "${path}/${newname}" ];then
+        return
+    fi
+    say "$massage"
+    curl -fSLo "$path/${newname}" "${url}" --progress-bar
+}
+
+Downloading_Virtual_drivers() {
+    download_file "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/${VIRTIO_FILE}" "${VIRTIO_DIR}" "${VIRTIO_FILE}" "Downloading VirtIO drivers..."
+    download_file https://www.spice-space.org/download/windows/spice-webdavd/spice-webdavd-x64-latest.msi "${unattended_files_dir}" "spice-webdavd-x64.msi" "Downloading Spice drivers (webdavd)..."
+    download_file https://www.spice-space.org/download/windows/vdagent/vdagent-win-0.10.0/spice-vdagent-x64-0.10.0.msi "${unattended_files_dir}" "spice-vdagent-x64.msi" "Downloading Spice drivers (vdagent)..."
+    download_file https://www.spice-space.org/download/windows/usbdk/UsbDk_1.0.22_x64.msi "${unattended_files_dir}" "UsbDk-x64.msi" "Downloading Spice drivers (usbdk)..."
+    download_file https://raw.githubusercontent.com/winapps-org/winapps/refs/heads/main/oem/install.bat "${unattended_files_dir}" "install.bat" "Downloading winapps installer file..."
+    download_file https://raw.githubusercontent.com/winapps-org/winapps/refs/heads/main/oem/RDPApps.reg "${unattended_files_dir}" "RDPApps.reg" "Downloading winapps RDPApps reg file..."
+    download_file https://raw.githubusercontent.com/winapps-org/winapps/refs/heads/main/oem/NetProfileCleanup.ps1 "${unattended_files_dir}" "NetProfileCleanup.ps1" "Downloading winapps NetProfileCleanup.ps1 file..."
+}
+
+unattended_windows() {
+    if [ -f "${unattended_iso_path}" ];then
+        return
+    fi
+	say "Making unattended.iso"
+	if mkisofs -quiet -l -o "${unattended_iso_path}" "${unattended_files_dir}/";then
+        say " ✔  Done building unattended.iso !" 'green'
+	else
+		say "failed to run mkisofs" 'red'
+	fi
+}
+
+req_apps_4_vm(){
+    if [ -f "${req_dir_path}/req_4_vm" ];then
+        return
+    fi
+    say " Running req_4_vm!"
+	if command -v pacman >/dev/null 2>&1;then
+        app_name="freerdp cdrtools"
+    else
+    	app_name="freerdp3-x11 mkisofs"
+    fi
+    Package_update_
+    Package_installer_ "${apps_name}"
+    say " ✔  Done req_4_vm!" 'green'
+    touch "${req_dir_path}/req_4_vm"
+}
+
+create_storage_pool_and_vm_disk(){
+	if [ -f "${virt_storage}" ];then
+        return
+    fi
+    
+    if ! virsh pool-list --all 2>/dev/null | grep -qw "$vmbuildpoolname"; then
+        say "create new temp pool at: $ROOT_VM_PATH_Builder" 'green'
+        virsh pool-define-as --name "$vmbuildpoolname" --type dir --target "$ROOT_VM_PATH_Builder"
+        say "start new temp pool." 'green'
+        virsh pool-start "$vmbuildpoolname"
+        say "autostart new temp pool." 'green'
+        virsh pool-autostart "$vmbuildpoolname"
+    fi
+
+    if ! virsh pool-list --all | grep -w "default" | grep -wq "active";then
+        say "start default pool." 'green'
+        virsh pool-start default
+    fi
+    
+    if ! virsh pool-list --all | grep -w "default" | grep -wq "yes";then
+        say "autostart default pool." 'green'
+        virsh pool-autostart default
+    fi
+
+    say " create disk!"
+    virsh vol-create-as default "${virt_storage_name}" "$disk_size" --format qcow2
+	say " Done create disk!" 'green'
+}
+
+create_vm(){
+    if virsh list --all 2>/dev/null | grep -wq "$VM_NAME"; then
+        return
+    fi
+tee "${VM_XML}" << EOF >/dev/null 2>&1
+<domain type="kvm">
+  <name>$VM_NAME</name>
+  <uuid>$(cat /proc/sys/kernel/random/uuid)</uuid>
+  <metadata>
+    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
+      <libosinfo:os id="http://microsoft.com/win/${RELEASE}"/>
+    </libosinfo:libosinfo>
+  </metadata>
+  <memory>$converted_ram_size</memory>
+  <currentMemory>$converted_ram_size</currentMemory>
+  <vcpu>$cpu_core</vcpu>
+  <os>
+    <type arch="x86_64" machine="q35">hvm</type>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <hyperv>
+      <relaxed state='on'/>
+      <vapic state='on'/>
+      <spinlocks state='on' retries='8191'/>
+      <vpindex state='on'/>
+      <synic state='on'/>
+      <stimer state='on'>
+        <direct state='on'/>
+      </stimer>
+      <reset state='on'/>
+      <frequencies state='on'/>
+      <reenlightenment state='on'/>
+      <tlbflush state='on'/>
+      <ipi state='on'/>
+    </hyperv>
+    <vmport state="off"/>
+  </features>
+  <cpu mode="host-passthrough"/>
+  <clock offset="localtime">
+      <timer name='rtc' present='no' tickpolicy='catchup'/>
+      <timer name='pit' present='no' tickpolicy='delay'/>
+      <timer name='hpet' present='no'/>
+      <timer name='kvmclock' present='no'/>
+      <timer name='hypervclock' present='yes'/>
+  </clock>
+  <pm>
+    <suspend-to-mem enabled="no"/>
+    <suspend-to-disk enabled="no"/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type="file" device="disk">
+      <driver name="qemu" type="qcow2" discard="unmap"/>
+      <source file="${virt_storage}"/>
+      <target dev="vda" bus="virtio"/>
+      <boot order="1"/>
+    </disk>
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw"/>
+      <source file="${WINDOWS_ISO_PATH}"/>
+      <target dev="sdb" bus="sata"/>
+      <readonly/>
+      <boot order="2"/>
+    </disk>
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw"/>
+      <source file="${VIRTIO_PATH}"/>
+      <target dev="sdc" bus="sata"/>
+      <readonly/>
+    </disk>
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw"/>
+      <source file="${unattended_iso_path}"/>
+      <target dev="sdd" bus="sata"/>
+      <readonly/>
+    </disk>
+    <controller type="usb" model="qemu-xhci" ports="15"/>
+    <controller type="pci" model="pcie-root"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <controller type="pci" model="pcie-root-port"/>
+    <interface type="network">
+      <source network="default"/>
+      <mac address="52:54:00:58:30:34"/>
+      <model type="virtio"/>
+    </interface>
+    <console type="pty"/>
+    <channel type="spicevmc">
+      <target type="virtio" name="com.redhat.spice.0"/>
+    </channel>
+    <channel type='unix'>
+      <source mode='bind'/>
+      <target type='virtio' name='org.qemu.guest_agent.0'/>
+      <address type='virtio-serial' controller='0' bus='0' port='2'/>
+    </channel>
+    <input type="tablet" bus="usb"/>
+    <graphics type="spice" port="-1" tlsPort="-1" autoport="yes">
+      <image compression="off"/>
+    </graphics>
+    <sound model="ich9"/>
+    <video>
+      <model type="virtio"/>
+    </video>
+    <redirdev bus="usb" type="spicevmc"/>
+    <redirdev bus="usb" type="spicevmc"/>
+  </devices>
+</domain>
+EOF
+    say "Create VM!" 'green'
+    virsh define "${VM_XML}"
+    say " ✔  Done creating VM!" 'green'
+}
+
+run_vm(){
+	if virsh list --state-running --name 2>/dev/null | grep -wq "$VM_NAME" || [ -f "${req_dir_path}/run_vm" ]; then
+        return
+    fi
+    say " Running run_vm!"
+    virsh autostart "${VM_NAME}"
+    virsh start "${VM_NAME}"
+    say " ✔  Done run_vm!" 'green'
+    touch "${req_dir_path}/run_vm"
+}
+
+running_winapps(){
+    if [ -f "${req_dir_path}/running_winapps" ];then
+        return
+    fi
+    say " Waiting for VM to finish installing."
+    while true;do
+        if virsh list --state-shutoff --name 2>/dev/null | grep -Fxq -- "$VM_NAME"; then
+            touch "${req_dir_path}/finished_installing"
+            break
+        elif [ -f "${req_dir_path}/finished_installing" ];then
+            break
+        else
+            sleep 10
+        fi
+    done
+
+    say " Running install_winapps."
+    "$virt_manager_script_path"/install_winapps.sh
+    sleep 10
+    say " ✔  Done install_winapps." 'green'
+    touch "${req_dir_path}/running_winapps"
+}
+
+clean_up(){
+    say " Waiting for VM to finish shutdowning."
+    while true;do
+        if virsh list --state-shutoff --name 2>/dev/null | grep -Fxq -- "$VM_NAME"; then
+            break
+        else
+            virsh shutdown "$VM_NAME"
+            sleep 5
+        fi
+    done
+
+    say " Running clean_up."
+    for iso in $(virsh domblklist "$VM_NAME" | grep "\.iso$" | awk '{print $1}');do
+        virsh detach-disk "$VM_NAME" "$iso" --config
+    done
+    virsh pool-destroy "$vmbuildpoolname"
+    virsh pool-undefine "$vmbuildpoolname"
+    rm -rdf "${ROOT_VM_PATH_Builder}"
+    say " ✔  Done clean_up." 'green'
+}
+
+mkdir -p "${VM_PATH_Builder}"
+mkdir -p "${unattended_files_dir}"
+mkdir -p "${req_dir_path}"
+
+req_apps_4_vm
+req_4_vm
+get_windows
+Downloading_Virtual_drivers
+create_autounattend_xml
+unattended_windows
+create_storage_pool_and_vm_disk
+create_vm
+run_vm
+running_winapps
+clean_up
+
+say
+say "windows_vm_installer to auto deploy windows ${release} vm." 'green'
+say "windows_vm_installer to auto deploy windows ${release} vm." 'green'
+say "windows_vm_installer to auto deploy windows ${release} vm." 'green'
+
+my-superuser rm -f "${__distro_path_root}/system_files/bin/windows_vm_installer"

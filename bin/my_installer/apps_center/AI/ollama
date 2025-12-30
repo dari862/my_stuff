@@ -4,4 +4,4 @@ app_name="ollama"
 say "Installing ${app_name}..." 1
 getURL '2term' "https://ollama.com/install.sh" | my-superuser sh || continue
 service_manager "start" ollama || continue
-ln -sf "${_APPS_LIBDIR}/AI/Extra/manage_ollama.sh" "${__distro_path_root}/system_files/bin" || continue
+create_never_remove_bin "${_APPS_LIBDIR}/AI/Extra/manage_ollama.sh" || continue

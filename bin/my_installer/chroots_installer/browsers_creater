@@ -6,18 +6,17 @@ SCRIPT_NAME="chroot-${APP_NAME}"
 LAUNCHER_SCRIPT_NAME="chroot-${APP_NAME}-launcher"
 BROWSERS_CHROOT_DIR="${ROOT_CHROOT_DIR}/${BROWSERS_CHROOT_NAME}"
 extra_chroot_browser="${INSTALLER_CHROOT_DIR}/EXTRA/${APP_NAME}"
-my_www_browser_path="${LAUNCH_SCRIPT_PATH}/my-www-browser"
 CHROOT_DIR="${BROWSERS_CHROOT_DIR}"
 
 create_default_chroot_browser(){
-	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}" "${LAUNCH_SCRIPT_PATH}" || failed_to_run "Failed to set execute permission on launch script"
+	create_never_remove_bin "${extra_chroot_browser}/${chroot_default_browser_name}" || failed_to_run "Failed to set execute permission on launch script"
 	create_applicationsdotdesktop_link "${chroot_default_browser_name}" || failed_to_run "Failed to create_applicationsdotdesktop_link ${chroot_default_browser_name}"
 }
 
 end_of_chroot_creater(){	
 	say "Creating launch script to run $APP_NAME from the host..."
 	create_applicationsdotdesktop_link "${SCRIPT_NAME}" || failed_to_run "Failed to create_applicationsdotdesktop_link ${SCRIPT_NAME}"
-	my-superuser ln -sf "${extra_chroot_browser}/${SCRIPT_NAME}" "${LAUNCH_SCRIPT_PATH}" || failed_to_run "Failed to set execute permission on launch script"
+	create_never_remove_bin "${extra_chroot_browser}/${SCRIPT_NAME}" || failed_to_run "Failed to set execute permission on launch script"
 	
 	if [ -f "/etc/doas.conf" ];then
 		my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
@@ -44,7 +43,7 @@ end_of_chroot_creater(){
 	fi
 	
 	if [ "$make_chroot_browser_default_browser" = true ];then
-     	my-superuser ln -sf "${extra_chroot_browser}/${chroot_default_browser_name}" "$my_www_browser_path"
+     	create_never_remove_bin "${extra_chroot_browser}/${chroot_default_browser_name}" "my-www-browser"
     fi
     
 	Create_users_to_chroot

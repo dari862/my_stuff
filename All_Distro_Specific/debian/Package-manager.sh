@@ -23,16 +23,16 @@ else
 fi
 
 Package_installer_(){
-	my-superuser "${package_manger}" install -y $@
+	my-superuser ${package_manger} install -y $@
 }
 
 full_upgrade_(){
 	say 'Full upgrade your system...' 1
-	my-superuser "${package_manger}" -y full-upgrade
+	my-superuser ${package_manger} -y full-upgrade
 }
 
 Packages_upgrade_(){
-	if my-superuser "${package_manger}" -y upgrade;then
+	if my-superuser ${package_manger} -y upgrade;then
 		exit
 	else
 		exit 1

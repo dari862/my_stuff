@@ -1,6 +1,6 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
-
+# work on this : improve
 # Simple script to generate a script file in my scripts directory
 . "$__distro_path_lib"
 scripts_folder_="$HOME/script"

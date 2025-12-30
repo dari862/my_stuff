@@ -27,8 +27,8 @@ init_color_temperature_adjuster() {
 	}
 	
 	create_tray_gammastep(){
-		[ -f "${__distro_path_root}/system_files/bin/tray_gammastep" ] && return
-		tee "${__distro_path_root}/system_files/bin/tray_gammastep" <<-EOF > /dev/null 2>&1
+		[ -f "${__distro_path_neverremove}/bin/tray_gammastep" ] && return
+		tee "${__distro_path_neverremove}/bin/tray_gammastep" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
 # need superuser : use my-superuser
 		yad --notification \
@@ -37,7 +37,8 @@ init_color_temperature_adjuster() {
 			--command="color_temperature_adjuster_gui" \
 			--text="Gammastep"
 		EOF
-		chmod +x tee "${__distro_path_root}/system_files/bin/tray_gammastep"
+		chmod +x "${__distro_path_neverremove}/bin/tray_gammastep"
+		my-superuser ln -sf "${__distro_path_neverremove}/bin/tray_gammastep" "${__distro_path_root}/system_files/bin"
 	}
 	
 	create_daemon_file(){
@@ -105,7 +106,7 @@ if [ "$_mode" = "init" ];then
 	exit 1
 else
 	[ ! -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" ] && echo "File does not exist: ${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" && exit_now=true
-	[ ! -f "${__distro_path_root}/system_files/bin/tray_gammastep" ] && echo "File does not exist: ${__distro_path_root}/system_files/bin/tray_gammastep" && exit_now=true
+	[ ! -L "${__distro_path_root}/system_files/bin/tray_gammastep" ] && echo "File does not exist: ${__distro_path_root}/system_files/bin/tray_gammastep" && exit_now=true
 	[ ! -f "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" ] && echo "File does not exist: ${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" && exit_now=true
 	if [ "$exit_now" = true ];then
 		echo "Run my-superuser $0 --init"

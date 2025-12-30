@@ -134,7 +134,7 @@ create_containers_deploy_db() {
 	say "create DB for containers."
 	list_of_containers=$(find "${_CONTAINERS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 
-	if [ -f "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then
+	if [ -L "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then
 		for container in $list_of_containers; do
 			if [ ! -f "${_DEPLOYED_CONTAINERS_LIBDIR}/${container}" ];then
 				echo "$container" | $_SUPERUSER tee -a "${containers_deploy_db_path}" >/dev/null 2>&1

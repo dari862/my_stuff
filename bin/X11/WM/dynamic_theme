@@ -1,5 +1,5 @@
 #!/bin/sh
-# work on this : fix it
+# work on this : colors not 100% accurete
 . "$__distro_path_lib"
 wallpaper="${1:-}"
 

@@ -7,13 +7,13 @@ set -e
 [ -e "$__distro_path_external/applications/quickemu_gui.desktop" ] && my-superuser rm -rdf "${__distro_path_root}/system_files/applications/quickemu_gui.desktop"
 
 super_clone_repo https://github.com/quickemu-project/quickemu.git "$__distro_path_git"/quickemu
-my-superuser ln -sf "$__distro_path_git/quickemu/quickemu" "${__distro_path_root}/system_files/bin"
-my-superuser ln -sf "$__distro_path_git/quickemu/quickget" "${__distro_path_root}/system_files/bin"
-my-superuser ln -sf "$__distro_path_git/quickemu/quickreport" "${__distro_path_root}/system_files/bin"
-my-superuser ln -sf "$__distro_path_git/quickemu/chunkcheck" "${__distro_path_root}/system_files/bin"
-my-superuser ln -sf "${_APPS_LIBDIR}/hypervisors/virt/quickemu_gui" "${__distro_path_root}/system_files/bin"
+create_never_remove_bin "$__distro_path_git/quickemu/quickemu"
+create_never_remove_bin "$__distro_path_git/quickemu/quickget"
+create_never_remove_bin "$__distro_path_git/quickemu/quickreport"
+create_never_remove_bin "$__distro_path_git/quickemu/chunkcheck"
+create_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/quickemu_gui"
 	
-my-superuser tee "${__distro_path_root}/system_files/applications/quickemu_gui.desktop" <<- EOF > /dev/null
+my-superuser tee "${__distro_path_neverremove}/applications/quickemu_gui.desktop" <<- EOF > /dev/null
 [Desktop Entry]
 Type=Application
 Name=QuickEmu GUI
@@ -23,9 +23,9 @@ Icon=${__distro_path_all_distro_themes}/icons/openbox-menu/virtualbox.png
 Categories=System;Virtualization;
 EOF
 
-my-superuser ln -sf "${__distro_path_root}/system_files/applications/quickemu_gui.desktop" /usr/share/applications
+my-superuser ln -sf "${__distro_path_neverremove}/applications/quickemu_gui.desktop" /usr/share/applications
 echo ""
 echo "quickemu_gui added for quick deploy any VM."
 echo "quickemu_gui added for quick deploy any VM."
 echo "quickemu_gui added for quick deploy any VM."
-rm -f ${__distro_path_root}/system_files/bin/quickemu_installer
+rm -f "${__distro_path_root}/system_files/bin/quickemu_installer"

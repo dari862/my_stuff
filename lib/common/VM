@@ -1,0 +1,19 @@
+#!/bin/bash
+
+RELEASE="11"
+username="Docker"
+passwd="admin123"
+
+VM_NAME="win${RELEASE}rdpVM"
+
+if [ "$RELEASE" = 10 ];then
+    disk_size="64G"
+    ram_size="4G"
+    cpu_core="2"
+    LANG="US"
+elif [ "$RELEASE" = 11 ];then
+    disk_size="64G"
+    ram_size="4G"
+    cpu_core="2"
+    LANG="GB"
+fi

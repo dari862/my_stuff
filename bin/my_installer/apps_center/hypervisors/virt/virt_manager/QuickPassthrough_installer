@@ -7,4 +7,4 @@ say
 say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
 say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
 say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
-rm -f ${__distro_path_root}/system_files/bin/QuickPassthrough_installer
+rm -f "${__distro_path_root}/system_files/bin/QuickPassthrough_installer"

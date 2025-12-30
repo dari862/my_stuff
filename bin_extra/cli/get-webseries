@@ -1,4 +1,5 @@
 #!/bin/sh
+# work on this : improve
 # youtube-dl wrapper to download web series / playlists / etc.
 set -e
 START=""

@@ -138,9 +138,9 @@ install_container_software(){
 		container_software_path="$(which $container_software)"
 	###################################################################
 		if groups | grep -q "${__newGroup}";then
-			${_SUPERUSER} ln -sf "$container_software_path" "${__distro_path_root}/system_files/bin/CONTAINER_RT"
-			${_SUPERUSER} ln -sf "${__distro_path_root}/bin/my_installer/create_containers" "${__distro_path_root}/system_files/bin"
-			${_SUPERUSER} ln -sf "${__distro_path_root}/bin/my_installer/run_containers" "${__distro_path_root}/system_files/bin"
+			create_never_remove_bin "$container_software_path" "CONTAINER_RT"
+			create_never_remove_bin "${__distro_path_root}/bin/my_installer/create_containers"
+			create_never_remove_bin "${__distro_path_root}/bin/my_installer/run_containers"
 			[ -f "${__distro_path_root}/system_files/Container_Group_${container_software}" ] && ${_SUPERUSER} rm -f "${__distro_path_root}/system_files/Container_Group_${container_software}"
 		fi
 	fi
@@ -203,7 +203,7 @@ __run_(){
 		elif [ "${running_chroot}" = "true" ];then
 			say 'Createing Chroot...' 1
 			if ! command -v create_chroot >/dev/null 2>&1;then
-				${_SUPERUSER} ln -sf "${__distro_path_root}/bin/my_installer/create_chroot" "${__distro_path_root}/system_files/bin" || continue
+				create_never_remove_bin "${__distro_path_root}/bin/my_installer/create_chroot" || continue
 			fi
 		elif [ "${running_tweek}" = "true" ];then
 			tweek_title="$(echo ${file_name_} | sed 's/_/ /g')"
