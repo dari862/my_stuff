@@ -102,19 +102,13 @@ update_packages(){
 	Package_remove_ || :
 	print_GREEN "orphan packages removed "
 
-	if [ -d "$__distro_path_updater" ];then
-		print_purple "updating packages(s)."
-		update_packages
-		print_GREEN "updating packages(s) completed. "
-	fi
-
 	if command -v yt-dlp >/dev/null 2>&1;then
 		my-superuser yt-dlp -U
 	fi
 	
 	if [ -f "${__distro_path_neverremove}/installs.json" ];then
 		print_purple "runing repobin updater."
-		"${__distro_path_root}"/bin/cli/repobin update
+		"${__distro_path_root}"/bin/cli/repobin --root update
 	fi
 	
 	if command -v flatpak >/dev/null 2>&1;then
