@@ -13,16 +13,8 @@ if [ "$__opt" = "help" ] || [ "$__opt" = "--help" ] || [ "$__opt" = "-h" ];then
 	exit 0
 elif [ "$__opt" = "--skip-internet-check" ];then
 	skip_internet_check=true
-	export __distro_path_lib="${2:-$__distro_path_lib}"
 elif [ "$__opt" = "--packages-only" ] || [ "$__opt" = "-p" ];then
 	packages_only=true
-else
-	export __distro_path_lib="${1:-$__distro_path_lib}"
-fi
-
-if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__opt" "$__distro_path_lib"
-    exit
 fi
 
 . "$__distro_path_lib"
@@ -39,18 +31,21 @@ update_full_upgrade_script(){
 	connectiontest
 	print_purple "check if full upgrade need update. "
 	do_full_upgrade_need_update=false
-	mkdir -p /tmp/root/disto_updater
-	getURL 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/root/disto_updater/full-upgrade"
-	chmod +x "/tmp/root/disto_updater/full-upgrade"
-	if [ -n "$(diff "/tmp/root/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ];then
+	mkdir -p "/tmp/$USER/disto_updater"
+	getURL 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/$USER/disto_updater/full-upgrade"
+	chmod +x "/tmp/$USER/disto_updater/full-upgrade"
+	if [ -n "$(diff "/tmp/$USER/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ];then
 		do_full_upgrade_need_update=true
 	fi
 	
 	if [ "${do_full_upgrade_need_update}" = true ];then
 		print_purple "running new version of full-upgrade. "
-		/tmp/root/disto_updater/full-upgrade --skip-internet-check "$__distro_path_lib" && exit || ( print_RED "failed to do full upgrade" && exit 1 )
-	else
-		print_GREEN "full upgrade up to date."
+		if "/tmp/$USER/disto_updater"/full-upgrade --skip-internet-check;then
+			exit
+		else
+			print_RED "failed to do full upgrade"
+			exit 1
+		fi
 	fi
 }
 
@@ -76,18 +71,18 @@ __upgrade_current_repo_(){
 	  	print_GREEN "Distro is up to date." 
 	  	return
 	  elif git status 2>&1 | grep -q 'fatal: unknown index entry format';then
-	  	rm -f .git/index
-	  	git status || :
+	  	my-superuser rm -f "${__distro_path_root}"/.git/index
+	  	my-superuser git status || :
 	  fi
 	  
       print_purple "Fetching"
-      git fetch || print_RED "git fetch failed... "
+      my-superuser git fetch || print_RED "git fetch failed... "
       
       print_purple "Stash (dont apply local changes)."
-      git stash  || print_RED "git stash failed... "
+      my-superuser git stash  || print_RED "git stash failed... "
       
       print_purple "Pulling"
-      git pull  || print_RED "git pull failed... "
+      my-superuser git pull  || print_RED "git pull failed... "
 }
 
 update_packages(){
@@ -114,7 +109,7 @@ update_packages(){
 	fi
 
 	if command -v yt-dlp >/dev/null 2>&1;then
-		yt-dlp -U
+		my-superuser yt-dlp -U
 	fi
 	
 	if [ -f "${__distro_path_neverremove}/installs.json" ];then
@@ -124,7 +119,7 @@ update_packages(){
 	
 	if command -v flatpak >/dev/null 2>&1;then
 		print_purple "updating flatpak(s)."
-		flatpak update -y
+		my-superuser flatpak update -y
 		print_GREEN "fully flatpak(s) updated."
 	fi
 	
@@ -139,8 +134,8 @@ Updating_Distro(){
 	
 	skel_modified=false
 	print_purple "Fetching Distro repo."
-	git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
-	git fetch || print_RED "git fetch failed... "
+	my-superuser git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
+	my-superuser git fetch || print_RED "git fetch failed... "
 	if git status | grep -q "^Your branch is up to date";then
 		print_GREEN "Distro is up to date." 
 	  	return
@@ -155,9 +150,10 @@ Updating_Distro(){
 			for d in /home/*; do
 				[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
     			f="${d}/${usr_flag_setup_path}"
-    			[ ! -f "$f" ] && continue
     			if [ "$skel_modified" = true ];then
-					rm -f "${f}"
+    				if my-superuser ls -A "${f}" >/dev/null 2>&1;then
+						my-superuser rm -f "${f}"
+					fi
 				fi
 			done
 		else
@@ -170,7 +166,7 @@ Updating_Distro(){
 
 Updating_Themes(){
 	cd "${__distro_path_root}/${Theme_repo_name}"
-	git remote set-url origin "https://github.com/dari862/${Theme_repo_name}.git" >/dev/null 2>&1
+	my-superuser git remote set-url origin "https://github.com/dari862/${Theme_repo_name}.git" >/dev/null 2>&1
 	if __upgrade_current_repo_;then
 		print_GREEN "${Theme_repo_name} is up to date." 
 	else
@@ -181,7 +177,7 @@ Updating_Themes(){
 post_updating(){
 	print_purple "post updating."
 	print_purple "running system_files_creater."
-	${__distro_path_root}/distro_manager/system_files_creater "$__distro_path_lib"
+	my-superuser "${__distro_path_root}/distro_manager"/system_files_creater "$__distro_path_lib"
 	print_GREEN "post updating completed ."
 }
 
