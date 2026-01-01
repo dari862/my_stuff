@@ -1,6 +1,14 @@
 #!/bin/sh
 # work on this : fix RTL langs
 set -e
+
+set_lang_2="${1:-}"
+if [ -n "${set_lang_2}" ];then
+	notify-send "⌨  Keyboard/language module" "Current layout: $set_lang_2"
+	setxkbmap "$set_lang_2"
+	exit
+fi
+
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 

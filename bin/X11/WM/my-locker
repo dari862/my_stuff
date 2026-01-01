@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 . "$__distro_path_lib"
 "${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed i3lock || exit 1
 
@@ -101,6 +102,8 @@ if [ -z "$background" ];then
 else
 	_usr_image_as_lockscreen		
 fi
+
+kswitch us
 
 if command -v i3lock-color >/dev/null 2>&1; then
 	i3lock-color -i "$__image_full_path_" "$param"
