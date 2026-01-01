@@ -8,18 +8,19 @@ _SUPERUSER="my-superuser"
 
 BIN_PATH="${__distro_path_neverremove}/bin"
 APP_PATH="${__distro_path_neverremove}/applications"
-TARGET_APPDATA_PATH="${__distro_path_neverremove}/winapps"
+TARGET_APPDATA_PATH="${__distro_path_neverremove}/autoinstalledvm"
 
-TEMP_PATH="$(mktemp -d /tmp/install_winapps_XXXXXX)"
+TEMP_PATH="$(mktemp -d /tmp/install_autoinstalledvm_XXXXXX)"
 TEMP_BIN_PATH="${TEMP_PATH}/bin"
 TEMP_APP_PATH="${TEMP_PATH}/applications"
-TEMP_TARGET_APPDATA_PATH="${TEMP_PATH}/winapps"
+TEMP_TARGET_APPDATA_PATH="${TEMP_PATH}/autoinstalledvm"
 
-CONFIG_DIR_PATH_WITHOUT_HOME=".config/winapps"
+CONFIG_DIR_PATH_WITHOUT_HOME=".config/autoinstalledvm"
 CONFIG_DIR_PATH="${HOME}/${CONFIG_DIR_PATH_WITHOUT_HOME}"
-CONFIG_PATH="${CONFIG_DIR_PATH}/winapps.conf"
+CONFIG_NAME="windows.conf"
+CONFIG_PATH="${CONFIG_DIR_PATH}/${CONFIG_NAME}"
 
-USER_APPDATA_PATH="\${HOME}/.local/share/winapps"
+USER_APPDATA_PATH="\${HOME}/.local/share/autoinstalledvm"
 
 # shellcheck disable=SC2034           # Silence warnings regarding unused variables globally.
 EC_NO_CONFIG="4"        # Absence of a valid WinApps configuration file.
@@ -116,7 +117,7 @@ waLoadConfig() {
     say " ✔  IP are : ${RDP_IP}"
     
     if [ ! -f "$CONFIG_PATH" ]; then
-        say " Creating winapps.conf!"
+        say " Creating ${CONFIG_NAME}!"
         mkdir -p "$CONFIG_DIR_PATH"
         chmod 700 "$CONFIG_DIR_PATH"
 		tee "$CONFIG_PATH" << EOF >/dev/null 2>&1
@@ -258,7 +259,7 @@ BOOT_TIMEOUT="${BOOT_TIMEOUT}"
 HIDEF="${HIDEF}"
 EOF
         chmod 600 "$CONFIG_PATH"
-        say " ✔  Done creating winapps.conf" 'green'
+        say " ✔  Done creating ${CONFIG_NAME}" 'green'
     else
         sed -i "s/^RDP_IP=.*/RDP_IP=${VM_IP}/g" "$CONFIG_PATH"
         sed -i "s/^VM_NAME=.*/VM_NAME=${VM_NAME}/g" "$CONFIG_PATH"
@@ -609,7 +610,7 @@ readonly EC_INVALID_FLAVOR=15
 
 # PATHS
 readonly CONFIG_DIR_PATH="\${HOME}/${CONFIG_DIR_PATH_WITHOUT_HOME}"
-readonly CONFIG_PATH="\${CONFIG_DIR_PATH}/winapps.conf"
+readonly CONFIG_PATH="\${CONFIG_DIR_PATH}/${CONFIG_NAME}"
 readonly TARGET_APPDATA_PATH="${TARGET_APPDATA_PATH}"
 readonly USER_APPDATA_PATH="${USER_APPDATA_PATH}"
 readonly LASTRUN_PATH="\${USER_APPDATA_PATH}/lastrun"
