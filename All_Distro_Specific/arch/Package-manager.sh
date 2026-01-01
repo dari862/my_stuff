@@ -12,6 +12,7 @@ Package_installer_(){
 	${package_manger} --noconfirm -S $@
 }
 Package_update_(){
+	kill_package_manager
 	say 'Updating sources...' 1
 	${package_manger} -Syu --noconfirm
 }
@@ -76,6 +77,15 @@ __dpkg_configure() {
 
 update_linux_kernel(){
 	Package_installer_ "linux-image-$(uname -r)"
-	dkms autoinstall
-	update-initramfs -u
+	if command -v dkms >/dev/null 2>&1;then
+		dkms autoinstall
+	fi
+	my-superuser mkinitcpio -P
+}
+
+kill_package_manager(){
+	if [ -f "/var/lib/pacman/db.lck" ];then
+		rm /var/lib/pacman/db.lck
+	fi
+	ps aux | grep "pacman" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
 }

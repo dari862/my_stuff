@@ -177,7 +177,7 @@ Updating_Themes(){
 post_updating(){
 	print_purple "post updating."
 	print_purple "running system_files_creater."
-	my-superuser "${__distro_path_root}/distro_manager"/system_files_creater "$__distro_path_lib"
+	"${__distro_path_root}/distro_manager"/system_files_creater
 	print_GREEN "post updating completed ."
 }
 

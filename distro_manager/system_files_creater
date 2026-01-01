@@ -8,12 +8,13 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 export __distro_path_lib="${1:-$__distro_path_lib}"
-export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:${__distro_path_root}/bin/cli:$PATH"
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+
+export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:${__distro_path_root}/bin/cli:$PATH"
 
 mkdir -p "${__distro_path_neverremove}"
 

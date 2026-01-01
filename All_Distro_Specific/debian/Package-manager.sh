@@ -3,11 +3,13 @@
 if command -v nala >/dev/null 2>&1;then
 	package_manger="nala"
 	Package_update_(){
+		kill_package_manager
 		my-superuser nala update
 	}
 else
 	package_manger="apt-get"
 	Package_update_(){
+		kill_package_manager
 		say 'Updating sources...' 1
 		# If no update today exec update
 		if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ];then
@@ -116,6 +118,14 @@ add_repo() {
 
 update_linux_kernel(){
 	Package_installer_ "linux-image-$(uname -r)"
-	dkms autoinstall
+	if command -v dkms >/dev/null 2>&1;then
+		dkms autoinstall
+	fi
 	update-initramfs -u
+}
+
+kill_package_manager(){
+	ps aux | grep "nala" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
+	ps aux | grep "apt" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
+	ps aux | grep "apt-get" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
 }

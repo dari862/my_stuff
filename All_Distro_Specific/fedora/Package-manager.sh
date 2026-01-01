@@ -3,6 +3,7 @@ Package_installer_(){
 }
 
 Package_update_(){
+	kill_package_manager
 	say 'Updating sources...' 1
 	my-superuser dnf update -y
 }
@@ -100,6 +101,12 @@ __dpkg_configure() {
 
 update_linux_kernel(){
 	Package_installer_ "linux-image-$(uname -r)"
-	dkms autoinstall
+	if command -v dkms >/dev/null 2>&1;then
+		dkms autoinstall
+	fi
 	dracut -f
+}
+
+kill_package_manager(){
+	ps aux | grep "dnf" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
 }

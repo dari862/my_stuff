@@ -2,32 +2,14 @@
 # need superuser : called by my-installer
 if command -v nala >/dev/null 2>&1;then
 	package_manger="nala"
-	Package_installer_(){
-		my-superuser nala install -y $@
-	}
 	Package_update_(){
+		kill_package_manager
 		my-superuser nala update
-	}
-	full_upgrade_(){
-		say 'Full upgrade your system...' 1
-		my-superuser nala -y upgrade
-	}
-	Packages_upgrade_(){
-		if my-superuser apt-get -y upgrade;then
-			exit
-		else
-			exit 1
-		fi
-	}
-	Package_remove_(){
-		my-superuser nala purge -y "$@"
 	}
 else
 	package_manger="apt-get"
-	Package_installer_(){
-		my-superuser apt-get install -y $@
-	}
 	Package_update_(){
+		kill_package_manager
 		say 'Updating sources...' 1
 		# If no update today exec update
 		if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ];then
@@ -40,21 +22,28 @@ else
 			my-superuser apt-get update
 		fi
 	}
-	full_upgrade_(){
-		say 'Full upgrade your system...' 1
-		my-superuser apt-get -y full-upgrade
-	}
-	Packages_upgrade_(){
-		if my-superuser apt-get -y upgrade;then
-			exit
-		else
-			exit 1
-		fi
-	}
-	Package_remove_(){
-		my-superuser apt-get purge -y "$@"
-	}
 fi
+
+Package_installer_(){
+	my-superuser ${package_manger} install -y $@
+}
+
+full_upgrade_(){
+	say 'Full upgrade your system...' 1
+	my-superuser ${package_manger} -y full-upgrade
+}
+
+Packages_upgrade_(){
+	if my-superuser ${package_manger} -y upgrade;then
+		exit
+	else
+		exit 1
+	fi
+}
+
+Package_remove_(){
+	my-superuser "${package_manger}" purge -y $@
+}
 
 download_key(){
 	mode="${1-}"
@@ -134,6 +123,14 @@ add_repo() {
 
 update_linux_kernel(){
 	Package_installer_ "linux-image-$(uname -r)"
-	dkms autoinstall
+	if command -v dkms >/dev/null 2>&1;then
+		dkms autoinstall
+	fi
 	update-initramfs -u
+}
+
+kill_package_manager(){
+	ps aux | grep "nala" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
+	ps aux | grep "apt" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
+	ps aux | grep "apt-get" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
 }
