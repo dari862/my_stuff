@@ -18,13 +18,15 @@ File Manager,my-file-manager,system-file-manager
 Text Editor,my-text-editor,text-editor
 Media Player,my-media-player,multimedia-player
 ^sep()
+Virtual Machine,^pipe(jgmenu_run ob --cmd="virtual_machine-pipemenu" --tag="Virtual-Machine-system")
+^sep()
 Quick Screenshot+Upload,(((__distro_path_root)))/bin/not_add_2_path/files-uploader
 ^sep()
 Utilities,^checkout(bl-utilities),applications-utilities
 Places,^pipe(jgmenu_run ob --cmd="places-pipemenu" --tag="places-pipemenu"),folder
 Recent Files,^pipe(jgmenu_run ob --cmd="recent-files-pipemenu -rl15" --tag="bl-recent-files-pipemenu")
 ^sep()
-Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/bl'" --tag="preferences-system")
+Preferences,^pipe(jgmenu_run ob --cmd="sh -c 'cat (((bl_preferences_pipemenu_file)))'" --tag="preferences-system")
 System,^checkout(bl-system),applications-system
 ^sep()
 Help &amp; Resources,^pipe(jgmenu_run ob --cmd="help-menu-openbox" --tag="help-contents")

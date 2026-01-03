@@ -43,9 +43,6 @@ file_name_="${1-}"
 extra_arg="${1-}"
 __logout=false
 . "${__distro_path_root}/lib/common/DB"
-
-pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
-
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 

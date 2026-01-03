@@ -57,6 +57,7 @@
 			</action>
 		</item>
 		<separator/>
+		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine"/>
 		<menu id="applications-utilities" label="Utilities">
 			<menu id="StylePipeMenu" execute="change-style-pipemenu" label="Change Style"/>
 			<menu id="TakeScreenshot" execute="screenshot-pipemenu" label="Take Screenshot"/>
@@ -73,7 +74,7 @@
 		<menu id="Places" execute="places-pipemenu" label="Places"/>
 		<menu id="RecentFiles" execute="recent-files-pipemenu -rl15" label="Recent Files"/>
 		<separator/>
-		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/bl'" label="Preferences"/>
+		<menu id="preferences" execute="sh -c 'cat (((bl_preferences_pipemenu_file)))'" label="Preferences"/>
 		<menu id="applications-system" label="System">
 			<item label="Quick System Info">
 				<action name="Execute">

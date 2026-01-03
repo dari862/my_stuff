@@ -22,6 +22,8 @@ CHROOT_SCRIPT_PATH="$ROOT_CHROOT_DIR/bin"
 _CHROOTS_INSTALLED_LIBDIR="${__distro_path_root}/bin/my_installer/chroots_installer/installed"
 INSTALLER_CHROOT_DIR="${__distro_path_root}/bin/my_installer/chroots_installer"
 
+pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
+
 pipemenu_output_dir="${__distro_path_root}/system_files/pipemenu"
 my_installer_pipemenu_X11_file="${pipemenu_output_dir}/my_installer_X11"
 my_installer_pipemenu_wayland_file="${pipemenu_output_dir}/my_installer_wayland"
@@ -29,3 +31,7 @@ gaming_pipemenu_file="${pipemenu_output_dir}/gaming"
 containers_deployer_pipemenu_file="${pipemenu_output_dir}/containers_deployer"
 my_tweeks_pipemenu_file="${pipemenu_output_dir}/my_tweeks"
 full_environment_pipemenu_file="${pipemenu_output_dir}/full_environment"
+
+bl_preferences_pipemenu_file="${pipemenu_output_dir}/bl"
+ac_preferences_pipemenu_file="${pipemenu_output_dir}/ac"
+my_preferences_pipemenu_file="${pipemenu_output_dir}/my"

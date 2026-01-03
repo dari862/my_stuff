@@ -17,9 +17,7 @@
 		</item> 
 
 		<separator/>
-		
 		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine" icon="&icons;/virtualbox.png"/>
-	    
 		<item label="Terminal" icon="&icons;/terminal.png">
             <action name="Execute">
                 <command>
@@ -50,7 +48,7 @@
         </item>
         <menu id="desktop-app-menu" label="Applications" icon="&icons;/applications.png" execute="my_obmag.py" />		
         <separator/>
-        <menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
+        <menu id="preferences" execute="sh -c 'cat (((my_preferences_pipemenu_file)))'" label="Preferences" icon="&icons;/settings.png"/>
 		<menu id="info" execute="sysinfo-pipemenu --more" label="System info" icon="&icons;/stats.png"/>		
 		
 		<menu id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources" icon="&icons;/help2.png"/>

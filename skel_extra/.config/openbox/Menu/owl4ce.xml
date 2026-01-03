@@ -23,7 +23,9 @@
     </item>
 
     <separator/>
-
+	<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine" icon="&icons;/desktop.png"/>
+	<separator/>
+	
     <menu id="screenshot" label="Screenshot" icon="&icons;/screenshot.png">
       <item label="Screen" icon="&icons;/screenshot.png">
         <action name="Execute">
@@ -46,7 +48,7 @@
 
 	<menu id="monitor-settings" execute="randr-pipemenu" label="Monitor Settings" icon="&icons;/monitor-settings.png"/>
 
-    <menu id="advanced-settings" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/ac'" label="Advanced Settings" icon="&icons;/advanced-settings.png"/>
+    <menu id="advanced-settings" execute="sh -c 'cat (((ac_preferences_pipemenu_file)))'" label="Advanced Settings" icon="&icons;/advanced-settings.png"/>
 
     <separator/>
     <separator label="SESSIONS"/>

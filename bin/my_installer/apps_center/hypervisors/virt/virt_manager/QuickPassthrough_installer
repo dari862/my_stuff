@@ -1,10 +1,10 @@
 #!/bin/sh
-#called by my-installer
-app_name="quickpassthrough"
-say "Installing ${app_name}..." 1
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+
+say "Installing quickpassthrough..." 1
 repobin --root install HikariKnight/quickpassthrough || failed_to_run "failed to run ${app_name} ."
 say 
 say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
-say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
-say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
-rm -f "${__distro_path_root}/system_files/bin/QuickPassthrough_installer"
+remove_never_remove_bin "QuickPassthrough_installer" || :

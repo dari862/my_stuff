@@ -31,7 +31,7 @@
 		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine"/>
 	    <separator/>
 		<menu id="app-menu" execute="my_obmag.py" label="Applications"/>
-		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/ac'" label="Preferences"/>
+		<menu id="preferences" execute="sh -c 'cat (((ac_preferences_pipemenu_file)))'" label="Preferences"/>
 		<separator/>
 		<menu id="Exit" label="System">
 				<item label="Lock">

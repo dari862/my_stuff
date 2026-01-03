@@ -189,6 +189,7 @@ copy_all__application_link_in_dir(){
 create_applicationsdotdesktop_link(){
 	__application_name="${1:-}"
 	__application_command="${2:-}"
+	__Categories="${3:-}"
 	if [ "$(id -u)" -eq 0 ];then
 		_SUPERUSER=""
 	else
@@ -207,8 +208,14 @@ create_applicationsdotdesktop_link(){
     	fi
     	$_SUPERUSER ln -sf "${__distro_path_neverremove}/applications/${__application_name}.desktop" "/usr/share/applications"
     else
+    	if [ -n "$__application_command" ];then
+    		__Categories="${__Categories};"
+    	fi
+    	if [ -n "$__application_name" ];then
+    		__application_desktop_name="$(printf "${__application_name}" | sed "s/ /_/g" || printf "$__application_name")"
+    	fi
     	[ -z "$__application_command" ] && __application_command="${__application_name}"
-    	$_SUPERUSER tee "${__distro_path_neverremove}/applications/${__application_name}.desktop" <<- EOF >/dev/null 2>&1
+    	$_SUPERUSER tee "${__distro_path_neverremove}/applications/${__application_desktop_name}.desktop" <<- EOF >/dev/null 2>&1
     	[Desktop Entry]
 		Name=${__application_name}
 		Comment=${__application_name}
@@ -216,7 +223,7 @@ create_applicationsdotdesktop_link(){
 		Terminal=false
 		Type=Application
 		Icon=flatpak
-		Categories=GTK;
+		Categories=GTK;${Categories}
 		MimeType=text/html;text/xml;application/xhtml_xml;
 		StartupNotify=true
 		EOF
@@ -410,5 +417,13 @@ create_never_remove_bin(){
 		my-superuser ln -sf "${__distro_path_neverremove}/bin/${bin_name}" "${__distro_path_root}/system_files/bin"
 	else
 		my-superuser ln -sf "${__distro_path_neverremove}/bin/${bin_name}" "${__distro_path_root}/system_files/bin/${new_name_for_bin}"
+	fi
+}
+
+remove_never_remove_bin(){
+	bin_to_rm="${1:-}"
+	if [ -z "${bin_to_rm}" ];then
+		my-superuser rm -f "${__distro_path_root}/system_files/bin/${bin_to_rm}"
+		my-superuser rm -f "${__distro_path_neverremove}/bin/${bin_to_rm}"
 	fi
 }

@@ -1,15 +1,48 @@
 #!/bin/sh
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/pipemenu"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 # Pipemenu
 menuStart
-if command -v virtual_machine >/dev/null 2>&1;then
-	menuItem 'Run virtual machine' 'virtual_machine'
-else
-	cd ${__distro_path_root}/Distro_Specific/apps_center/hypervisors
-	for hy in *;do
-		menuItem "install $hy" "popup_terminal --install $hy"
-	done
+if [ -f "${__distro_path_root}/Distro_Specific/apps_center/hypervisors/virt-manager" ];then
+	if command -v "virt-manager" >/dev/null 2>&1;then
+		menuItem 'Run virt-manager' 'setsid virt-manager'
+		if command -v "virtual_machine" >/dev/null 2>&1;then
+			if command -v "quickpassthrough" >/dev/null 2>&1;then
+				menuItem 'Run QuickPassthrough' 'popup_terminal "quickpassthrough && read"'
+			else
+				menuItem 'Run QuickPassthrough installer' 'popup_terminal "QuickPassthrough_installer && read"'
+			fi
+			if command -v "quickemu_gui" >/dev/null 2>&1;then
+				menuItem 'Run quickemu GUI' 'sh -c "quickemu_gui"'
+			else
+				menuItem 'Run quickemu installer' 'popup_terminal "quickemu_installer && read"'
+			fi
+			menuItem 'Run windows_vm_installer' 'popup_terminal "windows_vm_installer && read"'
+			menuItem 'Run android_vm_builder' 'popup_terminal "android_vm_builder && read"'
+		else
+			menuItem "Add virt-manager extra" "popup_terminal '\"${_APPS_LIBDIR}\"/hypervisors/virt/virt_manager/extra_virt_manager.sh && read'"
+		fi
+	else
+		menuItem "Install virt-manager" "popup_terminal --install virt-manager"
+	fi
 fi
+
+if [ -f "${__distro_path_root}/Distro_Specific/apps_center/hypervisors/virtualbox" ];then
+	if command -v "virtualbox" >/dev/null 2>&1;then
+		menuItem 'Run virtualbox' 'setsid virtualbox'
+	else
+		menuItem "Install virtualbox" "popup_terminal --install virtualbox"
+	fi
+fi
+
+if [ -f "${__distro_path_root}/Distro_Specific/apps_center/hypervisors/vmplayer" ];then
+	if command -v "vmplayer" >/dev/null 2>&1;then
+		menuItem 'Run vmplayer' 'setsid vmplayer'
+	else
+		menuItem "Install vmplayer" "popup_terminal --install vmplayer"
+	fi
+fi
+
 menuEnd

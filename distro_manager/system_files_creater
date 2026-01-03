@@ -27,7 +27,6 @@ else
 fi
 
 __distro_path_system_skel_files="${__distro_path_system_files}/skel"
-pipemenu_creater="${__distro_path_root}/bin/X11/pipemenu/create_pipemenu"
 
 ##################################################################################
 
@@ -642,6 +641,10 @@ find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_pa
 find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_path_all_distro_themes)))|${__distro_path_all_distro_themes}|g" {} +
 . "${__distro_path_root}/Distro_Specific/disto_icon"
 find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((distro_icon)))|${distro_icon}|g" {} +
+
+find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((bl_preferences_pipemenu_file)))|${bl_preferences_pipemenu_file}|g" {} +
+find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((ac_preferences_pipemenu_file)))|${ac_preferences_pipemenu_file}|g" {} +
+find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((my_preferences_pipemenu_file)))|${my_preferences_pipemenu_file}|g" {} +
 
 show_im "Adding applications desktop files"
 for f in "${__distro_path_root}"/applications/*;do

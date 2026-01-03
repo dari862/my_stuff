@@ -80,7 +80,7 @@ run_popup_normal_mode_geometry(){
 }
 
 run_popup_normal_normal_superuser_mode(){
-	kitty -T "${arg_}" -e my-superuser bash -c "${file_name_}"
+	kitty -T "${arg_}" -e my-superuser bash -c "export __distro_path_lib=\"${__distro_path_lib}\" ; ${file_name_}"
 }
 
 case $arg_ in

@@ -19,6 +19,7 @@
 		</item> 
 
 		<separator/>
+		
 		<menu id="virtual_machine" execute="virtual_machine-pipemenu" label="Virtual Machine" icon="&icons;/virtualbox.png"/>
 		
 		<item label="Terminal" icon="&icons;/terminal.png">
@@ -54,7 +55,7 @@
 		
         <separator/>
 
-		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/my'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat (((my_preferences_pipemenu_file)))'" label="Preferences" icon="&icons;/settings.png"/>
  
 		<menu id="info" execute="sysinfo-pipemenu --more" label="System info" icon="&icons;/stats.png"/>
 

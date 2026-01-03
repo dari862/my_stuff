@@ -1,5 +1,8 @@
 #!/bin/sh
-# need superuser : called by my-installer
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+
 set -e
 . "$__distro_path_lib"
 
@@ -12,20 +15,12 @@ create_never_remove_bin "$__distro_path_git/quickemu/quickget"
 create_never_remove_bin "$__distro_path_git/quickemu/quickreport"
 create_never_remove_bin "$__distro_path_git/quickemu/chunkcheck"
 create_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/quickemu_gui"
-	
-my-superuser tee "${__distro_path_neverremove}/applications/quickemu_gui.desktop" <<- EOF > /dev/null
-[Desktop Entry]
-Type=Application
-Name=QuickEmu GUI
-Description=Quickly download, create and run VM of any operating system.
-Exec=sh -c quickemu_gui
-Icon=${__distro_path_all_distro_themes}/icons/openbox-menu/virtualbox.png
-Categories=System;Virtualization;
-EOF
 
-my-superuser ln -sf "${__distro_path_neverremove}/applications/quickemu_gui.desktop" /usr/share/applications
+create_applicationsdotdesktop_link "QuickEmu GUI" "sh -c quickemu_gui" 'System;Virtualization'
+
 echo ""
 echo "quickemu_gui added for quick deploy any VM."
 echo "quickemu_gui added for quick deploy any VM."
 echo "quickemu_gui added for quick deploy any VM."
-rm -f "${__distro_path_root}/system_files/bin/quickemu_installer"
+
+remove_never_remove_bin "quickemu_installer" || :

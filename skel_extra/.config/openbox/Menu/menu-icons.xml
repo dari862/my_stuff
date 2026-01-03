@@ -46,7 +46,7 @@
 		<separator/>
 		<menu icon="&icons;/recents.png" id="ac-recent" execute="recent-files-pipemenu" label="Recent Files"/>
 		<separator/>
-		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/ac'" label="Preferences" icon="&icons;/settings.png"/>
+		<menu id="preferences" execute="sh -c 'cat (((ac_preferences_pipemenu_file)))'" label="Preferences" icon="&icons;/settings.png"/>
 		<separator/>
 		<menu icon="&icons;/help.png" id="HelpAndResources" execute="help-menu-openbox" label="Help &amp; Resources"/>
 		<menu icon="&icons;/keyboard.png" id="KeybindsPipeMenu" execute="keyboard-shortcut-pipemenu" label="Keybinds"/>

@@ -36,7 +36,7 @@
 		<separator/>
 		<menu id="places-pipemenu" execute="places-pipemenu --recent ~/" label=" Places"/>
 		<menu id="ac-recent" execute="recent-files-pipemenu" label=" Recent Files"/>
-		<menu id="preferences" execute="sh -c 'cat (((__distro_path_root)))/system_files/pipemenu/ac'" label=" Preferences"/>
+		<menu id="preferences" execute="sh -c 'cat (((ac_preferences_pipemenu_file)))'" label=" Preferences"/>
 		<menu id="HelpAndResources" execute="help-menu-openbox" label=" Help &amp; Resources"/>
 		<menu id="KeybindsPipeMenu" execute="keyboard-shortcut-pipemenu" label=" Keybinds"/>
 		<separator/>

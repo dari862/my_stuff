@@ -51,7 +51,7 @@ create_exec_pipemenu(){
     	menuItem "man xrandr" "popup_terminal --man xrandr"
 	menuSubmenuEnd
 	menuEnd
-} | $_SUPERUSER tee "${pipemenu_output_dir}/bl" >/dev/null 2>&1
+} | $_SUPERUSER tee "${bl_preferences_pipemenu_file}" >/dev/null 2>&1
 
 {
 	menuStart
@@ -92,7 +92,7 @@ create_exec_pipemenu(){
 	menuItem "Settings Manager" "${__distro_path_root}/bin/not_add_2_path/settings_manager_"
 	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
-} | $_SUPERUSER tee "${pipemenu_output_dir}/ac" >/dev/null 2>&1
+} | $_SUPERUSER tee "${ac_preferences_pipemenu_file}" >/dev/null 2>&1
 
 {
 	menuStart
@@ -158,5 +158,5 @@ create_exec_pipemenu(){
 	menuItem "GParted Partition Manager" "gparted"
 	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
-} | $_SUPERUSER tee "${pipemenu_output_dir}/my" >/dev/null 2>&1
+} | $_SUPERUSER tee "${my_preferences_pipemenu_file}" >/dev/null 2>&1
 
