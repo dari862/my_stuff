@@ -654,13 +654,13 @@ done
 ln -sf "${__distro_path_neverremove}/applications"/* "/usr/share/applications"
 
 show_im "Create gtk themes"
-"${__distro_path_all_distro_themes}"/gtk_themes_creater/create "$__distro_path_lib"
+"${__distro_path_all_distro_themes}"/gtk_themes_builder/builder "$__distro_path_lib"
 
 show_im "Create openbox themes"
-"${__distro_path_all_distro_themes}"/openbox_themes_creater/create "$__distro_path_lib"
+"${__distro_path_all_distro_themes}"/openbox_themes_builder/builder "$__distro_path_lib"
 
 show_im "Create icons"
-"${__distro_path_all_distro_themes}"/gtk_icons_creater/create "$__distro_path_lib"
+"${__distro_path_all_distro_themes}"/gtk_icons_builder/builder "$__distro_path_lib"
 
 show_im "Running my-alternatives"
 "${__distro_path_root}"/bin/cli/my-alternatives --install "$__distro_path_lib"

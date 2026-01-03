@@ -1,5 +1,6 @@
 #!/bin/sh
 # need superuser : called by my-superuser
+# work on this : workonthis
 set -e
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -9,11 +10,11 @@ fi
 
 __distro_path_lib="${1:-$__distro_path_lib}"
 . "$__distro_path_lib"
-gtktheme_path="${__distro_path_themes}/system-themes"
+iconstheme_path="${__distro_path_themes}/system-icons"
 current_path="$(dirname "$0")"
 list_of_base_files="$(find "${current_path}/source_base" -type f || :)"
-mkdir -p "${gtktheme_path}"
+mkdir -p "${iconstheme_path}"
 for t in ${list_of_base_GTK_theme};do
 	. "$t"
-	mkdir -p "${gtktheme_path}/${base_name}"
+	mkdir -p "${iconstheme_path}/${base_name}"
 done

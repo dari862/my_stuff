@@ -58,7 +58,7 @@ cp -r "${current_script_path}/templates" "$temp_theme_file_dir"
 
 # Create palette if the theme file doesn't exist
 if [ ! -f "$theme_file_2_source" ]; then
-    "${current_script_path}"/palette_creator "${wallpaper}" "$theme_file_2_source"
+    "${current_script_path}"/palette_extractor "${wallpaper}" "$theme_file_2_source"
 fi
 
 # Source the theme file

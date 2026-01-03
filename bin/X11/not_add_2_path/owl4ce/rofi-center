@@ -28,7 +28,7 @@ __rofi_launcher(){
 }
 
 __BUTTON(){
-	OB_BUTTON_STYLE_DIR="${__distro_path_all_distro_themes}/openbox_themes_creater/baseGTK"
+	OB_BUTTON_STYLE_DIR="${__distro_path_all_distro_themes}/openbox_themes_builder/baseGTK"
 	GTK_THEME_NAME="$(awk -F= '/^gtk-theme-name=/{print $2}' $HOME/.config/gtk-3.0/settings.ini)"
 	BUTTON="$(for LS in "$OB_BUTTON_STYLE_DIR"/"openbox-${GTK_THEME_NAME}"_*; do
               	if [ -f "$LS" ];then
