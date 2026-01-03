@@ -104,6 +104,9 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 ## ------ auto edited by shortcuts script ------ ##
 ## ------ end of auto edited by shortcuts script ------ ##
 
+# Expands history expressions like !! or !$ when you press space
+bindkey ' ' magic-space
+
 # ------------------------------- ZSH LOCAL PLUGINS Applyer --------------------------
 if command -v zoxide >/dev/null 2>&1;then
 	zplugin+=(zoxide)

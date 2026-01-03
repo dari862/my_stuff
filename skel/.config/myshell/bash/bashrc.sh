@@ -81,6 +81,10 @@ if [[ "$(expr index "$-" i)" -gt 0 ]];then bind "set bell-style visible"; fi
 # below line make bash when pressing ctrl+f runs commnad zi .
 ## ------ auto edited by shortcuts script ------ ##
 ## ------ end of auto edited by shortcuts script ------ ##
+
+# Expands history expressions like !! or !$ when you press space
+bind '" ":magic-space'
+
 # ---------------------------------  source  ----------------------------------
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -128,4 +132,3 @@ if [ -d "(((__distro_path_root)))/system_files/completion/bash" ];then
 fi
 
 # ---------------------------------  Extra  ----------------------------------
-  

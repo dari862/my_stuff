@@ -1,0 +1,9 @@
+#!/bin/bash
+command_not_found_handle() {
+    case "$1" in
+        *.md|*.log) bat "$1" ;;
+        *.pdf|*.png|*.jpg|*.html) xdg-open "$1" ;;
+        *.sh|*.txt|*.py) $EDITOR "$1" ;;
+        *) return 127 ;;
+    esac
+}
