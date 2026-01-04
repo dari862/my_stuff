@@ -12,7 +12,7 @@ getURL 'download2' "${browserUrl}" "/tmp/$USER/${browser_deb}" || continue
 install_deb ${browser_deb} || continue
 rm -f /tmp/$USER/${browser_deb} || continue
 
-create_applicationsdotdesktop_link "WhatsApp"
+generate_applicationsdotdesktop_link "WhatsApp"
 
 if [ "$set_as_default_package" = true ];then
 	my-alternatives --set "my-www-browser" "${app_name}" || continue

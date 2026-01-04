@@ -102,7 +102,7 @@ saveStyle(){
 	done
 	
     ########################################
-	# create style file
+	# generate style file
 	########################################
 	__style_name="${ANS}"
 tee "$CONFIGDIR"/style.conf << EOF >/dev/null 2>&1

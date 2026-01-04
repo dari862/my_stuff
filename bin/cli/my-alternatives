@@ -53,7 +53,7 @@ link_package() {
     return 1
   fi
 
-  # Create symbolic link as superuser
+  # generate symbolic link as superuser
   if ! $_SUPERUSER ln -sf "$package_path" "$target_path";then
   	echo "Error: failed to run ln -sf $package_path $target_path" >&2
     return 1
@@ -75,7 +75,7 @@ usage() {
 	EOF
 }
 
-create_cli_filemanager(){
+generate_cli_filemanager(){
 	package="${1:-}"
 	[ -e "${__distro_path_root}/system_files/bin/my-file-manager" ] && $_SUPERUSER rm -rf "${__distro_path_root}/system_files/bin/my-file-manager"
 	echo '#!/bin/sh' | $_SUPERUSER tee "${__distro_path_root}/system_files/bin/my-file-manager" >/dev/null 2>&1
@@ -118,7 +118,7 @@ install_alternatives() {
   myfilemanagerpackagename="$(basename $(realpath "${__distro_path_root}/system_files/bin/my-file-manager"))"
   for package in $FILEMANAGERSCLI; do
   	if [ "$package" = "$myfilemanagerpackagename" ];then
-		create_cli_filemanager "$package"
+		generate_cli_filemanager "$package"
 		break
   	fi
   done

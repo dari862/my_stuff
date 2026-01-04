@@ -16,7 +16,7 @@ if [ -f "/etc/doas.conf" ];then
 	my-superuser rm -rdf "/etc/doas.conf"
 fi
 
-create_never_remove_bin "${__distro_path_root}/bin/doas/doasedit"
+generate_never_remove_bin "${__distro_path_root}/bin/doas/doasedit"
 my-superuser cp -rp ${__distro_path_root}/system_files/doas.conf /etc
 
 my-superuser adduser "$USER" sudo >/dev/null 2>&1 || :

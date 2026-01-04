@@ -130,7 +130,7 @@ die() {
 usage() { printf %s "\
 simple API manager.
 
-=> [a]dd  [name] - Create a new API entry.
+=> [a]dd  [name] - generate a new API entry.
 => [e]dit [name] - Edit a API entry.
 => [d]el  [name] - Delete a API entry.
 => [l]ist        - List all entries.
@@ -154,7 +154,7 @@ main() {
         die "GPG not found"
 
     mkdir -p "$APIman_DIR" ||
-        die "Couldn't create API directory"
+        die "Couldn't make API directory"
 
     cd "$APIman_DIR" ||
         die "Can't access API directory"

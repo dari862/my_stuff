@@ -1,7 +1,7 @@
 #!/bin/sh
 # need superuser : var (_SUPERUSER)
 # need superuser : sourced by my-installer
-# need superuser : sourced by create_DB.sh
+# need superuser : sourced by build_DB.sh
 run_full_environment_script_="popup_terminal"
 
 . "$__distro_path_lib"

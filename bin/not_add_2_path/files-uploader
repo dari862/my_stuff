@@ -31,7 +31,7 @@ if type xdg-user-dir >/dev/null 2>&1;then
 else
     IMGDIR="$HOME/Pictures"
 fi
-# test for screenshots dir, create if it doesn't exist
+
 SCROTSDIR="$IMGDIR/Screenshots"
 mkdir -p "$SCROTSDIR"
 

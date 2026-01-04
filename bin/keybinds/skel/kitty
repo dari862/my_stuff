@@ -49,7 +49,7 @@
 
 #:     map kitty_mod+e combine : new_window : next_layout
 
-#: this will create a new window and switch to the next available
+#: this will generate a new window and switch to the next available
 #: layout
 
 #: You can use multi-key shortcuts using the syntax shown below::
@@ -155,7 +155,7 @@ close_tab=kitty_mod + q
 move_tab_forward=kitty_mod + .
 move_tab_backward=kitty_mod + ,
 set_tab_title=kitty_mod + alt + t
-#: You can also create shortcuts to go to specific tabs, with 1 being
+#: You can also generate shortcuts to go to specific tabs, with 1 being
 #: the first tab, 2 the second tab and -1 being the previously active
 #: tab, and any number larger than the last tab being the last tab::
 
@@ -169,7 +169,7 @@ set_tab_title=kitty_mod + alt + t
 
 #:     map ctrl+t new_tab !neighbor [optional cmd to run]
 next_layout=kitty_mod + l
-#: You can also create shortcuts to switch to specific layouts::
+#: You can also generate shortcuts to switch to specific layouts::
 
 #:     map ctrl+alt+t goto_layout tall
 #:     map ctrl+alt+s goto_layout stack

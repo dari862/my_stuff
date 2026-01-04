@@ -7,7 +7,7 @@ stop() {
 	mpd --kill || "${__distro_path_root}"/bin/WM/kill_process.sh mpd
 }
 
-createdb() {
+build_db() {
 	sleep 2
 	cd ~/Music
 	mpc -q add *
@@ -29,7 +29,7 @@ case "${1}" in
 		stop	
 	;;
 	db)	
-		createdb	
+		build_db	
 	;;
 	*)	
 		echo "Usage: mpd-session [start|stop|restart]"

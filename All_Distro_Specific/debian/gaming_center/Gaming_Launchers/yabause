@@ -1,7 +1,7 @@
 #!/bin/sh
 #called by : my-installer
 app_name="yabause"
-if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
+if check_system_ready_file "Distrobox_ready";then
 	app_name="yabause-qt5-git"
 	Distrobox_package_installer_ ${app_name} || continue
 else

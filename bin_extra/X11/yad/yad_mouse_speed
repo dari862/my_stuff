@@ -7,7 +7,7 @@ set -e
 
 HOME_mouse_speed_conf="${script_config_path}/mouse-speed.conf"
 if [ ! -f "${HOME_mouse_speed_conf}" ];then
-	mouse-speed --create-config
+	mouse-speed --generate-config
 fi
 . "$HOME_mouse_speed_conf"
 

@@ -5,7 +5,7 @@ CONKY_EMAIl_FILE="$GNUPGHOME/conkey_email"
 IMAP_PORT=993
 
 # Create encrypted credentials file
-create_creds_file() {
+make_creds_file() {
   printf "Email: "
   read email
   passman add "email/$email"
@@ -47,7 +47,7 @@ print_unread_email_count() {
 }
 
 case "$1" in
-  --create|-c) create_creds_file ;;
+  --make|-m) make_creds_file ;;
   *) print_unread_email_count ;;
 esac
 

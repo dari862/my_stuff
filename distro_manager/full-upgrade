@@ -20,7 +20,6 @@ fi
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
-. "${__distro_path_root}/lib/common/repo_URL"
 
 export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:$PATH" 
 Theme_repo_name="Theme_Stuff"
@@ -33,7 +32,7 @@ update_full_upgrade_script(){
 	print_purple "check if full upgrade need update. "
 	do_full_upgrade_need_update=false
 	mkdir -p "/tmp/$USER/disto_updater"
-	getURL 'download2' "${distro_raw_repo_url}/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/$USER/disto_updater/full-upgrade"
+	getURL 'download2' "https://raw.githubusercontent.com/dari862/${__custom_distro_name}/refs/heads/main/distro_manager/full-upgrade" "/tmp/$USER/disto_updater/full-upgrade"
 	chmod +x "/tmp/$USER/disto_updater/full-upgrade"
 	if [ -n "$(diff "/tmp/$USER/disto_updater/full-upgrade" "${__distro_path_root}/distro_manager/full-upgrade")" ];then
 		do_full_upgrade_need_update=true
@@ -129,7 +128,7 @@ Updating_Distro(){
 	
 	skel_modified=false
 	print_purple "Fetching Distro repo."
-	my-superuser git remote set-url origin "${distro_repo_url}/${__custom_distro_name}.git" >/dev/null 2>&1
+	my-superuser git remote set-url origin "https://github.com/dari862/${__custom_distro_name}.git" >/dev/null 2>&1
 	my-superuser git fetch || print_RED "git fetch failed... "
 	if git status | grep -q "^Your branch is up to date";then
 		print_GREEN "Distro is up to date." 
@@ -161,7 +160,7 @@ Updating_Distro(){
 
 Updating_Themes(){
 	cd "${__distro_path_root}/${Theme_repo_name}"
-	my-superuser git remote set-url origin "${distro_repo_url}/${Theme_repo_name}.git" >/dev/null 2>&1
+	my-superuser git remote set-url origin "https://github.com/dari862/${Theme_repo_name}.git" >/dev/null 2>&1
 	if __upgrade_current_repo_;then
 		print_GREEN "${Theme_repo_name} is up to date." 
 	else
@@ -171,8 +170,8 @@ Updating_Themes(){
 
 post_updating(){
 	print_purple "post updating."
-	print_purple "running system_files_creater."
-	"${__distro_path_root}/distro_manager"/system_files_creater
+	print_purple "running system_files_builder."
+	"${__distro_path_root}/distro_manager"/system_files_builder
 	print_GREEN "post updating completed ."
 }
 

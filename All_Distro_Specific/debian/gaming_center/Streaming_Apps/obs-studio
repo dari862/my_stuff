@@ -2,7 +2,7 @@
 #called by : my-installer
 app_name="obs-studio"
 
-if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
+if check_system_ready_file "Distrobox_ready";then
 	Distrobox_package_installer_ ${app_name} || continue
 else
 	say 'Installing package...' 1

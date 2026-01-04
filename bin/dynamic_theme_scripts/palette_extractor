@@ -2,7 +2,7 @@
 unalias -a
 
 wal="${1:-}"
-theme_file_2_source="${2:-/tmp/$USER/theme_color_creater_output/colors.sh}"
+theme_file_2_source="${2:-/tmp/$USER/theme_color_builder_output/colors.sh}"
 
 if [[ -z "$wal" ]]; then
 	printf "%s\n" "Error: 'wal' no wallpaper provided" >&2

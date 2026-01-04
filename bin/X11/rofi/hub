@@ -9,7 +9,7 @@ set -e
 _hub_script_dir="${__distro_path_root}/system_files/hub_script"
 opt___="${1-}"
 
-if [ "$opt___" = "create" ];then
+if [ "$opt___" = "generate" ];then
 	if [ "$(id -u)" -eq 0 ];then
 		_SUPERUSER=""
 	else

@@ -45,7 +45,7 @@ start_ufw(){
 
 start_iptables(){
 	if ! iptables-save | tee "$RULES" >/dev/null 2>&1;then
-		echo "failed to create $RULES existing."
+		echo "failed to generate $RULES existing."
 	fi
 	chmod 700 "$RULES"
 		
@@ -94,7 +94,7 @@ stop_iptables(){
 start_nftables() {
     # Save the current nftables ruleset
     if ! nft list ruleset > "$RULES" 2>/dev/null;then
-        echo "Failed to create $RULES (or no existing ruleset)."
+        echo "Failed to generate $RULES (or no existing ruleset)."
     fi
     chmod 700 "$RULES"
 
@@ -102,7 +102,7 @@ start_nftables() {
     nft flush ruleset
 
     #-------------------------------------------------
-    # Create tables and chains
+    # generate tables and chains
     #-------------------------------------------------
     # NAT table
     nft add table ip nat

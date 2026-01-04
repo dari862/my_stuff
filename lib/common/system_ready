@@ -1,0 +1,26 @@
+#!/bin/sh
+
+generate_system_ready_dir(){
+	${_SUPERUSER} mkdir -p "${__distro_path_system_ready}"
+}
+
+generate_system_ready_file(){
+	file_2_generate_system_ready="${1:-}"
+	printf "%s\n" "Generate Check File (${file_2_generate_system_ready})"
+	${_SUPERUSER} touch "${__distro_path_system_ready}/${file_2_generate_system_ready}"
+}
+
+remove_system_ready_file(){
+	file_2_remove_system_ready="${1:-}"
+	printf "%s\n" "Removing Check File (${file_2_remove_system_ready})"
+	${_SUPERUSER} rm -rf "${__distro_path_system_ready}/${file_2_remove_system_ready}"
+}
+
+check_system_ready_file(){
+	file_2_check_system_ready="${1:-}"
+	if [ -f "${__distro_path_system_ready}/${file_2_check_system_ready}" ];then
+		return
+	else
+		return 1
+	fi
+}

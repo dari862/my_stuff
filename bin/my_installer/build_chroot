@@ -19,7 +19,7 @@ list_of_chroots(){
 }
 
 log_error() {
-    echo "[ERROR][$(date)] $0 : $1" >> /tmp/log_error_create_chroot_cleanup
+    echo "[ERROR][$(date)] $0 : $1" >> /tmp/log_error_generate_chroot_cleanup
 }
 
 cleanup() {
@@ -32,11 +32,11 @@ cleanup() {
     [ "${Display_server_are}" = "wayland" ] && my-superuser umount "$CHROOT_DIR/run/user/$(id -u)" >/dev/null 2>&1 || :
 }
 
-base_chroot_creater(){
+base_chroot_builder(){
 	if [ ! -d "${CHROOT_DIR}" ];then
 		say "Creating chroot directory at $CHROOT_DIR..."
-		my-superuser mkdir -p "$CHROOT_DIR" || failed_to_run "Failed to create ${CHROOT_DIR} directory"
-		my-superuser mkdir -p "$CHROOT_SCRIPT_PATH" || failed_to_run "Failed to create ${CHROOT_SCRIPT_PATH} directory"
+		my-superuser mkdir -p "$CHROOT_DIR" || failed_to_run "Failed to make ${CHROOT_DIR} directory"
+		my-superuser mkdir -p "$CHROOT_SCRIPT_PATH" || failed_to_run "Failed to make ${CHROOT_SCRIPT_PATH} directory"
 		my-superuser chmod 700 "${CHROOT_SCRIPT_PATH}"
 		Package_installer_ debootstrap
 		
@@ -44,7 +44,7 @@ base_chroot_creater(){
 		my-superuser debootstrap stable "$CHROOT_DIR" http://deb.debian.org/debian || failed_to_run "Debootstrap failed"
 				
 		say "Creating user $CHROOT_USER inside the chroot..."
-		my-superuser chroot "$CHROOT_DIR" useradd -m "$CHROOT_USER" -s /bin/bash || failed_to_run "Failed to create user in chroot"
+		my-superuser chroot "$CHROOT_DIR" useradd -m "$CHROOT_USER" -s /bin/bash || failed_to_run "Failed to make user in chroot"
 		
 		say "Installing and configer locales in the chroot..."
 		my-superuser chroot "$CHROOT_DIR" bash -c "
@@ -63,9 +63,9 @@ base_chroot_creater(){
 	fi
 }
 
-chroot_creater(){
+chroot_builder(){
 	if [ ! -d "${CHROOT_DIR}" ];then
-		base_chroot_creater
+		base_chroot_builder
 		say "Mounting necessary filesystems for chroot..."
 		for fs in /proc /sys /dev /dev/pts /run; do
 			if ! mountpoint -q "$CHROOT_DIR$fs";then
@@ -107,7 +107,7 @@ chroot_creater(){
 	fi
 }
 
-Create_users_to_chroot(){
+generate_users_to_chroot(){
 	list_of_users_are="$(grep "users:" /etc/group | awk -F: '{print $NF}' | sed 's/,/ /g')"
 	for user2add in ${list_of_users_are};do
 		new_chroot_user="chroot${user2add}"

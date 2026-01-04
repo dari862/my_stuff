@@ -37,7 +37,7 @@ unalias -a
 
 . "$__distro_path_lib"
 TINT2PATH="$HOME/.config/tint2"
-TINT2DEFAULT="$TINT2PATH/tint2rc" # tint2 will create this if it doesn't exist
+TINT2DEFAULT="$TINT2PATH/tint2rc"
 SESSIONFILE="$TINT2PATH/tint2-sessionfile"
 USAGE='tint2-manager is a tint2 selection and switcher script
 which uses yad to generate a graphical user interface.
@@ -174,7 +174,7 @@ loadDialog() {
         fi
     fi
 
-    :> "$SESSIONFILE"    # Create/overwrite empty session file
+    :> "$SESSIONFILE"
 
     if pgrep -x -u "$USER" tint2 >/dev/null 2>&1;then 
         killall -u "$USER" tint2

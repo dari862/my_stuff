@@ -1,2 +1,2 @@
 #!/bin/sh
-create_chroot mutt-wizard
+build_chroot mutt-wizard

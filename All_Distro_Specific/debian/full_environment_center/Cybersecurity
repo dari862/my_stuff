@@ -33,7 +33,7 @@ install_parrot() {
     my-superuser apt-get update
 }
 
-create_install_script() {
+make_install_script() {
 	my-superuser ln -s "${_FULL_ENVIRONMENT_LIBDIR}"/Cybersecurity_Extra/${platfrom_name}_install ${__distro_path_root}/system_files/bin
     command -v bash >/dev/null 2>&1 && my-superuser ln -s "${__distro_path_disabled_completion}"/bash/"${platfrom_name}_install_auto_completion" "${__distro_path_enabled_completion}"/bash
     command -v zsh >/dev/null 2>&1 && my-superuser ln -s "${__distro_path_disabled_completion}"/zsh/"${platfrom_name}_install_auto_completion" "${__distro_path_enabled_completion}"/zsh
@@ -51,13 +51,13 @@ case "$REPLY" in
 	1|k|K)
 		platfrom_name="kali"
 		install_kali
-		create_install_script
+		make_install_script
 		kali_install #script at ${__distro_path_root}/bin/cli to install kali packages
 	;;
 	2|p|P)
 		platfrom_name="parrot"
 		install_parrot
-		create_install_script
+		make_install_script
 		parrot_install #script at ${__distro_path_root}/bin/cli to install parrot packages
 	;;
 	*)

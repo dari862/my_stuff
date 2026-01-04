@@ -1,2 +1,2 @@
 #!/bin/sh
-create_chroot cups
+build_chroot cups

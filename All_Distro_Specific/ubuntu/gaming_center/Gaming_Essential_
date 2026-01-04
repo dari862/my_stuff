@@ -38,7 +38,6 @@ pacstall_install bottles || continue
 flatpak_install "pupgui2" "net.davidotek.pupgui2" "nonflathub" || continue        
 flatpak_install "Flatseal" "com.github.tchx84.Flatseal" || continue     
 
-say "Creating Check File (Gaming_ready)"
 remove_system_ready_file GPU_Drivers_ready
-create_system_ready_file Gaming_ready
-update_pipemenu preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+generate_system_ready_file Gaming_ready
+update_pipemenu preferences.sh || failed_to_run "failed to run generate_pipemenu/preferences.sh"

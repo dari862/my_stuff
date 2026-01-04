@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Dynamic Wallpaper : Set wallpapers according to current time.
-## Created to work better with job schedulers (cron)
+## generated to work better with job schedulers (cron)
 unalias -a
 . "$__distro_path_lib"
 
@@ -210,16 +210,16 @@ Convert_current_folder_2_Dywall_now() {
 		mv 0_0_0 5.${extension}
 		[ ! -f 19.${extension} ] && ln -s 0.${extension} 19.${extension}
 	fi
-	Create_links_for_folders_now
+	generate_links_for_folders_now
 	reset_color
 }
 
-Create_links_for_folders_now(){
+generate_links_for_folders_now(){
 	fullname_L="$(\ls | tail -1)"
 	extension_L="${fullname_L##*.}"
-	folders_2_create_links_for=(`\ls | sort -n | tr '\n' ' '`)
+	folders_2_generate_links_for=(`\ls | sort -n | tr '\n' ' '`)
 	newName_L=1
-	for filename_L in ${folders_2_create_links_for[@]}; do
+	for filename_L in ${folders_2_generate_links_for[@]}; do
 		while [ "$newName_L" -lt 24 ]
 		do
 			if [ -f "${newName_L}.${extension_L}" ] || [ "$newName_L" -gt 24 ];then
@@ -318,7 +318,7 @@ Download_wallpapers_now(){
 		mv 3.${extension} 6.${extension}
 		mv 2.${extension} 5.${extension}
 		mv 1.${extension} 3.${extension}
-		Create_links_for_folders_now
+		generate_links_for_folders_now
 			
 		mv /tmp/$USER/Linux_Dynamic_Wallpapers/Dynamic_Wallpapers/cyberpunk-01 /tmp/$USER/dynamic_wallpapers
 			
@@ -368,7 +368,7 @@ uninstall_now_() {
 }
 
 #
-create_crontab_now() {
+generate_crontab_now() {
 	crontab -r 2>/dev/null
 	(crontab -l 2>/dev/null; echo "0 * * * * env PATH=$PATH DISPLAY=$DISPLAY DESKTOP_SESSION=$DESKTOP_SESSION DBUS_SESSION_BUS_ADDRESS=\"$DBUS_SESSION_BUS_ADDRESS\" ${dwall_script} ${cron_dwall_extra_arg[@]}") | crontab -
 }
@@ -386,8 +386,8 @@ main() {
 	
 	reset_color
 	
-	if [ "$create_crontab_" == true ];then
-		create_crontab_now
+	if [ "$generate_crontab_" == true ];then
+		generate_crontab_now
 	fi
 	exit 0
 }
@@ -430,7 +430,7 @@ while getopts ":dolachiugys:pb:c:z:" opt; do
 			exit_o
 			;;
 		z)
-			create_crontab_=true
+			generate_crontab_=true
 			;;
 		\?)
 			echo -e ${RED}"[!] Unknown option, run ${GREEN}`basename $0` -h"
@@ -463,7 +463,7 @@ if [[ "$Download_wallpapers_" == true ]] || [[ ! -d "$DIR" ]];then
 	Download_wallpapers_now
 fi
 
-if [[ "$create_crontab_" == true ]];then
+if [[ "$generate_crontab_" == true ]];then
 	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed crontab || exit 1
 	if [[ "$STYLE" ]];then
 		cron_dwall_extra_arg=(${cron_dwall_extra_arg[@]} "-s $STYLE")

@@ -132,7 +132,7 @@ ${voffset 12}${offset 120}${font Noto Sans:Bold:size=12}${if_running mpd}\
 ${mpd_title}${else}MPD${endif}${font}
 ${offset 110}${if_running mpd}${mpd_artist}${else}Is not playing${endif}
 ${voffset 4}${offset 120}${font Noto Sans:Bold:size=12} You have \
-${execi 600 (((__distro_path_root)))/bin/X11/conky/email}${font}
+${execi 600 (((__distro_path_root)))/bin/X11/conky/email_notification}${font}
 ${offset 110}Unread Email
 ${voffset 12}${offset 120}${font Noto Sans:Bold:size=12}${fs_free} Free${font}
 ${offset 110}from ${fs_size} fs size

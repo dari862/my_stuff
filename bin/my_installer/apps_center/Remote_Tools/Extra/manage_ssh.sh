@@ -10,7 +10,7 @@ hostname=${hostname:-${HOST:-$(hostname)}}
 # /etc/hostname file.
 [ "$hostname" ] || read -r hostname < /etc/hostname
 
-# Check if $ssh_config_dir exists, if not, create it
+# Check if $ssh_config_dir exists, if not, generate it
 if [ ! -f "$ssh_config_dir" ]; then
     mkdir -p "$HOME/.ssh"
     touch "$ssh_config_dir"

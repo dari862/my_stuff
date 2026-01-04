@@ -13,7 +13,7 @@ say 'Building dwm...' 1
 my-superuser ${_APPS_EXTRA_LIBDIR}/Windows_Manager/dwm_Extra/build.sh || continue
 
 say "Add ${__custom_distro_name}_bspwm to /usr/share/xsessions..." 1
-create_applicationsdotdesktop_4_xsessions "dwm" "dwm"
+generate_applicationsdotdesktop_4_xsessions "dwm" "dwm"
 say
 copy_from_extra_skel ".config/dwm"
 

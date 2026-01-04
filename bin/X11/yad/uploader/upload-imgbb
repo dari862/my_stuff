@@ -5,7 +5,7 @@
 #
 # Credentials for an account can be set up.
 #
-# Settings file (imgbb.conf) is created in $HOME/.config/image-upload/imgbb
+# Settings file (imgbb.conf) is generated in $HOME/.config/image-upload/imgbb
 #
 # The script returns BB-Code for the direct image link, and a linked thumbnail.
 # YAD dialogs are used for user interaction.
@@ -43,7 +43,7 @@ TEST=0                              # Flag for '--test-account' parameter
 USAGE="upload-imgbb is a script to take screenshots and upload them to imgbb
 
 Credentials for an account can be set up.
-A settings file (imgbb.conf) is created in $HOME/.config/image-upload/imgbb
+A settings file (imgbb.conf) is generated in $HOME/.config/image-upload/imgbb
 The script returns BB-Code for the direct image link, and a linked thumbnail.
 YAD dialogs are used for user interaction.
 
@@ -347,7 +347,7 @@ set +x
 function watermark_thumb() {    # add watermark to thumbnail if uploaded image has been deleted
     local delete_text="$HOME/tmp/deleted.png"
 
-    # create watermark image
+    # generate watermark image
     magick  -background transparent -fill red -size 160x60 label:'UPLOAD\n     DELETED' "${delete_text}"
     # overlay thumbnail with watermark
     composite -dissolve 50% -gravity west "${delete_text}" "${thumb_tempfile}" "${thumb_tempfile}"

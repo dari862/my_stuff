@@ -33,7 +33,7 @@ if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
 	add_intel=true
 fi
 
-create_X11_intel_conf(){
+generate_X11_intel_conf(){
 	${_SUPERUSER} mkdir -p /etc/X11/xorg.conf.d/
 	${_SUPERUSER} tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
 	Section "Device"
@@ -108,13 +108,12 @@ if [ "$add_nvidia" = true ];then
 fi
 
 if [ "$add_intel" = true ];then
-	#create_X11_intel_conf
+	#generate_X11_intel_conf
 	:
 fi
 
-say "Creating Check File (GPU_Drivers_ready)"
-create_system_ready_file GPU_Drivers_ready
-update_pipemenu gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+generate_system_ready_file GPU_Drivers_ready
+update_pipemenu gaming-pipemenu.sh || failed_to_run "failed to run generate_pipemenu/gaming-pipemenu.sh"
 
 say "enable Hardware Acceleration."
 tweek_as_dependency "HardwareAcceleration" || continue

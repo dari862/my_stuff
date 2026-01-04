@@ -82,18 +82,18 @@ chosen="$(printf "$options" | rofi -dmenu -p "$prompt" -mesg "$mesg" "$active" "
 case $chosen in
     "$button_previous")
         "${__distro_path_root}/bin/not_add_2_path"/MC --previous 
-        "${__distro_path_root}"/bin/not_add_2_path/albumart_creater --send-notification
+        "${__distro_path_root}"/bin/not_add_2_path/albumart_builder --send-notification
         ;;
     "$toggle")
         "${__distro_path_root}/bin/not_add_2_path"/MC --toggle
-        "${__distro_path_root}"/bin/not_add_2_path/albumart_creater --send-notification
+        "${__distro_path_root}"/bin/not_add_2_path/albumart_builder --send-notification
         ;;
     "$button_stop")
         "${__distro_path_root}/bin/not_add_2_path"/MC --stop
         ;;
     "$button_next")
         "${__distro_path_root}/bin/not_add_2_path"/MC --next
-        "${__distro_path_root}"/bin/not_add_2_path/albumart_creater --send-notification
+        "${__distro_path_root}"/bin/not_add_2_path/albumart_builder --send-notification
         ;;
     "$tog_repeat")
         "${__distro_path_root}/bin/not_add_2_path"/MC --repeat

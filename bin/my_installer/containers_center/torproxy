@@ -1,2 +1,2 @@
 #!/bin/sh
-create_containers torproxy
+build_containers torproxy

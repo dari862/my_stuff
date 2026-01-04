@@ -9,7 +9,7 @@ set -e
 opt="${1-h}"
 
 HELP_List="1 Note_manager
-2 Todo_Creater
+2 Todo_Add
 3 Todo_list"
 
 notes_and_todo_folder="$HOME/Documents/dono"
@@ -31,7 +31,7 @@ get_notes() {
     ls "${notes_folder}"
 }
 
-create_note() {
+generate_note() {
 	file=$(echo "$title" | sed 's/ /_/g;s/\(.*\)/\L\1/g')
 	currentdate="$(date +'%Y-%m-%d %H:%M:%S%z')"
 	template=$(cat <<- END
@@ -99,12 +99,12 @@ new_note() {
             	Note_manager
             	;;
         	*)
-        		create_note
+        		generate_note
             	;;
     	esac
     else
     	title="$1"
-    	create_note
+    	generate_note
     fi
 }
 
@@ -132,7 +132,7 @@ Note_manager()
 
 #############################################################################
 #############################################################################
-# Todo_Creater
+# Todo_Add
 #############################################################################
 #############################################################################
 # Function to copy to clipboard with different tools depending on the display server
@@ -145,7 +145,7 @@ cp2cb() {
 }
 
 # Description: Store multiple one-line texts or codes and copy one of them when needed.
-Todo_Creater() {
+Todo_Add() {
   [ ! -f "$todo_file" ] && mkdir -p "$todo_folder" && touch "$todo_file"
   while :
   do
@@ -181,7 +181,7 @@ Todo_Creater() {
 
 Todo_list()
 {
-	[ ! -f "${todo_file}" ] && Todo_Creater
+	[ ! -f "${todo_file}" ] && Todo_Add
 	while :
 	do
 		choice=$(cat "${todo_file}" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'To Do:' "$@")
@@ -212,7 +212,7 @@ main()
 {
 case $opt in
 	1) Note_manager ;;
-	2) Todo_Creater ;;
+	2) Todo_Add ;;
 	3) Todo_list ;;
 	*) help ;;
 esac

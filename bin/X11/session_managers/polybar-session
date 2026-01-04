@@ -1,19 +1,21 @@
 #!/bin/sh
 . "$__distro_path_lib"
 
+polybar_launcher_path="$HOME/.local/bin/polybar_launcher"
+
 stop() {
 	"${__distro_path_root}"/bin/WM/kill_process.sh polybar 2>/dev/null	
 }
 
 start() {
-	pidof -q polybar || setsid "$HOME"/.local/bin/polybar_launch &
+	pidof -q polybar || setsid "${polybar_launcher_path}" &
 }
 
 restart() {
 	if pidof -q polybar;then
 		"${__distro_path_root}"/bin/WM/kill_process.sh polybar 2>/dev/null	
 	fi
-	setsid "$HOME"/.local/bin/polybar_launch &
+	setsid "${polybar_launcher_path}" &
 }
 
 case "${1}" in

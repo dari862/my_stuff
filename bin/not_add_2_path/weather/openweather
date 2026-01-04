@@ -52,7 +52,7 @@ get_weather_report_less(){
 	fi
 }
 
-create_detailed_weather_report(){
+generate_detailed_weather_report(){
 	days=3
 	forecast=$(cat "${forecastreport}")
 	
@@ -114,7 +114,7 @@ get_weather_report_more(){
 	
 	if [ "$show_Extra" = true ];then
 		detailed_weatherreport="${weather_script_data_path}/ow_detailed_weatherreport"
-		create_detailed_weather_report > "$detailed_weatherreport"
+		generate_detailed_weather_report > "$detailed_weatherreport"
 		less -Srf "$detailed_weatherreport" # workonthis
 	else
 		#printf "%s; %s; %s %s" "$city" "$temperature" "$windspeed" "$winddir"

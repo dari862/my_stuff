@@ -13,6 +13,7 @@ export __distro_path_lib="${1:-$__distro_path_lib}"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+. "${__distro_path_root}/lib/common/system_ready"
 
 export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:${__distro_path_root}/bin/cli:$PATH"
 
@@ -51,7 +52,7 @@ show_im(){
 	printf '%b' "\\033[1;34m[*] \\033[0m${message}\n"
 }
 
-create_auto_completion_files(){
+generate_auto_completion_files(){
 	if command_exist bash;then
 		mkdir -p "$__distro_path_enabled_completion"/bash
 		
@@ -139,7 +140,7 @@ mkdir -p "/root/Templates"
 
 ##################################################################################
 
-show_im "Create Custom OS release file."
+show_im "Generate Custom OS release file."
 if [ -f /etc/os-release ];then
 	. /etc/os-release
 	version_="$(echo "${VERSION_ID}" | tr -d '.')"
@@ -169,7 +170,7 @@ if [ -d "${__distro_path_system_files}" ];then
 fi
 mkdir -p "${__distro_path_system_files}"
 
-show_im "create uniq system files"
+show_im "Generate uniq system files"
 
 mkdir -p "${__distro_path_updater}"
 mkdir -p "${__distro_path_downloaded}"
@@ -179,7 +180,7 @@ mkdir -p "${__distro_path_external}"/auto_completion
 
 mkdir -p "${__distro_path_neverremove}/applications"
 
-mkdir -p "${__distro_path_system_ready}"
+generate_system_ready_dir
 
 mkdir -p "${_distro_xsessions_desktop_path}"
 
@@ -204,13 +205,11 @@ mkdir -p "${__distro_for_all_path}"
 chmod 777 "${__distro_for_all_path}"
 
 if [ "$machine_type_are" = "laptop" ];then 
-	show_im "this is laptop"
-	touch "${__distro_path_system_ready}/this_is_laptop"
+	generate_system_ready_file "this_is_laptop"
 fi
 
 if dmesg | grep -qi bluetooth || lsusb 2>/dev/null | grep -qi bluetooth || [ -d "/sys/class/bluetooth" ];then
-	show_im "has bluetooth"
-	touch "${__distro_path_system_ready}"/has_bluetooth
+	generate_system_ready_file "has_bluetooth"
 	cp -r "${__distro_path_root}/bin/not_add_2_path/session_managers/bt-session" "${__distro_path_system_files}/bin"
 fi
 
@@ -394,13 +393,13 @@ if command_exist yad;then
 		ln_sf_files_depth1 "${__distro_path_root}/bin_extra/X11/yad" "${__distro_path_system_files}"/binX11
 	fi
 	copy_all__application_link_in_dir "yad"
-	if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
+	if check_system_ready_file "this_is_laptop";then
 		show_im "yad laptop stuff."
 		if [ -d "${__distro_path_root}/bin/X11/yad/laptop" ];then
 			show_im "laptop bin files to system_files/binX11 ."
 			ln_sf_files_depth1 "${__distro_path_root}/bin/X11/yad/laptop" "${__distro_path_system_files}"/binX11
 		fi
-		create_applicationsdotdesktop_link "yadtlp"
+		generate_applicationsdotdesktop_link "yadtlp"
 	fi
 fi
 
@@ -464,9 +463,9 @@ ln -sf "${__distro_path_root}/bin/keybinds/keybinds" "${__distro_path_system_fil
 
 show_im "nbrowser bin file to system_files/bin ."
 ln -sf "${__distro_path_root}"/bin/X11/not_add_2_path/nbrowser/nbrowser "${__distro_path_system_files}"/binX11
-create_applicationsdotdesktop_link "nbrowser"
+generate_applicationsdotdesktop_link "nbrowser"
 
-if [ -f "${__distro_path_system_ready}/this_is_laptop" ];then
+if check_system_ready_file "this_is_laptop";then
 	show_im "laptop stuff."
 	if [ -d "${__distro_path_root}/bin/X11/laptop" ];then
 		show_im "laptop bin files to system_files/binX11 ."
@@ -493,85 +492,85 @@ elif command_exist python3;then
 fi
 
 if command_exist arandr;then
-	create_applicationsdotdesktop_link "arandr"
+	generate_applicationsdotdesktop_link "arandr"
 fi
 
 if command_exist kvantummanager;then
-	create_applicationsdotdesktop_link "kvantummanager"
+	generate_applicationsdotdesktop_link "kvantummanager"
 fi
 
 if command_exist lightdm-gtk-greeter-settings-pkexec;then
-	create_applicationsdotdesktop_link "lightdm-gtk-greeter-settings-pkexec"
+	generate_applicationsdotdesktop_link "lightdm-gtk-greeter-settings-pkexec"
 fi
 
 if command_exist lxappearance;then
-	create_applicationsdotdesktop_link "lxappearance"
+	generate_applicationsdotdesktop_link "lxappearance"
 fi
 
 if command_exist obconf;then
-	create_applicationsdotdesktop_link "obconf"
+	generate_applicationsdotdesktop_link "obconf"
 fi
 
 if command_exist qt5ct;then
-	create_applicationsdotdesktop_link "qt5ct"
+	generate_applicationsdotdesktop_link "qt5ct"
 fi
 
 if command_exist nvim;then
-	create_applicationsdotdesktop_link "Neovim"
+	generate_applicationsdotdesktop_link "Neovim"
 	cp -r "${__distro_path_root}/bin/not_add_2_path/my-vim" "${__distro_path_system_files}/bin"
 fi
 
 if command_exist docker;then
-	create_applicationsdotdesktop_link "Docker"
+	generate_applicationsdotdesktop_link "Docker"
 fi
 
 if command_exist google-chrome;then
-	create_applicationsdotdesktop_link "WhatsApp"
+	generate_applicationsdotdesktop_link "WhatsApp"
 fi
 
 if command_exist flatpak;then
 	if flatpak list | grep -q pinta;then
-		create_applicationsdotdesktop_link "pinta"
+		generate_applicationsdotdesktop_link "pinta"
 	fi
 	
 	if flatpak list | grep -q obsidian;then
-		create_applicationsdotdesktop_link "obsidian"
+		generate_applicationsdotdesktop_link "obsidian"
 	fi
 	
 	if flatpak list | grep -q audacity;then
-		create_applicationsdotdesktop_link "audacity"
+		generate_applicationsdotdesktop_link "audacity"
 	fi
 fi
 
-create_auto_completion_files
+generate_auto_completion_files
 
 show_im "prepares gui scripts dir"
-. "${pipemenu_creater}/gui-apps-pipemenu-dir" || show_em "failed to run ${pipemenu_creater}/gui-apps-pipemenu-dir"
+. "${pipemenu_builder}/gui-apps-pipemenu-dir" || show_em "failed to run ${pipemenu_builder}/gui-apps-pipemenu-dir"
 
 ##################################################################################
 
-show_im "Running script for create_DB.sh --all"
-${__distro_path_root}/bin/WM/create_DB.sh --all || show_em "failed to run create_DB.sh"
+show_im "Running script for build_DB.sh --all"
+${__distro_path_root}/bin/WM/build_DB.sh --all || show_em "failed to run build_DB.sh"
 
-show_im "Running must_create_script."
-for script_dir in "${__distro_path_root}"/bin/must_create_script/*;do
-	show_im "running $(basename "$script_dir"). from must_create_script ."
+show_im "Running must_build_script."
+for script_dir in "${__distro_path_root}"/bin/must_build_script/*;do
+	show_im "running $(basename "$script_dir"). from must_build_script ."
 	cd "${script_dir}"
 	./make || show_em "failed to run make"
 done
-for script_dir in "${__distro_path_root}"/bin/X11/must_create_script/*;do
-	show_im "running $(basename "$script_dir"). from must_create_script ."
+for script_dir in "${__distro_path_root}"/bin/X11/must_build_script/*;do
+	show_im "running $(basename "$script_dir"). from must_build_script ."
 	cd "${script_dir}"
 	./make || show_em "failed to run make"
 done
 
-show_im "Create keybinds."
+show_im "Build keybinds."
 "${__distro_path_system_files}"/bin/keybinds --initial-step || show_em "failed to run keybinds --initial-step"
 
 ln -sf "${__distro_path_root}"/distro_manager/full-upgrade "${__distro_path_system_files}"/bin
 
 if command_exist conky;then
-	show_im "Create conky weather icons."
+	show_im "Generate conky weather icons."
 	"${__distro_path_root}"/bin/X11/conky/conky_weather_icon || show_em "failed to run conky/conky_weather_icon"
 fi
 
@@ -585,24 +584,21 @@ if service_manager status ssh;then
 fi
 
 show_im "prepares hub script dir"
-"${__distro_path_root}"/bin/X11/rofi/hub create || show_em "failed to run hub create"
-
-show_im "sed (((distro_path_root)) to ${__distro_path_root} ."
-sed_distro_path_root_var_2_correct_value "${__distro_path_system_skel_files}"
+"${__distro_path_root}"/bin/X11/rofi/hub generate || show_em "failed to run hub generate"
 
 if command_exist openbox;then
-	show_im "create ${__custom_distro_name}_openbox to xsessions."
-	create_applicationsdotdesktop_4_xsessions "openbox" "openbox"
+	show_im "Generate ${__custom_distro_name}_openbox to xsessions."
+	generate_applicationsdotdesktop_4_xsessions "openbox" "openbox"
 fi
 
 if command_exist dwm;then
-	show_im "create ${__custom_distro_name}_dwm to xsessions."
-	create_applicationsdotdesktop_4_xsessions "dwm" "dwm"
+	show_im "Generate ${__custom_distro_name}_dwm to xsessions."
+	generate_applicationsdotdesktop_4_xsessions "dwm" "dwm"
 fi
 
 if command_exist bspwm;then
-	show_im "create ${__custom_distro_name}_bspwm to xsessions."
-	create_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
+	show_im "Generate ${__custom_distro_name}_bspwm to xsessions."
+	generate_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
 fi
 
 show_im "Configer Global get_weather."
@@ -633,18 +629,12 @@ elif command_exist htop;then
 	ln -sf "$(which htop)" "${__distro_path_system_files}/bin/distro_top"
 fi
 
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_path_root)))|${__distro_path_root}|g" {} +
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_path_enabled_completion)))|${__distro_path_enabled_completion}|g" {} +
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_path_system_ready)))|${__distro_path_system_ready}|g" {} +
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_path_neverremove)))|${__distro_path_neverremove}|g" {} +
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_path_themes)))|${__distro_path_themes}|g" {} +
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((__distro_path_all_distro_themes)))|${__distro_path_all_distro_themes}|g" {} +
-. "${__distro_path_root}/Distro_Specific/disto_icon"
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((distro_icon)))|${distro_icon}|g" {} +
+if command_exist batcat && ! command_exist bat;then
+	ln -sf $(which batcat) "${__distro_path_system_files}/bin/bat"
+fi
 
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((bl_preferences_pipemenu_file)))|${bl_preferences_pipemenu_file}|g" {} +
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((ac_preferences_pipemenu_file)))|${ac_preferences_pipemenu_file}|g" {} +
-find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|(((my_preferences_pipemenu_file)))|${my_preferences_pipemenu_file}|g" {} +
+show_im "seding (((distro_path_var)) to ${__distro_path_root} ."
+sed_distro_path_root_var_2_correct_value
 
 show_im "Adding applications desktop files"
 for f in "${__distro_path_root}"/applications/*;do
@@ -653,13 +643,13 @@ done
 
 ln -sf "${__distro_path_neverremove}/applications"/* "/usr/share/applications"
 
-show_im "Create gtk themes"
+show_im "Build gtk themes"
 "${__distro_path_all_distro_themes}"/gtk_themes_builder/builder "$__distro_path_lib"
 
-show_im "Create openbox themes"
+show_im "Build openbox themes"
 "${__distro_path_all_distro_themes}"/openbox_themes_builder/builder "$__distro_path_lib"
 
-show_im "Create icons"
+show_im "Build icons"
 "${__distro_path_all_distro_themes}"/gtk_icons_builder/builder "$__distro_path_lib"
 
 show_im "Running my-alternatives"
@@ -671,7 +661,7 @@ ln -sf ${__distro_path_root}/lib/manpage/* /usr/share/man/man1
 show_im "installing update-notification"
 "${__distro_path_root}"/bin/WM/update-notification -I "$__distro_path_lib"
 
-show_im "Create lightdm.conf."
+show_im "Generate lightdm.conf."
 "${__distro_path_root}"/bin/not_add_2_path/setLightdmGreeter --initial-step "$__distro_path_lib" "$switch_default_xsession_to"
 
 show_im "Adding themes"
@@ -699,7 +689,7 @@ show_im "update icons cache."
 gtk-update-icon-cache
 
 if ! command_exist magick;then
-	show_im "Create symboliclink to magick from convert."
+	show_im "Generate symboliclink to magick from convert."
 	if command_exist convert;then
 		ln -sf "$(which convert)" /usr/bin/magick
 	fi
@@ -715,4 +705,4 @@ if [ "$fzf_version_major" -eq 0 ];then
 	fi
 fi
 
-show_im "system_files_creater Done."
+show_im "system_files_builder Done."

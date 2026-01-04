@@ -78,7 +78,7 @@ fi
 
 say 'Creating applications shortcut...' 1
 
-create_applicationsdotdesktop_link "nvim" || continue
+generate_applicationsdotdesktop_link "nvim" || continue
 cp -r "${__distro_path_root}/bin/not_add_2_path/my-vim" "${__distro_path_system_files}/bin"
 
 clear

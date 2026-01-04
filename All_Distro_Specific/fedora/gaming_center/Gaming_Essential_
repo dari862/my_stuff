@@ -4,3 +4,6 @@
 say 'Installing package...' 1
 copr_enable "wehagy/protonplus"
 Package_installer_ -y wine dbus git ffmpeg ffmpeg-libs steam lutris protonplus
+
+remove_system_ready_file GPU_Drivers_ready
+generate_system_ready_file Gaming_ready

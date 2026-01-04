@@ -108,12 +108,12 @@ History:When did man land on the moon?:1969:4
 Math:10^3=?:1000:1
 Science:The _____ ______ Project mapped all of man's genes.:Human Genome:3
 Programming:What is the best computer to program on?:Thinkpad:999
-History:When was fla.sh created?:April 2020:999
+History:When was fla.sh generated?:April 2020:999
 Math:What do you call a number only divisible by itself and 1?:Prime:0
 Science:What is the distance between the Earth and Sol called?:An Astronomical Unit (AU):1
 Programming:What is the best operating system?:Arch, because BTW i run Arch:999"
 
-# Define setup process in a function and create necessary files for user
+# Define setup process in a function and generate necessary files for user
 setup() {
     mkdir "$DIR" &&
         touch {"$EXAMPLE_DECK","$HIGH_SCORE","$REVIEW_LOG"} &&
@@ -244,7 +244,7 @@ $([ ${#QUESTION} -lt 59 ] && printf "%$(((59 - ${#QUESTION}) / 2))s")$QUESTION"
 # Creating new entries in the log for the average score generation
 add_usage_entry() {
     if [ ! "$COUNTER" = 0 ];then
-        # Create a New Entry
+        # generate a New Entry
         TIME_STAMP=$(date +'%Y%m%d %H:%M:%S')
         printf -v ENTRY "TimeStamp: %s Deck: %s cardsReviewed: %s" "$TIME_STAMP" "$CURRENT_DECK" "$COUNTER"
         echo "$ENTRY" >>"$REVIEW_LOG"

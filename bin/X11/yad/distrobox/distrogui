@@ -1,4 +1,4 @@
-#!/bin/sh
+c#!/bin/sh
 # if this line exist script will be part of gui scripts.new_name=DistroBOX_GUI
 
 if [ ! -d "$HOME/.config" ];then

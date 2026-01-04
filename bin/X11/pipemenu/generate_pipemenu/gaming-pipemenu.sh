@@ -1,7 +1,7 @@
 #!/bin/sh
 # need superuser : var (_SUPERUSER)
 # need superuser : sourced by my-installer
-# need superuser : sourced by create_DB.sh
+# need superuser : sourced by build_DB.sh
 installation_script_name="popup_terminal"
 
 . "${__distro_path_root}/lib/common/DB"
@@ -11,6 +11,7 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
 
 . "${__distro_path_root}/lib/common/pipemenu"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+. "${__distro_path_root}/lib/common/system_ready"
 
 {
 	# This function is specific to this script.
@@ -30,8 +31,8 @@ LIST_OF_GAMES_SCRIPTS_="$(cd "${picked_gaming_db_path}" && ls 2>/dev/null)"
         fi
     }
     menuStart
-	if [ ! -f "${__distro_path_system_ready}/Gaming_ready" ];then
-		if [ ! -f "${__distro_path_system_ready}/GPU_Drivers_ready" ];then
+	if ! check_system_ready_file "Gaming_ready";then
+		if ! check_system_ready_file "GPU_Drivers_ready";then
 			menuItem "GPU Driver (GamingEss after install)" "${installation_script_name} --install GPU"
 		else
 			menuItem "Gaming Essential (GamingMenu after install)" "${installation_script_name} --game Gaming_Essential_"

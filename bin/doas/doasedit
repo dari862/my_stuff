@@ -33,7 +33,7 @@ fi
 temp_file=$(mktemp --tmpdir doasedit.XXXXXXXX)
 if [ ! -r "$temp_file" ]
 then
-   echo "Was unable to create temporary file."
+   echo "Was unable to make temporary file."
    exit 4
 fi
 

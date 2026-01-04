@@ -1,5 +1,5 @@
 --Place this file in your .xmonad/lib directory and import module Colors into .xmonad/xmonad.hs config
---The easy way is to create a soft link from this file to the file in .xmonad/lib using ln -s
+--The easy way is to generate a soft link from this file to the file in .xmonad/lib using ln -s
 --Then recompile and restart xmonad.
 
 module Colors

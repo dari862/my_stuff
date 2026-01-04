@@ -3,7 +3,7 @@
 # need superuser : called by apps_as_root
 
 #######################################################################
-# This script uses YAD to create a GUI for setting sleep time using rtcwake.
+# This script uses YAD to generate a GUI for setting sleep time using rtcwake.
 # Make sure the hardware clock is set to UTC or modify the rtcwake call accordingly.
 #######################################################################
 . "$__distro_path_lib"

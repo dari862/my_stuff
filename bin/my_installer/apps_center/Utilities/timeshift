@@ -10,4 +10,4 @@ my-superuser mkdir -p /etc/apt/apt.conf.d/
 my-superuser mv "${_APPS_LIBDIR}/Utilities/timeshift-autosnap-apt/80-timeshift-autosnap-apt" "/etc/apt/apt.conf.d/"
 my-superuser mv "${_APPS_LIBDIR}/Utilities/timeshift-autosnap-apt/timeshift-autosnap-apt" "/usr/bin/"
 my-superuser mv "${_APPS_LIBDIR}/Utilities/timeshift-autosnap-apt/timeshift-autosnap-apt.conf" "/etc/"
-create_never_remove_bin "${_APPS_LIBDIR}/Utilities/timeshift-autosnap-apt/manage_timeshift.sh"
+generate_never_remove_bin "${_APPS_LIBDIR}/Utilities/timeshift-autosnap-apt/manage_timeshift.sh"

@@ -89,8 +89,8 @@ outfile_default="${infile_name}-gif-$(date +'%Y-%m-%d_%H-%M-%S').gif"
 # functions
 #===============================================================================
 
-# create gif function
-create_gif () {
+# generate gif function
+generate_gif () {
     ffmpeg \
     -hide_banner \
     -stats -v panic \
@@ -101,5 +101,5 @@ create_gif () {
     "${outfile:=${outfile_default}}"
 }
 
-# run the create_gif function
-create_gif "${infile}"
+# run the generate_gif function
+generate_gif "${infile}"

@@ -6,7 +6,7 @@ lazygit [OPTION]... <msg>
     GIT but lazy
 
     Options:
-    	-c, --gconfig   	create git config file
+    	-c, --gconfig   	generate git config file
     	-k, --sshkey        	generate sshkey
         --fixup <commit>        runs 'git commit --fixup <commit> [...]'
         --amend                 runs 'git commit --amend --no-edit [...]' modify the most recent commit
@@ -20,7 +20,7 @@ lazygit [OPTION]... <msg>
 "
 
 _gconfig (){
-	echo " Going to create git config."
+	echo " Going to generate git config."
 	echo " Enter user email (leave blank to abort)."
 	printf " [msg]: "
 	read msg

@@ -50,8 +50,8 @@ if [ "${_style}" = "dynamic" ];then
 	if [ ! -d "$HOME/.themes/dynamic" ] && [ ! -d "$HOME/.themes/dynamic" ];then
 		mkdir -p "$HOME/.themes"
 		mkdir -p "$HOME/.icons"
-		ln -sf "${DYNAMICBLOBPATH}/themes"/* "$HOME/.themes" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/themes to $HOME/.themes"
-		ln -sf "${DYNAMICBLOBPATH}/icons"/* "$HOME/.icons" || show_em "failed to create symplic link for contain of ${DYNAMICBLOBPATH}/icons to $HOME/.icons"
+		ln -sf "${DYNAMICBLOBPATH}/themes"/* "$HOME/.themes" || show_em "failed to generate symplic link for contain of ${DYNAMICBLOBPATH}/themes to $HOME/.themes"
+		ln -sf "${DYNAMICBLOBPATH}/icons"/* "$HOME/.icons" || show_em "failed to generate symplic link for contain of ${DYNAMICBLOBPATH}/icons to $HOME/.icons"
 	else
 		cp -r "${GLOBALDYNAMICBLOBPATH}" "${LOCAL_PATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
 	fi
@@ -72,7 +72,7 @@ if [ -d "${CONFIGPATH}/jgmenu" ];then
 	fi
 	. "${CONFIGPATH}/jgmenu/jgmenu_theme"
 	jgmenurc_file="${CONFIGPATH}/jgmenu/jgmenurc"
-	#create jgmenu theme file
+	#generate jgmenu theme file
 	sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
 	sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
 	sed -i "s/color_menu_border .*/color_menu_border   = $color_menu_border/g" "$jgmenurc_file"
@@ -100,7 +100,7 @@ Set_Style_ || show_em "failed to run Set_Style_"
 
 if [ "$_panel_name_" = 'polybar' ];then
 	"${__distro_path_root}"/bin/X11/polybar/polybar_alternative_style
-	"${__distro_path_root}"/bin/X11/polybar/polybar_launch_creater
+	"${__distro_path_root}"/bin/X11/polybar/build_polybar_launcher
 fi
 
 if pgrep openbox >/dev/null 2>&1;then

@@ -229,7 +229,7 @@ die() {
 usage() { printf %s "\
 simple password manager.
 
-=> [a]dd  [name] - Create a new password entry.
+=> [a]dd  [name] - generate a new password entry.
 => [c]opy [name] - Copy entry to the clipboard.
 => [e]dit [name] - Edit a password entry.
 => [d]el  [name] - Delete a password entry.
@@ -237,7 +237,7 @@ simple password manager.
 => [l]ist        - List all entries.
 => [t]ree        - List all entries in a tree.
 
-=> otp [a]dd  [name] - Create a new otp entry.
+=> otp [a]dd  [name] - generate a new otp entry.
 => otp [c]opy [name] - Copy entry to the clipboard.
 => otp [e]dit [name] - Edit a otp entry.
 => otp [d]el  [name] - Delete a otp entry.
@@ -266,7 +266,7 @@ main() {
         die "GPG not found"
 
     mkdir -p "$PASH_DIR" ||
-        die "Couldn't create password directory"
+        die "Couldn't make password directory"
 
     cd "$PASH_DIR" ||
         die "Can't access password directory"
@@ -293,7 +293,7 @@ main() {
         die "Category can't start with '/'"
 
     glob "$name" '*/*' && { mkdir -p "${name%/*}" ||
-        die "Couldn't create category '${name%/*}'"; }
+        die "Couldn't generate category '${name%/*}'"; }
 
     # Set 'GPG_TTY' to the current 'TTY' if it
     # is unset. Fixes a somewhat rare `gpg` issue.

@@ -2,11 +2,11 @@
 set -e
 . "$__distro_path_lib"
 target_path="${__distro_path_root}/system_files/bin/service_manager"
-init_create_path="$(pwd)"
+init_make_path="$(pwd)"
 # openrc
 if command -v rc-service > /dev/null 2>&1;then
-	ln -sf "${init_create_path}/openrc" "${target_path}"
+	ln -sf "${init_make_path}/openrc" "${target_path}"
 # systemd	
 else
-	ln -sf "${init_create_path}/systemd" "${target_path}"
+	ln -sf "${init_make_path}/systemd" "${target_path}"
 fi

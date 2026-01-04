@@ -62,7 +62,7 @@ fi
 mkdir -p "${TEMP_THEME_DIR}"
 
 if [ ! -f "$background_path" ] && [ -f "$custom_background_path" ];then
-	"${SCRIPT_DIR}/create_custom_bg" || exit 1
+	"${SCRIPT_DIR}/generate_custom_bg" || exit 1
 fi
 
 cp -r "${SCRIPT_DIR}/common"/* "${TEMP_THEME_DIR}"

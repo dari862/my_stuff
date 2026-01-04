@@ -8,7 +8,7 @@ CUPS_CHROOT_DIR="${ROOT_CHROOT_DIR}/${CUPS_CHROOT_NAME}"
 CHROOT_DIR="${CUPS_CHROOT_DIR}"
 
 trap cleanup EXIT # from chroot_functions
-base_chroot_creater
+base_chroot_builder
 
 say "Installing $_CUPS_NAME in the chroot..."
 my-superuser chroot "$CUPS_CHROOT_DIR" bash -c "

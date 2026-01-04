@@ -71,7 +71,7 @@ is_current_user_only_sudo_user() {
 }
 
 # -------------------- Core Functions -------------------- #
-create_user() {
+generate_user() {
     sread user "Enter new username: "
     # shellcheck disable=2154
     if id "$user" >/dev/null 2>&1; then
@@ -79,13 +79,13 @@ create_user() {
         return 1
     fi
    useradd -m -s /bin/bash "$user"
-   success "User '$user' created."
+   success "User '$user' generated."
    if confirm "Add password to user '$user'? (y/N): "; then
    	if passwd "$user" ;then
    			if confirm "Promote to superuser? (y/N): "; then
 					usermod -aG "$group" "$user"
     				echo "$user ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$user"
-    				log "User '$user' created with superuser permission."
+    				log "User '$user' generated with superuser permission."
    			fi
    	fi
   fi
@@ -148,7 +148,7 @@ backup_user() {
         tar -czf "$backup_file" "$homedir"
         chown -R "$user:$user" "$backup_dir"
         success "Backup saved to $backup_file"
-        log "Backup created for $user"
+        log "Backup generated for $user"
     else
         error "User '$user' not found."
     fi
@@ -223,7 +223,7 @@ main_menu() {
     		printf "%2d) %s\n" "$i" "$opt"
     		i=$((i + 1))
 		done <<-EOF
-		Create new user
+		generate new user
 		List users
 		Reset password for user
 		Lock user
@@ -242,7 +242,7 @@ main_menu() {
 		printf 'Enter choice [1-%d]: ' "$i"
 		read -r choice
         case "$choice" in
-            1) create_user "$@" ;;
+            1) generate_user "$@" ;;
             2) list_users ;;
             3) reset_password "$@" ;;
             4) lock_user ;;

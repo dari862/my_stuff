@@ -45,6 +45,7 @@ __logout=false
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/system_ready"
 
 logout_(){
 	say "${1:-}"
@@ -60,19 +61,9 @@ need_logout(){
 	fi
 }
 
-create_system_ready_file(){
-	file_2_create_system_ready=${1:-}
-	${_SUPERUSER} touch "${__distro_path_system_ready}/${file_2_create_system_ready}"
-}
-
-remove_system_ready_file(){
-	file_2_remove_system_ready=${1:-}
-	${_SUPERUSER} rm -rf "${__distro_path_system_ready}/${file_2_remove_system_ready}"
-}
-
 update_pipemenu(){
 	which_pipemenu_2_update=${1:-}
-	${_SUPERUSER} "${__distro_path_root}/bin/X11/pipemenu/create_pipemenu/${which_pipemenu_2_update}"
+	${_SUPERUSER} "${__distro_path_root}/bin/X11/pipemenu/generate_pipemenu/${which_pipemenu_2_update}"
 }
 
 install_as_dependency(){
@@ -112,7 +103,7 @@ install_as_dependency_nested(){
 }
 
 install_distrobox(){
-	if [ ! -f "${__distro_path_system_ready}/Distrobox_ready" ];then
+	if ! check_system_ready_file "Distrobox_ready";then
 		box_app_name="distrobox"
 		say "install ${box_app_name} ..." 1
 		install_as_dependency_nested "${box_app_name}" "nested"
@@ -135,9 +126,9 @@ install_container_software(){
 		container_software_path="$(which $container_software)"
 	###################################################################
 		if groups | grep -q "${__newGroup}";then
-			create_never_remove_bin "$container_software_path" "CONTAINER_RT"
-			create_never_remove_bin "${__distro_path_root}/bin/my_installer/create_containers"
-			create_never_remove_bin "${__distro_path_root}/bin/my_installer/run_containers"
+			generate_never_remove_bin "$container_software_path" "CONTAINER_RT"
+			generate_never_remove_bin "${__distro_path_root}/bin/my_installer/build_containers"
+			generate_never_remove_bin "${__distro_path_root}/bin/my_installer/run_containers"
 			[ -f "${__distro_path_root}/system_files/Container_Group_${container_software}" ] && ${_SUPERUSER} rm -f "${__distro_path_root}/system_files/Container_Group_${container_software}"
 		fi
 	fi
@@ -196,11 +187,11 @@ __run_(){
 		if [ "${distrobox_install}" = "true" ];then
 			say 'Deploy distrobox ...' 1
 		elif [ "${container_install}" = "true" ];then
-			say 'Createing container image ...' 1
+			say 'building container image ...' 1
 		elif [ "${running_chroot}" = "true" ];then
-			say 'Createing Chroot...' 1
-			if ! command -v create_chroot >/dev/null 2>&1;then
-				create_never_remove_bin "${__distro_path_root}/bin/my_installer/create_chroot" || continue
+			say 'building Chroot...' 1
+			if ! command -v build_chroot >/dev/null 2>&1;then
+				generate_never_remove_bin "${__distro_path_root}/bin/my_installer/build_chroot" || continue
 			fi
 		elif [ "${running_tweek}" = "true" ];then
 			tweek_title="$(echo ${file_name_} | sed 's/_/ /g')"
@@ -217,27 +208,27 @@ __run_(){
 		
 		if [ "${package_install}" = "true" ];then
 			remove_from_db "${file_name_}" "apps" || continue
-			. "${pipemenu_creater}/my-install-pipemenu.sh" || continue
+			. "${pipemenu_builder}/my-install-pipemenu.sh" || continue
 		elif [ "${game_install}" = "true" ];then
 			if [ "$file_name_" != "Gaming_Essential_" ];then
 				remove_from_db "${file_name_}" "game" || continue
-				. "${pipemenu_creater}/gaming-pipemenu.sh" || continue
+				. "${pipemenu_builder}/gaming-pipemenu.sh" || continue
 			fi
 		elif [ "${distrobox_install}" = "true" ];then
 			remove_from_db "${file_name_}" "distroboxs" || continue
-			. "${pipemenu_creater}/containers-deployer-pipemenu.sh" || continue
+			. "${pipemenu_builder}/containers-deployer-pipemenu.sh" || continue
 		elif [ "${container_install}" = "true" ];then
 			remove_from_db "${file_name_}" "containers" || continue
-			. "${pipemenu_creater}/containers-deployer-pipemenu.sh" || continue
+			. "${pipemenu_builder}/containers-deployer-pipemenu.sh" || continue
 		elif [ "${chroot_install}" = "true" ];then
 			remove_from_db "${file_name_}" "chroots" || continue
-			. "${pipemenu_creater}/containers-deployer-pipemenu.sh" || continue
+			. "${pipemenu_builder}/containers-deployer-pipemenu.sh" || continue
 		elif [ "${running_fullenv}" = "true" ];then
 			remove_from_db "${file_name_}" "fullenv" || continue
-			. "${pipemenu_creater}/full_environment-pipemenu.sh" || continue
+			. "${pipemenu_builder}/full_environment-pipemenu.sh" || continue
 		elif [ "${running_tweek}" = "true" ];then
 			remove_from_db "${file_name_}" "tweeks" || continue
-			. "${pipemenu_creater}/my-tweeks-pipemenu.sh" || continue
+			. "${pipemenu_builder}/my-tweeks-pipemenu.sh" || continue
 		fi
 
 		end_superuser || continue
@@ -303,7 +294,7 @@ case $option in
 			package_update=true
 			game_install=true
 			_files_path="${_GAMING_EXTRA_LIBDIR}"
-			if [ ! -f "${__distro_path_system_ready}/Gaming_ready" ];then
+			if ! check_system_ready_file "Gaming_ready";then
 				if [ "$file_name_" != "Gaming_Essential_" ];then
 					say "install Gaming_Essential_ first." 'pause'
 					exit

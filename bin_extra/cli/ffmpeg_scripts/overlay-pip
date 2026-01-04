@@ -2,7 +2,7 @@
 
 #===============================================================================
 # overlay-pip
-# create a picture in picture video
+# generate a picture in picture video
 #===============================================================================
 
 # dependencies:
@@ -18,7 +18,7 @@ usage()
 [ -z "${1}" ] || echo "! ${1}"
 # display help
 echo "\
-# create a picture in picture
+# generate a picture in picture
 
 $(basename "$0") -i input.(mp4|mkv|mov|m4v) -v input.(mp4|mkv|mov|m4v) -p [0-999] 
 -m [00] -x (tl|tr|bl|br) -w [000] -f (0.1-9|1) -b [00] -c colour -o output.mp4

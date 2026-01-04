@@ -1,7 +1,7 @@
 #!/bin/bash
 unalias -a
 . "$__distro_path_lib"
-create_config_file(){
+generate_config_file(){
 	location="$(cat /etc/timezone | awk -F/ '{print $2}')"
 	reg_location="$(cat /etc/timezone | awk -F/ '{print $1}')"
 	if [ "${reg_location}" = "America" ];then
@@ -118,7 +118,7 @@ create_config_file(){
 	EOF
 }
 
-create_athan_daemon_file(){
+generate_athan_daemon_file(){
 	cat <<-EOF > "$HOME/.config/autostartscripts/athan-daemon"
 	#!/bin/sh
 	prayer-times sync
@@ -130,8 +130,8 @@ create_athan_daemon_file(){
 	chmod +x "$HOME/.config/autostartscripts/athan-daemon"
 }
 
-[ ! -f "$HOME/.config/scriptconfig/prayer-times.conf" ] && create_config_file
-[ ! -f "$HOME/.config/autostartscripts/athan-daemon" ] && create_athan_daemon_file
+[ ! -f "$HOME/.config/scriptconfig/prayer-times.conf" ] && generate_config_file
+[ ! -f "$HOME/.config/autostartscripts/athan-daemon" ] && generate_athan_daemon_file
 
 if [ "${XDG_SESSION_TYPE}" = "wayland" ];then
 	notify='mako'

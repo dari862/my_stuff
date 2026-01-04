@@ -13,7 +13,7 @@ THEME_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/${ROFI_STYLE}/networkmenu.ras
 ASKPASS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/${ROFI_STYLE}/askpass.rasi"
 DIRECTIONS=("Center" "Northwest" "North" "Northeast" "East" "Southeast" "South" "Southwest" "West")
 
-function check_and_create_config_file() {
+function check_and_generate_config_file() {
 	[[ ! -d "$script_config_path" ]] && mkdir -p "$script_config_path"
 	[[ -f "${network_manager_script_config}" ]] && return
 	tee "${network_manager_script_config}" >/dev/null 2>&1 <<-'EOF'
@@ -466,7 +466,7 @@ share_wifi_pass(){
 }
 
 initialization() {
-    check_and_create_config_file
+    check_and_generate_config_file
     source "$network_manager_script_config"
     LOCK_SYMBOL="${LOCK_SYMBOL:-🔒}"
 	UNLOCK_SYMBOL="${UNLOCK_SYMBOL:-🔓}"

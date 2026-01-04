@@ -1,12 +1,12 @@
 #!/bin/sh
 # need superuser : called by my-installer
-. "${__distro_path_root}/lib/common/repo_URL"
+
 app_name="secureMyLinux"
 secureMyLinux_dir="$__distro_path_git/${app_name}"
 
-say "clone ${distro_repo_url}/${app_name}.git"
-super_clone_repo "${distro_repo_url}/${app_name}.git" "${secureMyLinux_dir}"
+say "clone https://github.com/dari862/${app_name}.git"
+super_clone_repo "https://github.com/dari862/${app_name}.git" "${secureMyLinux_dir}"
 
 say "Installing ${app_name}..." 1
-create_never_remove_bin "${secureMyLinux_dir}"/secureMyLinux.sh
-my-superuser "${__distro_path_root}"/system_files/bin/secureMyLinux.sh --full
+generate_never_remove_bin "${secureMyLinux_dir}"/secureMyLinux.sh
+my-superuser ${__distro_path_root}/system_files/bin/secureMyLinux.sh --full

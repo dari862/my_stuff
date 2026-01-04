@@ -8,7 +8,7 @@ mc-session db &
 if mkdir -p "/tmp/$USER";then
 	chmod 700 "/tmp/$USER"
 else
-	echo "$0: ERROR failed to create /tmp/$USER"
+	echo "$0: ERROR failed to mkdir /tmp/$USER"
 fi
 
 if [ ! -f "${WM_config_dir}/menu_picked" ];then	

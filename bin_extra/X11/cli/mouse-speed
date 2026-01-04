@@ -6,7 +6,7 @@ set -e
 
 HOME_mouse_speed_conf="${script_config_path}/mouse-speed.conf"
 
-Create_mouse_speed_conf(){
+generate_mouse_speed_conf(){
 	tee "${HOME_mouse_speed_conf}" <<- 'EOF' > /dev/null
 	VERSION="1.4"
 	
@@ -56,15 +56,15 @@ Create_mouse_speed_conf(){
 	EOF
 }
 
-if [ "${1-}" = "--create-config" ] || [ "${1-}" = "-c" ];then
-	Create_mouse_speed_conf
+if [ "${1-}" = "--generate-config" ] || [ "${1-}" = "-c" ];then
+	generate_mouse_speed_conf
 	exit
 fi
 
 if [ ! -f "$HOME_mouse_speed_conf" ];then
-	Create_mouse_speed_conf
+	generate_mouse_speed_conf
 	echo "Initiate mouse-speed"
-	echo "create state file in $HOME_mouse_speed_conf"
+	echo "generate state file in $HOME_mouse_speed_conf"
 fi
 
 . "$HOME_mouse_speed_conf"

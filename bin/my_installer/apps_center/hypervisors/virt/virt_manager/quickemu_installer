@@ -10,13 +10,13 @@ set -e
 [ -e "$__distro_path_external/applications/quickemu_gui.desktop" ] && my-superuser rm -rdf "${__distro_path_root}/system_files/applications/quickemu_gui.desktop"
 
 super_clone_repo https://github.com/quickemu-project/quickemu.git "$__distro_path_git"/quickemu
-create_never_remove_bin "$__distro_path_git/quickemu/quickemu"
-create_never_remove_bin "$__distro_path_git/quickemu/quickget"
-create_never_remove_bin "$__distro_path_git/quickemu/quickreport"
-create_never_remove_bin "$__distro_path_git/quickemu/chunkcheck"
-create_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/quickemu_gui"
+generate_never_remove_bin "$__distro_path_git/quickemu/quickemu"
+generate_never_remove_bin "$__distro_path_git/quickemu/quickget"
+generate_never_remove_bin "$__distro_path_git/quickemu/quickreport"
+generate_never_remove_bin "$__distro_path_git/quickemu/chunkcheck"
+generate_never_remove_bin "${_APPS_LIBDIR}/hypervisors/virt/virt_manager/quickemu_gui"
 
-create_applicationsdotdesktop_link "QuickEmu GUI" "sh -c quickemu_gui" 'System;Virtualization'
+generate_applicationsdotdesktop_link "QuickEmu GUI" "sh -c quickemu_gui" 'System;Virtualization'
 
 echo ""
 echo "quickemu_gui added for quick deploy any VM."

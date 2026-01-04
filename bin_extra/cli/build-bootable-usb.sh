@@ -213,10 +213,10 @@ write_iso(){
         printf "%b\n" "${YELLOW}Operation cancelled.${RC}"
         exit 1
     fi
-    # Display progress and create the bootable USB drive
+    # Display progress and build the bootable USB drive
     printf "%b\n" "${YELLOW}Creating bootable USB drive...${RC}"
     if ! my-superuser dd if="$ISO_PATH" of="$USB_DEVICE" bs=4M status=progress oflag=sync; then
-        printf "%b\n" "${RED}Failed to create bootable USB drive${RC}"
+        printf "%b\n" "${RED}Failed to build bootable USB drive${RC}"
         exit 1
     fi
     # Sync to ensure all data is written
@@ -224,7 +224,7 @@ write_iso(){
         printf "%b\n" "${RED}Failed to sync data${RC}"                              
         exit 1
     fi
-    printf "%b\n" "${GREEN}Bootable USB drive created successfully!${RC}"
+    printf "%b\n" "${GREEN}Bootable USB drive generated successfully!${RC}"
     # Eject the USB device
     printf "%b\n" "${YELLOW}Ejecting ${USB_DEVICE}...${RC}"
     if ! my-superuser umount "${USB_DEVICE}"* 2>/dev/null; then

@@ -28,13 +28,7 @@ fi
 mkdir -p "${temp_user_path}"
 mkdir -p "${xsettingsd_path}"
 
-if [ -e "${xsettingsd_conf_file}" ];then
-	# clear the content of file
-	: > "${xsettingsd_conf_file}"
-else
-	# create empty file
-	touch "${xsettingsd_conf_file}"
-fi
+: > "${xsettingsd_conf_file}"
 
 # Loop through each line in the original configuration
 grep -E '^gtk-|^Net/|^Xft/' "$gtkrcfile" | while IFS= read -r line; do

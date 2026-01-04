@@ -4,7 +4,7 @@
 . "$__distro_path_lib"
 
 init_color_temperature_adjuster() {
-	create_config_file(){
+	generate_config_file(){
 		[ -f "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" ] && return
 		latlong=$(get_latlong)
 		lat_="${latlong%,*}"
@@ -26,7 +26,7 @@ init_color_temperature_adjuster() {
 		EOF
 	}
 	
-	create_tray_gammastep(){
+	build_tray_gammastep(){
 		[ -f "${__distro_path_neverremove}/bin/tray_gammastep" ] && return
 		tee "${__distro_path_neverremove}/bin/tray_gammastep" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
@@ -41,7 +41,7 @@ init_color_temperature_adjuster() {
 		my-superuser ln -sf "${__distro_path_neverremove}/bin/tray_gammastep" "${__distro_path_root}/system_files/bin"
 	}
 	
-	create_daemon_file(){
+	build_daemon_file(){
 		[ -f "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" ] && return
 		tee "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" <<-EOF > /dev/null 2>&1
 		#!/bin/sh
@@ -52,14 +52,13 @@ init_color_temperature_adjuster() {
 		chmod +x "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh"
 	}
 	
-	create_config_file
-	create_tray_gammastep
-	create_daemon_file
+	generate_config_file
+	build_tray_gammastep
+	build_daemon_file
 		
 	for d in /home/*/ ; do
 		[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
 		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-		# Create config folders if no exists
 		d="$d/.config/autostart"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" "$d" && chown -R $user_and_group "$d"
 		d="$d/.config/redshift"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" "$d" && chown -R $user_and_group "$d"
 	done

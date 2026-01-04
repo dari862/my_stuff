@@ -1,15 +1,14 @@
 #!/bin/sh
 # X11 only package remove it from my-installer
 # need superuser : called by my-installer
-. "${__distro_path_root}/lib/common/repo_URL"
 app_name="YadAppsStore"
 yadstore_dir="$__distro_path_updater/${app_name}"
 
 say "Installing ${app_name}..." 1
 
-say "clone ${distro_repo_url}/${app_name}.git"
-super_clone_repo "${distro_repo_url}/${app_name}.git" "${yadstore_dir}"
+say "clone https://github.com/dari862/${app_name}.git"
+super_clone_repo "https://github.com/dari862/${app_name}.git" "${yadstore_dir}"
 
-create_never_remove_bin "${yadstore_dir}/gui"
+generate_never_remove_bin "${yadstore_dir}/gui"
 my-superuser ln -sf "${yadstore_dir}"/tools/yadstoreupdater "$__distro_path_updater"
 my-superuser ln -sf "${yadstore_dir}"/YadStore.desktop /usr/share/applications

@@ -126,7 +126,7 @@ detection="$(ffmpeg -hide_banner -i "${input}" \
 
 
 #===============================================================================
-# create cutfile - prepend start and append end or duration
+# generate cutfile - prepend start and append end or duration
 #===============================================================================
 
 cutfile_seconds () {

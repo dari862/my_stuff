@@ -1,6 +1,6 @@
 #!/bin/sh
 # need superuser : var (_SUPERUSER)
-# need superuser : sourced by system_files_creater
+# need superuser : sourced by system_files_builder
 gui_scripts_dir="${__distro_path_root}/system_files/gui_scripts"
 mkdir -p "${gui_scripts_dir}"
 

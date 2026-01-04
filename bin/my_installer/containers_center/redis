@@ -1,2 +1,2 @@
 #!/bin/sh
-create_containers redis
+build_containers redis

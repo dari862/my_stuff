@@ -27,7 +27,7 @@ find_usb_keyfile() {
 # Setup new encrypted container
 setup_container() {
     if [ -f "$CONTAINER" ]; then
-        printf "❌ %s already exists. Delete it first if you want to recreate." "$CONTAINER"
+        printf "❌ %s already exists. Delete it first if you want to regenerate." "$CONTAINER"
         exit 1
     fi
 
@@ -52,7 +52,7 @@ setup_container() {
         printf "🔑 Creating local keyfile..."
         dd if=/dev/urandom of="$KEYFILE" bs=512 count=1
         chmod 600 "$KEYFILE"
-        printf "✅ Created local keyfile: %s" "$KEYFILE"
+        printf "✅ generated local keyfile: %s" "$KEYFILE"
     fi
 
     printf "🔒 Setting up LUKS container..."

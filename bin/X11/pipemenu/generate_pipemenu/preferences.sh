@@ -1,27 +1,27 @@
 #!/bin/sh
 # need superuser : var (_SUPERUSER)
-# need superuser : sourced by create_DB.sh
+# need superuser : sourced by build_DB.sh
 . "${__distro_path_root}/lib/common/pipemenu"
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 mkdir -p "${pipemenu_output_dir}"
 
-create_exec_pipemenu(){
+build_exec_pipemenu(){
 	echo "<menu id=\"$1\" execute=\"$2\" label=\"$3\"/>"
 }
 
 {
 	menuStart
-	create_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
-	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
-	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
-	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
-	create_exec_pipemenu "RunDistroTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Distro Tweeks"
-	create_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
-	create_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
+	build_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
+	build_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
+	build_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
+	build_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
+	build_exec_pipemenu "RunDistroTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Distro Tweeks"
+	build_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
+	build_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
 	menuSubmenu "preferences-openbox" "Openbox"
-    	create_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
+    	build_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
     	menuItem "Edit rc.xml" "my-text-editor &openboxconfig;/rc.xml"
     	menuSeparator
     	menuItem "WM Preferences" "obconf --config-file &openboxconfig;/rc.xml"
@@ -29,11 +29,11 @@ create_exec_pipemenu(){
     	menuItem "Reconfigure" "reconfigure-openbox"
     	menuItem "Restart" "restart-openbox"
 	menuSubmenuEnd
-	create_exec_pipemenu "Compositor" "compositor-pipemenu" "Compositor"
-	create_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
-	create_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
-	create_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
-	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
+	build_exec_pipemenu "Compositor" "compositor-pipemenu" "Compositor"
+	build_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
+	build_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
+	build_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
+	build_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	menuItem "Appearance" "appearance_settings_"
 	menuItem "Reload GTK" "${__distro_path_root}/bin/X11/WM/reload_gtk23"
 	menuItem "Font configuration" "my-text-editor ~/.config/fontconfig/fonts.conf"
@@ -55,15 +55,15 @@ create_exec_pipemenu(){
 
 {
 	menuStart
-	create_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
-	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
-	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
-	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
-	create_exec_pipemenu "RunDistroTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Distro Tweeks"
-	create_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
+	build_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
+	build_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
+	build_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
+	build_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
+	build_exec_pipemenu "RunDistroTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Distro Tweeks"
+	build_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
 	
 	menuSubmenu "obconfig" "Openbox"
-    	create_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
+    	build_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
     	menuItem "Settings" "obconf"
     	menuSeparator
     	menuItem "Edit menu.xml" "my-text-editor &openboxconfig;/menu.xml"
@@ -74,15 +74,15 @@ create_exec_pipemenu(){
     	menuItem "Restart" "restart-openbox"
 	menuSubmenuEnd
 	
-	create_exec_pipemenu "CompositingPipeMenu" "compositor-pipemenu" "Compositor"
-	create_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
-	create_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
+	build_exec_pipemenu "CompositingPipeMenu" "compositor-pipemenu" "Compositor"
+	build_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
+	build_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
 	menuSeparator
-	create_exec_pipemenu "StylePipeMenu" "change-style-pipemenu" "Change Style"
-	create_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
-	create_exec_pipemenu "FontPipeMenu" "change-fonts-pipemenu" "Change Font"
-	create_exec_pipemenu "SchemePipeMenu" "change-scheme-pipemenu" "Terminal Color Scheme"
-	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
+	build_exec_pipemenu "StylePipeMenu" "change-style-pipemenu" "Change Style"
+	build_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
+	build_exec_pipemenu "FontPipeMenu" "change-fonts-pipemenu" "Change Font"
+	build_exec_pipemenu "SchemePipeMenu" "change-scheme-pipemenu" "Terminal Color Scheme"
+	build_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
 	menuSeparator
 	menuItem "Change Wallpaper" "popup_terminal pickbg"
 	menuItem "Appearance Settings" "appearance_settings_"
@@ -90,24 +90,24 @@ create_exec_pipemenu(){
 	menuItem "Power Settings" "power_manager_settings"
 	menuItem "Audio Settings" "volume_controller"
 	menuItem "Settings Manager" "${__distro_path_root}/bin/not_add_2_path/settings_manager_"
-	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
+	build_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
 } | $_SUPERUSER tee "${ac_preferences_pipemenu_file}" >/dev/null 2>&1
 
 {
 	menuStart
-	create_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
+	build_exec_pipemenu "GuiAppsPipemenu" "gui-apps-pipemenu" "$__distro_title GUI Apps"
 	menuSeparator "Install Packages and Distro Tweeks"
-	create_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
-	create_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
-	create_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
-	create_exec_pipemenu "RunDistroTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Distro Tweeks"
-	create_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
+	build_exec_pipemenu "InstallFavouritePackages" "sh -c 'cat ${my_installer_pipemenu_X11_file}'" "Install Favourite Packages"
+	build_exec_pipemenu "InstallGamingPackages" "sh -c 'cat ${gaming_pipemenu_file}'" "Install Gaming Packages"
+	build_exec_pipemenu "DeployFavouriteContainers" "sh -c 'cat ${containers_deployer_pipemenu_file}'" "Deploy Distrobox and Containers"
+	build_exec_pipemenu "RunDistroTweeks" "sh -c 'cat ${my_tweeks_pipemenu_file}'" "Run Distro Tweeks"
+	build_exec_pipemenu "InstallFullEnvironments" "sh -c 'cat ${full_environment_pipemenu_file}'" "Install Full Environments"
 	menuSeparator "GRAPHICAL PREFERENCES"
-	create_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
-	create_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
-	create_exec_pipemenu "StylePipeMenu" "change-style-pipemenu" "Change Style"
-	create_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
+	build_exec_pipemenu "XrandrPipeMenu" "randr-pipemenu" "Display / Monitor"
+	build_exec_pipemenu "ScalePipeMenu" "scale-randr-pipemenu" "Display / Monitor Scaling"
+	build_exec_pipemenu "StylePipeMenu" "change-style-pipemenu" "Change Style"
+	build_exec_pipemenu "PanelPipeMenu" "change-panel-pipemenu" "Change Panel"
 	menuSubmenu "obConfig" "Desktop"
     	menuItem "Openbox Preferences" "obconf"
     	menuItem "Edit Openbox config file rc.xml" "my-text-editor &openboxconfig;/rc.xml"
@@ -118,7 +118,7 @@ create_exec_pipemenu(){
 	menuSubmenuEnd
 	
 	menuSubmenu "obmenu" "Menu"
-    	create_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
+    	build_exec_pipemenu "ob-menu-pipemenu" "ob-menu-pipemenu" "Menu Style"
     	menuItem "Edit menu.xml" "my-text-editor &openboxconfig;/menu.xml"
     	menuItem "Hide/show icons in menu" "bash -c 'if grep -q icon_hide=\" &openboxconfig;/menu.xml;then sed -i \"s/icon_hide=\"/icon=\"/g\" &openboxconfig;/menu.xml; else sed -i \"s/icon=\"/icon_hide=\"/g\" &openboxconfig;/menu.xml; fi'"
     	menuItem "How to configure menu.xml?" "my-www-browser \"http://openbox.org/wiki/Help:Menus\" \"https://wiki.archlinux.org/index.php/openbox#Menus\""
@@ -126,9 +126,9 @@ create_exec_pipemenu(){
     	menuItem "Reload Menu" "reconfigure-openbox"
 	menuSubmenuEnd
 	
-	create_exec_pipemenu "CompositingPipeMenu" "compositor-pipemenu" "Compositor"
-	create_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
-	create_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
+	build_exec_pipemenu "CompositingPipeMenu" "compositor-pipemenu" "Compositor"
+	build_exec_pipemenu "panel_settings" "panel-settings-pipemenu" "Taskbar"
+	build_exec_pipemenu "Conky" "conky-pipemenu" "Conky"
 	
 	menuSubmenu "autostart" "Autostarted programs"
     	menuItem "Edit Openbox Autostart" "my-text-editor &openboxconfig;/autostart"
@@ -156,7 +156,7 @@ create_exec_pipemenu(){
 	menuItem "Network Configuration" "nm-connection-editor"
 	menuItem "Removable Drives and Media" "thunar-volman-settings"
 	menuItem "GParted Partition Manager" "gparted"
-	create_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
+	build_exec_pipemenu "Printers" "printing-pipemenu" "Printers"
 	menuEnd
 } | $_SUPERUSER tee "${my_preferences_pipemenu_file}" >/dev/null 2>&1
 

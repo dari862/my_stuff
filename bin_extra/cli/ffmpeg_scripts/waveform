@@ -2,7 +2,7 @@
 
 #===============================================================================
 # waveform
-# create a waveform from an audio or video file and save as a png
+# generate a waveform from an audio or video file and save as a png
 #===============================================================================
 
 # dependencies:
@@ -18,7 +18,7 @@ usage()
 [ -z "${1}" ] || echo "! ${1}"
 # display help
 echo "\
-# create a waveform from an audio or video file and save as a png
+# generate a waveform from an audio or video file and save as a png
 
 $(basename "$0") -i input.(mp4|mkv|mov|m4v|webm|aac|m4a|wav|mp3) -o output.png
 -i output.(mp4|mkv|mov|m4v|aac|m4a|wav|mp3)

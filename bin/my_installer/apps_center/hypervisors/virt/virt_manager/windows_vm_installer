@@ -253,7 +253,7 @@ get_windows() {
     download_windows_iso
 }
 
-create_autounattend_xml() {
+generate_autounattend_xml() {
     if [ -f "${unattended_files_dir}/autounattend.xml" ];then
         return
     fi
@@ -1369,13 +1369,13 @@ req_apps_4_vm(){
     touch "${req_dir_path}/req_4_vm"
 }
 
-create_storage_pool_and_vm_disk(){
+generate_storage_pool_and_vm_disk(){
 	if [ -f "${virt_storage}" ];then
         return
     fi
     
     if ! virsh pool-list --all 2>/dev/null | grep -qw "$vmbuildpoolname"; then
-        say "create new temp pool at: $ROOT_VM_PATH_Builder" 'green'
+        say "Generate new temp pool at: $ROOT_VM_PATH_Builder" 'green'
         virsh pool-define-as --name "$vmbuildpoolname" --type dir --target "$ROOT_VM_PATH_Builder"
         say "start new temp pool." 'green'
         virsh pool-start "$vmbuildpoolname"
@@ -1393,12 +1393,12 @@ create_storage_pool_and_vm_disk(){
         virsh pool-autostart default
     fi
 
-    say " create disk!"
+    say " Generate Virtaul disk!"
     virsh vol-create-as default "${virt_storage_name}" "$disk_size" --format qcow2
-	say " Done create disk!" 'green'
+	say " Virtaul disk created!" 'green'
 }
 
-create_vm(){
+generate_vm(){
     if virsh list --all 2>/dev/null | grep -wq "$VM_NAME"; then
         return
     fi
@@ -1519,9 +1519,9 @@ tee "${VM_XML}" << EOF >/dev/null 2>&1
   </devices>
 </domain>
 EOF
-    say "Create VM!" 'green'
+    say "Generating VM!" 'green'
     virsh define "${VM_XML}"
-    say " ✔  Done creating VM!" 'green'
+    say " ✔  Done generating VM!" 'green'
 }
 
 run_vm(){
@@ -1587,10 +1587,10 @@ req_apps_4_vm
 req_4_vm
 get_windows
 Downloading_Virtual_drivers
-create_autounattend_xml
+generate_autounattend_xml
 unattended_windows
-create_storage_pool_and_vm_disk
-create_vm
+generate_storage_pool_and_vm_disk
+generate_vm
 run_vm
 running_winapps
 clean_up

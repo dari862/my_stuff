@@ -2,7 +2,7 @@
 
 #===============================================================================
 # tile-thumbnails
-# create an image with thumbnails from a video
+# generate an image with thumbnails from a video
 #===============================================================================
 
 # dependencies:
@@ -15,7 +15,7 @@
 usage()
 {
 echo "\
-# create an image with thumbnails from a video
+# generate an image with thumbnails from a video
 
 $(basename "$0") -i input -s 00:00:00.000 -w 000 -t 0x0 -p 00 -m 00 -c color -f fontcolor -b boxcolor -x on -o output.png
 

@@ -8,15 +8,15 @@ BROWSERS_CHROOT_DIR="${ROOT_CHROOT_DIR}/${BROWSERS_CHROOT_NAME}"
 extra_chroot_browser="${INSTALLER_CHROOT_DIR}/EXTRA/${APP_NAME}"
 CHROOT_DIR="${BROWSERS_CHROOT_DIR}"
 
-create_default_chroot_browser(){
-	create_never_remove_bin "${extra_chroot_browser}/${chroot_default_browser_name}" || failed_to_run "Failed to set execute permission on launch script"
-	create_applicationsdotdesktop_link "${chroot_default_browser_name}" || failed_to_run "Failed to create_applicationsdotdesktop_link ${chroot_default_browser_name}"
+generate_default_chroot_browser(){
+	generate_never_remove_bin "${extra_chroot_browser}/${chroot_default_browser_name}" || failed_to_run "Failed to set execute permission on launch script"
+	generate_applicationsdotdesktop_link "${chroot_default_browser_name}" || failed_to_run "Failed to generate_applicationsdotdesktop_link ${chroot_default_browser_name}"
 }
 
-end_of_chroot_creater(){	
+end_of_chroot_builder(){	
 	say "Creating launch script to run $APP_NAME from the host..."
-	create_applicationsdotdesktop_link "${SCRIPT_NAME}" || failed_to_run "Failed to create_applicationsdotdesktop_link ${SCRIPT_NAME}"
-	create_never_remove_bin "${extra_chroot_browser}/${SCRIPT_NAME}" || failed_to_run "Failed to set execute permission on launch script"
+	generate_applicationsdotdesktop_link "${SCRIPT_NAME}" || failed_to_run "Failed to generate_applicationsdotdesktop_link ${SCRIPT_NAME}"
+	generate_never_remove_bin "${extra_chroot_browser}/${SCRIPT_NAME}" || failed_to_run "Failed to set execute permission on launch script"
 	
 	if [ -f "/etc/doas.conf" ];then
 		my-superuser tee -a "/etc/doas.conf" > /dev/null <<- EOF
@@ -39,20 +39,20 @@ end_of_chroot_creater(){
 	fi
 	
 	if [ ! -f "${LAUNCH_SCRIPT_PATH}/${chroot_default_browser_name}" ];then
-		create_default_chroot_browser
+		generate_default_chroot_browser
 	fi
 	
 	if [ "$make_chroot_browser_default_browser" = true ];then
-     	create_never_remove_bin "${extra_chroot_browser}/${chroot_default_browser_name}" "my-www-browser"
+     	generate_never_remove_bin "${extra_chroot_browser}/${chroot_default_browser_name}" "my-www-browser"
     fi
     
-	Create_users_to_chroot
+	generate_users_to_chroot
 	
 	say 
 	say 
 	say "You can now launch $APP_NAME from the chroot using the command: $SCRIPT_NAME"	
 }
 trap cleanup EXIT # from chroot_functions
-chroot_creater
+chroot_builder
 
 say "Installing $APP_NAME in the chroot..."

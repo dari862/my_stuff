@@ -8,7 +8,7 @@ display_menu() {
     printf "%b\n" "${CYAN}Timeshift CLI Automation${RC}"
     printf "%b\n" "${CYAN}1) List Snapshots${RC}"
     printf "%b\n" "${CYAN}2) List Devices${RC}"
-    printf "%b\n" "${CYAN}3) Create Snapshot${RC}"
+    printf "%b\n" "${CYAN}3) generate Snapshot${RC}"
     printf "%b\n" "${CYAN}4) Restore Snapshot${RC}"
     printf "%b\n" "${CYAN}5) Delete Snapshot${RC}"
     printf "%b\n" "${CYAN}6) Delete All Snapshots${RC}"
@@ -24,8 +24,8 @@ list_devices() {
     printf "%b\n" "${CYAN}Listing available devices...${RC}"
     my-superuser timeshift --list-devices
 }
-# Function to create a new snapshot
-create_snapshot() {
+# Function to generate a new snapshot
+generate_snapshot() {
     printf "%b" "${CYAN}Enter a comment for the snapshot (optional): ${RC}"
     read -r COMMENT
     printf "%b" "${CYAN}Enter snapshot tag (O,B,H,D,W,M) (leave empty for no tag): ${RC}"
@@ -42,7 +42,7 @@ create_snapshot() {
     fi
     # shellcheck disable=SC2181
     if [ $? -eq 0 ]; then
-        printf "%b\n" "${GREEN}Snapshot created successfully.${RC}"
+        printf "%b\n" "${GREEN}Snapshot generated successfully.${RC}"
     else
         printf "%b\n" "${RED}Snapshot creation failed.${RC}"
     fi
@@ -110,7 +110,7 @@ main_menu() {
         case $OPTION in
             1) list_snapshots ;;
             2) list_devices ;;
-            3) create_snapshot ;;
+            3) generate_snapshot ;;
             4) restore_snapshot ;;
             5) delete_snapshot ;;
             6) delete_all_snapshots ;;

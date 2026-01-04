@@ -19,7 +19,7 @@ else
     my-superuser groupadd "$SAMBA_GROUP"
 fi
 
-# Create user if not exists
+# Generate user if not exists
 if id "$SAMBA_USER" >/dev/null 2>&1; then
     say "User '$SAMBA_USER' already exists."
 else

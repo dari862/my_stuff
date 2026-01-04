@@ -52,7 +52,7 @@ else
     echo "SS_DELAY="\"$SS_DELAY\""" >> "${script_config_path}/yadshot.conf"
 	. "${script_config_path}/yadshot.conf"
 fi
-# create ~/Pictures if it does not exist
+# generate ~/Pictures if it does not exist
 if [ ! -d "$HOME/Pictures" ];then
     mkdir -p "$HOME"/Pictures
 fi
@@ -253,10 +253,10 @@ function on_exit() {
     exit 0
 }
 export -f on_exit
-# create the notification icon
+# generate the notification icon
 function yadshottray() {
     trap on_exit EXIT
-    # create a FIFO file, used to manage the I/O redirection from shell
+    # generate a FIFO file, used to manage the I/O redirection from shell
     PIPE=$(mktemp -u --tmpdir ${0##*/}.XXXXXXXX)
     mkfifo $PIPE
     # attach a file descriptor to the file

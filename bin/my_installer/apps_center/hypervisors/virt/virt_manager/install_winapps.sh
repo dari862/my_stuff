@@ -189,7 +189,7 @@ RDP_FLAGS="${RDP_FLAGS}"
 
 # [DEBUG WINAPPS]
 # NOTES:
-# - Creates and appends to ~/.local/share/winapps/winapps.log when running WinApps.
+# - Generate and appends to ~/.local/share/winapps/winapps.log when running WinApps.
 # DEFAULT VALUE: 'true'
 # VALID VALUES:
 # - 'true'
@@ -585,14 +585,13 @@ waEnsureOnPath() {
     fi
 }
 
-Create_winapps_script() {
+generate_winapps_script() {
     tee "${TEMP_BIN_PATH}/winapps" << EOF > /dev/null 2>&1
 #!/usr/bin/env bash
 export LIBVIRT_DEFAULT_URI=qemu:///system
 
 ### GLOBAL CONSTANTS ###
 # ERROR CODES
-readonly EC_MISSING_CONFIG=1
 readonly EC_MISSING_FREERDP=2
 readonly EC_NOT_IN_GROUP=3
 readonly EC_FAIL_START=4
@@ -695,11 +694,6 @@ function waThrowExit() {
 
     # Throw error.
     case "\$ERR_CODE" in
-    "\$EC_MISSING_CONFIG")
-        # Missing WinApps configuration file.
-        dprint "ERROR: MISSING WINAPPS CONFIGURATION FILE. EXITING."
-        send_notification_error "8000" "The WinApps configuration file is missing.\nPlease create a WinApps configuration file at '\${CONFIG_PATH}'."
-        ;;
     "\$EC_MISSING_FREERDP")
         dprint "ERROR: FREERDP VERSION 3 IS NOT INSTALLED. EXITING."
         send_notification_error "8000" "FreeRDP version 3 is not installed."
@@ -889,7 +883,7 @@ RDP_FLAGS="\${RDP_FLAGS}"
 
 # [DEBUG WINAPPS]
 # NOTES:
-# - Creates and appends to ~/.local/share/winapps/winapps.log when running WinApps.
+# - generates and appends to ~/.local/share/winapps/winapps.log when running WinApps.
 # DEFAULT VALUE: 'true'
 # VALID VALUES:
 # - 'true'
@@ -1271,7 +1265,7 @@ function waRunCommand() {
     fi
 
     if [ "\$FREERDP_PID" -ne -1 ]; then
-        # Create a file with the process ID.
+        # generate a file with the process ID.
         touch "\${USER_APPDATA_PATH}/FreeRDP_Process_\${FREERDP_PID}.cproc"
 
         # Wait for the process to terminate.
@@ -1342,10 +1336,10 @@ function waTimeSync() {
         if [[ "\$UPTIME_DIFF" -gt 30 && ! -f "\$SLEEP_MARKER" ]]; then
             dprint "DETECTED SLEEP/WAKE CYCLE (uptime gap: \${UPTIME_DIFF}s). CREATING SLEEP MARKER TO SYNC WINDOWS TIME."
 
-            # Create sleep marker which will be monitored by Windows VM to trigger time sync
+            # generate sleep marker which will be monitored by Windows VM to trigger time sync
             touch "\$SLEEP_MARKER"
 
-            dprint "CREATED SLEEP MARKER"
+            dprint "GENERATED SLEEP MARKER"
         fi
     fi
 
@@ -1381,7 +1375,7 @@ EOF
     chmod +x "${TEMP_BIN_PATH}/winapps"
 }
 
-Create_powershell_script() {
+generate_powershell_script() {
         tee "$PS_SCRIPT_PATH" << 'EOF' > /dev/null 2>&1
 ### FUNCTIONS ###
 # Name: 'GetApplicationIcon'
@@ -1401,7 +1395,7 @@ Function GetApplicationIcon {
         # Extract the icon from the executable.
         $exeIcon = [System.Drawing.Icon]::ExtractAssociatedIcon($exePath)
 
-        # Create a bitmap from the icon.
+        # generate a bitmap from the icon.
         $exeIconBitmap = New-Object System.Drawing.Bitmap $exeIcon.Width, $exeIcon.Height
         $graphics = [System.Drawing.Graphics]::FromImage($exeIconBitmap)
         $graphics.DrawIcon($exeIcon, 0, 0)
@@ -1597,7 +1591,7 @@ function AppSearchUWP {
         $_.SignatureKind -ne 'System'
     }
 
-    # Create an array to store UWP application details.
+    # generate an array to store UWP application details.
     $uwpAppDetails = @()
 
     # Loop through each UWP application.
@@ -1751,7 +1745,7 @@ chmod -R 700 "$TEMP_PATH"
 
 if [ ! -f "${TEMP_BIN_PATH}/winapps" ];then
     say "Creating winapps"
-    Create_winapps_script
+    generate_winapps_script
 fi
 if [ ! -f "${TEMP_TARGET_APPDATA_PATH}/icons/windows.svg" ];then
     say "Creating windows.svg"
@@ -1760,7 +1754,7 @@ if [ ! -f "${TEMP_TARGET_APPDATA_PATH}/icons/windows.svg" ];then
 fi
 if [ ! -f "$PS_SCRIPT_PATH" ];then
     say "Creating ExtractPrograms.ps1"
-    Create_powershell_script
+    generate_powershell_script
 fi
 
 waInstall

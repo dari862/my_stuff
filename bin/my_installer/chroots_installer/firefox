@@ -5,7 +5,7 @@ make_chroot_browser_default_browser=false
 prompt "Do you want to set chroot-${APP_NAME} as default browser(my-www-browser)?" 'Y' && make_chroot_browser_default_browser=true
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
-. "${__distro_path_root}/bin/my_installer/chroots_installer/browsers_creater"
+. "${__distro_path_root}/bin/my_installer/chroots_installer/browsers_builder"
 trap cleanup EXIT
 my-superuser chroot "$BROWSERS_CHROOT_DIR" bash -c "
 	apt install -y curl
@@ -22,5 +22,5 @@ my-superuser chroot "$BROWSERS_CHROOT_DIR" bash -c "
     apt-get update && apt-get install -y ${APP_NAME}
     apt purge -y curl
 " || failed_to_run "Failed to install ${APP_NAME} in chroot"
-end_of_chroot_creater
+end_of_chroot_builder
 my-superuser touch "${_CHROOTS_INSTALLED_LIBDIR}/firefox"

@@ -100,7 +100,7 @@ style "murrine-default" {
 
 	GtkWidget::focus-line-width = 1
 	# The following line prevents the Firefox tabs
-	# from jumping a few pixels when you create a new tab
+	# from jumping a few pixels when you spawn a new tab
 	GtkWidget::focus-padding = 0
 
 	GtkWidget::wide-separators = 1

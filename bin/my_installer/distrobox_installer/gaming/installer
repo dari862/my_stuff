@@ -79,7 +79,7 @@ mkdir -p "$HOME/.local/bin"
 mv "${tmp_folder}/${distro_name}" "$HOME/.local/bin"
 
 remove_system_ready_file GPU_Drivers_ready
-create_system_ready_file Gaming_ready
+generate_system_ready_file Gaming_ready
 	
 # Prevent host steam to be used during install, forcefully kill it (on steamos produces output like it tries to kill host processes and fails, fixme?...)
 # pkill -f steam

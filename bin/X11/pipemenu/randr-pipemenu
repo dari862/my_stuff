@@ -22,7 +22,7 @@
 #   zoom out: --output LVDS --scale 1.3x1.3
 #   zoom in: --output LVDS --panning 1280x1024
 #
-# The idea is that you can create machine-specific shortcuts. For example, with
+# The idea is that you can generate machine-specific shortcuts. For example, with
 # my laptop at home I frequently connect to an external widescreen display turned
 # sideways. On my netbook, I frequently 'zoom out' to a higher resolution in
 # scaled-out mode or 'zoom in' to a higher resolution in panning mode.
@@ -52,10 +52,10 @@ words_in_outputs_connected="$(echo $outputs_connected | wc -w)"
 
 mk_position_controls() {
 	local passed_output="$1"
-    # Create XML element for the menu
+    # generate XML element for the menu
     echo "<menu id=\"${passed_output}-position\" type=\"position\" label=\"Position\">"
 	
-	# Iterate over outputs and create submenus
+	# Iterate over outputs and generate submenus
 	for position in left-of right-of above below same-as; do
 		echo "<menu id=\"--$position\" label=\"$position\">"
 			for other in ${outputs_connected}; do
@@ -72,7 +72,7 @@ mk_position_controls() {
 	echo "</menu>"
 }
 
-# Function to create executable menu node
+# Function to generate executable menu node
 mk_exe_node() {
     local name="$1"
     local output="$2"

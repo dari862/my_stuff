@@ -39,59 +39,59 @@ cp -r "${current_script_path}/core/keybinds_to_sourcemainbindkey.conf" "${temp_s
 
 cd "${temp_shortcuts_path}"
 
-create_sourcemainbindkey_conf_file
+build_sourcemainbindkey_conf_file
 . "${temp_shortcuts_path}/sourcemainbindkey.conf"
 
 if [ -f "${xbindkeysrc_file_path}" ];then
-	create_xbindkeysrc_tmp_file
+	build_xbindkeysrc_tmp_file
 fi
 
 if [ -f "${alacritty_file_path}" ];then
-	create_alacritty_tmp_file
+	build_alacritty_tmp_file
 fi
 
 if [ -f "${conky_op_file_path}" ];then
-	create_conky_tmp_file
+	build_conky_tmp_file
 fi
 
 if [ -f "${kittyrc_file_path}" ];then
-	create_kitty_tmp_file
+	build_kitty_tmp_file
 fi
 
 if [ -f "${mpv_file_path}" ];then
-	create_mpv_tmp_file
+	build_mpv_tmp_file
 fi
 
 if [ -f "${zshrc_file_path}" ];then
-	create_zshrc_tmp_file
+	build_zshrc_tmp_file
 fi
 
 if [ -f "${bashrc_file_path}" ];then
-	create_bashrc_tmp_file
+	build_bashrc_tmp_file
 fi
 
 if [ -f "${inputrc_file_path}" ];then
-	create_inputrc_tmp_file
+	build_inputrc_tmp_file
 fi
 
 if [ -f "${ncmpcpp_file_path}" ];then
-	create_ncmpcpp_tmp_file
+	build_ncmpcpp_tmp_file
 fi
 
 if [ -f "${openboxrc_file_path}" ];then
-	create_openboxrc_tmp_file
+	build_openboxrc_tmp_file
 fi
 
 if [ -f "${Thunar_file_path}" ];then
-	create_Thunar_tmp_file
+	build_Thunar_tmp_file
 fi
 
 if command -v rxvt > /dev/null 2>&1;then
-	create_x11_tmp_file
+	build_x11_tmp_file
 fi
 
 if [ -f "${zathura_file_path}" ];then
-	create_zathura_tmp_file
+	build_zathura_tmp_file
 fi
 
 if [ -f "${nsxiv_file_path}" ];then
@@ -111,25 +111,25 @@ if [ -f "${lxterminal_file_path}" ];then
 fi
 
 if command -v sxhkd > /dev/null 2>&1;then
-	create_sxhkd_bspwm_file
-	create_sxhkd_openbox_file
+	build_sxhkd_bspwm_file
+	build_sxhkd_openbox_file
 fi
 
 if command -v rofi > /dev/null 2>&1;then
-	create_rofi_tmp_file "openbox"
-	create_rofi_tmp_file "bspwm"
+	build_rofi_tmp_file "openbox"
+	build_rofi_tmp_file "bspwm"
 fi
 
-create_shortcut_read_file
+build_shortcut_read_file
 
-create_welcome_shortcut_file
+build_welcome_shortcut_file
 
 if [ -f "${openboxrc_file_path}" ];then
-	create_pipemenu_file
+	build_pipemenu_file
 fi
 
 if [ -f "${viewnior_file_path}" ];then
-	create_viewnior_tmp_file
+	build_viewnior_tmp_file
 fi
 
 finalize_it

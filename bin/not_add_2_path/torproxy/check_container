@@ -15,7 +15,7 @@ check_tor_container(){
 	_tor_container_exit="$($REAL_CONTAINER_RT ps -a --filter 'status=exited' | awk '/torproxy/ {print $NF; quit}' | head -1 || :)"
 		
 	if [ -z "$_tor_container_all" ];then
-		__tor_mode="create"
+		__tor_mode="generate"
 	fi
 	
 	if [ -n "$_tor_container_exit" ];then
@@ -23,12 +23,12 @@ check_tor_container(){
 	fi
 	
 	### get the container tor runs in
-	if [ "$__tor_mode" = "create" ];then
+	if [ "$__tor_mode" = "generate" ];then
     	echo 'ERROR: tor proxy container not running.'
     	echo 'running container.'
     	echo "$REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy"
     	if ! $REAL_CONTAINER_RT run -it --net=host --cap-drop all --cap-add NET_RAW --cap-add NET_ADMIN --security-opt=no-new-privileges -d torproxy;then
-    		echo 'ERROR: failed to create container.'
+    		echo 'ERROR: failed to generate container.'
     		exit 1
     	fi
     	

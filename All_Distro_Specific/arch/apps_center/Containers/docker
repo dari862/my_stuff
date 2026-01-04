@@ -20,7 +20,7 @@ if [ ! -f "${__distro_path_root}/system_files/Container_Group_docker" ];then
 		echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' | my-superuser tee -a /etc/docker/daemon.json > /dev/null
 	fi
 	
-	create_applicationsdotdesktop_link "Docker"
+	generate_applicationsdotdesktop_link "Docker"
 	
 	echo "${__newGroup}" | my-superuser tee "${__distro_path_root}/system_files/Container_Group_docker" > /dev/null 2>&1
 	logout_now "$container_software installed successfully."

@@ -14,8 +14,7 @@ else
 	say "Enable_IOMMU_support"
 	cpu_are=""
 	HVE=""
-	virtualization_ready_file="${__distro_path_system_ready}/virtualization_ready"
-
+	
 	yes_or_no(){
 		MSG="${1-}"
 		printf "%s (yes/no) (default: yes):" "${MSG}"
@@ -79,7 +78,7 @@ else
 		fi
 		
 		check_IOMMU_support
-		create_system_ready_file "${virtualization_ready_file}"
+		generate_system_ready_file "virtualization_ready"
 		echo 'system is read for virtualization.'
 		echo "REBOOT MIGHT BE REQUIRED IF THE VM DOES NOT BOOT PROPERLY."
 	}
@@ -98,7 +97,9 @@ else
 		printf "Modprobe finished \n"
 	}
 
-	[ ! -f "${virtualization_ready_file}" ] && check_if_host_ready_for_virt
-
+	if ! check_system_ready_file "virtualization_ready";then
+		check_if_host_ready_for_virt
+	fi
+	
 	Reload_KVM_Kernel_Modules
 fi

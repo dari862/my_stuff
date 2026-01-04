@@ -107,7 +107,7 @@ __mount() {
         [[ -z "$dir" ]] && return 1
         if [[ ! -e "$dir" ]]; then
             if ! mkdir -p "$dir"; then
-                error "'$dir': Could not create directory."
+                error "'$dir': Could not make directory."
                 return 1
             fi
         fi

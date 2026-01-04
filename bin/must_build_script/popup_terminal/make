@@ -2,10 +2,10 @@
 set -e
 . "$__distro_path_lib"
 target_path="${__distro_path_root}/system_files/bin/popup_terminal"
-popup_terminal_create_path="$(pwd)"
+popup_terminal_make_path="$(pwd)"
 
 for term in kitty alacritty terminator urxvt;do
 	command -v "$term" > /dev/null 2>&1 && terminal="$term" && break
 done
 
-ln -sf "${popup_terminal_create_path}/$terminal" "${target_path}"
+ln -sf "${popup_terminal_make_path}/$terminal" "${target_path}"

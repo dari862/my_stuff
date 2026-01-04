@@ -1,7 +1,7 @@
 #!/bin/sh
 # need superuser : called by keybinds
 # called by keybinds
-create_sourcemainbindkey_conf_file(){
+build_sourcemainbindkey_conf_file(){
 	grep "=" keybinds.conf | grep -v '^#' > newkeybinds.conf
 	sed -i 's/zi=Ctrl/zi=sed_it_to_backslasheskeepitCtrol/g' newkeybinds.conf
 	sed -i "s/\`/sed_it_to_backtick/g" newkeybinds.conf
@@ -128,7 +128,7 @@ create_sourcemainbindkey_conf_file(){
 	sed -i 's/sed_it_to_quote/"/g' sourcemainbindkey.conf
 }
 
-create_xbindkeysrc_tmp_file(){
+build_xbindkeysrc_tmp_file(){
 	: > $temp_xbindkeysrc_file_path
 	
 	append_xbindkey_shortcut(){
@@ -162,7 +162,7 @@ EOF
 	append_xbindkey_shortcut "Print Screen with 10s delay" "my-shots --delay 10" "$Print_Screen_with_10s_delay"
 }
 
-create_alacritty_tmp_file(){
+build_alacritty_tmp_file(){
     if [ -n "$Copy1" ];then
     	echo "mouse_bindings:" > "$temp_alacritty_file_path"
         echo "  - { mouse: ${Copy1}action: Copy }" >> "$temp_alacritty_file_path"
@@ -393,7 +393,7 @@ create_alacritty_tmp_file(){
     fi
 }
 
-create_conky_tmp_file(){
+build_conky_tmp_file(){
 	: > $temp_conky_bl_file_path
     if [ -n "$Launcher" ];then
         echo "${Launcher}\${alignr} Run Dialog" >> "$temp_conky_bl_file_path"
@@ -557,7 +557,7 @@ create_conky_tmp_file(){
     fi
 }
 
-create_kitty_tmp_file(){
+build_kitty_tmp_file(){
 	: > $temp_kittyrc_file_path
 	
 	append_kitty_keybind() {
@@ -666,7 +666,7 @@ create_kitty_tmp_file(){
 	append_kitty_keybind "$clear_terminal_reset_active" "clear_terminal reset active"
 }
 
-create_mpv_tmp_file(){
+build_mpv_tmp_file(){
 	: > $temp_mpv_file_path
     if [ -n "$chapter_1" ];then
         echo "${chapter_1}                  add             chapter         -1" >> "$temp_mpv_file_path"
@@ -893,14 +893,14 @@ create_mpv_tmp_file(){
     fi
 }
 
-create_zshrc_tmp_file(){
+build_zshrc_tmp_file(){
 	: > $temp_zshrc_file_path
 echo "
 
 " > "${temp_zshrc_file_path}"
 }
 
-create_bashrc_tmp_file(){
+build_bashrc_tmp_file(){
 	: > $temp_bashrc_file_path
     if [ -n "$commnad_zi" ];then
     	echo "# below line make bash when pressing ctrl+f runs commnad zi ." >> "$temp_bashrc_file_path"
@@ -908,7 +908,7 @@ create_bashrc_tmp_file(){
     fi
 }
 
-create_inputrc_tmp_file(){
+build_inputrc_tmp_file(){
 	: > $temp_inputrc_bindkey_file_path
 	
     if [ -n "$backward_kill_line" ];then
@@ -984,7 +984,7 @@ create_inputrc_tmp_file(){
     fi
 }
 
-create_ncmpcpp_tmp_file(){
+build_ncmpcpp_tmp_file(){
 	: > "${temp_ncmpcpp_file_path}"
     append_ncmpcpp_event() {
        shortcut_keys="$1"
@@ -1124,7 +1124,7 @@ create_ncmpcpp_tmp_file(){
 	append_ncmpcpp_event "${ncmpcpp_quit}" "quit"
 }
 
-create_openboxrc_tmp_file() {
+build_openboxrc_tmp_file() {
   generate_openbox_keybind() {
     key_var="$1"
     action_var="$2"
@@ -1358,7 +1358,7 @@ echo "<!--
   } > "$temp_openboxrc_file_path"
 }
 
-create_sxhkd_openbox_file(){
+build_sxhkd_openbox_file(){
 	mkdir -p "$sxhkd_dir_path"
 	
 	append_sxhkd() {
@@ -1422,7 +1422,7 @@ create_sxhkd_openbox_file(){
 	sed_all_back "${sxhkd_openbox_file_path}"
 }
 
-create_sxhkd_bspwm_file(){
+build_sxhkd_bspwm_file(){
 	mkdir -p "$sxhkd_dir_path"
 	
 	append_sxhkd() {
@@ -1538,7 +1538,7 @@ create_sxhkd_bspwm_file(){
 	sed_all_back "${sxhkd_bspwm_file_path}"
 }
 
-create_rofi_tmp_file(){
+build_rofi_tmp_file(){
 	__mode="${1:-}"
 	shortcut_rofi_wm_file_path="${shortcut_rofi_file_path}_${__mode}"
    	append_rofi() {
@@ -1592,7 +1592,7 @@ create_rofi_tmp_file(){
 	append_rofi "$Music_control" "mpc stop" "Stop Music"
 }
 
-create_Thunar_tmp_file(){
+build_Thunar_tmp_file(){
 	: > "$temp_Thunar_file_path"
 
     append_thunar_accel() {
@@ -1698,7 +1698,7 @@ create_Thunar_tmp_file(){
     #append_thunar_accel "$ThunarLauncher_paste" "ThunarLauncher/paste"
 }
 
-create_x11_tmp_file(){
+build_x11_tmp_file(){
 	: > "$temp_x11_file_path"
 	append_x11_keybind() {
        x11_command="$1"
@@ -1716,7 +1716,7 @@ create_x11_tmp_file(){
 	append_x11_keybind "${moves_the_cursor_Left_five_lines}" '\033[1;5D'
 }
 
-create_zathura_tmp_file(){
+build_zathura_tmp_file(){
     : > "$temp_zathura_file_path"
 	append_zathura_keybind() {
        zathura_keybind="$1"
@@ -1801,7 +1801,7 @@ sed_lxterminal(){
 	sed -i "s/zoom_reset_accel=.*/zoom_reset_accel=${zoom_reset_accel}/g" "${temp_lxterminal_file_path}"
 }
 
-create_pipemenu_file(){
+build_pipemenu_file(){
 	. "/usr/share/my_stuff/lib/common/pipemenu"
 	
 	tee "${temp_openbox_pipemenu_file_path}" <<- EOF >/dev/null
@@ -2050,7 +2050,7 @@ create_pipemenu_file(){
 	} > "${temp_final_openbox_pipemenu_file_path}"
 }
 
-create_shortcut_read_file(){
+build_shortcut_read_file(){
     cd "${temp_shortcuts_path}"
 	cp -r keybinds.conf temp_keybinds
 	sed -i 's/#;/;/g ; /^#/d ; /^$/d ; s/^/_/g ; s/^_;/#/g ; s/=/##tab##/g ; s/\t/ /g ; s/  / /g ; s/##tab##/\t/g ; s/^_/# /g ; s/ /_/g' temp_keybinds
@@ -2066,7 +2066,7 @@ create_shortcut_read_file(){
 	sed -i '/# end of openbox/d' sxhkd_keybinds
 }
 
-create_welcome_shortcut_file(){
+build_welcome_shortcut_file(){
 	: > "${temp_welcome_shortcut_file_path}"
 	
 	append_welcome_shortcut(){
@@ -2088,7 +2088,7 @@ create_welcome_shortcut_file(){
 	append_welcome_shortcut "conky_Editor" "${conky_Editor}"
 }
 
-create_viewnior_tmp_file(){
+build_viewnior_tmp_file(){
 	: > "$temp_viewnior_file_path"
     append_viewnior_accel() {
 		viewnior_accel_path="$1"
@@ -2147,18 +2147,18 @@ sed_all_back(){
 }
 
 finalize_it(){
-    #create_xbindkeysrc_tmp_file
+    #build_xbindkeysrc_tmp_file
     if [ -f "${temp_xbindkeysrc_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_xbindkeysrc_file_path}" "${xbindkeysrc_file_path}"
         sed_all_back "${xbindkeysrc_file_path}"
     fi
-    #create_alacritty_tmp_file
+    #build_alacritty_tmp_file
     if [ -f "${temp_alacritty_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_alacritty_file_path}" "${alacritty_file_path}"
 
         sed_all_back "${alacritty_file_path}"
     fi
-    #create_conky_tmp_file
+    #build_conky_tmp_file
     if [ -f "${temp_conky_op_file_path}" ];then
         $_SUPERUSER sed -i -e '/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat '${temp_conky_bl_with_window_file_path}'' "${conky_bl_with_window_file_path}"
 
@@ -2172,63 +2172,63 @@ finalize_it(){
         sed_all_back "${conky_bl_with_window_file_path}"
         sed_all_back "${conky_op_file_path}"
     fi
-    #create_kitty_tmp_file
+    #build_kitty_tmp_file
     if [ -f "${temp_kittyrc_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_kittyrc_file_path}" "${kittyrc_file_path}"
         sed_all_back "${kittyrc_file_path}"
     fi
-    #create_mpv_tmp_file
+    #build_mpv_tmp_file
     if [ -f "${temp_mpv_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_mpv_file_path}" "${mpv_file_path}"
         sed_all_back "${mpv_file_path}"
     fi
-    #create_zshrc_tmp_file
+    #build_zshrc_tmp_file
     if [ -f "${temp_zshrc_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_zshrc_file_path}" "${zshrc_file_path}"
         sed_all_back "${zshrc_file_path}"
     fi
-    #create_bashrc_tmp_file
+    #build_bashrc_tmp_file
     if [ -f "${temp_bashrc_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_bashrc_file_path}" "${bashrc_file_path}"
         sed_all_back "${bashrc_file_path}"
     fi
-    #create_inputrc_tmp_file
+    #build_inputrc_tmp_file
     if [ -f "${temp_inputrc_bindkey_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script bindkey ------ ##/,/## ------ end of auto edited by shortcuts script bindkey ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script bindkey ------ ##/e cat ${temp_inputrc_bindkey_file_path}" "${inputrc_file_path}"
         sed_all_back "${inputrc_file_path}"
     fi
-    #create_ncmpcpp_tmp_file
+    #build_ncmpcpp_tmp_file
     if [ -f "${temp_ncmpcpp_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_ncmpcpp_file_path}" "${ncmpcpp_file_path}"
         sed_all_back "${ncmpcpp_file_path}"
     fi
-    #create_openboxrc_tmp_file
+    #build_openboxrc_tmp_file
     if [ -f "${temp_openboxrc_file_path}" ];then
         $_SUPERUSER sed -i -e "/##  auto edited by shortcuts script  ##/,/##  end of auto edited by shortcuts script  ##/!b;//!d;/##  end of auto edited by shortcuts script  ##/e cat ${temp_openboxrc_file_path}" "${openboxrc_file_path}"
         sed_all_back "${openboxrc_file_path}"
     fi
-    #create_Thunar_tmp_file
+    #build_Thunar_tmp_file
     if [ -f "${temp_Thunar_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_Thunar_file_path}" "${Thunar_file_path}"
         sed_all_back "${Thunar_file_path}"
     fi
-    #create_x11_tmp_file
+    #build_x11_tmp_file
     if [ -f "${temp_x11_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_x11_file_path}" "${x11_file_path}"
         sed_all_back "${x11_file_path}"
     fi
-    #create_zathura_tmp_file
+    #build_zathura_tmp_file
     if [ -f "${temp_zathura_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_zathura_file_path}" "${zathura_file_path}"
         sed_all_back "${zathura_file_path}"
     fi
-    #create_viewnior_tmp_file
+    #build_viewnior_tmp_file
     if [ -f "${temp_viewnior_file_path}" ];then
         $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_viewnior_file_path}" "${viewnior_file_path}"
         sed_all_back "${viewnior_file_path}"
     fi
     if [ -f "${temp_final_openbox_pipemenu_file_path}" ];then
-        #create_pipemenu_file
+        #build_pipemenu_file
         cat "${temp_final_openbox_pipemenu_file_path}" | $_SUPERUSER tee "${openbox_pipemenu_file_path}" >/dev/null 2>&1
     fi
     if [ -f "${temp_nsxiv_file_path}" ];then
@@ -2252,14 +2252,14 @@ finalize_it(){
         sed_all_back "${lxterminal_file_path}"
     fi
 
-    #create_shortcut_read_file
+    #build_shortcut_read_file
     if [ -f "${temp_shortcuts_path}"/sxhkd_keybinds ];then
         cat "${temp_shortcuts_path}"/sxhkd_keybinds | $_SUPERUSER tee "${script_config_path}/sxhkd_keybinds" >/dev/null 2>&1
     fi
     if [ -f "${temp_shortcuts_path}"/openbox_keybinds ];then
         cat "${temp_shortcuts_path}"/openbox_keybinds | $_SUPERUSER tee "${script_config_path}/openbox_keybinds" >/dev/null 2>&1
     fi
-    #create_welcome_shortcut_file
+    #build_welcome_shortcut_file
     if [ -f "${temp_welcome_shortcut_file_path}" ];then
     	cat "${temp_welcome_shortcut_file_path}" | $_SUPERUSER tee "${welcome_shortcut_file_path}" >/dev/null 2>&1
     fi

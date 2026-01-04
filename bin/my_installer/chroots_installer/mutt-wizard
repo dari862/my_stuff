@@ -11,7 +11,7 @@ PRE_MUTT_LAUNCHER="chroot-${MUTT_CHROOT_NAME}"
 MUTT_LAUNCHER="chroot-neomutt"
 
 trap cleanup EXIT # from chroot_functions
-base_chroot_creater
+base_chroot_builder
 
 say "==> Copying DNS info..."
 my-superuser cp /etc/resolv.conf "$MUTT_CHROOT_DIR/etc/resolv.conf"

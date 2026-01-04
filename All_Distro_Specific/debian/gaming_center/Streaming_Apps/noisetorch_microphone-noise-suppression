@@ -2,11 +2,11 @@
 # need superuser : called by my-installer
 
 app_name="noisetorch"
-if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
+if check_system_ready_file "Distrobox_ready";then
 	Distrobox_package_installer_ ${app_name} || continue		
 else
 	say "Installing ${app_name}..." 1
 	repobin --root install noisetorch/NoiseTorch || failed_to_run "failed to run ${app_name} ."
 	my-superuser setcap 'CAP_SYS_RESOURCE=+ep' "${__distro_path_downloaded}/noisetorch"
-	create_applicationsdotdesktop_link "noisetorch"
+	generate_applicationsdotdesktop_link "noisetorch"
 fi	

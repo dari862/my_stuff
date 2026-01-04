@@ -5,7 +5,7 @@
 #
 #   Credentials and an access token for an account can be set up.
 #
-#   Settings (imgur.conf) and credentials (credentials.conf}) files are created in
+#   Settings (imgur.conf) and credentials (credentials.conf}) files are generated in
 #   ${HOME}/.config/image-upload/imgur/
 #
 #   The script returns BB-Code for the direct image link, and a linked thumbnail.
@@ -635,7 +635,7 @@ function acquire_access_token() {
 }
 
 function save_access_token() {
-    # create dir if not existing
+    # generate dir if not existing
     mkdir -p "$(dirname "${CREDENTIALS_FILE}")" 2>/dev/null
     touch "${CREDENTIALS_FILE}" && chmod 600 "${CREDENTIALS_FILE}"
     tee "${CREDENTIALS_FILE}" <<- EOF > /dev/null

@@ -132,7 +132,7 @@ ${voffset 4}${font WaterBrush:size=42}${alignc}${time %H.%M}${font Bebas Neue:si
 ${voffset 14}${alignc}${time %A %-d %B %Y}
 ${voffset 34}${font Khurasan L:size=22}${alignc}Hello ${execi 600 whoami}
 
-${voffset 4}${font Bebas Neue:size=16}${alignc}${color0}email ${color}${execi 600 (((__distro_path_root)))/bin/X11/conky/email} unread
+${voffset 4}${font Bebas Neue:size=16}${alignc}${color0}email ${color}${execi 600 (((__distro_path_root)))/bin/X11/conky/email_notification} unread
 ${image ~/.config/conky/whitewalls/res/separator.png -p 25,280}
 ${voffset 24}${font Bebas Neue:size=16}${alignc}${color0}wifi ${color}${wireless_essid}
 ${image ~/.config/conky/whitewalls/res/separator.png -p 25,348}

@@ -7,7 +7,7 @@ set -e
 
 use_single_bar=true
 local_bin_path="$HOME/.local/bin"
-polybar_launcher_path="$local_bin_path/polybar_launch"
+polybar_launcher_path="$local_bin_path/polybar_launcher"
 config_file_name="config"
 
 check_for_bars(){

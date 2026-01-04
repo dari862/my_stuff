@@ -48,7 +48,7 @@ pre_install(){
 		ADB_PORT=4444
 		
 		# Path to the VM drive default location.
-		# All dirs will be created automatically on "init" call.
+		# All dirs will be generated automatically on "init" call.
 		DRIVE_DIR="${current_script_path}/drives"
 		DRIVE_NAME="android-image.qcow2.img"
 		
@@ -86,7 +86,7 @@ pre_install(){
     fi
 }
 
-create_script_2_manage_vm_via_qemu(){
+generate_script_2_manage_vm_via_qemu(){
 	if [ ! -f "$SCRIPT_NAME_PATH" ];then
 		tee "$SCRIPT_NAME_PATH" <<- 'EOF' > /dev/null 2>&1
 		#!/bin/sh
@@ -107,11 +107,11 @@ create_script_2_manage_vm_via_qemu(){
 	fi
 }
 
-create_script_2_manage_vm_via_virtmanager(){
+generate_script_2_manage_vm_via_virtmanager(){
 	:
 }
 
-create_launcher_desktop_file(){
+generate_launcher_desktop_file(){
 	tee "$launcher_desktop_file_path" <<- EOF > /dev/null 2>&1
 	[Desktop Entry]
 	Name=${APP_NAME}
@@ -122,11 +122,11 @@ create_launcher_desktop_file(){
 	EOF
 }
 
-create_vm(){
+generate_vm(){
 	if qemu-img create -f qcow2 "$DRIVE_PATH" "$_qemu_drive_size";then
 		"$SCRIPT_NAME_PATH" "$WINDOW_TITLE - Install" "$provided_Android_image"
 	else
-		echo "failed to create qcow2"
+		echo "failed to generate qcow2"
 		exit 1
 	fi
 }
@@ -135,11 +135,11 @@ pre_install
 
 echo "Directories initialized."
 if [ "$install_mode" = "qemu" ];then
-	create_script_2_manage_vm_via_qemu
+	generate_script_2_manage_vm_via_qemu
 elif [ "$install_mode" = "virtmanager" ];then
-	create_script_2_manage_vm_via_virtmanager
+	generate_script_2_manage_vm_via_virtmanager
 fi
 
-create_launcher_desktop_file
+generate_launcher_desktop_file
 
-create_vm
+generate_vm

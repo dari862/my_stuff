@@ -18,14 +18,15 @@ fi
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/system_ready"
 
 # Helper function to check if a command is installed
 is_installed() {
 	command -v "$1" >/dev/null 2>&1 || dpkg -s "$1" >/dev/null 2>&1
 }
 
-# Helper function to create a database from directories
-create_db_from_dirs() {
+# Helper function to Build a database from directories
+build_db_from_dirs() {
 	dirs="${1:-}"
 	dirs2="${2:-}"
 	db_path="${3:-}"
@@ -69,19 +70,19 @@ create_db_from_dirs() {
 	fi
 }
 
-# Create apps and gaming database
-create_apps_db() {
-	say "create DB for apps."
-	create_db_from_dirs "${_APPS_LIBDIR}" "${_APPS_EXTRA_LIBDIR}" "${apps_db_path}" "Gaming"
+# Build apps and gaming database
+build_apps_db() {
+	say "Build DB for apps."
+	build_db_from_dirs "${_APPS_LIBDIR}" "${_APPS_EXTRA_LIBDIR}" "${apps_db_path}" "Gaming"
 }
 
-create_gaming_db() {
-	say "create DB for gaming."
-	create_db_from_dirs "${_GAMING_EXTRA_LIBDIR}" "" "${gaming_db_path}"
+build_gaming_db() {
+	say "Build DB for gaming."
+	build_db_from_dirs "${_GAMING_EXTRA_LIBDIR}" "" "${gaming_db_path}"
 }
 
-create_tweeks_db() {
-	say "create DB for tweeks."
+build_tweeks_db() {
+	say "Build DB for tweeks."
 	
 	check_tweek=true
 	
@@ -100,8 +101,8 @@ create_tweeks_db() {
 	done
 }
 
-create_full_environment_db() {
-	say "create DB for full_environment."
+build_full_environment_db() {
+	say "Build DB for full_environment."
 
 	[ -f "${full_environment_db_path}" ] && $_SUPERUSER rm -rf "${full_environment_db_path}"
 	$_SUPERUSER touch "${full_environment_db_path}"
@@ -111,12 +112,12 @@ create_full_environment_db() {
 	done
 }
 
-# Create distrobox deploy database
-create_distrobox_deploy_db() {
-	say "create DB for distrobox."
+# Build distrobox deploy database
+build_distrobox_deploy_db() {
+	say "Build DB for distrobox."
 	list_of_deploys=$(find "${_DISTROBOX_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
-
-	if [ -f "${__distro_path_system_ready}/Distrobox_ready" ];then
+	
+	if check_system_ready_file "Distrobox_ready";then
 		for deploy in $list_of_deploys; do
 			if ! distrobox list | grep -q " ${deploy} ";then
 				echo "$deploy" | $_SUPERUSER tee -a "${distrobox_deploy_db_path}" >/dev/null 2>&1
@@ -129,9 +130,9 @@ create_distrobox_deploy_db() {
 	fi
 }
 
-# Create containers deploy database
-create_containers_deploy_db() {
-	say "create DB for containers."
+# Build containers deploy database
+build_containers_deploy_db() {
+	say "Build DB for containers."
 	list_of_containers=$(find "${_CONTAINERS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 
 	if [ -L "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then
@@ -147,9 +148,9 @@ create_containers_deploy_db() {
 	fi
 }
 
-# Create chroots deploy database
-create_chroots_deploy_db() {
-	say "create DB for chroots."
+# Build chroots deploy database
+build_chroots_deploy_db() {
+	say "Build DB for chroots."
 	list_of_chroots=$(find "${_CHROOTS_LIBDIR}" -mindepth 1 -maxdepth 1 -type f -exec basename {} \;)
 	if [ -d "${ROOT_CHROOT_DIR}" ];then
 		for chroot in $list_of_chroots; do
@@ -164,19 +165,19 @@ create_chroots_deploy_db() {
 	fi
 }
 
-# Create all databases except the styles database
-create_all_db_except_style_db() {
+# Build all databases except the styles database
+build_all_db_except_style_db() {
 	$_SUPERUSER mkdir -p "${db_dir}"
 
-	[ ! -f "${tweeks_db_path}" ] && create_tweeks_db
-	[ ! -f "${full_environment_db_path}" ] && create_full_environment_db
-	[ ! -d "${apps_db_path}" ] && create_apps_db
-	[ ! -d "${gaming_db_path}" ] && create_gaming_db
-	[ ! -f "${distrobox_deploy_db_path}" ] && create_distrobox_deploy_db
-	[ ! -f "${containers_deploy_db_path}" ] && create_containers_deploy_db
-	[ ! -f "${chroots_deploy_db_path}" ] && create_chroots_deploy_db
+	[ ! -f "${tweeks_db_path}" ] && build_tweeks_db
+	[ ! -f "${full_environment_db_path}" ] && build_full_environment_db
+	[ ! -d "${apps_db_path}" ] && build_apps_db
+	[ ! -d "${gaming_db_path}" ] && build_gaming_db
+	[ ! -f "${distrobox_deploy_db_path}" ] && build_distrobox_deploy_db
+	[ ! -f "${containers_deploy_db_path}" ] && build_containers_deploy_db
+	[ ! -f "${chroots_deploy_db_path}" ] && build_chroots_deploy_db
 	check_4_envycontrol
-	create_pipemenu
+	build_pipemenu
 	say "DBs creation completed"
 }
 
@@ -213,36 +214,36 @@ check_4_envycontrol() {
 	fi
 }
 
-create_pipemenu(){
+build_pipemenu(){
 	say "Running script for creating preferences pipemenu."
-	. "${pipemenu_creater}"/preferences.sh || failed_to_run "failed to run create_pipemenu/preferences.sh"
+	. "${pipemenu_builder}"/preferences.sh || failed_to_run "failed to run build_pipemenu/preferences.sh"
 	
 	say "Running script for creating full_environment pipemenu."
-	. "${pipemenu_creater}"/full_environment-pipemenu.sh || failed_to_run "failed to run create_pipemenu/full_environment-pipemenu.sh"
+	. "${pipemenu_builder}"/full_environment-pipemenu.sh || failed_to_run "failed to run build_pipemenu/full_environment-pipemenu.sh"
 	
 	say "Running script for creating preferences pipemenu."
-	. "${pipemenu_creater}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run create_pipemenu/my-tweeks-pipemenu.sh"
+	. "${pipemenu_builder}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run build_pipemenu/my-tweeks-pipemenu.sh"
 	
 	say "Running script for creating install pipemenu."
-	. "${pipemenu_creater}"/my-install-pipemenu.sh|| failed_to_run "failed to run create_pipemenu/my-install-pipemenu.sh"
+	. "${pipemenu_builder}"/my-install-pipemenu.sh|| failed_to_run "failed to run build_pipemenu/my-install-pipemenu.sh"
 	
 	say "Running script for creating gaming pipemenu."
-	. "${pipemenu_creater}"/gaming-pipemenu.sh || failed_to_run "failed to run create_pipemenu/gaming-pipemenu.sh"
+	. "${pipemenu_builder}"/gaming-pipemenu.sh || failed_to_run "failed to run build_pipemenu/gaming-pipemenu.sh"
 	
 	say "Running script for creating containers and others pipemenu."
-	. "${pipemenu_creater}"/containers-deployer-pipemenu.sh || failed_to_run "failed to run create_pipemenu/containers-deployer-pipemenu.sh"
+	. "${pipemenu_builder}"/containers-deployer-pipemenu.sh || failed_to_run "failed to run build_pipemenu/containers-deployer-pipemenu.sh"
 }
 
 # Case statement to trigger the appropriate function
 case "$opt" in
-	--tweeks) create_tweeks_db ;;
-	--fullenv) create_full_environment_db ;;
-	--apps) create_apps_db ;;
-	--games) create_gaming_db ;;
-	--deploy) create_distrobox_deploy_db ;;
-	--containers) create_containers_deploy_db ;;
-	--chroots) create_chroots_deploy_db ;;
-	--all) create_all_db_except_style_db ;;
+	--tweeks) build_tweeks_db ;;
+	--fullenv) build_full_environment_db ;;
+	--apps) build_apps_db ;;
+	--games) build_gaming_db ;;
+	--deploy) build_distrobox_deploy_db ;;
+	--containers) build_containers_deploy_db ;;
+	--chroots) build_chroots_deploy_db ;;
+	--all) build_all_db_except_style_db ;;
 	--remove) remove_from_DB ;;
 	*) echo "Invalid option"; exit 1 ;;
 esac

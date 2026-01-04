@@ -17,4 +17,4 @@ fi
 
 "${__distro_path_root}"/bin/X11/polybar/polybar_fixes_based_on_ver || continue
 
-"${__distro_path_root}"/bin/X11/polybar/polybar_launch_creater || continue
+"${__distro_path_root}"/bin/X11/polybar/build_polybar_launcher || continue

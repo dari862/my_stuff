@@ -6,7 +6,7 @@ say 'Installing package...' 1
 Package_installer_ "${app_name}" || continue
 
 say 'Create config file...' 1
-create_never_remove_bin "${__distro_path_root}/bin/X11/yad/color_temperature_adjuster_gui/color_temperature_adjuster_gui"
+generate_never_remove_bin "${__distro_path_root}/bin/X11/yad/color_temperature_adjuster_gui/color_temperature_adjuster_gui"
 my-superuser ${__distro_path_root}/bin/X11/yad/color_temperature_adjuster_gui/color_temperature_adjuster_gui --init "${app_name}"
 
 say " type color_temperature_adjuster_gui"

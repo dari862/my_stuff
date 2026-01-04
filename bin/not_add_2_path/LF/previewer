@@ -18,7 +18,7 @@
 #	- Other: stat, cut, sha256sum
 
 # Notes:
-#	- If using alacritty's same process: 'alacritty msg create-window', previews only show in first window
+#	- If using alacritty's same process: 'alacritty msg generate-window', previews only show in first window
 
 set -C -f
 IFS='
@@ -53,7 +53,7 @@ fi
 # an image appears in multiple places across the machine, it will not have to
 # be regenerated once seen.
 
-create_cache() {
+generate_cache() {
 	CACHE="${XDG_CACHE_HOME:-"$HOME/.cache"}/lf/thumb.$(stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' \
 		-- "$(readlink -f "$1" || realpath "$1" )" \
 		| sha256sum \
@@ -66,7 +66,7 @@ mime_preview() {
 	# an adequate preview
 	case "$mime_type","$ran_guard" in
 	(image/svg+xml,0 | image/svg)
-		create_cache "$1"
+		generate_cache "$1"
 		[ -f "$CACHE.png" ] \
 			|| rsvg-convert  -o "$CACHE.png" -a -w "1000" -b '#1f2430' "$1"
 		image "$CACHE.png" "$2" "$3" "$4" "$5" "$1"
@@ -120,19 +120,19 @@ mime_preview() {
 		mime_preview "$@"
 		;;
 	(video/*,[01])
-		create_cache "$1"
+		generate_cache "$1"
 		[ -f "$CACHE" ] \
 			|| ffmpegthumbnailer -i "$1" -o "$CACHE" -s 0
 		image "$CACHE" "$2" "$3" "$4" "$5" "$1"
 	;;
 	(*/pdf,0 | */postscript,0)  # .pdf, .ps
-		create_cache "$1"
+		generate_cache "$1"
 		[ -f "$CACHE.jpg" ] \
 			|| pdftoppm -jpeg -f 1 -singlefile "$1" "$CACHE"
 		image "$CACHE.jpg" "$2" "$3" "$4" "$5" "$1"
 	;;
 	(application/font*,0 | application/*opentype,0 | font/sfnt,0)  # .ttf, .otf
-		create_cache "$1"
+		generate_cache "$1"
 		[ -f "$CACHE.png" ] \
 			|| convert -size "800x800" "xc:#000000" -fill "#ffffff" \
 				-pointsize "72" -font "$1" -gravity center -annotate +0+0 \

@@ -1,2 +1,2 @@
 #!/bin/sh
-create_chroot firefox
+build_chroot firefox
