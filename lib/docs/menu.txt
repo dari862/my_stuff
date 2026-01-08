@@ -34,7 +34,7 @@ HowTo edit a pipemenu
  *** Remember that they could be over-written by a BL package upgrade, 
 	 so use the following method instead of editing the file as root ***
  
-	1) Copy the file from /usr/bin to ~/bin (create directory if necessary).
+	1) Copy the file from /usr/bin to ~/bin (make directory if necessary).
 	2) Check ~/bin comes first in $PATH (use 'echo $PATH' to check)
 	3) Edit the local file
 

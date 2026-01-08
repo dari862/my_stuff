@@ -71,9 +71,9 @@ run_model() {
     printf "%b\n" "${YELLOW}Running the model: $model...${RC}"
     ollama run "$model"
 }
-create_model() {
+generate_model() {
     clear
-    printf "%b\n" "${YELLOW}Let's create a new model in Ollama!${RC}"
+    printf "%b\n" "${YELLOW}Let's generate a new model in Ollama!${RC}"
     display_models
     # Prompt for base model
     printf "%b" "Enter the base model (e.g. '13' for codellama): "
@@ -93,7 +93,7 @@ create_model() {
     # Prompt for system message
     printf "%b" "Enter the system message for the model customization (e.g., 'You are Mario from Super Mario Bros. Answer as Mario, the assistant, only.'): "
     read -r system_message
-    # Create the Modelfile
+    # generate the Modelfile
     printf "%b\n" "${YELLOW}Creating the Modelfile...${RC}"
     cat << EOF > Modelfile
 FROM $base_model
@@ -104,7 +104,7 @@ SYSTEM """
 $system_message
 """
 EOF
-    # Create the model in Ollama
+    # generate the model in Ollama
     printf "%b\n" "${YELLOW}Creating the model in Ollama...${RC}"
     ollama create "$custom_model_name" -f Modelfile
     printf "%b\n" "${GREEN}Model '$custom_model_name' created successfully.${RC}"
@@ -133,7 +133,7 @@ menu() {
         printf "%b\n" "${YELLOW}Please select an option:${RC}"
         printf "%b\n" "1) List all models"
         printf "%b\n" "2) Show model information"
-        printf "%b\n" "3) Create a new model"
+        printf "%b\n" "3) generate a new model"
         printf "%b\n" "4) Run a model"
         printf "%b\n" "5) Remove a model"
         printf "%b\n" "6) Exit"
@@ -142,7 +142,7 @@ menu() {
         case $choice in
             1) list_models ;;
             2) show_model_info ;;
-            3) create_model ;;
+            3) generate_model ;;
             4) run_model ;;
             5) remove_model;;
             6) printf "%b\n" "${GREEN}Exiting...${RC}"; exit 0 ;;

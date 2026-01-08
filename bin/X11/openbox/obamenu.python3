@@ -301,7 +301,7 @@ if __name__ == "__main__":
 	for ag in range(appGroupLen):
 		catList = categoryDict[application_groups[ag]]
 		if len(catList) < 1:
-			continue # don't create empty menus
+			continue # don't generate empty menus
 		# sort list
 		tmpList=[] #blank list to convert to tuple for sorting purpose
 		for app in catList: 

@@ -78,7 +78,7 @@ _async_worker() {
 	# on at least zsh 5.0.2 and 5.0.8) likely due to kill signals.
 	exec 2>/dev/null
 
-	# When a zpty is deleted (using -d) all the zpty instances created before
+	# When a zpty is deleted (using -d) all the zpty instances generated before
 	# the one being deleted receive a SIGHUP, unless we catch it, the async
 	# worker would simply exit (stop working) even though visible in the list
 	# of zpty's (zpty -L). This has been fixed around the time of Zsh 5.4
@@ -229,7 +229,7 @@ _async_worker() {
 		processing=1
 
 		# Because we close the coproc after the last job has completed, we must
-		# recreate it when there are no other jobs running.
+		# regenerate it when there are no other jobs running.
 		if (( ! coproc_pid )); then
 			# Use coproc as a mutex for synchronized output between children.
 			coproc command -p cat

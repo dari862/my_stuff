@@ -45,6 +45,11 @@ Package_remove_(){
 	my-superuser "${package_manger}" purge -y $@
 }
 
+remove_orphan_packages(){
+	my-superuser "$package_manger" clean -y
+	my-superuser "${package_manger}" autoremove --purge -y
+}
+
 download_key(){
 	mode="${1-}"
 	url="${2-}"
@@ -87,8 +92,7 @@ install_deb(){
 }
 
 Package_cleanup() {
-	my-superuser "$package_manger" clean
-	my-superuser "$package_manger" autoremove -y 
+	remove_orphan_packages
 	my-superuser du -h /var/cache/apt
       
     if [ -d /var/tmp ]; then

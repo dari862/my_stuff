@@ -28,6 +28,7 @@ Packages_upgrade_(){
 		exit 1
 	fi
 }
+
 Package_remove_(){
 	packges="$@"
 	for packge in $packges;do
@@ -35,8 +36,19 @@ Package_remove_(){
 			packges="$packges $packge"
 		fi
 	done
-	${package_manger} -Rdd --noconfirm $packges
+	if [ -n "$packges" ];then
+		${package_manger} -Rdd --noconfirm $packges
+	fi
 }
+
+remove_orphan_packages(){
+	orphans=$(${package_manger} -Qtdq)
+	if [ -n "$orphans" ]; then
+		"$package_manger" -Scc --noconfirm
+		${package_manger} -Rns  --noconfirm $orphans
+	fi
+}
+
 Package_list_(){
 	:
 }
@@ -44,8 +56,7 @@ Upgradeable_Packages_list_(){
 	checkupdates 2> /dev/null
 }
 Package_cleanup() {
-	my-superuser "$package_manger" -Scc --noconfirm
-	my-superuser "$package_manger" -Rns "$(pacman -Qtdq)" --noconfirm > /dev/null || true
+	remove_orphan_packages
             
     if [ -d /var/tmp ]; then
         my-superuser find /var/tmp -type f -atime +5 -delete

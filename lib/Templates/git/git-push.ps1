@@ -1,12 +1,3 @@
-#####################################
-#                                   #
-#  @author      : 00xWolf           #
-#    GitHub    : @mmsaeed509       #
-#    Developer : Mahmoud Mohamed   #
-#  﫥  Copyright : Exodia OS         #
-#                                   #
-#####################################
-
 Write-Host "#############################" -ForegroundColor Cyan
 Write-Host "#      Git Push Script      #" -ForegroundColor Cyan
 Write-Host "#############################" -ForegroundColor Cyan

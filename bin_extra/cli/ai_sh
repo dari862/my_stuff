@@ -218,7 +218,7 @@ if [ -z "$prompt" ] && [ -z "$CHAT_INIT_PROMPT" ];then
     exit 1
 fi
 
-# Create temporary file for multi-line prompts
+# Generate temporary file for multi-line prompts
 if [ "$MULTI_LINE_PROMPT" = true ];then
     tmpfile=$(mktemp)
     trap 'rm -f "$tmpfile"' EXIT

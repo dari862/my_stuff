@@ -1,9 +1,8 @@
 #!/bin/sh
-# work on this : add https://github.com/chubin/cheat.sh and https://github.com/denisidoro/navi
+# work on this : add https://github.com/denisidoro/navi
 set -e
 op__="${1-}"
-op2__="${2-}"
-__lang="${3:-.en}"
+__lang=".en"
 
 . "$__distro_path_lib"
 tldr_dir="$__distro_for_all_path/tldr"
@@ -15,26 +14,9 @@ git_clone(){
 	git clone --depth=1 "${1:-}" "${2:-}"
 }
 
-install_betterman(){
-	if [ ! -d "${tldr_dir}" ];then
-		if [ ! -d "${tldr_dir}/.git" ];then
-			rm -rdf "${tldr_dir}"
-		fi
-		git_clone https://github.com/tldr-pages/tldr "${tldr_dir}"
-	fi
-
-	if [ ! -d "${cheat_sh_dir}" ];then
-		if [ ! -d "${cheat_sh_dir}/.git" ];then
-			rm -rdf "${cheat_sh_dir}"
-		fi
-		git_clone https://github.com/chubin/cheat.sheets.git "${cheat_sh_dir}"
-	fi
-	
-	if [ ! -d "${navi_cheats_dir}" ];then
-		if [ ! -d "${navi_cheats_dir}/.git" ];then
-			rm -rdf "${navi_cheats_dir}"
-		fi
-		git_clone https://github.com/denisidoro/cheats.git "${navi_cheats_dir}"
+build_betterman_dir(){
+	if [ -f "$betterman_dir/done_building" ];then
+		return
 	fi
 	
 	mkdir -p \
@@ -55,11 +37,40 @@ install_betterman(){
 	done
 	
 	for d in "$navi_cheats_dir"/*; do
-		[ -d "$d" ] && ln -sf "$d" "$betterman_dir/navi_cheats/$(basename "$d")" || :
+		dir_basename="$(basename "$d")"
+		if [ ! -L "$betterman_dir/navi_cheats/$dir_basename" ] && [ -d "$d" ];then
+			ln -sf "$d" "$betterman_dir/navi_cheats/$dir_basename"
+		fi
 	done
+	touch "$betterman_dir/done_building"
+}
+
+download_betterman_repos(){
+	if [ ! -d "${tldr_dir}" ];then
+		if [ ! -d "${tldr_dir}/.git" ];then
+			rm -rdf "${tldr_dir}"
+		fi
+		git_clone https://github.com/tldr-pages/tldr "${tldr_dir}"
+	fi
+
+	if [ ! -d "${cheat_sh_dir}" ];then
+		if [ ! -d "${cheat_sh_dir}/.git" ];then
+			rm -rdf "${cheat_sh_dir}"
+		fi
+		git_clone https://github.com/chubin/cheat.sheets.git "${cheat_sh_dir}"
+	fi
+	
+	if [ ! -d "${navi_cheats_dir}" ];then
+		if [ ! -d "${navi_cheats_dir}/.git" ];then
+			rm -rdf "${navi_cheats_dir}"
+		fi
+		git_clone https://github.com/denisidoro/cheats.git "${navi_cheats_dir}"
+	fi
 }
 
 update_betterman() {
+	download_betterman_repos
+	build_betterman_dir
 	last_update="$(stat -c %y "$betterman_dir" 2>/dev/null | cut -d' ' -f1 | cut -d'-' -f1-2)"
 	current_month="$(date +'%Y-%m')"
 
@@ -73,7 +84,9 @@ update_betterman() {
 				)
 			fi
 		done
+		rm -rf "$betterman_dir/done_building"
 	fi
+	build_betterman_dir
 }
 
 help() {
@@ -91,45 +104,54 @@ help() {
 }
 
 run_my_tldr_(){
-	cmd="$1"
+	cmd="${1:-}"
+	extra_arg="${2:-}"
+	
 	if [ -z "$cmd" ];then
 		help
 	fi
 	
-	install_betterman
 	update_betterman
 	
-	# Find .md or .cheat files matching the command
-	result="$(find -L "$betterman_dir" \( -name "$cmd.md" -o -name "$cmd.cheat" -o -name "$cmd" \) 2>/dev/null || :)"
-
-	if [ -z "${result}" ];then
-		echo "no betterman entry for ${cmd}" 
-		exit 1
-	fi
+	if [ -z "${extra_arg}" ];then
+		# Find .md or .cheat files matching the command
+		result="$(find -L "$betterman_dir" \( -name "$cmd.md" -o -name "$cmd.cheat" -o -name "$cmd" \) 2>/dev/null || :)"
 	
-	bat --style=plain --paging=never ${result}
+		if [ -z "${result}" ];then
+			echo "no betterman entry for ${cmd}" 
+			exit 1
+		fi
+		
+		batcat --style=plain --paging=never "${result}"
+	else
+		get_cheat_sh_online "${@}"
+	fi
 }
 
-main()
-{
-	case $op__ in
-		-c|--cheat)
-			getURL '2term' "cheat.sh/$op2__"
-		;;
-		-t|--tldr)
-			run_my_tldr_ "${op2__}"
-		;;
-		-u|--update)
-			install_betterman
-			update_tldr_
-		;;
-		-h |--help)
-			help
-		;;
-		*)
-			run_my_tldr_ "${op__}"
-		;;
-	esac
+get_cheat_sh_online(){
+	# work on this : make it offline https://github.com/chubin/cheat.sh
+	command_2_find="${1:-}"
+	shift
+	cheat_sh_query="${@}"
+	
+	if [ -z "${cheat_sh_query}" ];then
+		getURL '2term' "cheat.sh/${command_2_find}"
+	else
+		cheat_sh_query=$(printf '%s' "${cheat_sh_query}" | sed 's@ *$@@; s@^ *@@; s@ @/@; s@ @+@g')
+		getURL '2term' "cheat.sh/${command_2_find}/${cheat_sh_query}"
+	fi
 }
 
-main
+fzf_mode_(){
+	:
+}
+
+shift
+case "$op__" in
+	-c|--cheat) get_cheat_sh_online "${@}" ;;
+	-t|--tldr) run_my_tldr_ "${@}" ;;
+	-u|--update) update_betterman ;;
+	-h |--help) help ;;
+	-f |--fzf | '') fzf_mode_ ;;
+	*) run_my_tldr_ "$op__" "${@}" ;;
+esac

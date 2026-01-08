@@ -75,7 +75,7 @@ fi
 export PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin:/usr/games:/usr/local/games:$HOME/.local/bin:$HOME/bin:$PATH"
 
 # Python
-# use PYTHONPYCACHEPREFIX to use a global cache, so python won't create
+# use PYTHONPYCACHEPREFIX to use a global cache, so python won't generate
 # __pycache__ directories in my projects
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
 export PYTHONPYCACHEPREFIX="$HOME/.cache/cpython/"

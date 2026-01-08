@@ -69,7 +69,7 @@ Those currently running are shown checked.
 Check the ones you want to run, uncheck the ones to stop, and click "Apply".
 Your chosen conky session will be saved to the default startup sessionfile.
 
-If you have chosen to create a new session the selected conkys will be saved there instead.
+If you have chosen to generate a new session the selected conkys will be saved there instead.
 
 If you choose to start a conky which is not "sticky",
 you will be prompted to choose which desktop to launch it on.

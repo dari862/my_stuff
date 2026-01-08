@@ -99,7 +99,8 @@ update_packages(){
 	print_GREEN "linux kernel upgraded"
 	
 	print_purple "clean package repository and remove orphan packages"
-	Package_remove_ || :
+	remove_orphan_packages
+	
 	print_GREEN "orphan packages removed "
 
 	if command -v yt-dlp >/dev/null 2>&1;then

@@ -6,7 +6,7 @@
 applications_dirs = ("/usr/share/applications", )
 image_dir_base = "/usr/share" # without "pixmaps" -/usr/local/share in FreeBSD, /usr/share on linux
 icon_Theme = "Humanity"
-image_cat_prefix = "applications-"  # if empty will create no icon text only menu
+image_cat_prefix = "applications-"  # if empty will generate no icon text only menu
 application_groups = ("Office",  "Development",  "Graphics", "Internet",  "Games", "System",  "Multimedia",  "Utilities",  "Settings")
 group_aliases = {"Audio":"Multimedia","AudioVideo":"Multimedia","Network":"Internet","Game":"Games", "Utility":"Utilities", "GTK":"",  "GNOME":""}
 ignoreList = ("evince-previewer", "Ted",  "wingide3.2", "python3.4", "feh","xfce4-power-manager-settings" )
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     for ag in range(appGroupLen ):
         catList = categoryDict[application_groups[ag]]
         if len(catList) < 1:
-            continue                # don't create empty menus
+            continue                # don't generate empty menus
         catStr = "<menu id=\"openbox-%s\" label=\"%s\" " % (application_groups[ag], application_groups[ag])
         tmp = getCatIcon(application_groups[ag])
         if tmp != "":

@@ -9,29 +9,30 @@ else
 	_SUPERUSER="my-superuser"
 fi
 
+# Arrays of packages for each category (using variables instead of arrays)
+FILEMANAGERSCLI="lf ranger"
+FILEMANAGERSGUI="thunar caja dolphin nautilus pcmanfm spacefm xfe"
+IMAGEVIEWERS="viewnior nsxiv sxiv eog eom geeqie gpicview gthumb mirage"
+MEDIAPLAYERS="my-mpv vlc banshee dragonplayer celluloid gxine kaffeine parole smplayer totem"
+TEXTEDITORS="notepadqq featherpad geany mousepad gedit jedit kate medit scite emacs"
+WWWBROWSERS="mullvad-browser librewolf brave brave-browser chromium dillo google-chrome-stable chroot-browser firefox-esr firefox"
+TERMINALEMULATORS="terminator alacritty kitty"
+OFFICES="libreoffice"
+IDES="nvim emacs code micro nano"
+PDFREADERS="zathura my-www-browser my-office"
+IMAGEEDITORS="gimp display-im7.q16"
+VIDEOEDITORS="kdenlive"
+SUPERUSERS="doas sudo"
+
 my_superuser_path="/usr/bin/my-superuser"
 ACTION="${1-}"
 alt_package="${2-}"
 MYALTS="my-file-manager my-image-viewer my-media-player my-text-editor my-www-browser my-terminal-emulator my-office my-ide my-image-editor my-video-editor my-pdf-reader"
 
-# Arrays of packages for each category (using variables instead of arrays)
-FILEMANAGERSCLI="lf ranger"
-FILEMANAGERSGUI="thunar caja dolphin nautilus pcmanfm spacefm xfe"
 FILEMANAGERS="$FILEMANAGERSGUI $FILEMANAGERSCLI"
-IMAGEVIEWERS="viewnior nsxiv sxiv eog eom geeqie gpicview gthumb mirage"
-MEDIAPLAYERS="my-mpv vlc banshee dragonplayer celluloid gxine kaffeine parole smplayer totem"
-TEXTEDITORS="notepadqq featherpad geany mousepad gedit jedit kate medit scite emacs"
-WWWBROWSERS="mullvad-browser librewolf brave-browser chromium dillo google-chrome-stable chroot-browser firefox-esr firefox"
-TERMINALEMULATORS="terminator alacritty kitty"
-OFFICES="libreoffice"
 OFFICES="$OFFICES $TEXTEDITORS"
-IDES="nvim emacs code micro nano"
 IDES="$IDES $TEXTEDITORS"
-PDFREADERS="zathura my-www-browser my-office"
-IMAGEEDITORS="gimp display-im7.q16"
-VIDEOEDITORS="kdenlive $MEDIAPLAYERS"
-
-SUPERUSERS="doas sudo"
+VIDEOEDITORS="$VIDEOEDITORS $MEDIAPLAYERS"
 
 # Helper function to check if a package exists
 package_exists() {

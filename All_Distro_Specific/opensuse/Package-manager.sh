@@ -18,6 +18,13 @@ full_upgrade_(){
 Package_remove_(){
 	my-superuser zypper remove -y $@
 }
+
+remove_orphan_packages(){
+	my-superuser zypper clean -a
+	my-superuser zypper tidy
+	my-superuser zypper cc -a
+}
+
 Package_list_(){
 	:
 }
@@ -32,9 +39,7 @@ Packages_upgrade_(){
 	fi
 }
 Package_cleanup() {
-	my-superuser zypper clean -a
-	my-superuser zypper tidy
-	my-superuser zypper cc -a
+	remove_orphan_packages
 
     if [ -d /var/tmp ]; then
         my-superuser find /var/tmp -type f -atime +5 -delete
