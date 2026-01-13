@@ -7,8 +7,9 @@ __lang=".en"
 . "$__distro_path_lib"
 tldr_dir="$__distro_for_all_path/tldr"
 cheat_sh_dir="$__distro_for_all_path/cheat_sh"
-navi_cheats_dir="$__distro_for_all_path/navi_cheats"
 betterman_dir="$__distro_for_all_path/betterman"
+navi_cheats_dir="$__distro_for_all_path/navi_cheats"
+fzf_menu_file_path="${betterman_dir}/fzf_menu_file"
 
 git_clone(){
 	git clone --depth=1 "${1:-}" "${2:-}"
@@ -39,9 +40,10 @@ build_betterman_dir(){
 	for d in "$navi_cheats_dir"/*; do
 		dir_basename="$(basename "$d")"
 		if [ ! -L "$betterman_dir/navi_cheats/$dir_basename" ] && [ -d "$d" ];then
-			ln -sf "$d" "$betterman_dir/navi_cheats/$dir_basename"
+			cp -r "$d" "$betterman_dir/navi_cheats/$dir_basename"
 		fi
 	done
+	rm -rdf "$betterman_dir/navi_cheats/os"
 	touch "$betterman_dir/done_building"
 }
 
@@ -65,12 +67,11 @@ download_betterman_repos(){
 			rm -rdf "${navi_cheats_dir}"
 		fi
 		git_clone https://github.com/denisidoro/cheats.git "${navi_cheats_dir}"
+		create_fzf_cache_file_
 	fi
 }
 
 update_betterman() {
-	download_betterman_repos
-	build_betterman_dir
 	last_update="$(stat -c %y "$betterman_dir" 2>/dev/null | cut -d' ' -f1 | cut -d'-' -f1-2)"
 	current_month="$(date +'%Y-%m')"
 
@@ -83,9 +84,18 @@ update_betterman() {
 					[ -n "$(git status --porcelain)" ] && git checkout .
 				)
 			fi
+			if [ "$dir" = "$navi_cheats_dir" ];then
+				create_fzf_cache_file_
+			fi
 		done
 		rm -rf "$betterman_dir/done_building"
 	fi
+}
+
+install_betterman(){
+	download_betterman_repos
+	build_betterman_dir
+	update_betterman
 	build_betterman_dir
 }
 
@@ -111,11 +121,10 @@ run_my_tldr_(){
 		help
 	fi
 	
-	update_betterman
+	install_betterman
 	
 	if [ -z "${extra_arg}" ];then
-		# Find .md or .cheat files matching the command
-		result="$(find -L "$betterman_dir" \( -name "$cmd.md" -o -name "$cmd.cheat" -o -name "$cmd" \) 2>/dev/null || :)"
+		result="$(find -L "${betterman_dir}" \( -name "${cmd}.md" -o -name "${cmd}.cheat" -o -name "${cmd}" \) 2>/dev/null || :)"
 	
 		if [ -z "${result}" ];then
 			echo "no betterman entry for ${cmd}" 
@@ -142,15 +151,23 @@ get_cheat_sh_online(){
 	fi
 }
 
-fzf_mode_(){
+create_fzf_cache_file_(){
 	:
 }
 
-shift
+fzf_mode_(){
+	column -t -s '#' -o ' # ' "${fzf_menu_file_path}" |\
+		fzf --delimiter '#' --with-nth '1,2,3' --preview 'printf "%s [%s]\n%s" "{2}" "{1}" "{3}"' --preview-window 'top:3:wrap' --header 'Press Enter to copy the command' --bind 'enter:become(eval {4})'
+}
+
+if [ -n "$op__" ];then
+	shift
+fi
+
 case "$op__" in
 	-c|--cheat) get_cheat_sh_online "${@}" ;;
 	-t|--tldr) run_my_tldr_ "${@}" ;;
-	-u|--update) update_betterman ;;
+	-u|--update) install_betterman ;;
 	-h |--help) help ;;
 	-f |--fzf | '') fzf_mode_ ;;
 	*) run_my_tldr_ "$op__" "${@}" ;;

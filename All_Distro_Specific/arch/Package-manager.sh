@@ -18,8 +18,16 @@ Package_update_(){
 }
 full_upgrade_(){
 	say 'Full upgrade your system...' 1
-	${package_manger} -Syu --noconfirm --needed archlinux-keyring
-	${package_manger} -Syu --noconfirm
+	if ! ${package_manger}  -Syu --noconfirm;then
+    	if ! ${package_manger}  --noconfirm -Sy archlinux-keyring;then
+    		pacman-key --init
+			pacman-key --populate archlinux
+			pacman-key --refresh-keys
+			${package_manger}  -Syu --noconfirm
+		else
+			${package_manger}  -Syu --noconfirm
+    	fi
+    fi
 }
 Packages_upgrade_(){
 	if ${package_manger} -y upgrade;then
