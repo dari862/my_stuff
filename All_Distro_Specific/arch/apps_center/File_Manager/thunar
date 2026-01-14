@@ -20,4 +20,5 @@ fi
 if [ "$set_as_default_package" = true ];then
 	my-alternatives --set "my-file-manager" "${app_name}" || continue
 fi
+
 file-manager-session start

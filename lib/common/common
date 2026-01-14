@@ -356,7 +356,7 @@ copy_from_extra_skel() {
 
 add_keybinds(){
 	__package_name="${1:-}"
-	my-superuser "${__distro_path_root}/bin/keybinds"/keybinds --add "$__package_name"
+	"${__distro_path_root}/bin/keybinds"/keybinds --add "$__package_name"
 }
 
 command_exist() {

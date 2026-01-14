@@ -8,5 +8,9 @@ say "Installing ${app_name}..." 1
 getURL "2term" "https://dl.brave.com/install.sh" | sh || continue
 
 if [ "$set_as_default_package" = true ];then
-	my-alternatives --set "my-www-browser" "${app_name}" || continue
+	if command_exist "${app_name}";then
+		my-alternatives --set "my-www-browser" "${app_name}" || continue
+	elif command_exist "brave";then
+		my-alternatives --set "my-www-browser" "brave" || continue
+	fi
 fi
