@@ -9,28 +9,35 @@ else
 fi
 
 Package_installer_(){
-	${package_manger} --noconfirm -S $@
+	${package_manger} --noconfirm --sudoloop -Sy $@
 }
+
+pacman_installer_(){
+	my-superuser pacman --noconfirm -Sy $@
+}
+
 Package_update_(){
 	kill_package_manager
 	say 'Updating sources...' 1
-	${package_manger} -Syu --noconfirm
+	${package_manger} -Syu --noconfirm --sudoloop
 }
+
 full_upgrade_(){
 	say 'Full upgrade your system...' 1
-	if ! ${package_manger}  -Syu --noconfirm;then
-    	if ! ${package_manger}  --noconfirm -Sy archlinux-keyring;then
+	if ! ${package_manger} -Syu --noconfirm --sudoloop;then
+    	if ! ${package_manger}  --noconfirm -Sy --sudoloop archlinux-keyring;then
     		pacman-key --init
 			pacman-key --populate archlinux
 			pacman-key --refresh-keys
-			${package_manger}  -Syu --noconfirm
+			${package_manger}  -Syu --noconfirm --sudoloop
 		else
-			${package_manger}  -Syu --noconfirm
+			${package_manger}  -Syu --noconfirm --sudoloop
     	fi
     fi
 }
+
 Packages_upgrade_(){
-	if ${package_manger} -y upgrade;then
+	if ${package_manger} -Syu --noconfirm --sudoloop;then
 		exit
 	else
 		exit 1
@@ -45,7 +52,7 @@ Package_remove_(){
 		fi
 	done
 	if [ -n "$packges" ];then
-		${package_manger} -Rdd --noconfirm $packges
+		${package_manger} -Rns --noconfirm $packges
 	fi
 }
 
@@ -107,4 +114,12 @@ kill_package_manager(){
 		rm /var/lib/pacman/db.lck
 	fi
 	ps aux | grep "pacman" | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1 || :
+}
+
+package_exist(){
+	if pacman -Ss "${1:-}" >/dev/null 2>&1;then
+		return
+	else
+		return 1
+	fi
 }

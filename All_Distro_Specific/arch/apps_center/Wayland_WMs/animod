@@ -1,0 +1,86 @@
+#!/bin/sh
+getURL(){
+	mode="${1-}"
+	url="${2-}"
+	path="${3-}"
+	file_name="${url##*/}"
+	curl -fSLO "${url}" --progress-bar || exit 1
+}
+
+#################################################################
+set -e
+
+sessionGif="kurukuru.gif"
+wallpaperDir="~/Pictures/Wallpapers"
+
+downlaod_wall(){
+	convert_wall=false
+	wall_url="${1:-}"
+	moveto="${2:-}"
+	wall_fullname="$(basename "$wall_url")"
+	wall_name="${wall_fullname%.*}"
+	wall_ext="${wall_fullname##*.}"
+	if [ "$wall_ext" != "png" ];then
+		old_fullname="${wall_fullname}"
+		wall_fullname="${wall_name}.png"
+		convert_wall=true
+	fi
+	if [ -f "$wall_fullname" ];then
+		return
+	fi
+	
+	getURL 'download' "${wall_url}"
+	
+	if [ "$convert_wall" = true ];then
+		convert "$old_fullname" "$wall_fullname"
+       	/usr/bin/rm -rdf "$old_fullname"
+	fi
+	
+	if [ -n "$moveto" ];then
+		mv "$wall_fullname" "${moveto}.png"
+	fi
+}
+
+wallpaper_installer(){
+	mkdir -p "$wallpaperDir"
+	cd "$wallpaperDir"
+   	downlaod_wall "https://w.wallhaven.cc/full/x6/wallhaven-x6vkvd.png"
+   	
+	downlaod_wall "https://images.alphacoders.com/138/thumb-1920-1387138.png"
+	downlaod_wall "https://images6.alphacoders.com/131/thumb-1920-1316162.jpeg"
+   	downlaod_wall "https://images3.alphacoders.com/136/thumb-1920-1362745.png"
+	
+   	downlaod_wall "https://wallpapercave.com/wp/wp13252468.png"
+	downlaod_wall "https://wallpapercave.com/wp/wp14412300.jpg"
+	downlaod_wall "https://wallpapercave.com/wp/wp14624873.jpg"
+   	
+	downlaod_wall "https://images.wallpaperscraft.com/image/single/girl_horns_lantern_1038463_2560x1080.jpg"
+
+   	downlaod_wall "https://raw.githubusercontent.com/orangci/walls-catppuccin-mocha/refs/heads/master/cottages-river.png"
+	downlaod_wall "https://raw.githubusercontent.com/orangci/walls-catppuccin-mocha/refs/heads/master/van-chilling.png"
+
+   	RICES_URL="https://raw.githubusercontent.com/gh0stzk/dotfiles/refs/heads/master/config/bspwm/rices"
+   	downlaod_wall "$RICES_URL/aline/walls/wall-06.webp"    "aline-wall-01"
+   	downlaod_wall "$RICES_URL/aline/walls/wall-01.webp"    "aline-wall-02"
+   	downlaod_wall "$RICES_URL/aline/walls/wall-02.webp"    "aline-wall-03"
+   	downlaod_wall "$RICES_URL/aline/walls/wall-08.webp"    "aline-wall-04"
+   	downlaod_wall "$RICES_URL/aline/walls/wall-07.webp"    "aline-wall-05"
+   	downlaod_wall "$RICES_URL/andrea/walls/wall-07.webp"   "andrea-wall-01"
+   	downlaod_wall "$RICES_URL/andrea/walls/wall-02.webp"   "andrea-wall-02"
+   	downlaod_wall "$RICES_URL/andrea/walls/wall-05.webp"   "andrea-wall-03"
+   	downlaod_wall "$RICES_URL/andrea/walls/wall-08.webp"   "andrea-wall-04"
+   	downlaod_wall "$RICES_URL/andrea/walls/wall-04.webp"   "andrea-wall-05"
+   	downlaod_wall "$RICES_URL/cristina/walls/wall-07.webp" "cristina-wall-01"
+   	downlaod_wall "$RICES_URL/cristina/walls/wall-01.webp" "cristina-wall-02"
+   	downlaod_wall "$RICES_URL/emilia/walls/wall-09.webp"   "emilia-wall-01"
+   	downlaod_wall "$RICES_URL/emilia/walls/wall-04.webp"   "emilia-wall-02"
+   	downlaod_wall "$RICES_URL/karla/walls/wall-01.webp"    "karla-wall-01"
+   	downlaod_wall "$RICES_URL/yael/walls/wall-01.webp"     "yael-wall-01"
+   	downlaod_wall "$RICES_URL/z0mbi3/walls/wall-06.webp"   "z0mbi3-wall-01"
+
+   	downlaod_wall "https://pbs.twimg.com/profile_images/1901363967387463680/3_WiuENw_400x400.jpg" "$HOME/.face"
+}
+
+sed -i "s|\"sessionGif\": \"root:/assets/.*|\"sessionGif\": \"root:/assets/${sessionGif}\",|g" "$HOME/.config/caelestia/shell.json"
+sed -i "s|\"wallpaperDir\":.*|\"wallpaperDir\": \"${wallpaperDir}\"|g" "$HOME/.config/caelestia/shell.json"
+wallpaper_installer

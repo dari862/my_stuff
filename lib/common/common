@@ -386,33 +386,29 @@ grub_updater_function() {
 	fi
 }
 
-if command_exist git;then
-    clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        echo "git clone ${getthis}"
-        git clone --depth=1 "${getthis}" "${getto}"
-    }
-    super_clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        say "git clone ${getthis} to ${getto}" 1
-        my-superuser git clone --depth=1 "${getthis}" "${getto}"
-    }
-elif command_exist svn;then
-    clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        echo "svn clone ${getthis}"
-        svn clone --depth=1 "${getthis}" "${getto}"
-    }
-    super_clone_repo() {
-        getthis="${1:-}"
-        getto="${2:-}"
-        say "git clone ${getthis} to ${getto}" 1
-        my-superuser svn clone --depth=1 "${getthis}" "${getto}"
-    }
-fi
+clone_repo() {
+	getthis="${1:-}"
+	getto="${2:-}"
+	say "git clone ${getthis}"
+	if [ ! -d "$getto" ];then
+		if ! git clone --depth=1 "$getthis" "$getto";then
+			rm -rdf "$getto"
+			return 1
+		fi
+	fi
+}
+
+super_clone_repo() {
+    getthis="${1:-}"
+    getto="${2:-}"
+    say "git clone ${getthis}"
+    if [ ! -d "$getto" ];then
+		if ! my-superuser git clone --depth=1 "$getthis" "$getto";then
+			my-superuser rm -rdf "$getto"
+			return 1
+		fi
+	fi
+}
 
 ln_sf_files_depth1(){
 	$_SUPERUSER find "$1" -maxdepth 1 -type f -exec ln -sf {} "$2" \;
