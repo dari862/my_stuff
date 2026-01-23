@@ -26,13 +26,48 @@ command_exist() {
 		return 1
 	fi
 }
-	
+
 show_im "Fix some packages."
 cd "${packages_2_fix_path}"
 for p in *;do
-	if command_exist "$p";then
-		show_im "Fixing $p."
-		__dirname="$(dirname "$(which "$p")")"
-		$_SUPERUSER cp -r "$p" "$__dirname"
+	extra_it=false
+	
+	case "$p" in
+		*.tar.bz2)	extra_it=true;;
+		*.tar.gz)	extra_it=true;;
+		*.tar.xz)	extra_it=true;;
+		*.rar)		extra_it=true;;
+		*.gz)		extra_it=true;;
+		*.tar)		extra_it=true;;
+		*.tbz2)		extra_it=true;;
+		*.tgz)		extra_it=true;;
+		*.zip)		extra_it=true;;
+		*.7z)		extra_it=true;;
+	esac
+	
+	if [ "$extra_it" = false ];then
+		if command_exist "$p";then
+			show_im "Fixing $p."
+			__dirname="$(dirname "$(which "$p")")"
+			$_SUPERUSER cp -r "$p" "$__dirname"
+		fi
+	else
+		package="$(printf '%s' "$p" | cut -d'.' -f1)"
+		if command_exist "$package";then
+			show_im "Fixing $package."
+			__dirname="$(dirname "$(which "$package")")"
+			case "$p" in
+				*.tar.bz2)   $_SUPERUSER tar xjf "$p" -C "$__dirname";;
+				*.tar.gz)    $_SUPERUSER tar xzf "$p" -C "$__dirname";;
+				*.tar.xz)    $_SUPERUSER tar xJf "$p" -C "$__dirname";;
+				*.rar)       $_SUPERUSER unrar x "$p" "$__dirname";;
+				*.gz)        $_SUPERUSER gunzip "$p" "$__dirname";;
+				*.tar)       $_SUPERUSER tar xf "$p" -C "$__dirname";;
+				*.tbz2)      $_SUPERUSER tar xjf "$p" -C "$__dirname";;
+				*.tgz)       $_SUPERUSER tar xzf "$p" -C "$__dirname";;
+				*.zip)       $_SUPERUSER unzip "$p" -d "$__dirname";;
+				*.7z)        $_SUPERUSER 7z x "$p" -o "$__dirname";;
+			esac
+		fi
 	fi
 done
