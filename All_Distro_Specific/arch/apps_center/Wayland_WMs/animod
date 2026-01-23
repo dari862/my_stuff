@@ -11,8 +11,11 @@ getURL(){
 set -e
 
 sessionGif="kurukuru.gif"
-wallpaperDir="~/Pictures/Wallpapers"
+wallpaperPathName="Pictures/Wallpapers"
+wallpaperPath="$HOME/${wallpaperPathName}"
+wallpapersedtoDir="~/${wallpaperPathName}"
 
+#################################################################
 downlaod_wall(){
 	convert_wall=false
 	wall_url="${1:-}"
@@ -42,17 +45,19 @@ downlaod_wall(){
 }
 
 wallpaper_installer(){
-	mkdir -p "$wallpaperDir"
-	cd "$wallpaperDir"
+	mkdir -p "$wallpaperPath"
+	cd "$wallpaperPath"
+	downlaod_wall "https://pbs.twimg.com/profile_images/1901363967387463680/3_WiuENw_400x400.jpg" "$HOME/.face"
+	
    	downlaod_wall "https://w.wallhaven.cc/full/x6/wallhaven-x6vkvd.png"
    	
 	downlaod_wall "https://images.alphacoders.com/138/thumb-1920-1387138.png"
 	downlaod_wall "https://images6.alphacoders.com/131/thumb-1920-1316162.jpeg"
    	downlaod_wall "https://images3.alphacoders.com/136/thumb-1920-1362745.png"
 	
-   	downlaod_wall "https://wallpapercave.com/wp/wp13252468.png"
-	downlaod_wall "https://wallpapercave.com/wp/wp14412300.jpg"
-	downlaod_wall "https://wallpapercave.com/wp/wp14624873.jpg"
+   	#downlaod_wall "https://wallpapercave.com/wp/wp13252468.png"
+	#downlaod_wall "https://wallpapercave.com/wp/wp14412300.jpg"
+	#downlaod_wall "https://wallpapercave.com/wp/wp14624873.jpg"
    	
 	downlaod_wall "https://images.wallpaperscraft.com/image/single/girl_horns_lantern_1038463_2560x1080.jpg"
 
@@ -77,10 +82,10 @@ wallpaper_installer(){
    	downlaod_wall "$RICES_URL/karla/walls/wall-01.webp"    "karla-wall-01"
    	downlaod_wall "$RICES_URL/yael/walls/wall-01.webp"     "yael-wall-01"
    	downlaod_wall "$RICES_URL/z0mbi3/walls/wall-06.webp"   "z0mbi3-wall-01"
-
-   	downlaod_wall "https://pbs.twimg.com/profile_images/1901363967387463680/3_WiuENw_400x400.jpg" "$HOME/.face"
 }
 
+#################################################################
+
 sed -i "s|\"sessionGif\": \"root:/assets/.*|\"sessionGif\": \"root:/assets/${sessionGif}\",|g" "$HOME/.config/caelestia/shell.json"
-sed -i "s|\"wallpaperDir\":.*|\"wallpaperDir\": \"${wallpaperDir}\"|g" "$HOME/.config/caelestia/shell.json"
+sed -i "s|\"wallpaperDir\":.*|\"wallpaperDir\": \"${wallpapersedtoDir}\"|g" "$HOME/.config/caelestia/shell.json"
 wallpaper_installer

@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # work on this : add https://github.com/denisidoro/navi
+__distro_path_lib="./fortesting"
 set -e
 op__="${1-}"
 __lang=".en"
@@ -11,19 +12,12 @@ betterman_dir="$__distro_for_all_path/betterman"
 navi_cheats_dir="$__distro_for_all_path/navi_cheats"
 fzf_menu_file_path="${betterman_dir}/fzf_menu_file"
 
-git_clone(){
-	git clone --depth=1 "${1:-}" "${2:-}"
-}
-
 build_betterman_dir(){
 	if [ -f "$betterman_dir/done_building" ];then
 		return
 	fi
 	
-	mkdir -p \
-		"$betterman_dir/cheat_sh" \
-		"$betterman_dir/navi_cheats" \
-		"$betterman_dir/tldr_${__lang}"
+	mkdir -p "$betterman_dir/cheat_sh" "$betterman_dir/navi_cheats"	"$betterman_dir/tldr_${__lang}"
 	
 	for section in common linux; do
 		if [ ! -L "$betterman_dir/tldr_${__lang}/$section" ];then
@@ -47,28 +41,21 @@ build_betterman_dir(){
 	touch "$betterman_dir/done_building"
 }
 
-download_betterman_repos(){
-	if [ ! -d "${tldr_dir}" ];then
-		if [ ! -d "${tldr_dir}/.git" ];then
-			rm -rdf "${tldr_dir}"
+check_repo(){
+	repo_url="${1:-}"
+	repo_path="${2:-}"
+	if [ ! -d "${repo_path}" ];then
+		if [ ! -d "${repo_path}/.git" ];then
+			rm -rdf "${repo_path}"
 		fi
-		git_clone https://github.com/tldr-pages/tldr "${tldr_dir}"
+		clone_repo "${repo_url}" "${repo_path}"
 	fi
+}
 
-	if [ ! -d "${cheat_sh_dir}" ];then
-		if [ ! -d "${cheat_sh_dir}/.git" ];then
-			rm -rdf "${cheat_sh_dir}"
-		fi
-		git_clone https://github.com/chubin/cheat.sheets.git "${cheat_sh_dir}"
-	fi
-	
-	if [ ! -d "${navi_cheats_dir}" ];then
-		if [ ! -d "${navi_cheats_dir}/.git" ];then
-			rm -rdf "${navi_cheats_dir}"
-		fi
-		git_clone https://github.com/denisidoro/cheats.git "${navi_cheats_dir}"
-		create_fzf_cache_file_
-	fi
+download_betterman_repos(){
+	check_repo https://github.com/tldr-pages/tldr "${tldr_dir}"
+	check_repo https://github.com/chubin/cheat.sheets.git "${cheat_sh_dir}"
+	check_repo https://github.com/denisidoro/cheats.git "${navi_cheats_dir}"
 }
 
 update_betterman() {
@@ -93,9 +80,13 @@ update_betterman() {
 }
 
 install_betterman(){
+	say "Download repos."
 	download_betterman_repos
+	say "Build betterman."
 	build_betterman_dir
+	say "update betterman."
 	update_betterman
+	say "Build betterman agin."
 	build_betterman_dir
 }
 
@@ -152,10 +143,218 @@ get_cheat_sh_online(){
 }
 
 create_fzf_cache_file_(){
-	:
+	printf "Creating fzf cache file.\n"
+	navi_temp_dir="${betterman_dir}/navi_temp"
+	navi_temp_menu_dir="${navi_temp_dir}/navi_temp"
+	navi_temp_command_dir="${navi_temp_dir}/navi_command_temp"
+	temp_fzf_menu_file_path="${navi_temp_dir}/navi_fzf_menu_file"
+	temp_fzf_command_file_path="${navi_temp_dir}/navi_fzf_command_file"
+	
+	remove_temp_dir(){
+    	if [ -d "$navi_temp_dir" ];then
+        	/usr/bin/rm -rdf "$navi_temp_dir"
+    	fi
+	}
+	
+	remove_temp_dir
+	
+	mkdir -p "${navi_temp_dir}"
+	
+	cp -r "$betterman_dir/navi_cheats" "${navi_temp_menu_dir}"
+	
+	for pkg_mgr_name in apt brew eopkg pacman yum zypper;do
+    	if ! command -v "$pkg_mgr_name" >/dev/null 2>&1;then
+        	find "${navi_temp_menu_dir}" -type f -name "${pkg_mgr_name}.*" -exec /usr/bin/rm -f {} +
+    	fi
+	done
+	
+	find "$navi_temp_menu_dir" -type f |
+	while IFS= read -r file; do
+    	file_basename="$(basename "$file" | cut -d '.' -f 1)"
+    	file_dirname="$(dirname "$file")"
+    	var_file_name="${file_basename}.var"
+    	var_file_path="${file_dirname}/${var_file_name}"
+    	cmd_file_name="${file_basename}.commands"
+    	cmd_file_path="${file_dirname}/${cmd_file_name}"
+    	sed -i '/^%/ s/,.*//' "${file}"
+    	sed -i "/^##.*/d" "${file}"
+    	grep '^\$' "${file}" | sort -u > "${var_file_path}"
+    	sed -i '/^\$/d' "${file}"
+    	sed -i 's/^#/##/g' "${file}"
+    	sed -i '/^## Sensible\/common default alternative.*/d' "${file}"
+    	sed -i '/^## Attempt to find files with the appropriate endings, default to everythi.*/d' "${file}"
+    	sed -i '/^## Autocomplete variables.*/d' "${file}"
+    	sed -i '/^## Please use this with \[ABS].*/d' "${file}"
+    	sed -i '/^$/d' "${file}"
+    	sed -i ':a;N;$!ba;s/\\\n//g' "${file}"
+    	sed -i -e '/^% /{s/^% /## /; h; d;}' -e '/^##/{G; s/^\(##.*\)\n\(.*\)/\2 \1/;}' "${file}"
+    	sed -i '/^$/d' "${file}"
+    	# shellcheck disable=SC2016
+    	sed -i -n '/^##/{x;s/\n/;/g;s/;/ ## /;p;d;}; H; ${x;s/\n/;/g;s/;/ ## /;p;}' "${file}"
+    	sed -i "s/^## //g" "${file}"
+    	sed -i "s/ ## /#/g" "${file}"
+    	sed -i "s/##/#/g" "${file}"
+    	cp -r "${file}" "${cmd_file_path}"
+	done
+	
+	cp -r "${navi_temp_menu_dir}" "${navi_temp_command_dir}"
+	
+	find "${navi_temp_menu_dir}" -type f \( -name "*.var" -o -name "*.commands" \) -exec rm {} \;
+	find "${navi_temp_command_dir}" -type f ! -name "*.var" ! -name "*.commands" -exec rm {} \;
+	find "${navi_temp_command_dir}" -type f -size 0 -exec rm {} \;
+	
+	find "$navi_temp_command_dir" -type f -name "*.var" |
+	while IFS= read -r file; do
+    	sed -i 's/^\$ //; s/:[[:space:]]*/:::/' "${file}"
+    	sed -i 's/:::/=$\(/g' "${file}"
+    	sed -i 's/$/)/g' "${file}"
+    	output_file="${file}.out"
+    	vars=$(grep -oP '^\w+(?==)' "$file")
+    	
+    	temp_file="${file}.tmp"
+    	
+    	while read -r line; do
+        	var_name=$(printf "%s" "$line" | cut -d'=' -f1)
+        	for other_var in $vars; do
+            	if [ "$var_name" != "$other_var" ]; then
+                	if printf "%s" "$line" | grep -q "\$${other_var}"; then
+                     	printf "%s %s\n" "$other_var" "$var_name" >> "$temp_file"
+                	fi
+            	fi
+        	done
+        	
+        	printf "%s %s\n" "$var_name" "$var_name" >> "$temp_file"
+    	done < "$file"
+    	sorted_names=$(tsort "$temp_file" | uniq)
+    	: > "$output_file"
+    	for name in $sorted_names; do
+        	grep "^$name=" "$file" >> "$output_file"
+    	done
+    	
+    	/usr/bin/rm -f "$temp_file"
+    	/usr/bin/rm -f "$file"
+    	/usr/bin/mv "$output_file" "$file"
+	done
+	
+	: > "${temp_fzf_menu_file_path}"
+	
+	find "$navi_temp_menu_dir" -type f |
+	while IFS= read -r file; do
+    	cat "${file}" >> "${temp_fzf_menu_file_path}"
+    	printf "\n" >> "${temp_fzf_menu_file_path}"
+	done
+	
+	sed -i '/^$/d' "${temp_fzf_menu_file_path}"
+	
+	: > "${temp_fzf_command_file_path}"
+	
+	# Ensure the directory variable exists
+	find "$navi_temp_command_dir" -type f -name "*.var" |
+	while IFS= read -r file; do
+    	basename_file_name=$(basename "${file}" | cut -d '.' -f 1)
+    	dirname_file_name=$(dirname "${file}")
+    	temp_file="${dirname_file_name}/${basename_file_name}.tmp"
+    	
+    	# Reset/Create temp file
+    	: > "$temp_file"
+	
+    	# Function to recursively find and prepend dependencies
+    	get_chain() {
+        	current_line="$1"
+        	lookup_file="$2"
+        	local_chain=""
+        	
+        	# Find all $vars in the line using sed/grep (POSIX compatible)
+        	deps=$(printf "%s" "$current_line" | grep -o '\$[a-zA-Z_][a-zA-Z0-9_]*' | sed 's/\$//g' | sort -u)
+        	
+        	for dep in $deps; do
+            	var_definition=$(grep "^${dep}=" "$lookup_file" | head -n 1)
+            	
+            	if [ -n "${var_definition}" ]; then
+                	parent_chain=$(get_chain "${var_definition}" "$lookup_file")
+                	
+                	[ -n "$parent_chain" ] && local_chain="${local_chain}${parent_chain};"
+                	local_chain="${local_chain}${var_definition};"
+            	fi
+        	done
+        	
+        	printf "%s" "$local_chain" | awk 'BEGIN{RS=";";ORS=";"} !a[$0]++' | sed 's/;$//'
+    	}
+	
+    	# Process the file
+    	while IFS= read -r line || [ -n "$line" ]; do
+        	[ -z "$line" ] && continue
+        	
+        	var_name=$(printf "%s" "$line" | cut -d'=' -f1)
+        	
+        	chain=$(get_chain "$line" "$file")
+        	
+        	if [ -n "$chain" ]; then
+            	printf "%s#%s;%s\n" "${var_name}" "${chain}" "${line}" >> "$temp_file"
+        	else
+            	printf "%s#%s\n" "${var_name}" "${line}" >> "$temp_file"
+        	fi
+    	done < "$file"
+	done
+	
+	find "${navi_temp_command_dir}" -type f -name "*.var" -exec rm {} \;
+	
+	find "$navi_temp_command_dir" -type f -name "*.tmp" |
+	while IFS= read -r file; do
+    	basename_file_name="$(basename "${file}" | cut -d '.' -f 1)"
+    	dirname_file_name="$(dirname "${file}")"
+    	COMMANDS_FILE="${dirname_file_name}/${basename_file_name}.commands"
+    	TMP_FILE="${dirname_file_name}/${basename_file_name}.tmp"
+    	OUTPUT_FILE="${dirname_file_name}/${basename_file_name}.out"
+    	
+    	: > "$OUTPUT_FILE"
+    	
+    	while IFS='#' read -r category description command; do
+        	placeholders=$(printf "%s" "$command" | grep -oP '<[^>]+>' | sed 's/[<>]//g' | sort -r)
+    	
+        	prefix_logic=""
+        	new_command="$command"
+    	
+        	for var in $placeholders; do
+            	logic=$(grep "^${var}#" "$TMP_FILE" | cut -d'#' -f2-)
+    	
+            	if [ -n "$logic" ]; then
+                	case "$prefix_logic" in
+                    	*"$logic"*) ;;
+                    	*) prefix_logic="${prefix_logic}${logic};" ;;
+                	esac
+                	new_command=$(printf "%s" "$new_command" | sed "s/<${var}>/\${${var}}/g")
+            	fi
+        	done
+    	
+        	printf "%s#%s#%s%s\n" "${category}" "${description}" "${prefix_logic}" "${new_command}" >> "$OUTPUT_FILE"
+    	
+    	done < "$COMMANDS_FILE"
+    	
+    	sed -i "/^#/d" "${OUTPUT_FILE}"
+    	
+    	cat "${OUTPUT_FILE}" >> "${temp_fzf_command_file_path}"
+    	printf "\n" >> "${temp_fzf_command_file_path}"
+	done
+	sed -i '/^$/d' "${temp_fzf_command_file_path}"
+	
+	: > "${fzf_menu_file_path}"
+	
+	while IFS='#' read -r category description command; do
+    	if grep -q "^${category}#${description}#" "${temp_fzf_command_file_path}";then
+        	printf "%s#%s#%s#%s\n" "${category}" "${description}" "${command}" "$(grep "^${category}#${description}#" "${temp_fzf_command_file_path}" | cut -d '#' -f 3)" >> "${fzf_menu_file_path}"
+    	else
+        	printf "%s#%s#%s#%s\n" "${category}" "${description}" "${command}" "${command}" >> "${fzf_menu_file_path}"
+    	fi
+	done < "${temp_fzf_menu_file_path}"
+	
+	remove_temp_dir
 }
 
 fzf_mode_(){
+	if [ ! -f "$fzf_menu_file_path" ];then
+		create_fzf_cache_file_
+	fi
 	column -t -s '#' -o ' # ' "${fzf_menu_file_path}" |\
 		fzf --delimiter '#' --with-nth '1,2,3' --preview 'printf "%s [%s]\n%s" "{2}" "{1}" "{3}"' --preview-window 'top:3:wrap' --header 'Press Enter to copy the command' --bind 'enter:become(eval {4})'
 }

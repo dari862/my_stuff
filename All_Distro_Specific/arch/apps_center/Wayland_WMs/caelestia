@@ -92,6 +92,8 @@ DISCORD=""
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
 __distro_path_wallpaper="$HOME/Pictures/Wallpapers"
 sessionGif="logo.svg"
+caelestia_conf_path="$HOME/.local/caelestia"
+#################################################################
 
 confirm_overwrite() {
     path="$1"
@@ -100,123 +102,42 @@ confirm_overwrite() {
         /usr/bin/rm -rf "$path"
     fi
 }
-	
-kill_package_manager
 
-full_upgrade_
-Package_installer_ git
-
-clone_repo https://github.com/caelestia-dots/caelestia.git "$HOME/.local/caelestia"
+download_and_Config_caelestia(){
+	clone_repo https://github.com/caelestia-dots/caelestia.git "${caelestia_conf_path}"
+		
+	cd "${caelestia_conf_path}"
+	say "Installing packages..."
+	package_2_install_pacman=""
+	package_2_install_aur=""
+		
+	for package in caelestia-cli caelestia-shell hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpicker wl-clipboard cliphist inotify-tools app2unit wireplumber trash-cli foot fish eza fastfetch starship btop jq adw-gtk-theme papirus-icon-theme qt5ct-kde qt6ct-kde ttf-jetbrains-mono-nerd thunar todoist-appimage uwsm gnome-keyring polkit-gnome direnv zoxide;do
+		if package_exist "${package}" ;then
+			package_2_install_pacman="${package_2_install_pacman} ${package}"
+		else
+			package_2_install_aur="${package_2_install_aur} ${package}"
+		fi
+	done
 	
-cd "$HOME/.local/caelestia"
-say "Installing packages..."
-package_2_install_pacman=""
-package_2_install_aur=""
-	
-for package in caelestia-cli caelestia-shell hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpicker wl-clipboard cliphist inotify-tools app2unit wireplumber trash-cli foot fish eza fastfetch starship btop jq adw-gtk-theme papirus-icon-theme qt5ct-kde qt6ct-kde ttf-jetbrains-mono-nerd thunar zen-browser-bin todoist-appimage uwsm gnome-keyring polkit-gnome direnv zoxide;do
-	if package_exist "${package}" ;then
-		package_2_install_pacman="${package_2_install_pacman} ${package}"
-	else
-		package_2_install_aur="${package_2_install_aur} ${package}"
+	if [ -n "$package_2_install_pacman" ];then
+		pacman_installer_ "${package_2_install_pacman}"
 	fi
-done
-
-if [ -n "$package_2_install_pacman" ];then
-	pacman_installer_ "${package_2_install_pacman}"
-fi
-
-if [ -n "$package_2_install_aur" ];then
-	Package_installer_ "${package_2_install_aur}"
-fi
-
-# -------------------------
-# Config installs
-# -------------------------
-for conf in hypr starship.toml foot fish fastfetch uwsm btop;do
-    ln -s "$(realpath "$conf")" "$CONFIG"
-done
-
-# -------------------------
-# Zen
-# -------------------------
-setsid zen-browser
-sleep 4
-killall -9 zen-bin
-sleep 1
-find "$HOME/.zen" -type f -name 'userChrome.css' |
-while IFS= read -r userChrome; do
-   	confirm_overwrite "$userChrome"
-   	ln -sf "$(realpath zen/userChrome.css)" "$userChrome"
-done
 	
-HOSTS="$HOME/.mozilla/native-messaging-hosts"
-LIB="$HOME/.local/lib/caelestia"
-
-confirm_overwrite "$HOSTS/caelestiafox.json"
-mkdir -p "$HOSTS"
-sed "s|{{ \$lib }}|$LIB|g" zen/native_app/manifest.json > "$HOSTS/caelestiafox.json"
-
-confirm_overwrite "$LIB/caelestiafox"
-mkdir -p "$LIB"
-ln -s "$(realpath zen/native_app/app.fish)" "$LIB/caelestiafox"
-
-# -------------------------
-# Spotify
-# -------------------------
-if [ "$SPOTIFY" = true ]; then
-    say "Installing spotify (spicetify)..."
-    Package_installer_ spotify spicetify-cli spicetify-marketplace-bin
-
-    if ! package_exist spicetify-cli;then
-        my-superuser chmod a+wr /opt/spotify /opt/spotify/Apps -R
-        spicetify backup apply
-    fi
-
-    confirm_overwrite "$CONFIG/spicetify"
-    ln -s "$(realpath spicetify)" "$CONFIG/spicetify"
-    spicetify config current_theme caelestia color_scheme caelestia custom_apps marketplace
-    spicetify apply
-fi
-
-# -------------------------
-# VSCodium
-# -------------------------
-if [ "$VSCODE" = true ]; then
-    say "Installing vscodium..."
-	if ! package_exist codium;then
-		Package_installer_ codium
+	if [ -n "$package_2_install_aur" ];then
+		Package_installer_ "${package_2_install_aur}"
 	fi
-
-    confirm_overwrite "$CONFIG/VSCodium/User/settings.json"
-    confirm_overwrite "$CONFIG/VSCodium/User/keybindings.json"
-    confirm_overwrite "$CONFIG/codium-flags.conf"
-
-    mkdir -p "$CONFIG/VSCodium/User"
-    ln -s "$(realpath vscode/settings.json)" "$CONFIG/VSCodium/User/settings.json"
-    ln -s "$(realpath vscode/keybindings.json)" "$CONFIG/VSCodium/User/keybindings.json"
-    ln -s "$(realpath vscode/flags.conf)" "$CONFIG/codium-flags.conf"
-    codium --install-extension vscode/caelestia-vscode-integration/caelestia-vscode-integration-*.vsix
-fi
 	
-# -------------------------
-# Discord
-# -------------------------
-if [ "$DISCORD" = true ]; then
-    say "Installing discord..."
-    Package_installer_ discord equicord-installer-bin
-    my-superuser Equilotl -install -location /opt/discord
-    my-superuser Equilotl -install-openasar -location /opt/discord
-    Package_remove_ equicord-installer-bin
-fi
-
-hypr="$HOME/.config/hypr"
-caelestia_Conf="$HOME/.config/caelestia"
-
-# Variables (colours + other vars)
-cp -L --no-preserve=mode --update=none "$hypr"/scheme/default.conf "$hypr"/scheme/current.conf
-mkdir -p "$caelestia_Conf"
-touch -a "$caelestia_Conf"/hypr-vars.conf
-touch -a "$caelestia_Conf"/hypr-user.conf
+	for conf in hypr starship.toml foot fish fastfetch uwsm btop;do
+    	ln -s "$(realpath "$conf")" "$CONFIG"
+	done
+	hypr="$HOME/.config/hypr"
+	caelestia_Conf="$HOME/.config/caelestia"
+	
+	# Variables (colours + other vars)
+	cp -L --no-preserve=mode --update=none "$hypr"/scheme/default.conf "$hypr"/scheme/current.conf
+	mkdir -p "$caelestia_Conf"
+	touch -a "$caelestia_Conf"/hypr-vars.conf
+	touch -a "$caelestia_Conf"/hypr-user.conf
 cat <<EOF> "$caelestia_Conf"/shell.json
 {
     "appearance": {
@@ -628,6 +549,93 @@ cat <<EOF> "$caelestia_Conf"/shell.json
     }
 }
 EOF
+}
+
+install_and_Config_zen(){
+	Package_installer_ zen-browser-bin
+	setsid zen-browser
+	sleep 4
+	killall -9 zen-bin >/dev/null 2>&1
+	sleep 1
+	find "$HOME/.zen" -type f -name 'userChrome.css' |
+	while IFS= read -r userChrome; do
+   		confirm_overwrite "$userChrome"
+   		ln -sf "$(realpath "${caelestia_conf_path}/zen/userChrome.css")" "$userChrome"
+	done
+		
+	HOSTS="$HOME/.mozilla/native-messaging-hosts"
+	LIB="$HOME/.local/lib/caelestia"
+	
+	confirm_overwrite "$HOSTS/caelestiafox.json"
+	mkdir -p "$HOSTS"
+	sed "s|{{ \$lib }}|$LIB|g" "${caelestia_conf_path}"/zen/native_app/manifest.json > "$HOSTS/caelestiafox.json"
+	
+	confirm_overwrite "$LIB/caelestiafox"
+	mkdir -p "$LIB"
+	ln -s "$(realpath "${caelestia_conf_path}"/zen/native_app/app.fish)" "$LIB/caelestiafox"
+}
+
+install_and_Config_Spotify(){
+	say "Installing spotify (spicetify)..."
+    Package_installer_ spotify spicetify-cli spicetify-marketplace-bin
+
+    if ! package_exist spicetify-cli;then
+        my-superuser chmod a+wr /opt/spotify /opt/spotify/Apps -R
+        spicetify backup apply
+    fi
+
+    confirm_overwrite "$CONFIG/spicetify"
+    ln -s "$(realpath spicetify)" "$CONFIG/spicetify"
+    spicetify config current_theme caelestia color_scheme caelestia custom_apps marketplace
+    spicetify apply
+}
+
+install_and_Config_VSCodium(){
+	say "Installing vscodium..."
+	if ! package_exist codium;then
+		Package_installer_ codium
+	fi
+
+    confirm_overwrite "$CONFIG/VSCodium/User/settings.json"
+    confirm_overwrite "$CONFIG/VSCodium/User/keybindings.json"
+    confirm_overwrite "$CONFIG/codium-flags.conf"
+
+    mkdir -p "$CONFIG/VSCodium/User"
+    ln -s "$(realpath vscode/settings.json)" "$CONFIG/VSCodium/User/settings.json"
+    ln -s "$(realpath vscode/keybindings.json)" "$CONFIG/VSCodium/User/keybindings.json"
+    ln -s "$(realpath vscode/flags.conf)" "$CONFIG/codium-flags.conf"
+    codium --install-extension vscode/caelestia-vscode-integration/caelestia-vscode-integration-*.vsix
+}
+
+install_and_Config_Discord(){
+    say "Installing discord..."
+    Package_installer_ discord equicord-installer-bin
+    my-superuser Equilotl -install -location /opt/discord
+    my-superuser Equilotl -install-openasar -location /opt/discord
+    Package_remove_ equicord-installer-bin
+}
+
+#################################################################
+
+kill_package_manager
+
+full_upgrade_
+Package_installer_ git
+
+download_and_Config_caelestia
+install_and_Config_zen
+
+if [ "$SPOTIFY" = true ]; then
+    install_and_Config_Spotify
+fi
+
+if [ "$VSCODE" = true ]; then
+    install_and_Config_VSCodium
+fi
+
+if [ "$DISCORD" = true ]; then
+	install_and_Config_Discord
+fi
 
 caelestia shell -d >/dev/null
 
