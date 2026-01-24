@@ -700,6 +700,15 @@ watch_for_device_hot_plugs(){
 	done
 }
 
+run_arandr(){
+	arandr
+	exit
+}
+
+case $OPT__ in
+    14|manual_selection) run_arandr ;;
+esac
+
 monitor_list=$(detect_connected_monitors)
 monitor_array=$(echo "$monitor_list" | tr '\n' ' ')
 number_of_monitors=$(echo "$monitor_list" | wc -l)
@@ -739,12 +748,13 @@ case $OPT__ in
 	11|disable_monitor) disable_monitor ;;
 	12|set_resolutions) set_resolutions ;;
 	13|reset_monitor) reset_monitor ;;
-    14|manual_selection) arandr ; exit ;;
+    14|manual_selection) run_arandr;;
 	h|help) help ;;
 	*) help
 esac
 
 execute_command "$display_script"
 my_session_manager_cli reload
+"${__distro_path_root}"/bin/not_add_2_path/restore_BG
 "${__distro_path_root}"/bin/X11/WM/panel_launcher
 notify_send_and_exit

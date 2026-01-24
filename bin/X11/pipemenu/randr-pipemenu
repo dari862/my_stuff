@@ -83,12 +83,6 @@ mk_exe_node() {
     echo "<action name=\"execute\">"
     echo "<command>${__distro_path_root}/bin/X11/WM/displayselect $command monitor $output $command_value</command>"
     echo "</action>"
-    echo "<action name=\"execute\">"
-    echo "<command>${__distro_path_root}/bin/not_add_2_path/restore_BG</command>"
-    echo "</action>"
-    echo "<action name=\"execute\">"
-    echo "<command>${__distro_path_root}/bin/X11/WM/panel_launcher</command>"
-    echo "</action>"
     echo "</item>"
 }
 

@@ -38,7 +38,7 @@ stop() {
 }
 
 start() {
-	if ! pidof -q ${clipboard_manager_command};then
+	if ! pidof -q ${clipboard_manager_name};then
 		sleep ${sleep_time}
 		setsid ${clipboard_manager_command} &
 	fi
@@ -67,6 +67,6 @@ case "${1}" in
 		stop	
 	;;
 	*)	
-		echo "Usage: diodon-session [start|stop|restart]"
+		echo "Usage: clipboard-manager-session [start|stop|restart]"
 	;;
 esac
