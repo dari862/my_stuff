@@ -1,6 +1,5 @@
 #!/bin/sh
 # need superuser : var (_SUPERUSER)
-# work on this : add way to contiune install after login for distrobox container
 #    my-installer: a script to install Debian packages in a popup terminal window.
 # # distobox enter gaming -- "pacman -Qi package 1>/dev/null || echo yes"
 
@@ -48,6 +47,7 @@ __logout=false
 . "${__distro_path_root}/lib/common/system_ready"
 
 logout_(){
+	say
 	say "${1:-}"
 	say "You need to logout for it to get ready."
 	if prompt "Do you want to logout" 'Y';then
@@ -114,8 +114,8 @@ install_distrobox(){
 }
 
 install_container_software(){
+	container_software="${1:-podman}"
 	if [ ! -L "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then
-		container_software="podman"
 		if [ "${container_software}" = "docker" ];then
 			__newGroup="docker"
 		else
@@ -129,7 +129,19 @@ install_container_software(){
 			generate_never_remove_bin "$container_software_path" "CONTAINER_RT"
 			generate_never_remove_bin "${__distro_path_root}/bin/my_installer/build_containers"
 			generate_never_remove_bin "${__distro_path_root}/bin/my_installer/run_containers"
-			[ -f "${__distro_path_root}/system_files/Container_Group_${container_software}" ] && ${_SUPERUSER} rm -f "${__distro_path_root}/system_files/Container_Group_${container_software}"
+			if [ -f "${__distro_path_root}/system_files/Container_Group_${container_software}" ];then
+				${_SUPERUSER} rm -f "${__distro_path_root}/system_files/Container_Group_${container_software}"
+			fi
+		else
+			autostartscripts_container_software="$HOME/.config/autostartscripts/install_container_software.sh"
+			tee "$autostartscripts_container_software" <<- EOF >/dev/null 2>&1
+			#!/bin/sh
+			setsid popup_terminal --install $file_name_
+			rm "$autostartscripts_container_software" >/dev/null 2>&1
+			EOF
+			chmod +x "$autostartscripts_container_software"
+			logout_ "$container_software installed successfully."
+			exit
 		fi
 	fi
 }
@@ -200,8 +212,11 @@ __run_(){
 			say 'install full environment...' 1
 		fi
 		
-		. "${__file_location}"
-		
+		if [ "${file_name_}" = "podman" ] || [ "${file_name_}" = "docker" ];then
+			install_container_software "${file_name_}"
+		else
+			. "${__file_location}"
+		fi
 		if [ "${container_install}" = "true" ];then
 			${_SUPERUSER} touch "${deployed_folder}" || continue
 		fi

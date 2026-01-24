@@ -3,7 +3,7 @@
 app_name="docker"
 __newGroup="docker"
 
-if [ ! -f "${__distro_path_root}/system_files/Container_Group_docker" ];then	
+if [ ! -f "${__distro_path_root}/system_files/Container_Group_podman" ] || [ ! -L "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then	
 	say "Installing ${app_name}..." 1
 	
 	Package_installer_ "${app_name} ${extra_apps_}" || continue
@@ -23,9 +23,4 @@ if [ ! -f "${__distro_path_root}/system_files/Container_Group_docker" ];then
 	generate_applicationsdotdesktop_link "Docker"
 	
 	echo "${__newGroup}" | my-superuser tee "${__distro_path_root}/system_files/Container_Group_docker" > /dev/null 2>&1
-	logout_now "$container_software installed successfully."
-else	
-	if ! groups | grep -q "${__newGroup}";then
-		logout_now "$container_software installed successfully."
-	fi
 fi	

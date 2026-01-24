@@ -1,176 +1,90 @@
-#!/bin/bash
-# need superuser : use my-superuser
-# work on this : improve
-set -euo pipefail
-unalias -a
+#!/bin/sh
+# POSIX compliant VPN Killswitch
+set -e
 . "$__distro_path_lib"
 "${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed drill ufw nmcli || exit 1
 
-#
-# Functions
-#
+show_error() { printf "\033[0;91mERROR: %s\033[0m\n" "$*" >&2; }
+show_header() { printf "\033[0;96m%s\033[0m\n" "$*"; }
+show_listitem() { printf "\033[0;97m  * %s\033[0m\n" "$*"; }
 
-show_error() {
-  local red=$'\033[0;91m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
-  else
-    echo -e "${red}${*}${nc}" 1>&2
-  fi
+get_active_interface() {
+    nmcli -t -f DEVICE,TYPE,STATE device | grep ":connected" | grep -vE ":(bridge|vpn|tun|tap)" | cut -d: -f1 | head -n1
 }
 
-show_header() {
-  local cyan=$'\033[0;96m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${cyan}${*:2}${nc}"
-  else
-    echo -e "${cyan}${*}${nc}"
-  fi
-}
-
-show_listitem() {
-  local white=$'\033[0;97m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${white}${*:2}${nc}"
-  else
-    echo -e "${white}${*}${nc}"
-  fi
-}
-
-function get_device() {
-  nmcli device status |
-    grep -v bridge |
-    sed -n "s/\(\S\+\)\s\+\S\+\s\+connected\s\+\(\S\+\)\s*$/\1/p"
-}
-
-function get_vpn_data() {
-  local device
-  local vpnid
-  local cmd
-  device="${1}"
-  vpnid="$(nmcli connection show |
-           sed -n "s/^\(.*\)\+\s\+\([0-9a-z\-]\+\)\s\+vpn\s\+${device}/\2/p")"
-  if [ -z "${vpnid}" ];then
-    return
-  else
-    cmd="nmcli conn show ${vpnid}"
-    eval "${cmd}"
-  fi
-}
-
-function get_vpn_dns() {
-  local vpndata
-  vpndata="${1}"
-  echo "${vpndata}" | sed -n "s/^IP4.GATEWAY:\s\+\([0-9\.]\+\)/\1/p"
-}
-
-function get_vpn_ip() {
-  local vpnip=
-  local iplist=
-  local vpndata
-  vpndata="${1}"
-  for addr in $(echo "${vpndata}" | sed -n "s/^VPN.GATEWAY:\s\+\(.*\)/\1/p" | sed -e "s/,//g"); do
-    vpnip=$(drill "${addr%:*}" | grep "^${addr%:*}" | cut -d"	" -f5)
-    if [[ -z "${iplist}" ]];then
-      iplist="${vpnip}/32"
-    elif ! [[ "${iplist}" =~ ${vpnip} ]];then
-      iplist="${iplist} ${vpnip}/32"
+get_vpn_data() {
+    dev="$1"
+    vpn_uuid=$(nmcli -t -f UUID,TYPE,DEVICE connection show --active | grep ":vpn:${dev}" | cut -d: -f1)
+    if [ -n "$vpn_uuid" ]; then
+        nmcli connection show "$vpn_uuid"
     fi
-  done
-  echo "${iplist}"
 }
 
-function get_vpn_port() {
-  local vpnport=
-  local portlist=
-  local vpndata
-  vpndata="${1}"
-  for addr in $(echo "${vpndata}" | sed -n "s/^VPN.GATEWAY:\s\+\(.*\)/\1/p" | sed -e "s/,//g"); do
-    vpnport="${addr##*:}"
-    if [[ -z "${portlist}" ]];then
-      portlist="${vpnport}"
-    elif ! [[ "${portlist}" =~ ${vpnport} ]];then
-      portlist="${portlist},${vpnport}"
+get_vpn_endpoints() {
+    echo "$1" | sed -n 's/^VPN.GATEWAY: //p' | tr ',' '\n'
+}
+
+get_status() {
+    show_header "Current Network Status:"
+    pub_ip=$(curl -s https://ifconfig.me || echo "Unknown")
+    show_listitem "Public IP: $pub_ip"
+    
+    if nmcli device status | grep -qE "tun|tap|wireguard"; then
+        show_listitem "VPN Interface: Active"
+    else
+        show_listitem "VPN Interface: Inactive"
     fi
-  done
-  echo "${portlist}"
 }
 
-function enable_killswitch() {
-  local device
-  local vpndata
-  local dns
-  local iplist
-  local portlist
+enable_killswitch() {
+    device=$(get_active_interface)
+    if [ -z "$device" ]; then show_error "No active device."; exit 2; fi
 
-  device="$(get_device)"
-  vpndata="$(get_vpn_data "${device}")"
-  if [ -z "${vpndata}" ];then
-    show_error "VPN info not found. Exiting."
-    exit 2
-  fi
-  dns="$(get_vpn_dns "${vpndata}")"
-  iplist="$(get_vpn_ip "${vpndata}")"
-  portlist="$(get_vpn_port "${vpndata}")"
+    vpndata=$(get_vpn_data "$device")
+    if [ -z "$vpndata" ]; then show_error "No active VPN on $device."; exit 2; fi
 
-  my-superuser ufw --force reset
-  my-superuser ufw default deny incoming
-  my-superuser ufw default deny outgoing
-  my-superuser ufw allow out on tun0 to 0.0.0.0/0
-  for ip in ${iplist}; do
-    my-superuser ufw allow in on "${device}" from "${ip}" port "${portlist}"
-    my-superuser ufw allow out on "${device}" to "${ip}" port "${portlist}"
-  done
-  my-superuser ufw allow out on "${device}" to "${dns}" port 53
-  my-superuser ufw enable
+    show_header "Enabling Killswitch on $device..."
+
+    my-superuser ufw --force reset
+    my-superuser ufw default deny incoming
+    my-superuser ufw default deny outgoing
+
+    # Dynamic Tunnel Detection: Allow any tun, tap, or wg interface
+    # POSIX uses 'tun+' wildcard in UFW as a robust catch-all
+    my-superuser ufw allow out on tun+ to any
+    my-superuser ufw allow out on tap+ to any
+    my-superuser ufw allow out on wg+ to any
+
+    endpoints=$(get_vpn_endpoints "$vpndata")
+    for entry in $endpoints; do
+        host=$(echo "$entry" | cut -d: -f1)
+        port=$(echo "$entry" | cut -d: -f2)
+        ip=$(drill +short "$host" | tail -n1)
+        [ -z "$ip" ] && ip="$host"
+
+        show_listitem "Whitelisting VPN Server: $ip:$port"
+        my-superuser ufw allow out on "$device" to "$ip" port "$port"
+    done
+
+    my-superuser ufw enable
 }
 
-function print_usage() {
-  show_header "Usage: vpn-killswitch"
-  show_listitem "  -e|--enable   enable firewall 'killswitch'"
-  show_listitem "  -d|--disable  disable 'killswitch' and reset firewall rules"
+disable_killswitch() {
+    my-superuser ufw --force reset
+    my-superuser ufw default deny incoming
+    my-superuser ufw default allow outgoing
+    my-superuser ufw enable
+    show_header "Killswitch disabled."
 }
 
-#
-# Main
-#
-
-function disable_killswitch() {
-  my-superuser ufw --force reset
-  my-superuser ufw default deny incoming
-  my-superuser ufw default allow outgoing
-  my-superuser ufw enable
+show_help(){
+	show_header "Usage: $0 [-e|--enable] [-d|--disable] [-s|--status]"
 }
 
-OPTIONS=deh
-LONGOPTIONS=disable,enable,help
-PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
-eval set -- "${PARSED}"
-
-while [ ${#} -ge 1 ]; do
-  case "${1}" in
-    -d | --disable)
-      disable_killswitch
-      shift
-      ;;
-    -e | --enable)
-      enable_killswitch
-      shift
-      ;;
-    -h | --help)
-      print_usage
-      exit
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      show_error "What was that?"
-      exit 3
-      ;;
-  esac
-done
+case "$1" in
+    -e|--enable)	enable_killswitch;;
+    -d|--disable)	disable_killswitch ;;
+    -s|--status) 	get_status ;;
+    '') 			show_help; exit 0 ;;
+    *)				show_error "Invalid option: $1" ; show_help ; exit 1 ;;
+esac

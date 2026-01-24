@@ -3,7 +3,7 @@
 app_name="podman"
 __newGroup="podmanusers"
 		
-if [ ! -f "${__distro_path_root}/system_files/Container_Group_podman" ];then
+if [ ! -f "${__distro_path_root}/system_files/Container_Group_podman" ] || [ ! -L "${__distro_path_root}/system_files/bin/CONTAINER_RT" ];then
 	say "install container software ..." 1
 	Package_installer_ "${app_name}" || continue
 	
@@ -23,9 +23,4 @@ if [ ! -f "${__distro_path_root}/system_files/Container_Group_podman" ];then
 	my-superuser chmod 750 $_podman_command || :
 	my-superuser chgrp $__newGroup $_podman_command || :
 	echo "${__newGroup}" | my-superuser tee "${__distro_path_root}/system_files/Container_Group_podman" > /dev/null 2>&1
-	logout_ "$container_software installed successfully."
-else	
-	if ! groups | grep -q "${__newGroup}";then
-		logout_ "$container_software installed successfully."
-	fi
 fi
