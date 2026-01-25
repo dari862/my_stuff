@@ -18,15 +18,27 @@ if [ -z "$ans" ];then
   		fi
 	done
 fi
-file=$scripts_folder_/$ans
+    
+case "$ans" in
+    *.bash) file2copyare="bash.bash";;
+    *.fish) file2copyare="fish.fish";;
+	*.ps1)  file2copyare="PowerShell.ps1";;
+	*.zsh)  file2copyare="zsh.zsh";;
+    *) 		file2copyare="sh.sh";;
+        echo "Error: Invalid or unsupported file extension."
+        exit 1
+        ;;
+esac
+
+file="$scripts_folder_/$ans"
 
 if [ ! -d "$scripts_folder_" ];then
-	mkdir -p $scripts_folder_
+	mkdir -p "$scripts_folder_"
 fi
 
 if [ -e "$scripts_folder_/$ans" ];then
 	$CLI_EDITER "$file"
 else
-	cp -r "${__distro_path_root}/lib/Templates/ShellScripting/sh.sh" "$file"
+	cp -r "${__distro_path_root}/lib/Templates/ShellScripting/${file2copyare}" "$file"
 	$CLI_EDITER "$file"
 fi
