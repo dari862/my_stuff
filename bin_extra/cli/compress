@@ -4,8 +4,8 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
-ARCHIVE_NAME="$1"
-shift
+ARCHIVE_NAME="${1:-}"
+SOURCE=""
 
 if [ "$#" -eq 1 ]; then
     SOURCE="${ARCHIVE_NAME%%.*}"
@@ -15,12 +15,13 @@ if [ "$#" -eq 1 ]; then
     fi
 fi
 
+shift
+
 case "$ARCHIVE_NAME" in
-    *.tar.gz)  tar -cvzf "$ARCHIVE_NAME" "$@" ;;
-    *.tar.bz2) tar -cvjf "$ARCHIVE_NAME" "$@" ;;
-    *.gz)      gzip -9rk "$@" ;;
-    *.zip)     zip -9r "$ARCHIVE_NAME" "$@" ;;
-    *.7z)      7z a -mx9 "$ARCHIVE_NAME" "$@" ;;
+    *.tar.gz)  tar -cvzf "$ARCHIVE_NAME" "$SOURCE" "$@";;
+    *.tar.bz2) tar -cvjf "$ARCHIVE_NAME" "$SOURCE" "$@" ;;
+    *.zip)     zip -9r "$ARCHIVE_NAME" "$SOURCE" "$@" ;;
+    *.7z)      7z a -mx9 "$ARCHIVE_NAME" "$SOURCE" "$@" ;;
     *)
         echo "Error: Invalid or unsupported file extension."
         exit 1
