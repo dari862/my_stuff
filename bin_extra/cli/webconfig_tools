@@ -1,8 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 # need superuser : use my-superuser
 # work on this : improve
-unalias -a
-# View Apache logs
+
 apachelog() {
 	if [ -f /etc/httpd/conf/httpd.conf ];then
 		cd /var/log/httpd && ls -xAh && multitail --no-repeat -c -s 2 /var/log/httpd/*_log
