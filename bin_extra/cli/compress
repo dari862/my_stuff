@@ -1,17 +1,28 @@
 #!/bin/sh
-# work on this : improve
-case $1 in
-	*.tar.*)
-		name="${1%.*}"
-		ext="${1#*.tar}"; shift
-		tar cvf "$name" "$@"
-		case $ext in
-			.gz) gzip -9r "$name" ;;
-			.bz2) bzip2 -9zv "$name";;
-		esac
-	;;
-	*.gz) shift; gzip -9rk "$@" ;;
-	*.zip) zip -9r "$@" ;;
-	*.7z) 7z a -mx9 "$@" ;;
-	*) printf "estensione non valida/non supportata"
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $(basename "$0") <archive_name.ext> [files_to_compress...]"
+    exit 1
+fi
+
+ARCHIVE_NAME="$1"
+shift
+
+if [ "$#" -eq 1 ]; then
+    SOURCE="${ARCHIVE_NAME%%.*}"
+    if [ ! -e "$SOURCE" ]; then
+        echo "Error: Only one argument provided, but '$SOURCE' does not exist."
+        exit 1
+    fi
+fi
+
+case "$ARCHIVE_NAME" in
+    *.tar.gz)  tar -cvzf "$ARCHIVE_NAME" "$@" ;;
+    *.tar.bz2) tar -cvjf "$ARCHIVE_NAME" "$@" ;;
+    *.gz)      gzip -9rk "$@" ;;
+    *.zip)     zip -9r "$ARCHIVE_NAME" "$@" ;;
+    *.7z)      7z a -mx9 "$ARCHIVE_NAME" "$@" ;;
+    *)
+        echo "Error: Invalid or unsupported file extension."
+        exit 1
+        ;;
 esac
