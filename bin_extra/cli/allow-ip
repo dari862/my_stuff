@@ -1,85 +1,113 @@
 #!/bin/sh
 # need superuser : use my-superuser
-# work on this : improve
 set -eu
+
 . "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed grep ip sed || exit 1
 
-ip=""
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed grep ip cut getopt getent || exit 1
 
-# Command line script to add a routing table entry for an IP address. Useful
-# for accessing network printers when behind a VPN that interferes with access
-# to machines addressed by a local/internal DNS.
 show_error() {
-  red="\033[0;91m"
-  nc="\033[0m"
-  printf "${red}${1}${nc}"
+    printf "\033[0;91mError: %s\033[0m\n" "$1" >&2
 }
 
 show_header() {
-  cyan="\033[0;96m"
-  nc="\033[0m"
-  printf "${cyan}${1}${nc}"
+    printf "\033[0;96m%s\033[0m\n" "$1"
 }
 
-print_usage (){
-  show_header "Usage: allow-ip -i|--ip <ip address> -m|--mask <bitmask>"
+print_usage() {
+    show_header "Network Route Manager"
+    echo "Usage: allow-ip [options]"
+    echo "  -i, --ip <addr|name> IP or Hostname (e.g. 192.168.1.50 or printer.local)"
+    echo "  -m, --mask <bits>    CIDR mask (default: 32)"
+    echo "  -d, --delete         Remove the route instead of adding it"
+    echo "  -s, --status         Show current custom routes"
+    echo "  -h, --help           Show this help"
+    echo ""
+    show_header "Examples:"
+    echo "  allow-ip -i 192.168.1.50           # Route a single IP"
+    echo "  allow-ip -i 192.168.1.0/24         # Route a whole subnet"
+    echo "  allow-ip -i printer.local          # Route by hostname"
+    echo "  allow-ip -i 192.168.1.50 -d        # Remove a specific route"
 }
 
-OPTIONS=hi:m:
-LONGOPTIONS=help,ip:,mask:
-PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
-eval set -- "${PARSED}"
+INPUT=""
+MASK=""
+ACTION="add"
 
-while [ ${#} -ge 1 ]; do
-  case "${1}" in
-    -i | --ip)
-      # If IP address given as xxx.xxx.xxx.xxx:
-      if [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)$/\1/p")" ];then
-        IP="${2}"
-      # If IP address and netmask given as xxx.xxx.xxx.xxx/xx:
-      elif [ "${2}" = "$(echo "${2}" | sed -n "s/^\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\/[0-9]\+\)$/\1/p")" ];then
-        IP="$(echo "${2}" | cut -d"/" -f1)"
-        MASK="$(echo "${2}" | cut -d"/" -f2)"
-      fi
-      shift 2
-      ;;
-    -m | --mask)
-      if [ "$2" -ge 0 ] && [ "$2" -le 32 ];then
-        MASK="${2}"
-      fi
-      shift 2
-      ;;
-    -h | --help)
-      print_usage
-      exit
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      show_error "What was that?"
-      exit 3
-      ;;
-  esac
+PARSED=$(getopt -o "hi:m:ds" --long "help,ip:,mask:,delete,status" -n "$0" -- "$@")
+eval set -- "$PARSED"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -i|--ip)
+            INPUT="$2"
+            shift 2 ;;
+        -m|--mask) MASK="$2"; shift 2 ;;
+        -d|--delete) ACTION="delete"; shift ;;
+        -s|--status) ACTION="status"; shift ;;
+        -h|--help) print_usage; exit 0 ;;
+        --) shift; break ;;
+        *) show_error "Internal error!"; exit 3 ;;
+    esac
 done
 
-# Exit if no ip address supplied.
-if [ -z "$IP" ];then
-  show_error "Give me the IP address."
-  exit 3
+if [ "$ACTION" = "status" ]; then
+    show_header "Current custom routes via local gateway:"
+    ip route show | grep -v "default" | grep "via" || echo "No custom routes found."
+    exit 0
 fi
 
-# If the net mask is not specified, only allow the IP address given.
+if [ -z "$INPUT" ]; then
+    show_error "IP or Hostname is required."
+    print_usage
+    exit 1
+fi
+
+case "$INPUT" in
+    */*) IP=$(echo "$INPUT" | cut -d/ -f1) ; MASK=$(echo "$INPUT" | cut -d/ -f2);;
+    *)   IP="$INPUT" ;;
+esac
+
+if ! echo "$IP" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+    show_header "Resolving hostname: $IP..."
+    RESOLVED=$(getent hosts "$IP" | awk '{print $1}' | head -n 1)
+    if [ -z "$RESOLVED" ]; then
+        show_error "Could not resolve hostname: $IP"
+        exit 1
+    fi
+    IP="$RESOLVED"
+    show_header "Resolved to: $IP"
+fi
+
 MASK="${MASK:-32}"
+TARGET="${IP}/${MASK}"
 
-GATEWAY=$(ip route list |
-          grep -e "enp[0-9]\+s[0-9a-f]\+" -e "wlp[0-9]\+s[0-9a-f]\+" |
-          sed -n "s/^default via \([0-9\.]\+\) dev .*/\1/p" | head -1)
+DEFAULT_ROUTE=$(ip route show default | head -n 1)
+GATEWAY=$(echo "$DEFAULT_ROUTE" | sed -n 's/.*via \([^ ]*\).*/\1/p')
+IFACE=$(echo "$DEFAULT_ROUTE" | sed -n 's/.*dev \([^ ]*\).*/\1/p')
 
-IFACE=$(ip route show |
-        grep -e "${GATEWAY}" |
-        sed -n "s/^default via [0-9\.]\+ dev \([a-z0-9]\+\) .*/\1/p")
+if [ -z "$GATEWAY" ] || [ -z "$IFACE" ]; then
+    show_error "Could not find default route info. Are you connected to a network?"
+    exit 1
+fi
 
-my-superuser ip route add "${IP}/${MASK}" via "${GATEWAY}" dev "${IFACE}"
+case "$ACTION" in
+    add)
+        if ip route show "$TARGET" | grep -q "$IP"; then
+            show_header "Route to $TARGET already exists."
+        else
+            show_header "Adding: $TARGET via $GATEWAY ($IFACE)"
+            my-superuser ip route add "$TARGET" via "$GATEWAY" dev "$IFACE"
+        fi
+        ;;
+    delete)
+        show_header "Removing: $TARGET"
+        if ip route show "$TARGET" | grep -q "$IP"; then
+            my-superuser ip route del "$TARGET"
+        else
+            show_error "Route not found; nothing to delete."
+        fi
+        ;;
+esac
+
+show_header "Done."
