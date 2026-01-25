@@ -1,43 +1,77 @@
 #!/bin/sh
-# work on this : improve
-# Requires ffmpeg
+set -e
 
-[ ! -f "$2" ] && printf "The first file should be the audio, the second should be the timecodes.\\n" && exit
+if [ $# -lt 2 ]; then
+    printf "Usage: %s <audio_file> <timecodes_file>\n" "$0"
+    printf "Timecodes file format: START_TIME [TAB] TRACK_TITLE\n"
+    exit 1
+fi
 
-echo "Enter the album/book title:"; read -r booktitle
-echo "Enter the artist/author:"; read -r author
-echo "Enter the publication year:"; read -r year
+[ ! -f "$1" ] && printf "Error: Audio file '%s' not found.\n" "$1" && exit 1
+[ ! -f "$2" ] && printf "Error: Timecode file '%s' not found.\n" "$2" && exit 1
+
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed ffmpeg || exit 1
+
+printf "Enter the album/book title: "; read -r booktitle
+printf "Enter the artist/author: ";     read -r author
+printf "Enter the publication year: ";  read -r year
 
 inputaudio="$1"
 ext="${1##*.}"
 
-# Get a safe file name from the book.
-escbook="$(echo "$booktitle" | iconv -c -f UTF-8 -t ASCII//TRANSLIT | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | sed "s/-\+/-/g;s/\(^-\|-\$\)//g")"
+slugify() {
+    echo "$1" | iconv -c -f UTF-8 -t ASCII//TRANSLIT | \
+    tr -dc '[:alnum:] ' | tr ' ' '-' | tr '[:upper:]' '[:lower:]' | \
+    sed "s/-\+/-/g; s/^-//; s/-$//"
+}
 
-! mkdir -p "$escbook" &&
-    echo "Do you have write access in this directory?" &&
-    exit 1
+escbook=$(slugify "$booktitle")
+mkdir -p "$escbook" || { echo "Error: Cannot create directory $escbook"; exit 1; }
 
-# Get the total number of tracks from the number of lines.
-total="$(wc -l < "$2")"
+total=$(wc -l < "$2")
+track=1
+start_time=""
+prev_title=""
 
-cmd="ffmpeg -i \"$inputaudio\" -nostdin -y"
+while read -r line || [ -n "$line" ]; do
+    curr_time=$(echo "$line" | cut -f1)
+    curr_title=$(echo "$line" | cut -f2-)
 
-while read -r x;
-do
-    end="$(echo "$x" | cut -d'	' -f1)"
-    file="$escbook/$(printf "%.2d" "$track")-$esctitle.$ext"
-    if [ -n "$start" ];then
-	cmd="$cmd -metadata artist=\"$author\" -metadata title=\"$title\" -metadata album=\"$booktitle\" -metadata year=\"$year\" -metadata track=\"$track\" -metadata total=\"$total\" -ss \"$start\" -to \"$end\" -vn -c:a copy \"$file\" "
+    if [ -n "$start_time" ]; then
+        esctitle=$(slugify "$prev_title")
+        outfile="$escbook/$(printf "%02d" "$track")-$esctitle.$ext"
+        
+        echo "--> Processing Track $track: $prev_title"
+        
+        ffmpeg -v warning -stats -i "$inputaudio" \
+            -ss "$start_time" -to "$curr_time" \
+            -metadata artist="$author" \
+            -metadata title="$prev_title" \
+            -metadata album="$booktitle" \
+            -metadata year="$year" \
+            -metadata track="$track/$total" \
+            -vn -c:a copy "$outfile" -y
+            
+        track=$((track + 1))
     fi
-    title="$(echo "$x" | cut -d'	' -f2-)"
-    esctitle="$(echo "$title" | iconv -c -f UTF-8 -t ASCII//TRANSLIT | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | sed "s/-\+/-/g;s/\(^-\|-\$\)//g")"
-    track="$((track+1))"
-    start="$end"
+
+    start_time="$curr_time"
+    prev_title="$curr_title"
+
 done < "$2"
 
-# Last track must be added out of the loop.
-file="$escbook/$(printf "%.2d" "$track")-$esctitle.$ext"
-cmd="$cmd -metadata artist=\"$author\" -metadata title=\"$title\" -metadata album=\"$booktitle\" -metadata year=\"$year\" -metadata track=\"$track\" -ss \"$start\" -vn -c copy \"$file\""
+esctitle=$(slugify "$prev_title")
+outfile="$escbook/$(printf "%02d" "$track")-$esctitle.$ext"
 
-eval "$cmd"
+echo "--> Processing Final Track $track: $prev_title"
+ffmpeg -v warning -stats -i "$inputaudio" \
+    -ss "$start_time" \
+    -metadata artist="$author" \
+    -metadata title="$prev_title" \
+    -metadata album="$booktitle" \
+    -metadata year="$year" \
+    -metadata track="$track/$total" \
+    -vn -c:a copy "$outfile" -y
+
+echo "Done! All tracks saved in '$escbook/'"
