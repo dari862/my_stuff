@@ -1,145 +1,123 @@
-#!/bin/bash
-# work on this : improve
-set -euo pipefail
-unalias -a
+#!/bin/sh
+set -e
 . "$__distro_path_lib"
 "${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed qpdf || exit 1
 
 usage() {
-  cat <<EOF
+    cat <<EOF
 Usage:
-
-  Extract pages:
-    $0 extract input.pdf page_range
-
-  Merge PDFs:
-    $0 merge output.pdf input1.pdf [input2.pdf ...]
-
-  Encrypt PDF:
-    $0 encrypt input.pdf
+  $0 extract input.pdf page_range
+  $0 merge output.pdf input1.pdf [input2.pdf ...]
+  $0 encrypt input.pdf
 
 Examples:
-  $0 extract input.pdf 3-7
-  $0 merge merged.pdf part1.pdf part2.pdf
-  $0 encrypt confidential.pdf
-
+  $0 extract report.pdf 1-5
+  $0 merge final.pdf part1.pdf part2.pdf
 EOF
-  exit 1
+    exit 1
 }
 
 prompt_password() {
-  local prompt_msg="$1"
-  local pw
-  read -rsp "$prompt_msg" pw
-  echo
-  printf "%s" "$pw"
+    msg="$1"
+    stty_orig=$(stty -g)
+    printf "%s" "$msg" >&2
+    stty -echo
+    read -r pw
+    stty "$stty_orig"
+    echo >&2
+    printf "%s" "$pw"
 }
 
 check_file_exists() {
-  if [ ! -f "$1" ]; then
-    echo "❌ File not found: $1"
-    exit 1
-  fi
+    if [ ! -f "$1" ]; then
+        echo "❌ File not found: $1" >&2
+        exit 1
+    fi
 }
 
-is_encrypted() {
-  qpdf --show-encryption "$1" &>/dev/null
+confirm_overwrite() {
+    if [ -f "$1" ]; then
+        printf "⚠️ Output file '%s' exists. Overwrite? (y/N): " "$1" >&2
+        read -r confirm
+        if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+            echo "Aborted." >&2
+            exit 1
+        fi
+    fi
 }
 
 handle_extract() {
-  local INPUT="$1"
-  local PAGES="$2"
+    INPUT="$1"
+    PAGES="$2"
+    check_file_exists "$INPUT"
 
-  check_file_exists "$INPUT"
+    OUTPUT="${INPUT%.*}_extracted.pdf"
+    confirm_overwrite "$OUTPUT"
 
-  local BASENAME="${INPUT%.*}"
-  local OUTPUT="${BASENAME}_extracted.pdf"
-
-  if [ -f "$OUTPUT" ]; then
-    echo "⚠️ Output file '$OUTPUT' already exists. Overwrite? (y/N)"
-    read -r confirm
-    [[ "$confirm" != "y" ]] && exit 1
-  fi
-
-  if is_encrypted "$INPUT"; then
-	PASSWORD=$(prompt_password "🔐 Enter password for encrypted PDF: ")
-    qpdf --password="$PASSWORD" "$INPUT" --pages "$INPUT" "$PAGES" -- "$OUTPUT"
-  else
-    qpdf "$INPUT" --pages "$INPUT" "$PAGES" -- "$OUTPUT"
-  fi
-
-  echo "✅ Extracted pages [$PAGES] to '$OUTPUT'"
+    # Check encryption (POSIX redirect)
+    if qpdf --show-encryption "$INPUT" >/dev/null 2>&1; then
+        PASS=$(prompt_password "🔐 Enter PDF password: ")
+        qpdf --password="$PASS" "$INPUT" --pages "$INPUT" "$PAGES" -- "$OUTPUT"
+    else
+        qpdf "$INPUT" --pages "$INPUT" "$PAGES" -- "$OUTPUT"
+    fi
+    echo "✅ Extracted pages [$PAGES] to '$OUTPUT'"
 }
 
 handle_merge() {
-  local INPUTS=("$@")
-  first_file="$1"
-  name="${first_file%.*}"
-  OUTPUT_PDF="${name}_merged.pdf"
+    OUTPUT="$1"
+    shift # The rest are input files
+    
+    confirm_overwrite "$OUTPUT"
 
-  for f in "${INPUTS[@]}"; do
-    check_file_exists "$f"
-  done
+    for f in "$@"; do
+        check_file_exists "$f"
+    done
 
-  if [ -f "$OUTPUT" ]; then
-    echo "⚠️ Output file '$OUTPUT' already exists. Overwrite? (y/N)"
-    read -r confirm
-    [[ "$confirm" != "y" ]] && exit 1
-  fi
-
-  qpdf --empty --pages "${INPUTS[@]}" -- "$OUTPUT"
-  echo "✅ Merged PDFs into '$OUTPUT'"
+    qpdf --empty --pages "$@" -- "$OUTPUT"
+    echo "✅ Merged into '$OUTPUT'"
 }
 
 handle_encrypt() {
-  local INPUT="$1"
-  check_file_exists "$INPUT"
+    INPUT="$1"
+    check_file_exists "$INPUT"
 
-  local BASENAME="${INPUT%.*}"
-  local OUTPUT="${BASENAME}_encrypted.pdf"
+    OUTPUT="${INPUT%.*}_encrypted.pdf"
+    confirm_overwrite "$OUTPUT"
 
-  if [ -f "$OUTPUT" ]; then
-    echo "⚠️ Output file '$OUTPUT' already exists. Overwrite? (y/N)"
-    read -r confirm
-    [[ "$confirm" != "y" ]] && exit 1
-  fi
+    USER_PW=$(prompt_password "🔒 Enter user password: ")
+    OWNER_PW=$(prompt_password "🔒 Enter owner password: ")
 
-  USER_PW=$(prompt_password "🔒 Enter user password: ")
-  OWNER_PW=$(prompt_password "🔒 Enter owner password: ")
+    if [ -z "$USER_PW" ] || [ -z "$OWNER_PW" ]; then
+        echo "❌ Passwords cannot be empty." >&2
+        exit 1
+    fi
 
-  if [ -z "$USER_PW" ] || [ -z "$OWNER_PW" ]; then
-    echo "❌ Both user and owner passwords are required."
-    exit 1
-  fi
-
-  qpdf --encrypt "$USER_PW" "$OWNER_PW" 256 -- "$INPUT" "$OUTPUT"
-  echo "🔐 Encrypted '$INPUT' as '$OUTPUT'"
+    qpdf --encrypt "$USER_PW" "$OWNER_PW" 256 -- "$INPUT" "$OUTPUT"
+    echo "🔐 Encrypted as '$OUTPUT'"
 }
 
-
-# Entry Point
 if [ "$#" -lt 2 ]; then
-  usage
+    usage
 fi
 
-COMMAND="$1"
+CMD="$1"
 shift
 
-case "$COMMAND" in
-  extract)
-    [ "$#" -ne 2 ] && usage
-    handle_extract "$@"
-    ;;
-  merge)
-    [ "$#" -lt 2 ] && usage
-    handle_merge "$@"
-    ;;
-  encrypt)
-    [ "$#" -ne 1 ] && usage
-    handle_encrypt "$1"
-    ;;
-  *)
-    usage
-    ;;
+case "$CMD" in
+    extract)
+        [ "$#" -ne 2 ] && usage
+        handle_extract "$1" "$2"
+        ;;
+    merge)
+        [ "$#" -lt 2 ] && usage
+        handle_merge "$@"
+        ;;
+    encrypt)
+        [ "$#" -ne 1 ] && usage
+        handle_encrypt "$1"
+        ;;
+    *)
+        usage
+        ;;
 esac
-
