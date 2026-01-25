@@ -1,82 +1,73 @@
-#!/bin/sh
+#!/bin/bash
 # need superuser : use my-superuser
 
+EDITOR_CMD="${EDITOR_CMD:-nano}"
+
+edit_first_found() {
+    local label="$1"
+    shift
+    for file in "$@"; do
+        if [ -f "$file" ]; then
+            echo "Opening $label: $file"
+            my-superuser "$EDITOR_CMD" "$file"
+            return 0
+        fi
+    done
+
+    echo "Error: $label file could not be found."
+    echo "Searching system via locate..."
+    my-superuser updatedb && locate "$(basename "$1")"
+}
+
+# --- Features ---
+
 apachelog() {
-	if [ -f /etc/httpd/conf/httpd.conf ];then
-		cd /var/log/httpd && ls -xAh && multitail --no-repeat -c -s 2 /var/log/httpd/*_log
-	else
-		cd /var/log/apache2 && ls -xAh && multitail --no-repeat -c -s 2 /var/log/apache2/*.log
-	fi
+    # Check common log directories
+    local log_dir=""
+    [ -d "/var/log/httpd" ] && log_dir="/var/log/httpd"
+    [ -d "/var/log/apache2" ] && log_dir="/var/log/apache2"
+
+    if [ -n "$log_dir" ]; then
+        cd "$log_dir" && ls -xAh
+        my-superuser multitail --no-repeat -c -s 2 "$log_dir"/*log
+    else
+        echo "Error: Could not find Apache log directory."
+    fi
 }
 
-# Edit the Apache configuration
 apacheconfig() {
-	if [ -f /etc/httpd/conf/httpd.conf ];then
-		my-superuser $CLI_EDITER /etc/httpd/conf/httpd.conf
-	elif [ -f /etc/apache2/apache2.conf ];then
-		my-superuser $CLI_EDITER /etc/apache2/apache2.conf
-	else
-		echo "Error: Apache config file could not be found."
-		echo "Searching for possible locations:"
-		my-superuser updatedb && locate httpd.conf && locate apache2.conf
-	fi
+    edit_first_found "Apache Config" \
+        "/etc/httpd/conf/httpd.conf" \
+        "/etc/apache2/apache2.conf" \
+        "/etc/apache2/httpd.conf"
 }
 
-# Edit the PHP configuration file
 phpconfig() {
-	if [ -f /etc/php.ini ];then
-		my-superuser $CLI_EDITER /etc/php.ini
-	elif [ -f /etc/php/php.ini ];then
-		my-superuser $CLI_EDITER /etc/php/php.ini
-	elif [ -f /etc/php5/php.ini ];then
-		my-superuser $CLI_EDITER /etc/php5/php.ini
-	elif [ -f /usr/bin/php5/bin/php.ini ];then
-		my-superuser $CLI_EDITER /usr/bin/php5/bin/php.ini
-	elif [ -f /etc/php5/apache2/php.ini ];then
-		my-superuser $CLI_EDITER /etc/php5/apache2/php.ini
-	else
-		echo "Error: php.ini file could not be found."
-		echo "Searching for possible locations:"
-		my-superuser updatedb && locate php.ini
-	fi
+    edit_first_found "PHP Config" \
+        "/etc/php.ini" \
+        "/etc/php/8.3/apache2/php.ini" \
+        "/etc/php/8.2/apache2/php.ini" \
+        "/etc/php/7.4/apache2/php.ini" \
+        "/etc/php/php.ini" \
+        "/etc/php5/apache2/php.ini"
 }
 
-# Edit the MySQL configuration file
 mysqlconfig() {
-	if [ -f /etc/my.cnf ];then
-		my-superuser $CLI_EDITER /etc/my.cnf
-	elif [ -f /etc/mysql/my.cnf ];then
-		my-superuser $CLI_EDITER /etc/mysql/my.cnf
-	elif [ -f /usr/local/etc/my.cnf ];then
-		my-superuser $CLI_EDITER /usr/local/etc/my.cnf
-	elif [ -f /usr/bin/mysql/my.cnf ];then
-		my-superuser $CLI_EDITER /usr/bin/mysql/my.cnf
-	elif [ -f ~/my.cnf ];then
-		$CLI_EDITER ~/my.cnf
-	elif [ -f ~/.my.cnf ];then
-		$CLI_EDITER ~/.my.cnf
-	else
-		echo "Error: my.cnf file could not be found."
-		echo "Searching for possible locations:"
-		my-superuser updatedb && locate my.cnf
-	fi
+    edit_first_found "MySQL Config" \
+        "/etc/my.cnf" \
+        "/etc/mysql/my.cnf" \
+        "/usr/local/etc/my.cnf" \
+        "~/.my.cnf"
 }
+
+# --- Execution ---
 
 case "$1" in
-  apachelog)
-    apachelog
-    ;;
-  apacheconfig)
-    apacheconfig
-    ;;
-  phpconfig)
-    phpconfig
-    ;;
-  mysqlconfig)
-    mysqlconfig
-    ;;
-  *)
-    echo "Usage: $0 {apachelog|apacheconfig|phpconfig|mysqlconfig}"
-    exit 1
-    ;;
+    apachelog|apacheconfig|phpconfig|mysqlconfig)
+        "$1" # Dynamically calls the function matching the argument
+        ;;
+    *)
+        echo "Usage: $(basename "$0") {apachelog|apacheconfig|phpconfig|mysqlconfig}"
+        exit 1
+        ;;
 esac
