@@ -1,0 +1,148 @@
+#!/bin/sh
+set -e
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed grep nmcli || exit 1
+
+# UI Helpers
+show_color() {
+    _code="$1"; shift
+    _nc="\033[0m"
+    printf "\033[0;${_code}m%s\033[0m\n" "$*"
+}
+show_error()   { show_color 91 "$@" >&2; }
+show_info()    { show_color 92 "$@"; }
+show_warning() { show_color 93 "$@"; }
+show_success() { show_color 95 "$@"; }
+
+# Core Logic
+check_nm_service() {
+    if ! nmcli networking >/dev/null 2>&1; then
+        show_info "Starting Network Manager..."
+        systemctl enable --now NetworkManager || service NetworkManager start
+    fi
+}
+
+# Features
+show_status() {
+    check_nm_service
+    printf "\n%-25s %-15s %-10s\n" "NAME" "TYPE" "STATE"
+    printf "--------------------------------------------------------\n"
+    
+    # Use nmcli terse mode for POSIX-safe parsing
+    nmcli -t -f NAME,TYPE,STATE connection show | while IFS=: read -r name type state; do
+        case "$type" in
+            vpn|wireguard|openvpn)
+                if [ "$state" = "activated" ]; then
+                    _state="ACTIVE"
+                else
+                    _state="Inactive"
+                fi
+                printf "%-25s %-15s %s\n" "$name" "$type" "$_state"
+                ;;
+        esac
+    done
+    printf "\n"
+}
+
+manage_conn() {
+    _action="$1"; _target="$2"
+    check_nm_service
+    show_info "${_action}ing connection: ${_target}..."
+    nmcli connection "$_action" "$_target" && show_success "Success."
+}
+
+import_ovpn() {
+    check_nm_service
+    [ $# -eq 0 ] && { show_error "No .ovpn files provided"; return 1; }
+    
+    printf "Username: "; read -r v_user
+    # POSIX way to hide password input
+    printf "Password: "; stty -echo; read -r v_pass; stty echo; printf "\n"
+    
+    for config in "$@"; do
+        [ -f "$config" ] || { show_error "File $config not found"; continue; }
+        _name=$(basename "$config" .ovpn)
+        
+        nmcli connection show | grep -q "$_name" && nmcli connection delete "$_name"
+
+        nmcli connection import type openvpn file "$config"
+        nmcli connection modify "$_name" +vpn.data "username = $v_user"
+        [ -n "$v_pass" ] && nmcli connection modify "$_name" +vpn.secrets "password=$v_pass"
+    done
+}
+
+import_wg() {
+    check_nm_service
+    _input="" _name=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -i|--input) _input="$2"; shift 2 ;;
+            -n|--name)  _name="$2"; shift 2 ;;
+            *) shift ;;
+        esac
+    done
+
+    [ ! -f "$_input" ] && { show_error "Input file required"; return 1; }
+    _base_name=$(basename "$_input" .conf)
+    
+    nmcli connection import type wireguard file "$_input"
+    nmcli connection modify "$_base_name" connection.autoconnect no
+    [ -n "$_name" ] && nmcli connection modify "$_base_name" connection.id "$_name"
+    show_success "WireGuard import complete."
+}
+
+delete_all() {
+    _type="$1"
+    show_warning "Deleting all $_type connections..."
+    nmcli -t -f NAME,TYPE connection show | grep ":$_type$" | cut -d: -f1 | while read -r conn; do
+        nmcli connection delete "$conn"
+    done
+}
+
+import_vpn() {
+    case "$__vpn" in
+    	vpn)			import_ovpn "$__all_arg" ;;
+    	wireguard)		import_wg "$__all_arg" ;;
+	esac
+}
+
+print_usage() {
+	script_name="$(basename "$0")"
+    cat << EOF
+Usage: $script_name [command] [options]
+
+Commands:
+  $script_name status						Show VPN connection states
+  $script_name up <name>            		Connect a VPN
+  $script_name down <name>              	Disconnect a VPN
+  $script_name ovpn import <files...>   	Import OpenVPN .ovpn files
+  $script_name ovpn delete              	Delete all OpenVPN connections
+  $script_name wg import -i <file>      	Import WireGuard config
+  $script_name wg delete                	Delete all WireGuard connections
+EOF
+}
+
+# Main Execution
+if [ $# -lt 1 ];then
+	print_usage
+	exit 1
+fi
+
+_cmd="$1"
+
+case "$_cmd" in
+    status)      show_status ; exit ;;
+    up|down)     manage_conn "$_cmd" "$2" ; exit ;;
+    ovpn) 		__vpn="vpn" ;;
+    wg)			__vpn="wireguard" ;;
+    *)           print_usage; exit 1 ;;
+esac
+
+shift
+
+__all_arg="$@"
+
+case "${2:-}" in
+    import)	import_vpn ;;
+    delete)	delete_all "$__vpn" ;;
+esac

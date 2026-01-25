@@ -107,6 +107,7 @@ icon_position=left
 highlight="#f48ee8"
 EOF
 fi
+
 cat << EOF > "${CONFIGPATH}"/dunst/theme.dunstrc
 # Align icons left/right/off
 icon_position = ${dunstrc_icon_position}

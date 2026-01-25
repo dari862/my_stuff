@@ -1,0 +1,99 @@
+#!/bin/sh
+set -e
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed "${YTDL}" || exit 1
+
+YTDL="yt-dlp"
+RESOLUTION=720
+START=1
+MODE="video"
+DEST_DIR="."
+FORMAT="mp3"
+
+show_help() {
+	script_name="$(basename "$0")"
+    cat << EOF
+Usage: $script_name [OPTIONS]
+
+Options:
+  -A        Audio Mode (Extracts audio + ID3 tags)
+  -u URL    URL of the video or playlist
+  -n NAME   Name for folder/metadata
+  -a ARTIST Artist name (Audio mode only)
+  -d DIR    Destination directory (default: .)
+  -r RES    Max resolution (720, 1080, etc.)
+  -s INDEX  Playlist start index (default: 1)
+  -f FMT    Audio format (default: mp3)
+
+Example:
+  $script_name -A -u "URL" -n "Song" -a "Artist"
+EOF
+}
+
+while getopts "hAu:n:a:d:r:s:f:" opt; do
+    case "$opt" in
+        h) show_help; exit 0 ;;
+        A) MODE="audio" ;;
+        u) URL="$OPTARG" ;;
+        n) NAME="$OPTARG" ;;
+        a) ARTIST="$OPTARG" ;;
+        d) DEST_DIR="$OPTARG" ;;
+        r) RESOLUTION=$(echo "$OPTARG" | tr -d 'pi') ;;
+        s) START="$OPTARG" ;;
+        f) FORMAT="$OPTARG" ;;
+        *) show_help; exit 1 ;;
+    esac
+done
+
+if [ "$MODE" = "audio" ];then
+    "${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed ffmpeg || exit 1
+fi
+
+if [ -z "${URL}" ]; then
+    printf "Enter URL: "
+    read -r URL
+fi
+if [ -z "${NAME}" ]; then
+    printf "Enter Title/Series Name: "
+    read -r NAME
+fi
+if [ "$MODE" = "audio" ] && [ -z "${ARTIST}" ]; then
+    printf "Enter Artist: "
+    read -r ARTIST
+fi
+
+URL=$(echo "$URL" | sed 's/"//g')
+
+if [ "$MODE" = "audio" ]; then
+    echo "--> Mode: Audio | Target: $NAME"
+    "$YTDL" --extract-audio --audio-format "$FORMAT" \
+        --add-metadata --embed-thumbnail \
+        "$URL" -o "${NAME} - ${ARTIST:-Unknown}.%(ext)s" \
+        --download-archive ".archive_audio.txt"
+    
+    ffmpeg -i "${NAME} - ${ARTIST:-Unknown}.${FORMAT}" \
+       -metadata artist="${ARTIST:-Unknown}" \
+       -metadata title="$NAME" \
+       -c copy "tagged_${NAME} - ${ARTIST:-Unknown}.${FORMAT}"
+
+else
+    echo "--> Mode: Video | Quality: ${RESOLUTION}p"
+    
+    LIMIT="[height<=?${RESOLUTION}]"
+    TARGET_PATH="${DEST_DIR}/${NAME}"
+    
+    mkdir -p "$TARGET_PATH"
+    cd "$TARGET_PATH"
+
+    "$YTDL" "$URL" \
+        --format "bestvideo${LIMIT}+bestaudio/best${LIMIT}" \
+        --merge-output-format mp4 \
+        --write-sub --embed-subs --all-subs \
+        --add-metadata \
+        --playlist-start "$START" \
+        --download-archive ".archive.txt" \
+        --ignore-errors \
+        --output "%(playlist_index)02d - %(title)s.%(ext)s"
+fi
+
+echo "Process finished successfully."
