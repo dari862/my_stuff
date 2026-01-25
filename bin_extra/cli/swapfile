@@ -1,184 +1,182 @@
-#!/bin/bash
-# work on this : improve
+#!/bin/sh
 # need superuser : called by my-superuser
-set -euo pipefail
-unalias -a
+set -e
 
-__distro_path_lib="${1:-$__distro_path_lib}"
+__distro_path_lib="${1:-${__distro_path_lib:-}}"
 
+# Privilege check
 if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__distro_path_lib"
-    exit
+    exec my-superuser "$0" "$__distro_path_lib"
 fi
 
-. "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed blkid grep mkswap swapoff swapon || exit 1
+if [ -n "$__distro_path_lib" ] && [ -f "$__distro_path_lib" ]; then
+    . "$__distro_path_lib"
+fi
 
-show_error() {
-  local red=$'\033[0;91m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
-  else
-    echo -e "${red}${*}${nc}" 1>&2
-  fi
+# Colors
+RED='\033[0;91m'
+GREEN='\033[0;92m'
+YELLOW='\033[0;93m'
+CYAN='\033[0;96m'
+NC='\033[0m'
+
+show_error() { printf "${RED}%s${NC}\n" "$*" >&2; }
+show_info() { printf "${GREEN}%s${NC}\n" "$*"; }
+show_warn() { printf "${YELLOW}%s${NC}\n" "$*"; }
+show_header() { printf "${CYAN}%s${NC}\n" "$*"; }
+
+# --- Helper Functions ---
+
+is_numeric() {
+    case "$1" in
+        ''|*[!0-9]*) return 1 ;;
+        *) return 0 ;;
+    esac
 }
 
-show_header() {
-  local cyan=$'\033[0;96m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${cyan}${*:2}${nc}"
-  else
-    echo -e "${cyan}${*}${nc}"
-  fi
+print_usage() {
+    show_header "Usage: $0 [on|off] [options]"
+    printf "\n"
+    printf "Commands:\n"
+    printf "  on                Create, format, and activate swap\n"
+    printf "  off               Deactivate and delete swap\n"
+    printf "\n"
+    printf "Options:\n"
+    printf "  -f, --file PATH   Path to swap file (default: /swapfile)\n"
+    printf "  -s, --size MB     Size in Megabytes (default: auto-calculated)\n"
+    printf "  -p, --persist     Add/remove entry from /etc/fstab\n"
+    printf "  -w, --swappiness  Set sysctl vm.swappiness (0-100)\n"
+    printf "  -h, --help        Show this help message\n"
+    printf "\n"
+    printf "Examples:\n"
+    printf "  $0 on -p          # Enable swap with auto-size and persistence\n"
+    printf "  $0 on -s 4096 -w 10 # Enable 4GB swap with low swappiness\n"
+    printf "  $0 off -p         # Disable swap and remove from fstab\n"
 }
 
-show_info() {
-  local green=$'\033[0;92m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${green}${*:2}${nc}"
-  else
-    echo -e "${green}${*}${nc}"
-  fi
-} 
-
-show_listitem() {
-  local white=$'\033[0;97m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${white}${*:2}${nc}"
-  else
-    echo -e "${white}${*}${nc}"
-  fi
+get_recommended_size() {
+    _total_mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    _total_mem_mb=$((_total_mem_kb / 1024))
+    if [ "$_total_mem_mb" -lt 2048 ]; then echo "$((_total_mem_mb * 2))"; elif [ "$_total_mem_mb" -lt 8192 ]; then echo "$_total_mem_mb"; else echo "8192"; fi
 }
 
-function set_swap_on {
-  # First, make sure that SWAPFILE is defined.
-  if ! [ -v SWAPFILE ] || [ -z "${SWAPFILE}" ];then
-    show_error "ERROR: SWAPFILE is not defined. Exiting."
-    exit 3
-  fi
+check_disk_space() {
+    _file="$1"
+    _required_mb="$2"
+    _target_dir=$(dirname "$_file")
+    while [ ! -d "$_target_dir" ]; do _target_dir=$(dirname "$_target_dir"); done
+    _available_kb=$(df -k "$_target_dir" | tail -1 | awk '{print $4}')
+    _required_kb=$((_required_mb * 1024))
+    if [ "$_available_kb" -lt "$_required_kb" ]; then
+        show_error "ERROR: Not enough disk space. Available: $((_available_kb / 1024)) MB"
+        exit 1
+    fi
+}
 
-  # Create destination dir for swap file if it doesn't exist."
-  local swapdir
-  swapdir="$(dirname "${SWAPFILE}")"
-  if [ "${swapdir}" != '/' ] && ! [ -d "${swapdir}" ];then
-    mkdir -p "${swapdir}"
-  fi
+set_swappiness() {
+    _val="$1"
+    if is_numeric "$_val" && [ "$_val" -le 100 ]; then
+        show_info "Setting sysctl vm.swappiness to $_val..."
+        sysctl -w vm.swappiness="$_val" >/dev/null
+    else
+        show_warn "Invalid swappiness value: $_val. Skipping."
+    fi
+}
 
-  # Create swapfile if it doesn't exist.
-  if ! [ -f "${SWAPFILE}" ];then
-    show_info "Creating ${SWAPFILE@Q}"
-    dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=progress
-    sync
-  fi
+manage_fstab() {
+    _action="$1"
+    _file=$(readlink -f "${SWAPFILE}")
+    _fstab="/etc/fstab"
+    case "$_action" in
+        add)
+            if ! grep -Fq "$_file" "$_fstab"; then
+                show_info "Adding persistence to /etc/fstab..."
+                printf "%s\tnone\tswap\tsw\t0\t0\n" "$_file" >> "$_fstab"
+            fi
+            ;;
+        remove)
+            if grep -Fq "$_file" "$_fstab"; then
+                show_info "Removing persistence from /etc/fstab..."
+                sed "\|^${_file}|d" "$_fstab" > "${_fstab}.tmp" && mv "${_fstab}.tmp" "$_fstab"
+            fi
+            ;;
+    esac
+}
 
-  # Set permissions.
-  if [[ "$(stat -c "%a" "${SWAPFILE}")" != 600 ]];then
-    show_info "Setting ${SWAPFILE@Q} permissions"
+print_summary() {
+    show_header "\n--- Status Summary ---"
+    [ -f /proc/sys/vm/swappiness ] && printf "Swappiness: %s\n" "$(cat /proc/sys/vm/swappiness)"
+    if command -v free >/dev/null 2>&1; then free -h; else grep -E 'MemTotal|MemAvailable|SwapTotal|SwapFree' /proc/meminfo; fi
+}
+
+# --- Command Logic ---
+
+set_swap_on() {
+    _abs_path=$(readlink -f "${SWAPFILE}" 2>/dev/null || echo "${SWAPFILE}")
+    [ -z "${USER_SPECIFIED_SIZE:-}" ] && SWAPSIZE=$(get_recommended_size)
+
+    if [ ! -f "${SWAPFILE}" ]; then
+        check_disk_space "$SWAPFILE" "$SWAPSIZE"
+        show_info "Creating ${SWAPFILE} (${SWAPSIZE}MB)..."
+        dd if=/dev/zero of="${SWAPFILE}" bs=1M count="${SWAPSIZE}" status=none
+        sync
+    fi
+
     chmod 0600 "${SWAPFILE}"
-  fi
+    [ "$(blkid -s TYPE -o value "${SWAPFILE}" 2>/dev/null)" != "swap" ] && mkswap "${SWAPFILE}" >/dev/null
 
-  # Create UUID.
-  if ! blkid -o value "${SWAPFILE}" | grep -q "^swap$";then
-    show_info "Setting ${SWAPFILE@Q} UUID"
-    mkswap -U clear "${SWAPFILE}"
-  fi
+    if ! swapon --show 2>/dev/null | grep -q "^${_abs_path}[[:space:]]"; then
+        show_info "Activating swap..."
+        swapon "${SWAPFILE}"
+    fi
 
-  # Check if swap partition active. If not run
-  if ! swapon --show | grep -q "^${SWAPFILE}\s";then
-    show_info "Activating ${SWAPFILE@Q}"
-    swapon "${SWAPFILE}"
-  fi
+    [ -n "${SWAPPINESS:-}" ] && set_swappiness "$SWAPPINESS"
+    [ "${PERSIST}" = "true" ] && manage_fstab "add"
+    print_summary
 }
 
-function set_swap_off {
-  # First, make sure that SWAPFILE is defined.
-  if ! [ -v SWAPFILE ] || [ -z "${SWAPFILE}" ];then
-    show_error "ERROR: SWAPFILE is not defined. Exiting."
-    exit 3
-  fi
-
-  # Disable swap partition if it is active.
-  if swapon --show | grep -q "^${SWAPFILE}\s";then
-    show_info "Flushing cache"
-    sync
-    [ -e /proc/sys/vm/drop_caches ] && echo 3 | tee /proc/sys/vm/drop_caches >/dev/null 2>&1
-    sync
-    show_info "Deactivating ${SWAPFILE@Q}"
-    swapoff "${SWAPFILE}"
-  fi
-
-  # Delete swap file if it exists.
-  if [ -f "${SWAPFILE}" ];then
-    show_info "Deleting ${SWAPFILE@Q}"
-    rm "${SWAPFILE}"
-  fi
+set_swap_off() {
+    _abs_path=$(readlink -f "${SWAPFILE}" 2>/dev/null || echo "${SWAPFILE}")
+    if swapon --show 2>/dev/null | grep -q "^${_abs_path}[[:space:]]"; then
+        show_info "Deactivating swap..."
+        sync; [ -e /proc/sys/vm/drop_caches ] && echo 3 > /proc/sys/vm/drop_caches; sync
+        swapoff "${SWAPFILE}"
+    fi
+    [ "${PERSIST}" = "true" ] && manage_fstab "remove"
+    if [ -f "${SWAPFILE}" ] && blkid -s TYPE -o value "${SWAPFILE}" 2>/dev/null | grep -q "swap"; then
+        show_info "Deleting ${SWAPFILE}..."
+        rm "${SWAPFILE}"
+    fi
+    print_summary
 }
 
-function print_usage {
-  show_header "Usage: swapfile <on|off> ..."
-  show_listitem "\
-    -f|--file  path for swap file (default: /swapfile)
-    -s|--size  size of swap file in Mb (default: 8192)
-    -h|--help  print (this) help message"
-}
+# --- Argument Parsing ---
 
+SWAPFILE="/swapfile"
+SWAPSIZE="8192"
+ACTION=""
+PERSIST="false"
+SWAPPINESS=""
 
-OPTIONS=f:hs
-LONGOPTIONS=file:,help,size:
-PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
-eval set -- "${PARSED}"
+if [ $# -eq 0 ]; then
+    print_usage
+    exit 0
+fi
 
-while [ ${#} -ge 1 ]; do
-  case "${1}" in
-    -f | --file)
-      SWAPFILE="${2}"
-      shift 2
-      ;;
-    -h | --help)
-      print_usage
-      exit
-      ;;
-    -s | --size)
-      SWAPSIZE="${2}"
-      exit
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      show_error "ERROR: invalid option."
-      exit 3
-      ;;
-  esac
+while [ $# -gt 0 ]; do
+    case "$1" in
+        on|off)       ACTION="$1"; shift ;;
+        -f|--file)    SWAPFILE="$2"; shift 2 ;;
+        -s|--size)    SWAPSIZE="$2"; USER_SPECIFIED_SIZE="true"; shift 2 ;;
+        -p|--persist) PERSIST="true"; shift ;;
+        -w|--swappiness) SWAPPINESS="$2"; shift 2 ;;
+        -h|--help)    print_usage; exit 0 ;;
+        *) show_error "Unknown option: $1"; print_usage; exit 3 ;;
+    esac
 done
 
-if ! [ "${#}" -eq 1 ];then
-  show_error "ERROR: Incorrect # of parameters. Exiting."
-  exit 3
-fi
-
-SWAPFILE="${SWAPFILE:-/swapfile}"
-SWAPSIZE="${SWAPSIZE:-8192}"
-
-case "${1}" in
-  on)
-    set_swap_on
-    ;;
-  off)
-    set_swap_off
-    ;;
-  help)
-    print_usage
-    exit
-    ;;
-  *)
-    show_error "ERROR: ${1@Q} not understood. Exiting."
-    print_usage
-    exit 3
-    ;;
+case "$ACTION" in
+    on)  set_swap_on ;;
+    off) set_swap_off ;;
+    *)   show_error "Error: Command (on/off) is required."; print_usage; exit 3 ;;
 esac
