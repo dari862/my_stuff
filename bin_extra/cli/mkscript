@@ -25,9 +25,6 @@ case "$ans" in
 	*.ps1)  file2copyare="PowerShell.ps1";;
 	*.zsh)  file2copyare="zsh.zsh";;
     *) 		file2copyare="sh.sh";;
-        echo "Error: Invalid or unsupported file extension."
-        exit 1
-        ;;
 esac
 
 file="$scripts_folder_/$ans"
