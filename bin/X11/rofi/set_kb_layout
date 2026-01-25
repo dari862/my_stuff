@@ -19,8 +19,14 @@ HELP_List="1 add_kb_layout
 
 [ ! -f "${script_config_path}/kb_layout.ini" ] && echo "$(setxkbmap -query | grep layout | awk '{print $2}')" > "${script_config_path}/kb_layout.ini"
 
+if [ -f "/etc/default/keyboard" ];then
+	default_keyboard_layout_file="/etc/default/keyboard"
+elif [ -f "/etc/vconsole.conf" ];then
+	default_keyboard_layout_file="/etc/vconsole.conf"
+fi
+
 if grep -q "us" "${script_config_path}/kb_layout.ini";then
-	. /etc/default/keyboard
+	. "$default_keyboard_layout_file"
 	mkdir -p "${script_config_path}"
 	echo "$XKBLAYOUT" > "${script_config_path}/kb_layout.ini"
 fi
