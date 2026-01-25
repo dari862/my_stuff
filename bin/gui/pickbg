@@ -4,7 +4,6 @@ unalias -a
 . "$__distro_path_lib"
 wallpaper_dir="${__distro_path_wallpaper}"
 
-
 # Get terminal size for preview dimensions
 get_preview_dim() {
 	# Use FZF env vars if available; fallback to `stty size`
@@ -39,13 +38,68 @@ if { [ -n "$KITTY_WINDOW_ID" ] || [ -n "$GHOSTTY_RESOURCES_DIR" ]; } && command 
 			| sed '$d' | sed $'$s/$/\e[m/'	# Remove last newline and append ANSI reset
 	}
 elif command -v ueberzugpp >/dev/null 2>&1; then
+    cleanup() {
+        rm -f "$UEBERZUG_FIFO"
+        kill $(jobs -p) 2>/dev/null
+    }
+    trap cleanup EXIT
+	# Define the pipe path
+	export UEBERZUG_FIFO="/tmp/ueberzugpp-$(id -u).fifo"
+
+	# Create the pipe and start ueberzugpp in the background
+	[ -p "$UEBERZUG_FIFO" ] || mkfifo "$UEBERZUG_FIFO"
+	tail -f "$UEBERZUG_FIFO" | ueberzugpp layer --silent &
+
 	preview_command() {
-		echo	"# work on this : add ueberzugpp support"
+		# Extract dimensions from your helper
+		dim=$(get_preview_dim) 
+
+		# Parsing WxH@XxY format
+		W=$(echo "$dim" | cut -d'@' -f1 | cut -d'x' -f1)
+		H=$(echo "$dim" | cut -d'@' -f1 | cut -d'x' -f2)
+		X=$(echo "$dim" | cut -d'@' -f2 | cut -d'x' -f1)
+		Y=$(echo "$dim" | cut -d'@' -f2 | cut -d'x' -f2)
+
+		# We use a static identifier like "preview" so that 
+		# ueberzugpp replaces the old image instead of stacking them.
+		if [ -n "$1" ]; then
+			printf '{"action": "add", "identifier": "preview", "x": %d, "y": %d, "width": %d, "height": %d, "path": "%s"}\n' \
+			"$X" "$Y" "$W" "$H" "$1" > "$UEBERZUG_FIFO"
+		else
+			# Clear the preview if no file is provided
+			printf '{"action": "remove", "identifier": "preview"}\n' > "$UEBERZUG_FIFO"
+		fi
 	}
- 
 elif command -v ueberzug >/dev/null 2>&1; then
+    cleanup() {
+        rm -f "$UEBERZUG_FIFO"
+        kill $(jobs -p) 2>/dev/null
+    }
+    trap cleanup EXIT
+	# Define the pipe path
+	export UEBERZUG_FIFO="/tmp/ueberzugpp-$(id -u).fifo"
+
+	# Create the pipe and start ueberzugpp in the background
+	[ -p "$UEBERZUG_FIFO" ] || mkfifo "$UEBERZUG_FIFO"
+	ueberzug layer --silent < "$UEBERZUG_FIFO" &
+
 	preview_command() {
-		echo	"# work on this : add ueberzug support"
+		dim=$(get_preview_dim) 
+		
+		# Parsing WxH@XxY
+		W=$(echo "$dim" | cut -d'@' -f1 | cut -d'x' -f1)
+		H=$(echo "$dim" | cut -d'@' -f1 | cut -d'x' -f2)
+		X=$(echo "$dim" | cut -d'@' -f2 | cut -d'x' -f1)
+		Y=$(echo "$dim" | cut -d'@' -f2 | cut -d'x' -f2)
+
+		if [ -n "$1" ]; then
+			# Classic Ueberzug syntax: action identifier x y width height path
+			# Note: 'scaler' is often needed in classic to fit the preview box
+			printf "action=add,identifier=preview,x=%d,y=%d,width=%d,height=%d,scaler=fit_contain,path=%s\n" \
+				"$X" "$Y" "$W" "$H" "$1" > "$UEBERZUG_FIFO"
+		else
+			printf "action=remove,identifier=preview\n" > "$UEBERZUG_FIFO"
+		fi
 	}
 # Use chafa with Sixel output if available
 elif command -v chafa >/dev/null 2>&1; then
