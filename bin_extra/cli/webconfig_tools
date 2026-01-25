@@ -1,6 +1,5 @@
 #!/bin/sh
 # need superuser : use my-superuser
-# work on this : improve
 
 apachelog() {
 	if [ -f /etc/httpd/conf/httpd.conf ];then
