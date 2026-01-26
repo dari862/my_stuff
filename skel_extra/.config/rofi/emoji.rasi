@@ -21,6 +21,7 @@ window {
 }
 
 listview {
+    lines:      10;
     fixed-height: false;
 }
 
