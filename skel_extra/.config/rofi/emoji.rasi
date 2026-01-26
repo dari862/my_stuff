@@ -1,0 +1,29 @@
+/* Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 */
+
+@import "theme.rasi"
+* {
+  font:			  "FiraCode Nerd Font Mono 12";
+  text-font:      "@font";
+  icon-font:      "@font";
+  background-color:       @background;
+  text-color:             @foreground;
+}
+
+window {
+    width:      			400px;
+    padding:    			20px;
+    border:					1px solid;
+    border-radius:          0px;
+    border-color:           @selected;
+    location:               center;
+    x-offset:               0;
+    y-offset:               0;
+}
+
+entry {
+    enabled:                     true;
+    padding:                     8px 12px;
+    border-radius:               8px;
+    placeholder:                 "...";
+    text-color:                  @selected;
+}
