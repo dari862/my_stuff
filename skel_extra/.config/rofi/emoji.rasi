@@ -1,12 +1,13 @@
-/* Everyone is permitted to copy and distribute copies of this file under GNU-GPL3 */
-
+/** **/
 @import "theme.rasi"
+
 * {
-  font:			  "FiraCode Nerd Font Mono 12";
-  text-font:      "@font";
-  icon-font:      "@font";
-  background-color:       @background;
-  text-color:             @foreground;
+  font:                        "FiraCode Nerd Font Mono 12";
+  text-font:                   "@font";
+  icon-font:                   "@font";
+  background-color:            @background;
+  text-color:                  @foreground;
+  border-color:                @foreground;
 }
 
 window {
@@ -14,7 +15,6 @@ window {
     padding:    			20px;
     border:					1px solid;
     border-radius:          0px;
-    border-color:           @selected;
     location:               center;
     x-offset:               0;
     y-offset:               0;
@@ -25,5 +25,39 @@ entry {
     padding:                     8px 12px;
     border-radius:               8px;
     placeholder:                 "...";
-    text-color:                  @selected;
+}
+
+textbox-prompt-colon {
+	font:                        @icon-font;
+    enabled:                     true;
+    expand:                      false;
+    str:                         "Emoji";
+    padding:                     10px 13px;
+    border-radius:               0px;
+    background-color:            @foreground;
+    text-color:                  @background;
+}
+
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    padding:                     0px;
+    border:                      0px;
+    border-radius:               0px;
+    background-color:            transparent;
+    children:                    [ "textbox-prompt-colon", "entry"];
+}
+
+element {
+    enabled:                     true;
+    padding:                     10px;
+    border:                      0px solid;
+    border-radius:               0px;
+    background-color:            transparent;
+    cursor:                      pointer;
+}
+
+element selected.normal {
+    background-color:            var(foreground);
+    text-color:                  var(background);
 }
