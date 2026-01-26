@@ -1,112 +1,214 @@
 #!/bin/sh
-# work on this : improve
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
+input="${script_config_path}/frontpage-bookmarks"
+output="${WM_config_dir}/bookmarks.html"
 
-input="${script_config_path}/frontpage-bookmarks"  # File containing your text
-output="${WM_config_dir}/bookmarks.html"  # File to save the modified text
-stored_line=""
-stored_depth=""
-first_depth=""
-second_depth=""
-third_depth=""
+mkdir -p "$WM_config_dir"
 
 {
 cat <<- EOF
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <style>
-.dropdown-submenu {
-  position: relative;
-}
+  :root {
+    --bg: #0f0f0f; --text: #e0e0e0; --card: #1a1a1a; --border: #333; --accent: #00bc8c; --hover: #222;
+  }
+  [data-theme="light"] {
+    --bg: #f8f9fa; --text: #212529; --card: #ffffff; --border: #dee2e6; --accent: #007bff; --hover: #f1f1f1;
+  }
 
-.dropdown-submenu .dropdown-menu {
-  top: 0;
-  left: 100%;
-  margin-top: -1px;
-}
+  body { background-color: var(--bg); color: var(--text); transition: background 0.2s; font-family: 'Segoe UI', sans-serif; }
+  .container { margin-top: 30px; max-width: 900px; }
+  
+  .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .theme-switch { cursor: pointer; padding: 6px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--card); color: var(--text); }
+
+  .search-wrapper { position: relative; margin-bottom: 30px; }
+  #searchBar {
+    background-color: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 15px; width: 100%; border-radius: 6px; font-size: 16px; outline: none;
+  }
+  #searchBar:focus { border-color: var(--accent); }
+
+  #searchResults {
+    position: absolute; width: 100%; background: var(--card); border: 1px solid var(--border);
+    border-radius: 0 0 6px 6px; z-index: 9999; max-height: 450px; overflow-y: auto; display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .search-item { 
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 15px; border-bottom: 1px solid var(--border); transition: background 0.1s;
+  }
+  .search-item:hover { background: var(--hover); }
+  .item-info { flex-grow: 1; text-decoration: none !important; cursor: pointer; }
+  .item-title { color: var(--accent); font-weight: bold; display: block; }
+  .item-path { font-size: 0.75em; color: #888; display: block; }
+  .item-url { color: #666; font-size: 0.8em; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 500px; }
+
+  .copy-btn {
+    background: transparent; border: 1px solid var(--border); color: #888;
+    padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-left: 10px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* Dropdowns */
+  .btn-default { background-color: var(--card); color: var(--text); border-color: var(--border); margin: 0 5px 10px 0; }
+  .dropdown-menu { background-color: var(--card); border: 1px solid var(--border); }
+  .dropdown-menu > li > a { color: var(--text); padding: 8px 20px; }
+  .dropdown-menu > li > a:hover { background-color: var(--accent); color: #fff; }
+  .dropdown-submenu { position: relative; }
+  .dropdown-submenu .dropdown-menu { top: 0; left: 100%; margin-top: -1px; }
+  .dropdown-submenu:hover > .dropdown-menu { display: block; }
 </style>
 </head>
 <body>
-   
-<div class="container"><h2>Multi-Level Dropdowns</h2>                             
 
+<div class="container">
+  <div class="header-flex">
+    <h2 style="margin:0;">Bookmark Explorer</h2>
+    <button class="theme-switch" onclick="toggleTheme()">🌓 Theme</button>
+  </div>
+  
+  <div class="search-wrapper">
+    <input type="text" id="searchBar" placeholder="Search titles, URLs, or categories..." autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+  
+  <div class="category-area" id="categoryArea">
 EOF
 
-# Read each line from the input file
-while IFS= read -r line; do
-    # Check if the line starts with a "#"
-    if echo "$line" | grep -q "^#" >/dev/null 2>&1;then
-    	stored_line="$line"
-        # Count the number of '#' to determine the depth
-        stored_depth=$(echo "$stored_line" | grep -o "#" | wc -l)
-        if [ "$stored_depth" = 3 ] && [ -z "$third_depth" ];then
-        	third_depth="$stored_line"
-        elif [ "$stored_depth" -gt 0 ] && [ -n "$third_depth" ];then
-        	echo '</ul></li>'
-        	if [ "$stored_depth" = 3 ];then
-        		third_depth="$stored_line"
-        	else
-        		third_depth=""
-        	fi
-		fi
-		
-        if [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
-        	second_depth="$stored_line"
-        elif [ "$stored_depth" = 2 ] && [ -n "$second_depth" ];then
-        	echo '</ul></li>'
-        	second_depth="$stored_line"
-        elif [ "$stored_depth" = 1 ];then
-        	second_depth=""
-		fi
-		
-		if [ "$stored_depth" = 1 ] && [ -z "$first_depth" ];then
-        	first_depth="$stored_line"
-        elif [ "$stored_depth" = 1 ] && [ -n "$first_depth" ];then
-        	echo '</ul></div>'
-        	first_depth="$stored_line"
-		fi
-    fi
-    echo "$line"
+current_depth=0
+p1=""; p2=""; p3=""
+
+while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+        \#*)
+            # Count hashes safely
+            temp_hash=$(echo "$line" | sed 's/[^#]//g')
+            new_depth=${#temp_hash}
+            header_text=$(echo "$line" | sed 's/^#*//' | sed 's/^[[:space:]]*//')
+
+            case $new_depth in
+                1) p1="$header_text"; p2=""; p3="" ;;
+                2) p2="$header_text"; p3="" ;;
+                3) p3="$header_text" ;;
+            esac
+
+            while [ "$current_depth" -ge "$new_depth" ] && [ "$current_depth" -gt 0 ]; do
+                if [ "$current_depth" -eq 1 ]; then echo "</ul></div>"; else echo "</ul></li>"; fi
+                current_depth=$((current_depth - 1))
+            done
+            
+            if [ "$new_depth" -eq 1 ]; then
+                echo "<div class='dropdown' style='display:inline-block;'>"
+                echo "<button class='btn btn-default dropdown-toggle' type='button' data-toggle='dropdown'>$header_text <span class='caret'></span></button>"
+                echo "<ul class='dropdown-menu'>"
+            else
+                echo "<li class='dropdown-submenu'><a class='test' href='#'>$header_text <span class='caret'></span></a><ul class='dropdown-menu'>"
+            fi
+            current_depth=$new_depth
+            ;;
+        *\**)
+            url=$(echo "$line" | sed -E 's/^[[:space:]]*\*([^<]+)<A>.*/\1/')
+            label=$(echo "$line" | sed -E 's/.*<A>(.*)/\1/')
+            full_path="$p1"
+            [ -n "$p2" ] && full_path="$full_path / $p2"
+            [ -n "$p3" ] && full_path="$full_path / $p3"
+
+            echo "<li><a href=\"$url\" class=\"bookmark-item\" data-url=\"$url\" data-path=\"$full_path\" target=\"_blank\">$label</a></li>"
+            ;;
+    esac
 done < "$input"
-if [ -n "$third_depth" ];then
-	echo "$third_depth third_depth"
-fi
-if [ -n "$first_depth" ];then
-	echo "$first_depth first_depth"
-fi
+
+# Close remaining tags
+while [ "$current_depth" -gt 0 ]; do
+    if [ "$current_depth" -eq 1 ]; then echo "</ul></div>"; else echo "</ul></li>"; fi
+    current_depth=$((current_depth - 1))
+done
 
 cat <<- 'EOF'
+  </div>
 </div>
 
 <script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+}
+
+function copyToClipboard(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    const oldText = btn.innerText;
+    btn.innerText = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerText = oldText;
+      btn.classList.remove('copied');
+    }, 1500);
+  });
+}
+
 $(document).ready(function(){
   $('.dropdown-submenu a.test').on("click", function(e){
     $(this).next('ul').toggle();
-    e.stopPropagation();
-    e.preventDefault();
+    e.stopPropagation(); e.preventDefault();
+  });
+
+  const searchBar = document.getElementById('searchBar');
+  const searchResults = document.getElementById('searchResults');
+  const items = document.getElementsByClassName('bookmark-item');
+
+  searchBar.addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    searchResults.innerHTML = '';
+    
+    if (filter.length > 0) {
+      let matches = 0;
+      for (let i = 0; i < items.length; i++) {
+        const text = items[i].textContent;
+        const url = items[i].getAttribute('data-url');
+        const path = items[i].getAttribute('data-path');
+        
+        if (text.toLowerCase().includes(filter) || path.toLowerCase().includes(filter) || url.toLowerCase().includes(filter)) {
+          const row = document.createElement('div');
+          row.className = 'search-item';
+          row.innerHTML = `
+            <a href="${url}" target="_blank" class="item-info">
+              <span class="item-path">${path}</span>
+              <span class="item-title">${text}</span>
+              <span class="item-url">${url}</span>
+            </a>
+            <button class="copy-btn" onclick="copyToClipboard('${url}', this)">Copy</button>
+          `;
+          searchResults.appendChild(row);
+          matches++;
+        }
+      }
+      searchResults.style.display = matches > 0 ? 'block' : 'none';
+    } else {
+      searchResults.style.display = 'none';
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!searchBar.contains(e.target) && !searchResults.contains(e.target)) {
+      searchResults.style.display = 'none';
+    }
   });
 });
 </script>
-
 </body>
 </html>
 EOF
-} |\
-sed '/^###/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' |\
-sed 's/^###/<li class="dropdown-submenu"><a class="test" href="#">/g' |\
-\
-sed '/^##/ s/$/<span class="caret"><\/span><\/a><ul class="dropdown-menu">/' |\
-sed 's/^##/<li class="dropdown-submenu"><a class="test" tabindex="-1" href="#">/g' |\
-\
-sed '/^#/ s/$/<span class="caret"><\/span><\/button><ul class="dropdown-menu">/' |\
-sed 's/^#/<div class="dropdown"><button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">/g' |\
-\
-sed '/^   */ s/$/<\/a><\/li>/' |\
-sed 's/^   */<li><a href="/g' |\
-sed 's/<A>/">/g' > "$output"
+} > "$output"

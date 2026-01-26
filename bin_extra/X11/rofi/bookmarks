@@ -1,24 +1,31 @@
 #!/bin/sh
-# work on this : improve
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-# A simple script for browser bookmarks
+DB_FILE="${script_config_path}/bookmarks"
+ROFI_BASE_CMD="rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme $HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
 
-database="${script_config_path}/bookmarks"
-[ ! -f "$database" ] && touch "$database"
+if [ ! -f "$DB_FILE" ];then
+	touch "$DB_FILE"
+fi
 
-database_contant="$(cat $database)"
+mark="$(cat "$DB_FILE" | $ROFI_BASE_CMD -p 'Bookmarks:')"
 
-mark="$(printf '%s' "$database" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p 'Bookmarks:')"
+if [ -z "$mark" ];then
+	exit 0
+fi
 
-if grep -q "^${mark}$" "$database";then
+if grep -Fxq "$mark" "$DB_FILE"; then
 	my-www-browser "$mark"
-elif [ -n "${mark}" ];then
-	add_2_bookmark="$(printf '%s\nAdd to bookmark.' | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p ':')"
-	if [ "$add_2_bookmark" = "Add to bookmark." ];then
-		printf "%s" "$mark" >> "$database"
-	fi
-	my-www-browser "$mark"
+else
+	action="$(printf "Open & Save\nJust Open" | $ROFI_BASE_CMD -p "New Link:")"
+	case "$action" in
+		"Open & Save")
+			printf "%s\n" "$mark" >> "$DB_FILE"
+			my-www-browser "$mark"
+			;;
+		"Just Open") my-www-browser "$mark" ;;
+		*) exit 0 ;;
+	esac
 fi
