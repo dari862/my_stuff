@@ -1,13 +1,15 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
+set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
 chosen=$(cut -d ';' -f1 "${__distro_path_root}"/lib/emoji/* | rofi -dmenu -i -l 30 -theme "$HOME/.config/rofi/emoji.rasi" | sed "s/ .*//")
 
-# Exit if none chosen.
-[ -z "$chosen" ] && exit
+if [ -z "$chosen" ];then
+	exit
+fi
 
 # If you run this command with an argument, it will automatically insert the
 # character. Otherwise, show a message that the emoji has been copied.
