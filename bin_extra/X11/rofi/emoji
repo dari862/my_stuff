@@ -1,8 +1,5 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
-# The famous "get a menu of emojis to copy" script.
-# work on this : improve
-# Get user selection via dmenu from emoji file.
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
