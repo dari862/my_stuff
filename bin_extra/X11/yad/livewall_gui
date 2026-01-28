@@ -32,7 +32,11 @@ pick_it(){
     autorun=$(echo "$res" | cut -d'|' -f2)
 
     case $ex_code in
-        10) [ -n "$video_path" ] && live_it "$video_path" "$autorun"; main ;;
+        10) if [ -n "$video_path" ];then
+				live_it "$video_path" "$autorun"
+			fi
+			main
+			;;
         20) main ;;
         30) preview_video "$video_path"; pick_it ;;
     esac
@@ -62,7 +66,11 @@ list_it(){
     selection=$(echo "$ans" | cut -d'|' -f1)
 
     case $ex_code in
-        10) [ -n "$selection" ] && livewall -I "$selection"; main ;;
+        10) if [ -n "$selection" ];then
+				livewall -I "$selection"
+			fi
+			main
+			;;
         30) 
             if [ -n "$selection" ]; then
                 livewall -r "$selection" 
