@@ -3,75 +3,90 @@
 # if this line exist script will be part of gui scripts.new_name=live_wallpaper
 
 . "$__distro_path_lib"
-title_name="Live wallpaper"
+
+title_name="Live Wallpaper Manager"
 icon_name="livewall_gui"
 icon="${__distro_path_all_distro_themes}/icons/${icon_name}.png"
-_dir_vid="$(livewall -p)"
+YAD_COMMON="--title=${title_name} --window-icon=${icon} --center"
+
+preview_video() {
+    if [ -z "$1" ];then
+		return
+	fi
+    mpv --ontop --no-audio --autofit=500x500 --title="Preview" "$1" >/dev/null 2>&1
+}
 
 pick_it(){
-	res=$(yad --form \
-    	--title="${title_name}" \
-    	--window-icon="$icon" \
-    	--width=400 \
-    	--height=100 \
-    	--text 'Select file to convert to live wallpaper'\
-    	--field ' :FL' '' \
-    	--file-filter '*.mp4 *.m4v' \
-    	--field 'Autorun Live Wallpaper':CHK TRUE \
-    	--button="Ok":10 \
-    	--button=Return:20)
-	ex_code=$?
-	if [ "$ex_code" -eq 10 ];then
-		video_path="$(echo $res | awk -F'|' '{print $1}')"
-		Autorun_live_wall="$(echo $res | awk -F'|' '{print $2}')"
-		live_it "$video_path" "$Autorun_live_wall"
-	elif [ "$ex_code" -eq 20 ];then
-		main
-	fi
+    res=$(yad ${YAD_COMMON} --form \
+        --width=450 \
+        --text='Select file to convert to live wallpaper' \
+        --field='File:FL' '' \
+        --file-filter='Videos | *.mp4 *.m4v *.mkv *.mov' \
+        --field='Autorun Live Wallpaper:CHK' TRUE \
+        --button="Preview:30" \
+        --button="Apply:10" \
+        --button="Back:20")
+
+    ex_code=$?
+    video_path=$(echo "$res" | cut -d'|' -f1)
+    autorun=$(echo "$res" | cut -d'|' -f2)
+
+    case $ex_code in
+        10) [ -n "$video_path" ] && live_it "$video_path" "$autorun"; main ;;
+        20) main ;;
+        30) preview_video "$video_path"; pick_it ;;
+    esac
 }
 
 live_it(){
-    [ -z "$1" ] && return
-	if [ "$2" = "TRUE" ];then
-		livewall -a "$video_path"
+    if [ "$2" = "TRUE" ];then
+		livewall -a "$1" 
 	else
-		livewall "$video_path"
-    fi
+		livewall "$1"
+	fi
 }
 
 list_it(){
-    menu="$(livewall -L)"
+    menu=$(livewall -L)
     
-	yad_opts="--list
-			--width=400
-    		--height=350
-  			--column=Number
-  			--column=Name
-  			${menu}"
-	ans="$(yad ${yad_opts})"
-	number_is="$(echo "$ans" | awk -F'|' '{print $1}')"
-    livewall -I "$number_is"
+    ans=$(yad ${YAD_COMMON} --list \
+        --width=450 --height=400 \
+        --text="Select a wallpaper to manage:" \
+        --column="ID" --column="Wallpaper Name" \
+        --button="Apply:10" \
+        --button="Delete:30" \
+        --button="Back:20" \
+        $menu)
+    
+    ex_code=$?
+    selection=$(echo "$ans" | cut -d'|' -f1)
+
+    case $ex_code in
+        10) [ -n "$selection" ] && livewall -I "$selection"; main ;;
+        30) 
+            if [ -n "$selection" ]; then
+                livewall -r "$selection" 
+                list_it
+            fi
+            ;;
+        *) main ;;
+    esac
 }
 
 main(){
-	yad --form \
-    	--title="${title_name}" \
-    	--window-icon="$icon" \
-    	--center \
-    	--button="File to live wallpaper":10 \
-    	--button="List live wallpaper":20 \
-    	--button="stop live wallpaper":30 \
-    	--button=Cancel:40
-	ex_code=$?
-	if [ "$ex_code" -eq 10 ];then
-		pick_it
-	elif [ "$ex_code" -eq 20 ];then
-		list_it
-	elif [ "$ex_code" -eq 30 ];then
-		livewall -q
-	elif [ "$ex_code" -eq 40 ];then
-		exit
-	fi
+    yad ${YAD_COMMON} --form \
+        --text="        <b>Live Wallpaper Controls</b>        " \
+        --button="New Wallpaper:10" \
+        --button="Manage Library:20" \
+        --button="Stop Live:30" \
+        --button="Exit:40"
+    
+    case $? in
+        10) pick_it ;;
+        20) list_it ;;
+        30) livewall -q; main ;;
+        *) exit 0 ;;
+    esac
 }
 
 main
