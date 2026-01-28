@@ -1,7 +1,7 @@
 #!/bin/sh
 # if this line exist script will be part of hub script.
 # if this line exist script will be part of gui scripts.new_name=live_wallpaper
-# work on this : improve
+
 . "$__distro_path_lib"
 title_name="Live wallpaper"
 icon_name="livewall_gui"
