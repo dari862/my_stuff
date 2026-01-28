@@ -73,7 +73,7 @@ list_it(){
 			;;
         30) 
             if [ -n "$selection" ]; then
-                livewall -r "$selection" 
+                livewall -d "$selection" 
                 list_it
             fi
             ;;
