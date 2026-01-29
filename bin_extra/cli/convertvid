@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-. "$__distro_path_lib"
 
 show_error() {
     red='\033[0;91m'
