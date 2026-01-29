@@ -17,15 +17,9 @@ CONFIGHOMEPATH="$HOME/.config"
 GLOBALBLOBPATH="${__distro_path_root}/blob"
 BLOBPATH="${CONFIGHOMEPATH}/blob"
 
-if [ "$_panel_name_" = 'polybar' ];then
-	GLOBALCONFIGPATH="${GLOBALBLOBPATH}/polybar"
-	CONFIGPATH="${BLOBPATH}/polybar"
-	CURSESSION="$Style_name"
-elif [ "$_panel_name_" = 'tint2' ];then
-	GLOBALCONFIGPATH="${GLOBALBLOBPATH}/tint2"
-	CONFIGPATH="${BLOBPATH}/polybar"
-	CURSESSION="$Style_name"
-fi
+GLOBALCONFIGPATH="${GLOBALBLOBPATH}/$_panel_name_"
+CONFIGPATH="${BLOBPATH}/$_panel_name_"
+CURSESSION="$Style_name"
 
 TITLE="BLOB Config Manager"
 
