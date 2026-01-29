@@ -177,7 +177,11 @@ if [ -z "$IN" ] || [ ! -f "$IN" ]; then
     exit 3
 fi
 
-if [ "$OUT_VCODEC" = "libx264" ]; then CRF=${CRF:-18}; elif [ "$OUT_VCODEC" = "libx265" ]; then CRF=${CRF:-23}; fi
+if [ "$OUT_VCODEC" = "libx264" ]; then
+    CRF=${CRF:-18}
+elif [ "$OUT_VCODEC" = "libx265" ]; then
+    CRF=${CRF:-23}
+fi
 
 fill_dimensions
 mv "$IN" "$BACKUP"
