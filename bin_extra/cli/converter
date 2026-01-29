@@ -8,8 +8,9 @@ INPUT=""
 OUTPUT=""
 
 show_help() {
+  script_name="$(basename "$0")"
   cat <<EOF
-Usage: $(basename "$0") [options] <command> <input> [output/param]
+Usage: $script_name [options] <command> <input> [output/param]
 
 Options:
   -v, --verbose      Show ffmpeg info output
@@ -30,7 +31,7 @@ Commands:
   to-ts              Convert to MPEG-TS
 
 Example:
-  $(basename "$0") -v to-mp3 song.wav
+  $script_name -v to-mp3 song.wav
 EOF
 }
 
