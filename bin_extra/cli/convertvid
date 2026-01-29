@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
-
-[ -f "$__distro_path_lib" ] && . "$__distro_path_lib"
+. "$__distro_path_lib"
 
 show_error() {
     red='\033[0;91m'
