@@ -42,7 +42,6 @@ auto_output() {
   printf "output/%s.%s" "$(basename "${in_file%.*}")" "$ext"
 }
 
-# --- Argument Parsing ---
 while [ $# -gt 0 ]; do
   case "$1" in
     -v|--verbose) VERBOSE="-loglevel info"; shift ;;
@@ -50,14 +49,17 @@ while [ $# -gt 0 ]; do
     -h|--help)    show_help; exit 0 ;;
     -*)           echo "Unknown option: $1"; exit 1 ;;
     *)            
-      if [ -z "$CMD" ]; then CMD="$1"; 
-      elif [ -z "$INPUT" ]; then INPUT="$1"; 
-      else ARGS="$ARGS $1"; fi # Collect remaining args (output or scale)
+      if [ -z "$CMD" ]; then
+        CMD="$1"
+      elif [ -z "$INPUT" ]; then
+        INPUT="$1"; 
+      else 
+        ARGS="$ARGS $1"
+      fi
       shift ;;
   esac
 done
 
-# Basic Validation
 if [ -z "$CMD" ] || [ -z "$INPUT" ]; then
   show_help
   exit 1
@@ -68,8 +70,6 @@ if [ ! -f "$INPUT" ]; then
   exit 1
 fi
 
-# Set default output based on command if not provided
-# We use a secondary case here to determine the file extension
 case "$CMD" in
   to-webm)        EXT="webm" ;;
   to-flac)        EXT="flac" ;;
@@ -88,7 +88,9 @@ case "$CMD" in
   rescale)
     HEIGHT=$(echo "$ARGS" | awk '{print $1}')
     OUTPUT=$(echo "$ARGS" | awk '{print $2}')
-    [ -z "$OUTPUT" ] && OUTPUT=$(auto_output "$INPUT" "scaled.mp4")
+    if [ -z "$OUTPUT" ];then
+      OUTPUT=$(auto_output "$INPUT" "scaled.mp4")
+    fi
     ;;
   *)
     OUTPUT=${ARGS:-$(auto_output "$INPUT" "$EXT")}
