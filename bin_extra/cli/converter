@@ -1,131 +1,138 @@
 #!/bin/sh
-# work on this : improve
 set -e
 
-MODE=""
-VERBOSE=""
-
-while [ "$1" ]; do
-  case "$1" in
-    -v|--verbose)
-      VERBOSE="-loglevel info"
-      shift
-      ;;
-    -q|--quiet)
-      VERBOSE="-loglevel quiet"
-      shift
-      ;;
-    --help|-h)
-      show_help
-      exit 0
-      ;;
-    *)
-      break
-      ;;
-  esac
-done
+# Default settings
+VERBOSE="-loglevel error"
+CMD=""
+INPUT=""
+OUTPUT=""
 
 show_help() {
   cat <<EOF
-Usage: $0 [log-level] <command> <input> [output]
+Usage: $(basename "$0") [options] <command> <input> [output/param]
 
-Modes:
-  -v, --verbose     Verbose ffmpeg output
-  -q, --quiet       Minimal output
+Options:
+  -v, --verbose      Show ffmpeg info output
+  -q, --quiet        Suppress almost all output
+  -h, --help         Show this help message
 
 Commands:
-  to-webm             Convert video to .webm
-  to-flac             Convert audio to .flac
-  to-mp3              Convert audio to .mp3
-  to-wav              Convert video/audio to .wav
-  to-m4a              Convert audio to .m4a (ALAC)
-  to-gif              Convert video to GIF with palette
-  gif-optimized       High-quality GIF from video
-  gif-to-video        Convert GIF to .mp4 and .webm
-  scale-720           Scale to 720p
-  rescale             Scale to specific height
-  to-ts               Convert to MPEG-TS
+  to-webm            Convert video to .webm
+  to-flac            Convert audio to .flac (16-bit, 44.1kHz)
+  to-mp3             Convert audio to .mp3 (VBR)
+  to-wav             Convert to mono 48kHz WAV
+  to-m4a             Convert audio to .m4a (ALAC)
+  to-gif             Convert video to GIF (standard)
+  gif-optimized      High-quality GIF (360p, 10fps)
+  gif-to-video       Convert GIF to .mp4 and .webm
+  scale-720          Scale to 720p (maintains aspect)
+  rescale <h>        Scale to height <h> (e.g., 1080)
+  to-ts              Convert to MPEG-TS
 
-If output is omitted, it goes to 'output/<input_basename>.<ext>'
+Example:
+  $(basename "$0") -v to-mp3 song.wav
 EOF
 }
 
+# Function to generate output path if not provided
 auto_output() {
+  local in_file="$1"
+  local ext="$2"
   mkdir -p output
-  base=$(basename "$1")
-  echo "output/${base%.*}.$2"
+  printf "output/%s.%s" "$(basename "${in_file%.*}")" "$ext"
 }
 
-require_input() {
-  if [ -z "$1" ] || [ ! -f "$1" ]; then
-    echo "Input file required and must exist."
-    exit 1
-  fi
-}
+# --- Argument Parsing ---
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -v|--verbose) VERBOSE="-loglevel info"; shift ;;
+    -q|--quiet)   VERBOSE="-loglevel quiet"; shift ;;
+    -h|--help)    show_help; exit 0 ;;
+    -*)           echo "Unknown option: $1"; exit 1 ;;
+    *)            
+      if [ -z "$CMD" ]; then CMD="$1"; 
+      elif [ -z "$INPUT" ]; then INPUT="$1"; 
+      else ARGS="$ARGS $1"; fi # Collect remaining args (output or scale)
+      shift ;;
+  esac
+done
 
-[ "$1" = "--help" ] || [ "$1" = "-h" ] && show_help && exit 0
+# Basic Validation
+if [ -z "$CMD" ] || [ -z "$INPUT" ]; then
+  show_help
+  exit 1
+fi
 
-cmd="$1"
-input="$2"
-output="${3:-$(auto_output "$input" "${cmd#to-}")}"
+if [ ! -f "$INPUT" ]; then
+  echo "Error: Input file '$INPUT' not found."
+  exit 1
+fi
 
-require_input "$input"
+# Set default output based on command if not provided
+# We use a secondary case here to determine the file extension
+case "$CMD" in
+  to-webm)        EXT="webm" ;;
+  to-flac)        EXT="flac" ;;
+  to-mp3)         EXT="mp3" ;;
+  to-wav)         EXT="wav" ;;
+  to-m4a)         EXT="m4a" ;;
+  to-gif|*gif*)   EXT="gif" ;;
+  to-ts)          EXT="ts" ;;
+  scale-720)      EXT="mp4" ;;
+  rescale)        EXT="mp4" ;;
+  *)              EXT="out" ;;
+esac
 
-case "$cmd" in
-  to-webm)
-    ffmpeg $VERBOSE -i "$input" -vf setsar=1:1 "$output"
-    ;;
-
-  to-flac)
-    ffmpeg $VERBOSE -i "$input" -af aformat=s16:44100 "$output"
-    ;;
-
-  to-mp3)
-    ffmpeg $VERBOSE -i "$input" -q:a 5 "$output"
-    ;;
-
-  to-wav)
-    ffmpeg $VERBOSE -i "$input" -f wav -bitexact -vn -acodec pcm_f32le -ar 48000 -ac 1 "$output"
-    ;;
-
-  to-m4a)
-    ffmpeg $VERBOSE -i "$input" -acodec alac "$output"
-    ;;
-
-  to-gif)
-    tmp_palette=$(mktemp --suffix=.png)
-    ffmpeg -y -i "$input" -vf "scale=640:-1:flags=lanczos,palettegen" "$tmp_palette"
-    ffmpeg $VERBOSE -i "$input" -i "$tmp_palette" -filter_complex "scale=640:-1:flags=lanczos[x];[x][1:v]paletteuse" "$output"
-    rm "$tmp_palette"
-    ;;
-
-  gif-optimized)
-    ffmpeg $VERBOSE -i "$input" \
-      -vf "fps=10,scale=360:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
-      -loop 0 "$output"
-    ;;
-
-  gif-to-video)
-    ffmpeg $VERBOSE -i "$input" -b:v 0 -crf 25 -f mp4 -vcodec libx264 -pix_fmt yuv420p "$(auto_output "$input" mp4)"
-    ffmpeg $VERBOSE -i "$input" -c vp9 -b:v 0 -crf 41 "$(auto_output "$input" webm)"
-    ;;
-
-  scale-720)
-    ffmpeg $VERBOSE -i "$input" -vf scale=1280:720 -c:a copy "$output"
-    ;;
-
+# Assign output or capture specific params
+case "$CMD" in
   rescale)
-    height="$3"
-    output="${4:-$(auto_output "$input" "scaled.mp4")}"
-    ffmpeg $VERBOSE -i "$input" -vf scale=-2:"$height" "$output"
+    HEIGHT=$(echo "$ARGS" | awk '{print $1}')
+    OUTPUT=$(echo "$ARGS" | awk '{print $2}')
+    [ -z "$OUTPUT" ] && OUTPUT=$(auto_output "$INPUT" "scaled.mp4")
     ;;
-
-  to-ts)
-    ffmpeg $VERBOSE -i "$input" -c copy -bsf:v h264_mp4toannexb -f mpegts "$output"
-    ;;
-
   *)
-    echo "Unknown command '$cmd'. Use --help for usage."
-    exit 1
+    OUTPUT=${ARGS:-$(auto_output "$INPUT" "$EXT")}
     ;;
 esac
+
+echo "Processing: $INPUT -> $OUTPUT"
+
+# --- Execution ---
+case "$CMD" in
+  to-webm)
+    ffmpeg $VERBOSE -i "$INPUT" -vf "setsar=1:1,scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libvpx-vp9 -b:v 0 -crf 30 "$OUTPUT"
+    ;;
+  to-flac)
+    ffmpeg $VERBOSE -i "$INPUT" -af aformat=s16:44100 "$OUTPUT"
+    ;;
+  to-mp3)
+    ffmpeg $VERBOSE -i "$INPUT" -q:a 2 "$OUTPUT"
+    ;;
+  to-wav)
+    ffmpeg $VERBOSE -i "$INPUT" -vn -acodec pcm_s16le -ar 48000 -ac 1 "$OUTPUT"
+    ;;
+  to-m4a)
+    ffmpeg $VERBOSE -i "$INPUT" -c:a alac "$OUTPUT"
+    ;;
+  to-gif)
+    ffmpeg $VERBOSE -i "$INPUT" -vf "fps=15,scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" "$OUTPUT"
+    ;;
+  gif-optimized)
+    ffmpeg $VERBOSE -i "$INPUT" -vf "fps=10,scale=360:-2:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 "$OUTPUT"
+    ;;
+  gif-to-video)
+    ffmpeg $VERBOSE -i "$INPUT" -movflags +faststart -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" "$(auto_output "$INPUT" mp4)"
+    ffmpeg $VERBOSE -i "$INPUT" -c:v libvpx-vp9 -crf 41 -b:v 0 "$(auto_output "$INPUT" webm)"
+    ;;
+  scale-720)
+    ffmpeg $VERBOSE -i "$INPUT" -vf "scale=-2:720" -c:a copy "$OUTPUT"
+    ;;
+  rescale)
+    ffmpeg $VERBOSE -i "$INPUT" -vf "scale=-2:$HEIGHT" -c:a copy "$OUTPUT"
+    ;;
+  to-ts)
+    ffmpeg $VERBOSE -i "$INPUT" -c copy -bsf:v h264_mp4toannexb "$OUTPUT"
+    ;;
+esac
+
+echo "Done!"
