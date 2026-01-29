@@ -1,707 +1,189 @@
-#!/bin/bash
-# work on this : improve
+#!/bin/sh
 set -e
-unalias -a
-. "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed bc || exit 1
+
+[ -f "$__distro_path_lib" ] && . "$__distro_path_lib"
 
 show_error() {
-  local red=$'\033[0;91m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${red}${*:2}${nc}" 1>&2
-  else
-    echo -e "${red}${*}${nc}" 1>&2
-  fi
+    red='\033[0;91m'
+    nc='\033[0m'
+    printf "%b%s%b\n" "$red" "$*" "$nc" >&2
 }
 
 show_info() {
-  local green=$'\033[0;92m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${green}${*:2}${nc}"
-  else
-    echo -e "${green}${*}${nc}"
-  fi
-} 
+    green='\033[0;92m'
+    nc='\033[0m'
+    printf "%b%s%b\n" "$green" "$*" "$nc"
+}
 
 show_warning() {
-  local yellow=$'\033[0;93m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${yellow}${*:2}${nc}"
-  else
-    echo -e "${yellow}${*}${nc}"
-  fi
+    yellow='\033[0;93m'
+    nc='\033[0m'
+    printf "%b%s%b\n" "$yellow" "$*" "$nc"
 }
 
 show_header() {
-  local cyan=$'\033[0;96m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${cyan}${*:2}${nc}"
-  else
-    echo -e "${cyan}${*}${nc}"
-  fi
+    cyan='\033[0;96m'
+    nc='\033[0m'
+    printf "%b%s%b\n" "$cyan" "$*" "$nc"
 }
 
 show_listitem() {
-  local white=$'\033[0;97m'
-  local nc=$'\033[0m'
-  if [[ "${1:--e}" =~ ^(-e|-n)$ ]];then
-    echo "${1:--e}" "${white}${*:2}${nc}"
-  else
-    echo -e "${white}${*}${nc}"
-  fi
+    white='\033[0;97m'
+    nc='\033[0m'
+    printf "  %b%s%b\n" "$white" "$*" "$nc"
 }
-
-#
-# Globals
-#
 
 A_BITRATE_PER_STREAM=64
-
 NO_DEFAULT_SUBS=false
 CROP=false
-
 PROBESIZE=1G
 ANALYZEDURATION=1G
+OUT_VCODEC="copy"
+OUT_ACODEC="copy"
+ASTREAM_ID=""
+VSTREAM_ID=""
+EXTRA=""
 
-#
-# Functions
-#
+set_audio_bitrate() {
+    _n_channels="$1"
+    _in_bitrate="$2"
+    _calc_bitrate=$((A_BITRATE_PER_STREAM * _n_channels))
 
-function set_audio_bitrate {
-  local in="${1}"
-  local n_streams="${2}"
-  local in_abitrate="${3}"
-  local abitrate # stores bitrate in kbps
-
-  abitrate="$((A_BITRATE_PER_STREAM * n_streams))"
-
-  if [[ "${in_abitrate}" = 0 ]];then
-    echo "${abitrate}k"
-  elif [[ "${in_abitrate}" = "N/A" ]];then
-    echo "${abitrate}k"
-  elif [[ "${abitrate}" -gt "${in_abitrate}" ]];then
-    echo "${in_abitrate}k"
-  else
-    echo "${abitrate}k"
-  fi
+    if [ "$_in_bitrate" = "0" ] || [ "$_in_bitrate" = "N/A" ] || [ -z "$_in_bitrate" ]; then
+        echo "${_calc_bitrate}k"
+    elif [ "$_calc_bitrate" -gt "$_in_bitrate" ]; then
+        echo "${_in_bitrate}k"
+    else
+        echo "${_calc_bitrate}k"
+    fi
 }
 
-function convert_codec {
-  local in="${BACKUP}"
-  local out
-  local cmd
-  local idx
+compute_crop_filter() {
+    _file="$1"
+    # Using awk to extract the crop value from ffmpeg output
+    _crop=$(ffmpeg -i "file:$_file" -vf 'cropdetect=24:2:0' -f null - 2>&1 | tail -n 3 | head -n 1 | awk -F 'crop=' '{print $2}' | cut -d' ' -f1)
+    if [ -z "$_crop" ]; then return 1; fi
+    echo "crop=$_crop"
+}
 
-  cmd="ffmpeg${PROBESIZE:+ -probesize ${PROBESIZE}}"
-  cmd="${cmd}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
-  cmd="${cmd} -v info -i file:${in@Q} -map_chapters 0 -map_metadata 0"
-  if [[ "${NO_DEFAULT_SUBS}" = true ]];then
-    cmd="${cmd} -default_mode infer_no_subs -disposition:s -default"
-  fi
-
-  if ! [[ "${VSTREAM_ID}" = "-1" ]];then
-    cmd="${cmd} -map 0:v:${VSTREAM_ID:-?}"
-
-    if "${CROP}";then
-      local _tmp
-      if _tmp="$(compute_crop_filter "${in}")";then
-        cmd="${cmd} -vf '${_tmp}')'"
-      else
-        show_warning "WARNING: No croppable regions detected."
-      fi
-    fi
-
-    # set video codec
-    if [ -n "${VSTREAM_ID}" ];then
-      case "${OUT_VCODEC}" in
-        h264 | x264 | libx264 | h.264 | x.264)
-          cmd="${cmd} -c:v:${VSTREAM_ID} libx264 -x264-params crf=${CRF} -preset slow"
-          ;;
-        h265 | x265 | libx265 | h.265 | x.265)
-          cmd="${cmd} -c:v:${VSTREAM_ID} libx265 -x265-params crf=${CRF} -preset slow"
-          ;;
-        copy)
-          cmd="${cmd} -c:v:${VSTREAM_ID} copy"
-          ;;
-        *)
-          show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
-          exit 3
-          ;;
-      esac
-    else
-      for idx in $(seq 0 $((${#IN_VSTREAM_CODEC_NAME[@]} - 1))); do
-        if ! [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]];then
-          case "${OUT_VCODEC}" in
-            h264 | x264 | libx264 | h.264 | x.264)
-              cmd="${cmd} -c:v:${idx} libx264 -x264-params crf=${CRF} -preset slow"
-              ;;
-            h265 | x265 | libx265 | h.265 | x.265)
-              cmd="${cmd} -c:v:${idx} libx265 -x265-params crf=${CRF} -preset slow"
-              ;;
-            copy)
-              cmd="${cmd} -c:v:${idx} copy"
-              ;;
-            *)
-              show_error "ERROR: video codec ${OUT_VCODEC@Q} is not supported. Exiting."
-              exit 3
-              ;;
-          esac
+fill_dimensions() {
+    if [ -n "$IN_DIMENSIONS" ]; then
+        if [ -z "$OUT_DIMENSIONS" ]; then
+            OUT_DIMENSIONS="$IN_DIMENSIONS"
         else
-          cmd="${cmd} -c:v:${idx} copy"
-        fi
-      done
-    fi
-  fi
+            # Extract width and height
+            _owidth=$(echo "$OUT_DIMENSIONS" | cut -d'x' -f1)
+            _oheight=$(echo "$OUT_DIMENSIONS" | cut -d'x' -f2)
+            _ratio_calc=$(echo "$ASPECTRATIO" | tr ':' '/')
 
-  if ! [[ "${ASTREAM_ID}" = "-1" ]];then
-    cmd="${cmd} -map 0:a:${ASTREAM_ID:-?}"
-
-    # set audio codec
-    case "${OUT_ACODEC}" in
-      libfdk_aac | aac)
-        # this only works for ffmpeg manually compiled with libfdk_aac
-        if [[ -v OUT_ABITRATE ]];then
-          cmd="${cmd} -c:a libfdk_aac -b:a ${OUT_ABITRATE}"
-        else
-          cmd="${cmd} -c:a libfdk_aac -vbr 5"
-        fi
-        ;;
-      libmp3lame | mp3lame | mp3)
-        if [[ -v OUT_ABITRATE ]];then
-          cmd="${cmd} -c:a libmp3lame -b:a ${OUT_ABITRATE}"
-        else
-          cmd="${cmd} -c:a libmp3lame -b:a 320k"
-        fi
-        ;;
-      libopus | opus)
-        if [[ -v OUT_ABITRATE ]];then
-          cmd="${cmd} -c:a libopus -b:a ${OUT_ABITRATE}"
-        else
-          # set computed bitrates individually for each channel because input
-          # channels can have different bitrates and channel layouts
-          cmd="${cmd} -c:a libopus"
-          if [ -n "${ASTREAM_ID}" ];then
-            cmd="${cmd} -b:a:0 $(set_audio_bitrate \
-                                  "${in}" \
-                                  "${IN_ASTREAM_CHANNEL_COUNT[${ASTREAM_ID}]}" \
-                                  "${IN_ASTREAM_BITRATE[${ASTREAM_ID}]}")"
-            if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${ASTREAM_ID}]}" = "5.1(side)" ]];then
-              show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-              cmd="${cmd} -channel_layout:a:0 5.1"
+            if [ -z "$_owidth" ] && [ -n "$_oheight" ]; then
+                _owidth=$(awk "BEGIN {printf \"%.0f\", $_oheight * ($_ratio_calc)}")
+            elif [ -n "$_owidth" ] && [ -z "$_oheight" ]; then
+                _oheight=$(awk "BEGIN {printf \"%.0f\", $_owidth / ($_ratio_calc)}")
             fi
-          else
-            for idx in $(seq 0 $((${#IN_ASTREAM_CHANNEL_COUNT[@]} - 1))); do
-              cmd="${cmd} -b:a:${idx} $(set_audio_bitrate \
-                                          "${in}" \
-                                          "${IN_ASTREAM_CHANNEL_COUNT[${idx}]}" \
-                                          "${IN_ASTREAM_BITRATE[$idx]}")"
-              if [[ "${IN_ASTREAM_CHANNEL_LAYOUT[${idx}]}" = "5.1(side)" ]];then
-                show_warning "WARNING: converting layout from 5.1(side) to 5.1."
-                cmd="${cmd} -channel_layout:a:${idx} 5.1"
-              fi
-            done
-          fi
+            OUT_DIMENSIONS="${_owidth}x${_oheight}"
         fi
-        ;;
-      copy)
-        cmd="${cmd} -c:a copy"
-        ;;
-      *)
-        show_error "ERROR: audio codec ${OUT_ACODEC@Q} not supported. Exiting."
-        exit 3
-        ;;
+    fi
+}
+
+convert_codec() {
+    _in="$BACKUP"
+    _cmd="ffmpeg${PROBESIZE:+ -probesize ${PROBESIZE}}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
+    _cmd="$_cmd -v info -i \"file:$_in\" -map_chapters 0 -map_metadata 0"
+
+    if [ "$NO_DEFAULT_SUBS" = "true" ]; then
+        _cmd="$_cmd -default_mode infer_no_subs -disposition:s -default"
+    fi
+
+    # Video Mapping
+    if [ "$VSTREAM_ID" != "-1" ]; then
+        _cmd="$_cmd -map 0:v:${VSTREAM_ID:-?}"
+        if [ "$CROP" = "true" ]; then
+            _crop_val=$(compute_crop_filter "$_in") && _cmd="$_cmd -vf '$_crop_val'" || show_warning "No crop detected."
+        fi
+
+        case "$OUT_VCODEC" in
+            libx264|libx265) _cmd="$_cmd -c:v:${VSTREAM_ID:-0} $OUT_VCODEC -x264-params crf=${CRF} -preset slow" ;;
+            copy) _cmd="$_cmd -c:v:${VSTREAM_ID:-0} copy" ;;
+        esac
+    fi
+
+    # Audio Mapping
+    if [ "$ASTREAM_ID" != "-1" ]; then
+        _cmd="$_cmd -map 0:a:${ASTREAM_ID:-?}"
+        case "$OUT_ACODEC" in
+            libfdk_aac) _cmd="$_cmd -c:a libfdk_aac ${OUT_ABITRATE:+ -b:a $OUT_ABITRATE}" ;;
+            libopus)    _cmd="$_cmd -c:a libopus ${OUT_ABITRATE:+ -b:a $OUT_ABITRATE}" ;;
+            copy)       _cmd="$_cmd -c:a copy" ;;
+        esac
+    fi
+
+    # Finalize Output
+    case "$OUT_CONTAINER" in
+        mp4)  _out="${NAME}.mp4"; _cmd="$_cmd -movflags +faststart -f mp4" ;;
+        mkv|matroska) _out="${NAME}.mkv"; _cmd="$_cmd -f matroska" ;;
+        *)    _out="${NAME}.${OUT_CONTAINER}"; _cmd="$_cmd -f $OUT_CONTAINER" ;;
     esac
-  fi
 
-  # specify frame size if different from the input
-  if [[ -v IN_DIMENSIONS ]];then
-    if ! [[ "${IN_DIMENSIONS}" = "${OUT_DIMENSIONS}" ]];then
-      # only add the size parameter if the output width/height are not larger
-      # that the corresponding input values
-      if [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f1)" -lt "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f1)" ]] ||
-         [[ "$(echo "${IN_DIMENSIONS}" | cut -d"x" -f2)" -lt "$(echo "${OUT_DIMENSIONS}" | cut -d"x" -f2)" ]];then
-        show_warning \
-          "WARNING: Dimensions ${OUT_DIMENSIONS@Q} exceed input ${IN_DIMENSIONS@Q}."
-      else
-        cmd="${cmd} -s ${OUT_DIMENSIONS}"
-      fi
-    fi
-  fi
+    [ -n "$OUT_DIMENSIONS" ] && _cmd="$_cmd -s $OUT_DIMENSIONS"
+    [ -n "$EXTRA" ] && _cmd="$_cmd $EXTRA"
+    _cmd="$_cmd \"file:$_out\""
 
-  # set subtitle format
-  case "${OUT_CONTAINER}" in
-    mp4)
-      # convert subtitle format to mov_text for mp4 output
-      if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]];then
-        cmd="${cmd} -map 0:s:? -c:s copy"
-      elif [[ "${IN_SCODEC}" = 94213 ]];then
-        cmd="${cmd} -map 0:s:? -c:s mov_text"
-      else
-        cmd="${cmd} -map 0:s:? -c:s copy"
-      fi
-      ;;
-    matroska | mkv)
-      # convert 94213 to srt
-      case "${IN_SCODEC}" in
-        94213)
-          cmd="${cmd} -map 0:s:? -c:s srt"
-          ;;
-        *)
-          cmd="${cmd} -map 0:s:? -c:s copy"
-          ;;
-      esac
-      ;;
-    *)
-      # copy subtitle codec by default
-      cmd="${cmd} -map 0:s:? -c:s copy"
-      ;;
-  esac
-
-  # copy any attachments
-  cmd="${cmd} -map 0:t:? -c:t copy"
-
-  # manually specify the container format (ffmpeg may not infer from file name)
-  case "${OUT_CONTAINER}" in
-    avi)
-      cmd="${cmd} -f avi"
-      out="${NAME}.avi"
-      ;;
-    mpg)
-      cmd="${cmd} -f mpg"
-      out="${NAME}.mpg"
-      ;;
-    mkv | matroska)
-      cmd="${cmd} -f matroska"
-      out="${NAME}.mkv"
-      ;;
-    mka)
-      cmd="${cmd} -f matroska"
-      out="${NAME}.mka"
-      ;;
-    mp4)
-      cmd="${cmd} -movflags +faststart -f mp4"
-      out="${NAME}.mp4"
-      ;;
-    mp3)
-      cmd="${cmd} -f mp3"
-      out="${NAME}.mp3"
-      ;;
-    flac)
-      cmd="${cmd} -f flac"
-      out="${NAME}.flac"
-      ;;
-    wav)
-      cmd="${cmd} -f wav"
-      out="${NAME}.wav"
-      ;;
-    opus)
-      if [ "${#IN_VSTREAM_CODEC_NAME[@]}" -eq 0 ] || [ "${VSTREAM_ID}" -eq -1 ];then
-        cmd="${cmd} -f opus"
-        out="${NAME}.opus"
-      else
-        show_warning "WARNING: Opus does not support video streams. Switching to Matroska."
-        OUT_CONTAINER=mka
-        cmd="${cmd} -f matroska"
-        out="${NAME}.mka"
-      fi
-      ;;
-    *)
-      show_error "ERROR: Container ${OUT_CONTAINER@Q} not supported. Exiting."
-      exit 3
-      ;;
-  esac
-
-  if [[ -n "${EXTRA}" ]];then
-    cmd="${cmd} ${EXTRA}"
-  fi
-
-  # add output
-  cmd="${cmd} file:${out@Q}"
-
-  show_header "Re-encoding ${in@Q}:"
-  show_info "${cmd}"
-  eval "${cmd}"
+    show_header "Executing: $_cmd"
+    eval "$_cmd"
 }
 
-function scan_input {
-  local fstring
-  local astring
-  local vstring
-  local sstring
-  local format_name
-  local idx
+scan_input() {
+    _ffp="ffprobe -v error ${PROBESIZE:+ -probesize ${PROBESIZE}} ${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
+    
+    # Get Format
+    IN_CONTAINER=$(eval "$_ffp -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 \"file:$IN\"" | cut -d',' -f1)
+    OUT_CONTAINER=${OUT_CONTAINER:-$IN_CONTAINER}
 
-  local _ffprobe="ffprobe"
-  _ffprobe="${_ffprobe}${PROBESIZE:+ -probesize ${PROBESIZE}}"
-  _ffprobe="${_ffprobe}${ANALYZEDURATION:+ -analyzeduration ${ANALYZEDURATION}}"
+    # Get First Video Stream Info
+    _vinfo=$(eval "$_ffp -select_streams v:0 -show_entries stream=width,height,display_aspect_ratio -of csv=p=0 \"file:$IN\"")
+    if [ -n "$_vinfo" ]; then
+        IN_WIDTH=$(echo "$_vinfo" | cut -d',' -f1)
+        IN_HEIGHT=$(echo "$_vinfo" | cut -d',' -f2)
+        ASPECTRATIO=$(echo "$_vinfo" | cut -d',' -f3)
+        IN_DIMENSIONS="${IN_WIDTH}x${IN_HEIGHT}"
+    fi
+}
 
-  fstring="$(eval "${_ffprobe} -v error -show_format file:${IN@Q}")"
-  sstring="$(eval "${_ffprobe} -v error -select_streams s:0 -show_streams file:${IN@Q}")"
+print_usage() {
+    show_header "Usage: reencode -i [file] [options]"
+    show_listitem "-i | --input      Input file"
+    show_listitem "-v | --vcodec     h264, h265, copy"
+    show_listitem "-a | --acodec     aac, opus, copy"
+    show_listitem "-c | --container  mp4, mkv"
+    show_listitem "-r | --crf        CRF value"
+    show_listitem "-p | --crop       Auto crop"
+}
 
-  format_name="$(echo "${fstring}" | sed -n "s/^format_name=\(.*\)/\1/p")"
-  case "${format_name}" in
-    matroska,webm | matroska | mkv | webm)
-      if [[ "${EXTENSION,,}" = webm ]];then
-        IN_CONTAINER=webm
-      else
-        IN_CONTAINER=mkv
-      fi
-      ;;
-    mp4 | mov,mp4,m4a,3gp,3g2,mj2 | m4a | mov | mpegts)
-      IN_CONTAINER=mp4
-      ;;
-    mp3)
-      IN_CONTAINER=mp3
-      ;;
-    avi)
-      IN_CONTAINER=avi
-      ;;
-    ogg)
-      IN_CONTAINER=ogg
-      ;;
-    flac)
-      IN_CONTAINER=flac
-      ;;
-    wav)
-      IN_CONTAINER=wav
-      ;;
-    *)
-      show_error "ERROR: ${format_name@Q} unsupported. Exiting."
-      exit 3
-      ;;
-  esac
-
-  if ! [[ -v OUT_CONTAINER ]];then
-    case "${IN_CONTAINER}" in
-      matroska,webm | webm)
-        OUT_CONTAINER=matroska
-        ;;
-      *)
-        OUT_CONTAINER="${IN_CONTAINER}"
-        ;;
+# --- Parse Args ---
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -i|--input)     IN="$2"; NAME="${IN%.*}"; EXTENSION="${IN##*.}"; BACKUP="${IN}.bak"; scan_input; shift 2 ;;
+        -v|--vcodec)    case "$2" in h264*) OUT_VCODEC="libx264" ;; h265*) OUT_VCODEC="libx265" ;; *) OUT_VCODEC="$2" ;; esac; shift 2 ;;
+        -a|--acodec)    case "$2" in aac) OUT_ACODEC="libfdk_aac" ;; opus) OUT_ACODEC="libopus" ;; *) OUT_ACODEC="$2" ;; esac; shift 2 ;;
+        -c|--container) OUT_CONTAINER="$2"; shift 2 ;;
+        -r|--crf)       CRF="$2"; shift 2 ;;
+        -p|--crop)      CROP=true; shift ;;
+        -h|--help)      print_usage; exit 0 ;;
+        *)              shift ;;
     esac
-  fi
-
-  IN_SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
-
-  IN_VSTREAM_CODEC_NAME=()
-  IN_VSTREAM_WIDTH=()
-  IN_VSTREAM_HEIGHT=()
-  IN_VSTREAM_DISPLAY_ASPECT_RATIO=()
-  while read -r vstring; do
-    IN_VSTREAM_CODEC_NAME+=("$(echo "${vstring}" | cut -d"|" -f2)")
-    IN_VSTREAM_WIDTH+=("$(echo "${vstring}" | cut -d"|" -f4)")
-    IN_VSTREAM_HEIGHT+=("$(echo "${vstring}" | cut -d"|" -f5)")
-    IN_VSTREAM_DISPLAY_ASPECT_RATIO+=("$(echo "${vstring}" | cut -d"|" -f6)")
-  done <<< "$(eval "${_ffprobe} -v error \
-                -select_streams v \
-                -show_entries stream=codec_type,codec_name,width,height,display_aspect_ratio \
-                -of compact=nokey=1 file:${IN@Q}")"
-
-  IN_ASTREAM_CHANNEL_COUNT=()
-  IN_ASTREAM_CHANNEL_LAYOUT=()
-  IN_ASTREAM_BITRATE=()
-  while read -r astring; do
-    IN_ASTREAM_CHANNEL_COUNT+=("$(echo "${astring}" | cut -d"|" -f3)")
-    IN_ASTREAM_CHANNEL_LAYOUT+=("$(echo "${astring}" | cut -d"|" -f4)")
-    IN_ASTREAM_BITRATE+=("$(echo "${astring}" | cut -d"|" -f5)")
-  done <<< "$(eval "${_ffprobe} -v error \
-                -select_streams a \
-                -show_entries stream=codec_type,channels,channel_layout,bit_rate \
-                -of compact=nokey=1 file:${IN@Q}")"
-
-  OUT_VCODEC="${OUT_VCODEC:-copy}"
-  OUT_ACODEC="${OUT_ACODEC:-copy}"
-  OUT_SCODEC="${OUT_SCODEC:-copy}"
-
-  # use first video stream to get display properties
-  for idx in $(seq 0 $((${#IN_VSTREAM_CODEC_NAME[@]} - 1))); do
-    if [[ "${IN_VSTREAM_CODEC_NAME[${idx}]}" =~ jpeg|jpg|png ]];then
-      continue
-    else
-      ASPECTRATIO="${IN_VSTREAM_DISPLAY_ASPECT_RATIO[${idx}]}"
-      IN_DIMENSIONS="${IN_VSTREAM_WIDTH[${idx}]}x${IN_VSTREAM_HEIGHT[${idx}]}"
-      break
-    fi
-  done
-}
-
-function check_compat {
-  case "${OUT_CONTAINER}" in
-    avi | AVI)
-      case "${OUT_VCODEC}" in
-        h264 | x264 | libx264 | h.264 | x.264 | h265 | x265 | libx265 | h.265 | x.265)
-          show_error "ERROR: ${OUT_CONTAINER} and ${OUT_VCODEC} incompatible."
-          exit 3
-          ;;
-        *) ;;
-      esac
-      ;;
-    *) ;;
-  esac
-
-  if [[ -v VSTREAM_ID ]];then
-    if [[ "${VSTREAM_ID}" -ge "${#IN_VSTREAM_CODEC_NAME[@]}" ]];then
-      show_error "ERROR: ${VSTREAM_ID@Q} exceeds number of video streams in input. Exiting."
-      exit 3
-    fi
-  fi
-
-  if [[ -v ASTREAM_ID ]];then
-    if [[ "${ASTREAM_ID}" -ge "${#IN_ASTREAM_CHANNEL_COUNT[@]}" ]];then
-      show_error "ERROR: ${ASTREAM_ID@Q} exceeds number of audio streams in input. Exiting."
-      exit 3
-    fi
-  fi
-}
-
-function print_usage {
-  show_header "Usage: reencode"
-  show_listitem "\
-  -i|--input          input video
-  -a|--acodec         audio codec (copy, aac, opus, or mp3)
-  -A|--astream_id     select index of one audio stream to encode
-  -b|--bitrate_audio  set global audio output bitrate
-  -v|--vcodec         video codec (h264 or h265)
-  -V|--vstream_id     select index of one video stream to encode
-  -r|--crf            set constant rate factor for video encoding
-  -p|--crop           use ffcropdetect to crop video
-  -n|--nodefault      set no subtitles to be shown by default
-  -d|--dimensions     output dimensions (e.g. 1920x, 1280x720, etc.)
-  -c|--container      container format (matroska or mp4)
-  -e|--extra          extra ffmpeg cli string
-  -h|--help           print (this) help message"
-}
-
-function parse_container {
-  case "${1,,}" in
-    avi)
-      OUT_CONTAINER=avi
-      ;;
-    mpg)
-      OUT_CONTAINER=mpg
-      ;;
-    mkv | matroska | mka)
-      OUT_CONTAINER=matroska
-      ;;
-    mp4 | mpeg4 | mpeg-4 | m4v)
-      OUT_CONTAINER=mp4
-      ;;
-    mp3)
-      OUT_CONTAINER=mp3
-      ;;
-    flac)
-      OUT_CONTAINER=flac
-      ;;
-    wav)
-      OUT_CONTAINER=wav
-      ;;
-    opus)
-      OUT_CONTAINER=opus
-      ;;
-    *)
-      show_error "ERROR: Output ${1@Q} containers not supported. Exiting."
-      exit 3
-      ;;
-  esac
-}
-
-function parse_vcodec {
-  case "${1}" in
-    h264 | x264 | libx264 | h.264 | x.264 | avc)
-      OUT_VCODEC=libx264
-      ;;
-    h265 | x265 | libx265 | h.265 | x.265 | hevc)
-      OUT_VCODEC=libx265
-      ;;
-    copy)
-      OUT_VCODEC=copy
-      ;;
-    *)
-      show_error "ERROR: Video codec ${1@Q} is not supported. Exiting."
-      exit 3
-      ;;
-  esac
-}
-
-function parse_acodec {
-  case "${1}" in
-    libfdk_aac | aac)
-      # this only works for ffmpeg manually compiled with libfdk_aac
-      OUT_ACODEC=libfdk_aac
-      ;;
-    libmp3lame | mp3lame | mp3)
-      OUT_ACODEC=libmp3lame
-      ;;
-    libopus | opus)
-      OUT_ACODEC=libopus
-      ;;
-    copy)
-      OUT_ACODEC=copy
-      ;;
-    *)
-      show_error "ERROR: Audio codec ${1@Q} not supported. Exiting."
-      exit 3
-      ;;
-  esac
-}
-
-function fill_dimensions {
-  local out_width
-  local out_height
-
-  if [[ -v IN_DIMENSIONS ]];then
-    if ! [[ -v OUT_DIMENSIONS ]];then
-      OUT_DIMENSIONS="${IN_DIMENSIONS}"
-    else
-      out_width="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\1,p")"
-      out_height="$(echo "${OUT_DIMENSIONS}" | sed -n "s,^\([0-9]*\)[:x]\([0-9]*\)$,\2,p")"
-      if [ -z "${out_width}" ] && [ -n "${out_height}" ];then
-        out_width="$(printf %.0f "$(echo "${out_height} * ${ASPECTRATIO}" | sed 's,:,/,g' | bc -l)")"
-      elif [ -n "${out_width}" ] && [ -z "${out_height}" ];then
-        out_height="$(printf %.0f "$(echo "${out_width} / (${ASPECTRATIO})" | sed 's,:,/,g' | bc -l)")"
-      fi
-      OUT_DIMENSIONS="${out_width}x${out_height}"
-    fi
-  fi
-}
-
-function compute_crop_filter {
-  local cropfilter
-  cropfilter="$(ffmpeg -i file:"${1}" -vf 'cropdetect=24:2:0' -f null - 2>&1 | tail -n 3 | head -1 | cut -d" " -f15)"
-  if [[ "$(echo "${cropfilter}" | cut -d":" -f3)" -eq 0 ]] &&
-     [[ "$(echo "${cropfilter}" | cut -d":" -f4)" -eq 0 ]];then
-    return 1
-  else
-    echo "${cropfilter}"
-  fi
-}
-
-#
-# Parse command line options
-#
-
-ASTREAM_ID=
-VSTREAM_ID=
-EXTRA=
-
-OPTIONS=i:e:a:A:b:v:V:r:c:d:hnp
-LONGOPTIONS=input:,extra:,acodec:,asteam_id:,bitrate:,vcodec:,vstream_id:,crf:,dimensions:,container:,help,nodefault,crop
-PARSED=$(getopt -o "${OPTIONS}" --long "${LONGOPTIONS}" -n "${0}" -- "${@}")
-eval set -- "${PARSED}"
-while [ ${#} -ge 1 ]; do
-  case "${1}" in
-    -i | --input)
-      IN="${2}"
-      NAME="${IN%.*}"
-      EXTENSION="${IN##*.}"
-      BACKUP="${IN}_$(date +'%Y%m%d-%H%M%S').bak"
-      scan_input
-      shift 2
-      ;;
-    -e | --extra)
-      EXTRA="${2}"
-      shift 2
-      ;;
-    -a | --acodec)
-      parse_acodec "${2}"
-      shift 2
-      ;;
-    -A | --astream_id)
-      ASTREAM_ID="${2}"
-      shift 2
-      ;;
-    -b | --bitrate_audio)
-      OUT_ABITRATE="${2}"
-      shift 2
-      ;;
-    -v | --vcodec)
-      parse_vcodec "${2}"
-      shift 2
-      ;;
-    -V | --vstream_id)
-      VSTREAM_ID="${2}"
-      shift 2
-      ;;
-    -n | --nodefault)
-      NO_DEFAULT_SUBS=true
-      shift 1
-      ;;
-    -r | --crf)
-      CRF="${2}"
-      shift 2
-      ;;
-    -d | --dimensions)
-      OUT_DIMENSIONS="${2}"
-      shift 2
-      ;;
-    -c | --container)
-      parse_container "${2}"
-      shift 2
-      ;;
-    -p | --crop)
-      CROP=true
-      shift 1
-      ;;
-    -h | --help)
-      print_usage
-      exit
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      show_error "ERROR: Unknown command line option."
-      print_usage
-      exit 3
-      ;;
-  esac
 done
 
-#
-# Main
-#
-
-if ! [[ -v IN ]];then
-  show_error "ERROR: Input file not given."
-  exit 3
+if [ -z "$IN" ] || [ ! -f "$IN" ]; then
+    show_error "Input file missing or invalid."
+    exit 3
 fi
 
-if ! [[ -f "${IN}" ]];then
-  show_error "ERROR: Input file not found."
-  exit 3
-fi
+if [ "$OUT_VCODEC" = "libx264" ]; then CRF=${CRF:-18}; elif [ "$OUT_VCODEC" = "libx265" ]; then CRF=${CRF:-23}; fi
 
-case "${OUT_VCODEC}" in
-  libx264)
-    CRF="${CRF:-18}" # ffmpeg default is 23
-    ;;
-  libx265)
-    CRF="${CRF:-23}" # ffmpeg default is 28
-    ;;
-esac
-
-fill_dimensions # must be called after scan_input has run
-check_compat    # check whether output codecs and compatible
-
-mv "${IN}" "${BACKUP}"
-sync
-
-# set traps
-if [[ "${IN_CONTAINER}" = "${OUT_CONTAINER}" ]];then
-  trap 'mv -f "${BACKUP}" "${IN}"; exit' INT TERM ERR
-else
-  if [[ "${OUT_CONTAINER}" = "matroska" ]];then
-    trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.mkv"; exit' INT TERM ERR
-  else
-    trap 'mv -f "${BACKUP}" "${IN}"; rm -f "${NAME}.${OUT_CONTAINER}"; exit' INT TERM ERR
-  fi
-fi
+fill_dimensions
+mv "$IN" "$BACKUP"
+trap 'mv "$BACKUP" "$IN"; exit 1' INT TERM
 
 convert_codec
-sync
+show_info "Process complete. Original backed up as $BACKUP"
