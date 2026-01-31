@@ -679,7 +679,8 @@ done
 show_im "Adding fonts"
 mkdir -p /usr/share/fonts
 for e in "${__distro_path_all_distro_themes}"/fonts/*;do
-	ln -sf "$e" /usr/share/fonts
+	#ln -sf "$e" /usr/share/fonts
+	cp -r "$e" /usr/share/fonts
 done
 
 show_im "update fonts cache."

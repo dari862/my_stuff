@@ -22,255 +22,260 @@ show_em(){
 }
 
 generate_Distro_config(){
-mkdir -p "${CONFIGPATH}"/WM_common_config
-if [ "$_style" = "owl4ce_light" ] || [ "$_style" = "owl4ce_dark" ];then
-cat << EOF > "${CONFIGPATH}"/WM_common_config/Distro_config
-Style_name="$Style_name"
-_panel_name_="$_panel_name_"
-ROFI_STYLE="$ROFI_STYLE"
-tint2_STYLE="$tint2_STYLE"
-conky_sessionfile="$conky_sessionfile"
-
-CHK_THEME="$CHK_THEME"
-CHK_MODE="$CHK_MODE"
-
-CHK_OB_BUTTON_STYLE_artistic="$CHK_OB_BUTTON_STYLE_artistic"
-CHK_OB_BUTTON_LOC_artistic="$CHK_OB_BUTTON_LOC_artistic"
-CHK_WALLPAPER_artistic="\${__distro_path_wallpaper}/${_style}_wall-01.jpg"
-	
-CHK_OB_BUTTON_STYLE_interactive="$CHK_OB_BUTTON_STYLE_interactive"
-CHK_OB_BUTTON_LOC_interactive="$CHK_OB_BUTTON_LOC_interactive"
-CHK_WALLPAPER_interactive="\${__distro_path_wallpaper}/${_style}_wall-02.jpg"
-
-CHK_PANEL_ORT="$CHK_PANEL_ORT"
-CHK_PANEL_ORT_V="$CHK_PANEL_ORT_V"
-CHK_PANEL_ORT_H="$CHK_PANEL_ORT_H"
-
-if [ "\$CHK_MODE" = "artistic" ];then
-	CHK_OB_BUTTON_STYLE="\$CHK_OB_BUTTON_STYLE_artistic"
-	CHK_OB_BUTTON_LOC="\$CHK_OB_BUTTON_LOC_artistic"
-	wallpaper_are="\$CHK_WALLPAPER_artistic"
-else
-	CHK_PANEL_ORT="top"
-	CHK_OB_BUTTON_STYLE="\$CHK_OB_BUTTON_STYLE_interactive"
-	CHK_OB_BUTTON_LOC="\$CHK_OB_BUTTON_LOC_interactive"
-	wallpaper_are="\$CHK_WALLPAPER_interactive"
-fi
-layout_are="${layout_are}"
-
-tint2_sessionfile="/.config/tint2/\${CHK_THEME}/\${CHK_PANEL_ORT}.\${CHK_MODE}.tint2rc"
-
-random_wallpaper="${random_wallpaper}"
-EOF
-else
-cat << EOF > "${CONFIGPATH}"/WM_common_config/Distro_config
-Style_name="$Style_name"
-_panel_name_="$_panel_name_"
-ROFI_STYLE="$ROFI_STYLE"
-polybar_STYLE="$polybar_STYLE"
-conky_sessionfile=".config/conky/${conky_sessionfile}"
-tint2_sessionfile="/.config/tint2/${tint2_sessionfile}"
-wallpaper_are="$style_wallpaper"
-layout_are="${layout_are}"
-random_wallpaper="${random_wallpaper}"
-EOF
-fi
+	mkdir -p "${CONFIGPATH}"/WM_common_config
+	if [ "$_style" = "owl4ce_light" ] || [ "$_style" = "owl4ce_dark" ];then
+		cat <<- EOFDistroConfig > "${CONFIGPATH}"/WM_common_config/Distro_config
+		Style_name="$Style_name"
+		_panel_name_="$_panel_name_"
+		ROFI_STYLE="$ROFI_STYLE"
+		tint2_STYLE="$tint2_STYLE"
+		conky_sessionfile="$conky_sessionfile"
+		
+		CHK_THEME="$CHK_THEME"
+		CHK_MODE="$CHK_MODE"
+		
+		CHK_OB_BUTTON_STYLE_artistic="$CHK_OB_BUTTON_STYLE_artistic"
+		CHK_OB_BUTTON_LOC_artistic="$CHK_OB_BUTTON_LOC_artistic"
+		CHK_WALLPAPER_artistic="\${__distro_path_wallpaper}/${_style}_wall-01.jpg"
+			
+		CHK_OB_BUTTON_STYLE_interactive="$CHK_OB_BUTTON_STYLE_interactive"
+		CHK_OB_BUTTON_LOC_interactive="$CHK_OB_BUTTON_LOC_interactive"
+		CHK_WALLPAPER_interactive="\${__distro_path_wallpaper}/${_style}_wall-02.jpg"
+		
+		CHK_PANEL_ORT="$CHK_PANEL_ORT"
+		CHK_PANEL_ORT_V="$CHK_PANEL_ORT_V"
+		CHK_PANEL_ORT_H="$CHK_PANEL_ORT_H"
+		
+		if [ "\$CHK_MODE" = "artistic" ];then
+			CHK_OB_BUTTON_STYLE="\$CHK_OB_BUTTON_STYLE_artistic"
+			CHK_OB_BUTTON_LOC="\$CHK_OB_BUTTON_LOC_artistic"
+			wallpaper_are="\$CHK_WALLPAPER_artistic"
+		else
+			CHK_PANEL_ORT="top"
+			CHK_OB_BUTTON_STYLE="\$CHK_OB_BUTTON_STYLE_interactive"
+			CHK_OB_BUTTON_LOC="\$CHK_OB_BUTTON_LOC_interactive"
+			wallpaper_are="\$CHK_WALLPAPER_interactive"
+		fi
+		layout_are="${layout_are}"
+		
+		tint2_sessionfile="/.config/tint2/\${CHK_THEME}/\${CHK_PANEL_ORT}.\${CHK_MODE}.tint2rc"
+		
+		random_wallpaper="${random_wallpaper}"
+		EOFDistroConfig
+	else
+		cat <<- EOFDistro > "${CONFIGPATH}"/WM_common_config/Distro_config
+		Style_name="$Style_name"
+		_panel_name_="$_panel_name_"
+		ROFI_STYLE="$ROFI_STYLE"
+		polybar_STYLE="$polybar_STYLE"
+		conky_sessionfile=".config/conky/${conky_sessionfile}"
+		tint2_sessionfile="/.config/tint2/${tint2_sessionfile}"
+		wallpaper_are="$style_wallpaper"
+		layout_are="${layout_are}"
+		random_wallpaper="${random_wallpaper}"
+		EOFDistro
+	fi
 }
 
 generate_dunstrc(){
-if [ "$_style" = "owl4ce_light" ] || [ "$_style" = "owl4ce_dark" ];then
-mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst
-mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst
+	if [ "$_style" = "owl4ce_light" ] || [ "$_style" = "owl4ce_dark" ];then
+		mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst
+		mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst
+		
+		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst/interactive.dunstrc
+		origin=bottom-center
+		offset=0x60
+		icon_position=top
+		highlight="#44eb9f"
+		EOFdunstrc
+		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst/artistic.dunstrc
+		origin=top-right
+		offset=25x50
+		icon_position=left
+		highlight="#fa74b2"
+		EOFdunstrc
+		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst/interactive.dunstrc
+		origin=bottom-center
+		offset=0x60
+		icon_position=top
+		highlight="#f9f9f9"
+		EOFdunstrc
+		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst/artistic.dunstrc
+		origin=top-right
+		offset=25x50
+		icon_position=left
+		highlight="#f48ee8"
+		EOFdunstrc
+	fi
 
-cat << EOF > "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst/interactive.dunstrc
-origin=bottom-center
-offset=0x60
-icon_position=top
-highlight="#44eb9f"
-EOF
-cat << EOF > "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst/artistic.dunstrc
-origin=top-right
-offset=25x50
-icon_position=left
-highlight="#fa74b2"
-EOF
-cat << EOF > "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst/interactive.dunstrc
-origin=bottom-center
-offset=0x60
-icon_position=top
-highlight="#f9f9f9"
-EOF
-cat << EOF > "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst/artistic.dunstrc
-origin=top-right
-offset=25x50
-icon_position=left
-highlight="#f48ee8"
-EOF
-fi
+	cat <<- EOFdunst > "${CONFIGPATH}"/dunst/theme.dunstrc
+	# Align icons left/right/off
+	icon_position = ${dunstrc_icon_position}
+	
+	# Paths to default icons.
+	icon_theme = "${gtk_icon_name}"
+	
+	# Defines color of the frame around the notification window.
+	frame_color = "${dunstrc_frame_color}"
+	
+	# Define a color for the separator.
+	# possible values are:
+	#  * auto: dunst tries to find a color fitting to the background;
+	#  * foreground: use the same color as the foreground;
+	#  * frame: use the same color as the frame;
+	#  * anything else will be interpreted as a X color.
+	separator_color = ${dunstrc_separator_color}
+	
+	# The transparency of the window.  Range: [0; 100].
+	# This option will only work if a compositing window manager is
+	# present (e.g. xcompmgr, compiz, etc.).
+	transparency = ${dunstrc_transparency}
+	
+	# Position the notification in the top right corner
+	origin = ${dunstrc_origin}
+	
+	# Offset from the origin
+	offset = ${dunstrc_offset}
+	
+	# Defines width in pixels of frame around the notification window.
+	# Set to 0 to disable.
+	frame_width = ${dunstrc_frame_width}
+	
+	### Text ###
+	
+	font = ${gtk_font_name}
+	
+	# The format of the message.  Possible variables are:
+	#   %a  appname
+	#   %s  summary
+	#   %b  body
+	#   %i  iconname (including its path)
+	#   %I  iconname (without its path)
+	#   %p  progress value if set ([  0%] to [100%]) or nothing
+	#   %n  progress value if set without any extra characters
+	#   %%  Literal %
+	format = "${dunstrc_format}"
+	
+	# IMPORTANT: colors have to be defined in quotation marks.
+	# Otherwise the "#" and following would be interpreted as a comment.
+	[urgency_low]
+	timeout = ${dunstrc_low_timeout}
+	background = "${dunstrc_low_background}"
+	foreground = "${dunstrc_low_foreground}"
+	EOFdunst
 
-cat << EOF > "${CONFIGPATH}"/dunst/theme.dunstrc
-# Align icons left/right/off
-icon_position = ${dunstrc_icon_position}
-
-# Paths to default icons.
-icon_theme = "${gtk_icon_name}"
-
-# Defines color of the frame around the notification window.
-frame_color = "${dunstrc_frame_color}"
-
-# Define a color for the separator.
-# possible values are:
-#  * auto: dunst tries to find a color fitting to the background;
-#  * foreground: use the same color as the foreground;
-#  * frame: use the same color as the frame;
-#  * anything else will be interpreted as a X color.
-separator_color = ${dunstrc_separator_color}
-
-# The transparency of the window.  Range: [0; 100].
-# This option will only work if a compositing window manager is
-# present (e.g. xcompmgr, compiz, etc.).
-transparency = ${dunstrc_transparency}
-
-# Position the notification in the top right corner
-origin = ${dunstrc_origin}
-
-# Offset from the origin
-offset = ${dunstrc_offset}
-
-# Defines width in pixels of frame around the notification window.
-# Set to 0 to disable.
-frame_width = ${dunstrc_frame_width}
-
-### Text ###
-
-font = ${gtk_font_name}
-
-# The format of the message.  Possible variables are:
-#   %a  appname
-#   %s  summary
-#   %b  body
-#   %i  iconname (including its path)
-#   %I  iconname (without its path)
-#   %p  progress value if set ([  0%] to [100%]) or nothing
-#   %n  progress value if set without any extra characters
-#   %%  Literal %
-format = "${dunstrc_format}"
-
-# IMPORTANT: colors have to be defined in quotation marks.
-# Otherwise the "#" and following would be interpreted as a comment.
-[urgency_low]
-timeout = ${dunstrc_low_timeout}
-background = "${dunstrc_low_background}"
-foreground = "${dunstrc_low_foreground}"
-EOF
-if [ -n "$dunstrc_low_frame_color" ];then
-	echo "frame_color = \"${dunstrc_low_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
-fi
-cat << EOF >> "${CONFIGPATH}"/dunst/theme.dunstrc
-[urgency_normal]
-timeout = ${dunstrc_normal_timeout}
-background = "${dunstrc_normal_background}"
-foreground = "${dunstrc_normal_foreground}"
-EOF
-if [ -n "$dunstrc_normal_frame_color" ];then
-	echo "frame_color = \"${dunstrc_normal_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
-fi
-cat << EOF >> "${CONFIGPATH}"/dunst/theme.dunstrc
-[urgency_critical]
-timeout = ${dunstrc_critical_timeout}
-background = "${dunstrc_critical_background}"
-foreground = "${dunstrc_critical_foreground}"
-EOF
-if [ -n "$dunstrc_critical_frame_color" ];then
-	echo "frame_color = \"${dunstrc_critical_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
-fi
+	if [ -n "$dunstrc_low_frame_color" ];then
+		echo "frame_color = \"${dunstrc_low_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
+	
+	cat <<- EOFdunst >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	[urgency_normal]
+	timeout = ${dunstrc_normal_timeout}
+	background = "${dunstrc_normal_background}"
+	foreground = "${dunstrc_normal_foreground}"
+	EOFdunst
+	
+	if [ -n "$dunstrc_normal_frame_color" ];then
+		echo "frame_color = \"${dunstrc_normal_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
+	
+	cat <<- EOFdunst >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	[urgency_critical]
+	timeout = ${dunstrc_critical_timeout}
+	background = "${dunstrc_critical_background}"
+	foreground = "${dunstrc_critical_foreground}"
+	EOFdunst
+	
+	if [ -n "$dunstrc_critical_frame_color" ];then
+		echo "frame_color = \"${dunstrc_critical_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
 
 }
 
 generate_gtk(){
-cat << EOF1 > "${CONFIGPATH}"/gtk-2.0/gtkrc-2.0
-gtk-theme-name="$gtk_theme_name"
-gtk-icon-theme-name="$gtk_icon_name"
-gtk-font-name="$gtk_font_name"
-gtk-cursor-theme-name="$gtk_cursor_name"
-gtk-cursor-theme-size=0
-gtk-toolbar-style=GTK_TOOLBAR_ICONS
-gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
-gtk-button-images=0
-gtk-menu-images=1
-gtk-enable-event-sounds=0
-gtk-enable-input-feedback-sounds=0
-gtk-xft-antialias=1
-gtk-xft-hinting=1
-gtk-xft-hintstyle="hintslight"
-gtk-xft-rgba="rgb"
-EOF1
-
-cat << EOF > "${CONFIGPATH}"/gtk-3.0/settings.ini
-[Settings]
-gtk-application-prefer-dark-theme=false
-gtk-enable-animations=true
-gtk-theme-name=$gtk_theme_name
-gtk-icon-theme-name=$gtk_icon_name
-gtk-cursor-theme-name=$gtk_cursor_name
-gtk-font-name=$gtk_font_name
-gtk-cursor-theme-size=0
-gtk-toolbar-style=GTK_TOOLBAR_ICONS
-gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
-gtk-button-images=0
-gtk-menu-images=1
-gtk-enable-event-sounds=0
-gtk-enable-input-feedback-sounds=0
-gtk-xft-antialias=1
-gtk-xft-hinting=1
-gtk-xft-hintstyle=hintslight
-gtk-xft-rgba=rgb
-EOF
+	cat <<- EOFgtk2 > "${CONFIGPATH}"/gtk-2.0/gtkrc-2.0
+	gtk-theme-name="$gtk_theme_name"
+	gtk-icon-theme-name="$gtk_icon_name"
+	gtk-font-name="$gtk_font_name"
+	gtk-cursor-theme-name="$gtk_cursor_name"
+	gtk-cursor-theme-size=0
+	gtk-toolbar-style=GTK_TOOLBAR_ICONS
+	gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+	gtk-button-images=0
+	gtk-menu-images=1
+	gtk-enable-event-sounds=0
+	gtk-enable-input-feedback-sounds=0
+	gtk-xft-antialias=1
+	gtk-xft-hinting=1
+	gtk-xft-hintstyle="hintslight"
+	gtk-xft-rgba="rgb"
+	EOFgtk2
+	
+	cat <<- EOFgtk3 > "${CONFIGPATH}"/gtk-3.0/settings.ini
+	[Settings]
+	gtk-application-prefer-dark-theme=false
+	gtk-enable-animations=true
+	gtk-theme-name=$gtk_theme_name
+	gtk-icon-theme-name=$gtk_icon_name
+	gtk-cursor-theme-name=$gtk_cursor_name
+	gtk-font-name=$gtk_font_name
+	gtk-cursor-theme-size=0
+	gtk-toolbar-style=GTK_TOOLBAR_ICONS
+	gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+	gtk-button-images=0
+	gtk-menu-images=1
+	gtk-enable-event-sounds=0
+	gtk-enable-input-feedback-sounds=0
+	gtk-xft-antialias=1
+	gtk-xft-hinting=1
+	gtk-xft-hintstyle=hintslight
+	gtk-xft-rgba=rgb
+	EOFgtk3
 }
 
 generate_plank(){
-cat << EOF > "$HOME"/.cache/plank.conf
-[dock1]
-alignment='center'
-auto-pinning=true
-current-workspace-only=false
-dock-items=['settings_manager.dockitem', 'my-terminal-emulator.dockitem', 'my-file-manager.dockitem', 'my-www-browser.dockitem', 'my-text-editor.dockitem']
-hide-delay=0
-hide-mode="$plank_hide_mode"
-icon-size=32
-items-alignment='center'
-lock-items=false
-monitor=''
-offset=$plank_offset
-pinned-only=false
-position=$plank_position
-pressure-reveal=false
-show-dock-item=false
-theme='Transparent'
-tooltips-enabled=true
-unhide-delay=0
-zoom-enabled=true
-zoom-percent=120
-EOF
+	cat <<- EOFplankconf > "$HOME"/.cache/plank.conf
+	[dock1]
+	alignment='center'
+	auto-pinning=true
+	current-workspace-only=false
+	dock-items=['settings_manager.dockitem', 'my-terminal-emulator.dockitem', 'my-file-manager.dockitem', 'my-www-browser.dockitem', 'my-text-editor.dockitem']
+	hide-delay=0
+	hide-mode="$plank_hide_mode"
+	icon-size=32
+	items-alignment='center'
+	lock-items=false
+	monitor=''
+	offset=$plank_offset
+	pinned-only=false
+	position=$plank_position
+	pressure-reveal=false
+	show-dock-item=false
+	theme='Transparent'
+	tooltips-enabled=true
+	unhide-delay=0
+	zoom-enabled=true
+	zoom-percent=120
+	EOFplankconf
 
-cat << EOF > "${CONFIGPATH}"/plank/plank_
-$plank_use_plank
-EOF
+	cat <<- EOFplank > "${CONFIGPATH}"/plank/plank_
+	$plank_use_plank
+	EOFplank
 }
 
 generate_lightdm(){
-cat << EOF > "${CONFIGPATH}"/WM_common_config/lightdm.conf
-greeter_background="$style_wallpaper"
-greeter_theme_name="${gtk_theme_name}"
-greeter_icon_theme_name="${greeter_icon_theme_name}"
-greeter_font_name="${gtk_font_name}"
-greeter_position="${greeter_position}"
-EOF
+	cat <<- EOFlightdm > "${CONFIGPATH}"/WM_common_config/lightdm.conf
+	greeter_background="$style_wallpaper"
+	greeter_theme_name="${gtk_theme_name}"
+	greeter_icon_theme_name="${greeter_icon_theme_name}"
+	greeter_font_name="${gtk_font_name}"
+	greeter_position="${greeter_position}"
+	EOFlightdm
 }
 
 generate_rofi(){
-cat << EOF > "${CONFIGPATH}"/rofi/fonts.rasi
-/**/
+cat << EOFrofifonts > "${CONFIGPATH}"/rofi/fonts.rasi
+// Rofi Font for $ROFI_STYLE
 
 * {
   font:			  "${rofi_font}";
@@ -278,11 +283,11 @@ cat << EOF > "${CONFIGPATH}"/rofi/fonts.rasi
   icon-font:      "${rofi_icon_font}";
 }
 
-EOF
+EOFrofifonts
 
 if [ "$ROFI_STYLE" = "modi" ];then
-cat << EOF > "${CONFIGPATH}"/rofi/theme.rasi
-/* Color-Scheme,Theme-Scheme, and Text Font */
+cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
+// Rofi colors for $ROFI_STYLE
 
 * {
   accent1:          ${rofi_accent1};
@@ -303,47 +308,43 @@ cat << EOF > "${CONFIGPATH}"/rofi/theme.rasi
   selected:         @accent2;
   active:           @background-focus;
 }
-EOF
+EOFrofi
 elif [ "$ROFI_STYLE" = "backgrounds" ];then
-cat << EOF > "${CONFIGPATH}"/rofi/theme.rasi
-// Rofi colors for Aline
+cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
+// Rofi colors for $ROFI_STYLE
 
 * {
     background: ${rofi_background};
-    bg-alt: ${rofi_bg_alt};
     background-alt: ${rofi_background_alt};
     foreground: ${rofi_foreground};
     selected: ${rofi_selected};
+    bg-alt: ${rofi_bg_alt};
     active: ${rofi_active};
     urgent: ${rofi_urgent};
 
     img-background: url("${__distro_path_root}/blob/polybar/${_style}/rofi.jpg", width);
 }
-EOF
+EOFrofi
 elif [ "$ROFI_STYLE" = "exo" ];then
-cat << EOF > "${CONFIGPATH}"/rofi/theme.rasi
+cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
+// Rofi colors for $ROFI_STYLE
+
 * {
-
-background:			${rofi_background};
-background-alt:		${rofi_background_alt};
-foreground:			${rofi_foreground};
-selected:			${rofi_selected};
-highlight:			${rofi_highlight};
-urgent:				${rofi_urgent};
-on:					${rofi_on};
-off:				${rofi_off};
-img-background: url("${__distro_path_root}/blob/polybar/${_style}/rofi.jpg", width);
-
+	background:			${rofi_background};
+	background-alt:		${rofi_background_alt};
+	foreground:			${rofi_foreground};
+	selected:			${rofi_selected};
+	highlight:			${rofi_highlight};
+	urgent:				${rofi_urgent};
+	on:					${rofi_on};
+	off:				${rofi_off};
+	
+	img-background: url("${__distro_path_root}/blob/polybar/${_style}/rofi.jpg", width);
 }
-EOF
+EOFrofi
 else
-cat << EOF > "${CONFIGPATH}"/rofi/theme.rasi
-/**
- *
- * theme : adaptive
- * 
- * Colors
- **/
+cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
+// Rofi colors for $ROFI_STYLE
 
 * {
     background:     ${rofi_background};
@@ -353,38 +354,38 @@ cat << EOF > "${CONFIGPATH}"/rofi/theme.rasi
     active:         ${rofi_active};
     urgent:         ${rofi_urgent};
 }
-EOF
+EOFrofi
 fi
 }
 
 generate_jgmenu(){
 	jgmenu_theme_file="${CONFIGPATH}/jgmenu/jgmenu_theme"
-cat << EOF > "${jgmenu_theme_file}"
-font="${jgmenu_font}"
-size="${jgmenu_size}"
-color_menu_bg="${jgmenu_color_menu_bg}"
-color_menu_border="${jgmenu_color_menu_border}"
-color_norm_bg="${jgmenu_color_norm_bg}"
-color_norm_fg="${jgmenu_color_norm_fg}"
-color_sel_bg="${jgmenu_color_sel_bg}"
-color_sel_fg="${jgmenu_color_sel_fg}"
-color_sel_border="${jgmenu_color_sel_border}"
-color_title_bg="${jgmenu_color_title_bg}"
-color_title_fg="${jgmenu_color_title_fg}"
-color_title_border="${jgmenu_color_title_border}"
-color_sep_fg="${jgmenu_color_sep_fg}"
-item_margin_x="${jgmenu_item_margin_x}"
-item_margin_y="${jgmenu_item_margin_y}"
-stay_alive="${jgmenu_stay_alive}"
-menu_padding_right="${jgmenu_menu_padding_right}"
-menu_padding_bottom="${jgmenu_menu_padding_bottom}"
-menu_padding_left="${jgmenu_menu_padding_left}"
-menu_radius="${jgmenu_menu_radius}"
-sep_halign="${jgmenu_sep_halign}"
-icon_size="${jgmenu_icon_size}"
-icon_theme="${jgmenu_icon_theme}"
-menu_border="${jgmenu_border}"
-EOF
+	cat <<- EOFjgmenu > "${jgmenu_theme_file}"
+	font="${jgmenu_font} "
+	size="${jgmenu_size}"
+	color_menu_bg="${jgmenu_color_menu_bg}"
+	color_menu_border="${jgmenu_color_menu_border}"
+	color_norm_bg="${jgmenu_color_norm_bg}"
+	color_norm_fg="${jgmenu_color_norm_fg}"
+	color_sel_bg="${jgmenu_color_sel_bg}"
+	color_sel_fg="${jgmenu_color_sel_fg}"
+	color_sel_border="${jgmenu_color_sel_border}"
+	color_title_bg="${jgmenu_color_title_bg}"
+	color_title_fg="${jgmenu_color_title_fg}"
+	color_title_border="${jgmenu_color_title_border}"
+	color_sep_fg="${jgmenu_color_sep_fg}"
+	item_margin_x="${jgmenu_item_margin_x}"
+	item_margin_y="${jgmenu_item_margin_y}"
+	stay_alive="${jgmenu_stay_alive}"
+	menu_padding_right="${jgmenu_menu_padding_right}"
+	menu_padding_bottom="${jgmenu_menu_padding_bottom}"
+	menu_padding_left="${jgmenu_menu_padding_left}"
+	menu_radius="${jgmenu_menu_radius}"
+	sep_halign="${jgmenu_sep_halign}"
+	icon_size="${jgmenu_icon_size}"
+	icon_theme="${jgmenu_icon_theme}"
+	menu_border="${jgmenu_border}"
+	EOFjgmenu
 }
 
 generate_geany(){
@@ -402,11 +403,7 @@ generate_kitty(){
 generate_alacritty(){
 	alacritty_theme_path="${CONFIGPATH}/alacritty"
 	( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
-cat << EOF > "${alacritty_theme_path}"/theme.dunstrc
-#font
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
-
+cat << EOFalacritty > "${alacritty_theme_path}"/theme.dunstrc
 # Font configuration
 font:
   # Normal (roman) font face
@@ -441,7 +438,7 @@ font:
   #glyph_offset:
   #  x: 0
   #  y: 0
-EOF
+EOFalacritty
 }
 
 generate_Xresources(){
@@ -449,43 +446,42 @@ generate_Xresources(){
 }
 
 generate_bspwm(){
-cat << EOFbspwm > "${CONFIGPATH}"/bspwm/theme.conf
-## Bspwm colors
-BSPWM_FBC="${BSPWM_FBC}"
-BSPWM_NBC="${BSPWM_NBC}"
-BSPWM_ABC="${BSPWM_ABC}"
-BSPWM_PFC="${BSPWM_PFC}"
-BSPWM_PBC="${BSPWM_PBC}"
-
-## Bspwm appearance
-BSPWM_BORDER="${BSPWM_BORDER}"
-BSPWM_GAP="${BSPWM_GAP}"
-BSPWM_SRATIO="${BSPWM_SRATIO}"
-
-## Bspwm Extra
-BSP_BORDERLESS_MONOCLE=${BSP_BORDERLESS_MONOCLE}
-BSP_GAPLESS_MONOCLE=${BSP_GAPLESS_MONOCLE}
-BSP_PADDINGLESS_MONOCLE=${BSP_PADDINGLESS_MONOCLE}
-BSP_SINGLE_MONOCLE=${BSP_SINGLE_MONOCLE}
-BSP_FOCUS_FOLLOWS_POINTER=${BSP_FOCUS_FOLLOWS_POINTER}
-BSP_PRESEL_FEEDBACK=${BSP_PRESEL_FEEDBACK}
-EOFbspwm
+	cat <<- EOFbspwm > "${CONFIGPATH}"/bspwm/theme.conf
+	## Bspwm colors
+	BSPWM_FBC="${BSPWM_FBC}"
+	BSPWM_NBC="${BSPWM_NBC}"
+	BSPWM_ABC="${BSPWM_ABC}"
+	BSPWM_PFC="${BSPWM_PFC}"
+	BSPWM_PBC="${BSPWM_PBC}"
+	
+	## Bspwm appearance
+	BSPWM_BORDER="${BSPWM_BORDER}"
+	BSPWM_GAP="${BSPWM_GAP}"
+	BSPWM_SRATIO="${BSPWM_SRATIO}"
+	
+	## Bspwm Extra
+	BSP_BORDERLESS_MONOCLE=${BSP_BORDERLESS_MONOCLE}
+	BSP_GAPLESS_MONOCLE=${BSP_GAPLESS_MONOCLE}
+	BSP_PADDINGLESS_MONOCLE=${BSP_PADDINGLESS_MONOCLE}
+	BSP_SINGLE_MONOCLE=${BSP_SINGLE_MONOCLE}
+	BSP_FOCUS_FOLLOWS_POINTER=${BSP_FOCUS_FOLLOWS_POINTER}
+	BSP_PRESEL_FEEDBACK=${BSP_PRESEL_FEEDBACK}
+	EOFbspwm
 }
 
 generate_openbox(){
-cat << EOF > "${CONFIGPATH}"/openbox/openboxrctheme
-bottom=${openbox_bottom}
-top=${openbox_top}
-right=${openbox_right}
-left=${openbox_left}
-font="${openbox_font}"
-size=${openbox_size}
-theme=${openbox_theme}
-titleLayout=${openbox_titleLayout}
-gtk_icon_name="${openbox_gtk_icon_name}"
-EOF
-( cd "${CONFIGPATH}/openbox" && ln -sf "Menu/${openbox_menu}.xml" "menu.xml")
-
+	cat <<- EOFopenbox > "${CONFIGPATH}"/openbox/openboxrctheme
+	bottom=${openbox_bottom}
+	top=${openbox_top}
+	right=${openbox_right}
+	left=${openbox_left}
+	font="${openbox_font}"
+	size=${openbox_size}
+	theme=${openbox_theme}
+	titleLayout=${openbox_titleLayout}
+	gtk_icon_name="${openbox_gtk_icon_name}"
+	EOFopenbox
+	( cd "${CONFIGPATH}/openbox" && ln -sf "Menu/${openbox_menu}.xml" "menu.xml")
 }
 
 generate_Distro_config || show_em "failed to run generate_Distro_config"

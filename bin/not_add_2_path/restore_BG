@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-if command -v livewall >/dev/null 2>&1 && livewall --run-live-autorun-enabled >/dev/null 2>&1;then
+if command -v livewall >/dev/null 2>&1 && livewall -r >/dev/null 2>&1;then
 		( livewall --run-live ) &
 else
 	setbg -r

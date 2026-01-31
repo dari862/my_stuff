@@ -7,6 +7,12 @@ livewallpaper_dir="${HOME}/.local/livewallpaper"
 video_dir="${livewallpaper_dir}/video"
 autorun_file="${livewallpaper_dir}/autorun"
 
+if [ "$option" = "-r" ] || [ "$option" = "--run-live-wallpaper" ];then
+	if [ ! -f "${autorun_file}" ];then
+		exit 1
+	fi
+fi
+
 # Setup directories
 if [ ! -d "${video_dir}" ];then
 	mkdir -p "${video_dir}"
