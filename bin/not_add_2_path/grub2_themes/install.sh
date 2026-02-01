@@ -76,7 +76,15 @@ else
 	cp -r "${SCRIPT_DIR}/extra/logo/${screen}/Default.png" "${TEMP_THEME_DIR}/logo.png"
 fi
 
-. "${SCRIPT_DIR}/Fonts"
+case "${screen}" in
+	1080p)	grub_terminal_font="Unifont Regular 14";grub_item_font="Unifont Regular 16";grub_font="Unifont Regular 16" ;;
+	2k)		grub_terminal_font="Unifont Regular 18";grub_item_font="Unifont Regular 24";grub_font="Unifont Regular 24" ;;
+	4k)		grub_terminal_font="Unifont Regular 18";grub_item_font="Unifont Regular 32";grub_font="Unifont Regular 32" ;;
+esac
+
+sed -i "s/grub_terminal_font/${grub_terminal_font}/g" "${TEMP_THEME_DIR}/theme.txt"
+sed -i "s/grub_item_font/${grub_item_font}/g" "${TEMP_THEME_DIR}/theme.txt"
+sed -i "s/grub_font/${grub_font}/g" "${TEMP_THEME_DIR}/theme.txt"
 
 cp -a --no-preserve=ownership "${TEMP_THEME_DIR}"/* "${THEME_DIR}"
 
