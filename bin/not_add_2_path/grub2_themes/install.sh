@@ -76,6 +76,8 @@ else
 	cp -r "${SCRIPT_DIR}/extra/logo/${screen}/Default.png" "${TEMP_THEME_DIR}/logo.png"
 fi
 
+. "${SCRIPT_DIR}/Fonts"
+
 cp -a --no-preserve=ownership "${TEMP_THEME_DIR}"/* "${THEME_DIR}"
 
 if [ -f /etc/default/grub.bak ];then
