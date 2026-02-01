@@ -377,11 +377,13 @@ ___mode(){
 
 ___theme(){
 	case "${CHK_THEME}" in
-		owl4ce_dark) CHK_THEME="owl4ce_light";;
-		owl4ce_light) CHK_THEME="owl4ce_dark";;
+		owl4ce_dark)  THEME_MODE="light" ;;
+		owl4ce_light) THEME_MODE="dark" ;;
 	esac
-
-	"${__distro_path_root}"/bin/X11/WM/style_changer "tint2" "$CHK_THEME"
+	
+	( cd "$HOME/.config/blob/tint2/owl4ce" && ln -sf "${THEME_MODE}.conf" style.conf && ln -sf "owl4ce-thumb-${THEME_MODE}.jpg" owl4ce-thumb.jpg && ln -sf "preview-${THEME_MODE}.jpg" preview.jpg )
+	
+	"${__distro_path_root}"/bin/X11/WM/style_changer "tint2" "owl4ce"
 	
    	case "${CHK_THEME}" in
    		owl4ce_dark) BODY='Dark Theme'

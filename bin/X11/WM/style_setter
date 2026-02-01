@@ -36,7 +36,7 @@ Set_Style_(){
 	[ ! -f "${CONFIGPATH}/dunst/global" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/global" "${CONFIGPATH}/dunst" || :
 	[ ! -f "${CONFIGPATH}/dunst/experimental" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/experimental" "${CONFIGPATH}/dunst" || :
 	[ ! -f "${CONFIGPATH}/dunst/theme.dunstrc" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/theme.dunstrc" "${CONFIGPATH}/dunst" || :
-	cat ${CONFIGPATH}/dunst/global ${CONFIGPATH}/dunst/theme.dunstrc > "${CONFIGPATH}"/dunst/dunstrc
+	cat "${CONFIGPATH}/dunst/global" "${CONFIGPATH}/dunst/theme.dunstrc" > "${CONFIGPATH}"/dunst/dunstrc
 	OB_themeing
 }
 

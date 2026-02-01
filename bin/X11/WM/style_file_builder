@@ -23,7 +23,11 @@ show_em(){
 
 generate_Distro_config(){
 	mkdir -p "${CONFIGPATH}"/WM_common_config
-	if [ "$_style" = "owl4ce_light" ] || [ "$_style" = "owl4ce_dark" ];then
+	if [ "$_style" = "owl4ce" ];then
+		if [ ! -f "$HOME/.config/blob/tint2/owl4ce/style.conf" ];then
+			mkdir -p "$HOME/.config/blob/tint2"
+			cp -r "${__distro_path_root}/blob/tint2/owl4ce" "$HOME/.config/blob/tint2"
+		fi
 		cat <<- EOFDistroConfig > "${CONFIGPATH}"/WM_common_config/Distro_config
 		Style_name="$Style_name"
 		_panel_name_="$_panel_name_"
@@ -36,11 +40,11 @@ generate_Distro_config(){
 		
 		CHK_OB_BUTTON_STYLE_artistic="$CHK_OB_BUTTON_STYLE_artistic"
 		CHK_OB_BUTTON_LOC_artistic="$CHK_OB_BUTTON_LOC_artistic"
-		CHK_WALLPAPER_artistic="\${__distro_path_wallpaper}/${_style}_wall-01.jpg"
+		CHK_WALLPAPER_artistic="\${__distro_path_wallpaper}/${CHK_THEME}_wall-01.jpg"
 			
 		CHK_OB_BUTTON_STYLE_interactive="$CHK_OB_BUTTON_STYLE_interactive"
 		CHK_OB_BUTTON_LOC_interactive="$CHK_OB_BUTTON_LOC_interactive"
-		CHK_WALLPAPER_interactive="\${__distro_path_wallpaper}/${_style}_wall-02.jpg"
+		CHK_WALLPAPER_interactive="\${__distro_path_wallpaper}/${CHK_THEME}_wall-02.jpg"
 		
 		CHK_PANEL_ORT="$CHK_PANEL_ORT"
 		CHK_PANEL_ORT_V="$CHK_PANEL_ORT_V"
@@ -78,7 +82,7 @@ generate_Distro_config(){
 }
 
 generate_dunstrc(){
-	if [ "$_style" = "owl4ce_light" ] || [ "$_style" = "owl4ce_dark" ];then
+	if [ "$_style" = "owl4ce" ];then
 		mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst
 		mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst
 		

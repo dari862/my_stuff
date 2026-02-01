@@ -58,12 +58,11 @@ save_and_restore(){
 
 save_wall(){
 	. "${Distro_config_file}"
-	if [ "$CHK_THEME" = "owl4ce_dark" ] || [ "$CHK_THEME" = "owl4ce_light" ];then
+	if [ "$__Style_name" = "owl4ce" ];then
 		sed -i "s|CHK_WALLPAPER_${CHK_MODE}=.*|CHK_WALLPAPER_${CHK_MODE}=\"$op2__\"|" "${Distro_config_file}"
 	else
 		sed -i "s|wallpaper_are=.*|wallpaper_are=\"$op2__\"|" "${Distro_config_file}"
 	fi
-	sed -i "s|wallpaper_layout_are=.*|wallpaper_layout_are=\"$wallpaper_layout\"|" "${Distro_config_file}"
 }
 
 main()

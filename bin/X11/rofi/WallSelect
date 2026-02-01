@@ -10,6 +10,8 @@ unalias -a
 
 if echo "$Style_name" | grep -q "panels/" ;then
 	CURRENT_STYLE_NAME="panels"
+elif [ "$Style_name" = "owl4ce" ];then
+	CURRENT_STYLE_NAME="$CHK_THEME"
 else
 	CURRENT_STYLE_NAME="$Style_name"
 fi
