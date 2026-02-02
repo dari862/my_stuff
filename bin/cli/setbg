@@ -1,5 +1,4 @@
 #!/bin/sh
-# work on this : improve owl4ce
 set -e
 
 . "$__distro_path_lib"
@@ -58,11 +57,7 @@ save_and_restore(){
 
 save_wall(){
 	. "${Distro_config_file}"
-	if [ "$__Style_name" = "owl4ce" ];then
-		sed -i "s|CHK_WALLPAPER_${CHK_MODE}=.*|CHK_WALLPAPER_${CHK_MODE}=\"$op2__\"|" "${Distro_config_file}"
-	else
-		sed -i "s|wallpaper_are=.*|wallpaper_are=\"$op2__\"|" "${Distro_config_file}"
-	fi
+	sed -i "s|wallpaper_are=.*|wallpaper_are=\"$op2__\"|" "${Distro_config_file}"
 }
 
 main()

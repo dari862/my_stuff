@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE menu [
   <!ENTITY icons "(((__distro_path_all_distro_themes)))/icons/eyecandy">
-  <!ENTITY owl4ce_scripts_path "(((__distro_path_root)))/bin/X11/not_add_2_path/owl4ce/owl4ce_scripts">
+  <!ENTITY owl4ce_scripts_path "(((__distro_path_root)))/bin/X11/not_add_2_path/owl4ce">
 ]>
 <openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/  file:///usr/share/openbox/menu.xsd">
   <menu id="root-menu" title="Menu" label="Openbox 3">
@@ -61,13 +61,13 @@
       </item>
       <item label="Change X Wallpaper" icon="&icons;/wallpaper.png">
         <action name="Execute">
-          <command>&owl4ce_scripts_path;/owl4ce_scripts wallpaper</command>
+          <command>&owl4ce_scripts_path;/rofi-center wallpaper</command>
         </action>
       </item>
       <separator/>
       <item label="Change Window Button-Style" icon="&icons;/ob-button-change.png">
         <action name="Execute">
-          <command>&owl4ce_scripts_path;/owl4ce_scripts button</command>
+          <command>&owl4ce_scripts_path;/rofi-center button</command>
         </action>
       </item>
       <item label="Swap Window Button-Location" icon="&icons;/ob-button-swap.png">

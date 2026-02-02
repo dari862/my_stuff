@@ -8,14 +8,16 @@ unalias -a
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
+if [ -n "$THEME_MODE" ];then
+	THEME_MODE="_${THEME_MODE}"
+fi
+
 if echo "$Style_name" | grep -q "panels/" ;then
 	CURRENT_STYLE_NAME="panels"
-elif [ "$Style_name" = "owl4ce" ];then
-	CURRENT_STYLE_NAME="$CHK_THEME"
-else
-	CURRENT_STYLE_NAME="$Style_name"
 fi
-	
+
+CURRENT_STYLE_NAME="${Style_name}${THEME_MODE}"
+
 wall_dir="${__distro_path_wallpaper}"
 temp_dir="/tmp/$USER/walls/$CURRENT_STYLE_NAME"
 # Create cache dir if not exists

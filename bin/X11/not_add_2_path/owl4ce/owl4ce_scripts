@@ -1,18 +1,21 @@
 #!/bin/sh
-# work on this : improve owl4ce
 . "$__distro_path_lib"
+# work on this : improve this
 exec 3>&1 # show output if redirected to  >&3 
 exec >/dev/null 2>&1 # show nothing
 
 . "${__distro_path_root}/lib/common/WM"
 . "${Distro_config_file}"
 
-OB_DIR="$HOME/.config/openbox"
-OB_CONFIG="${OB_DIR}/rc.xml"
-Theme_path="$HOME/.config/owl4ce/${CHK_THEME}"
-OB_THEME_file="${Theme_path}/openboxrctheme"
+home_config="$HOME/.config"
 
-TINT2_DIR="$HOME/.config/tint2"
+OB_DIR="${home_config}/openbox"
+OB_CONFIG="${OB_DIR}/rc.xml"
+OB_THEME_file="${OB_DIR}/openboxrctheme"
+
+DUNST_DIR="${home_config}/dunst"
+
+TINT2_DIR="${home_config}/tint2"
 OB_MARGIN='10'
 
 opt="${1-}"
@@ -25,13 +28,12 @@ sed_Distro_config()
 	var_value="$2"
 	
 	sed -i "s|^${var_key}=.*|${var_key}=\"${var_value}\"|g" "${Distro_config_file}"
-	cp -r "${Distro_config_file}" "${Theme_path}/${WM_config_dir_name}"
 }
 
 set_dunst_config() {
 	origin="$1"
 	offset="$2"
-	theme_file="$HOME/.config/owl4ce/${CHK_THEME}/dunst/$3.dunstrc"
+	theme_file="${DUNST_DIR}/theme.dunstrc"
     sed -e "/^origin[ ]*/s|[^[ ]*]*$|$origin|" \
         -e "/^offset[ ]*/s|[^[ ]*]*$|$offset|" \
         -s -i "$theme_file"
@@ -120,20 +122,23 @@ ___rever_terminal()
 {
 	if [ -f "$HOME/.config/kitty/theme.conf" ];then
 		if grep -q "owl4ce_light.conf" "$HOME/.config/kitty/theme.conf";then
-			sed -i 's/owl4ce_light.conf/owl4ce_dark.conf/g' "$HOME/.config/kitty/theme.conf"
-			kitty @ set-colors -a ~/.config/kitty/themes/owl4ce_dark.conf || :
+			old_kitty_theme="light"
+			new_kitty_theme="dark"
 		elif grep -q "owl4ce_dark.conf" "$HOME/.config/kitty/theme.conf";then
-			sed -i 's/owl4ce_dark.conf/owl4ce_light.conf/g' "$HOME/.config/kitty/theme.conf"
-			kitty @ set-colors -a ~/.config/kitty/themes/owl4ce_light.conf || :
+			old_kitty_theme="dark"
+			new_kitty_theme="light"
 		fi
+		sed -i "s/owl4ce_${old_kitty_theme}.conf/owl4ce_${new_kitty_theme}.conf/g" "$HOME/.config/kitty/theme.conf"
+		kill -USR1 $(pgrep -u $USER -x kitty) || :
 	fi
 	
 	if [ -L "$HOME/.config/alacritty/colors.yml" ];then
-		if realpath "$HOME/.config/alacritty/colors.yml" | grep -q "owl4ce_light.yml";then
-			ln -sf "$HOME/.config/alacritty/colorschemes/owl4ce_dark.yml" "$HOME/.config/alacritty/colors.yml"
+		if realpath "$HOME/.config/alacritty/colors.yml" | grep -q "owl4ce_dark.yml";then
+			alacritty_theme="light"
 		elif realpath "$HOME/.config/alacritty/colors.yml" | grep -q "owl4ce_light.yml";then
-			ln -sf "$HOME/.config/alacritty/colorschemes/owl4ce_light.yml" "$HOME/.config/alacritty/colors.yml"
+			alacritty_theme="dark"
 		fi
+		ln -sf "$HOME/.config/alacritty/colorschemes/owl4ce_${alacritty_theme}.yml" "$HOME/.config/alacritty/colors.yml"
 	fi
 }
 
@@ -141,7 +146,7 @@ __set_wallpaper(){
 	WALLPAPER_DIR="${opt2}"
 	WALLPAPER_NAME="${opt3}"
 	[ -n "$WALLPAPER_NAME" ] || exit ${?}
-	sed_Distro_config "CHK_WALLPAPER_${CHK_MODE}" "${WALLPAPER_DIR}/${WALLPAPER_NAME}"
+	sed_Distro_config "wallpaper_are" "${WALLPAPER_DIR}/${WALLPAPER_NAME}"
 	setbg -r
 	send_notification '' "<span size='small'><u>${WALLPAPER_NAME}</u></span>\nSuccessfully applied!" "wallpaper-set" "wallpaper.png"
 }
@@ -180,8 +185,8 @@ ___generate_wallpaper(){
 		
 		new_wallpaper_path="${__distro_path_wallpaper}/${RAW%.*}${RES}.jpg"
 		
-		case "$CHK_THEME" in
-		owl4ce_dark) magick "$wallpaper_are" \
+		case "$THEME_MODE" in
+		dark) magick "$wallpaper_are" \
 						-gravity center \
 						-crop 16:9 \
 						'(' -clone 0 \
@@ -198,7 +203,7 @@ ___generate_wallpaper(){
 						-composite \
 						-quality 100  "${new_wallpaper_path}"
 		;;
-		owl4ce_light) magick "$wallpaper_are" \
+		light) magick "$wallpaper_are" \
 						-gravity center \
 						-crop 16:9 \
 						'(' -clone 0 \
@@ -301,7 +306,7 @@ __set_button(){
 		exit
 	fi
 	sed_openbox_theme_name "${openbox_theme_button_name}"
-	sed_Distro_config "CHK_OB_BUTTON_STYLE_${CHK_MODE}" "${button_name}"
+	sed_Distro_config "CHK_OB_BUTTON_STYLE" "${button_name}"
 	reconfigure-openbox &
 }
 
@@ -309,12 +314,11 @@ ___button(){
 	case "${opt2}" in
     	s*) if [ "$CHK_OB_BUTTON_LOC" != 'left' ]; then
             	sed_openbox_rc_titleLayout "CIML"
-            	sed_Distro_config "CHK_OB_BUTTON_LOC_${CHK_MODE}" "left"
+            	sed_Distro_config "CHK_OB_BUTTON_LOC" "left"
         	elif [ "$CHK_OB_BUTTON_LOC" != 'right' ]; then
             	sed_openbox_rc_titleLayout "LIMC"
-            	sed_Distro_config "CHK_OB_BUTTON_LOC_${CHK_MODE}" "right"
+            	sed_Distro_config "CHK_OB_BUTTON_LOC" "right"
         	fi
-        	reconfigure-openbox &
     	;;
     	d*) CHK_OB_DECOR_LINE="$(grep -m1 -Fno '<application class="*" type="normal">' "$OB_CONFIG")"
         	CHK_OB_DECOR_LINE="$((${CHK_OB_DECOR_LINE%%:*}+1))"
@@ -326,49 +330,25 @@ ___button(){
         	elif [ "$CHK_OB_DECOR_STAT" != 'no' ]; then
             	sed_openbox_decor "${CHK_OB_DECOR_LINE}" "no"
         	fi
-	
-        	restart-openbox &
     	;;
 	esac
+	reconfigure-openbox &
 }
 
 ___mode(){
 	for M in artistic interactive; do
-		[ "$CHK_MODE" != "$M" ] || continue
+		if [ "$CHK_MODE" = "$M" ];then
+			continue
+		fi
+		
 		CHK_MODE="$M"
-		cat "$HOME/.config/owl4ce/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/dunst/theme.dunstrc"
-		sed_Distro_config "CHK_MODE" "$CHK_MODE"
-		
-    	GTK_THEME_NAME="$(awk -F= '/^gtk-theme-name=/{print $2}' $HOME/.config/gtk-3.0/settings.ini)"
-		sed_openbox_theme_name "openbox${GTK_THEME_NAME}${CHK_OB_BUTTON_STYLE}"
-		
-		case "$CHK_OB_BUTTON_LOC" in
-   			l*) sed_openbox_rc_titleLayout "CIML"
-   			;;
-   			r*) sed_openbox_rc_titleLayout "LIMC";;
-		esac
+		( cd "$HOME/.config/blob/tint2/owl4ce" && ln -sf "${THEME_MODE}_${CHK_MODE}.conf" style.conf)
 		
 		. "${Distro_config_file}"
-		
-		cat "$HOME/.config/dunst/global" "$HOME/.config/dunst/experimental" "$HOME/.config/dunst/theme.dunstrc" > "$HOME/.config/dunst/dunstrc"
-	
-		setbg -R "${wallpaper_are}"
-	
-   		set_user_interface
+		"${__distro_path_root}"/bin/X11/WM/style_changer "tint2" "owl4ce" true
 				
-   		case "${CHK_THEME}" in
-   			owl4ce_dark) BODY='Dark Theme'
-   			;;
-  			owl4ce_light) BODY='Light Theme'
-  			;;
-   		esac
-			
-		case "${CHK_MODE}" in
-   			art*) SUMMARY='Artistic Mode'
-   			;;
-   			int*) SUMMARY='Interactive Mode'
-   			;;
-   		esac
+   		BODY="${THEME_MODE} Theme"
+		SUMMARY="${CHK_MODE} Mode"
 	
  		send_notification "$SUMMARY" "$BODY" "toggle-mode" "${CHK_THEME}.${CHK_MODE}.png"
 		break
@@ -376,29 +356,20 @@ ___mode(){
 }
 
 ___theme(){
-	case "${CHK_THEME}" in
-		owl4ce_dark)  THEME_MODE="light" ;;
-		owl4ce_light) THEME_MODE="dark" ;;
+	case "${THEME_MODE}" in
+		dark)  THEME_MODE="light" ;;
+		light) THEME_MODE="dark" ;;
 	esac
 	
-	( cd "$HOME/.config/blob/tint2/owl4ce" && ln -sf "${THEME_MODE}.conf" style.conf && ln -sf "owl4ce-thumb-${THEME_MODE}.jpg" owl4ce-thumb.jpg && ln -sf "preview-${THEME_MODE}.jpg" preview.jpg )
+	( cd "$HOME/.config/blob/tint2/owl4ce" && ln -sf "${THEME_MODE}_${CHK_MODE}.conf" style.conf && ln -sf "owl4ce-thumb-${THEME_MODE}.jpg" owl4ce-thumb.jpg && ln -sf "preview-${THEME_MODE}.jpg" preview.jpg )
 	
-	"${__distro_path_root}"/bin/X11/WM/style_changer "tint2" "owl4ce"
+	"${__distro_path_root}"/bin/X11/WM/style_changer "tint2" "owl4ce" true
 	
-   	case "${CHK_THEME}" in
-   		owl4ce_dark) BODY='Dark Theme'
-   		;;
-  		owl4ce_light) BODY='Light Theme'
-  		;;
-   	esac
-		
-	case "${CHK_MODE}" in
-   		art*) SUMMARY='Artistic Mode'
-   		;;
-   		int*) SUMMARY='Interactive Mode'
-   		;;
-   	esac
-
+	. "${Distro_config_file}"
+	
+	BODY="${THEME_MODE} Theme"
+	SUMMARY="${CHK_MODE} Mode"
+	
  	send_notification "$SUMMARY" "$BODY" "toggle-mode" "${CHK_THEME}.${CHK_MODE}.png"
 }
 
@@ -406,42 +377,39 @@ ___orientation(){
 	[ -n "${opt2}" -a "$CHK_MODE" = 'artistic' ] || exit ${?}
 
 	set_layout_()
-	{	
-		DUNST_DIR="$HOME/.config/dunst"
+	{
 		cases="${1}"
 		case "$CHK_MODE" in
     		art*)
         		case "$cases" in
             		vert*_l*)
-                		set_dunst_config "top-right" "25x50" "artistic"
+                		set_dunst_config "top-right" "25x50"
                 		set_rofi_config "100%" "east" "0px" "0px" "0px 0px 0px 0px" "8px 8px 8px 8px"
                 		set_openbox_config "$OB_MARGIN" "$OB_MARGIN" "$((45+OB_MARGIN))" "$OB_MARGIN"
                 		;;
             		vert*_r*)
-                		set_dunst_config "top-left" "25x50" "artistic"
+                		set_dunst_config "top-left" "25x50"
                 		set_rofi_config "100%" "west" "0px" "0px" "0px 0px 0px 0px" "8px 8px 8px 8px"
                 		set_openbox_config "$OB_MARGIN" "$OB_MARGIN" "$OB_MARGIN" "$((45+OB_MARGIN))"
                 		;;
             		hori*_t*)
-                		set_dunst_config "bottom-right" "25x25" "artistic"
+                		set_dunst_config "bottom-right" "25x25"
                 		set_rofi_config "89.5%" "south east" "0px" "0px" "60px 0px 0px 0px" "45px 8px 8px 8px"
                 		set_openbox_config "$((45+OB_MARGIN))" "$OB_MARGIN" "$OB_MARGIN" "$OB_MARGIN"
                 		;;
             		hori*_b*)
-                		set_dunst_config "top-right" "25x50" "artistic"
+                		set_dunst_config "top-right" "25x50"
                 		set_rofi_config "89.5%" "south east" "0px" "-45px" "60px 0px 0px 0px" "45px 8px 8px 8px"
                 		set_openbox_config "$OB_MARGIN" "$((45+OB_MARGIN))" "$OB_MARGIN" "$OB_MARGIN"
                 		;;
         		esac
         		;;
     		int*)
-        		set_dunst_config "bottom-center" "0x60" "interactive"
+        		set_dunst_config "bottom-center" "0x60"
         		set_rofi_config "89.5%" "south east" "0px" "0px" "60px 0px 0px 0px" "45px 8px 8px 8px"
         		set_openbox_config "$((30+OB_MARGIN))" "$OB_MARGIN" "$OB_MARGIN" "$OB_MARGIN"
         		;;
 		esac
-		cat "$HOME/.config/owl4ce/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/dunst/theme.dunstrc"
-		cat "$HOME/.config/owl4ce/${CHK_THEME}/dunst/${CHK_MODE}.dunstrc" > "$HOME/.config/owl4ce/${CHK_THEME}/config/dunst/theme.dunstrc"
 	}
 	
 	case "${opt2}" in
@@ -489,6 +457,8 @@ ___orientation(){
         	fi
     	;;
 	esac
+	
+	cat "${DUNST_DIR}/global" "${DUNST_DIR}/theme.dunstrc" > "${DUNST_DIR}"/dunstrc
 	
 	set_user_interface
 }

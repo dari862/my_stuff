@@ -5,6 +5,7 @@ set -e
 
 _panel_name_="${1:-}"
 style="${2:-}"
+no_notify="${3:-false}"
 
 "${__distro_path_root}"/bin/X11/WM/style_file_builder "${_panel_name_}" "${style}"
 "${__distro_path_root}"/bin/X11/WM/style_setter "${_panel_name_}" "${style}"
@@ -19,4 +20,6 @@ fi
 
 "${__distro_path_root}"/bin/X11/WM/panel_launcher
 
-dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${style}"
+if [ "$no_notify" = false ];then
+	dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${style}"
+fi

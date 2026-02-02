@@ -1,12 +1,17 @@
 #!/bin/sh
-# work on this : improve owl4ce
+# work on this : improve this
 # work on this : improve rofi
+
+THEME_MODE=""
+tint2_STYLE=""
+polybar_STYLE=""
 
 . "$__distro_path_lib"
 
 _panel_name_="${1:-polybar}"
 _style="${2:-default}"
 CONFIGPATH="$HOME/.config"
+dunstrc_highlight=""
 
 style_wallpaper="$(find "${__distro_path_wallpaper}" -name "${_style}_wall-01.*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \))"
 
@@ -23,95 +28,44 @@ show_em(){
 
 generate_Distro_config(){
 	mkdir -p "${CONFIGPATH}"/WM_common_config
+	
+	cat <<- EOFDistro > "${CONFIGPATH}"/WM_common_config/Distro_config
+	Style_name="$Style_name"
+	_panel_name_="$_panel_name_"
+	ROFI_STYLE="$ROFI_STYLE"
+	tint2_STYLE="$tint2_STYLE"
+	polybar_STYLE="$polybar_STYLE"
+	conky_sessionfile=".config/conky/${conky_sessionfile}"
+	layout_are="${layout_are}"
+	random_wallpaper="${random_wallpaper}"
+	THEME_MODE="$THEME_MODE"
+	EOFDistro
+	
 	if [ "$_style" = "owl4ce" ];then
 		if [ ! -f "$HOME/.config/blob/tint2/owl4ce/style.conf" ];then
 			mkdir -p "$HOME/.config/blob/tint2"
 			cp -r "${__distro_path_root}/blob/tint2/owl4ce" "$HOME/.config/blob/tint2"
 		fi
-		cat <<- EOFDistroConfig > "${CONFIGPATH}"/WM_common_config/Distro_config
-		Style_name="$Style_name"
-		_panel_name_="$_panel_name_"
-		ROFI_STYLE="$ROFI_STYLE"
-		tint2_STYLE="$tint2_STYLE"
-		conky_sessionfile="$conky_sessionfile"
-		
+		cat <<- EOFDistroConfig >> "${CONFIGPATH}"/WM_common_config/Distro_config
 		CHK_THEME="$CHK_THEME"
 		CHK_MODE="$CHK_MODE"
-		
-		CHK_OB_BUTTON_STYLE_artistic="$CHK_OB_BUTTON_STYLE_artistic"
-		CHK_OB_BUTTON_LOC_artistic="$CHK_OB_BUTTON_LOC_artistic"
-		CHK_WALLPAPER_artistic="\${__distro_path_wallpaper}/${CHK_THEME}_wall-01.jpg"
-			
-		CHK_OB_BUTTON_STYLE_interactive="$CHK_OB_BUTTON_STYLE_interactive"
-		CHK_OB_BUTTON_LOC_interactive="$CHK_OB_BUTTON_LOC_interactive"
-		CHK_WALLPAPER_interactive="\${__distro_path_wallpaper}/${CHK_THEME}_wall-02.jpg"
-		
+		CHK_OB_BUTTON_STYLE="$CHK_OB_BUTTON_STYLE"
+		CHK_OB_BUTTON_LOC="$CHK_OB_BUTTON_LOC"
 		CHK_PANEL_ORT="$CHK_PANEL_ORT"
 		CHK_PANEL_ORT_V="$CHK_PANEL_ORT_V"
 		CHK_PANEL_ORT_H="$CHK_PANEL_ORT_H"
-		
-		if [ "\$CHK_MODE" = "artistic" ];then
-			CHK_OB_BUTTON_STYLE="\$CHK_OB_BUTTON_STYLE_artistic"
-			CHK_OB_BUTTON_LOC="\$CHK_OB_BUTTON_LOC_artistic"
-			wallpaper_are="\$CHK_WALLPAPER_artistic"
-		else
-			CHK_PANEL_ORT="top"
-			CHK_OB_BUTTON_STYLE="\$CHK_OB_BUTTON_STYLE_interactive"
-			CHK_OB_BUTTON_LOC="\$CHK_OB_BUTTON_LOC_interactive"
-			wallpaper_are="\$CHK_WALLPAPER_interactive"
-		fi
-		layout_are="${layout_are}"
-		
+		wallpaper_are="${__distro_path_wallpaper}/${CHK_THEME}_wall-01.jpg"
 		tint2_sessionfile="/.config/tint2/\${CHK_THEME}/\${CHK_PANEL_ORT}.\${CHK_MODE}.tint2rc"
-		
-		random_wallpaper="${random_wallpaper}"
 		EOFDistroConfig
 	else
-		cat <<- EOFDistro > "${CONFIGPATH}"/WM_common_config/Distro_config
-		Style_name="$Style_name"
-		_panel_name_="$_panel_name_"
-		ROFI_STYLE="$ROFI_STYLE"
-		polybar_STYLE="$polybar_STYLE"
-		conky_sessionfile=".config/conky/${conky_sessionfile}"
+		cat <<- EOFDistroConfig >> "${CONFIGPATH}"/WM_common_config/Distro_config
 		tint2_sessionfile="/.config/tint2/${tint2_sessionfile}"
 		wallpaper_are="$style_wallpaper"
-		layout_are="${layout_are}"
-		random_wallpaper="${random_wallpaper}"
-		EOFDistro
+		EOFDistroConfig
 	fi
 }
 
 generate_dunstrc(){
-	if [ "$_style" = "owl4ce" ];then
-		mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst
-		mkdir -p "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst
-		
-		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst/interactive.dunstrc
-		origin=bottom-center
-		offset=0x60
-		icon_position=top
-		highlight="#44eb9f"
-		EOFdunstrc
-		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_light/dunst/artistic.dunstrc
-		origin=top-right
-		offset=25x50
-		icon_position=left
-		highlight="#fa74b2"
-		EOFdunstrc
-		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst/interactive.dunstrc
-		origin=bottom-center
-		offset=0x60
-		icon_position=top
-		highlight="#f9f9f9"
-		EOFdunstrc
-		cat <<- EOFdunstrc > "${CONFIGPATH}"/owl4ce/owl4ce_dark/dunst/artistic.dunstrc
-		origin=top-right
-		offset=25x50
-		icon_position=left
-		highlight="#f48ee8"
-		EOFdunstrc
-	fi
-
 	cat <<- EOFdunst > "${CONFIGPATH}"/dunst/theme.dunstrc
 	# Align icons left/right/off
 	icon_position = ${dunstrc_icon_position}
@@ -159,7 +113,13 @@ generate_dunstrc(){
 	#   %n  progress value if set without any extra characters
 	#   %%  Literal %
 	format = "${dunstrc_format}"
+	EOFdunst
 	
+	if [ -n "$highlight" ];then
+		echo "highlight = \"${dunstrc_highlight}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
+	
+	cat <<- EOFdunst >> "${CONFIGPATH}"/dunst/theme.dunstrc
 	# IMPORTANT: colors have to be defined in quotation marks.
 	# Otherwise the "#" and following would be interpreted as a comment.
 	[urgency_low]
@@ -399,9 +359,14 @@ generate_geany(){
 
 generate_kitty(){
 	kitty_theme_path="${CONFIGPATH}/kitty"
+	
+	if [ -n "${THEME_MODE}" ];then
+		THEME_MODE="_${THEME_MODE}"
+	fi
+	
 	echo "background_opacity 0.8" > "${kitty_theme_path}/theme.conf"
 	echo "# color scheme" >> "${kitty_theme_path}/theme.conf"
-	echo "include ./themes/${_style}.conf" >> "${kitty_theme_path}/theme.conf"
+	echo "include ./themes/${_style}${THEME_MODE}.conf" >> "${kitty_theme_path}/theme.conf"
 }
 
 generate_alacritty(){
