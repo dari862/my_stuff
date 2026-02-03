@@ -341,7 +341,7 @@
 	  </context>
 	
 	  <context name="AllDesktops">
-	    <mousebind button="Left" action="Click"><action name="ToggleOmnipresent"/></mousebind>
+	    <mousebind button="Left" action="Click"><action name="Unshade"/><action name="ToggleOmnipresent"/></mousebind>
 	  </context>
 	
 	  <context name="Shade">
