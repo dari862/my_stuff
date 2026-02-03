@@ -210,7 +210,7 @@
   <mouse>
     <dragThreshold>8</dragThreshold>
     <!-- number of pixels the mouse must move before a drag begins -->
-    <doubleClickTime>200</doubleClickTime>
+    <doubleClickTime>400</doubleClickTime>
     <!-- in milliseconds (1000 = 1 second) -->
     <screenEdgeWarpTime>400</screenEdgeWarpTime>
     <!-- Time before changing desktops when the pointer touches the edge of the
@@ -283,12 +283,6 @@
       </mousebind>
       <mousebind button="Left" action="DoubleClick">
         <action name="ToggleMaximize"/>
-      </mousebind>
-
-      <mousebind button="Middle" action="Press">
-        <action name="Lower"/>
-        <action name="FocusToBottom"/>
-        <action name="Unfocus"/>
       </mousebind>
 
       <mousebind button="Up" action="Click">
@@ -522,18 +516,6 @@
       <mousebind button="Down" action="Click">
         <action name="GoToDesktop"><to>next</to></action>
       </mousebind>
-      <mousebind button="A-Up" action="Click">
-        <action name="GoToDesktop"><to>previous</to></action>
-      </mousebind>
-      <mousebind button="A-Down" action="Click">
-        <action name="GoToDesktop"><to>next</to></action>
-      </mousebind>
-      <mousebind button="C-A-Up" action="Click">
-        <action name="GoToDesktop"><to>previous</to></action>
-      </mousebind>
-      <mousebind button="C-A-Down" action="Click">
-        <action name="GoToDesktop"><to>next</to></action>
-      </mousebind>
       <mousebind button="Left" action="Press">
         <action name="Focus"/>
         <action name="Raise"/>
@@ -557,12 +539,6 @@
         <action name="GoToDesktop"><to>previous</to></action>
       </mousebind>
       <mousebind button="Down" action="Click">
-        <action name="GoToDesktop"><to>next</to></action>
-      </mousebind>
-      <mousebind button="A-Up" action="Click">
-        <action name="GoToDesktop"><to>previous</to></action>
-      </mousebind>
-      <mousebind button="A-Down" action="Click">
         <action name="GoToDesktop"><to>next</to></action>
       </mousebind>
     </context>
