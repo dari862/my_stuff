@@ -322,12 +322,6 @@
         <action name="Unshade"/>
       </mousebind>
 
-      <mousebind button="Middle" action="Press">
-        <action name="Lower"/>
-        <action name="FocusToBottom"/>
-        <action name="Unfocus"/>
-      </mousebind>
-
       <mousebind button="Right" action="Press">
         <action name="Focus"/>
         <action name="Raise"/>
@@ -515,10 +509,6 @@
       </mousebind>
       <mousebind button="Down" action="Click">
         <action name="GoToDesktop"><to>next</to></action>
-      </mousebind>
-      <mousebind button="Left" action="Press">
-        <action name="Focus"/>
-        <action name="Raise"/>
       </mousebind>
     </context>
 
