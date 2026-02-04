@@ -1,7 +1,4 @@
 #!/bin/sh
-# work on this : improve this
-# work on this : improve rofi
-
 THEME_MODE=""
 tint2_STYLE=""
 polybar_STYLE=""
@@ -238,6 +235,7 @@ generate_lightdm(){
 }
 
 generate_rofi(){
+	rofi_image_path="${__distro_path_root}/blob/${_panel_name_}/${_style}/rofi.jpg"
 cat << EOFrofifonts > "${CONFIGPATH}"/rofi/fonts.rasi
 // Rofi Font for $ROFI_STYLE
 
@@ -246,80 +244,56 @@ cat << EOFrofifonts > "${CONFIGPATH}"/rofi/fonts.rasi
   text-font:      "${rofi_text_font}";
   icon-font:      "${rofi_icon_font}";
 }
-
 EOFrofifonts
 
-if [ "$ROFI_STYLE" = "modi" ];then
-cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
-// Rofi colors for $ROFI_STYLE
-
-* {
-  accent1:          ${rofi_accent1};
-  accent2:          ${rofi_accent2};
-  button-gradient:  linear-gradient(90, ${rofi_accent1}, ${rofi_accent2});
-  background-alpha: ${rofi_background_alpha};
-  background:       ${rofi_background};
-  background-light: ${rofi_background_light};
-  background-focus: ${rofi_background_focus};
-  foreground:       ${rofi_foreground};
-  foreground-list:  ${rofi_foreground};
-  on:               ${rofi_on};
-  off:              ${rofi_off};
-  urgent:           ${rofi_urgent};
-  icon-theme:       "${rofi_icon_theme}";
-  background:       @background-alpha;
-  background-alt:   @background-light;
-  selected:         @accent2;
-  active:           @background-focus;
-}
-EOFrofi
-elif [ "$ROFI_STYLE" = "backgrounds" ];then
-cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
-// Rofi colors for $ROFI_STYLE
-
-* {
-    background: ${rofi_background};
-    background-alt: ${rofi_background_alt};
-    foreground: ${rofi_foreground};
-    selected: ${rofi_selected};
-    bg-alt: ${rofi_bg_alt};
-    active: ${rofi_active};
-    urgent: ${rofi_urgent};
-
-    img-background: url("${__distro_path_root}/blob/polybar/${_style}/rofi.jpg", width);
-}
-EOFrofi
-elif [ "$ROFI_STYLE" = "exo" ];then
-cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
-// Rofi colors for $ROFI_STYLE
-
-* {
-	background:			${rofi_background};
-	background-alt:		${rofi_background_alt};
-	foreground:			${rofi_foreground};
-	selected:			${rofi_selected};
-	highlight:			${rofi_highlight};
-	urgent:				${rofi_urgent};
-	on:					${rofi_on};
-	off:				${rofi_off};
-	
-	img-background: url("${__distro_path_root}/blob/polybar/${_style}/rofi.jpg", width);
-}
-EOFrofi
-else
-cat << EOFrofi > "${CONFIGPATH}"/rofi/theme.rasi
-// Rofi colors for $ROFI_STYLE
-
+{
+        cat << EOF
+/** Rofi Theme for $ROFI_STYLE **/
 * {
     background:     ${rofi_background};
     background-alt: ${rofi_background_alt};
     foreground:     ${rofi_foreground};
     selected:       ${rofi_selected};
-    active:         ${rofi_active};
     urgent:         ${rofi_urgent};
-}
-EOFrofi
-fi
+    active:         ${rofi_active};
+EOF
+
+        case "$ROFI_STYLE" in
+            "modi")
+                cat << EOF
+    accent1:          ${rofi_accent1};
+    accent2:          ${rofi_accent2};
+    background-light: ${rofi_background_light};
+    background-focus: ${rofi_background_focus};
+    foreground-list:  ${rofi_foreground};
+    on:               ${rofi_on};
+    off:              ${rofi_off};
+    icon-theme:       "${rofi_icon_theme}";
+    button-gradient:  linear-gradient(90, ${rofi_accent1}, ${rofi_accent2});
+EOF
+                ;;
+            "backgrounds")
+                cat << EOF
+    bg-alt:           ${rofi_bg_alt};
+EOF
+                ;;
+            "exo")
+                cat << EOF
+    highlight:        ${rofi_highlight};
+    on:               ${rofi_on};
+    off:              ${rofi_off};
+EOF
+                ;;
+        esac
+        
+        if [ -f "${rofi_image_path}" ];then
+                cat << EOF
+    img-background:   url("${rofi_image_path}", width);
+EOF
+		fi
+		
+        echo "}"
+    } > "${CONFIGPATH}/rofi/theme.rasi"
 }
 
 generate_jgmenu(){

@@ -11,14 +11,6 @@ __image_full_path_="${__passed_image_}"
 
 my_locker_folder="${script_config_path}/locker"
 
-if [ ! -d "$my_locker_folder" ];then
-	cp -r "${__distro_path_root}/skel/.config/scriptconfig/locker" "${script_config_path}"
-fi
-
-if [ ! -f "$my_locker_folder/config.ini" ];then
-	cp -r "${__distro_path_root}/skel/.config/scriptconfig/locker/config.ini" "$my_locker_folder"
-fi
-
 _desktop_screenshot_as_lockscreen()
 {
 	if [ "$color" = "white" ]; then #white background image and black text
@@ -80,6 +72,14 @@ _usr_image_as_lockscreen()
 		__image_full_path_="${my_locker_folder}/converted_image.png"
 	fi
 }
+
+if [ ! -d "$my_locker_folder" ];then
+	cp -r "${__distro_path_root}/skel/.config/scriptconfig/locker" "${script_config_path}"
+fi
+
+if [ ! -f "$my_locker_folder/config.ini" ];then
+	cp -r "${__distro_path_root}/skel/.config/scriptconfig/locker/config.ini" "$my_locker_folder"
+fi
 
 case "$__arg_" in
 	-s) if [ -n "$__passed_image_" ];then

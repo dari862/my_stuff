@@ -12,7 +12,7 @@
 }
 
 window {
-  background-color: @background-alpha;
+  background-color: @background-alt;
   padding: @exts-window-padding;
   width: @exts-window-width;
   height: @exts-window-height;

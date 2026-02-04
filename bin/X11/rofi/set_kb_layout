@@ -12,30 +12,25 @@ fi
 
 opt__="${1-h}"
 
-HELP_List="1 add_kb_layout
-2 change_kb_layout
-3 notify-send
-4 echo kb_layout"
+HELP_List="1 Add new keyboard layout.
+2 Change keyboard layout.
+3 Send notification of current keyboard layout.
+4 print keyboard layout on terminal."
 
-[ ! -f "${script_config_path}/kb_layout.ini" ] && echo "$(setxkbmap -query | grep layout | awk '{print $2}')" > "${script_config_path}/kb_layout.ini"
-
-if [ -f "/etc/default/keyboard" ];then
-	default_keyboard_layout_file="/etc/default/keyboard"
-elif [ -f "/etc/vconsole.conf" ];then
-	default_keyboard_layout_file="/etc/vconsole.conf"
-fi
-
-if grep -q "us" "${script_config_path}/kb_layout.ini";then
-	. "$default_keyboard_layout_file"
-	mkdir -p "${script_config_path}"
-	echo "$XKBLAYOUT" > "${script_config_path}/kb_layout.ini"
-fi
+KB_CONFIG="${script_config_path}/kb_layout.ini"
 
 add_kb_layout(){
-	kb_choice="$(awk '/! layout/{flag=1; next} /! variant/{flag=0} flag {print $2, "- " $1}' /usr/share/X11/xkb/rules/base.lst | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -p "" | awk '{print $3}')"
+	xkb_base="/usr/share/X11/xkb/rules/base.lst"
+    kb_choice=$(awk '
+		/! layout/ {flag=1; next} 
+		/! variant/ {flag=0} 
+		flag && $1 != "" {print $2, "-", $1}
+		' "$xkb_base" | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE/runner.rasi" -p "Select Layout:" | awk '{print $NF}')
 	
-	if [ -n "$kb_choice" ] && ! grep -q "$kb_choice" "${script_config_path}/kb_layout.ini";then
-		echo "$kb_choice" >> "${script_config_path}/kb_layout.ini"
+	if [ -n "$kb_choice" ]; then
+		if ! grep -Fxq "$kb_choice" "${script_config_path}/kb_layout.ini"; then
+			printf '%s\n' "$kb_choice" >> "${script_config_path}/kb_layout.ini"
+		fi
 	fi
 	
 	_menu
@@ -53,8 +48,21 @@ main(){
 		2) kswitch ;;
 		3) notify-send "⌨  Keyboard/language module" "$(printf "%s" "\- Current layout: $(setxkbmap -query | grep -oP 'layout:\s*\K\w+')")";;
 		4) setxkbmap -query | grep -oP 'layout:\s*\K\w+' ;;
+		'') : ;;
 		*) _menu ;;
 	esac
 }
+
+if [ ! -f "$KB_CONFIG" ]; then
+    if [ -f "/etc/vconsole.conf" ]; then
+        . /etc/vconsole.conf
+        printf '%s\n' "${KEYMAP:-us}" > "$KB_CONFIG"
+    elif [ -f "/etc/default/keyboard" ]; then
+        . /etc/default/keyboard
+        printf '%s\n' "${XKBLAYOUT:-us}" > "$KB_CONFIG"
+    else
+        setxkbmap -query | awk '/layout/ {print $2}' > "$KB_CONFIG"
+    fi
+fi
 
 main

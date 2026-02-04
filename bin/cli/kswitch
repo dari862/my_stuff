@@ -1,32 +1,41 @@
 #!/bin/sh
-# work on this : fix RTL langs
 set -e
-
-set_lang_2="${1:-}"
-if [ -n "${set_lang_2}" ];then
-	notify-send "⌨  Keyboard/language module" "Current layout: $set_lang_2"
-	setxkbmap "$set_lang_2"
-	exit
-fi
-
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
-[ ! -f "${script_config_path}/kb_layout.ini" ] && echo "$(setxkbmap -query | grep layout | awk '{print $2}')" > "${script_config_path}/kb_layout.ini"
+KB_CONFIG="${script_config_path}/kb_layout.ini"
+set_lang_argument="${1:-}"
 
-if [ "$(cat "${script_config_path}/kb_layout.ini" | wc -l)" = 1 ] || [ "${1:-}" = "--force" ] || [ "${1:-}" = "-f" ];then
-	set_kb_layout 1
+if [ -n "$set_lang_argument" ] && [ "$set_lang_argument" != "--force" ] && [ "$set_lang_argument" != "-f" ]; then
+    notify-send "⌨ Keyboard Module" "Setting layout to: $set_lang_argument"
+    setxkbmap "$set_lang_argument"
+    exit 0
 fi
 
-if ! grep -q "us" "${script_config_path}/kb_layout.ini";then
-	. /etc/default/keyboard
-	mkdir -p "${script_config_path}"
-	echo "$XKBLAYOUT" > "${script_config_path}/kb_layout.ini"
+if [ ! -f "$KB_CONFIG" ]; then
+    if [ -f "/etc/vconsole.conf" ]; then
+        . /etc/vconsole.conf
+        printf '%s\n' "${KEYMAP:-us}" > "$KB_CONFIG"
+    elif [ -f "/etc/default/keyboard" ]; then
+        . /etc/default/keyboard
+        printf '%s\n' "${XKBLAYOUT:-us}" > "$KB_CONFIG"
+    else
+        setxkbmap -query | awk '/layout/ {print $2}' > "$KB_CONFIG"
+    fi
+fi
+
+line_count=$(wc -l < "$KB_CONFIG")
+if [ "$line_count" -eq 1 ] || [ "$set_lang_argument" = "--force" ] || [ "$set_lang_argument" = "-f" ]; then
+    set_kb_layout 1
+    exit 0
 fi
 
 current_kb="$(setxkbmap -query | grep -oP 'layout:\s*\K\w+')"
 next_kb="$(awk "/$current_kb/{p=1}p" "${script_config_path}/kb_layout.ini" | sed -n 2p)"
-[ -z "$next_kb" ] && next_kb="us"
 
-notify-send "⌨  Keyboard/language module" "$(printf "%s" "\- Current layout: $current_kb")"
-setxkbmap "$next_kb"
+if [ -z "$next_kb" ]; then
+    next_kb=$(head -n 1 "$KB_CONFIG")
+fi
+
+setxkbmap "${next_kb},us"
+notify-send "⌨ Keyboard Module" "Layout switched to: $next_kb"
