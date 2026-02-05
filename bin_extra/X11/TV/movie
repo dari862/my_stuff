@@ -1,15 +1,15 @@
 #!/bin/bash
-# work on this : this iptv script work on adding movie
 set -e
 unalias -a
-. "$__distro_path_lib"
-. "${__distro_path_root}/lib/common/WM"
+script_config_path="/home/dari/Desktop/testtesttest"
 tv_config_dir="${script_config_path}/My_TV"
 tv_config_file="${tv_config_dir}/termv.conf"
-TERMV_DIR="${__distro_for_all_path}/termv"
+TERMV_DIR="${tv_config_dir}/termv"
 Channels_List_DB="${TERMV_DIR}/Channels_List.txt"
 
-[ ! -d "${tv_config_dir}" ] && mkdir -p "$tv_config_dir" || :
+if [ ! -d "${tv_config_dir}" ];then
+	mkdir -p "$tv_config_dir"
+fi
 
 if [ ! -f "$tv_config_file" ];then
     tee "$tv_config_file" <<- 'EOF' >/dev/null 2>&1
@@ -18,7 +18,7 @@ if [ ! -f "$tv_config_file" ];then
     TERMV_CATEGORY=""
     TERMV_LANGUAGE=""
     TERMV_COUNTRY=""
-    TERMV_FILTER=""
+    TERMV_FILTER_NSFW=TRUE
 
     TERMV_SWALLOW=false
     TERMV_MPV_FLAGS="--no-resume-playback"
@@ -35,8 +35,6 @@ if [ "$use_external_menu" = "auto" ];then
 	fi
 fi
 
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv $use_external_menu || exit 1
-
 if [ "$use_external_menu" = "fzf" ];then
 	launcher() {	
 		cat "${Channels_List_DB}" |\
@@ -46,10 +44,9 @@ if [ "$use_external_menu" = "fzf" ];then
 			--header="Select channel (press Escape to exit)" -q "${*:-}"
 	}
 elif [ "$use_external_menu" = "rofi" ];then
-	. "${Distro_config_file}"
 	launcher() {
 		Chosen_channel="$(cat "${Channels_List_DB}" |\
-	    rofi -dmenu -i -p "Select channel (press Escape to exit)" -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -width 1500)"
+	    rofi -dmenu -i -p "Select channel (press Escape to exit)" -width 1500)"
 	    _play "${Chosen_channel}"
 	}
 fi
@@ -76,19 +73,53 @@ export -f _play
 mkdir -p "${TERMV_DIR}"
 
 if [ ! -f "${Channels_List_DB}" ] || [ ! "$(stat -c %y "${Channels_List_DB}" 2>/dev/null | cut -d' ' -f1)" = "$(date '+%Y-%m-%d')" ];then
-	 curl https://raw.githubusercontent.com/iptv-org/database/refs/heads/master/data/channels.csv | awk -F, '{print $1 "," $7 "," $6 "," $NF }' | column -t -s ',' > "$Channels_List_DB"
-	 if [ -n "$TERMV_CATEGORY" ];then
-	 	:
-	 fi
-	 if [ -n "$TERMV_LANGUAGE" ];then
-	 	:
-	 fi
-	 if [ -n "$TERMV_COUNTRY" ];then
-	 	:
-	 fi
-	 if [ -n "$TERMV_FILTER" ];then
-	 	:
-	 fi
+	curl -s https://raw.githubusercontent.com/iptv-org/database/refs/heads/master/data/channels.csv | \
+	awk -F, -v cats="$TERMV_CATEGORY" -v nsfw_filter="$TERMV_FILTER_NSFW"  -v countrys="$TERMV_COUNTRY" '
+		BEGIN {
+    		# Only split if cats is not empty to avoid matching everything
+    		if (length(cats) > 0) {
+        		catscount = split(cats, exclude_arr, " ")
+    		} else {
+        		catscount = 0
+    		}
+    		if (length(countrys) > 0) {
+        		countryscount = split(countrys, exclude_arr, " ")
+    		} else {
+        		countryscount = 0
+    		}
+		}
+		{
+    		# 1. NSFW Filter: Skip only if filter is ON and column 8 is TRUE
+    		if (nsfw_filter == "TRUE" && ($8 == "TRUE" || $7 == "xxx")) {
+        		next
+    		}
+		
+    		# 2. Category Filter: Only run if catscount > 0
+    		if (catscount > 0) {
+        		for (i = 1; i <= catscount; i++) {
+            		if ($7 ~ exclude_arr[i]) {
+                		next
+            		}
+        		}
+    		}
+			
+			# 2. Category Filter: Only run if countryscount > 0
+			if (countryscount > 0) {
+        		for (i = 1; i <= countryscount; i++) {
+            		if ($6 ~ exclude_arr[i]) {
+                		next
+            		}
+        		}
+    		}
+			
+			# 3. skip line if no url exist
+			if ($NF ~ /^[[:space:]]*$/) {
+				next
+			}
+			
+    		# 4. Output selection
+    		print $1 "," $7 "," $6 "," $NF
+		}' | column -t -s ',' > "$Channels_List_DB"
 fi
 
 launcher
