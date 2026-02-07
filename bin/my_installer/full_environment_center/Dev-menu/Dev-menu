@@ -1,7 +1,8 @@
 #!/bin/bash
 unalias -a
 . "$__distro_path_lib"
-DEV_PATH=$(dirname $(realpath "$0"))
+REAL_SCRIPT_PATH=$(realpath "$0")
+DEV_PATH="${REAL_SCRIPT_PATH%/*}"
 . $DEV_PATH/menus_functions_list
 . $DEV_PATH/shellect
 

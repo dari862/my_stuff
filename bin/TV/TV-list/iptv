@@ -1,0 +1,174 @@
+#!/bin/bash
+set -e
+unalias -a
+
+use_external_menu="${1:-fzf}"
+tv_config_dir="${2:-}"
+shift 2
+if [ "$use_external_menu" = "rofi" ];then
+	ROFI_THEME="${3:-}"
+	shift
+fi
+
+tv_config_file="${tv_config_dir}/termv.conf"
+iptv_cache_dir="${XDG_DATA_HOME:=${HOME}/.local/share}/iptv"
+Channels_List_DB="${iptv_cache_dir}/termv_channels_List.txt"
+TERMV_FILTER=""
+
+if [ ! -f "$tv_config_file" ];then
+    tee "$tv_config_file" <<- 'EOF' >/dev/null 2>&1
+    #################################################
+    # iptv
+    #################################################
+    
+    TERMV_CHANNELS_URL="https://iptv-org.github.io/api/channels.json"
+	TERMV_STREAMS_URL="https://iptv-org.github.io/api/streams.json"
+    
+    TERMV_CATEGORY=""
+    TERMV_LANGUAGE=""
+    TERMV_COUNTRY=""
+
+    TERMV_SWALLOW=false
+    TERMV_MPV_FLAGS="--no-resume-playback"
+EOF
+fi
+
+. "$tv_config_file"
+
+if [ "$use_external_menu" = "fzf" ];then
+	launcher() {	
+		cat "${Channels_List_DB}" |\
+		fzf -e -i --reverse --cycle --with-nth="1..-2"\
+			--bind "enter:execute(_play {})"\
+			--bind "double-click:execute(_play {})"\
+			--header="Select channel (press Escape to exit)" -q "${*:-}"
+	}
+elif [ "$use_external_menu" = "rofi" ];then
+	launcher() {
+		Chosen_channel="$(cat "${Channels_List_DB}" |\
+	    rofi -dmenu -i -p "Select channel (press Escape to exit)" -theme "$ROFI_THEME" -width 1500)"
+	    _play "${Chosen_channel}"
+	}
+fi
+
+if [ "${TERMV_SWALLOW}" = true ];then
+	_play() {
+		printf '%s\n' "Fetching channel, please wait..."
+		WID=$(xdo id)
+		xdo hide
+		# shellcheck disable=SC2086
+		mpv "${*##* }" ${TERMV_MPV_FLAGS} --force-media-title="${*%%  *}" --force-window=immediate
+		xdo show "$WID" && xdo activate "$WID"
+	}
+else
+	_play() {
+		printf '%s\n' "Fetching channel, please wait..."
+		# shellcheck disable=SC2086
+		mpv "${*##* }" ${TERMV_MPV_FLAGS} --force-media-title="${*%%  *}"
+	}
+fi
+export -f _play
+
+mkdir -p "${iptv_cache_dir}"
+
+fetch_resource() {
+    url="$1"
+    name="$2"
+    target="${iptv_cache_dir}/${name}_data.json"
+    etag_path="${iptv_cache_dir}/${name}_etag"
+    
+    printf "Syncing %s... " "$name"
+    
+    curl -sL "$url" \
+        --etag-compare "$etag_path" \
+        --etag-save "$etag_path" \
+        --compressed \
+        -o "${target}.new" \
+        -H "accept-encoding:gzip"
+
+    if [ -f "${target}.new" ] && [ -s "${target}.new" ]; then
+        mv "${target}.new" "$target"
+        echo "Updated!"
+        return 0
+    else
+        rm -f "${target}.new"
+        echo "Already up to date."
+        return 1
+    fi
+}
+
+merge_json_files() {
+	jq -s '(.[0] | unique_by(.channel) | map({id: .channel, url})) + 
+  		(.[1] | map({id, name, categories, is_nsfw, languages, country})) 
+  		| group_by(.id) 
+  		| map(add) 
+  		| map(select(.url != null))
+		' "${iptv_cache_dir}/streams_data.json" "${iptv_cache_dir}/channels_data.json" | awk 'NR < 2 || NR > 5' > "${iptv_cache_dir:?}/data.json"
+}
+
+update_jsonfiles(){
+	TODAY=$(date '+%Y-%m-%d')
+	CHANNELS_DATE=$(stat -c %y "${iptv_cache_dir}/channels_data.json" 2>/dev/null | cut -d' ' -f1 || echo "")
+	
+	if [ "$CHANNELS_DATE" != "$TODAY" ]; then
+    	 if fetch_resource "$TERMV_CHANNELS_URL" "channels";then
+    	 	updated_c=1
+    	 else
+    	 	updated_c=0
+    	 fi
+    	 
+    	 if fetch_resource "$TERMV_STREAMS_URL" "streams";then
+    	 	updated_s=1
+    	 else
+    	 	updated_s=0
+    	 fi
+    	
+    	if [ "$updated_c" -eq 1 ] || [ "$updated_s" -eq 1 ] || [ ! -f "${iptv_cache_dir}/data.json" ]; then
+        	merge_json_files
+        	rm -f "$Channels_List_DB"
+    	fi
+	fi
+}
+
+if [ -n "${TERMV_CATEGORY}" ];then
+	TERMV_FILTER="$TERMV_FILTER | select(.categories[0].name == \"$TERMV_CATEGORY\")"
+fi
+
+if [ -n "${TERMV_LANGUAGE}" ];then
+	TERMV_FILTER="$TERMV_FILTER | select(.languages[0].name == \"$TERMV_LANGUAGE\")"
+fi
+
+if [ -n "${TERMV_COUNTRY}" ];then
+	TERMV_FILTER="$TERMV_FILTER | select(.countries[0].name == \"$TERMV_COUNTRY\")"
+fi
+
+update_jsonfiles
+
+if [ ! -f "${Channels_List_DB}" ]; then
+    jq -r ".[] $TERMV_FILTER | \"\(.name) \t \(.categories[]? // \"N/A\") \t \(.languages[]? // \"N/A\") \t \(.country? // \"N/A\") \t \(.url)\"" "${TERMV_CACHE_DIR:?}/data.json" |\
+		awk -v max="${COLUMNS:-80}" 'BEGIN { RS="\n"; FS=" \t " }
+			{
+				name = $1
+				sub(/^[0-9]+\.\s*/, "", name)
+				name = substr(name, 1, max/4)
+				
+				category = $2
+				sub(/.*> /, "", category)
+				category = substr(category, 1, max/8)
+				
+				languages = $3
+				sub(/.*> /, "", languages)
+				languages = substr(languages, 1, max/8)
+				
+				countries = $4
+				sub(/.*> /, "", countries)
+				countries = substr(countries, 1, 70)
+				
+				channelUrl = $5
+ 				sub(/.*> /, "", channelUrl)
+ 				
+				print name "\t|" category "\t|" languages "\t|" countries "\t" channelUrl
+			}' | column -t -s $'\t' > "${CHANNELS_LIST}"
+fi
+
+launcher

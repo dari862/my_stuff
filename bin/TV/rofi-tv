@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+
+ROFI_THEME="${3:-}"
+tv_config_dir="${2:-}"
+main_tv_script_path="${1:-}"
+shift 3
+
+list_are="1. Youtube
+2. Anime
+3. Moive/TV-Show
+4. IP-TV"
+
+__mode="$(printf "%s" "$list_are" | rofi -theme "$ROFI_THEME" -dmenu -selected-row 0)"
+
+case "${__mode}" in
+	yt|1*)  name="youtube-cli" ;;
+	ani|2*) name="anime-cli" ;;
+	mov|3*) name="movie" ;;
+	tv|4*)  name="iptv" ;;
+    *)	    name="youtube-cli" ;;
+esac
+
+setsid "${main_tv_script_path}/TV-list"/${name} rofi "$tv_config_dir" "$ROFI_THEME" $@

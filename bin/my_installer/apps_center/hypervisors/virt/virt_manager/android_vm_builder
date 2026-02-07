@@ -22,7 +22,8 @@ case "$IMAGE_TYPE" in
 		;;
 esac
 
-Android_VM_PATH="$(cd "$(dirname "$(realpath "$0")")" && pwd)"
+REAL_SCRIPT_PATH=$(realpath "$0")
+Android_VM_PATH="${REAL_SCRIPT_PATH%/*}"
 VM_CONF="${Android_VM_PATH}/vm.conf"
 ICON_PATH="${Android_VM_PATH}/android_icon.svg"
 LAUNCHER_SH="${Android_VM_PATH}/launcher.sh"

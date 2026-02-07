@@ -1,33 +1,36 @@
 #!/bin/sh
 set -e
 unalias -a
-. "$__distro_path_lib"
-. "${__distro_path_root}/lib/common/WM"
-tv_config_dir="${script_config_path}/My_TV"
-tv_config_file="${tv_config_dir}/ani-cli.conf"
 
-[ ! -d "${tv_config_dir}" ] && mkdir -p "$tv_config_dir" || :
+use_external_menu="${1:-fzf}"
+tv_config_dir="${2:-}"
+shift 2
+if [ "$use_external_menu" = "rofi" ];then
+	ROFI_THEME="${3:-}"
+	shift
+fi
+
+tv_config_file="${tv_config_dir}/ani-cli.conf"
 
 if [ ! -f "$tv_config_file" ];then
     tee "$tv_config_file" <<- 'EOF' >/dev/null 2>&1
+    #################################################
+    # anime-cli
+    #################################################
+    
     #ani-cli version_number="4.10.0"
     # setup
     agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0"
     allanime_refr="https://allmanga.to"
     allanime_base="allanime.day"
-    allanime_api="https://api.${allanime_base}"
+    allanime_api="https://api.\${allanime_base}"
     mode="sub"
     #mode="dub"
     log_episode="1"
     quality="best"
-    player_function="mpv"
-    #player_function="vlc"
 
     skip_intro=0
     no_detach="0"
-    use_external_menu="auto"
-    #use_external_menu="fzf"
-    #use_external_menu=rofi
     external_menu_normal_window="0"
     hist_dir="${ANI_CLI_HIST_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/ani-cli}"
     histfile="$hist_dir/ani-hsts"
@@ -35,14 +38,6 @@ if [ ! -f "$tv_config_file" ];then
 EOF
 fi
 . "$tv_config_file"
-
-if [ "$use_external_menu" = "auto" ];then
-	if [ -t 1 ];then # on terminal
-		use_external_menu=fzf
-	else
-		use_external_menu=rofi
-	fi
-fi
 
 [ ! -d "$hist_dir" ] && mkdir -p "$hist_dir" || :
 [ ! -f "$histfile" ] && : >"$histfile" || :
@@ -56,7 +51,6 @@ if [ "$skip_intro" = 1 ];then
 fi
 
 if [ "$use_external_menu" = "fzf" ];then
-	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed sed grep fzf $player_function || exit 1
 	multi_selection_flag="-m"
 	launcher() {
 		if [ -z "$1" ];then
@@ -65,10 +59,9 @@ if [ "$use_external_menu" = "fzf" ];then
 		fzf "$1" --reverse --cycle --prompt "$2"
 	}
 elif [ "$use_external_menu" = "rofi" ];then
-	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed sed grep rofi $player_function || exit 1
 	multi_selection_flag="-multi-select"
 	launcher() {
-		rofi "$1" -sort -dmenu -i -width 1500 -p "$2" "$3"
+		rofi -theme "$ROFI_THEME" "$1" -sort -dmenu -i -width 1500 -p "$2" "$3"
 	}
 fi
 
@@ -212,8 +205,8 @@ generate_link() {
 
 select_quality() {
     # removing urls which have soft subs to avoid playing on android, iSH and vlc (m3u8 streams don't get correct referrer)
-    printf '%s' "$player_function" | cut -f1 -d" " | grep -qE '(android|iSH|vlc)' && links=$(printf '%s' "$links" | sed '/cc>/d;/subtitle >/d;/m3u8_refr >/d')
-    printf '%s' "$player_function" | cut -f1 -d" " | grep -qE '(android|iSH)' && links=$(printf '%s' "$links" | sed '/Yt >/d')
+    printf '%s' "mpv" | cut -f1 -d" " | grep -qE '(android|iSH|vlc)' && links=$(printf '%s' "$links" | sed '/cc>/d;/subtitle >/d;/m3u8_refr >/d')
+    printf '%s' "mpv" | cut -f1 -d" " | grep -qE '(android|iSH)' && links=$(printf '%s' "$links" | sed '/Yt >/d')
     case "$1" in
         best) result=$(printf "%s" "$links" | head -n1) ;;
         worst) result=$(printf "%s" "$links" | grep -E '^[0-9]{3,4}' | tail -n1) ;;
@@ -309,18 +302,11 @@ play_episode() {
     if [ -z "$episode" ];then
         get_episode_url
     fi
-    # shellcheck disable=SC2086
-    case "$player_function" in
-        mpv*)
-            if [ "$no_detach" = 0 ]; then
-                nohup $player_function $skip_flag --force-media-title="${allanime_title}Episode ${ep_no}" "$episode" $subs_flag $refr_flag >/dev/null 2>&1 &
-            else
-                $player_function $skip_flag $subs_flag $refr_flag --force-media-title="${allanime_title}Episode ${ep_no}" "$episode"
-            fi
-            ;;
-        vlc*) nohup $player_function --http-referrer="${allanime_refr}" --play-and-exit --meta-title="${allanime_title}Episode ${ep_no}" "$episode" >/dev/null 2>&1 & ;;
-        *) nohup $player_function "$episode" >/dev/null 2>&1 & ;;
-    esac
+    if [ "$no_detach" = 0 ]; then
+    	nohup mpv $skip_flag --force-media-title="${allanime_title}Episode ${ep_no}" "$episode" $subs_flag $refr_flag >/dev/null 2>&1 &
+    else
+    	mpv $skip_flag $subs_flag $refr_flag --force-media-title="${allanime_title}Episode ${ep_no}" "$episode"
+    fi
     replay="$episode"
     unset episode
     update_history

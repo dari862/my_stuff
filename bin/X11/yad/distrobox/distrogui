@@ -8,7 +8,8 @@ fi
 
 if [ ! -d "$HOME/.config/distrogui" ];then
   echo "Making $HOME/.config/distrogui"
-  SCRIPT_PATH="$(realpath "$0")"
+  REAL_SCRIPT_PATH=$(realpath "$0")
+  SCRIPT_PATH="${REAL_SCRIPT_PATH%/*}"
   mkdir -p "$HOME/.config/distrogui"
   cp -r "${SCRIPT_PATH}/docker-images.txt" "$HOME/.config/distrogui/docker-images.txt"
   cp -r "${SCRIPT_PATH}/terminal.txt" "$HOME/.config/distrogui/terminal.txt"

@@ -423,6 +423,8 @@ fi
 	
 show_im "LN bin files to system_files/bin ."
 
+ln -sf "${__distro_path_root}/bin/TV/mytv" "${__distro_path_system_files}"/bin
+
 if [ -d "${__distro_path_root}/bin/cli" ];then
 	show_im "bin cli files to system_files/bin ."
 	ln_sf_files_depth1 "${__distro_path_root}/bin/cli" "${__distro_path_system_files}"/bin

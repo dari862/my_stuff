@@ -1,15 +1,16 @@
 #!/bin/sh
 set -e
-. "$__distro_path_lib"
-__mode="${1:-}"
+
+FZF_DEFAULT_OPTS=""
+FZF_CTRL_R_OPTS=""
+tv_config_dir="${2:-}"
+main_tv_script_path="${1:-}"
+shift 2
 
 list_are="1. Youtube
 2. Anime
 3. Moive/TV-Show
 4. IP-TV"
-
-FZF_DEFAULT_OPTS=""
-FZF_CTRL_R_OPTS=""
 
 __mode="$(printf "%s" "$list_are" | fzf --info=hidden --layout=reverse --height=100% --exact --cycle --ansi)"
 
@@ -21,4 +22,4 @@ case "${__mode}" in
     *)	    name="youtube-cli" ;;
 esac
 
-"${__distro_path_root}/bin_extra/X11/TV"/${name} $@
+setsid "${main_tv_script_path}/TV-list"/${name} fzf "$tv_config_dir" $@

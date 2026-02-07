@@ -1,0 +1,54 @@
+#!/bin/sh
+# if this line exist script will be part of hub script.
+set -e
+
+REAL_SCRIPT_PATH=$(realpath "$0")
+main_tv_script_path="${REAL_SCRIPT_PATH%/*}"
+ROFI_THEME=""
+name=""
+whatmenu2use=""
+
+if [ "${1:-}" = "fzf" ];then
+	whatmenu2use=fzf
+	shift
+elif [ "${1:-}" = "rofi" ];then
+	whatmenu2use=rofi
+	shift
+else
+	if [ -t 1 ];then # on terminal
+		whatmenu2use=fzf
+	else
+		whatmenu2use=rofi
+	fi
+fi
+
+__mode="${1:-}"
+
+case "${__mode}" in
+	yt)  name="youtube-cli" ; shift ;;
+	ani) name="anime-cli" ; shift ;;
+	mov) name="movie" ; shift ;;
+	tv)  name="iptv" ; shift ;;
+esac
+
+#. "$__distro_path_lib"
+#"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv jq sed grep ${whatmenu2use} || exit 1
+#. "${__distro_path_root}/lib/common/WM"
+script_config_path="/home/dari/Desktop/workon/TV/test"
+
+if [ "$use_external_menu" = "rofi" ];then
+	. "${Distro_config_file}"
+	ROFI_THEME="$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
+fi
+
+tv_config_dir="${script_config_path}/My_TV/test"
+
+if [ ! -d "${tv_config_dir}" ];then
+	mkdir -p "$tv_config_dir"
+fi
+
+if [ -n "$name" ];then
+	setsid "${main_tv_script_path}/TV-list"/${name} "${whatmenu2use}" "$tv_config_dir" "$ROFI_STYLE" $@
+else
+	setsid "${main_tv_script_path}"/${whatmenu2use}-tv "$main_tv_script_path" "$tv_config_dir" "$ROFI_THEME" $@
+fi

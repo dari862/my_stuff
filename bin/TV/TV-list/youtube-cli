@@ -1,24 +1,28 @@
 #!/bin/bash
 unalias -a
-. "$__distro_path_lib"
-. "${__distro_path_root}/lib/common/WM"
+
+use_external_menu="${1:-fzf}"
+tv_config_dir="${2:-}"
+shift 2
+if [ "$use_external_menu" = "rofi" ];then
+	ROFI_THEME="${3:-}"
+	shift
+fi
 
 CLI_NAME="yt-x"
-tv_config_dir="${script_config_path}/My_TV"
 tv_config_file="${tv_config_dir}/${CLI_NAME}.conf"
-
-[ ! -d "${tv_config_dir}" ] && mkdir -p "$tv_config_dir" || :
 
 if [ ! -f "$tv_config_file" ];then
     tee "$tv_config_file" <<- 'EOF' >/dev/null 2>&1
+    #################################################
+    # youtube-cli
+    #################################################
+    
 # whether to show colors when printing ouput
 PRETTY_PRINT=true
 
 # your preferred editor for editing your config
 EDITOR=open
-
-# your preferred selector for the tui [fzf/rofi/auto]
-PREFERRED_SELECTOR=fzf
 
 # the quality of the video when streaming with a player other than mpv
 VIDEO_QUALITY=1080
@@ -38,9 +42,6 @@ SEARCH_HISTORY=true
 
 # the number of recent videos to keep
 NO_OF_RECENT=30
-
-# the player to use for streaming [mpv/vlc]
-PLAYER=mpv
 
 # the browser to use to extract cookies from
 # this is used to by yt-dlp to access content that would require login
@@ -66,16 +67,6 @@ fi
 
 . "${tv_config_file}"
 
-if [ "$PREFERRED_SELECTOR" = "auto" ];then
-	if [ -t 1 ];then #on_terminal
-		PREFERRED_SELECTOR=fzf
-	else
-		PREFERRED_SELECTOR=rofi
-	fi
-fi
-
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv jq $PREFERRED_SELECTOR || exit 1
-
 CURRENT_TIME=$(date +%s)
 
 CLI_CONFIG_DIR="$tv_config_dir"
@@ -91,8 +82,7 @@ F_CUSTOM_CMDS="$CLI_CONFIG_DIR/custom_cmds.json"
 F_SUBSCRIPTIONS="$CLI_CONFIG_DIR/subscriptions.json"
 PLAYLIST_START="1"
 PLAYLIST_END="$NO_OF_SEARCH_RESULTS"
-  
-CLI_DIR="$(dirname "$(realpath "$0")")"
+
 PREFERRED_BROWSER="$(echo "$PREFERRED_BROWSER" | sed 's/--cookies-from-browser //g')"
 
 [ -d "$CLI_CONFIG_DIR" ] || mkdir -p "$CLI_CONFIG_DIR"
@@ -121,9 +111,9 @@ send_notification() {
   echo "$1" >&2 && sleep "$NOTIFICATION_DURATION"
 }
 
-if [ "$PREFERRED_SELECTOR" = "rofi" ]; then
+if [ "$use_external_menu" = "rofi" ]; then
 	prompt() {
-    	rofi -dmenu -p "$1: "
+    	rofi -theme "$ROFI_THEME" -dmenu -p "$1: "
     }
     launcher() {
     	rofi_selection=$(while read -r line; do echo "$line" | sed -r 's/\x1B(\[[0-9;]*[a-zA-Z]|\(B)//g'; done | rofi -no-config -theme "$ROFI_THEME" -sort -matching fuzzy -dmenu -i -width 1500 -p "" -mesg "Select Action" -matching fuzzy -sorting-method fzf)
@@ -550,9 +540,9 @@ playlist_explorer() {
           | to_entries
           | map(.value.title=\"\(.key+1|tostring| if (.|length) < 2 then \"0\" + . else . end) \"+.value.title) 
           |map(.value))
-          ") && ! [ "$ENABLE_PREVIEW" = "true" ] || ! [ "$PREFERRED_SELECTOR" = "fzf" ] && DOWNLOAD_IMAGES=1
+          ") && ! [ "$ENABLE_PREVIEW" = "true" ] || ! [ "$use_external_menu" = "fzf" ] && DOWNLOAD_IMAGES=1
     titles=$(echo "$search_results" | jq '.entries[].title' -r 2>/dev/null)
-    [ "$ENABLE_PREVIEW" = "true" ] && [ "$PREFERRED_SELECTOR" = "fzf" ] && [ "$DOWNLOAD_IMAGES" = 0 ] && download_preview_images "$search_results" "" && DOWNLOAD_IMAGES=1
+    [ "$ENABLE_PREVIEW" = "true" ] && [ "$use_external_menu" = "fzf" ] && [ "$DOWNLOAD_IMAGES" = 0 ] && download_preview_images "$search_results" "" && DOWNLOAD_IMAGES=1
     export search_results SHELL
     if [ "$ENABLE_PREVIEW" = "true" ]; then
       title="$(printf "%s\nNext\nPrevious\n${CYAN}󰌍${RESET}  Back\n${CYAN}󰍜${RESET}  Main Menu\n${RED}󰈆${RESET}  Exit" "$titles" | launcher_with_preview "select video" "$PREVIEW_SCRIPT_FOR_VIDEOS" | tr -d '\n' | sed 's/^[^0-9]  //g')"
@@ -774,21 +764,7 @@ ${RED}󰈆${RESET}  Exit" | launcher "Select Media Action" | sed 's/.  //g')"
           fi
           mpv "$cached_playlist" --no-video
         else
-          if [ "$PLAYER" != mpv ]; then
-            video_url=$(yt-dlp "$video_url" -q --no-warnings --get-url --format "bestaudio/best[height<=$VIDEO_QUALITY]/best" 2>/dev/null | tail -n 1)
-            if ! [ "$?" = 0 ] || [ -z "$video_url" ]; then
-              echo No video format found
-              sleep 5
-              break
-            fi
-          fi
-            case "$PLAYER" in
-            mpv)
-              setsid mpv "$video_url" --no-video
-              ;;
-            vlc) setsid vlc "$video_url" --video-title "$title" ;;
-            esac
-
+            setsid mpv "$video_url" --no-video
         fi
 
         current_recent_videos='{"entries":[]}'
@@ -846,20 +822,14 @@ ${RED}󰈆${RESET}  Exit" | launcher "Select Media Action" | sed 's/.  //g')"
           fi
           mpv "$cached_playlist"
         else
-          if [ "$PLAYER" = mpv ]; then
-            video_url=$(yt-dlp "$video_url" -q --no-warnings --get-url --format "best[height<=$VIDEO_QUALITY]/best" 2>/dev/null | tail -n 1)
-            if ! [ "$?" = 0 ] || [ -z "$video_url" ]; then
-              echo No video format found
-              sleep 5
-              break
-            fi
+          video_url=$(yt-dlp "$video_url" -q --no-warnings --get-url --format "best[height<=$VIDEO_QUALITY]/best" 2>/dev/null | tail -n 1)
+          if ! [ "$?" = 0 ] || [ -z "$video_url" ]; then
+            echo No video format found
+            sleep 5
+            break
           fi
-            case "$PLAYER" in
-            mpv)
-              setsid mpv "$video_url"
-              ;;
-            vlc) setsid vlc "$video_url" --video-title "$title" ;;
-            esac
+          
+          setsid mpv "$video_url"
         fi
 
         current_recent_videos='{"entries":[]}'
@@ -985,7 +955,7 @@ playlists_explorer() {
           |map(.value))
           ")
   playlist_video_titles=$(echo "$playlist_results" | jq '.entries[].title' -r 2>/dev/null)
-  [ "$ENABLE_PREVIEW" = "true" ] && [ "$PREFERRED_SELECTOR" = "fzf" ] && download_preview_images "$playlist_results" ""
+  [ "$ENABLE_PREVIEW" = "true" ] && [ "$use_external_menu" = "fzf" ] && download_preview_images "$playlist_results" ""
   export playlist_results SHELL
   while true; do
     if [ "$ENABLE_PREVIEW" = "true" ]; then
@@ -1119,7 +1089,7 @@ ${RED}󰈆${RESET}  Exit" | launcher "Select Action" | sed 's/.*  //g')"
     if [ -z "$CMD_SEARCH_TERMS" ]; then
            search_term="$(prompt "Enter term to search for")"
       # Exit if user presses ESC or leaves search empty in rofi
-      if [ "$PREFERRED_SELECTOR" = "rofi" ] && [ -z "$search_term" ]; then
+      if [ "$use_external_menu" = "rofi" ] && [ -z "$search_term" ]; then
         echo "Search canceled. No search term provided."
         return 1
       fi

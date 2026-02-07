@@ -4,7 +4,8 @@
 . "$__distro_path_lib"
 script_name="${1:-}"
 shift
-current_script_path="$(dirname "$(realpath "$0")")"
+REAL_SCRIPT_PATH=$(realpath "$0")
+current_script_path="${REAL_SCRIPT_PATH%/*}"
 ffmpeg_scripts_path="${current_script_path}/ffmpeg_scripts"
 
 # === Colors ===
