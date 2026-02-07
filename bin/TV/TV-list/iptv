@@ -145,7 +145,7 @@ fi
 update_jsonfiles
 
 if [ ! -f "${Channels_List_DB}" ]; then
-    jq -r ".[] $TERMV_FILTER | \"\(.name) \t \(.categories[]? // \"N/A\") \t \(.languages[]? // \"N/A\") \t \(.country? // \"N/A\") \t \(.url)\"" "${TERMV_CACHE_DIR:?}/data.json" |\
+    jq -r ".[] $TERMV_FILTER | \"\(.name) \t \(.categories[]? // \"N/A\") \t \(.languages[]? // \"N/A\") \t \(.country? // \"N/A\") \t \(.url)\"" "${iptv_cache_dir}/data.json" |\
 		awk -v max="${COLUMNS:-80}" 'BEGIN { RS="\n"; FS=" \t " }
 			{
 				name = $1
@@ -168,7 +168,7 @@ if [ ! -f "${Channels_List_DB}" ]; then
  				sub(/.*> /, "", channelUrl)
  				
 				print name "\t|" category "\t|" languages "\t|" countries "\t" channelUrl
-			}' | column -t -s $'\t' > "${CHANNELS_LIST}"
+			}' | column -t -s $'\t' > "${Channels_List_DB}"
 fi
 
 launcher
