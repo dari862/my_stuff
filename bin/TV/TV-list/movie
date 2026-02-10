@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 ### General Variables ###
 config_file="$HOME/.config/lobster/lobster_config.sh"
-lobster_editor=${VISUAL:-${EDITOR}}
 tmp_dir="${TMPDIR:-/tmp}/lobster" && mkdir -p "$tmp_dir"
 lobster_socket="${TMPDIR:-/tmp}/lobster.sock" # Used by mpv (check the play_video function)
 lobster_logfile="${TMPDIR:-/tmp}/lobster.log"
@@ -33,38 +32,11 @@ send_notification() {
     fi
 }
 
-### Discord Rich Presence Variables ###
-# Note: experimental feature
-presence_client_id="1239340948048187472" # Discord Client ID
-# shellcheck disable=SC2154
-discord_ipc="${XDG_RUNTIME_DIR}/discord-ipc-0" # Discord IPC Socket (Could also be discord-ipc-1 if using arRPC afaik)
-handshook="$tmp_dir/handshook"                 # Indicates if the RPC handshake has been done
-ipclog="$tmp_dir/ipclog"                       # Logs the RPC events
-presence="$tmp_dir/presence"                   # Used by the rich presence function
-small_image="https://www.pngarts.com/files/9/Juvenile-American-Lobster-PNG-Transparent-Image.png"
-
 ### OS Specific Variables ###
 separator=':'             # default value
 path_thing="\\"           # default value
 ueberzugpp_tmp_dir="/tmp" # for some reason ueberzugpp only uses $TMPDIR on Darwin
 
-# Checks if any of the provided arguments are -e or --edit
-# If so, it will edit the config file
-# This was added for pure convenience (for me)
-if printf "%s" "$*" | grep -qE "\-\-edit|\-e" 2>/dev/null; then
-    #shellcheck disable=1090
-    . "${config_file}"
-    [ -z "$lobster_editor" ] && lobster_editor="nano"
-    "$lobster_editor" "$config_file"
-    exit 0
-fi
-
-### Cleanup Functions ###
-rpc_cleanup() {
-    pkill -f "nc -U $discord_ipc" >/dev/null
-    pkill -f "tail -f $presence" >/dev/null
-    rm "$handshook" "$ipclog" "$presence" >/dev/null
-}
 cleanup() {
     [ "$debug" != "true" ] && rm -rf "$tmp_dir"
     [ "$remove_tmp_lobster" = "true" ] && rm -rf "$tmp_dir"
@@ -90,8 +62,6 @@ usage() {
       Show this help message and exit
     -r, --recent [movies|tv]
       Lets you select from the most recent movies or tv shows (if no argument is provided, it defaults to movies)
-    -t, --trending
-      Lets you select from the most popular movies and shows
   Note:
     All arguments can be specified in the config file as well.
     If an argument is specified in both the config file and the command line, the command line argument will be used.
@@ -123,7 +93,6 @@ configuration() {
     [ -f "$config_file" ] && . "${config_file}" # source the user's config file
     [ -z "$base" ] && base="flixhq.to"
     [ -z "$player" ] && player="mpv"
-    [ -z "$download_dir" ] && download_dir="$PWD"
     [ -z "$provider" ] && provider="Vidcloud"
     [ -z "$subs_language" ] && subs_language="english"
     [ -z "$histfile" ] && histfile="$data_dir/lobster_history.txt" && mkdir -p "$(dirname "$histfile")"
@@ -142,12 +111,10 @@ configuration() {
     fi
     [ -z "$remove_tmp_lobster" ] && remove_tmp_lobster="true"
     [ -z "$json_output" ] && json_output="false"
-    [ -z "$discord_presence" ] && discord_presence="false"
     [ -z "$watchlater_dir" ] && watchlater_dir="$tmp_dir/watchlater" && mkdir -p "$watchlater_dir"
     [ -z "$quality" ] && quality="1080"
     no_subs="false"
     debug="false"
-    download="false"
 }
 
 # The reason I use additional file descriptors is because of the use of tee
@@ -670,53 +637,7 @@ EOF
         STATE="PLAY" && keep_running="true" && loop
     }
 
-    ### Discord Rich Presence ###
-    set_activity() {
-        len=${#1}
-        printf "\\001\\000\\000\\000"
-        for i in 0 8 16 24; do
-            len=$((len >> i))
-            #shellcheck disable=SC2059
-            printf "\\$(printf "%03o" "$len")"
-        done
-        printf "%s" "$1"
-    }
-    update_rich_presence() {
-        state=$1
-        payload='{"cmd":"SET_ACTIVITY","args":{"pid":"786","activity":{"state":"'"$state"'","details":"'"$displayed_title"'","assets":{"large_image":"'"$image_link"'","large_text":"'"$title"'","small_image":"'"$small_image"'","small_text":"powered by lobster"}}},"nonce":"'"$(date)"'"}'
-        if [ ! -e "$handshook" ]; then
-            handshake='{"v":1,"client_id":"'$presence_client_id'"}'
-            printf "\\000\\000\\000\\000\\$(printf "%03o" "${#handshake}")\\000\\000\\000%s" "$handshake" >"$presence"
-            sleep 2
-            touch "$handshook"
-        fi
-        set_activity "$payload" >"$presence"
-    }
-
     ### Video Playback ###
-    update_discord_presence() {
-        total=$(printf "%02d:%02d:%02d" $((total_duration / 3600)) $((total_duration % 3600 / 60)) $((total_duration % 60)))
-
-        [ -z "$image_link" ] && image_link="$(grep "$media_id" "$tmp_dir/image_links" | cut -f1)"
-        sleep 2
-
-        while :; do
-            if command -v nc >/dev/null 2>&1 && [ -S "$lobster_socket" ] 2>/dev/null; then
-                position=$(echo '{ "command": ["get_property", "time-pos"] }' | nc -U "$lobster_socket" 2>/dev/null | head -1)
-                [ -z "$position" ] && break
-                position=$(printf "%s" "$position" | sed -nE "s@.*\"data\":([0-9]*)\..*@\1@p")
-                position=$(printf "%02d:%02d:%02d" $((position / 3600)) $((position % 3600 / 60)) $((position % 60)))
-                update_rich_presence "$(printf "%s / %s" "$position" "$total")" &
-            else
-                # Fallback method if nc or Unix domain sockets are not available
-                sleep 5
-                update_rich_presence "Watching" &
-            fi
-            sleep 0.5
-        done
-
-        rpc_cleanup
-    }
     save_progress() {
         position=$(cat "$watchlater_dir/"* 2>/dev/null | grep -A1 "$video_link" | sed -nE "s@start=([0-9.]*)@\1@p" | cut -d'.' -f1)
         if [ -n "$position" ]; then
@@ -754,48 +675,11 @@ EOF
         durations=$(printf "%s" "$content" | grep -oE 'EXTINF:[0-9.]+,' | cut -d':' -f2 | tr -d ',')
         total_duration=$(printf "%s" "$durations" | xargs echo | awk '{for(i=1;i<=NF;i++)sum+=$i} END {print sum}' | cut -d'.' -f1)
 
-        [ "$discord_presence" = "true" ] && update_discord_presence
         wait
         save_progress
     }
-
-    # download_video [url] [title] [download_dir] [json_data] [thumbnail_file (only when image_preview is enabled)]
-    download_video() {
-        title="$(printf "%s" "$2" | tr -d ':/')"
-        dir="${3}/${title}"
-        # ik this is dumb idc
-        language=$(printf "%s" "$4" | sed -nE "s@.*\"file\":\"[^\"]*\".*\"label\":\"(.$subs_language)[,\"\ ].*@\1@p")
-        num_subs="$(printf "%s" "$subs_links" | sed 's/:\([^\/]\)/\n\\1/g' | wc -l)"
-        ffmpeg_subs_links=$(printf "%s" "$subs_links" | sed 's/:\([^\/]\)/\nh/g; s/\\:/:/g' | while read -r sub_link; do
-            printf " -i %s" "$sub_link"
-        done)
-
-        sub_ops=""
-        ffmpeg_meta=""
-        ffmpeg_maps=""
-
-        if [ "$no_subs" = "true" ]; then
-            # no subtitles
-            sub_ops=""
-        else
-            sub_ops="$ffmpeg_subs_links -map 0:v -map 0:a"
-            if [ "$num_subs" -eq 0 ]; then
-                sub_ops=" -i $subs_links -map 0:v -map 0:a -map 1"
-                ffmpeg_meta="-metadata:s:s:0 language=$language"
-            else
-                for i in $(seq 1 "$num_subs"); do
-                    ffmpeg_maps="$ffmpeg_maps -map $i"
-                    ffmpeg_meta="$ffmpeg_meta -metadata:s:s:$((i - 1)) language=$(printf "%s_%s" "$language" "$i")"
-                done
-            fi
-            sub_ops="$sub_ops $ffmpeg_maps -c:v copy -c:a copy -c:s srt $ffmpeg_meta"
-        fi
-
-        # shellcheck disable=SC2086
-        ffmpeg -loglevel error -stats -i "$1" $sub_ops -c copy "$dir.mkv"
-    }
-
-    choose_from_trending_or_recent() {
+    
+    choose_from_recent() {
         path=$1
         section=$2
         if [ "$path" = "home" ]; then
@@ -815,32 +699,6 @@ EOF
             [ -z "$embed_link" ] && exit 1
             extract_from_embed
             [ -z "$video_link" ] && exit 1
-            if [ "$download" = "true" ]; then
-                if [ "$media_type" = "movie" ]; then
-                    if [ "$image_preview" = "true" ]; then
-                        download_video "$video_link" "$title" "$download_dir" "$json_data" "$images_cache_dir/  $title ($media_type)  $media_id.jpg" &
-                        send_notification "Finished downloading" "5000" "$images_cache_dir/  $title ($media_type)  $media_id.jpg" "$title"
-                    else
-                        download_video "$video_link" "$title" "$download_dir" "$json_data" &
-                        send_notification "Finished downloading" "5000" "" "$title"
-                    fi
-                else
-                    if [ "$image_preview" = "true" ]; then
-                        download_video "$video_link" "$title - $season_title - $episode_title" "$download_dir" "$json_data" "$images_cache_dir/  $title - $season_title - $episode_title ($media_type)  $media_id.jpg" &
-                        send_notification "Finished downloading" "5000" "$images_cache_dir/  $title - $season_title - $episode_title ($media_type)  $media_id.jpg" "$title - $season_title - $episode_title"
-                    else
-                        download_video "$video_link" "$title - $season_title - $episode_title" "$download_dir" "$json_data" &
-                        send_notification "Finished downloading" "5000" "" "$title - $season_title - $episode_title"
-                    fi
-                fi
-                exit
-            fi
-            if [ "$discord_presence" = "true" ]; then
-                [ -p "$presence" ] || mkfifo "$presence"
-                rm -f "$handshook" >/dev/null
-                tail -f "$presence" | nc -U "$discord_ipc" >"$ipclog" &
-                update_rich_presence "00:00:00" &
-            fi
             play_video
             next_episode=""
             if [ -n "$position" ] && [ "$history" = "true" ]; then
@@ -928,7 +786,6 @@ EOF
                     fi
                 fi
                 ;;
-            -t | --trending) trending="1" && shift ;;
             *)
                 if [ "${1#-}" != "$1" ]; then
                     query="$query $1"
@@ -948,9 +805,8 @@ EOF
         fi
     fi
     [ -z "$provider" ] && provider="Vidcloud"
-    [ "$trending" = "1" ] && choose_from_trending_or_recent "home" "trending-movies"
-    [ "$recent" = "movie" ] && choose_from_trending_or_recent "movie" ""
-    [ "$recent" = "tv" ] && choose_from_trending_or_recent "tv-show" ""
+    [ "$recent" = "movie" ] && choose_from_recent "movie" ""
+    [ "$recent" = "tv" ] && choose_from_recent "tv-show" ""
 
     main
 
