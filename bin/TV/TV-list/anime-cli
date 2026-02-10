@@ -23,7 +23,7 @@ if [ ! -f "$tv_config_file" ];then
     agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0"
     allanime_refr="https://allmanga.to"
     allanime_base="allanime.day"
-    allanime_api="https://api.\${allanime_base}"
+    allanime_api="https://api.${allanime_base}"
     mode="sub"
     #mode="dub"
     log_episode="1"
@@ -39,8 +39,10 @@ EOF
 fi
 . "$tv_config_file"
 
-[ ! -d "$hist_dir" ] && mkdir -p "$hist_dir" || :
-[ ! -f "$histfile" ] && : >"$histfile" || :
+if [ ! -f "$histfile" ];then
+	mkdir -p "$hist_dir"
+	: >"$histfile"
+fi
 
 if [ "$skip_intro" = 1 ];then
     if command -v ani-skip >/dev/null 2>&1;then
@@ -126,7 +128,9 @@ fi
 
 nth() {
     stdin=$(cat -)
-    [ -z "$stdin" ] && return 1 || :
+    if [ -z "$stdin" ];then
+    	return 1
+    fi
     line_count="$(printf "%s\n" "$stdin" | wc -l | tr -d "[:space:]")"
     if [ "$line_count" -eq 1 ];then
         printf "%s" "$stdin" | cut -f2,3 && return 0
@@ -178,7 +182,10 @@ get_links() {
 | >|;/EXT-X-I-FRAME/d' | sed "s|>|cc>${relative_link}|g" | sort -nr
             printf '%s' "$response" | sed -nE 's|.*"subtitles":\[\{"lang":"en","label":"English","default":"default","src":"([^"]*)".*|subtitle >\1|p' >"$cache_dir/suburl"
             ;;
-        *) [ -n "$episode_link" ] && printf "%s\n" "$episode_link" || : ;;
+        *) if [ -n "$episode_link" ];then
+        		printf "%s\n" "$episode_link"
+           fi
+           ;;
     esac
 
     printf "%s" "$*" | grep -q "tools.fast4speed.rsvp" && printf "%s\n" "Yt >$*"
@@ -200,7 +207,9 @@ generate_link() {
         3) provider_init "sharepoint" "/S-mp4 :/p" ;; # sharepoint(mp4)(single)
         *) provider_init "hianime" "/Luf-Mp4 :/p" ;;  # hianime(m3u8)(multi)
     esac
-    [ -n "$provider_id" ] && get_links "$provider_id"
+    if [ -n "$provider_id" ];then
+    	get_links "$provider_id"
+    fi
 }
 
 select_quality() {
@@ -224,8 +233,14 @@ select_quality() {
     printf '%s' "$result" | grep -q "cc>" && m3u8_refr="$(printf '%s' "$links" | sed -nE 's|m3u8_refr >(.*)|\1|p')" && refr_flag="--referrer=$m3u8_refr"
     printf "%s" "$result" | grep -q "tools.fast4speed.rsvp" && refr_flag="--referrer=$allanime_refr"
 
-    ! (printf '%s' "$result" | grep -qE "(cc>|tools.fast4speed.rsvp)") && unset refr_flag || :
-    ! (printf '%s' "$result" | grep -q "cc>") && unset subs_flag || :
+    if ! printf '%s' "$result" | grep -qE "(cc>|tools.fast4speed.rsvp)";then
+    	unset refr_flag
+    fi
+    
+    if ! printf '%s' "$result" | grep -q "cc>";then
+    	unset subs_flag
+    fi
+    
     episode=$(printf "%s" "$result" | cut -d'>' -f2)
 }
 
@@ -248,9 +263,13 @@ get_episode_url() {
     rm -r "$cache_dir"
     select_quality "$quality"
     if printf "%s" "$ep_list" | grep -q "^$ep_no$"; then
-        [ -z "$episode" ] && die "Episode is released, but no valid sources!" || :
+        if [ -z "$episode" ];then
+        	die "Episode is released, but no valid sources!"
+        fi
     else
-        [ -z "$episode" ] && die "Episode not released!" || :
+        if [ -z "$episode" ];then
+        	die "Episode not released!"
+        fi
     fi
 }
 
@@ -279,7 +298,9 @@ process_hist_entry() {
     latest_ep=$(printf "%s\n" "$ep_list" | tail -n1)
     title=$(printf "%s\n" "$title" | sed "s|[0-9]\+ episodes|${latest_ep} episodes|")
     ep_no=$(printf "%s" "$ep_list" | sed -n "/^${ep_no}$/{n;p;}") 2>/dev/null
-    [ -n "$ep_no" ] && printf "%s\t%s - episode %s\n" "$id" "$title" "$ep_no" || :
+    if [ -n "$ep_no" ];then
+    	printf "%s\t%s - episode %s\n" "$id" "$title" "$ep_no"
+    fi
 }
 
 update_history() {
@@ -294,14 +315,19 @@ update_history() {
 
 play_episode() {
     if [ "$log_episode" = 1 ];then
-        command -v logger >/dev/null && logger -t ani-cli "${allanime_title}${ep_no}"
+        if command -v logger >/dev/null;then
+        	logger -t ani-cli "${allanime_title}${ep_no}"
+        fi
     fi
+    
     if [ "$skip_intro" = 1 ];then
         skip_flag="$(ani-skip -q "$mal_id" -e "$ep_no")"
     fi
+    
     if [ -z "$episode" ];then
         get_episode_url
     fi
+    
     if [ "$no_detach" = 0 ]; then
     	nohup mpv $skip_flag --force-media-title="${allanime_title}Episode ${ep_no}" "$episode" $subs_flag $refr_flag >/dev/null 2>&1 &
     else
@@ -329,10 +355,20 @@ play() {
     fi
     line_count=$(printf "%s\n" "$ep_no" | wc -l | tr -d "[:space:]")
     if [ "$line_count" != 1 ] || [ -n "$start" ]; then
-        [ -z "$start" ] && start=$(printf "%s\n" "$ep_no" | head -n1) || :
-        [ -z "$end" ] && end=$(printf "%s\n" "$ep_no" | tail -n1) || :
+        if [ -z "$start" ];then
+        	start=$(printf "%s\n" "$ep_no" | head -n1)
+        fi
+        
+        if [ -z "$end" ];then
+        	end=$(printf "%s\n" "$ep_no" | tail -n1)
+        fi
+        
         range=$(printf "%s\n" "$ep_list" | sed -nE "/^${start}\$/,/^${end}\$/p")
-        [ -z "$range" ] && die "Invalid range!" || :
+        
+        if [ -z "$range" ];then
+        	die "Invalid range!"
+        fi
+        
         for i in $range; do
             tput clear
             ep_no=$i
@@ -357,16 +393,25 @@ fi
 
 query="$(printf "%s" "$query $1" | sed "s|^ ||;s| |+|g")"
 
-[ "$external_menu_normal_window" = "1" ] && external_menu_args="-normal-window" || :
+if [ "$external_menu_normal_window" = "1" ];then
+	external_menu_args="-normal-window"
+fi
 
 # searching
 case "$search" in
     history)
         anime_list=$(while read -r ep_no id title; do process_hist_entry & done <"$histfile")
         wait
-        [ -z "$anime_list" ] && die "No unwatched series in history!" || :
-        [ -z "${index##*[!0-9]*}" ] && id=$(printf "%s" "$anime_list" | nl -w 2 | sed 's/^[[:space:]]//' | nth "Select anime: " | cut -f1) || :
-        [ -n "${index##*[!0-9]*}" ] && id=$(printf "%s" "$anime_list" | sed -n "${index}p" | cut -f1) || :
+        if [ -z "$anime_list" ];then
+        	die "No unwatched series in history!"
+        fi
+        
+        if [ -z "${index##*[!0-9]*}" ];then
+        	id=$(printf "%s" "$anime_list" | nl -w 2 | sed 's/^[[:space:]]//' | nth "Select anime: " | cut -f1)
+        else
+        	id=$(printf "%s" "$anime_list" | sed -n "${index}p" | cut -f1)
+        fi
+        
         if [ -z "$id" ];then
             exit 1
         fi
@@ -381,8 +426,12 @@ case "$search" in
                 printf "\33[2K\r\033[1;36mSearch anime: \033[0m" && read -r query
             done
         else
-            [ -z "$query" ] && query=$(printf "" | launcher "" "Search anime: " "$external_menu_args") || :
-            [ -z "$query" ] && exit 1 || :
+            if [ -z "$query" ];then
+            	query=$(printf "" | launcher "" "Search anime: " "$external_menu_args")
+            	if [ -z "$query" ];then
+            		exit 1
+            	fi
+            fi
         fi
 
         query=$(printf "%s" "$query" | sed "s| |+|g")
@@ -395,7 +444,9 @@ case "$search" in
         fi
         if [ -z "$index" ];then
             result=$(printf "%s" "$anime_list" | nl -w 2 | sed 's/^[[:space:]]//' | nth "Select anime: ")
-            [ -z "$result" ] && exit 1 || :
+            if [ -z "$result" ];then
+            	exit 1
+            fi
         fi
         title=$(printf "%s" "$result" | cut -f2)
         allanime_title="$(printf "%s" "$title" | cut -d'(' -f1 | tr -d '[:punct:]')"
@@ -403,20 +454,20 @@ case "$search" in
         ep_list=$(episodes_list "$id")
         if [ -z "$ep_no" ];then
             ep_no=$(printf "%s" "$ep_list" | nth "Select episode: " "$multi_selection_flag")
-            [ -z "$ep_no" ] && exit 1 || :
+            if [ -z "$ep_no" ];then
+            	exit 1
+            fi
         fi
         ;;
 esac
+
 if [ "$skip_intro" = 1 ];then
     mal_id="$(ani-skip -q "${skip_title:-${title}}")"
 fi
 
-# moves the cursor up one line and clears that line
 tput cuu1 && tput el
-# stores the position of cursor
 tput sc
 
-# playback & loop
 play
 
 while cmd=$(printf "next\nreplay\nprevious\nselect\nchange_quality\nquit" | nth "Playing episode $ep_no of $title... "); do
@@ -431,6 +482,8 @@ while cmd=$(printf "next\nreplay\nprevious\nselect\nchange_quality\nquit" | nth 
             ;;
         *) exit 0 ;;
     esac
-    [ -z "$ep_no" ] && die "Out of range" || :
+    if [ -z "$ep_no" ];then
+    	die "Out of range"
+    fi
     play
 done
