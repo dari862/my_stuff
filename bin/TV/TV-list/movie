@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 ### General Variables ###
-config_file="$HOME/.config/lobster/lobster_config.sh"
-tmp_dir="${TMPDIR:-/tmp}/lobster" && mkdir -p "$tmp_dir"
+config_dir="$HOME/.config/lobster"
+tv_config_file="${config_dir}/lobster_config.sh"
+tmp_dir="${TMPDIR:-/tmp}/lobster"
 lobster_socket="${TMPDIR:-/tmp}/lobster.sock" # Used by mpv (check the play_video function)
 lobster_logfile="${TMPDIR:-/tmp}/lobster.log"
 applications="$HOME/.local/share/applications/lobster" # Used for external menus (for now just rofi)
@@ -14,10 +15,71 @@ nl='
 # These are not arbitrary, but determined by rofi kb-custom-1 and kb-custom-2 exit codes
 BACK_CODE=10
 FORWARD_CODE=11
-API_URL="https://dec.eatmynerds.live"
 
-### Notifications ###
-command -v notify-send >/dev/null 2>&1 && notify="true" || notify="false" # check if notify-send is installed
+### OS Specific Variables ###
+separator=':'             # default value
+path_thing="\\"           # default value
+ueberzugpp_tmp_dir="/tmp" # for some reason ueberzugpp only uses $TMPDIR on Darwin
+
+data_dir="$HOME/.local/share/lobster"
+API_URL="https://dec.eatmynerds.live"
+base="flixhq.to"
+player="mpv"
+provider="Vidcloud"
+subs_language="english"
+histfile="$data_dir/lobster_history.txt"
+history=false
+use_external_menu="false"
+image_preview="false"
+preview_window_size="right:60%:wrap"
+use_ueberzugpp="false"
+ueberzug_x=10
+ueberzug_y=3
+remove_tmp_lobster="true"
+json_output="false"
+watchlater_dir="$tmp_dir/watchlater"
+quality="1080"
+no_subs="false"
+debug="false"
+notify="true"
+
+if [ ! -f "$tv_config_file" ];then
+	[ ! -d "$config_dir" ] && mkdir -p "$config_dir"
+    tee "$tv_config_file" <<- 'EOF' >/dev/null 2>&1
+    #################################################
+    # Movie
+    #################################################
+    data_dir="$HOME/.local/share/lobster"
+    API_URL="https://dec.eatmynerds.live"
+    base="flixhq.to"
+    player="mpv"
+    provider="Vidcloud"
+    subs_language="english"
+    histfile="$data_dir/lobster_history.txt"
+    history=false
+    use_external_menu="false"
+    image_preview="false"
+    preview_window_size="right:60%:wrap"
+    use_ueberzugpp="false"
+    ueberzug_x=10
+    ueberzug_y=3
+    remove_tmp_lobster="true"
+    json_output="false"
+    watchlater_dir="$tmp_dir/watchlater"
+    quality="1080"
+    no_subs="false"
+    debug="false"
+    notify="true"
+EOF
+fi
+
+ueberzug_max_width=$(($(tput lines) / 2))
+ueberzug_max_height=$(($(tput lines) / 2))
+histfile_dir="$(dirname "$histfile")"
+
+#shellcheck disable=1090
+. "$tv_config_file"
+
 # send_notification [message] [timeout] [icon] [title]
 send_notification() {
     [ "$json_output" = "true" ] && return
@@ -31,11 +93,6 @@ send_notification() {
         [ -n "$3" ] && notify-send "$1" "$4" -t "$timeout" -i "$3" -h string:x-dunst-stack-tag:vol
     fi
 }
-
-### OS Specific Variables ###
-separator=':'             # default value
-path_thing="\\"           # default value
-ueberzugpp_tmp_dir="/tmp" # for some reason ueberzugpp only uses $TMPDIR on Darwin
 
 cleanup() {
     [ "$debug" != "true" ] && rm -rf "$tmp_dir"
@@ -82,40 +139,11 @@ dep_ch() {
     done
 }
 
-### Default Configuration ###
-# this function is ran after the user's config file is "checked" (source'd)
-configuration() {
-    [ -n "$XDG_CONFIG_HOME" ] && config_dir="$XDG_CONFIG_HOME/lobster" || config_dir="$HOME/.config/lobster"
-    [ -n "$XDG_DATA_HOME" ] && data_dir="$XDG_DATA_HOME/lobster" || data_dir="$HOME/.local/share/lobster"
-    [ ! -d "$config_dir" ] && mkdir -p "$config_dir"
-    [ ! -d "$data_dir" ] && mkdir -p "$data_dir"
-    #shellcheck disable=1090
-    [ -f "$config_file" ] && . "${config_file}" # source the user's config file
-    [ -z "$base" ] && base="flixhq.to"
-    [ -z "$player" ] && player="mpv"
-    [ -z "$provider" ] && provider="Vidcloud"
-    [ -z "$subs_language" ] && subs_language="english"
-    [ -z "$histfile" ] && histfile="$data_dir/lobster_history.txt" && mkdir -p "$(dirname "$histfile")"
-    [ -z "$history" ] && history=false
-    [ -z "$use_external_menu" ] && use_external_menu="false"
-    [ -z "$image_preview" ] && image_preview="false"
-    [ -z "$debug" ] && debug="false"
-    [ -z "$preview_window_size" ] && preview_window_size=right:60%:wrap
-    if [ -z "$use_ueberzugpp" ]; then
-        use_ueberzugpp="false"
-    elif [ "$use_ueberzugpp" = "true" ]; then
-        [ -z "$ueberzug_x" ] && ueberzug_x=10
-        [ -z "$ueberzug_y" ] && ueberzug_y=3
-        [ -z "$ueberzug_max_width" ] && ueberzug_max_width=$(($(tput lines) / 2))
-        [ -z "$ueberzug_max_height" ] && ueberzug_max_height=$(($(tput lines) / 2))
-    fi
-    [ -z "$remove_tmp_lobster" ] && remove_tmp_lobster="true"
-    [ -z "$json_output" ] && json_output="false"
-    [ -z "$watchlater_dir" ] && watchlater_dir="$tmp_dir/watchlater" && mkdir -p "$watchlater_dir"
-    [ -z "$quality" ] && quality="1080"
-    no_subs="false"
-    debug="false"
-}
+
+[ ! -d "$watchlater_dir" ] && mkdir -p "$watchlater_dir"
+[ ! -d "$histfile_dir" ] && mkdir -p "$histfile_dir"
+[ ! -d "$data_dir" ] && mkdir -p "$data_dir"
+[ ! -d "$tmp_dir" ] && mkdir -p "$tmp_dir"
 
 # The reason I use additional file descriptors is because of the use of tee
 # which when piped into would hijack the terminal, which was unwanted behavior
@@ -756,8 +784,6 @@ EOF
             esac
         done
     }
-
-    configuration
 
     [ "$debug" = "true" ] && set -x
     query=""
