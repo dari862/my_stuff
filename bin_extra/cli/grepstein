@@ -1,0 +1,180 @@
+#!/bin/bash
+
+if [ "$1" = "--fzf" ]; then
+	shift
+	FZF=true
+	fzf_packagename="fzf"
+else
+	FZF=false
+	fzf_packagename=""
+fi
+
+QUERY="$*"
+PAGE=1
+DEPS="pdftotext jq $fzf_packagename"
+RED=$(printf '\033[31m')
+YEL=$(printf '\033[33m')
+GRN=$(printf '\033[32m')
+DEF=$(printf '\033[0m')
+
+page=""
+old_page=""
+
+dependency_check () {
+	printf "%b Dependency control...%b\n\n"  "$YEL" "$DEF"
+	dep_status=0
+	for i in ${DEPS}; do
+		printf " Checking %s -> " "$i"
+		if command -v "$i" >/dev/null 2>&1;then
+			printf "%b passed %b\n" "$GRN" "$DEF"
+		else
+			printf "%b failed %b\n" "$RED" "$DEF"
+			dep_status="1"
+		fi
+	done
+	printf "\n"
+	if [ "$dep_status" -eq 1 ]; then
+		printf "%b\nThere are missing packages. Please install them to use grepstein.sh %b\n" "$RED" "$DEF"
+		exit 1
+	fi
+}
+
+dependency_check
+
+if command -v http &> /dev/null; then
+    url_m(){
+        if [ "${1:-}" = "get" ]; then
+            http GET "$2" 'User-Agent:Mozilla/5.0 (X11; Linux x86_64)' 'Cookie:justiceGovAgeVerified=true'
+        else
+            http "$1" 'User-Agent:Mozilla/5.0 (X11; Linux x86_64)' 'Cookie:justiceGovAgeVerified=true'
+        fi
+    }
+elif command -v curl &> /dev/null; then
+    url_m(){
+		curl -sL -H 'User-Agent:Mozilla/5.0 (X11; Linux x86_64)' -H 'Cookie:justiceGovAgeVerified=true' "$2"
+    }
+elif command -v wget &> /dev/null; then
+    url_m(){
+		wget -qO- --header='User-Agent:Mozilla/5.0 (X11; Linux x86_64)' --header='Cookie:justiceGovAgeVerified=true' "$2"
+    }
+fi
+
+fetch_results () {
+    URL="https://www.justice.gov/multimedia-search?keys=$QUERY&page=$PAGE"
+    
+    DATA=$(url_m get "$URL")
+    
+    TOTAL_RECORDS=$(echo "$DATA" | jq '.hits.total.value')
+    
+    PDF_URLS=$(echo "$DATA" | jq -r '.hits.hits[]._source.ORIGIN_FILE_URI' | sed 's/ /%20/g')
+    
+    if [ -z "$PDF_URLS" ]; then
+        PDF_COUNT=0
+    else
+        PDF_COUNT=$(printf '%b' "$PDF_URLS" | grep -c '^')
+    fi
+}
+
+show_PDF_URLS(){
+    printf "%b \nWe found %s result(s) for %s on all pages. Page %s only shows %s result(s) %b\n" \
+           "$GRN" "$TOTAL_RECORDS" "$QUERY" "$PAGE" "$PDF_COUNT" "$DEF"
+           
+    if [ "$PDF_COUNT" -gt 0 ]; then
+        i=0
+        printf '%b' "$PDF_URLS" | while IFS= read -r line; do
+            printf "%b - %b \n" "$i" "$line"
+            i=$((i + 1))
+        done
+    fi
+}
+
+ask_usrcmd () {
+	show_PDF_URLS
+    if [ "$PDF_COUNT" -gt 0 ]; then
+        while :; do
+            printf "%b \nPlease select your action %b\n\n" "$GRN" "$DEF"
+            printf "> Type OPEN or O to open a file\n"
+            printf "> Type NEXT or N to continue to next page\n"
+            printf "> Type EXIT or E to exit\n"
+            printf "Your command : "
+            read -r USRCMD
+            USRCMD=$(printf '%s' "$USRCMD" | tr '[:upper:]' '[:lower:]')
+
+            case "$USRCMD" in
+                open|o)
+                    printf "%b \nPlease write the index number of the file that you want to open : %b" "$GRN" "$DEF"
+                    read -r INDEX
+                    
+                    if [ "$INDEX" -ge 0 ] && [ "$INDEX" -lt "$PDF_COUNT" ]; then
+                    
+                        TARGET_URL=$(printf '%b' "$PDF_URLS" | sed -n "$((INDEX + 1))p")
+
+                        preview "$TARGET_URL"
+                        show_PDF_URLS
+                    else
+                        printf "%b \nPlease Provide a valid index number %b\n" "$RED" "$DEF"
+                    fi
+                    ;;
+                next|n)
+                    printf "%b \nProceding to next page... %b\n" "$YEL" "$DEF"
+                    PAGE=$((PAGE + 1))
+                    fetch_results
+                    show_PDF_URLS
+                    ;;
+                exit|e)
+                    printf "%b \nExiting... %b\n" "$YEL" "$DEF"
+                    break
+                    ;;
+                *)
+                    printf "%b \nInvalid command, please enter a valid command. %b\n" "$RED" "$DEF"
+                    ;;
+            esac
+        done
+    fi
+}
+
+preview() {
+	url_m get "${1:-}" | pdftotext -layout - - | sed "s/${QUERY}/${RED}&${DEF}/gI" | batcat --pager less
+}
+
+get_all_urls() {
+    while :;do
+        fetch_results
+        page=$(for URL in $PDF_URLS; do printf "%s\n" "$URL"; done)
+
+        if [ "$page" = "$old_page" ] || [ -z "$page" ]; then
+            break
+        fi
+        
+        old_page="$page"
+
+        printf "%s\n" "$page"
+
+        PAGE=$((PAGE + 1))
+    done
+}
+
+###########
+# Main
+###########
+
+if [ -z "$QUERY" ]; then
+	printf "%b Please provide a valid search term. %b\n" "$RED" "$DEF"
+	exit 1
+fi
+
+if [ "$FZF" = false ];then
+	fetch_results
+	ask_usrcmd
+else
+	export QUERY RED DEF
+	
+	export -f preview url_m
+	
+	header="grepstein"
+	
+	file=$(get_all_urls | fzf --reverse --header-first --header "$header" --color "header:red:bold" --preview 'bash -c "preview {}"')
+	if [ -n "$file" ];then
+		preview "$file"
+	fi
+fi

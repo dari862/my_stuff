@@ -1,7 +1,16 @@
-#!/usr/bin/env sh
+#!/bin/sh
 ### General Variables ###
-config_dir="$HOME/.config/lobster"
-tv_config_file="${config_dir}/lobster_config.sh"
+#use_external_menu="${1:-fzf}"
+#tv_config_dir="${2:-}"
+#shift 2
+#if [ "$use_external_menu" = "rofi" ];then
+#	ROFI_THEME="${3:-}"
+#	shift
+#fi
+ROFI_THEME="$HOME/.config/rofi/TV.rasi"
+use_external_menu="fzf"
+tv_config_dir="$HOME/.config/lobster"
+tv_config_file="${tv_config_dir}/lobster_config.sh"
 tmp_dir="${TMPDIR:-/tmp}/lobster"
 lobster_socket="${TMPDIR:-/tmp}/lobster.sock" # Used by mpv (check the play_video function)
 lobster_logfile="${TMPDIR:-/tmp}/lobster.log"
@@ -24,15 +33,13 @@ ueberzugpp_tmp_dir="/tmp" # for some reason ueberzugpp only uses $TMPDIR on Darw
 data_dir="$HOME/.local/share/lobster"
 API_URL="https://dec.eatmynerds.live"
 base="flixhq.to"
-player="mpv"
 provider="Vidcloud"
 subs_language="english"
-histfile="$data_dir/lobster_history.txt"
+histfile_name="lobster_history.txt"
+histfile_dir="$data_dir"
 history=false
-use_external_menu="false"
 image_preview="false"
 preview_window_size="right:60%:wrap"
-use_ueberzugpp="false"
 ueberzug_x=10
 ueberzug_y=3
 remove_tmp_lobster="true"
@@ -44,63 +51,92 @@ debug="false"
 notify="true"
 
 if [ ! -f "$tv_config_file" ];then
-	[ ! -d "$config_dir" ] && mkdir -p "$config_dir"
-    tee "$tv_config_file" <<- 'EOF' >/dev/null 2>&1
+	[ ! -d "$tv_config_dir" ] && mkdir -p "$tv_config_dir"
+    tee "$tv_config_file" <<- EOF >/dev/null 2>&1
     #################################################
     # Movie
     #################################################
-    data_dir="$HOME/.local/share/lobster"
-    API_URL="https://dec.eatmynerds.live"
-    base="flixhq.to"
-    player="mpv"
-    provider="Vidcloud"
-    subs_language="english"
-    histfile="$data_dir/lobster_history.txt"
-    history=false
-    use_external_menu="false"
-    image_preview="false"
-    preview_window_size="right:60%:wrap"
-    use_ueberzugpp="false"
-    ueberzug_x=10
-    ueberzug_y=3
-    remove_tmp_lobster="true"
-    json_output="false"
-    watchlater_dir="$tmp_dir/watchlater"
-    quality="1080"
-    no_subs="false"
-    debug="false"
-    notify="true"
+    data_dir="$data_dir"
+    API_URL="$API_URL"
+    base="$base"
+    provider="$provider"
+    subs_language="$subs_language"
+    histfile_dir="$histfile_dir"
+    histfile_name="$histfile_name"
+    history="$history"
+    use_external_menu="$use_external_menu"
+    image_preview="$image_preview"
+    preview_window_size="$preview_window_size"
+    ueberzug_x="$ueberzug_x"
+    ueberzug_y="$ueberzug_y"
+    remove_tmp_lobster="$remove_tmp_lobster"
+    json_output="$json_output"
+    watchlater_dir="$watchlater_dir"
+    quality="$quality"
+    no_subs="$no_subs"
+    debug="$debug"
+    notify="$notify"
 EOF
 fi
-
+image_preview_tool_are=""
 ueberzug_max_width=$(($(tput lines) / 2))
 ueberzug_max_height=$(($(tput lines) / 2))
-histfile_dir="$(dirname "$histfile")"
+histfile="$histfile_dir/$histfile_name"
 
 #shellcheck disable=1090
 . "$tv_config_file"
 
 # send_notification [message] [timeout] [icon] [title]
-send_notification() {
-    [ "$json_output" = "true" ] && return
-    if [ "$use_external_menu" = "false" ] || [ -z "$use_external_menu" ]; then
-        [ -z "$4" ] && printf "\33[2K\r\033[1;34m%s\n\033[0m" "$1" && return
-        [ -n "$4" ] && printf "\33[2K\r\033[1;34m%s - %s\n\033[0m" "$1" "$4" && return
-    fi
-    [ -z "$2" ] && timeout=3000 || timeout="$2" # default timeout is 3 seconds
-    if [ "$notify" = "true" ]; then
-        [ -z "$3" ] && notify-send "$1" "$4" -t "$timeout" -h string:x-dunst-stack-tag:vol # the -h string:x-dunst-stack-tag:vol is used for overriding previous notifications
-        [ -n "$3" ] && notify-send "$1" "$4" -t "$timeout" -i "$3" -h string:x-dunst-stack-tag:vol
-    fi
-}
+if [ "$notify" = "true" ]; then
+	send_notification() {
+    	[ "$json_output" = "true" ] && return
+    	if [ "$use_external_menu" = "fzf" ]; then
+        	if [ -z "$4" ];then
+        		printf "\33[2K\r\033[1;34m%s\n\033[0m" "$1" && return
+        	else
+        		printf "\33[2K\r\033[1;34m%s - %s\n\033[0m" "$1" "$4" && return
+        	fi
+    	fi
+    	timeout="${1:-3000}" # default timeout is 3 seconds
+		if [ -z "$3" ];then
+			notify-send "$1" "$4" -t "$timeout" -h string:x-dunst-stack-tag:vol # the -h string:x-dunst-stack-tag:vol is used for overriding previous notifications
+		else
+			notify-send "$1" "$4" -t "$timeout" -i "$3" -h string:x-dunst-stack-tag:vol
+		fi
+	}
+else
+	send_notification() {
+    	[ "$json_output" = "true" ] && return
+    	if [ "$use_external_menu" = "fzf" ]; then
+        	if [ -z "$4" ];then
+        		printf "\33[2K\r\033[1;34m%s\n\033[0m" "$1" && return
+        	else
+        		printf "\33[2K\r\033[1;34m%s - %s\n\033[0m" "$1" "$4" && return
+        	fi
+    	fi
+	}
+fi
 
+if [ "$image_preview" = true ] && [ "$use_external_menu" = "fzf" ];then
+	if command -v "ueberzugpp" >/dev/null 2>&1;then
+    	image_preview_tool_are="ueberzugpp"
+	elif command -v "chafa" >/dev/null 2>&1;then
+    	image_preview_tool_are="chafa"
+	else
+    	send_notification "Program \"ueberzugpp or chafa\" not found. Please install it, if you want to use it for image previews"
+        exit 1
+	fi
+fi
+   	
 cleanup() {
     [ "$debug" != "true" ] && rm -rf "$tmp_dir"
     [ "$remove_tmp_lobster" = "true" ] && rm -rf "$tmp_dir"
 
-    if [ "$image_preview" = "true" ] && [ "$use_external_menu" = "false" ] && [ "$use_ueberzugpp" = "true" ]; then
+    if pgrep "ueberzugpp" >/dev/null 2>&1; then
         killall ueberzugpp 2>/dev/null
-        rm -f "$ueberzugpp_tmp_dir"/ueberzugpp-*
+    fi
+    if [ -d "$ueberzugpp_tmp_dir" ];then
+    	rm -f "$ueberzugpp_tmp_dir"/ueberzugpp-*
     fi
     set +x && exec 2>&-
 }
@@ -108,6 +144,7 @@ trap cleanup EXIT INT TERM
 
 ### Help Function ###
 usage() {
+	scriptname="${0##*/}"
     printf "
   Usage: %s [options] [query]
   If a query is provided, it will be used to search for a Movie/TV Show
@@ -124,9 +161,9 @@ usage() {
     If an argument is specified in both the config file and the command line, the command line argument will be used.
 
   Some example usages:
-    ${0##*/} a silent voice
+    %s a silent voice
 
-" "${0##*/}"
+" "${scriptname}" "${scriptname}"
 }
 
 ### Dependencies Check ###
@@ -151,53 +188,56 @@ dep_ch() {
 exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
 {
     # check that the necessary programs are installed
-    dep_ch "grep" "sed" "curl" "fzf" || true
-    if [ "$use_external_menu" = "true" ]; then
-        dep_ch "rofi" || true
-    fi
-    if [ "$player" = "mpv" ]; then
-        dep_ch "awk" "nc" || true
-    fi
-
-    ### Launchers stuff (rofi, fzf, etc.) ###
-    generate_desktop() {
-        cat <<EOF
-[Desktop Entry]
-Name=$1
-Exec=echo %k %c
-Icon=$2
-Type=Application
-Categories=lobster;
-EOF
-    }
+    dep_ch "grep" "sed" "curl" "mpv" "awk" "nc" "fzf" "$use_external_menu" || true
+    
     # A launcher is a utility used to select an option from a list (fzf, rofi)
     # launcher [prompt] [columns-to-display]
-    launcher() {
-        case "$use_external_menu" in
-            "true")
-                [ -z "$2" ] && rofi -kb-mode-next "" -kb-mode-previous "" -kb-custom-1 Shift+Left -kb-custom-2 Shift+Right -sort -dmenu -i -width 1500 -p "" -mesg "$1"
-                [ -n "$2" ] && rofi -kb-mode-next "" -kb-mode-previous "" -kb-custom-1 Shift+Left -kb-custom-2 Shift+Right -sort -dmenu -i -width 1500 -p "" -mesg "$1" -display-columns "$2"
-                # Gives rc=10 on pressing kb-custom-1 and rc=11 on pressing kb-custom-2
-                rc=$?
-                ;;
-            *)
-                [ -z "$2" ] && fzf_out=$(fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --prompt "$1")
-                [ -n "$2" ] && fzf_out=$(fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --prompt "$1" --with-nth "$2" -d "\t")
-                rc=$?
-                # Uses fzf expect to look for back button press
-                case $fzf_out in
-                    shift-left"$nl"*)
-                        rc="$BACK_CODE"
-                        fzf_out=${fzf_out#*"$nl"}
-                        ;;
-                    "$nl"*) fzf_out=${fzf_out#"$nl"} ;;
-                    *) exit 1 ;; # Should not reach here
-                esac
-                printf '%s\n' "$fzf_out"
-                ;;
-        esac
-        return "$rc"
-    }
+	if [ "$use_external_menu" = "rofi" ]; then
+		launcher() {
+			if [ -z "$2" ];then
+            	rofi -kb-mode-next "" -kb-mode-previous "" -kb-custom-1 Shift+Left -kb-custom-2 Shift+Right -sort -dmenu -i -width 1500 -p "" -mesg "$1" -theme "$ROFI_THEME"
+            else
+            	rofi -kb-mode-next "" -kb-mode-previous "" -kb-custom-1 Shift+Left -kb-custom-2 Shift+Right -sort -dmenu -i -width 1500 -p "" -mesg "$1" -display-columns "$2" -theme "$ROFI_THEME"
+            fi
+            # Gives rc=10 on pressing kb-custom-1 and rc=11 on pressing kb-custom-2
+            rc=$?
+            return "$rc"
+		}
+		rofi_show_icons(){
+			rofi -show drun -drun-categories lobster -filter "$1" -show-icons -theme "$ROFI_THEME"
+		}
+	elif [ "$use_external_menu" = "fzf" ]; then
+     	launcher() {
+            if [ -z "$2" ];then
+              	fzf_out=$(fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --prompt "$1")
+            else
+              	fzf_out=$(fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --prompt "$1" --with-nth "$2" -d "\t")
+            fi
+            rc=$?
+            # Uses fzf expect to look for back button press
+            case $fzf_out in
+            	shift-left"$nl"*)
+					rc="$BACK_CODE"
+					fzf_out=${fzf_out#*"$nl"}
+				;;
+				"$nl"*) fzf_out=${fzf_out#"$nl"} ;;
+				*) exit 1 ;; # Should not reach here
+			esac
+            printf '%s\n' "$fzf_out"
+            return "$rc"
+        }
+        fzf_show_choose(){
+        	fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --with-nth 4 -d "\t" --header "$1"
+        }
+        
+        fzf_show_icons(){
+        	if [ "$image_preview_tool_are" = "ueberzugpp" ];then
+        		fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --cycle --preview-window="$preview_window_size" --preview="ueberzugpp cmd -s $LOBSTER_UEBERZUG_SOCKET -i fzfpreview -a add -x $ueberzug_x -y $ueberzug_y --max-width $ueberzug_max_width --max-height $ueberzug_max_height -f $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
+        	elif [ "$image_preview_tool_are" = "chafa" ];then
+        		fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --cycle --preview-window="$preview_window_size" --preview="chafa $fmt $dim $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
+        	fi
+        }
+	fi
     # helper function to be able to display only an "nth" column in fzf/rofi without altering the stdin
     nth() {
         stdin=$(cat -)
@@ -221,14 +261,10 @@ EOF
 
     ### Searching/Selecting ###
     get_input() {
-        if [ "$use_external_menu" = "false" ]; then
+        if [ "$use_external_menu" = "fzf" ]; then
             printf "Search Movie/TV Show: " && read -r query
-        else
-            if [ -n "$rofi_prompt_config" ]; then
-                query=$(printf "" | rofi -kb-mode-next "" -kb-mode-previous "" -kb-custom-1 Shift+Left -theme "$rofi_prompt_config" -sort -dmenu -i -width 1500 -p "" -mesg "Search Movie/TV Show")
-            else
-                query=$(printf "" | launcher "Search Movie/TV Show")
-            fi
+        elif [ "$use_external_menu" = "rofi" ]; then
+            query=$(printf "" | launcher "Search Movie/TV Show")
         fi
         rc=$?
         # rofi return exit code 1 when user submits custom text, so check >1 for exit
@@ -254,19 +290,15 @@ EOF
     }
     choose_media() {
         if [ "$image_preview" = "true" ]; then
-            if [ "$use_external_menu" = "false" ] && [ "$use_ueberzugpp" = "true" ]; then
-                command -v "ueberzugpp" >/dev/null || send_notification "Please install ueberzugpp if you want to use it for image previews"
-                use_ueberzugpp="false"
-            fi
             maybe_download_thumbnails "$response"
             select_desktop_entry ""
             rc=$?
         else
-            if [ "$use_external_menu" = "true" ]; then
-                choice=$(printf "%s" "$response" | rofi -kb-mode-next "" -kb-mode-previous "" -kb-custom-1 Shift+Left -kb-custom-2 Shift+Right -dmenu -i -p "" -mesg "Choose a Movie or TV Show" -display-columns 4)
+            if [ "$use_external_menu" = "rofi" ]; then
+                choice=$(printf "%s" "$response" | launcher "Choose a Movie or TV Show" 4)
                 rc=$?
-            else
-                choice=$(printf "%s" "$response" | fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --with-nth 4 -d "\t" --header "Choose a Movie or TV Show")
+            elif [ "$use_external_menu" = "fzf" ]; then
+                choice=$(printf "%s" "$response" | fzf_show_choose "Choose a Movie or TV Show")
                 rc=$?
                 # Check for back-button
                 case $choice in
@@ -376,51 +408,48 @@ EOF
         while IFS="$tab" read -r cover_url id type title; do
             [ -z "$cover_url" ] && continue # skip empty lines
             poster="$images_cache_dir/  $title ($type)  $id.jpg"
-            [ ! -f "$poster" ] && need_dl=1 && break # one miss is enough
-        done <<EOF
-$1
-EOF
-
-        if [ "$need_dl" -eq 1 ]; then
-            rm -f "$images_cache_dir"/* 2>/dev/null
-            download_thumbnails "$1"
-        fi
-    }
-    download_thumbnails() {
-        pids=""
-
-        # run the while-loop in the current shell
-        while IFS='     ' read -r cover_url id type title; do
-            [ -z "$cover_url" ] && continue                    # skip empty lines
-            printf '%s\n' "$cover_url" >"$tmp_dir/image_links" # For Discord rich presence
-
-            # Sets res to 1000x1000
-            cover_url=$(printf '%s\n' "$cover_url" |
-                sed -E 's:/[0-9]+x[0-9]+/:/1000x1000/:')
-
-            poster_path="$images_cache_dir/  $title ($type)  $id.jpg"
-            curl -s -o "$poster_path" "$cover_url" &
-            pids="$pids $!"
-
-            if [ "$use_external_menu" = "true" ]; then
-                entry="$tmp_dir/applications/$id.desktop"
-                # The reason for the spaces is so that only the title can be displayed when using rofi
-                # or fzf, while still keeping the id and type in the string after it's selected
-                generate_desktop "$title ($type)  $id" "$poster_path" >"$entry" &
-                pids="$pids $!"
+            if [ ! -f "$poster" ];then
+            	download_thumbnails "$cover_url" "$id" "$type" "$title"
             fi
         done <<EOF
 $1
 EOF
-
-        # Wait for background jobs to finish
-        for pid in $pids; do
-            wait "$pid" 2>/dev/null
-        done
     }
+    
+    download_thumbnails() {
+        pids=""
+		cover_url="$1"
+		id="$2"
+		type="$3"
+		title="$4"
+
+        printf '%s\n' "$cover_url" >"$tmp_dir/image_links" # For Discord rich presence
+
+        # Sets res to 1000x1000
+        cover_url=$(printf '%s\n' "$cover_url" |
+            sed -E 's:/[0-9]+x[0-9]+/:/1000x1000/:')
+
+        poster_path="$images_cache_dir/  $title ($type)  $id.jpg"
+        curl -s -o "$poster_path" "$cover_url" & pids="$pids $!"
+		
+		# The reason for the spaces is so that only the title can be displayed when using rofi
+        # or fzf, while still keeping the id and type in the string after it's selected
+        generate_desktop "$title ($type)" "$id" "$poster_path"
+    }
+    
+	generate_desktop() {
+        cat <<EOF > "$tmp_dir/applications/${1}.desktop"
+[Desktop Entry]
+Name=$1  $2
+Exec=echo %k %c
+Icon=$3
+Type=Application
+Categories=lobster;
+EOF
+    }    
     # defaults to chafa
-    image_preview_fzf() {
-        if [ "$use_ueberzugpp" = "true" ]; then
+    fzf_image_preview() {
+    	if [ "$image_preview_tool_are" = "ueberzugpp" ];then
             UB_PID_FILE="$tmp_dir.$(uuidgen)"
             if [ -z "$ueberzug_output" ]; then
                 ueberzugpp layer --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
@@ -429,7 +458,7 @@ EOF
             fi
             UB_PID="$(cat "$UB_PID_FILE")"
             LOBSTER_UEBERZUG_SOCKET="$ueberzugpp_tmp_dir/ueberzugpp-$UB_PID.socket"
-            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --cycle --preview-window="$preview_window_size" --preview="ueberzugpp cmd -s $LOBSTER_UEBERZUG_SOCKET -i fzfpreview -a add -x $ueberzug_x -y $ueberzug_y --max-width $ueberzug_max_width --max-height $ueberzug_max_height -f $images_cache_dir/{}" --reverse --with-nth 2 -d "  ")
+            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
             rc=$?
 
             case $choice in
@@ -441,16 +470,11 @@ EOF
                 *) exit 1 ;;
             esac
             ueberzugpp cmd -s "$LOBSTER_UEBERZUG_SOCKET" -a exit
-        else
-            dep_ch "chafa" || true
+        elif [ "$image_preview_tool_are" = "chafa" ];then
             # shellcheck disable=SC2154
             [ "$TERM_PROGRAM" = "vscode" ] && fmt="-f sixels --margin-bottom 8" || fmt=""
             [ -n "$chafa_dims" ] && dim="-s $chafa_dims"
-            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf \
-                --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" \
-                --preview-window="$preview_window_size" \
-                --preview="chafa $fmt $dim $images_cache_dir/{}" \
-                --reverse --with-nth 2 -d "  ")
+            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
             rc=$?
 
             case $choice in
@@ -464,13 +488,10 @@ EOF
         fi
         return "$rc"
     }
+    
     select_desktop_entry() {
-        if [ "$use_external_menu" = "true" ]; then
-            if [ -n "$image_config_path" ]; then
-                rofi_out=$(rofi -show drun -drun-categories lobster -filter "$1" -show-icons -theme "$image_config_path")
-            else
-                rofi_out=$(rofi -show drun -drun-categories lobster -filter "$1" -show-icons)
-            fi
+        if [ "$use_external_menu" = "rofi" ]; then
+            rofi_out=$(rofi_show_icons "$1")
             rc=$?
             choice=$(echo "$rofi_out" | sed -nE "s@.*/([0-9]*)\.desktop@\1@p") 2>/dev/null
 
@@ -479,8 +500,8 @@ EOF
             media_id=$(printf "%s" "$choice" | cut -d\  -f1)
             title=$(printf "%s" "$choice" | sed -nE "s@[0-9]* (.*) \((tv|movie)\)@\1@p")
             media_type=$(printf "%s" "$choice" | sed -nE "s@[0-9]* (.*) \((tv|movie)\)@\2@p")
-        else
-            image_preview_fzf "$1"
+        elif [ "$use_external_menu" = "fzf" ]; then
+            fzf_image_preview "$1"
             rc=$?
             tput reset
             media_id=$(printf "%s" "$choice" | sed -nE 's@.* ([0-9]+)\.jpg@\1@p')
@@ -611,17 +632,23 @@ EOF
             *) notify-send "Error" "Unknown media type" ;;
         esac
     }
+    
+    create_cache_dir(){
+    	test -d "$images_cache_dir" || mkdir -p "$images_cache_dir"
+        if [ "$use_external_menu" = "rofi" ]; then
+            mkdir -p "$tmp_dir/applications/"
+            [ ! -L "$applications" ] && ln -sf "$tmp_dir/applications/" "$applications"
+        fi
+    }
+    
     play_from_history() {
+    	2filter=""
         [ ! -f "$histfile" ] && send_notification "No history file found" "5000" "" && exit 1
         [ "$watched_history" = 1 ] && exit 0
         watched_history=1
 
         if [ "$image_preview" = "true" ]; then
-            test -d "$images_cache_dir" || mkdir -p "$images_cache_dir"
-            if [ "$use_external_menu" = "true" ]; then
-                mkdir -p "$tmp_dir/applications/"
-                [ ! -L "$applications" ] && ln -sf "$tmp_dir/applications/" "$applications"
-            fi
+            create_cache_dir
             history_response=$(
                 awk -F'\t' '
                 {
@@ -638,30 +665,27 @@ EOF
             select_desktop_entry ""
             if [ "$media_type" = "tv" ]; then
                 line=$(grep -m1 -F "$media_id" "$histfile")
-                season_id=$(printf "%s" "$line" | cut -f5)
-                episode_id=$(printf "%s" "$line" | cut -f6)
-                season_title=$(printf "%s" "$line" | cut -f7)
-                episode_title=$(printf "%s" "$line" | cut -f8)
-                data_id=$(printf "%s" "$line" | cut -f9)
-                image_link=$(printf "%s" "$line" | cut -f10)
+                2filter="$line"
             fi
         else
             choice=$(sed -n "1h;1!{x;H;};\${g;p;}" "$histfile" | nl -w 1 | nth "Choose an entry: ")
+            2filter="$choice"
             [ -z "$choice" ] && exit 1
             title=$(printf "%s" "$choice" | cut -f1)
             resume_from=$(printf "%s" "$choice" | cut -f2)
             media_id=$(printf "%s" "$choice" | cut -f3)
             media_type=$(printf "%s" "$choice" | cut -f4)
-            if [ "$media_type" = "tv" ]; then
-                season_id=$(printf "%s" "$choice" | cut -f5)
-                episode_id=$(printf "%s" "$choice" | cut -f6)
-                season_title=$(printf "%s" "$choice" | cut -f7)
-                episode_title=$(printf "%s" "$choice" | cut -f8)
-                data_id=$(printf "%s" "$choice" | cut -f9)
-                image_link=$(printf "%s" "$choice" | cut -f10)
-            fi
         fi
-
+        
+        if [ "$media_type" = "tv" ]; then
+            season_id=$(printf "%s" "$2filter" | cut -f5)
+            episode_id=$(printf "%s" "$2filter" | cut -f6)
+            season_title=$(printf "%s" "$2filter" | cut -f7)
+            episode_title=$(printf "%s" "$2filter" | cut -f8)
+            data_id=$(printf "%s" "$2filter" | cut -f9)
+            image_link=$(printf "%s" "$2filter" | cut -f10)
+        fi
+        
         STATE="PLAY" && keep_running="true" && loop
     }
 
@@ -675,9 +699,13 @@ EOF
         fi
     }
     play_video() {
-        [ "$media_type" = "tv" ] && displayed_title="$title - $season_title - $episode_title" || displayed_title="$title"
+        if [ "$media_type" = "tv" ];then
+        	displayed_title="$title - $season_title - $episode_title"
+        else
+        	displayed_title="$title"
+        fi
         [ -z "$continue_choice" ] && check_history
-        player_cmd="$player"
+        player_cmd="mpv"
         [ -n "$resume_from" ] && player_cmd="$player_cmd --start='$resume_from'"
         [ -n "$subs_links" ] && player_cmd="$player_cmd $subs_arg='$subs_links'"
         # Escape ' symbols in titles to prevent unterminated string error
@@ -824,15 +852,14 @@ EOF
     done
     query="$(printf "%s" "$query" | tr ' ' '-' | sed "s/^-//g")"
     if [ "$image_preview" = "true" ]; then
-        test -d "$images_cache_dir" || mkdir -p "$images_cache_dir"
-        if [ "$use_external_menu" = "true" ]; then
-            mkdir -p "$tmp_dir/applications/"
-            [ ! -L "$applications" ] && ln -sf "$tmp_dir/applications/" "$applications"
-        fi
+        create_cache_dir
     fi
-    [ -z "$provider" ] && provider="Vidcloud"
-    [ "$recent" = "movie" ] && choose_from_recent "movie" ""
-    [ "$recent" = "tv" ] && choose_from_recent "tv-show" ""
+    
+    if [ "$recent" = "movie" ];then
+    	choose_from_recent "movie" ""
+    elif [ "$recent" = "tv" ];then
+    	choose_from_recent "tv-show" ""
+    fi
 
     main
 

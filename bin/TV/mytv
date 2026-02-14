@@ -38,7 +38,7 @@ script_config_path="$HOME/Desktop/workon/TV/test"
 
 if [ "$use_external_menu" = "rofi" ];then
 	. "${Distro_config_file}"
-	ROFI_THEME="$HOME/.config/rofi/$ROFI_STYLE/runner.rasi"
+	ROFI_THEME="$HOME/.config/rofi/TV.rasi"
 fi
 
 tv_config_dir="${script_config_path}/My_TV/test"
