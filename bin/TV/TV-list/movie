@@ -15,7 +15,6 @@ tv_config_file="${tv_config_dir}/movie"
 tmp_dir="/tmp/movies"
 movies_socket="$tmp_dir/movies.sock" # Used by mpv (check the play_video function)
 movies_logfile="$tmp_dir/movies.log"
-applications="$HOME/.local/share/applications/movies" # Used for external menus (for now just rofi)
 tmp_applications="$tmp_dir/applications" # Used for external menus (for now just rofi)
 images_cache_dir="$tmp_dir/movies-images"             # Used for storing downloaded images of movie covers
 STATE=""                                               # Used for main state machine
