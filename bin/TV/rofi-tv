@@ -1,11 +1,12 @@
 #!/bin/sh
 set -e
 
-
-ROFI_THEME="${3:-}"
 tv_config_dir="${2:-}"
+ROFI_THEME="${3:-}"
+ROFI_STYLE="${4:-}"
+
 main_tv_script_path="${1:-}"
-shift 3
+shift 4
 
 list_are="1. Youtube
 2. Anime
@@ -22,4 +23,4 @@ case "${__mode}" in
     *)	    name="youtube-cli" ;;
 esac
 
-setsid "${main_tv_script_path}/TV-list"/${name} rofi "$tv_config_dir" "$ROFI_THEME" $@
+setsid "${main_tv_script_path}/TV-list"/${name} rofi "$tv_config_dir" "$ROFI_THEME" "$ROFI_STYLE" $@

@@ -1,17 +1,16 @@
 #!/bin/bash
+
 ### General Variables ###
+export FZF_DEFAULT_OPTS=""
+export FZF_CTRL_R_OPTS=""
 use_external_menu="${1:-fzf}"
 tv_config_dir="${2:-}"
-shift 2
-if [ "$use_external_menu" = "rofi" ];then
-	ROFI_THEME="${3:-}"
-	ROFI_STYLE="${4:-}"
-	shift 2
-fi
+ROFI_THEME="${3:-}"
+ROFI_STYLE="${4:-}"
+shift 4
 
 tv_config_file="${tv_config_dir}/movie"
 tmp_dir="/tmp/movies"
-movies_socket="$tmp_dir/movies.sock" # Used by mpv (check the play_video function)
 movies_logfile="$tmp_dir/movies.log"
 tmp_applications_dir="$tmp_dir"
 tmp_applications_path="$tmp_applications_dir/applications" # Used for external menus (for now just rofi)
@@ -282,7 +281,7 @@ exec 3>&1 4>&2 1>"$movies_logfile" 2>&1
             }
         elif [ "$image_preview_tool_are" = "ueberzugpp" ];then
             preview_command() {
-                :
+                echo "# work on this : workonthis"
             }
         elif [ "$image_preview_tool_are" = "chafa" ];then
             preview_command() {
@@ -291,7 +290,9 @@ exec 3>&1 4>&2 1>"$movies_logfile" 2>&1
             }
         fi
         
-        export -f preview_command get_preview_dim
+        if [ "$image_preview" = true ];then
+        	export -f preview_command get_preview_dim
+        fi
 	fi
     # helper function to be able to display only an "nth" column in fzf/rofi without altering the stdin
     nth() {
@@ -697,11 +698,6 @@ EOF
         escaped_title=$(printf "%s" "$displayed_title" | sed "s/'/'\\\\''/g")
         player_cmd="$player_cmd --force-media-title='$escaped_title' '$video_link'"
         player_cmd="$player_cmd --watch-later-directory='$watchlater_dir' --write-filename-in-watch-later-config --save-position-on-quit --quiet"
-
-        # Check if the system supports Unix domain sockets
-        if command -v nc >/dev/null 2>&1 && [ -S "$movies_socket" ] 2>/dev/null; then
-            player_cmd="$player_cmd --input-ipc-server='$movies_socket'"
-        fi
 
         # Use eval to properly handle spaces in the command
         eval "$player_cmd" >&3 &

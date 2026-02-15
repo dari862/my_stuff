@@ -31,17 +31,16 @@ case "${__mode}" in
 	tv)  name="iptv" ; shift ;;
 esac
 
-#. "$__distro_path_lib"
-#"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv jq sed grep ${whatmenu2use} || exit 1
-#. "${__distro_path_root}/lib/common/WM"
-script_config_path="$HOME/Desktop/workon/TV/test"
+. "$__distro_path_lib"
+"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv jq sed grep ${whatmenu2use} || exit 1
+. "${__distro_path_root}/lib/common/WM"
 
-if [ "$use_external_menu" = "rofi" ];then
+if [ "$whatmenu2use" = "rofi" ];then
 	. "${Distro_config_file}"
 	ROFI_THEME="$HOME/.config/rofi/TV.rasi"
 fi
 
-tv_config_dir="${script_config_path}/My_TV/test"
+tv_config_dir="${script_config_path}/My_TV"
 
 if [ ! -d "${tv_config_dir}" ];then
 	mkdir -p "$tv_config_dir"
