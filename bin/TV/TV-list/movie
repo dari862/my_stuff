@@ -9,15 +9,15 @@
 #fi
 ROFI_THEME="$HOME/.config/rofi/TV.rasi"
 use_external_menu="fzf"
-tv_config_dir="$HOME/.config/lobster"
+tv_config_dir="$HOME/.config/movies"
 
 tv_config_file="${tv_config_dir}/movie"
-tmp_dir="${TMPDIR:-/tmp}/lobster"
-lobster_socket="${TMPDIR:-/tmp}/lobster.sock" # Used by mpv (check the play_video function)
-lobster_logfile="${TMPDIR:-/tmp}/lobster.log"
-applications="$HOME/.local/share/applications/lobster" # Used for external menus (for now just rofi)
+tmp_dir="/tmp/movies"
+movies_socket="$tmp_dir/movies.sock" # Used by mpv (check the play_video function)
+movies_logfile="$tmp_dir/movies.log"
+applications="$HOME/.local/share/applications/movies" # Used for external menus (for now just rofi)
 tmp_applications="$tmp_dir/applications" # Used for external menus (for now just rofi)
-images_cache_dir="$tmp_dir/lobster-images"             # Used for storing downloaded images of movie covers
+images_cache_dir="$tmp_dir/movies-images"             # Used for storing downloaded images of movie covers
 STATE=""                                               # Used for main state machine
 
 # Constants
@@ -30,21 +30,21 @@ FORWARD_CODE=11
 ### OS Specific Variables ###
 separator=':'             # default value
 path_thing="\\"           # default value
-ueberzugpp_tmp_dir="/tmp" # for some reason ueberzugpp only uses $TMPDIR on Darwin
+ueberzugpp_tmp_dir="$tmp_dir/ueberzugpp"
 
-data_dir="$HOME/.local/share/lobster"
+data_dir="$HOME/.local/share/movies"
 API_URL="https://dec.eatmynerds.live"
 base="flixhq.to"
 provider="Vidcloud"
 subs_language="english"
-histfile_name="lobster_history.txt"
+histfile_name="movies_history.txt"
 histfile_dir="$data_dir"
 history=false
 image_preview="false"
 preview_window_size="right:60%:wrap"
 ueberzug_x=10
 ueberzug_y=3
-remove_tmp_lobster="true"
+remove_tmp_movies="true"
 json_output="false"
 watchlater_dir="$tmp_dir/watchlater"
 quality="1080"
@@ -71,7 +71,7 @@ if [ ! -f "$tv_config_file" ];then
     preview_window_size="$preview_window_size"
     ueberzug_x="$ueberzug_x"
     ueberzug_y="$ueberzug_y"
-    remove_tmp_lobster="$remove_tmp_lobster"
+    remove_tmp_movies="$remove_tmp_movies"
     json_output="$json_output"
     watchlater_dir="$watchlater_dir"
     quality="$quality"
@@ -144,7 +144,7 @@ workon_getURL(){
 
 cleanup() {
     [ "$debug" != "true" ] && rm -rf "$tmp_dir"
-    [ "$remove_tmp_lobster" = "true" ] && rm -rf "$tmp_dir"
+    [ "$remove_tmp_movies" = "true" ] && rm -rf "$tmp_dir"
 
     if pgrep "ueberzugpp" >/dev/null 2>&1; then
         killall ueberzugpp 2>/dev/null
@@ -201,7 +201,7 @@ fi
 # The reason I use additional file descriptors is because of the use of tee
 # which when piped into would hijack the terminal, which was unwanted behavior
 # since there are SSH use cases for mpv and since I wanted to have a logging mechanism
-exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
+exec 3>&1 4>&2 1>"$movies_logfile" 2>&1
 {
     # A launcher is a utility used to select an option from a list (fzf, rofi)
     # launcher [prompt] [columns-to-display]
@@ -217,7 +217,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
             return "$rc"
 		}
 		rofi_show_icons(){
-			rofi -show drun -drun-categories lobster -filter "$1" -show-icons -theme "$ROFI_THEME"
+			rofi -show drun -drun-categories movies -filter "$1" -show-icons -theme "$ROFI_THEME"
 		}
 	elif [ "$use_external_menu" = "fzf" ]; then
      	launcher() {
@@ -246,7 +246,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
         
         if [ "$image_preview_tool_are" = "ueberzugpp" ];then
         fzf_show_icons(){
-            fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --preview-window="$preview_window_size" --preview="ueberzugpp cmd -s $LOBSTER_UEBERZUG_SOCKET -i fzfpreview -a add -x $ueberzug_x -y $ueberzug_y --max-width $ueberzug_max_width --max-height $ueberzug_max_height -f $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
+            fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --preview-window="$preview_window_size" --preview="ueberzugpp cmd -s $movies_UEBERZUG_SOCKET -i fzfpreview -a add -x $ueberzug_x -y $ueberzug_y --max-width $ueberzug_max_width --max-height $ueberzug_max_height -f $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
         }
 
         fzf_image_preview() {
@@ -257,7 +257,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
                 ueberzugpp layer -o "$ueberzug_output" --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
             fi
             UB_PID="$(cat "$UB_PID_FILE")"
-            LOBSTER_UEBERZUG_SOCKET="$ueberzugpp_tmp_dir/ueberzugpp-$UB_PID.socket"
+            movies_UEBERZUG_SOCKET="$ueberzugpp_tmp_dir/ueberzugpp-$UB_PID.socket"
             choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
             rc=$?
 
@@ -269,7 +269,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
                 "$nl"*) choice=${choice#*"$nl"} ;;
                 *) exit 1 ;;
             esac
-            ueberzugpp cmd -s "$LOBSTER_UEBERZUG_SOCKET" -a exit
+            ueberzugpp cmd -s "$movies_UEBERZUG_SOCKET" -a exit
             return "$rc"
         }
         elif [ "$image_preview_tool_are" = "chafa" ];then
@@ -501,7 +501,7 @@ Name=$1  $2
 Exec=echo %k %c
 Icon=$3
 Type=Application
-Categories=lobster;
+Categories=movies;
 EOF
     }
     select_desktop_entry() {
@@ -720,8 +720,8 @@ EOF
         player_cmd="$player_cmd --watch-later-directory='$watchlater_dir' --write-filename-in-watch-later-config --save-position-on-quit --quiet"
 
         # Check if the system supports Unix domain sockets
-        if command -v nc >/dev/null 2>&1 && [ -S "$lobster_socket" ] 2>/dev/null; then
-            player_cmd="$player_cmd --input-ipc-server='$lobster_socket'"
+        if command -v nc >/dev/null 2>&1 && [ -S "$movies_socket" ] 2>/dev/null; then
+            player_cmd="$player_cmd --input-ipc-server='$movies_socket'"
         fi
 
         # Use eval to properly handle spaces in the command
@@ -866,5 +866,5 @@ EOF
 
     main
 
-} 2>&1 | tee "$lobster_logfile" >&3 2>&4
+} 2>&1 | tee "$movies_logfile" >&3 2>&4
 exec 1>&3 2>&4
