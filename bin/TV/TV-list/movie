@@ -5,8 +5,10 @@
 #shift 2
 #if [ "$use_external_menu" = "rofi" ];then
 #	ROFI_THEME="${3:-}"
+#   ROFI_STYLE="${4:-}"
 #	shift
 #fi
+ROFI_STYLE=default
 ROFI_THEME="$HOME/.config/rofi/TV.rasi"
 use_external_menu="fzf"
 tv_config_dir="$HOME/.config/movies"
@@ -15,7 +17,8 @@ tv_config_file="${tv_config_dir}/movie"
 tmp_dir="/tmp/movies"
 movies_socket="$tmp_dir/movies.sock" # Used by mpv (check the play_video function)
 movies_logfile="$tmp_dir/movies.log"
-tmp_applications="$tmp_dir/applications" # Used for external menus (for now just rofi)
+tmp_applications_dir="$tmp_dir"
+tmp_applications_path="$tmp_applications_dir/applications" # Used for external menus (for now just rofi)
 images_cache_dir="$tmp_dir/movies-images"             # Used for storing downloaded images of movie covers
 STATE=""                                               # Used for main state machine
 
@@ -142,14 +145,11 @@ workon_getURL(){
 }
 
 cleanup() {
-    [ "$debug" != "true" ] && rm -rf "$tmp_dir"
-    [ "$remove_tmp_movies" = "true" ] && rm -rf "$tmp_dir"
-
-    if pgrep "ueberzugpp" >/dev/null 2>&1; then
-        killall ueberzugpp 2>/dev/null
+    if [ "$debug" = "true" ];then
+        remove_tmp_movies=false
     fi
-    if [ -d "$ueberzugpp_tmp_dir" ];then
-    	rm -f "$ueberzugpp_tmp_dir"/ueberzugpp-*
+    if [ "$remove_tmp_movies" = "true" ];then
+        rm -rf "$tmp_dir"
     fi
     set +x && exec 2>&-
 }
@@ -191,8 +191,8 @@ fi
 if [ ! -d "$tmp_dir" ];then
     mkdir -p "$tmp_dir"
 fi
-if [ ! -d "$tmp_applications" ];then
-    mkdir -p "$tmp_applications"
+if [ ! -d "$tmp_applications_path" ];then
+    mkdir -p "$tmp_applications_path"
 fi
 if [ ! -d "$images_cache_dir" ];then
     mkdir -p "$images_cache_dir"
@@ -216,7 +216,14 @@ exec 3>&1 4>&2 1>"$movies_logfile" 2>&1
             return "$rc"
 		}
 		rofi_show_icons(){
-			rofi -show drun -drun-categories movies -filter "$1" -show-icons -theme "$ROFI_THEME"
+			monitor_res=$(($(xdpyinfo | awk '/dimensions/{print $2}' | cut -d 'x' -f1) * 17 / $(xdpyinfo | awk '/resolution/{print $2}' | cut -d 'x' -f1)))
+            rofi_override="element-icon{size:${monitor_res}px;}"
+            line=""
+            cd "${images_cache_dir}"
+            find . -maxdepth 1 -type f -print0 | while IFS= read -r -d '' line; do
+                img_name="${line#./}"
+                printf "%s\0icon\x1f%s/%s\n" "$img_name" "${images_cache_dir}" "$img_name"
+            done | rofi -dmenu -theme "$HOME/.config/rofi/$ROFI_STYLE/RiceSelector.rasi" -theme-str "$rofi_override"
 		}
 	elif [ "$use_external_menu" = "fzf" ]; then
      	launcher() {
@@ -487,41 +494,22 @@ EOF
 
         poster_path="$images_cache_dir/  $title ($type)  $id.jpg"
         workon_getURL 'download2' "$cover_url" "$poster_path" & pids="$pids $!"
-		
-		# The reason for the spaces is so that only the title can be displayed when using rofi
-        # or fzf, while still keeping the id and type in the string after it's selected
-        generate_desktop "$title ($type)" "$id" "$poster_path"
     }
-    
-	generate_desktop() {
-        cat <<EOF > "$tmp_applications/${1}.desktop"
-[Desktop Entry]
-Name=$1  $2
-Exec=echo %k %c
-Icon=$3
-Type=Application
-Categories=movies;
-EOF
-    }
+
     select_desktop_entry() {
         if [ "$use_external_menu" = "rofi" ]; then
-            rofi_out=$(rofi_show_icons "$1")
+            choice=$(rofi_show_icons "$1")
             rc=$?
-            choice=$(echo "$rofi_out" | sed -nE "s@.*/([0-9]*)\.desktop@\1@p") 2>/dev/null
-
-            [ -z "$choice" ] && exit 0
-
-            media_id=$(printf "%s" "$choice" | cut -d\  -f1)
-            title=$(printf "%s" "$choice" | sed -nE "s@[0-9]* (.*) \((tv|movie)\)@\1@p")
-            media_type=$(printf "%s" "$choice" | sed -nE "s@[0-9]* (.*) \((tv|movie)\)@\2@p")
         elif [ "$use_external_menu" = "fzf" ]; then
             fzf_image_preview "$1"
             rc=$?
             tput reset
-            media_id=$(printf "%s" "$choice" | sed -nE 's@.* ([0-9]+)\.jpg@\1@p')
-            title=$(printf "%s" "$choice" | sed -nE 's@^[[:space:]]*(.*) \((tv|movie)\)  [0-9]+\.jpg@\1@p')
-            media_type=$(printf "%s" "$choice" | sed -nE 's@^[[:space:]]*(.*) \((tv|movie)\)  [0-9]+\.jpg@\2@p')
         fi
+
+        media_id=$(printf "%s" "$choice" | sed -nE 's@.* ([0-9]+)\.jpg@\1@p')
+        title=$(printf "%s" "$choice" | sed -nE 's@^[[:space:]]*(.*) \((tv|movie)\)  [0-9]+\.jpg@\1@p')
+        media_type=$(printf "%s" "$choice" | sed -nE 's@^[[:space:]]*(.*) \((tv|movie)\)  [0-9]+\.jpg@\2@p')
+
         return "$rc"
     }
 
