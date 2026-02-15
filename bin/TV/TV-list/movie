@@ -15,6 +15,7 @@ tmp_dir="${TMPDIR:-/tmp}/lobster"
 lobster_socket="${TMPDIR:-/tmp}/lobster.sock" # Used by mpv (check the play_video function)
 lobster_logfile="${TMPDIR:-/tmp}/lobster.log"
 applications="$HOME/.local/share/applications/lobster" # Used for external menus (for now just rofi)
+tmp_applications="$tmp_dir/applications" # Used for external menus (for now just rofi)
 images_cache_dir="$tmp_dir/lobster-images"             # Used for storing downloaded images of movie covers
 STATE=""                                               # Used for main state machine
 
@@ -127,7 +128,19 @@ if [ "$image_preview" = true ] && [ "$use_external_menu" = "fzf" ];then
         exit 1
 	fi
 fi
-   	
+
+workon_getURL(){
+    mode="${1-}"
+    url="${2-}"
+    path="${3-}"
+
+    if [ "${mode}" = "2term" ];then
+        curl -s "${url}" || exit 1
+    elif [ "${mode}" = "download2" ];then
+        curl -s -o "$path" "${url}" || exit 1
+    fi
+}
+
 cleanup() {
     [ "$debug" != "true" ] && rm -rf "$tmp_dir"
     [ "$remove_tmp_lobster" = "true" ] && rm -rf "$tmp_dir"
@@ -166,30 +179,29 @@ usage() {
 " "${scriptname}" "${scriptname}"
 }
 
-### Dependencies Check ###
-dep_ch() {
-    for dep; do
-        if ! command -v "$dep" >/dev/null; then
-            send_notification "Program \"$dep\" not found. Please install it."
-            exit 1
-        fi
-    done
-}
-
-
-[ ! -d "$watchlater_dir" ] && mkdir -p "$watchlater_dir"
-[ ! -d "$histfile_dir" ] && mkdir -p "$histfile_dir"
-[ ! -d "$data_dir" ] && mkdir -p "$data_dir"
-[ ! -d "$tmp_dir" ] && mkdir -p "$tmp_dir"
-
+if [ ! -d "$watchlater_dir" ];then
+    mkdir -p "$watchlater_dir"
+fi
+if [ ! -d "$histfile_dir" ];then
+    mkdir -p "$histfile_dir"
+fi
+if [ ! -d "$data_dir" ];then
+    mkdir -p "$data_dir"
+fi
+if [ ! -d "$tmp_dir" ];then
+    mkdir -p "$tmp_dir"
+fi
+if [ ! -d "$tmp_applications" ];then
+    mkdir -p "$tmp_applications"
+fi
+if [ ! -d "$images_cache_dir" ];then
+    mkdir -p "$images_cache_dir"
+fi
 # The reason I use additional file descriptors is because of the use of tee
 # which when piped into would hijack the terminal, which was unwanted behavior
 # since there are SSH use cases for mpv and since I wanted to have a logging mechanism
 exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
 {
-    # check that the necessary programs are installed
-    dep_ch "grep" "sed" "curl" "mpv" "awk" "nc" "fzf" "$use_external_menu" || true
-    
     # A launcher is a utility used to select an option from a list (fzf, rofi)
     # launcher [prompt] [columns-to-display]
 	if [ "$use_external_menu" = "rofi" ]; then
@@ -226,17 +238,61 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
             printf '%s\n' "$fzf_out"
             return "$rc"
         }
+        
         fzf_show_choose(){
         	fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --with-nth 4 -d "\t" --header "$1"
         }
         
+        if [ "$image_preview_tool_are" = "ueberzugpp" ];then
         fzf_show_icons(){
-        	if [ "$image_preview_tool_are" = "ueberzugpp" ];then
-        		fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --cycle --preview-window="$preview_window_size" --preview="ueberzugpp cmd -s $LOBSTER_UEBERZUG_SOCKET -i fzfpreview -a add -x $ueberzug_x -y $ueberzug_y --max-width $ueberzug_max_width --max-height $ueberzug_max_height -f $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
-        	elif [ "$image_preview_tool_are" = "chafa" ];then
-        		fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --cycle --preview-window="$preview_window_size" --preview="chafa $fmt $dim $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
-        	fi
+            fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --preview-window="$preview_window_size" --preview="ueberzugpp cmd -s $LOBSTER_UEBERZUG_SOCKET -i fzfpreview -a add -x $ueberzug_x -y $ueberzug_y --max-width $ueberzug_max_width --max-height $ueberzug_max_height -f $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
         }
+
+        fzf_image_preview() {
+            UB_PID_FILE="$tmp_dir.$(uuidgen)"
+            if [ -z "$ueberzug_output" ]; then
+                ueberzugpp layer --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
+            else
+                ueberzugpp layer -o "$ueberzug_output" --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
+            fi
+            UB_PID="$(cat "$UB_PID_FILE")"
+            LOBSTER_UEBERZUG_SOCKET="$ueberzugpp_tmp_dir/ueberzugpp-$UB_PID.socket"
+            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
+            rc=$?
+
+            case $choice in
+                shift-left"$nl"*)
+                    rc="$BACK_CODE"
+                    choice=${choice#*"$nl"}
+                    ;;
+                "$nl"*) choice=${choice#*"$nl"} ;;
+                *) exit 1 ;;
+            esac
+            ueberzugpp cmd -s "$LOBSTER_UEBERZUG_SOCKET" -a exit
+            return "$rc"
+        }
+        elif [ "$image_preview_tool_are" = "chafa" ];then
+        fzf_show_icons(){
+            fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --preview-window="$preview_window_size" --preview="chafa $fmt $dim $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
+        }
+        # defaults to chafa
+        fzf_image_preview() {
+            # shellcheck disable=SC2154
+            [ "$TERM_PROGRAM" = "vscode" ] && fmt="-f sixels --margin-bottom 8" || fmt=""
+            [ -n "$chafa_dims" ] && dim="-s $chafa_dims"
+            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
+            rc=$?
+
+            case $choice in
+                shift-left"$nl"*)
+                    rc="$BACK_CODE"
+                    choice=${choice#*"$nl"};;
+                "$nl"*) choice=${choice#*"$nl"} ;;
+                *) exit 1 ;;
+            esac
+            return "$rc"
+        }
+        fi
 	fi
     # helper function to be able to display only an "nth" column in fzf/rofi without altering the stdin
     nth() {
@@ -276,7 +332,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
         fi
     }
     search() {
-        response=$(curl -s "https://${base}/search/$1" | sed ':a;N;$!ba;s/\n//g;s/class="flw-item"/\n/g' |
+        response=$(workon_getURL '2term' "https://${base}/search/$1" | sed ':a;N;$!ba;s/\n//g;s/class="flw-item"/\n/g' |
             sed -nE "s@.*img data-src=\"([^\"]*)\".*<a href=\".*/(tv|movie)/watch-.*-([0-9]*)\".*title=\"([^\"]*)\".*class=\"fdi-item\">([^<]*)</span>.*@\1\t\3\t\2\t\4 [\5]@p")
         [ -z "$response" ] && send_notification "Error" "1000" "" "No results found" && exit 1
     }
@@ -337,7 +393,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
     }
     choose_season() {
         season_line=$(
-            curl -s "https://${base}/ajax/v2/tv/seasons/${media_id}" |
+            workon_getURL '2term' "https://${base}/ajax/v2/tv/seasons/${media_id}" |
                 sed -nE 's@.*href=".*-([0-9]*)">(.*)</a>@\2\t\1@p' |
                 launcher "Select a season: " "1"
         )
@@ -357,7 +413,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
     }
     choose_episode() {
         ep_line=$(
-            curl -s "https://${base}/ajax/v2/season/episodes/${season_id}" |
+            workon_getURL '2term' "https://${base}/ajax/v2/season/episodes/${season_id}" |
                 sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
                 sed -nE 's@.*data-id="([0-9]*)".*title="([^"]*)">.*@\2\t\1@p' |
                 launcher "Select an episode: " "1"
@@ -375,7 +431,7 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
         data_id=$(printf '%s' "$ep_line" | cut -f2)
 
         episode_id=$(
-            curl -s "https://${base}/ajax/v2/episode/servers/${data_id}" |
+            workon_getURL '2term' "https://${base}/ajax/v2/episode/servers/${data_id}" |
                 sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
                 sed -nE 's@.*data-id="([0-9]*)".*title="([^"]*)".*@\1\t\2@p' |
                 grep "$provider" | cut -f1 | head -n1
@@ -385,15 +441,15 @@ exec 3>&1 4>&2 1>"$lobster_logfile" 2>&1
         STATE="PLAY"
     }
     next_episode_exists() {
-        episodes_list=$(curl -s "https://${base}/ajax/v2/season/episodes/${season_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
+        episodes_list=$(workon_getURL '2term' "https://${base}/ajax/v2/season/episodes/${season_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
             sed -nE "s@.*data-id=\"([0-9]*)\".*title=\"([^\"]*)\">.*@\2\t\1@p")
         next_episode=$(printf "%s" "$episodes_list" | sed -n "/$data_id/{n;p;}")
         [ -n "$next_episode" ] && return
-        tmp_season_id=$(curl -s "https://${base}/ajax/v2/tv/seasons/${media_id}" | sed -n "/href=\".*-$season_id/{n;n;n;n;p;}" | sed -nE "s@.*href=\".*-([0-9]*)\">(.*)</a>@\2\t\1@p")
+        tmp_season_id=$(workon_getURL '2term' "https://${base}/ajax/v2/tv/seasons/${media_id}" | sed -n "/href=\".*-$season_id/{n;n;n;n;p;}" | sed -nE "s@.*href=\".*-([0-9]*)\">(.*)</a>@\2\t\1@p")
         [ -z "$tmp_season_id" ] && return
         season_title=$(printf "%s" "$tmp_season_id" | cut -f1)
         season_id=$(printf "%s" "$tmp_season_id" | cut -f2)
-        next_episode=$(curl -s "https://${base}/ajax/v2/season/episodes/${season_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
+        next_episode=$(workon_getURL '2term' "https://${base}/ajax/v2/season/episodes/${season_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
             sed -nE "s@.*data-id=\"([0-9]*)\".*title=\"([^\"]*)\">.*@\2\t\1@p" | head -1)
         [ -n "$next_episode" ] && return
     }
@@ -430,7 +486,7 @@ EOF
             sed -E 's:/[0-9]+x[0-9]+/:/1000x1000/:')
 
         poster_path="$images_cache_dir/  $title ($type)  $id.jpg"
-        curl -s -o "$poster_path" "$cover_url" & pids="$pids $!"
+        workon_getURL 'download2' "$cover_url" "$poster_path" & pids="$pids $!"
 		
 		# The reason for the spaces is so that only the title can be displayed when using rofi
         # or fzf, while still keeping the id and type in the string after it's selected
@@ -438,7 +494,7 @@ EOF
     }
     
 	generate_desktop() {
-        cat <<EOF > "$tmp_dir/applications/${1}.desktop"
+        cat <<EOF > "$tmp_applications/${1}.desktop"
 [Desktop Entry]
 Name=$1  $2
 Exec=echo %k %c
@@ -446,49 +502,7 @@ Icon=$3
 Type=Application
 Categories=lobster;
 EOF
-    }    
-    # defaults to chafa
-    fzf_image_preview() {
-    	if [ "$image_preview_tool_are" = "ueberzugpp" ];then
-            UB_PID_FILE="$tmp_dir.$(uuidgen)"
-            if [ -z "$ueberzug_output" ]; then
-                ueberzugpp layer --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
-            else
-                ueberzugpp layer -o "$ueberzug_output" --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
-            fi
-            UB_PID="$(cat "$UB_PID_FILE")"
-            LOBSTER_UEBERZUG_SOCKET="$ueberzugpp_tmp_dir/ueberzugpp-$UB_PID.socket"
-            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
-            rc=$?
-
-            case $choice in
-                shift-left"$nl"*)
-                    rc="$BACK_CODE"
-                    choice=${choice#*"$nl"}
-                    ;;
-                "$nl"*) choice=${choice#*"$nl"} ;;
-                *) exit 1 ;;
-            esac
-            ueberzugpp cmd -s "$LOBSTER_UEBERZUG_SOCKET" -a exit
-        elif [ "$image_preview_tool_are" = "chafa" ];then
-            # shellcheck disable=SC2154
-            [ "$TERM_PROGRAM" = "vscode" ] && fmt="-f sixels --margin-bottom 8" || fmt=""
-            [ -n "$chafa_dims" ] && dim="-s $chafa_dims"
-            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
-            rc=$?
-
-            case $choice in
-                shift-left"$nl"*)
-                    rc="$BACK_CODE"
-                    choice=${choice#*"$nl"}
-                    ;;
-                "$nl"*) choice=${choice#*"$nl"} ;;
-                *) exit 1 ;;
-            esac
-        fi
-        return "$rc"
     }
-    
     select_desktop_entry() {
         if [ "$use_external_menu" = "rofi" ]; then
             rofi_out=$(rofi_show_icons "$1")
@@ -515,12 +529,12 @@ EOF
     get_embed() {
         if [ "$media_type" = "movie" ]; then
             # request to get the episode id
-            movie_page="https://${base}"$(curl -s "https://${base}/ajax/movie/episodes/${media_id}" |
+            movie_page="https://${base}"$(workon_getURL '2term' "https://${base}/ajax/movie/episodes/${media_id}" |
                 sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' | sed -nE "s@.*href=\"([^\"]*)\"[[:space:]]*title=\"${provider}\".*@\1@p")
             episode_id=$(printf "%s" "$movie_page" | sed -nE "s_.*-([0-9]*)\.([0-9]*)\$_\2_p")
         fi
         # request to get the embed
-        embed_link=$(curl -s "https://${base}/ajax/episode/sources/${episode_id}" | sed -nE "s_.*\"link\":\"([^\"]*)\".*_\1_p")
+        embed_link=$(workon_getURL '2term' "https://${base}/ajax/episode/sources/${episode_id}" | sed -nE "s_.*\"link\":\"([^\"]*)\".*_\1_p")
         if [ -z "$embed_link" ]; then
             send_notification "Error" "Could not get embed link"
             exit 1
@@ -529,7 +543,7 @@ EOF
 
     extract_from_embed() {
         api_url="${API_URL}/?url=${embed_link}"
-        json_data=$(curl -s "${api_url}")
+        json_data=$(workon_getURL '2term' "${api_url}")
         video_link=$(printf "%s" "$json_data" | sed -nE "s_.*\"file\":\"([^\"]*\.m3u8)\".*_\1_p" | head -1)
 
         [ -n "$quality" ] && video_link=$(printf "%s" "$video_link" | sed -e "s|/playlist.m3u8|/$quality/index.m3u8|")
@@ -609,7 +623,7 @@ EOF
                         position="00:00:00"
                         episode_title=$(printf "%s" "$next_episode" | cut -f1)
                         data_id=$(printf "%s" "$next_episode" | cut -f2)
-                        episode_id=$(curl -s "https://${base}/ajax/v2/episode/servers/${data_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
+                        episode_id=$(workon_getURL '2term' "https://${base}/ajax/v2/episode/servers/${data_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' |
                             sed -nE "s@.*data-id=\"([0-9]*)\".*title=\"([^\"]*)\".*@\1\t\2@p" | grep "$provider" | cut -f1)
                         send_notification "Updated to next episode" "5000" "" "$episode_title"
                     else
@@ -633,14 +647,6 @@ EOF
         esac
     }
     
-    create_cache_dir(){
-    	test -d "$images_cache_dir" || mkdir -p "$images_cache_dir"
-        if [ "$use_external_menu" = "rofi" ]; then
-            mkdir -p "$tmp_dir/applications/"
-            [ ! -L "$applications" ] && ln -sf "$tmp_dir/applications/" "$applications"
-        fi
-    }
-    
     play_from_history() {
     	2filter=""
         [ ! -f "$histfile" ] && send_notification "No history file found" "5000" "" && exit 1
@@ -648,7 +654,6 @@ EOF
         watched_history=1
 
         if [ "$image_preview" = "true" ]; then
-            create_cache_dir
             history_response=$(
                 awk -F'\t' '
                 {
@@ -727,7 +732,7 @@ EOF
             link=$video_link
         fi
 
-        content=$(curl -s "$link")
+        content=$(workon_getURL '2term' "$link")
         durations=$(printf "%s" "$content" | grep -oE 'EXTINF:[0-9.]+,' | cut -d':' -f2 | tr -d ',')
         total_duration=$(printf "%s" "$durations" | xargs echo | awk '{for(i=1;i<=NF;i++)sum+=$i} END {print sum}' | cut -d'.' -f1)
 
@@ -739,10 +744,10 @@ EOF
         path=$1
         section=$2
         if [ "$path" = "home" ]; then
-            response=$(curl -s "https://${base}/${path}" | sed -n "/id=\"${section}\"/,/class=\"block_area block_area_home section-id-02\"/p" | sed ':a;N;$!ba;s/\n//g;s/class="flw-item"/\n/g' |
+            response=$(workon_getURL '2term' "https://${base}/${path}" | sed -n "/id=\"${section}\"/,/class=\"block_area block_area_home section-id-02\"/p" | sed ':a;N;$!ba;s/\n//g;s/class="flw-item"/\n/g' |
                 sed -nE "s@.*img data-src=\"([^\"]*)\".*<a href=\".*/(tv|movie)/watch-.*-([0-9]*)\".*title=\"([^\"]*)\".*class=\"fdi-item\">([^<]*)</span>.*@\1\t\3\t\2\t\4 [\5]@p")
         else
-            response=$(curl -s "https://${base}/${path}" | sed ':a;N;$!ba;s/\n//g;s/class="flw-item"/\n/g' |
+            response=$(workon_getURL '2term' "https://${base}/${path}" | sed ':a;N;$!ba;s/\n//g;s/class="flw-item"/\n/g' |
                 sed -nE "s@.*img data-src=\"([^\"]*)\".*<a href=\".*/(tv|movie)/watch-.*-([0-9]*)\".*title=\"([^\"]*)\".*class=\"fdi-item\">([^<]*)</span>.*@\1\t\3\t\2\t\4 [\5]@p")
         fi
         main
@@ -770,7 +775,7 @@ EOF
                     if [ -n "$next_episode" ]; then
                         episode_title=$(printf "%s" "$next_episode" | cut -f1)
                         data_id=$(printf "%s" "$next_episode" | cut -f2)
-                        episode_id=$(curl -s "https://${base}/ajax/v2/episode/servers/${data_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' | sed -nE "s@.*data-id=\"([0-9]*)\".*title=\"([^\"]*)\".*@\1\t\2@p" | grep "$provider" | cut -f1)
+                        episode_id=$(workon_getURL '2term' "https://${base}/ajax/v2/episode/servers/${data_id}" | sed ':a;N;$!ba;s/\n//g;s/class="nav-item"/\n/g' | sed -nE "s@.*data-id=\"([0-9]*)\".*title=\"([^\"]*)\".*@\1\t\2@p" | grep "$provider" | cut -f1)
                         send_notification "Watching the next episode" "5000" "" "$episode_title"
                     else
                         send_notification "No more episodes" "5000" "" "$title"
@@ -851,9 +856,6 @@ EOF
         esac
     done
     query="$(printf "%s" "$query" | tr ' ' '-' | sed "s/^-//g")"
-    if [ "$image_preview" = "true" ]; then
-        create_cache_dir
-    fi
     
     if [ "$recent" = "movie" ];then
     	choose_from_recent "movie" ""
