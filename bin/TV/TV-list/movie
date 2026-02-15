@@ -1,19 +1,13 @@
 #!/bin/bash
 ### General Variables ###
-#use_external_menu="${1:-fzf}"
-#tv_config_dir="${2:-}"
-#shift 2
-#if [ "$use_external_menu" = "rofi" ];then
-#	ROFI_THEME="${3:-}"
-#   ROFI_STYLE="${4:-}"
-#	shift 2
-#fi
-FZF_DEFAULT_OPTS=""
-FZF_CTRL_R_OPTS=""
-ROFI_STYLE=default
-ROFI_THEME="$HOME/.config/rofi/TV.rasi"
-use_external_menu="fzf"
-tv_config_dir="$HOME/.config/movies"
+use_external_menu="${1:-fzf}"
+tv_config_dir="${2:-}"
+shift 2
+if [ "$use_external_menu" = "rofi" ];then
+	ROFI_THEME="${3:-}"
+	ROFI_STYLE="${4:-}"
+	shift 2
+fi
 
 tv_config_file="${tv_config_dir}/movie"
 tmp_dir="/tmp/movies"
@@ -58,7 +52,9 @@ notify="true"
 image_preview_tool_are="auto"
 
 if [ ! -f "$tv_config_file" ];then
-	[ ! -d "$tv_config_dir" ] && mkdir -p "$tv_config_dir"
+	if [ ! -d "$tv_config_dir" ];then
+		mkdir -p "$tv_config_dir"
+	fi
     tee "$tv_config_file" <<- EOF >/dev/null 2>&1
     #################################################
     # Movie
@@ -71,7 +67,6 @@ if [ ! -f "$tv_config_file" ];then
     histfile_dir="$histfile_dir"
     histfile_name="$histfile_name"
     history="$history"
-    use_external_menu="$use_external_menu"
     image_preview="$image_preview"
     image_preview_tool_are="$image_preview_tool_are"
     preview_window_size="$preview_window_size"
