@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ### General Variables ###
 #use_external_menu="${1:-fzf}"
 #tv_config_dir="${2:-}"
@@ -8,6 +8,8 @@
 #   ROFI_STYLE="${4:-}"
 #	shift 2
 #fi
+FZF_DEFAULT_OPTS=""
+FZF_CTRL_R_OPTS=""
 ROFI_STYLE=default
 ROFI_THEME="$HOME/.config/rofi/TV.rasi"
 use_external_menu="fzf"
@@ -53,6 +55,7 @@ quality="1080"
 no_subs="false"
 debug="false"
 notify="true"
+image_preview_tool_are="auto"
 
 if [ ! -f "$tv_config_file" ];then
 	[ ! -d "$tv_config_dir" ] && mkdir -p "$tv_config_dir"
@@ -70,6 +73,7 @@ if [ ! -f "$tv_config_file" ];then
     history="$history"
     use_external_menu="$use_external_menu"
     image_preview="$image_preview"
+    image_preview_tool_are="$image_preview_tool_are"
     preview_window_size="$preview_window_size"
     ueberzug_x="$ueberzug_x"
     ueberzug_y="$ueberzug_y"
@@ -82,7 +86,7 @@ if [ ! -f "$tv_config_file" ];then
     notify="$notify"
 EOF
 fi
-image_preview_tool_are=""
+
 ueberzug_max_width=$(($(tput lines) / 2))
 ueberzug_max_height=$(($(tput lines) / 2))
 histfile="$histfile_dir/$histfile_name"
@@ -121,8 +125,10 @@ else
 	}
 fi
 
-if [ "$image_preview" = true ] && [ "$use_external_menu" = "fzf" ];then
-	if command -v "ueberzugpp" >/dev/null 2>&1;then
+if [ "$image_preview" = true ] && [ "$use_external_menu" = "fzf" ] && [ "$image_preview_tool_are" = auto ];then
+    if { [ -n "$KITTY_WINDOW_ID" ] || [ -n "$GHOSTTY_RESOURCES_DIR" ]; } && command -v kitten >/dev/null 2>&1; then
+    	image_preview_tool_are="kitten"
+    elif command -v "ueberzugpp" >/dev/null 2>&1;then
     	image_preview_tool_are="ueberzugpp"
 	elif command -v "chafa" >/dev/null 2>&1;then
     	image_preview_tool_are="chafa"
@@ -250,56 +256,47 @@ exec 3>&1 4>&2 1>"$movies_logfile" 2>&1
         	fzf --bind "shift-right:accept" --expect=shift-left --cycle --reverse --with-nth 4 -d "\t" --header "$1"
         }
         
-        if [ "$image_preview_tool_are" = "ueberzugpp" ];then
-        fzf_show_icons(){
-            fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --preview-window="$preview_window_size" --preview="ueberzugpp cmd -s $movies_UEBERZUG_SOCKET -i fzfpreview -a add -x $ueberzug_x -y $ueberzug_y --max-width $ueberzug_max_width --max-height $ueberzug_max_height -f $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
-        }
+        get_preview_dim() {
+            cols=${FZF_PREVIEW_COLUMNS}
+            lines=${FZF_PREVIEW_LINES}
 
-        fzf_image_preview() {
-            UB_PID_FILE="$tmp_dir.$(uuidgen)"
-            if [ -z "$ueberzug_output" ]; then
-                ueberzugpp layer --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
-            else
-                ueberzugpp layer -o "$ueberzug_output" --no-stdin --silent --use-escape-codes --pid-file "$UB_PID_FILE"
+            if [ -z "$cols" ] || [ -z "$lines" ]; then
+                lines=$(tput lines)
+                cols=$(tput cols)
             fi
-            UB_PID="$(cat "$UB_PID_FILE")"
-            movies_UEBERZUG_SOCKET="$ueberzugpp_tmp_dir/ueberzugpp-$UB_PID.socket"
-            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
-            rc=$?
 
-            case $choice in
-                shift-left"$nl"*)
-                    rc="$BACK_CODE"
-                    choice=${choice#*"$nl"}
-                    ;;
-                "$nl"*) choice=${choice#*"$nl"} ;;
-                *) exit 1 ;;
-            esac
-            ueberzugpp cmd -s "$movies_UEBERZUG_SOCKET" -a exit
-            return "$rc"
+            dim="${cols}x${lines}"
+
+            # Adjust if preview is at the bottom to avoid scrolling issues with Sixel
+            if [ -z "$KITTY_WINDOW_ID" ] && [ "$((FZF_PREVIEW_TOP + lines))" -eq "$lines" ]; then
+                dim="${cols}x$((lines - 1))"
+            fi
+
+            echo "$dim"
         }
+
+        export images_cache_dir
+
+        if [ "$image_preview_tool_are" = "kitten" ];then
+            preview_command() {
+                dim=$(get_preview_dim)
+                # 'memory' transfer mode is fastest; 'stream' allows scroll but slower
+                RESET=$(printf '\033[m')
+                kitten icat --clear --transfer-mode=memory --unicode-placeholder --stdin=no --place="${dim}@0x0" "$images_cache_dir/$1" \
+                    | sed '$d' | sed $'$s/$/\e[m/'	# Remove last newline and append ANSI reset
+            }
+        elif [ "$image_preview_tool_are" = "ueberzugpp" ];then
+            preview_command() {
+                :
+            }
         elif [ "$image_preview_tool_are" = "chafa" ];then
-        fzf_show_icons(){
-            fzf --bind "shift-right:accept" --expect=shift-left --cycle -i -q "$1" --preview-window="$preview_window_size" --preview="chafa $fmt $dim $images_cache_dir/{}" --reverse --with-nth 2 -d "  "
-        }
-        # defaults to chafa
-        fzf_image_preview() {
-            # shellcheck disable=SC2154
-            [ "$TERM_PROGRAM" = "vscode" ] && fmt="-f sixels --margin-bottom 8" || fmt=""
-            [ -n "$chafa_dims" ] && dim="-s $chafa_dims"
-            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf_show_icons "$1")
-            rc=$?
-
-            case $choice in
-                shift-left"$nl"*)
-                    rc="$BACK_CODE"
-                    choice=${choice#*"$nl"};;
-                "$nl"*) choice=${choice#*"$nl"} ;;
-                *) exit 1 ;;
-            esac
-            return "$rc"
-        }
+            preview_command() {
+                dim=$(get_preview_dim)
+                chafa -s "$dim" "$images_cache_dir/$1"
+            }
         fi
+        
+        export -f preview_command get_preview_dim
 	fi
     # helper function to be able to display only an "nth" column in fzf/rofi without altering the stdin
     nth() {
@@ -501,7 +498,7 @@ EOF
             choice=$(rofi_show_icons "$1")
             rc=$?
         elif [ "$use_external_menu" = "fzf" ]; then
-            fzf_image_preview "$1"
+            choice=$(find "$images_cache_dir" -type f -exec basename {} \; | fzf --preview='preview_command {}')
             rc=$?
             tput reset
         fi
