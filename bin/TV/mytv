@@ -48,7 +48,7 @@ if [ ! -d "${tv_config_dir}" ];then
 fi
 
 if [ -n "$name" ];then
-	setsid "${main_tv_script_path}/TV-list"/${name} "${whatmenu2use}" "$tv_config_dir" "$ROFI_STYLE" $@
+	setsid "${main_tv_script_path}/TV-list"/${name} "${whatmenu2use}" "$tv_config_dir" "$ROFI_THEME" "$ROFI_STYLE" $@
 else
-	setsid "${main_tv_script_path}"/${whatmenu2use}-tv "$main_tv_script_path" "$tv_config_dir" "$ROFI_THEME" $@
+	setsid "${main_tv_script_path}"/${whatmenu2use}-tv "$main_tv_script_path" "$tv_config_dir" "$ROFI_THEME" "$ROFI_STYLE" $@
 fi
