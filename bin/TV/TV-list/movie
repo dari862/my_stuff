@@ -11,7 +11,7 @@ ROFI_THEME="$HOME/.config/rofi/TV.rasi"
 use_external_menu="fzf"
 tv_config_dir="$HOME/.config/lobster"
 
-tv_config_file="${tv_config_dir}/lobster_config.sh"
+tv_config_file="${tv_config_dir}/movie"
 tmp_dir="${TMPDIR:-/tmp}/lobster"
 lobster_socket="${TMPDIR:-/tmp}/lobster.sock" # Used by mpv (check the play_video function)
 lobster_logfile="${TMPDIR:-/tmp}/lobster.log"
