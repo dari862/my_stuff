@@ -6,7 +6,7 @@
 #if [ "$use_external_menu" = "rofi" ];then
 #	ROFI_THEME="${3:-}"
 #   ROFI_STYLE="${4:-}"
-#	shift
+#	shift 2
 #fi
 ROFI_STYLE=default
 ROFI_THEME="$HOME/.config/rofi/TV.rasi"
