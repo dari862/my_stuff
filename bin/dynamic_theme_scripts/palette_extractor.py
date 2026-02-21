@@ -10,6 +10,86 @@ import subprocess
 import re
 import copy
 
+
+def get_args():
+    """Get the script arguments."""
+    arg = argparse.ArgumentParser()
+    
+    arg.add_argument(
+        "--cols16",
+        metavar="method",
+        required=False,
+        nargs="?",
+        default=False,
+        const="darken",
+        choices=["darken", "lighten", "dual"],
+        help='Use 16 color output "darken", "lighten" or "dual" default: darken',
+    )
+
+    arg.add_argument(
+        "--saturate", 
+        metavar="-1.0 - 1.0", 
+        help="Set the color saturation."
+    )
+
+    arg.add_argument(
+        "-i",
+        metavar='"/path/to/img.jpg"',
+        help="Which image or directory to use.",
+    )
+    
+    arg.add_argument(
+        "-o",
+        required=False,
+        metavar='"/path/to/img.jpg"',
+        help="Direct path to the output of file",
+    )
+    
+    arg.add_argument(
+        "-l", 
+        action="store_true", 
+        help="Generate a light colorscheme."
+    )
+
+    arg.add_argument(
+        "--contrast",
+        metavar="1.0-21.0",
+        required=False,
+        type=float,
+        nargs="?",
+        help="Specify a minimum contrast ratio.",
+    )
+
+    return arg
+
+
+def parse_args_exit(parser):
+    """Process args that exit."""
+    args = parser.parse_args()
+
+    if len(sys.argv) <= 1:
+        parser.print_help()
+        sys.exit(1)
+
+
+def parse_args(parser):
+    """Process args."""
+    args = parser.parse_args()
+
+    if args.i:
+        wal_img = os.path.abspath(args.i)
+        colors_plain = getcolors(
+            wal_img,
+            args.l,
+            sat=args.saturate,
+            c16=args.cols16,
+            cst=args.contrast,
+        )
+
+        # Export the colors
+        createcolorsfile(colors_plain, outputfile=args.o)
+
+
 class Color:
     """Color formats."""
 
@@ -319,112 +399,26 @@ def image_average_color(img):
     return re.search("#[0-9A-Fa-f]{6}", magick_output.stdout.decode("utf-8"))[0]
 
 
-def get_args():
-    """Get the script arguments."""
-    arg = argparse.ArgumentParser()
-    
-    arg.add_argument(
-        "--cols16",
-        metavar="method",
-        required=False,
-        nargs="?",
-        default=False,
-        const="darken",
-        choices=["darken", "lighten", "dual"],
-        help='Use 16 color output "darken", "lighten" or "dual" default: darken',
-    )
-
-    arg.add_argument(
-        "--saturate", 
-        metavar="-1.0 - 1.0", 
-        help="Set the color saturation."
-    )
-
-    arg.add_argument(
-        "-i",
-        metavar='"/path/to/img.jpg"',
-        help="Which image or directory to use.",
-    )
-    
-    arg.add_argument(
-        "-o",
-        required=False,
-        metavar='"/path/to/img.jpg"',
-        help="Direct path to the output JSON file",
-    )
-    
-    arg.add_argument(
-        "-l", 
-        action="store_true", 
-        help="Generate a light colorscheme."
-    )
-
-    arg.add_argument(
-        "--contrast",
-        metavar="1.0-21.0",
-        required=False,
-        type=float,
-        nargs="?",
-        help="Specify a minimum contrast ratio.",
-    )
-
-    return arg
-
-
-def parse_args_exit(parser):
-    """Process args that exit."""
-    args = parser.parse_args()
-
-    if len(sys.argv) <= 1:
-        parser.print_help()
-        sys.exit(1)
-
-
-def parse_args(parser):
-    """Process args."""
-    args = parser.parse_args()
-
-    if args.i:
-        wal_img = os.path.abspath(args.i)
-        colors_plain = getcolors(
-            wal_img,
-            args.l,
-            sat=args.saturate,
-            c16=args.cols16,
-            cst=args.contrast,
-        )
-
-        # Export the colors
-        createcolorsjsonfile(colors_plain, outputfile=args.o)
-
-
 def colors_to_dict(colors, img):
     """Convert list of colors to pywal format."""
     return {
         "alpha": Color.alpha_num,
-        "special": {
-            "background": colors[0],
-            "foreground": colors[15],
-            "cursor": colors[15],
-        },
-        "colors": {
-            "color0": colors[0],
-            "color1": colors[1],
-            "color2": colors[2],
-            "color3": colors[3],
-            "color4": colors[4],
-            "color5": colors[5],
-            "color6": colors[6],
-            "color7": colors[7],
-            "color8": colors[8],
-            "color9": colors[9],
-            "color10": colors[10],
-            "color11": colors[11],
-            "color12": colors[12],
-            "color13": colors[13],
-            "color14": colors[14],
-            "color15": colors[15],
-        },
+        "color0": colors[0],
+        "color1": colors[1],
+        "color2": colors[2],
+        "color3": colors[3],
+        "color4": colors[4],
+        "color5": colors[5],
+        "color6": colors[6],
+        "color7": colors[7],
+        "color8": colors[8],
+        "color9": colors[9],
+        "color10": colors[10],
+        "color11": colors[11],
+        "color12": colors[12],
+        "color13": colors[13],
+        "color14": colors[14],
+        "color15": colors[15],
     }
 
 
@@ -901,21 +895,18 @@ def getcolors(
     return colors
 
 
-def createcolorsjsonfile(colors, outputfile=None):
-    import json
+def createcolorsfile(colors, outputfile=None):
     """
-    Export colors.json directly from the colors dictionary.
-    This ignores all system and user template files.
+    Export colors directly from the colors dictionary.
     """
-    json_path = outputfile if outputfile else "/tmp/colors.json"
     
-    try:
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(colors, f, indent=4)
+    file_path = outputfile if outputfile else "/tmp/colors.sh"
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        for name, value in colors.items():
+            f.write(f"{name}='{value}'\n")
         
-        logging.info("Successfully created colors.json at %s", json_path)
-    except Exception as e:
-        logging.error("Failed to create colors.json: %s", e)
+        logging.info("Successfully created colors file at %s", file_path)
 
     logging.info("Export finished. Template system bypassed.")
 
