@@ -1,0 +1,69 @@
+#!/bin/bash
+unalias -a
+. "$__distro_path_lib"
+gtk_theme_path="$HOME/.themes"
+gtk_icon_path="$HOME/.icons"
+
+dynamic_theme_check(){
+	CONFIGPATH="$HOME/.config"
+	LOCAL_PATH="$HOME/.local"
+	GLOBALDYNAMICBLOBPATH="${__distro_path_all_distro_themes}/dynamic_theme"
+	DYNAMICBLOBPATH="${LOCAL_PATH}/dynamic_theme"
+	
+	if [ ! -d "${DYNAMICBLOBPATH}" ];then
+		mkdir -p "${DYNAMICBLOBPATH}"
+		cp -r "${GLOBALDYNAMICBLOBPATH}"/icons "${DYNAMICBLOBPATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
+		cp -r "${GLOBALDYNAMICBLOBPATH}"/themes "${DYNAMICBLOBPATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
+	fi
+
+	if [ ! -d "$gtk_theme_path/dynamic" ];then
+		mkdir -p "$gtk_theme_path"
+		ln -sf "${DYNAMICBLOBPATH}/themes"/* "$gtk_theme_path" || show_em "failed to generate symplic link for contain of ${DYNAMICBLOBPATH}/themes to $gtk_theme_path"
+	fi
+	
+	if [ ! -d "$gtk_icon_path/dynamic" ];then
+		mkdir -p "$gtk_icon_path"
+		ln -sf "${DYNAMICBLOBPATH}/icons"/* "$gtk_icon_path" || show_em "failed to generate symplic link for contain of ${DYNAMICBLOBPATH}/icons to $gtk_icon_path"
+	fi
+	
+	if [ "$_panel_name_" = 'polybar' ];then
+		cp -r "${CONFIGPATH}/polybar/${_style}/colors.ini.org" "${CONFIGPATH}/polybar/${_style}/colors.ini"
+	fi
+}
+
+if [ "${1:-}" = "_SAVED_" ]; then
+	dynamic_theme_check
+	exit
+fi
+
+dynamic_theme_scripts_dir="${1:-}"
+dynamic_theme_common_file_name="${2:-}"
+dynamic_theme_sed_them_file_name="${3:-}"
+dynamic_theme_common_file_path="${dynamic_theme_scripts_dir}/${dynamic_theme_common_file_name}"
+dynamic_theme_sed_them_file_path="${dynamic_theme_scripts_dir}/${dynamic_theme_sed_them_file_name}"
+. "${dynamic_theme_common_file_path}"
+. "${dynamic_theme_sed_them_file_path}"
+
+gtk_templates_path="${__distro_path_all_distro_themes}/dynamic_theme"
+gtk_templates_path_tmp_dir="${temp_theme_file_dir}/dynamic_theme_templates"
+
+if [ ! -d "$gtk_templates_path_tmp_dir" ];then
+	mkdir -p "$gtk_templates_path_tmp_dir"
+fi
+
+cp -r "${gtk_templates_path}"/gtk-icons "$gtk_templates_path_tmp_dir"
+cp -r "${gtk_templates_path}"/gtk_theme "$gtk_templates_path_tmp_dir"
+
+sed_them "${gtk_templates_path_tmp_dir}/gtk_theme"
+
+cat "${gtk_templates_path_tmp_dir}/gtk_theme"/dynamic-dark.css > "$gtk_theme_path"/dynamic-nord/general/dark.css
+cat "${gtk_templates_path_tmp_dir}/gtk_theme"/dynamic-nord-gtkrc > "$gtk_theme_path"/dynamic-nord/gtk-2.0/gtkrc
+cat "${gtk_templates_path_tmp_dir}/gtk_theme"/dynamic-gtkrc > "$gtk_theme_path"/dynamic/gtk-2.0/gtkrc
+cat "${gtk_templates_path_tmp_dir}/gtk_theme"/gtk-3.0.css > "$gtk_theme_path"/dynamic/gtk-3.0/gtk.css
+cat "${gtk_templates_path_tmp_dir}/gtk_theme"/gtk-3.20.css > "$gtk_theme_path"/dynamic/gtk-3.20/gtk.css
+cat "${gtk_templates_path_tmp_dir}/gtk_theme"/openbox-3 > "$gtk_theme_path"/dynamic/openbox-3/themerc
+
+find "${gtk_templates_path_tmp_dir}/gtk-icons" -type f -exec sed -i "s/{background}/${background}/g;s/{foreground}/${foreground}/g;s/{color3}/${color3}/g" {} +
+cp -r "${gtk_templates_path_tmp_dir}/gtk-icons"/* "${gtk_icon_path}"/dynamic
+
+"${__distro_path_root}"/bin/X11/WM/reload_gtk23 || show_em "failed to run reload_gtk23"

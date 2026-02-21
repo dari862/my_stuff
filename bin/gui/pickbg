@@ -39,8 +39,10 @@ if { [ -n "$KITTY_WINDOW_ID" ] || [ -n "$GHOSTTY_RESOURCES_DIR" ]; } && command 
 	}
 elif command -v ueberzugpp >/dev/null 2>&1; then
     cleanup() {
-        rm -f "$UEBERZUG_FIFO"
-        kill $(jobs -p) 2>/dev/null
+    	if [ -f "$UEBERZUG_FIFO" ];then
+        	rm -f "$UEBERZUG_FIFO"
+        fi
+        kill $(jobs -p) 2>/dev/null || true
     }
     trap cleanup EXIT
 	# Define the pipe path
@@ -72,8 +74,10 @@ elif command -v ueberzugpp >/dev/null 2>&1; then
 	}
 elif command -v ueberzug >/dev/null 2>&1; then
     cleanup() {
-        rm -f "$UEBERZUG_FIFO"
-        kill $(jobs -p) 2>/dev/null
+    	if [ -f "$UEBERZUG_FIFO" ];then
+        	rm -f "$UEBERZUG_FIFO"
+        fi
+        kill $(jobs -p) 2>/dev/null || true
     }
     trap cleanup EXIT
 	# Define the pipe path

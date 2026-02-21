@@ -1,0 +1,249 @@
+#!/bin/bash
+unalias -a
+dynamic_theme_scripts_dir="${1:-}"
+dynamic_theme_common_file_name="${2:-}"
+wallpaper="${3:-}"
+dynamic_theme_common_file_path="${dynamic_theme_scripts_dir}/${dynamic_theme_common_file_name}"
+. "${dynamic_theme_common_file_path}"
+
+palette_extractor_output_file="${temp_theme_file_dir}/temp_${style}_colors.sh"
+
+xrgba_it() {
+    hex=$1
+    hex="${hex//\#}"
+    
+    # Extract the two-digit hex values and convert to decimal
+    r="${hex:0:2}"
+    g="${hex:2:2}"
+    b="${hex:4:2}"
+    
+    echo "$r/$g/$b/ff"
+}
+
+convert_hex_to_rgb() {
+    hex=$1
+    hex="${hex//\#}"  # Remove the '#' symbol if present
+
+    # Extract the two-digit hex values
+    r="${hex:0:2}"
+    g="${hex:2:2}"
+    b="${hex:4:2}"
+
+    # Convert each hex component to decimal using printf
+    printf "%d,%d,%d\n" "$((16#$r))" "$((16#$g))" "$((16#$b))"
+}
+
+strip_it(){
+	echo "$1" | sed 's/#//g'
+}
+
+rgb0x_it(){
+	echo "$1" | sed 's/#/0x/g'
+}
+
+# Create palette if the theme file doesn't exist
+if [ ! -f "$palette_extractor_output_file" ]; then
+    if command -v python3 >/dev/null 2>&1;then
+    	python3 "${dynamic_theme_scripts_dir}"/palette_extractor.py -i "${wallpaper}" -o "$palette_extractor_output_file"
+    elif command -v python >/dev/null 2>&1;then
+    	python "${dynamic_theme_scripts_dir}"/palette_extractor.py -i "${wallpaper}" -o "$palette_extractor_output_file"
+    else
+    	"${dynamic_theme_scripts_dir}"/palette_extractor.bash "${wallpaper}" "$palette_extractor_output_file"
+    fi
+fi
+
+# Source the theme file
+if ! . "${palette_extractor_output_file}" >/dev/null 2>&1; then
+    show_em "failed to source ${palette_extractor_output_file}"
+fi
+
+[ -z "$alpha" ] && alpha="100"
+background="$color0"
+foreground="$color15"
+
+background_rgb="$(convert_hex_to_rgb $background)"
+foreground_rgb="$(convert_hex_to_rgb $foreground)"
+cursor_rgb="$(convert_hex_to_rgb $foreground)"
+color0_rgb="$(convert_hex_to_rgb $color0)"
+color1_rgb="$(convert_hex_to_rgb $color1)"
+color2_rgb="$(convert_hex_to_rgb $color2)"
+color3_rgb="$(convert_hex_to_rgb $color3)"
+color4_rgb="$(convert_hex_to_rgb $color4)"
+color5_rgb="$(convert_hex_to_rgb $color5)"
+color6_rgb="$(convert_hex_to_rgb $color6)"
+color7_rgb="$(convert_hex_to_rgb $color7)"
+color8_rgb="$(convert_hex_to_rgb $color8)"
+color9_rgb="$(convert_hex_to_rgb $color9)"
+color10_rgb="$(convert_hex_to_rgb $color10)"
+color11_rgb="$(convert_hex_to_rgb $color11)"
+color12_rgb="$(convert_hex_to_rgb $color12)"
+color13_rgb="$(convert_hex_to_rgb $color13)"
+color14_rgb="$(convert_hex_to_rgb $color14)"
+color15_rgb="$(convert_hex_to_rgb $color15)"
+
+background_strip="$(strip_it $background)"
+foreground_strip="$(strip_it $foreground)"
+cursor_strip="$(strip_it $foreground)"
+color0_strip="$(strip_it $color0)"
+color1_strip="$(strip_it $color1)"
+color2_strip="$(strip_it $color2)"
+color3_strip="$(strip_it $color3)"
+color4_strip="$(strip_it $color4)"
+color5_strip="$(strip_it $color5)"
+color6_strip="$(strip_it $color6)"
+color7_strip="$(strip_it $color7)"
+color8_strip="$(strip_it $color8)"
+color9_strip="$(strip_it $color9)"
+color10_strip="$(strip_it $color10)"
+color11_strip="$(strip_it $color11)"
+color12_strip="$(strip_it $color12)"
+color13_strip="$(strip_it $color13)"
+color14_strip="$(strip_it $color14)"
+color15_strip="$(strip_it $color15)"
+
+background_xrgba="$(xrgba_it $background)"
+foreground_xrgba="$(xrgba_it $foreground)"
+cursor_xrgba="$(xrgba_it $foreground)"
+color0_xrgba="$(xrgba_it $color0)"
+color1_xrgba="$(xrgba_it $color1)"
+color2_xrgba="$(xrgba_it $color2)"
+color3_xrgba="$(xrgba_it $color3)"
+color4_xrgba="$(xrgba_it $color4)"
+color5_xrgba="$(xrgba_it $color5)"
+color6_xrgba="$(xrgba_it $color6)"
+color7_xrgba="$(xrgba_it $color7)"
+color8_xrgba="$(xrgba_it $color8)"
+color9_xrgba="$(xrgba_it $color9)"
+color10_xrgba="$(xrgba_it $color10)"
+color11_xrgba="$(xrgba_it $color11)"
+color12_xrgba="$(xrgba_it $color12)"
+color13_xrgba="$(xrgba_it $color13)"
+color14_xrgba="$(xrgba_it $color14)"
+color15_xrgba="$(xrgba_it $color15)"
+
+background_rgb0x="$(rgb0x_it $background)"
+foreground_rgb0x="$(rgb0x_it $foreground)"
+cursor_rgb0x="$(rgb0x_it $foreground)"
+color0_rgb0x="$(rgb0x_it $color0)"
+color1_rgb0x="$(rgb0x_it $color1)"
+color2_rgb0x="$(rgb0x_it $color2)"
+color3_rgb0x="$(rgb0x_it $color3)"
+color4_rgb0x="$(rgb0x_it $color4)"
+color5_rgb0x="$(rgb0x_it $color5)"
+color6_rgb0x="$(rgb0x_it $color6)"
+color7_rgb0x="$(rgb0x_it $color7)"
+color8_rgb0x="$(rgb0x_it $color8)"
+color9_rgb0x="$(rgb0x_it $color9)"
+color10_rgb0x="$(rgb0x_it $color10)"
+color11_rgb0x="$(rgb0x_it $color11)"
+color12_rgb0x="$(rgb0x_it $color12)"
+color13_rgb0x="$(rgb0x_it $color13)"
+color14_rgb0x="$(rgb0x_it $color14)"
+color15_rgb0x="$(rgb0x_it $color15)"
+
+tee "$color_file" << EOF >/dev/null
+alpha="$alpha"
+active="$color1"
+inactive="$color2"
+
+background="$background"
+foreground="$foreground"
+
+cursor="$color7"
+color0="$color0"
+color1="$color1"
+color2="$color2"
+color3="$color3"
+color4="$color4"
+color5="$color5"
+color6="$color6"
+color7="$color7"
+color8="$color8"
+color9="$color9"
+color10="$color10"
+color11="$color11"
+color12="$color12"
+color13="$color13"
+color14="$color14"
+color15="$color15"
+
+background_rgb="$background_rgb"
+foreground_rgb="$foreground_rgb"
+cursor_rgb="$cursor_rgb"
+color0_rgb="$color0_rgb"
+color1_rgb="$color1_rgb"
+color2_rgb="$color2_rgb"
+color3_rgb="$color3_rgb"
+color4_rgb="$color4_rgb"
+color5_rgb="$color5_rgb"
+color6_rgb="$color6_rgb"
+color7_rgb="$color7_rgb"
+color8_rgb="$color8_rgb"
+color9_rgb="$color9_rgb"
+color10_rgb="$color10_rgb"
+color11_rgb="$color11_rgb"
+color12_rgb="$color12_rgb"
+color13_rgb="$color13_rgb"
+color14_rgb="$color14_rgb"
+color15_rgb="$color15_rgb"
+
+background_strip="$background_strip"
+foreground_strip="$foreground_strip"
+cursor_strip="$cursor_strip"
+color0_strip="$color0_strip"
+color1_strip="$color1_strip"
+color2_strip="$color2_strip"
+color3_strip="$color3_strip"
+color4_strip="$color4_strip"
+color5_strip="$color5_strip"
+color6_strip="$color6_strip"
+color7_strip="$color7_strip"
+color8_strip="$color8_strip"
+color9_strip="$color9_strip"
+color10_strip="$color10_strip"
+color11_strip="$color11_strip"
+color12_strip="$color12_strip"
+color13_strip="$color13_strip"
+color14_strip="$color14_strip"
+color15_strip="$color15_strip"
+
+background_xrgba="$background_xrgba"
+foreground_xrgba="$foreground_xrgba"
+cursor_xrgba="$cursor_xrgba"
+color0_xrgba="$color0_xrgba"
+color1_xrgba="$color1_xrgba"
+color2_xrgba="$color2_xrgba"
+color3_xrgba="$color3_xrgba"
+color4_xrgba="$color4_xrgba"
+color5_xrgba="$color5_xrgba"
+color6_xrgba="$color6_xrgba"
+color7_xrgba="$color7_xrgba"
+color8_xrgba="$color8_xrgba"
+color9_xrgba="$color9_xrgba"
+color10_xrgba="$color10_xrgba"
+color11_xrgba="$color11_xrgba"
+color12_xrgba="$color12_xrgba"
+color13_xrgba="$color13_xrgba"
+color14_xrgba="$color14_xrgba"
+color15_xrgba="$color15_xrgba"
+
+background_rgb0x="$background_rgb0x"
+foreground_rgb0x="$foreground_rgb0x"
+cursor_rgb0x="$cursor_rgb0x"
+color0_rgb0x="$color0_rgb0x"
+color1_rgb0x="$color1_rgb0x"
+color2_rgb0x="$color2_rgb0x"
+color3_rgb0x="$color3_rgb0x"
+color4_rgb0x="$color4_rgb0x"
+color5_rgb0x="$color5_rgb0x"
+color6_rgb0x="$color6_rgb0x"
+color7_rgb0x="$color7_rgb0x"
+color8_rgb0x="$color8_rgb0x"
+color9_rgb0x="$color9_rgb0x"
+color10_rgb0x="$color10_rgb0x"
+color11_rgb0x="$color11_rgb0x"
+color12_rgb0x="$color12_rgb0x"
+color13_rgb0x="$color13_rgb0x"
+color14_rgb0x="$color14_rgb0x"
+color15_rgb0x="$color15_rgb0x"
+EOF

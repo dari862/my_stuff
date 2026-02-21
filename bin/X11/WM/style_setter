@@ -8,10 +8,7 @@ _style="${2:-default}"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
 
-GLOBALDYNAMICBLOBPATH="${__distro_path_all_distro_themes}/dynamic_theme"
 CONFIGPATH="$HOME/.config"
-LOCAL_PATH="$HOME/.local"
-DYNAMICBLOBPATH="${LOCAL_PATH}/dynamic_theme"
 CURSESSION="$WM_config_dir/tint2_style"
 
 show_em(){
@@ -42,23 +39,8 @@ Set_Style_(){
 
 . "${Distro_config_file}"
 
-if [ ! -d "${DYNAMICBLOBPATH}" ];then
-	cp -r "${GLOBALDYNAMICBLOBPATH}" "${LOCAL_PATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
-fi
-
 if [ "${_style}" = "dynamic" ];then
-	if [ ! -d "$HOME/.themes/dynamic" ] && [ ! -d "$HOME/.themes/dynamic" ];then
-		mkdir -p "$HOME/.themes"
-		mkdir -p "$HOME/.icons"
-		ln -sf "${DYNAMICBLOBPATH}/themes"/* "$HOME/.themes" || show_em "failed to generate symplic link for contain of ${DYNAMICBLOBPATH}/themes to $HOME/.themes"
-		ln -sf "${DYNAMICBLOBPATH}/icons"/* "$HOME/.icons" || show_em "failed to generate symplic link for contain of ${DYNAMICBLOBPATH}/icons to $HOME/.icons"
-	else
-		cp -r "${GLOBALDYNAMICBLOBPATH}" "${LOCAL_PATH}" || show_em "failed to cp -r \"${GLOBALDYNAMICBLOBPATH}\" \"${LOCAL_PATH}\""
-	fi
-
-	if [ "$_panel_name_" = 'polybar' ];then
-		cp -r "${CONFIGPATH}/polybar/${_style}/colors.ini.org" "${CONFIGPATH}/polybar/${_style}/colors.ini"
-	fi
+	"${__distro_path_root}"/bin/dynamic_theme_scripts/gtk_theme_builder "_SAVED_"
 fi
 
 if [ -d "${CONFIGPATH}/geany" ];then

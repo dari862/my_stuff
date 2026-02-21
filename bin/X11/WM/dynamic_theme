@@ -1,12 +1,15 @@
 #!/bin/sh
+set -e
 # work on this : colors not 100% accurete
 . "$__distro_path_lib"
-wallpaper="${1:-}"
+. "${__distro_path_root}/lib/common/WM"
+. "${Distro_config_file}"
 
-show_em(){
-	echo "[ERROR] $0 : $1"
-	exit 1
-}
+_style="dynamic"
+dynamicGTKPATH="$HOME/.local/dynamic_theme"
+CONFIGPATH="$HOME/.config"
+
+wallpaper="${1:-}"
 
 if [ -z "${wallpaper}" ];then
 	if [ -t 1 ];then # on terminal
@@ -16,13 +19,6 @@ if [ -z "${wallpaper}" ];then
 	fi
 fi
 
-. "${__distro_path_root}/lib/common/WM"
-. "${Distro_config_file}"
-
-_style="dynamic"
-dynamicGTKPATH="$HOME/.local/dynamic_theme"
-CONFIGPATH="$HOME/.config"
-
 if [ -z "${wallpaper}" ];then
 	wallpaper="${wallpaper_are}"
 else
@@ -30,11 +26,23 @@ else
 	setbg -s "${wallpaper}"
 fi
 
-theme_color_builder_output_folder="/tmp/$USER/theme_color_builder_output"
+dynamic_theme_scripts_dir="${__distro_path_root}/bin/dynamic_theme_scripts"
+dynamic_theme_common_file_name="common.sh"
+dynamic_theme_sed_them_file_name="sed_them.sh"
+dynamic_theme_common_file_path="${dynamic_theme_scripts_dir}/${dynamic_theme_common_file_name}"
+. "${dynamic_theme_common_file_path}"
 
-"${__distro_path_root}"/bin/dynamic_theme_scripts/theme_color_builder "${_style}" "$theme_color_builder_output_folder" "${wallpaper}" || show_em "failed to run system_default_colors"
+# Remove temp theme file directory if it exists
+if [ -d "$temp_theme_file_dir" ];then
+	rm -rdf "$temp_theme_file_dir"
+fi
 
-cp -r "${theme_color_builder_output_folder}/colors-dunstrc.conf" "$CONFIGPATH/dunst/theme.dunstrc"
+mkdir -p "$temp_theme_file_dir"
+
+"${dynamic_theme_scripts_dir}"/theme_color_file_builder "${dynamic_theme_scripts_dir}" "$dynamic_theme_common_file_name" "${wallpaper}" || show_em "failed to run theme_color_file_builder"
+"${dynamic_theme_scripts_dir}"/themes_builder "${dynamic_theme_scripts_dir}" "$dynamic_theme_common_file_name" "${dynamic_theme_sed_them_file_name}" || show_em "failed to run themes_builder"
+
+cp -r "${themes_builder_output_dir}/colors-dunstrc.conf" "$CONFIGPATH/dunst/theme.dunstrc"
 [ ! -f "$HOME/.config/dunst/global" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/global" "$HOME/.config/dunst" || :
 [ ! -f "$HOME/.config/dunst/experimental" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/experimental" "$HOME/.config/dunst" || :
 [ ! -f "$HOME/.config/dunst/theme.dunstrc" ] && cp -r "${__distro_path_root}/skel_extra/.config/dunst/theme.dunstrc" "$HOME/.config/dunst" || :
@@ -42,28 +50,17 @@ cat "$CONFIGPATH"/dunst/global "$CONFIGPATH"/dunst/theme.dunstrc > "$CONFIGPATH"
 
 dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${_style}"
 
-gtk_theme_path="$HOME/.themes"
-cat "${theme_color_builder_output_folder}/gtk_theme"/dynamic-dark.css > "$gtk_theme_path"/dynamic-nord/general/dark.css
-cat "${theme_color_builder_output_folder}/gtk_theme"/dynamic-nord-gtkrc > "$gtk_theme_path"/dynamic-nord/gtk-2.0/gtkrc
-cat "${theme_color_builder_output_folder}/gtk_theme"/dynamic-gtkrc > "$gtk_theme_path"/dynamic/gtk-2.0/gtkrc
-cat "${theme_color_builder_output_folder}/gtk_theme"/gtk-3.0.css > "$gtk_theme_path"/dynamic/gtk-3.0/gtk.css
-cat "${theme_color_builder_output_folder}/gtk_theme"/gtk-3.20.css > "$gtk_theme_path"/dynamic/gtk-3.20/gtk.css
-cat "${theme_color_builder_output_folder}/gtk_theme"/openbox-3 > "$gtk_theme_path"/dynamic/openbox-3/themerc
-
-gtk_icon_path="$HOME/.icons/dynamic"
-cp -r "${theme_color_builder_output_folder}/gtk-icons"/* "${gtk_icon_path}"
-
 if [ "$_panel_name_" = 'polybar' ];then
-	cp -r "${theme_color_builder_output_folder}/colors-polybar.conf" "${CONFIGPATH}/polybar/${_style}/colors.ini"
+	cp -r "${themes_builder_output_dir}/colors-polybar.conf" "${CONFIGPATH}/polybar/${_style}/colors.ini"
 elif [ "$_panel_name_" = 'tint2' ];then
 	echo "/.config/tint2/${_style}_new.tint2rc" > "${CONFIGPATH}/tint2/tint2-sessionfile"
-	cp -r "${theme_color_builder_output_folder}/colors-tint2rc.conf" "${CONFIGPATH}/tint2/${_style}_new.tint2rc"
+	cp -r "${themes_builder_output_dir}/colors-tint2rc.conf" "${CONFIGPATH}/tint2/${_style}_new.tint2rc"
 	sed -i "s/(((__distro_path_root)))/${__distro_path_root}/g" "${CONFIGPATH}/tint2/${_style}_new.tint2rc"
 	sed -i "s|greeter_background=.*|greeter_background=\"${wallpaper}\"|g" "${CONFIGPATH}/blob/${_style}/lightdm-gtk-greeter.conf"
 fi
 
 if [ -d "${CONFIGPATH}/jgmenu" ];then
-	. "${theme_color_builder_output_folder}/colors-jgmenu.conf"
+	. "${themes_builder_output_dir}/colors-jgmenu.conf"
 	jgmenurc_file="${CONFIGPATH}/jgmenu/jgmenurc"
 	sed -i "s/font .*/font                = $font $size/g" "$jgmenurc_file"
 	sed -i "s/color_menu_bg .*/color_menu_bg       = $color_menu_bg/g" "$jgmenurc_file"
@@ -91,7 +88,7 @@ fi
 if [ -d "${CONFIGPATH}/geany" ];then
 	geany_theme_path="${CONFIGPATH}/geany"
 	echo "${_style}_new.conf" > "${geany_theme_path}/theme.conf"
-	cp -r "${theme_color_builder_output_folder}/colors-geany.conf" "$geany_theme_path/colorschemes/${_style}_new.conf"
+	cp -r "${themes_builder_output_dir}/colors-geany.conf" "$geany_theme_path/colorschemes/${_style}_new.conf"
 fi
 
 if [ -d "${CONFIGPATH}/kitty" ];then
@@ -100,33 +97,32 @@ if [ -d "${CONFIGPATH}/kitty" ];then
 	echo "background_opacity 0.8" > "${kitty_theme_path}/theme.conf"
 	echo "# color scheme" >> "${kitty_theme_path}/theme.conf"
 	echo "include ./themes/${_style}_new.conf" >> "${kitty_theme_path}/theme.conf"
-	cp -r "${theme_color_builder_output_folder}/colors-kitty.conf" "$kitty_theme_path/themes/${_style}_new.conf"
+	cp -r "${themes_builder_output_dir}/colors-kitty.conf" "$kitty_theme_path/themes/${_style}_new.conf"
 fi
 
 if [ -d "${CONFIGPATH}/alacritty" ];then
 	alacritty_theme_path="${CONFIGPATH}/alacritty"
 	mkdir -p "$alacritty_theme_path/colorschemes"
-	cp -r "${theme_color_builder_output_folder}/colors-alacritty.yml" "$alacritty_theme_path/colorschemes/${_style}_new.yml"
+	cp -r "${themes_builder_output_dir}/colors-alacritty.yml" "$alacritty_theme_path/colorschemes/${_style}_new.yml"
 	( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}_new.yml" "colors.yml" )
 fi
 
 if [ -d "${CONFIGPATH}/rofi" ];then
-	cp -r "${theme_color_builder_output_folder}/colors-rofi.rasi" "${CONFIGPATH}/rofi/theme.rasi"
+	cp -r "${themes_builder_output_dir}/colors-rofi.rasi" "${CONFIGPATH}/rofi/theme.rasi"
 fi
 
 if [ -d "${CONFIGPATH}/x11/Xresources.d" ];then
-	cp -r "${theme_color_builder_output_folder}/colors.Xresources" "${CONFIGPATH}/x11/Xresources.d/themes/${_style}_new"
+	cp -r "${themes_builder_output_dir}/colors.Xresources" "${CONFIGPATH}/x11/Xresources.d/themes/${_style}_new"
 	( cd "${CONFIGPATH}/x11/Xresources.d" && ln -sf "themes/${_style}_new" "colors" )
 fi
 
 if [ -d "${CONFIGPATH}/bspwm" ];then
-	cp -r "${theme_color_builder_output_folder}/colors-dunstrc.conf" "${CONFIGPATH}/bspwm/theme.conf"
+	cp -r "${themes_builder_output_dir}/colors-dunstrc.conf" "${CONFIGPATH}/bspwm/theme.conf"
 fi
 
 if pgrep openbox >/dev/null 2>&1;then
 	reconfigure-openbox || show_em "failed to run reconfigure-openbox "
 fi
 
-"${__distro_path_root}"/bin/X11/WM/reload_gtk23 || show_em "failed to run reload_gtk23"
-
-"${__distro_path_root}"/bin/X11/WM/panel_launcher
+"${dynamic_theme_scripts_dir}"/gtk_theme_builder "${dynamic_theme_scripts_dir}" "$dynamic_theme_common_file_name" "${dynamic_theme_sed_them_file_name}" || show_em "failed to run gtk_theme_builder"
+"${__distro_path_root}"/bin/X11/WM/panel_launcher || show_em "failed to run panel_launcher"
