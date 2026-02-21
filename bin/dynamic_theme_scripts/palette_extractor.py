@@ -295,7 +295,7 @@ def image_average_color(img):
     # Resizes to 1x1 and enumerates all pixel data (one pixel) to stdout
     # Command adapted from a stackoverflow thread, but tinkered with because the
     # thread was a decade old:
-    # # https://stackoverflow.com/questions/25488338/how-to-find-average-color-of-an-image-with-imagemagick
+    ### https://stackoverflow.com/questions/25488338/how-to-find-average-color-of-an-image-with-imagemagick
     cmd_flags = [
         "-resize",
         "1x1!",
