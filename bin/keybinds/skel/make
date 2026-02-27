@@ -17,59 +17,23 @@ skel_keybinds_dir="${__distro_path_root}/system_files/skel/.config/keybinds"
 
 cd "${current_script_path}/skel"
 
-file_to_cat="General"
+file_to_cat="General.conf"
 
-if command_exist openbox;then
-	file_to_cat="${file_to_cat} openbox"
-fi
-if command_exist sxhkd;then
-	file_to_cat="${file_to_cat} sxhkd_general"
-	if command_exist bspwm;then
-		file_to_cat="${file_to_cat} sxhkd_bspwm"
+for command in openbox alacritty kitty mpv ncmpcpp zathura nsxiv thunar clipit conky geany lxterminal rxvt viewnior;do
+	if command_exist "$command";then
+		file_to_cat="${file_to_cat} $command.conf"
 	fi
-	file_to_cat="${file_to_cat} sxhkd_z_end"
-fi
-if command_exist alacritty;then
-	file_to_cat="${file_to_cat} alacritty"
-fi
-if command_exist geany;then
-	file_to_cat="${file_to_cat} geany"
-fi
-if command_exist kitty;then
-	file_to_cat="${file_to_cat} kitty"
-fi
-if command_exist mpv;then
-	file_to_cat="${file_to_cat} mpv"
-fi
-if command_exist ncmpcpp;then
-	file_to_cat="${file_to_cat} ncmpcpp"
-fi
-if command_exist zathura;then
-	file_to_cat="${file_to_cat} zathura"
-fi
-if command_exist nsxiv;then
-	file_to_cat="${file_to_cat} nsxiv"
-fi
-if command_exist thunar;then
-	file_to_cat="${file_to_cat} thunar"
-fi
-if command_exist clipit;then
-	file_to_cat="${file_to_cat} clipit"
-fi
-if command_exist conky;then
-	file_to_cat="${file_to_cat} conky"
-fi
-if command_exist lxterminal;then
-	file_to_cat="${file_to_cat} lxterminal"
-fi
-if command_exist rxvt;then
-	file_to_cat="${file_to_cat} rxvt"
-fi
-if command_exist viewnior;then
-	file_to_cat="${file_to_cat} viewnior"
+done
+
+if command_exist sxhkd;then
+	file_to_cat="${file_to_cat} sxhkd_general.conf"
+	if command_exist bspwm;then
+		file_to_cat="${file_to_cat} sxhkd_bspwm.conf"
+	fi
+	file_to_cat="${file_to_cat} sxhkd_z_end.conf"
 fi
 
-file_to_cat="${file_to_cat} myshell"
+file_to_cat="${file_to_cat} myshell.conf"
 
 mkdir -p "${skel_keybinds_dir}"
 cat ${file_to_cat} | tee "${skel_keybinds_dir}"/keybinds.conf >/dev/null 2>&1

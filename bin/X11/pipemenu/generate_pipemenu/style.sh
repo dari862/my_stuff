@@ -12,7 +12,7 @@ if [ "$(id -u)" -ne 0 ];then
 		{
 		count=1
 		menuItem "Default" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ default"
-		menuItem "Dynamic" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ dynamic"
+		menuItem "Dynamic" "${__distro_path_root}/bin/X11/WM/dynamic_theme"
 		menuSeparator "| Simple |"
 		for style in ${styles}; do
 			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"
@@ -28,7 +28,7 @@ if [ "$(id -u)" -ne 0 ];then
 		{
 		count=1
 		menuItem "Default" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ default"
-		menuItem "Dynamic" "${__distro_path_root}/bin/X11/WM/style_changer $_panel_name_ dynamic"
+		menuItem "Dynamic" "${__distro_path_root}/bin/X11/WM/dynamic_theme"
 		menuSeparator "| Simple |"
 		for style in ${styles}; do
 			better_style_name="$(echo "$styles" | tr '[:upper:]' '[:lower:]')"

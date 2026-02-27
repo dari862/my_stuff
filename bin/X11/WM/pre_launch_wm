@@ -1,6 +1,8 @@
 #!/bin/sh
+
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 
 mc-session start
 mc-session db &
@@ -11,10 +13,18 @@ else
 	echo "$0: ERROR failed to mkdir /tmp/$USER"
 fi
 
-if [ ! -f "${WM_config_dir}/menu_picked" ];then	
-	_picked_panel_="$("${__distro_path_root}"/bin/X11/WM/panel_picker)"
-	"${__distro_path_root}"/bin/X11/WM/style_file_builder "${_picked_panel_}"
-	"${__distro_path_root}"/bin/X11/WM/style_setter "$_picked_panel_"
+if [ ! -f "${WM_config_dir}/menu_picked" ];then
+	show_em(){
+		echo "[ERROR] $0 ${sourced_file}: $1"
+		exit 1
+	}
+	_style="default"
+	_panel_name_="$("${__distro_path_root}"/bin/X11/WM/panel_picker)"
+	sourced_file="at style_file_builder"
+	. "${__distro_path_root}"/lib/Style/style_file_builder
+	sourced_file="at style_setter"
+	. "${__distro_path_root}"/lib/Style/style_setter
+	sourced_file=""
 	touch "${WM_config_dir}/menu_picked"
 fi
 

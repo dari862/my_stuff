@@ -10,44 +10,29 @@ current_script_path="${3:-}"
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
-if [ "$__package_name" = "openbox" ];then
-	file_to_cat="${file_to_cat} openbox"
-elif [ "$__package_name" = "alacritty" ];then
-	file_to_cat="${file_to_cat} alacritty"
-elif [ "$__package_name" = "geany" ];then
-	file_to_cat="${file_to_cat} geany"
-elif [ "$__package_name" = "kitty" ];then
-	file_to_cat="${file_to_cat} kitty"
-elif [ "$__package_name" = "mpv" ];then
-	file_to_cat="${file_to_cat} mpv"
-elif [ "$__package_name" = "ncmpcpp" ];then
-	file_to_cat="${file_to_cat} ncmpcpp"
-elif [ "$__package_name" = "zathura" ];then
-	file_to_cat="${file_to_cat} zathura"
-elif [ "$__package_name" = "nsxiv" ];then
-	file_to_cat="${file_to_cat} nsxiv"
-elif [ "$__package_name" = "thunar" ];then
-	file_to_cat="${file_to_cat} thunar"
-elif [ "$__package_name" = "clipit" ];then
-	file_to_cat="${file_to_cat} clipit"
-elif [ "$__package_name" = "conky" ];then
-	file_to_cat="${file_to_cat} conky"
-elif [ "$__package_name" = "lxterminal" ];then
-	file_to_cat="${file_to_cat} lxterminal"
-elif [ "$__package_name" = "rxvt-unicode" ];then
+write2file=false
+
+if [ "$__package_name" = "rxvt-unicode" ] || [ "$__package_name" = "rxvt" ];then
 	file_to_cat="${file_to_cat} rxvt"
-elif [ "$__package_name" = "viewnior" ];then
-	file_to_cat="${file_to_cat} viewnior"
+	write2file=true
+else
+	for command in openbox alacritty kitty mpv ncmpcpp zathura nsxiv thunar clipit conky geany lxterminal viewnior;do
+		if [ "$__package_name" = "$command" ];then
+			file_to_cat="${file_to_cat} $command.conf"
+			write2file=true
+			break
+		fi
+	done
 fi
 
-if [ "$__package_name" = "bspwm" ];then
+if [ "$write2file" = true ];then
+	cat ${file_to_cat} | tee -a "${__distro_path_root}"/system_files/skel/.config/keybinds/keybinds.conf >/dev/null 2>&1
+elif [ "$__package_name" = "bspwm" ];then
 	sed -i ':a;N;$!ba;s/#;\n#; end of sxhkd/seded_end_of_sxhkd/g;/seded_end_of_sxhkd/ {
   		r sxhkd_bspwm
   		r sxhkd_z_end
   		n
 		}' "${__distro_path_root}"/system_files/skel/.config/keybinds/keybinds.conf
-else
-	cat ${file_to_cat} | tee -a "${__distro_path_root}"/system_files/skel/.config/keybinds/keybinds.conf >/dev/null 2>&1
 fi
 
 for d in /home/*/; do

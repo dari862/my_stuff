@@ -567,7 +567,8 @@ build_kitty_tmp_file(){
         	echo "map $kitty_keybind		$kitty_command" >> "$temp_kittyrc_file_path"
     	fi
 	}
-	if [ -n "$kitty_keybind" ];then
+	if [ -n "$kitty_mod" ];then
+		kitty_mod=$(printf '%s' "$kitty_mod" | tr -d ' ')
 		echo "kitty_mod ${kitty_mod}" >> "$temp_kittyrc_file_path"
 	else
 		echo "kitty_mod ctrl+shift" >> "$temp_kittyrc_file_path"

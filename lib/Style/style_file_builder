@@ -1,0 +1,465 @@
+#!/bin/sh
+THEME_MODE=""
+tint2_STYLE=""
+polybar_STYLE=""
+
+CONFIGPATH="$HOME/.config"
+dunstrc_highlight=""
+
+if [ -f "$HOME/.config/blob/${_panel_name_}/${_style}/style.conf" ];then
+	. "$HOME/.config/blob/${_panel_name_}/${_style}/style.conf"
+else
+	. "${__distro_path_root}/blob/${_panel_name_}/${_style}/style.conf"
+fi
+
+if [ -z "$wallpaper_are" ];then
+	wallpaper_are="$(find "${__distro_path_wallpaper}" -name "${_style}_wall-01.*" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \))"
+fi
+
+generate_Distro_config(){
+	mkdir -p "${CONFIGPATH}"/WM_common_config
+	
+	cat <<- EOFDistro > "${CONFIGPATH}"/WM_common_config/Distro_config
+	Style_name="$Style_name"
+	_panel_name_="$_panel_name_"
+	ROFI_STYLE="$ROFI_STYLE"
+	tint2_STYLE="$tint2_STYLE"
+	polybar_STYLE="$polybar_STYLE"
+	conky_sessionfile=".config/conky/${conky_sessionfile}"
+	layout_are="${layout_are}"
+	random_wallpaper="${random_wallpaper}"
+	THEME_MODE="$THEME_MODE"
+	EOFDistro
+	
+	if [ "$_style" = "owl4ce" ];then
+		if [ ! -f "$HOME/.config/blob/tint2/owl4ce/style.conf" ];then
+			mkdir -p "$HOME/.config/blob/tint2"
+			cp -r "${__distro_path_root}/blob/tint2/owl4ce" "$HOME/.config/blob/tint2"
+		fi
+		cat <<- EOFDistroConfig >> "${CONFIGPATH}"/WM_common_config/Distro_config
+		CHK_THEME="$CHK_THEME"
+		CHK_MODE="$CHK_MODE"
+		CHK_OB_BUTTON_STYLE="$CHK_OB_BUTTON_STYLE"
+		CHK_OB_BUTTON_LOC="$CHK_OB_BUTTON_LOC"
+		CHK_PANEL_ORT="$CHK_PANEL_ORT"
+		CHK_PANEL_ORT_V="$CHK_PANEL_ORT_V"
+		CHK_PANEL_ORT_H="$CHK_PANEL_ORT_H"
+		wallpaper_are="${__distro_path_wallpaper}/${CHK_THEME}_wall-01.jpg"
+		tint2_sessionfile="/.config/tint2/\${CHK_THEME}/\${CHK_PANEL_ORT}.\${CHK_MODE}.tint2rc"
+		EOFDistroConfig
+	else
+		cat <<- EOFDistroConfig >> "${CONFIGPATH}"/WM_common_config/Distro_config
+		tint2_sessionfile="/.config/tint2/${tint2_sessionfile}"
+		wallpaper_are="$wallpaper_are"
+		EOFDistroConfig
+	fi
+}
+
+generate_dunstrc(){
+	cat <<- EOFdunst > "${CONFIGPATH}"/dunst/theme.dunstrc
+	# Align icons left/right/off
+	icon_position = ${dunstrc_icon_position}
+	
+	# Paths to default icons.
+	icon_theme = "${gtk_icon_name}"
+	
+	# Defines color of the frame around the notification window.
+	frame_color = "${dunstrc_frame_color}"
+	
+	# Define a color for the separator.
+	# possible values are:
+	#  * auto: dunst tries to find a color fitting to the background;
+	#  * foreground: use the same color as the foreground;
+	#  * frame: use the same color as the frame;
+	#  * anything else will be interpreted as a X color.
+	separator_color = ${dunstrc_separator_color}
+	
+	# The transparency of the window.  Range: [0; 100].
+	# This option will only work if a compositing window manager is
+	# present (e.g. xcompmgr, compiz, etc.).
+	transparency = ${dunstrc_transparency}
+	
+	# Position the notification in the top right corner
+	origin = ${dunstrc_origin}
+	
+	# Offset from the origin
+	offset = ${dunstrc_offset}
+	
+	# Defines width in pixels of frame around the notification window.
+	# Set to 0 to disable.
+	frame_width = ${dunstrc_frame_width}
+	
+	### Text ###
+	
+	font = ${gtk_font_name}
+	
+	# The format of the message.  Possible variables are:
+	#   %a  appname
+	#   %s  summary
+	#   %b  body
+	#   %i  iconname (including its path)
+	#   %I  iconname (without its path)
+	#   %p  progress value if set ([  0%] to [100%]) or nothing
+	#   %n  progress value if set without any extra characters
+	#   %%  Literal %
+	format = "${dunstrc_format}"
+	EOFdunst
+	
+	if [ -n "$highlight" ];then
+		echo "highlight = \"${dunstrc_highlight}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
+	
+	cat <<- EOFdunst >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	# IMPORTANT: colors have to be defined in quotation marks.
+	# Otherwise the "#" and following would be interpreted as a comment.
+	[urgency_low]
+	timeout = ${dunstrc_low_timeout}
+	background = "${dunstrc_low_background}"
+	foreground = "${dunstrc_low_foreground}"
+	EOFdunst
+
+	if [ -n "$dunstrc_low_frame_color" ];then
+		echo "frame_color = \"${dunstrc_low_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
+	
+	cat <<- EOFdunst >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	[urgency_normal]
+	timeout = ${dunstrc_normal_timeout}
+	background = "${dunstrc_normal_background}"
+	foreground = "${dunstrc_normal_foreground}"
+	EOFdunst
+	
+	if [ -n "$dunstrc_normal_frame_color" ];then
+		echo "frame_color = \"${dunstrc_normal_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
+	
+	cat <<- EOFdunst >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	[urgency_critical]
+	timeout = ${dunstrc_critical_timeout}
+	background = "${dunstrc_critical_background}"
+	foreground = "${dunstrc_critical_foreground}"
+	EOFdunst
+	
+	if [ -n "$dunstrc_critical_frame_color" ];then
+		echo "frame_color = \"${dunstrc_critical_frame_color}\"" >> "${CONFIGPATH}"/dunst/theme.dunstrc
+	fi
+
+}
+
+generate_gtk(){
+	cat <<- EOFgtk2 > "${CONFIGPATH}"/gtk-2.0/gtkrc-2.0
+	gtk-theme-name="$gtk_theme_name"
+	gtk-icon-theme-name="$gtk_icon_name"
+	gtk-font-name="$gtk_font_name"
+	gtk-cursor-theme-name="$gtk_cursor_name"
+	gtk-cursor-theme-size=0
+	gtk-toolbar-style=GTK_TOOLBAR_ICONS
+	gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+	gtk-button-images=0
+	gtk-menu-images=1
+	gtk-enable-event-sounds=0
+	gtk-enable-input-feedback-sounds=0
+	gtk-xft-antialias=1
+	gtk-xft-hinting=1
+	gtk-xft-hintstyle="hintslight"
+	gtk-xft-rgba="rgb"
+	EOFgtk2
+	
+	cat <<- EOFgtk3 > "${CONFIGPATH}"/gtk-3.0/settings.ini
+	[Settings]
+	gtk-application-prefer-dark-theme=false
+	gtk-enable-animations=true
+	gtk-theme-name=$gtk_theme_name
+	gtk-icon-theme-name=$gtk_icon_name
+	gtk-cursor-theme-name=$gtk_cursor_name
+	gtk-font-name=$gtk_font_name
+	gtk-cursor-theme-size=0
+	gtk-toolbar-style=GTK_TOOLBAR_ICONS
+	gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
+	gtk-button-images=0
+	gtk-menu-images=1
+	gtk-enable-event-sounds=0
+	gtk-enable-input-feedback-sounds=0
+	gtk-xft-antialias=1
+	gtk-xft-hinting=1
+	gtk-xft-hintstyle=hintslight
+	gtk-xft-rgba=rgb
+	EOFgtk3
+}
+
+generate_plank(){
+	cat <<- EOFplankconf > "$HOME"/.cache/plank.conf
+	[dock1]
+	alignment='center'
+	auto-pinning=true
+	current-workspace-only=false
+	dock-items=['settings_manager.dockitem', 'my-terminal-emulator.dockitem', 'my-file-manager.dockitem', 'my-www-browser.dockitem', 'my-text-editor.dockitem']
+	hide-delay=0
+	hide-mode="$plank_hide_mode"
+	icon-size=32
+	items-alignment='center'
+	lock-items=false
+	monitor=''
+	offset=$plank_offset
+	pinned-only=false
+	position=$plank_position
+	pressure-reveal=false
+	show-dock-item=false
+	theme='Transparent'
+	tooltips-enabled=true
+	unhide-delay=0
+	zoom-enabled=true
+	zoom-percent=120
+	EOFplankconf
+
+	cat <<- EOFplank > "${CONFIGPATH}"/plank/plank_
+	$plank_use_plank
+	EOFplank
+}
+
+generate_lightdm(){
+	cat <<- EOFlightdm > "${CONFIGPATH}"/WM_common_config/lightdm.conf
+	greeter_background="$wallpaper_are"
+	greeter_theme_name="${gtk_theme_name}"
+	greeter_icon_theme_name="${greeter_icon_theme_name}"
+	greeter_font_name="${gtk_font_name}"
+	greeter_position="${greeter_position}"
+	EOFlightdm
+}
+
+generate_rofi(){
+	rofi_image_path="${__distro_path_root}/blob/${_panel_name_}/${_style}/rofi.jpg"
+cat << EOFrofifonts > "${CONFIGPATH}"/rofi/fonts.rasi
+// Rofi Font for $ROFI_STYLE
+
+* {
+  font:			  "${rofi_font}";
+  text-font:      "${rofi_text_font}";
+  icon-font:      "${rofi_icon_font}";
+}
+EOFrofifonts
+
+{
+        cat << EOF
+/** Rofi Theme for $ROFI_STYLE **/
+* {
+    background:     ${rofi_background};
+    background-alt: ${rofi_background_alt};
+    foreground:     ${rofi_foreground};
+    selected:       ${rofi_selected};
+    urgent:         ${rofi_urgent};
+    active:         ${rofi_active};
+EOF
+
+        case "$ROFI_STYLE" in
+            "modi")
+                cat << EOF
+    accent1:          ${rofi_accent1};
+    accent2:          ${rofi_accent2};
+    background-light: ${rofi_background_light};
+    background-focus: ${rofi_background_focus};
+    foreground-list:  ${rofi_foreground};
+    on:               ${rofi_on};
+    off:              ${rofi_off};
+    icon-theme:       "${rofi_icon_theme}";
+    button-gradient:  linear-gradient(90, ${rofi_accent1}, ${rofi_accent2});
+EOF
+                ;;
+            "backgrounds")
+                cat << EOF
+    bg-alt:           ${rofi_bg_alt};
+EOF
+                ;;
+            "exo")
+                cat << EOF
+    highlight:        ${rofi_highlight};
+    on:               ${rofi_on};
+    off:              ${rofi_off};
+EOF
+                ;;
+        esac
+        
+        if [ -f "${rofi_image_path}" ];then
+                cat << EOF
+    img-background:   url("${rofi_image_path}", width);
+EOF
+		fi
+		
+        echo "}"
+    } > "${CONFIGPATH}/rofi/theme.rasi"
+}
+
+generate_jgmenu(){
+	jgmenu_theme_file="${CONFIGPATH}/jgmenu/jgmenu_theme"
+	cat <<- EOFjgmenu > "${jgmenu_theme_file}"
+	font="${jgmenu_font} "
+	size="${jgmenu_size}"
+	color_menu_bg="${jgmenu_color_menu_bg}"
+	color_menu_border="${jgmenu_color_menu_border}"
+	color_norm_bg="${jgmenu_color_norm_bg}"
+	color_norm_fg="${jgmenu_color_norm_fg}"
+	color_sel_bg="${jgmenu_color_sel_bg}"
+	color_sel_fg="${jgmenu_color_sel_fg}"
+	color_sel_border="${jgmenu_color_sel_border}"
+	color_title_bg="${jgmenu_color_title_bg}"
+	color_title_fg="${jgmenu_color_title_fg}"
+	color_title_border="${jgmenu_color_title_border}"
+	color_sep_fg="${jgmenu_color_sep_fg}"
+	item_margin_x="${jgmenu_item_margin_x}"
+	item_margin_y="${jgmenu_item_margin_y}"
+	stay_alive="${jgmenu_stay_alive}"
+	menu_padding_right="${jgmenu_menu_padding_right}"
+	menu_padding_bottom="${jgmenu_menu_padding_bottom}"
+	menu_padding_left="${jgmenu_menu_padding_left}"
+	menu_radius="${jgmenu_menu_radius}"
+	sep_halign="${jgmenu_sep_halign}"
+	icon_size="${jgmenu_icon_size}"
+	icon_theme="${jgmenu_icon_theme}"
+	menu_border="${jgmenu_border}"
+	EOFjgmenu
+}
+
+generate_geany(){
+	geany_theme_path="${CONFIGPATH}/geany"
+	echo "${_style}.conf" > "${geany_theme_path}/theme.conf"
+}
+
+generate_kitty(){
+	kitty_theme_path="${CONFIGPATH}/kitty"
+	
+	if [ -n "${THEME_MODE}" ];then
+		THEME_MODE="_${THEME_MODE}"
+	fi
+	
+	echo "background_opacity 0.8" > "${kitty_theme_path}/theme.conf"
+	echo "# color scheme" >> "${kitty_theme_path}/theme.conf"
+	echo "include ./themes/${_style}${THEME_MODE}.conf" >> "${kitty_theme_path}/theme.conf"
+}
+
+generate_alacritty(){
+	alacritty_theme_path="${CONFIGPATH}/alacritty"
+	( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
+cat << EOFalacritty > "${alacritty_theme_path}"/theme.dunstrc
+# Font configuration
+font:
+  # Normal (roman) font face
+  normal:
+    family: "${alacritty_family}"
+    #style: Regular
+
+  # Bold font face
+  bold:
+    family: "${alacritty_family}"
+    #style: Bold
+
+  # Italic font face
+  italic:
+    family: "${alacritty_family}"
+    #style: Italic
+
+  # Bold italic font face
+  bold_italic:
+    family: "${alacritty_family}"
+    #style: Bold Italic
+
+  # Point size
+  size: ${alacritty_size}
+
+  # Offset
+  #offset:
+  #  x: 0
+  #  y: 0
+
+  # Glyph offset
+  #glyph_offset:
+  #  x: 0
+  #  y: 0
+EOFalacritty
+}
+
+generate_Xresources(){
+	( cd "${CONFIGPATH}/x11/Xresources.d" && ln -sf "themes/${_style}" "colors" )
+}
+
+generate_bspwm(){
+	cat <<- EOFbspwm > "${CONFIGPATH}"/bspwm/theme.conf
+	## Bspwm colors
+	BSPWM_FBC="${BSPWM_FBC}"
+	BSPWM_NBC="${BSPWM_NBC}"
+	BSPWM_ABC="${BSPWM_ABC}"
+	BSPWM_PFC="${BSPWM_PFC}"
+	BSPWM_PBC="${BSPWM_PBC}"
+	
+	## Bspwm appearance
+	BSPWM_BORDER="${BSPWM_BORDER}"
+	BSPWM_GAP="${BSPWM_GAP}"
+	BSPWM_SRATIO="${BSPWM_SRATIO}"
+	
+	## Bspwm Extra
+	BSP_BORDERLESS_MONOCLE=${BSP_BORDERLESS_MONOCLE}
+	BSP_GAPLESS_MONOCLE=${BSP_GAPLESS_MONOCLE}
+	BSP_PADDINGLESS_MONOCLE=${BSP_PADDINGLESS_MONOCLE}
+	BSP_SINGLE_MONOCLE=${BSP_SINGLE_MONOCLE}
+	BSP_FOCUS_FOLLOWS_POINTER=${BSP_FOCUS_FOLLOWS_POINTER}
+	BSP_PRESEL_FEEDBACK=${BSP_PRESEL_FEEDBACK}
+	EOFbspwm
+}
+
+generate_openbox(){
+	cat <<- EOFopenbox > "${CONFIGPATH}"/openbox/openboxrctheme
+	bottom=${openbox_bottom}
+	top=${openbox_top}
+	right=${openbox_right}
+	left=${openbox_left}
+	font="${openbox_font}"
+	size=${openbox_size}
+	theme=${openbox_theme}
+	titleLayout=${openbox_titleLayout}
+	gtk_icon_name="${openbox_gtk_icon_name}"
+	EOFopenbox
+	( cd "${CONFIGPATH}/openbox" && ln -sf "Menu/${openbox_menu}.xml" "menu.xml")
+}
+
+generate_Distro_config || show_em "failed to run generate_Distro_config"
+generate_lightdm || show_em "failed to run generate_lightdm"
+generate_gtk || show_em "failed to run generate_gtk"
+
+if [ -d "${CONFIGPATH}/dunst" ];then
+	generate_dunstrc || show_em "failed to run generate_dunstrc"
+fi
+
+if [ -d "${CONFIGPATH}/plank" ];then
+	generate_plank || show_em "failed to run generate_plank"
+fi
+
+if [ -d "${CONFIGPATH}/jgmenu" ];then
+	generate_jgmenu || show_em "failed to run generate_jgmenu"
+fi
+
+if [ -d "${CONFIGPATH}/geany" ];then
+	generate_geany || show_em "failed to run generate_geany"
+fi
+
+if [ -d "${CONFIGPATH}/kitty" ];then
+	generate_kitty || show_em "failed to run generate_kitty"
+fi
+
+if [ -d "${CONFIGPATH}/alacritty" ];then
+	generate_alacritty || show_em "failed to run generate_alacritty"
+fi
+
+if [ -d "${CONFIGPATH}/rofi" ];then
+	generate_rofi || show_em "failed to run generate_rofi"
+fi
+
+if [ -d "${CONFIGPATH}/x11/Xresources.d" ];then
+	generate_Xresources || show_em "failed to run generate_Xresources"
+fi
+
+if [ -d "${CONFIGPATH}/bspwm" ];then
+	generate_bspwm || show_em "failed to run generate_bspwm"
+fi
+
+if [ -d "${CONFIGPATH}/openbox" ];then
+	generate_openbox || show_em "failed to run generate_openbox"
+fi

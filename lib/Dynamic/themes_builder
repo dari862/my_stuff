@@ -1,0 +1,727 @@
+#!/bin/sh
+create_polybar_file(){
+	tee "$HOME/.config/polybar/${_style}/colors.ini" << EOF >/dev/null
+;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+
+[color]
+
+;; main colors
+background = #${background}
+foreground = #${foreground}
+RED = #${color3}
+fontcolor = #${foreground}
+
+;; shades
+shade1 = #${color1}
+shade2 = #${color2}
+shade3 = #${color4}
+shade4 = #${color5}
+shade5 = #${color6}
+shade6 = #${color7}
+shade7 = #${color8}
+shade8 = #${color9}
+
+;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+EOF
+}
+
+create_tint2_file(){
+	tee "$HOME/.config/tint2/${_style}.tint2rc" << EOF >/dev/null
+## Configuration for tint2 panel.
+#-------------------------------------
+# Gradients
+#-------------------------------------
+# Backgrounds
+# Background 1: Panel, Tooltip
+rounded = 0
+border_width = 0
+border_sides = TBLR
+border_content_tint_weight = 0
+background_content_tint_weight = 0
+background_color = #${background} 100
+border_color = #${foreground} 0
+background_color_hover = #${background} 0
+border_color_hover = #${foreground} 0
+background_color_pressed = #${background} 0
+border_color_pressed = #${foreground} 0
+
+# Background 2: Battery, Button, Default task, Executor, Inactive desktop name, Normal task, Systray
+rounded = 10
+border_width = 0
+border_sides = TBLR
+border_content_tint_weight = 0
+background_content_tint_weight = 0
+background_color = #${background} 100
+border_color = #${foreground} 0
+background_color_hover = #${background} 100
+border_color_hover = #${foreground} 0
+background_color_pressed = #${background} 100
+border_color_pressed = #${foreground} 0
+
+# Background 3: Active desktop name, Active task
+rounded = 10
+border_width = 0
+border_sides = TBLR
+border_content_tint_weight = 0
+background_content_tint_weight = 0
+background_color = #${background} 100
+border_color = #${foreground} 0
+background_color_hover = #${background} 100
+border_color_hover = #${foreground} 0
+background_color_pressed = #${background} 100
+border_color_pressed = #${foreground} 0
+
+# Background 4: Iconified task
+rounded = 10
+border_width = 0
+border_sides = TBLR
+border_content_tint_weight = 0
+background_content_tint_weight = 0
+background_color = #${background} 100
+border_color = #${foreground} 0
+background_color_hover = #${background} 100
+border_color_hover = #${foreground} 0
+background_color_pressed = #${background} 100
+border_color_pressed = #${foreground} 0
+
+# Background 5: Urgent task
+rounded = 10
+border_width = 0
+border_sides = TBLR
+border_content_tint_weight = 0
+background_content_tint_weight = 0
+background_color = #${background} 100
+border_color = #${foreground} 0
+background_color_hover = #${background} 100
+border_color_hover = #${foreground} 0
+background_color_pressed = #${background} 100
+border_color_pressed = #${foreground} 0
+
+#-------------------------------------
+# Panel
+panel_items = PTSEEEEEC
+panel_size = 100% 38
+panel_margin = 0 0
+panel_padding = 6 6 6
+panel_background_id = 1
+wm_menu = 1
+panel_dock = 0
+panel_pivot_struts = 0
+panel_position = top center horizontal
+panel_layer = top
+panel_monitor = all
+panel_shrink = 0
+autohide = 0
+autohide_show_timeout = 0
+autohide_hide_timeout = 0.5
+autohide_height = 2
+strut_policy = follow_size
+panel_window_name = tint2
+disable_transparency = 1
+mouse_effects = 1
+font_shadow = 0
+mouse_hover_icon_asb = 100 0 10
+mouse_pressed_icon_asb = 100 0 0
+scale_relative_to_dpi = 0
+scale_relative_to_screen_height = 0
+
+#-------------------------------------
+# Taskbar
+taskbar_mode = single_desktop
+taskbar_hide_if_empty = 1
+taskbar_padding = 0 0 6
+taskbar_background_id = 0
+taskbar_active_background_id = 0
+taskbar_name = 1
+taskbar_hide_inactive_tasks = 0
+taskbar_hide_different_monitor = 0
+taskbar_hide_different_desktop = 0
+taskbar_always_show_all_desktop_tasks = 0
+taskbar_name_padding = 10 0
+taskbar_name_background_id = 2
+taskbar_name_active_background_id = 3
+taskbar_name_font = JetBrainsMono Nerd Font 10
+taskbar_name_font_color = #${foreground} 100
+taskbar_name_active_font_color = #${foreground} 100
+taskbar_distribute_size = 1
+taskbar_sort_order = none
+task_align = left
+
+#-------------------------------------
+# Task
+task_text = 1
+task_icon = 1
+task_centered = 0
+urgent_nb_of_blink = 100000
+task_maximum_size = 180 30
+task_padding = 10 5 5
+task_font = JetBrainsMono Nerd Font 9
+task_tooltip = 1
+task_thumbnail = 1
+task_thumbnail_size = 256
+task_font_color = #${foreground} 100
+task_normal_font_color = #${foreground} 100
+task_active_font_color = #${foreground} 100
+task_urgent_font_color = #${foreground} 100
+task_iconified_font_color = #${background} 100
+task_background_id = 2
+task_normal_background_id = 2
+task_active_background_id = 3
+task_urgent_background_id = 5
+task_iconified_background_id = 4
+mouse_left = toggle_iconify
+mouse_middle = shade
+mouse_right = close
+mouse_scroll_up = toggle
+mouse_scroll_down = iconify
+
+#-------------------------------------
+# System tray (notification area)
+systray_padding = 10 0 8
+systray_background_id = 2
+systray_sort = right2left
+systray_icon_size = 16
+systray_icon_asb = 100 0 0
+systray_monitor = primary
+systray_name_filter = 
+
+#-------------------------------------
+# Launcher
+launcher_padding = 10 0 5
+launcher_background_id = 2
+launcher_icon_background_id = 0
+launcher_icon_size = 20
+launcher_icon_asb = 100 0 0
+launcher_icon_theme_override = 0
+startup_notifications = 1
+launcher_tooltip = 1
+launcher_item_app = /usr/share/applications/my-terminal-emulator.desktop
+launcher_item_app = /usr/share/applications/my-www-browser.desktop
+launcher_item_app = /usr/share/applications/my-file-manager.desktop
+launcher_item_app = /usr/share/applications/my-text-editor.desktop
+
+#-------------------------------------
+# Clock
+time1_format = %I:%M %p
+time2_format = 
+time1_font = JetBrainsMono Nerd Font Bold 12
+time1_timezone = 
+time2_timezone = 
+clock_font_color = #${foreground} 100
+clock_padding = 0 0
+clock_background_id = 0
+clock_tooltip = %A, %d %B %Y
+clock_tooltip_timezone = 
+clock_lclick_command = 
+clock_rclick_command = 
+clock_mclick_command = 
+clock_uwheel_command = 
+clock_dwheel_command = 
+
+#-------------------------------------
+# Battery
+battery_tooltip = 1
+battery_low_status = 20
+battery_low_cmd = dunstify -u low -h string:x-dunst-stack-tag:tint2 'Battery Low!'
+battery_full_cmd = dunstify -u low -h string:x-dunst-stack-tag:tint2 'Battery Charged!'
+bat1_font = JetBrainsMono Nerd Font 10
+battery_font_color = #${foreground} 100
+bat1_format = %p
+bat2_format = 
+battery_padding = 10 0
+battery_background_id = 2
+battery_hide = 100
+battery_lclick_command = power_manager_settings
+battery_rclick_command = ${__distro_path_root}/bin/not_add_2_path/batt_notifcation -n
+battery_mclick_command = 
+battery_uwheel_command = 
+battery_dwheel_command = 
+ac_connected_cmd = dunstify -u low -h string:x-dunst-stack-tag:tint2 'Charger Plugged!'
+ac_disconnected_cmd = dunstify -u low -h string:x-dunst-stack-tag:tint2 'Charger Unplugged!'
+
+#-------------------------------------
+# Executor 1
+execp = new
+execp_command = ${__distro_path_root}/system_files/volume_cli_control
+execp_interval = 0
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Volume
+execp_lclick_command = ${__distro_path_root}/system_files/volume_cli_control --toggle
+execp_rclick_command = ${__distro_path_root}/system_files/volume_cli_control --toggle-mic
+execp_mclick_command = volume_controller
+execp_uwheel_command = ${__distro_path_root}/system_files/volume_cli_control --inc
+execp_dwheel_command = ${__distro_path_root}/system_files/volume_cli_control --dec
+execp_font = JetBrainsMono Nerd Font 10
+execp_font_color = #${foreground} 100
+execp_padding = 10 0
+execp_background_id = 2
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 2
+execp = new
+execp_command = ${__distro_path_root}/bin/X11/WM/disto_brightness_controller
+execp_interval = 0
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Brightness
+execp_lclick_command = 
+execp_rclick_command = 
+execp_mclick_command = 
+execp_uwheel_command = ${__distro_path_root}/bin/X11/WM/disto_brightness_controller --inc
+execp_dwheel_command = ${__distro_path_root}/bin/X11/WM/disto_brightness_controller --dec
+execp_font = JetBrainsMono Nerd Font 10
+execp_font_color = #${foreground} 100
+execp_padding = 10 0
+execp_background_id = 2
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 3
+execp = new
+execp_command = ${__distro_path_root}/bin/not_add_2_path/bluetooth.sh
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Bluetooth
+execp_lclick_command = rofi-bluetooth
+execp_rclick_command = ${__distro_path_root}/bin/not_add_2_path/bluetooth_manager
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = JetBrainsMono Nerd Font 10
+execp_font_color = #${foreground} 100
+execp_padding = 10 0
+execp_background_id = 2
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 4
+execp = new
+execp_command = get_network
+execp_interval = 1
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Networks
+execp_lclick_command = rofi-network-manager
+execp_rclick_command = nm-connection-editor
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = JetBrainsMono Nerd Font 10
+execp_font_color = #${foreground} 100
+execp_padding = 10 0
+execp_background_id = 2
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Executor 5
+execp = new
+execp_command = get_battery
+execp_interval = 10
+execp_has_icon = 0
+execp_cache_icon = 0
+execp_continuous = 0
+execp_markup = 1
+execp_monitor = all
+execp_tooltip = Battery
+execp_lclick_command = power_manager_settings
+execp_rclick_command = power_manager_settings
+execp_mclick_command = 
+execp_uwheel_command = 
+execp_dwheel_command = 
+execp_font = JetBrainsMono Nerd Font 10
+execp_font_color = #${foreground} 100
+execp_padding = 10 0
+execp_background_id = 2
+execp_centered = 0
+execp_icon_w = 0
+execp_icon_h = 0
+
+#-------------------------------------
+# Button 1
+button = new
+button_icon = ${__distro_path_root}/Distro_Specific/icons/user.svg
+button_text = 
+button_tooltip = Application Launcher
+button_lclick_command = rofi-launcher
+button_rclick_command = rofi-runner
+button_mclick_command = 
+button_uwheel_command = 
+button_dwheel_command = 
+button_font = JetBrainsMono Nerd Font 10
+button_font_color = #${foreground} 100
+button_padding = 5 0
+button_background_id = 2
+button_centered = 0
+button_max_icon_size = 24
+
+#-------------------------------------
+# Tooltip
+tooltip_show_timeout = 0.5
+tooltip_hide_timeout = 0.1
+tooltip_padding = 10 10
+tooltip_background_id = 1
+tooltip_font_color = #${foreground} 100
+tooltip_font = JetBrainsMono Nerd Font 10
+EOF
+}
+
+create_geany_file(){
+	tee "$HOME/.config/geany/colorschemes/${_style}.conf" << EOF >/dev/null
+[theme_info]
+name=${_style}
+description=${_style} theme from ${wallpaper_are}
+compat=1.22;1.23;1.23.1;1.24
+
+[named_colors]
+color0=#${color0}
+color1=#${color1}
+color2=#${color2}
+color3=#${color3}
+color4=#${color4}
+color5=#${color5}
+color6=#${color6}
+color7=#${color7}
+color8=#${color8}
+color9=#${color9}
+color10=#${color10}
+color11=#${color11}
+color12=#${color12}
+color13=#${color13}
+color14=#${color14}
+color15=#${color15}
+
+[named_styles]
+#### General styling
+default=color6;color0;false;false
+error=color11;;false;false
+margin_line_number=color3;color0;false;false
+margin_folding=color2;color0;false;false
+fold_symbol_highlight=color0
+
+selection=0x0;color2;false;true
+current_line=0x0;color1;true;false
+caret=color4;0x0;false;false
+indicator_error=color11
+
+brace_good=color6;color10;true;false
+brace_bad=color6;color11;true;false
+indent_guide=color3;0x0;false;false
+white_space=color3;color0;true;true
+
+marker_line=color1;color1;false;false
+marker_search=0x0;color10;false;false
+marker_mark=color1;color1;false;false
+marker_translucency=1;1;false;false
+
+folding_style=1;1
+folding_horiz_line=0;0;false;false
+
+### Programing languages
+# General Syntax highlight
+comment=color3
+comment_doc=comment,bold
+comment_line=comment
+comment_line_doc=comment
+comment_doc_keyword=color10
+comment_doc_keyword_error=color11;;true;true
+
+number=color15
+number_1=number
+number_2=number
+
+type=color7
+class=type
+function=color8
+parameter=function
+
+keyword=color9
+keyword_1=keyword
+keyword_2=keyword
+keyword_3=keyword
+keyword_4=keyword
+
+identifier=default
+identifier_1=identifier
+identifier_2=identifier
+identifier_3=identifier
+identifier_4=identifier
+
+string=color14
+string_1=string
+string_2=string
+string_3=default
+string_4=default
+string_eol=string,italic
+character=string
+backticks=string
+here_doc=string
+
+scalar=string_2
+label=color8,bold
+preprocessor=color10
+regex=color13
+operator=default
+decorator=color12
+other=default
+
+# Markup-type languages
+tag=color9
+tag_unknown=tag
+tag_end=tag
+attribute=color7
+attribute_unknown=attribute
+value=color12
+entity=default
+strong=entity,bold
+emphasis=entity,italic
+ulist_item=tag
+olist_item=tag
+blockquote=attribute
+strikeout=tag_unknown
+hrule=tag_unknown
+link=color13
+code=blockquote
+codebk=blockquote
+
+# CSS Language specific
+id=color15
+pseudoclass=color14
+pseudoelement=color14
+unknown_pseudoclass=color11
+unknown_identifier=default
+doublestring=string
+singlestring=string
+variable=color12
+important=color11
+directive=color10
+extended_identifier=color13
+extended_pseudoclass=extended_identifier
+extended_pseudoelement=extended_identifier
+media=color15
+
+# Diff
+line_added=color14
+line_removed=color11
+line_changed=color13
+EOF
+}
+
+create_kitty_file(){
+	tee "$HOME/.config/kitty/themes/${_style}.conf" << EOF >/dev/null
+# ============================
+# ========== Colors ==========
+# ============================
+
+foreground            #${foreground}
+background            #${background}
+cursor                #${cursor}
+
+selection_foreground  #${background}
+selection_background  #${foreground}
+
+active_border_color   #${color7}
+inactive_border_color #${color8}
+bell_border_color     #${color8}
+
+color0  #${color0}
+color1  #${color1}
+color2  #${color2}
+color3  #${color3}
+color4  #${color4}
+color5  #${color5}
+color6  #${color6}
+color7  #${color7}
+color8  #${color8}
+color9  #${color9}
+color10 #${color10}
+color11 #${color11}
+color12 #${color12}
+color13 #${color13}
+color14 #${color14}
+color15 #${color15}
+
+active_tab_foreground   #${color2}
+active_tab_background   #${background}
+active_tab_font_style   normal
+
+inactive_tab_foreground #${foreground}
+inactive_tab_background #${background}
+
+# vim:ft=conf	
+EOF
+}
+
+create_alacritty_file(){
+	tee "$HOME/.config/alacritty/colorschemes/${_style}.yml" << EOF >/dev/null
+colors:
+  # Default colors
+  primary:
+    background: "0x${background}"
+    foreground: "0x${foreground}"
+
+    dim_foreground:    "0x${color8}"
+    bright_foreground: "0x${color12}"
+    dim_background:    "0x${color8}"
+    bright_background: "0x${background}"
+
+  # Cursor colors
+  # cursor:
+    # text:   "0x${foreground}"
+    # cursor: "0x${background}"
+
+  # Normal colors
+  normal:
+    black:   "0x${color0}"
+    red:     "0x${color1}"
+    green:   "0x${color2}"
+    yellow:  "0x${color3}"
+    blue:    "0x${color4}"
+    magenta: "0x${color5}"
+    cyan:    "0x${color6}"
+    white:   "0x${color7}"
+
+  # Bright colors
+  bright:
+    black:   "0x${color8}"
+    red:     "0x${color9}"
+    green:   "0x${color10}"
+    yellow:  "0x${color11}"
+    blue:    "0x${color12}"
+    magenta: "0x${color13}"
+    cyan:    "0x${color14}"
+    white:   "0x${color15}"
+
+  # Dim colors
+  dim:
+    black:   "0x${color0}"
+    red:     "0x${color1}"
+    green:   "0x${color2}"
+    yellow:  "0x${color3}"
+    blue:    "0x${color4}"
+    magenta: "0x${color5}"
+    cyan:    "0x${color6}"
+    white:   "0x${color7}"
+EOF
+}
+
+create_Xresources_file(){
+	tee "$HOME/.config/x11/Xresources.d/themes/${_style}" << EOF >/dev/null
+! X colors.
+! Generated by 'wal'
+*foreground:        #${foreground}
+*background:        #${background}
+*.foreground:       #${foreground}
+*.background:       #${background}
+emacs*foreground:   #${foreground}
+emacs*background:   #${background}
+URxvt*foreground:   #${foreground}
+XTerm*foreground:   #${foreground}
+UXTerm*foreground:  #${foreground}
+URxvt*background:   [#${alpha}]#${background}
+XTerm*background:   #${background}
+UXTerm*background:  #${background}
+URxvt*cursorColor:  #${cursor}
+XTerm*cursorColor:  #${cursor}
+UXTerm*cursorColor: #${cursor}
+URxvt*borderColor:  [#${alpha}]#${background}
+
+! Colors 0-15.
+*.color0: #${color0}
+*color0:  #${color0}
+*.color1: #${color1}
+*color1:  #${color1}
+*.color2: #${color2}
+*color2:  #${color2}
+*.color3: #${color3}
+*color3:  #${color3}
+*.color4: #${color4}
+*color4:  #${color4}
+*.color5: #${color5}
+*color5:  #${color5}
+*.color6: #${color6}
+*color6:  #${color6}
+*.color7: #${color7}
+*color7:  #${color7}
+*.color8: #${color8}
+*color8:  #${color8}
+*.color9: #${color9}
+*color9:  #${color9}
+*.color10: #${color10}
+*color10:  #${color10}
+*.color11: #${color11}
+*color11:  #${color11}
+*.color12: #${color12}
+*color12:  #${color12}
+*.color13: #${color13}
+*color13:  #${color13}
+*.color14: #${color14}
+*color14:  #${color14}
+*.color15: #${color15}
+*color15:  #${color15}
+
+! Black color that will not be affected by bold highlighting.
+*.color66: #${color0}
+*color66:  #${color0}
+
+! Xclock colors.
+XClock*foreground: #${foreground}
+XClock*background: #${background}
+XClock*majorColor:  rgba:${color15_xrgba}
+XClock*minorColor:  rgba:${color15_xrgba}
+XClock*hourColor:   rgba:${color15_xrgba}
+XClock*minuteColor: rgba:${color15_xrgba}
+XClock*secondColor: rgba:${color15_xrgba}
+
+! Set depth to make transparency work.
+URxvt*depth: 32
+EOF
+}
+
+if [ "$_panel_name_" = 'polybar' ];then
+	create_polybar_file
+elif [ "$_panel_name_" = 'tint2' ];then
+	create_tint2_file
+fi
+
+if [ -d "$HOME/.config/geany" ];then
+	create_geany_file
+fi
+
+if [ -d "$HOME/.config/kitty" ];then
+	create_kitty_file
+fi
+
+if [ -d "$HOME/.config/alacritty" ];then
+	create_alacritty_file
+fi
+
+if [ -d "$HOME/.config/x11/Xresources.d" ];then
+	create_Xresources_file
+fi
+
+if pgrep openbox >/dev/null 2>&1;then
+	reconfigure-openbox || show_em "failed to run reconfigure-openbox "
+fi

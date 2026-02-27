@@ -1,0 +1,250 @@
+#!/bin/sh
+palette_extractor_output_file="${temp_theme_file_dir}/temp_${style}_colors.sh"
+
+xrgba_it() {
+    hex=$1
+    # Extract the two-digit hex values and convert to decimal
+	r=$(echo "$hex" | cut -c 1-2)
+    g=$(echo "$hex" | cut -c 3-4)
+    b=$(echo "$hex" | cut -c 5-6)
+    
+    echo "$r/$g/$b/ff"
+}
+
+strip_it(){
+	echo "$1" | sed 's/#//g'
+}
+
+# Create palette if the theme file doesn't exist
+if [ ! -f "$palette_extractor_output_file" ]; then
+    if command -v python3 >/dev/null 2>&1;then
+    	python3 "${dynamic_theme_scripts_dir}"/palette_extractor.py -i "${wallpaper_are}" -o "$palette_extractor_output_file"
+    elif command -v python >/dev/null 2>&1;then
+    	python "${dynamic_theme_scripts_dir}"/palette_extractor.py -i "${wallpaper_are}" -o "$palette_extractor_output_file"
+    else
+    	"${dynamic_theme_scripts_dir}"/palette_extractor.bash "${wallpaper_are}" "$palette_extractor_output_file"
+    fi
+fi
+
+# Source the theme file
+if ! . "${palette_extractor_output_file}" >/dev/null 2>&1; then
+    show_em "failed to source ${palette_extractor_output_file}"
+fi
+
+[ -z "$alpha" ] && alpha="100"
+background="$color0"
+foreground="$color15"
+
+background="$(strip_it $background)"
+foreground="$(strip_it $foreground)"
+cursor="$(strip_it $foreground)"
+color0="$(strip_it $color0)"
+color1="$(strip_it $color1)"
+color2="$(strip_it $color2)"
+color3="$(strip_it $color3)"
+color4="$(strip_it $color4)"
+color5="$(strip_it $color5)"
+color6="$(strip_it $color6)"
+color7="$(strip_it $color7)"
+color8="$(strip_it $color8)"
+color9="$(strip_it $color9)"
+color10="$(strip_it $color10)"
+color11="$(strip_it $color11)"
+color12="$(strip_it $color12)"
+color13="$(strip_it $color13)"
+color14="$(strip_it $color14)"
+color15="$(strip_it $color15)"
+
+background_xrgba="$(xrgba_it $background)"
+foreground_xrgba="$(xrgba_it $foreground)"
+cursor_xrgba="$(xrgba_it $foreground)"
+color0_xrgba="$(xrgba_it $color0)"
+color1_xrgba="$(xrgba_it $color1)"
+color2_xrgba="$(xrgba_it $color2)"
+color3_xrgba="$(xrgba_it $color3)"
+color4_xrgba="$(xrgba_it $color4)"
+color5_xrgba="$(xrgba_it $color5)"
+color6_xrgba="$(xrgba_it $color6)"
+color7_xrgba="$(xrgba_it $color7)"
+color8_xrgba="$(xrgba_it $color8)"
+color9_xrgba="$(xrgba_it $color9)"
+color10_xrgba="$(xrgba_it $color10)"
+color11_xrgba="$(xrgba_it $color11)"
+color12_xrgba="$(xrgba_it $color12)"
+color13_xrgba="$(xrgba_it $color13)"
+color14_xrgba="$(xrgba_it $color14)"
+color15_xrgba="$(xrgba_it $color15)"
+
+panel_style_name=""
+
+if [ "$_panel_name_" = 'polybar' ];then
+	panel_style_name="polybar_STYLE"
+elif [ "$_panel_name_" = 'tint2' ];then
+	panel_style_name="tint2_STYLE"
+fi
+
+tee "$HOME/.config/blob/${_panel_name_}/${_style}/style.conf" << EOF >/dev/null
+Style_name="dynamic"
+
+# Distro_config
+##############
+_panel_name_="$_panel_name_"
+${panel_style_name}="dynamic"
+ROFI_STYLE="cyber"
+conky_sessionfile="openbox-conky.conf"
+tint2_sessionfile="dynamic.tint2rc"
+layout_are="zoom"
+
+# wallpaper_mode
+##############
+wallpaper_are="${wallpaper_are}"
+random_wallpaper=false
+
+# dunstrc
+##############
+dunstrc_icon_position=left
+dunstrc_frame_color="#${foreground}"
+dunstrc_separator_color=auto
+dunstrc_transparency=0
+dunstrc_origin=top-right
+dunstrc_offset="(10, 46)"
+dunstrc_frame_width=6
+dunstrc_format="<b>%a</b>\n%s\n%b"
+dunstrc_low_timeout=2
+dunstrc_low_background="#${background}"
+dunstrc_low_foreground="#${foreground}"
+dunstrc_low_frame_color="#${foreground}"
+dunstrc_normal_timeout=5
+dunstrc_normal_background="#${background}"
+dunstrc_normal_foreground="#${foreground}"
+dunstrc_normal_frame_color="#${color3}"
+dunstrc_critical_timeout=0
+dunstrc_critical_background="#${background}"
+dunstrc_critical_foreground="#${foreground}"
+dunstrc_critical_frame_color="#${color1}"
+
+# gtkrc_theme
+##############
+gtk_theme_name="dynamic"
+gtk_icon_name="dynamic"
+gtk_font_name="Noto Sans 9"
+gtk_cursor_name="Qogirr-dark"
+
+# openbox
+##############
+openbox_menu=menu-icons
+openbox_bottom=10
+openbox_top=0
+openbox_right=10
+openbox_left=10
+openbox_font=JetBrainsMono
+openbox_size=9
+openbox_theme=dynamic
+openbox_titleLayout=MLC
+openbox_gtk_icon_name="dynamic"
+
+# rofi
+##############
+rofi_background="#${background}FF"
+rofi_active="#${color1}FF"
+rofi_background_alt="#${background}FF"
+rofi_foreground="#${foreground}FF"
+rofi_selected="#${color2}FF"
+rofi_urgent="#${color3}FF"
+rofi_font="Iosevka 10"
+rofi_text_font='@font'
+rofi_icon_font="Material 14"
+
+# bspwm
+##############
+## Bspwm colors
+BSPWM_FBC="#${color3}"
+BSPWM_NBC="#${background}"
+BSPWM_ABC="#${foreground}"
+BSPWM_PFC="#${background}"
+BSPWM_PBC="#${background}"
+
+## Bspwm appearance
+BSPWM_BORDER="1"
+BSPWM_GAP="10"
+BSPWM_SRATIO="0.50"
+
+## Bspwm Extra
+BSP_BORDERLESS_MONOCLE=true
+BSP_GAPLESS_MONOCLE=true
+BSP_PADDINGLESS_MONOCLE=true
+BSP_SINGLE_MONOCLE=false
+BSP_FOCUS_FOLLOWS_POINTER=true
+BSP_PRESEL_FEEDBACK=true
+
+# alacritty
+##############
+alacritty_family="JetBrainsMonoNerdFont"
+alacritty_size=10
+
+# jgmenu
+##############
+jgmenu_font="JetBrainsMono"
+jgmenu_size="9"
+jgmenu_color_menu_bg="#${color8} 100"
+jgmenu_color_menu_border="#${background} 100"
+jgmenu_color_norm_bg="#${background} 00"
+jgmenu_color_norm_fg="#${foreground} 100"
+jgmenu_color_sel_bg="#${color5} 100"
+jgmenu_color_sel_fg="#${color15} 100"
+jgmenu_color_sel_border="#${color5} 100"
+jgmenu_color_title_bg="#${color6} 100"
+jgmenu_color_title_fg="#${color15} 100"
+jgmenu_color_title_border="#${color6} 100"
+jgmenu_color_sep_fg="#${background} 100"
+jgmenu_item_margin_x="1"
+jgmenu_item_margin_y="1"
+jgmenu_stay_alive="1"
+jgmenu_menu_padding_right="0"
+jgmenu_menu_padding_bottom="0"
+jgmenu_menu_padding_left="0"
+jgmenu_menu_radius="1"
+jgmenu_sep_halign="right"
+jgmenu_icon_size="0"
+jgmenu_icon_theme="Material-Solarized-Suru++"
+jgmenu_menu_border="0"
+
+# lightdm-greeter
+##############
+greeter_icon_theme_name='Bunsen-lightdm'
+greeter_position='57%,start 22%,start'
+
+# plank
+##############
+plank_use_plank="yes"
+plank_hide_mode='auto'
+plank_offset=0
+plank_position=bottom
+
+# GTK Colors
+##############
+alpha="$alpha"
+active="$active"
+inactive="$inactive"
+
+background="$background"
+foreground="$foreground"
+
+cursor="$cursor"
+color0="$color0"
+color1="$color1"
+color2="$color2"
+color3="$color3"
+color4="$color4"
+color5="$color5"
+color6="$color6"
+color7="$color7"
+color8="$color8"
+color9="$color9"
+color10="$color10"
+color11="$color11"
+color12="$color12"
+color13="$color13"
+color14="$color14"
+color15="$color15"
+EOF

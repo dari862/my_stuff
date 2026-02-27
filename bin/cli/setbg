@@ -56,8 +56,12 @@ save_and_restore(){
 }
 
 save_wall(){
-	. "${Distro_config_file}"
 	sed -i "s|wallpaper_are=.*|wallpaper_are=\"$op2__\"|" "${Distro_config_file}"
+	
+	style_conf_path="$HOME/.config/blob/${_panel_name_}/${_style}/style.conf"
+	if [ -f "$style_conf_path" ] && grep -q "wallpaper_are=" "$style_conf_path" ;then
+		sed -i "s|wallpaper_are=.*|wallpaper_are=\"$op2__\"|" "${style_conf_path}"
+	fi
 }
 
 main()

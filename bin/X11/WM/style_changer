@@ -2,24 +2,33 @@
 set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
+. "${__distro_path_root}/lib/common/openbox"
 
 _panel_name_="${1:-}"
-style="${2:-}"
+_style="${2:-}"
 no_notify="${3:-false}"
 
-"${__distro_path_root}"/bin/X11/WM/style_file_builder "${_panel_name_}" "${style}"
-"${__distro_path_root}"/bin/X11/WM/style_setter "${_panel_name_}" "${style}"
+show_em(){
+	echo "[ERROR] $0 ${sourced_file}: $1"
+	exit 1
+}
+
+sourced_file="at style_file_builder"
+. "${__distro_path_root}"/lib/Style/style_file_builder
+sourced_file="at style_setter"
+. "${__distro_path_root}"/lib/Style/style_setter
+sourced_file=""
 
 . "${Distro_config_file}"
 
 if [ "$random_wallpaper" = true ];then
-	setbg --random "${style}" || show_em "failed to run setbg -d ${style}"
+	setbg --random "${_style}" || show_em "failed to run setbg -d ${_style}"
 else
-	setbg -r "${style}" || show_em "failed to run setbg -r"
+	setbg -r || show_em "failed to run setbg -r"
 fi
 
 "${__distro_path_root}"/bin/X11/WM/panel_launcher
 
 if [ "$no_notify" = false ];then
-	dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${style}"
+	dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${_style}"
 fi

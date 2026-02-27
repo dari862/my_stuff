@@ -4,6 +4,11 @@ unalias -a
 . "$__distro_path_lib"
 wallpaper_dir="${__distro_path_wallpaper}"
 
+save_wall_only="${1:-false}"
+if [ "$save_wall_only" = "save" ];then
+	save_wall_only=true
+fi
+
 # Get terminal size for preview dimensions
 get_preview_dim() {
 	# Use FZF env vars if available; fallback to `stty size`
@@ -137,5 +142,9 @@ FZF_CTRL_R_OPTS=""
 
 picked_wallpaper="$(find "${wallpaper_dir}" -type f | fzf --preview='preview_command {}')"
 if [ -n "$picked_wallpaper" ];then
-	setbg -T "${picked_wallpaper}"
+	if [ "$save_wall_only" = false ];then
+		setbg -T "${picked_wallpaper}"
+	elif [ "$save_wall_only" = true ];then
+		setbg -s "${picked_wallpaper}"
+	fi
 fi
