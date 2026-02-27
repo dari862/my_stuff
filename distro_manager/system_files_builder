@@ -100,6 +100,13 @@ ln_sf_files_depth1(){
 	find "$1" -maxdepth 1 -type f -exec ln -sf {} "$2" \;
 }
 
+if_exist_remove(){
+	__to_remove_="$1"
+	if [ -e "$__to_remove_" ];then
+		rm -rdf "$__to_remove_"
+	fi
+}
+
 ##################################################################################
 
 show_im "update Databases ex: locate"
@@ -165,9 +172,9 @@ EOF
 show_im "creating missing dir"
 mkdir -p "${__distro_path_root}"/bin/my_installer/distrobox_center/Apps
 mkdir -p "${__distro_path_root}"/bin/my_installer/distrobox_center/Gaming
-if [ -d "${__distro_path_system_files}" ];then
-	rm -rdf "${__distro_path_system_files}"
-fi
+
+if_exist_remove "${__distro_path_system_files}"
+
 mkdir -p "${__distro_path_system_files}"
 
 show_im "Generate uniq system files"
@@ -411,9 +418,7 @@ if command_exist picom;then
 		cp -r "${__distro_path_root}/skel_extra/.config/phy-picom.conf" "${__distro_path_system_skel_files}/.config/picom.conf"
 	fi
 	cp -r "${__distro_path_root}/bin/X11/session_managers/picom-session" "${__distro_path_system_files}"/binX11
-	if [ -f /etc/xdg/autostart/picom.desktop ];then
-		rm -f /etc/xdg/autostart/picom.desktop
-	fi
+	if_exist_remove "/etc/xdg/autostart/picom.desktop"
 fi
 
 if [ "$machine_type_are" = "vm" ];then
@@ -448,11 +453,6 @@ fi
 if [ -d "${__distro_path_root}/bin/gui" ];then
 	show_im "gui bin files to system_files/bin ."
 	ln_sf_files_depth1 "${__distro_path_root}/bin/gui" "${__distro_path_system_files}"/bin
-	if ! command_exist systemctl;then
-		rm -f "${__distro_path_system_files}"/binX11/yautostart
-		rm -f "${__distro_path_system_files}"/bin/errcheck
-		rm -f "${__distro_path_system_files}"/bin/bootman
-	fi
 fi
 
 if [ -d "${__distro_path_root}/bin/session_managers" ];then
@@ -493,6 +493,15 @@ elif command_exist python3;then
 	ln -sf "${__distro_path_root}"/bin/not_add_2_path/oops/oops.python3 "${__distro_path_system_files}"/bin/theoops
 fi
 
+show_im "bin/X11/gui files to system_files/binX11 ."
+ln_sf_files_depth1 "${__distro_path_root}/bin/X11/gui" "${__distro_path_system_files}"/binX11
+		
+if ! command_exist systemctl;then
+	if_exist_remove "${__distro_path_system_files}/binX11/yautostart"
+	if_exist_remove "${__distro_path_system_files}/bin/errcheck"
+	if_exist_remove "${__distro_path_system_files}/bin/bootman"
+fi
+	
 if command_exist arandr;then
 	generate_applicationsdotdesktop_link "arandr"
 fi
