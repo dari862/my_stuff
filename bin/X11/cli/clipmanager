@@ -7,7 +7,7 @@ debug_mode="${1:-}"
 . "${script_config_path}/clipmanager/config.ini"
 
 pid_file_dir="${clip_path}/process_ids"
-__script_name="$(basename "${0}")"
+__script_name="${0##*/}"
 current_pid="$$"
 out_file="${clip_path}/xclip.out"
 

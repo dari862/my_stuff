@@ -334,7 +334,6 @@ sed_distro_path_root_var_2_correct_value(){
 
 copy_from_extra_skel() {
     __copythis="${1:-}"
-    __basename=$(basename "$__copythis")
     __dirname=$(dirname "$__copythis")
     __copythere=""
 
@@ -347,7 +346,7 @@ copy_from_extra_skel() {
 	sed_distro_path_root_var_2_correct_value
 	
     for d in /home/*/; do
-        [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue
+        [ "$(dirname "$d")" = "/home" ] && ! id "${d##*/}" >/dev/null 2>&1 && continue
         user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
         my-superuser cp -r "${__distro_path_system_skel_files}/${__copythis}" "$d/${__copythis}"
         my-superuser chown -R "$user_and_group" "$d"
@@ -417,7 +416,7 @@ ln_sf_files_depth1(){
 generate_never_remove_bin(){
 	bin_to_lnsf="${1:-}"
 	new_name_for_bin="${2:-}"
-	bin_name="$(basename "$bin_to_lnsf")"
+	bin_name="${bin_to_lnsf##*/}"
 	my-superuser cp -r "${bin_to_lnsf}" "${__distro_path_neverremove}/bin"
 	if [ -z "$new_name_for_bin" ];then
 		my-superuser ln -sf "${__distro_path_neverremove}/bin/${bin_name}" "${__distro_path_root}/system_files/bin"

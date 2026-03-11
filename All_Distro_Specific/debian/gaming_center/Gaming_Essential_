@@ -45,7 +45,7 @@ my-superuser service resolvconf restart || continue
 my-superuser mkdir -p "${__distro_path_root}/system_files/skel/Desktop" || continue     
 my-superuser ln -s ${_GAMING_EXTRA_LIBDIR}/Steam_fix ${__distro_path_root}/system_files/skel/Desktop || continue     
 for d in /home/*/ ; do
-   	[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes
+   	[ "$(dirname "$d")" = "/home" ] && ! id "${d##*/}" >/dev/null 2>&1 && continue # Skip dirs that no are homes
 	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
 	# Create config folders if no exists
 	d="$d/Desktop/";  [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"

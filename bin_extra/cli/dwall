@@ -71,7 +71,7 @@ usage() {
 		Dwall V2.0   : Set wallpapers according to current time.
 		Developed By : Aditya Shakya (@adi1090x)
 			
-		Usage : `basename $0` [-h] [-p] [-s style]
+		Usage : ${0##*/} [-h] [-p] [-s style]
 
 		Options:
 		  -s                             Name of the style to apply (required)
@@ -89,12 +89,12 @@ usage() {
 
     cat <<- EOF
 		Examples:
-		`basename $0` -s beach                   	Set 'beach' style wallpaper
-		`basename $0` -s beach -o ~/.wallpaper   	Save 'beach' style wallpaper into file '~/.wallpaper'
-		`basename $0` -s sahara               		Set 'beach' style wallpaper
-		`basename $0` -s sahara     	 		 	Set 'sahara' style wallpaper, with 'colorz' backend
-		`basename $0` -s sahara -a  			 	Set 'sahara' style wallpaper, with 'colorz' backend with automatic light/dark mode
-		`basename $0` -s sahara -l    			 	Set 'sahara' style wallpaper, with 'colorz' backend with forced light mode															 
+		${0##*/} -s beach                   	Set 'beach' style wallpaper
+		${0##*/} -s beach -o ~/.wallpaper   	Save 'beach' style wallpaper into file '~/.wallpaper'
+		${0##*/} -s sahara               		Set 'beach' style wallpaper
+		${0##*/} -s sahara     	 		 	Set 'sahara' style wallpaper, with 'colorz' backend
+		${0##*/} -s sahara -a  			 	Set 'sahara' style wallpaper, with 'colorz' backend with automatic light/dark mode
+		${0##*/} -s sahara -l    			 	Set 'sahara' style wallpaper, with 'colorz' backend with forced light mode															 
 	EOF
 }
 
@@ -433,7 +433,7 @@ while getopts ":dolachiugys:pb:c:z:" opt; do
 			generate_crontab_=true
 			;;
 		\?)
-			echo -e ${RED}"[!] Unknown option, run ${GREEN}`basename $0` -h"
+			echo -e ${RED}"[!] Unknown option, run ${GREEN}${0##*/} -h"
 			exit_1
 			;;
 		:)

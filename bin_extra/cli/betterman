@@ -32,7 +32,7 @@ build_betterman_dir(){
 	done
 	
 	for d in "$navi_cheats_dir"/*; do
-		dir_basename="$(basename "$d")"
+		dir_basename="${d##*/}"
 		if [ ! -L "$betterman_dir/navi_cheats/$dir_basename" ] && [ -d "$d" ];then
 			cp -r "$d" "$betterman_dir/navi_cheats/$dir_basename"
 		fi
@@ -91,7 +91,7 @@ install_betterman(){
 }
 
 help() {
-	script_name="$(basename "$0")"
+	script_name="${0##*/}"
 	cat <<-EOF
 	Usage: $script_name [option] <command>
 	
@@ -168,13 +168,15 @@ create_fzf_cache_file_(){
     	fi
 	done
 	
+	file_basename=""
 	find "$navi_temp_menu_dir" -type f |
 	while IFS= read -r file; do
-    	file_basename="$(basename "$file" | cut -d '.' -f 1)"
+    	file_basename="${file##*/}"
+    	file_name="${file_basename%%.*}"
     	file_dirname="$(dirname "$file")"
-    	var_file_name="${file_basename}.var"
+    	var_file_name="${file_name}.var"
     	var_file_path="${file_dirname}/${var_file_name}"
-    	cmd_file_name="${file_basename}.commands"
+    	cmd_file_name="${file_name}.commands"
     	cmd_file_path="${file_dirname}/${cmd_file_name}"
     	sed -i '/^%/ s/,.*//' "${file}"
     	sed -i "/^##.*/d" "${file}"
@@ -249,11 +251,13 @@ create_fzf_cache_file_(){
 	: > "${temp_fzf_command_file_path}"
 	
 	# Ensure the directory variable exists
+	file_basename=""
 	find "$navi_temp_command_dir" -type f -name "*.var" |
 	while IFS= read -r file; do
-    	basename_file_name=$(basename "${file}" | cut -d '.' -f 1)
+    	file_basename="${file##*/}"
+    	file_name="${file_basename%%.*}"
     	dirname_file_name=$(dirname "${file}")
-    	temp_file="${dirname_file_name}/${basename_file_name}.tmp"
+    	temp_file="${dirname_file_name}/${file_name}.tmp"
     	
     	# Reset/Create temp file
     	: > "$temp_file"
@@ -299,13 +303,15 @@ create_fzf_cache_file_(){
 	
 	find "${navi_temp_command_dir}" -type f -name "*.var" -exec rm {} \;
 	
+	file_basename=""
 	find "$navi_temp_command_dir" -type f -name "*.tmp" |
 	while IFS= read -r file; do
-    	basename_file_name="$(basename "${file}" | cut -d '.' -f 1)"
+    	file_basename="${file##*/}"
+    	file_name="${file_basename%%.*}"
     	dirname_file_name="$(dirname "${file}")"
-    	COMMANDS_FILE="${dirname_file_name}/${basename_file_name}.commands"
-    	TMP_FILE="${dirname_file_name}/${basename_file_name}.tmp"
-    	OUTPUT_FILE="${dirname_file_name}/${basename_file_name}.out"
+    	COMMANDS_FILE="${dirname_file_name}/${file_name}.commands"
+    	TMP_FILE="${dirname_file_name}/${file_name}.tmp"
+    	OUTPUT_FILE="${dirname_file_name}/${file_name}.out"
     	
     	: > "$OUTPUT_FILE"
     	

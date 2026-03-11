@@ -20,7 +20,7 @@ downlaod_wall(){
 	convert_wall=false
 	wall_url="${1:-}"
 	moveto="${2:-}"
-	wall_fullname="$(basename "$wall_url")"
+	wall_fullname="${wall_url##*/}"
 	wall_name="${wall_fullname%.*}"
 	wall_ext="${wall_fullname##*.}"
 	if [ "$wall_ext" != "png" ];then

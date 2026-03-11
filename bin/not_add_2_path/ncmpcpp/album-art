@@ -38,7 +38,7 @@ main() {
 # ==== Main functions =========================================================
 
 kill_previous_instances() {
-    script_name=$(basename "$0")
+    script_name="${0##*/}"
     for pid in $(pidof -x "$script_name"); do
         if [ "$pid" != $$ ];then
             kill -15 "$pid"
@@ -166,7 +166,7 @@ guess_terminal_pixelsize() {
     rm "/tmp/$USER/ncmpcpp_geometry.txt"
 
     if ! is_font_size_successfully_computed;then
-        echo "Failed to guess font size, try setting it in `basename $0` settings"
+        echo "Failed to guess font size, try setting it in ${0##*/} settings"
     fi
 }
 

@@ -65,7 +65,7 @@ done
 copy_skel_ || copy_skel_ || copy_skel_
 
 if the_copyed_skel_are_correpted;then
-	echo "[ERROR] $(basename "$0") : failed: to copy ${__distro_path_root}/system_files/skel"
+	echo "[ERROR] ${0##*/} : failed: to copy ${__distro_path_root}/system_files/skel"
 	exit 1
 fi
 

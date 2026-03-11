@@ -153,7 +153,7 @@ __set_wallpaper(){
 
 ___generate_wallpaper(){
 	__distro_path_wallpaper="$HOME/wallpaper"
-	RAW="$(basename "$wallpaper_are")"
+	RAW="${wallpaper_are##*/}"
 
 	if [ -f "${__distro_path_wallpaper}/${RAW}" ];then
 		send_notification '' "Nothing to generate!\n<span size='small'>Puts in <u>~/${__distro_path_wallpaper##*/}</u></span>" "wallpaper-set" "wallpaper.png"

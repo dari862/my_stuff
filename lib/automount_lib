@@ -31,7 +31,7 @@ get_uuid() {
 	if my-superuser blkid "$1" | grep -q "PTUUID=";then
     	my-superuser blkid "$1" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p'
 	else
-		ls -l /dev/disk/by-uuid/ | grep $(basename "$1") | awk '{print $9}'
+		ls -l /dev/disk/by-uuid/ | grep "${1##*/}" | awk '{print $9}'
 	fi
 }
 
