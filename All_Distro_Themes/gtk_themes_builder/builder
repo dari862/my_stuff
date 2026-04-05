@@ -9,6 +9,8 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 current_path="$(dirname "$0")"
+source_base_path="${current_path}/source_base"
+baseGTK_path="${current_path}/baseGTK"
 
 __distro_path_lib="${1:-$__distro_path_lib}"
 if [ -z "$__distro_path_lib" ];then
@@ -18,9 +20,14 @@ else
 	gtktheme_path="${current_path}/generated_gtk_theme"
 fi
 
-list_of_base_GTK_theme="$(find "${current_path}/source_base" -type f || :)"
+list_of_base_GTK_theme="$(find "${source_base_path}" -type f || :)"
 mkdir -p "${gtktheme_path}"
 for t in ${list_of_base_GTK_theme};do
 	. "$t"
-	mkdir -p "${gtktheme_path}/${base_name}"
+	theme_path="${gtktheme_path}/${base_name}"
+	if [ -d "$theme_path" ]
+		rm -rdf "$theme_path"
+	fi
+	mkdir -p "$theme_path"
+	. "$baseGTK_path/$THEME_STYLE"
 done
