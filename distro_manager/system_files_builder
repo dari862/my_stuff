@@ -612,9 +612,6 @@ if command_exist bspwm;then
 	generate_applicationsdotdesktop_4_xsessions "bspwm" "bspwm"
 fi
 
-show_im "Configer Global get_weather."
-"${__distro_path_root}"/system_files/bin/get_weather --global "$__timezone"
-
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
@@ -716,5 +713,8 @@ if [ "$fzf_version_major" -eq 0 ];then
 		sed -i 's/--style minimal //g' "${__distro_path_system_skel_files}/.config/myshell/profile.sh" 
 	fi
 fi
+
+show_im "Configer Global get_weather."
+"${__distro_path_root}"/system_files/bin/get_weather --global "$__timezone"
 
 show_im "system_files_builder Done."
