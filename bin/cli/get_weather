@@ -10,27 +10,36 @@ __opt2="${2-}"
 show_Extra=false
 __weather_lib_path="${__distro_path_root}/bin/not_add_2_path/weather"
 
+check_var_value(){
+	var_name="${1:-}"
+	var_value="${2:-}"
+	if [ -z "$var_value" ];then
+		failed_to_run "get_weather at fix_weather_script_config_var : failed to set var ${var_name}"
+	fi
+}
+
 fix_weather_script_config_var(){
 	say "set place var in $weather_script_config_path" 'green'
 	# Geolocate IP:
    	passed_place="${__opt2}"
    	if [ -z "$passed_place" ];then
    		passed_place=$(get_geolocation)
-   		if [ -z "$passed_place" ];then
-   			failed_to_run "get_weather fix_weather_script_config_var second arg are empty"
-   		fi
+   		check_var_value "passed_place" "${passed_place}"
    	fi
    	chosen="$(grep "$passed_place" "${__weather_lib_path}/country_list")"
-	
+	check_var_value "chosen" "${chosen}"
+
 	# Set continent code and radar code.
 	continentcode=$(printf "%s" "$chosen" | cut -d':' -f1 | tr "[:lower:]" "[:upper:]")
+	check_var_value "continentcode" "${continentcode}"
 	radarcode=$(printf "%s" "$chosen" | cut -d' ' -f2 | cut -d':' -f1 | tr '[:lower:]' '[:upper:]')
+	check_var_value "radarcode" "${radarcode}"
 	place=$(printf "%s" "$chosen" | cut -d':' -f3 | cut -f1 -d',' | sed 's/^ //')
 	place="${place:-$radarcode}" # Default place to radarcode if not set
-
-	sed -i "s|continentcode=.*|continentcode=\"$continentcode\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed at continentcode"
-	sed -i "s|radarcode=.*|radarcode=\"$radarcode\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed at radarcode"
-	sed -i "s|place=.*|place=\"$place\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed at place"
+	
+	sed -i "s|continentcode=.*|continentcode=\"$continentcode\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed to set var continentcode"
+	sed -i "s|radarcode=.*|radarcode=\"$radarcode\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed to set var radarcode"
+	sed -i "s|place=.*|place=\"$place\"|" "${weather_script_config_path}" || failed_to_run "get_weather fix_weather_script_config_var failed to set var place"
 }
 
 get_moon_phase() { 

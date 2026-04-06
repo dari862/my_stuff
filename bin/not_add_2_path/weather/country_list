@@ -191,6 +191,8 @@ EU: BC: Botswana
 EU: SE: Republic of Seychelles
 EU: HU: Hungary
 EU: UK: Ukraine
+AS: SA: Saudi Arabia
+AS: SA: Kuwait
 AF: AF: Africa
 AF: WA: West Africa
 AF: ZA: South Africa
@@ -202,13 +204,10 @@ AF: CG: Democratic Republic of Congo
 AF: EG: Egypt
 AF: ET: Ethiopia
 AF: CM: Cameroon
-AF: IS: Israel
 AF: LY: Libya
 AF: MG: Madagascar
 AF: MO: Morocco
 AF: BW: Namibia
-AF: SA: Saudi Arabia
-AF: SA: Kuwait
 AF: SO: Somalia
 AF: SD: Sudan
 AF: TZ: Tanzania

@@ -715,6 +715,7 @@ if [ "$fzf_version_major" -eq 0 ];then
 fi
 
 show_im "Configer Global get_weather."
-"${__distro_path_root}"/system_files/bin/get_weather --global "$__timezone"
+country_name="$(printf "$__timezone" | awk -F'/' '{print $2}')"
+"${__distro_path_root}"/system_files/bin/get_weather --global "$country_name"
 
 show_im "system_files_builder Done."
