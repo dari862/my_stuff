@@ -1,16 +1,14 @@
 #!/bin/sh
 # need superuser : called by my-superuser
 set -e
-
-if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__distro_path_lib"
-    exit
-fi
-
-current_path="$(dirname "$0")"
+current_path="$(dirname "$(realpath "$0")")"
 
 __distro_path_lib="${1:-$__distro_path_lib}"
-if [ -z "$__distro_path_lib" ];then
+if [ -n "$__distro_path_lib" ];then
+	if [ "$(id -u)" -ne 0 ]; then
+    	my-superuser $0 "$__distro_path_lib"
+    	exit
+	fi
 	. "$__distro_path_lib"
 	openboxtheme_path="${__distro_path_themes}/openbox_themes"
 else
