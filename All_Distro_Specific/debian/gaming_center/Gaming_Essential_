@@ -43,15 +43,9 @@ Package_installer_ libgl1-mesa-dri:amd64 libgl1-mesa-dri:i386  libgl1-mesa-glx:a
 my-superuser service dnsmasq restart || continue     
 my-superuser service resolvconf restart || continue     
 my-superuser mkdir -p "${__distro_path_root}/system_files/skel/Desktop" || continue     
-my-superuser ln -s ${_GAMING_EXTRA_LIBDIR}/Steam_fix ${__distro_path_root}/system_files/skel/Desktop || continue     
-for d in /home/*/ ; do
-   	[ "$(dirname "$d")" = "/home" ] && ! id "${d##*/}" >/dev/null 2>&1 && continue # Skip dirs that no are homes
-	user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-	# Create config folders if no exists
-	d="$d/Desktop/";  [ ! -d "$d" ] && my-superuser mkdir -v "$d" && my-superuser chown -R $user_and_group "$d"
-	
-	my-superuser ln -sf "${_GAMING_EXTRA_LIBDIR}/Steam_fix" "$d" && my-superuser chown $user_and_group "$d"/Steam_fix
-done
+my-superuser ln -s "${_GAMING_EXTRA_LIBDIR}"/Steam_fix "${__distro_path_root}"/system_files/skel/Desktop || continue     
+
+copy_from_extra_skel_2_all_homes "${_GAMING_EXTRA_LIBDIR}/Steam_fix" "Desktop"
 
 install_as_dependency pacstall || continue
 pacstall_install protonplus || continue

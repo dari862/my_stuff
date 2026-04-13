@@ -4,6 +4,7 @@ __distro_path_lib="${1:-$__distro_path_lib}"
 current_script_path="${2:-}"
 
 . "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/common"
 
 command_exist() {
 	if command -v $1 > /dev/null 2>&1;then
@@ -38,11 +39,4 @@ file_to_cat="${file_to_cat} myshell.conf"
 mkdir -p "${skel_keybinds_dir}"
 cat ${file_to_cat} | tee "${skel_keybinds_dir}"/keybinds.conf >/dev/null 2>&1
 
-for d in /home/*/; do
-	if [ -f "${usr_setup_flag_file}" ];then
-		# Create config folders if no exists
-		user_and_group=$(stat "$(dirname "${d}.config")" -c %u:%g)
-		d="${d}.config/keybinds"; [ ! -d "$d" ] && mkdir -v "$d" && chown -R "$user_and_group" "$d"
-		cp -r "${skel_keybinds_dir}/keybinds.conf" "$d" && chown -R $user_and_group "${d}${CONF_FILE}"
-	fi
-done
+copy_from_extra_skel_2_all_homes "${skel_keybinds_dir}" ".config"

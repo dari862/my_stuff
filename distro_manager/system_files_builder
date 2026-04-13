@@ -27,8 +27,6 @@ else
 	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
 fi
 
-__distro_path_system_skel_files="${__distro_path_system_files}/skel"
-
 ##################################################################################
 
 show_m(){
@@ -226,9 +224,9 @@ mkdir -p "${__distro_path_system_skel_files}/${WM_config_dir_name}"
 cp -r "${__distro_path_root}/lib/rc.xml" "${__distro_path_system_files}/rc.xml"
 mkdir -p "${__distro_path_system_skel_files}/.local/bin"
 
-mkdir -p "${__distro_path_system_files}"/skel/.config/mpd/playlists
-touch "${__distro_path_system_files}"/skel/.config/mpd/database
-mkdir -p "${__distro_path_system_files}"/skel/.local/share/bash_history
+mkdir -p "${__distro_path_system_skel_files}"/.config/mpd/playlists
+touch "${__distro_path_system_skel_files}"/.config/mpd/database
+mkdir -p "${__distro_path_system_skel_files}"/.local/share/bash_history
 
 if command_exist conky;then
 	show_im "copy conky skell file to system_files/skel ."
@@ -423,7 +421,7 @@ fi
 
 if [ "$machine_type_are" = "vm" ];then
 	show_im "disable vsync from mpv (VM)."
-	sed -i 's/vo=gpu/#vo=gpu/g' "${__distro_path_system_files}"/skel/.config/mpv/mpv.conf
+	sed -i 's/vo=gpu/#vo=gpu/g' "${__distro_path_system_skel_files}"/.config/mpv/mpv.conf
 fi
 	
 show_im "LN bin files to system_files/bin ."

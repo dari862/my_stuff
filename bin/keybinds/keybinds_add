@@ -6,19 +6,25 @@ set -e
 __package_name="${1:-}"
 __distro_path_lib="${2:-}"
 current_script_path="${3:-}"
+file_to_cat=""
+keybinds_conf_path=".config/keybinds/keybinds.conf"
 
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 
 write2file=false
 
+cd "$current_script_path"/skel
+
 if [ "$__package_name" = "rxvt-unicode" ] || [ "$__package_name" = "rxvt" ];then
 	file_to_cat="${file_to_cat} rxvt"
 	write2file=true
+elif [ "$__package_name" = "bspwm" ];then
+	write2file=false
 else
-	for command in openbox alacritty kitty mpv ncmpcpp zathura nsxiv thunar clipit conky geany lxterminal viewnior;do
-		if [ "$__package_name" = "$command" ];then
-			file_to_cat="${file_to_cat} $command.conf"
+	for _p_ in *;do
+		if [ "${__package_name}.conf" = "${_p_}" ];then
+			file_to_cat="${file_to_cat} $_p_"
 			write2file=true
 			break
 		fi
@@ -26,19 +32,19 @@ else
 fi
 
 if [ "$write2file" = true ];then
-	cat ${file_to_cat} | tee -a "${__distro_path_root}"/system_files/skel/.config/keybinds/keybinds.conf >/dev/null 2>&1
+	cat ${file_to_cat} | tee -a "${__distro_path_root}/system_files/skel/${keybinds_conf_path}" >/dev/null 2>&1
 elif [ "$__package_name" = "bspwm" ];then
 	sed -i ':a;N;$!ba;s/#;\n#; end of sxhkd/seded_end_of_sxhkd/g;/seded_end_of_sxhkd/ {
   		r sxhkd_bspwm
   		r sxhkd_z_end
   		n
-		}' "${__distro_path_root}"/system_files/skel/.config/keybinds/keybinds.conf
+		}' "${__distro_path_root}/system_files/skel/${keybinds_conf_path}"
 fi
 
 for d in /home/*/; do
 	if [ -f "${d}${usr_flag_setup_path}" ];then
-		# Create config folders if no exists
-		file_2_edit="${d}.config/keybinds/keybinds.conf"
+		# Create config folders if does not exists
+		file_2_edit="${d}${keybinds_conf_path}"
 		user_and_group=$(stat "$(dirname "$file_2_edit")" -c %u:%g)
 		if [ "$__package_name" = "bspwm" ];then
 			sed -i ':a;N;$!ba;s/#;\n#; end of sxhkd/seded_end_of_sxhkd/g;/seded_end_of_sxhkd/ {

@@ -339,7 +339,7 @@ generate_kitty(){
 generate_alacritty(){
 	alacritty_theme_path="${CONFIGPATH}/alacritty"
 	( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
-cat << EOFalacritty > "${alacritty_theme_path}"/theme.dunstrc
+cat << EOFalacritty > "${alacritty_theme_path}"/fonts.yml
 # Font configuration
 font:
   # Normal (roman) font face

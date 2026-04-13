@@ -143,7 +143,11 @@ Updating_Distro(){
 		
 		if __upgrade_current_repo_;then
 			for d in /home/*; do
-				[ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue	# Skip dirs that no are homes
+				if home_dir_has_user "$d";then
+					:
+				else
+					continue	# Skip dirs that no are homes
+				fi
     			f="${d}/${usr_flag_setup_path}"
     			if [ "$skel_modified" = true ];then
     				if my-superuser ls -A "${f}" >/dev/null 2>&1;then

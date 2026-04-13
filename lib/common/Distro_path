@@ -8,6 +8,7 @@ __distro_path_wallpaper="${__distro_path_themes}/my_wallpapers"
 __distro_path_all_distro_themes="${__distro_path_root}/All_Distro_Themes"
 __distro_for_all_path="${__distro_path_system_files}/for_all"
 __distro_path_bin="${__distro_path_system_files}/bin"
+__distro_path_system_skel_files="${__distro_path_system_files}/skel"
 
 __distro_path_external="${__distro_path_root}/external"
 __distro_path_updater="${__distro_path_external}/updater"

@@ -294,13 +294,7 @@ sed_distro_path_root_var_2_correct_value(){
 	if [ "$(id -u)" -eq 0 ];then
 		_SUPERUSER=""
 	else
-		if command_exist my-superuser;then
-			_SUPERUSER="my-superuser"
-		elif command_exist sudo;then
-			_SUPERUSER="sudo"
-		elif command_exist doas;then
-			_SUPERUSER="doas"
-		fi
+		_SUPERUSER="my-superuser"
 	fi
 	
 	__distro_path_system_ready_laptop="${__distro_path_system_ready}/this_is_laptop"
@@ -332,25 +326,63 @@ sed_distro_path_root_var_2_correct_value(){
 	sed_distro_path "my_preferences_pipemenu_file" "${my_preferences_pipemenu_file}"
 }
 
+home_dir_has_user(){
+	home_dir_to_check="${1:-}"
+	case "$home_dir_to_check" in
+		"/home"/*) 	# Remove the prefix '/home/'
+					user2check="${home_dir_to_check#/home/}"
+					# Remove everything after the first '/' to isolate the username
+					user2check="${user2check%%/*}";;
+		*)			return 1;;
+	esac
+	if id "$user2check" >/dev/null 2>&1;then
+		return 0
+	else
+		return 1
+	fi
+}
+
+copy_from_extra_skel_2_all_homes(){
+	if [ "$(id -u)" -eq 0 ];then
+		_SUPERUSER=""
+	else
+		_SUPERUSER="my-superuser"
+	fi
+	__copyfrom="${1:-}"
+	__copyto="${2:-}"
+	for d in /home/*/; do
+        if home_dir_has_user "$d";then
+			:
+		else
+			continue	# Skip dirs that no are homes
+		fi
+        user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
+        say "Copying system skel files to ${d}${__copyto} ."
+        mkdir -p "${d}${__copyto}"
+        $_SUPERUSER cp -r "${__copyfrom}" "${d}${__copyto}"
+        $_SUPERUSER chown -R "$user_and_group" "$d"
+    done
+}
+
 copy_from_extra_skel() {
-    __copythis="${1:-}"
-    __dirname=$(dirname "$__copythis")
-    __copythere=""
-
-    if [ "$__dirname" != "." ];then
-        __copythere="$__dirname"
+	if [ "$(id -u)" -eq 0 ];then
+		_SUPERUSER=""
+	else
+		_SUPERUSER="my-superuser"
+	fi
+	__copythis="${1:-}"
+	__dirname=$(dirname "$__copythis")
+	fromSystemSkel="${__distro_path_system_skel_files}/${__copythis}"
+	DirnamefromSystemSkel=$(dirname "$fromSystemSkel")
+	
+    if [ ! -e "${fromSystemSkel}" ];then
+    	say "Copying skel extra files to system skel dir."
+    	$_SUPERUSER cp -r "${__distro_path_root}/skel_extra/${__copythis}" "${DirnamefromSystemSkel}"
     fi
-
-    my-superuser cp -r "${__distro_path_root}/skel_extra/${__copythis}" "${__distro_path_system_skel_files}/${__copythere}"
     
 	sed_distro_path_root_var_2_correct_value
 	
-    for d in /home/*/; do
-        [ "$(dirname "$d")" = "/home" ] && ! id "${d##*/}" >/dev/null 2>&1 && continue
-        user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-        my-superuser cp -r "${__distro_path_system_skel_files}/${__copythis}" "$d/${__copythis}"
-        my-superuser chown -R "$user_and_group" "$d"
-    done
+	copy_from_extra_skel_2_all_homes "${fromSystemSkel}" "${__dirname}"
 }
 
 add_keybinds(){

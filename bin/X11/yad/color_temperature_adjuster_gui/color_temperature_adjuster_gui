@@ -55,13 +55,8 @@ init_color_temperature_adjuster() {
 	generate_config_file
 	build_tray_gammastep
 	build_daemon_file
-		
-	for d in /home/*/ ; do
-		[ "$(dirname "$d")" = "/home" ] && ! id "${d##*/}" >/dev/null 2>&1 && continue # Skip dirs that no are homes
-		user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
-		d="$d/.config/autostart"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" "$d" && chown -R $user_and_group "$d"
-		d="$d/.config/redshift"; [ ! -d "$d" ] && mkdir -v -p "$d" && cp -r "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" "$d" && chown -R $user_and_group "$d"
-	done
+	copy_from_extra_skel_2_all_homes "${__distro_path_root}/system_files/skel/.config/autostartscripts/${_command}.sh" ".config/autostartscripts"
+	copy_from_extra_skel_2_all_homes "${__distro_path_root}/system_files/skel/.config/${_command}/${_config_name}" ".config/${_command}"
 }
 
 exit_now=false

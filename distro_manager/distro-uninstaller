@@ -53,7 +53,11 @@ fi
 
 say "restoring home dirs"
 for d in /home/*; do
-    [ "$(dirname "$d")" = "/home" ] && ! id "$(basename "$d")" >/dev/null 2>&1 && continue # Skip dirs that no are homes 
+    if home_dir_has_user "$d";then
+		:
+	else
+		continue	# Skip dirs that no are homes
+	fi
     user_and_group=$(stat "$(dirname "$d/.config")" -c %u:%g)
     if [ -d "${d}/.backup"* ];then
     	my-superuser rm -rdf "$d/.config"
