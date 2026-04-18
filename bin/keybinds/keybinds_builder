@@ -42,20 +42,20 @@ cd "${temp_shortcuts_path}"
 build_sourcemainbindkey_conf_file
 . "${temp_shortcuts_path}/sourcemainbindkey.conf"
 
+if [ -d "${alacritty_conf_dir_path}" ];then
+	build_alacritty_tmp_file
+fi
+
+if [ -d "${kittyrc_conf_dir_path}" ];then
+	build_kitty_tmp_file
+fi
+
 if [ -f "${xbindkeysrc_file_path}" ];then
 	build_xbindkeysrc_tmp_file
 fi
 
-if [ -f "${alacritty_file_path}" ];then
-	build_alacritty_tmp_file
-fi
-
 if [ -f "${conky_op_file_path}" ];then
 	build_conky_tmp_file
-fi
-
-if [ -f "${kittyrc_file_path}" ];then
-	build_kitty_tmp_file
 fi
 
 if [ -f "${mpv_file_path}" ];then
@@ -133,3 +133,4 @@ if [ -f "${viewnior_file_path}" ];then
 fi
 
 finalize_it
+clean_it_up

@@ -1,0 +1,24 @@
+[colors]
+  [colors.bright]
+    black = '0x757575'
+    blue = '0x515151'
+    cyan = '0x5C5C5C'
+    green = '0x494949'
+    magenta = '0x555555'
+    red = '0x454545'
+    white = '0xa8a8a8'
+    yellow = '0x4D4D4D'
+
+  [colors.normal]
+    black = '0x161616'
+    blue = '0x515151'
+    cyan = '0x5C5C5C'
+    green = '0x494949'
+    magenta = '0x555555'
+    red = '0x454545'
+    white = '0xa8a8a8'
+    yellow = '0x4D4D4D'
+
+  [colors.primary]
+    background = '0x161616'
+    foreground = '0xa8a8a8'

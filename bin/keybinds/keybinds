@@ -19,6 +19,7 @@ if [ $(id -u) -ne 0 ];then
     	exit
     elif [ "$__opt" = "--add" ];then
 		my-superuser "${current_script_path}"/keybinds_add "${__package_name}" "${__distro_path_lib}" "$current_script_path"
+		my-superuser "${current_script_path}"/keybinds_builder "${__distro_path_lib}" "$current_script_path"
 		exit
    	fi
 else
@@ -30,6 +31,7 @@ else
 		exit
 	elif [ "$__opt" = "--add" ];then
 		"${current_script_path}"/keybinds_add "${__package_name}" "${__distro_path_lib}" "$current_script_path"
+		"${current_script_path}"/keybinds_builder "${__distro_path_lib}" "$current_script_path"
 		exit
 	else
 		echo "you should never run script with ${__opt} arg as super user."

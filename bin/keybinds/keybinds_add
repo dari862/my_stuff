@@ -58,3 +58,72 @@ for d in /home/*/; do
 		chown -R "$user_and_group" "$file_2_edit"
 	fi
 done
+
+MainDir="${__distro_path_root}/system_files/skel"
+
+. "${current_script_path}/core/file_path_to_edit.conf"
+. "${current_script_path}/core/lib"
+
+mkdir -p "${temp_shortcuts_path}"
+
+cp -r "$MainDir/.config/keybinds/keybinds.conf" "${temp_shortcuts_path}"
+cp -r "${current_script_path}/core/keybinds_to_sourcemainbindkey.conf" "${temp_shortcuts_path}"
+
+cd "${temp_shortcuts_path}"
+
+build_sourcemainbindkey_conf_file
+. "${temp_shortcuts_path}/sourcemainbindkey.conf"
+
+case "$__package_name" in
+	alacritty)		build_alacritty_tmp_file
+	;;
+	bspwm)			build_sxhkd_bspwm_file
+					build_rofi_tmp_file "bspwm"					
+	;;
+	clipit)			sed_clipit
+	;;
+	geany)			sed_geanyrc
+	;;
+	lxterminal)		sed_lxterminal
+	;;
+	mpv)			build_mpv_tmp_file
+	;;
+	nsxiv)			sed_nsxiv
+	;;
+	thunar)			build_Thunar_tmp_file
+	;;
+	rxvt-unicode)	build_x11_tmp_file
+	;;
+	viewnior)		build_viewnior_tmp_file
+	;;
+	zathura)		build_zathura_tmp_file
+	;;
+esac
+build_shortcut_read_file
+
+finalize_it
+
+. "${__distro_path_root}/lib/common/common"
+
+for d in /home/*/; do
+   if home_dir_has_user "$d";then
+		:
+	else
+		continue	# Skip dirs that no are homes
+	fi
+	
+	Picked_USER="${d#/home/}"
+	Picked_USER="${Picked_USER%%/*}"
+	MainDir="/home/$Picked_USER"
+	
+    user_and_group=$(stat "$(dirname "${MainDir}/.config")" -c %u:%g)
+    say "Copying keybind files to user ${Picked_USER}."
+    
+	. "${current_script_path}/core/file_path_to_edit.conf"
+	. "${current_script_path}/core/lib"
+	
+	finalize_it
+    chown -R "$user_and_group" "$d"
+done
+
+clean_it_up

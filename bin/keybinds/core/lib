@@ -163,234 +163,197 @@ EOF
 }
 
 build_alacritty_tmp_file(){
-    if [ -n "$Copy1" ];then
-    	echo "mouse_bindings:" > "$temp_alacritty_file_path"
-        echo "  - { mouse: ${Copy1}action: Copy }" >> "$temp_alacritty_file_path"
-    fi
-	echo "key_bindings:" >> "$temp_alacritty_file_path"
-	echo "# (Windows, Linux, and BSD only)" >> "$temp_alacritty_file_path"
+	if [ "$alacritty_conf_mode" = "toml" ];then
+		bindalacrittycat(){
+			printf "[%s]\n" "$1"  
+		}
+		bindalacrittymouse() {
+ 			if [ -z "$1" ] || [ -z "$2" ];then
+    			return
+    		else
+    			alacritty_2_filtered=""
+    			alacrittymousetoml=""
+    			alacritty1mousetoml=""
+    			alacritty2mousetoml=""
+ 				alacritty_2_filtered="$(printf "%s" "$1" | tr -d ' ')"
+ 				alacrittymousetoml="${alacritty_2_filtered#*,}"      # Remove Everything before the first comma
+ 				alacritty1mousetoml="${alacrittymousetoml%%,*}"      # Remove everything after the first comma
+ 				alacritty2mousetoml="${alacrittymousetoml#*,}"      # Remove Everything before the first comma
+ 				if [ -n "$alacritty1mousetoml" ];then
+ 					alacrittymousetoml="$alacritty1mousetoml + $alacritty2mousetoml"
+ 				else
+ 					alacrittymousetoml="$alacritty1mousetoml"
+ 				fi
+    		fi
+			printf "[[mouse.bindings]]\n"
+			printf 'action = "%s"\n' "$2"
+			printf 'mouse = "%s"\n' "$alacrittymousetoml"
+		}
+ 		bindalacrittykey() {
+    		if [ -z "$1" ] || [ -z "$2" ];then
+    			return
+    		else
+    			alacritty_2_filter_=""
+    			alacritty_2_filtered=""
+ 				alacrittykeytoml=""
+    			alacrittymodstoml=""
+    			alacritty1modstoml=""
+    			alacritty2modstoml=""
+    			alacritty_2_filter_="$(printf "%s" "$1" | tr -d ' ')"
+    			alacritty_2_filtered="$(printf "%s" "$alacritty_2_filter_" | sed 's/mods://g')"
+ 				alacrittykeytoml="${alacritty_2_filtered%%,*}"      # Remove everything after the first comma
+ 				alacrittymodstoml="${alacritty_2_filtered#*,}"      # Remove Everything before the first comma
+ 				alacritty1modstoml="${alacrittymodstoml%%,*}"      # Remove everything after the first comma
+ 				alacritty2modstoml="${alacrittymodstoml#*,}"      # Remove Everything before the first comma
+ 				if [ -n "$alacritty2modstoml" ];then
+ 					alacrittymodstoml="$alacritty1modstoml + $alacritty2modstoml"
+ 				else
+ 					alacrittymodstoml="$alacritty1modstoml"
+ 				fi
+    		fi
+			printf "[[keyboard.bindings]]\n"
+			printf 'action = "%s"\n' "$2"
+			printf 'key = "%s"\n' "$alacrittykeytoml"
+			if [ -n "$3" ]; then
+				printf 'mode = "%s"\n' "$3"
+			fi
+			if [ -n "$alacrittymodstoml" ];then
+				printf 'mods = "%s"\n' "$alacrittymodstoml"
+			fi
+			printf "\n"
+		}
+		bindalacrittychar() {
+        	if [ -z "$1" ] || [ -z "$2" ];then
+    			return
+    		else
+    			alacritty_2_filter_=""
+    			alacritty_2_filtered=""
+ 				alacrittykeytoml=""
+    			alacrittymodstoml=""
+    			alacritty1modstoml=""
+    			alacritty2modstoml=""
+    			alacritty_2_filter_="$(printf "%s" "$1" | tr -d ' ')"
+    			alacritty_2_filtered="$(printf "%s" "$alacritty_2_filter_" | sed 's/mods://g')"
+ 				alacrittykeytoml="${alacritty_2_filtered%%,*}"      # Remove everything after the first comma
+ 				alacrittymodstoml="${alacritty_2_filtered#*,}"      # Remove Everything before the first comma
+ 				alacritty1modstoml="${alacrittymodstoml%%,*}"      # Remove everything after the first comma
+ 				alacritty2modstoml="${alacrittymodstoml#*,}"      # Remove Everything before the first comma
+ 				if [ -n "$alacritty2modstoml" ];then
+ 					alacrittymodstoml="$alacritty1modstoml + $alacritty2modstoml"
+ 				else
+ 					alacrittymodstoml="$alacritty1modstoml"
+ 				fi
+    		fi
+			printf "[[keyboard.bindings]]\n"
+			printf 'chars = "%s"\n' "$2"
+			printf 'key = "%s"\n' "$alacrittykeytoml"
+			if [ -n "$alacrittymodstoml" ];then
+				printf 'mods = "%s"\n' "$alacrittymodstoml"
+			fi
+			printf "\n"
+		}
+	else
+		bindalacrittycat(){
+			printf "%s_bindings:\n" "$1"
+		}
+		bindalacrittymouse() {
+    		[ -z "$1" ] && return
+        	printf "  - { mouse: %s action: %s }\n" "$1" "$2"
+		}
+ 		bindalacrittykey() {
+    		[ -z "$1" ] && return
+    		if [ -n "$3" ]; then
+        		printf "  - { key: %s mode: %s, action: %s }\n" "$1" "$3" "$2"
+    		else
+        		printf "  - { key: %s action: %s }\n" "$1" "$2"
+    		fi
+		}
+		bindalacrittychar() {
+    		[ -z "$1" ] && return
+        	printf "  - { key: %s chars: %s }\n" "$1" "$2"
+		}
+	fi
+    {
+		# --- Key Bindings ---
+		bindalacrittycat "key"
+		# Special case for raw characters
+		bindalacrittychar "$gc" "gc"
+		
+        # General Actions
+        bindalacrittykey "$Paste" "Paste"
+		bindalacrittykey "$Print" "Paste"
+		bindalacrittykey "$Copy2" "Copy"
+		bindalacrittykey "$ResetFontSize" "ResetFontSize"
+		bindalacrittykey "$IncreaseFontSize1" "IncreaseFontSize"
+		bindalacrittykey "$IncreaseFontSize2" "IncreaseFontSize"
+		bindalacrittykey "$DecreaseFontSize" "DecreaseFontSize"
+        
+		# --- Vi Mode Bindings ---
+		printf "# Vi Mode\n"
+		
+		# Vi Toggles & Scrolling
+		bindalacrittykey "$ToggleViMode1" "ToggleViMode"
+		bindalacrittykey "$ToggleViMode2" "ToggleViMode" "Vi"
+		bindalacrittykey "$ToggleViMode3" "ToggleViMode" "Vi"
+		bindalacrittykey "$ScrollToBottom1" "ScrollToBottom" "Vi"
+		bindalacrittykey "$ScrollToBottom2" "ScrollToBottom" "Vi"
+		bindalacrittykey "$ScrollToBottom3" "ScrollToBottom" "Vi"
+		bindalacrittykey "$ScrollToBottom4" "ScrollToBottom" "Vi"
+		bindalacrittykey "$ScrollToTop" "ScrollToTop" "Vi"
+		bindalacrittykey "$ScrollLineUp" "ScrollLineUp" "Vi"
+		bindalacrittykey "$ScrollLineDown" "ScrollLineDown" "Vi"
+		bindalacrittykey "$ScrollPageUp" "ScrollPageUp" "Vi"
+		bindalacrittykey "$ScrollPageDown" "ScrollPageDown " "Vi"
+		bindalacrittykey "$ScrollHalfPageUp" "ScrollHalfPageUp" "Vi"
+		bindalacrittykey "$ScrollHalfPageDown" "ScrollHalfPageDown" "Vi"
+		
+		# Selection & Clipboard
+		bindalacrittykey "$ClearSelection1" "ClearSelection" "Vi"
+		bindalacrittykey "$ClearSelection2" "ClearSelection" "Vi"
+		bindalacrittykey "$Copy3" "Copy" "Vi"
+		bindalacrittykey "$ToggleNormalSelection" "ToggleNormalSelection" "Vi"
+		bindalacrittykey "$ToggleLineSelection" "ToggleLineSelection" "Vi"
+		bindalacrittykey "$ToggleBlockSelection" "ToggleBlockSelection" "Vi"
+		bindalacrittykey "$ToggleSemanticSelection" "ToggleSemanticSelection" "Vi"
+		
+		# Navigation
+		bindalacrittykey "$Open" "Open" "Vi"
+		bindalacrittykey "$Up1" "Up" "Vi"
+		bindalacrittykey "$Up2" "Up" "Vi"
+		bindalacrittykey "$Down1" "Down" "Vi"
+		bindalacrittykey "$Down2" "Down" "Vi"
+		bindalacrittykey "$Left1" "Left" "Vi"
+		bindalacrittykey "$Left2" "Left" "Vi"
+		bindalacrittykey "$Right1" "Right" "Vi"
+		bindalacrittykey "$Right2" "Right" "Vi"
+		
+		# Cursor Movement
+		bindalacrittykey "$First" "First" "Vi"
+		bindalacrittykey "$Last" "Last" "Vi"
+		bindalacrittykey "$FirstOccupied" "FirstOccupied" "Vi"
+		bindalacrittykey "$High" "High" "Vi"
+		bindalacrittykey "$Middle" "Middle" "Vi"
+		bindalacrittykey "$Low" "Low" "Vi"
+		
+		# Word/Semantic Movement
+		bindalacrittykey "$SemanticLeft" "SemanticLeft" "Vi"
+		bindalacrittykey "$SemanticRight" "SemanticRight" "Vi"
+		bindalacrittykey "$SemanticRightEnd" "SemanticRightEnd" "Vi"
+		bindalacrittykey "$WordLeft" "WordLeft" "Vi"
+		bindalacrittykey "$WordRight" "WordRight" "Vi"
+		bindalacrittykey "$WordRightEnd" "WordRightEnd" "Vi"
+		bindalacrittykey "$Bracket" "Bracket" "Vi"
+		
+		# Search
+		bindalacrittykey "$SearchForward" "SearchForward" "Vi"
+		bindalacrittykey "$SearchBackward" "SearchBackward" "Vi"
+		bindalacrittykey "$SearchNext" "SearchNext" "Vi"
+		bindalacrittykey "$SearchPrevious" "SearchPrevious" "Vi"
 
-    if [ -n "$Paste" ];then
-        echo "  - { key: ${Paste}action: Paste            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Print" ];then
-        echo "  - { key: ${Print}action: Paste            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$gc" ];then
-        echo "  - { key: ${gc}chars: \"gc\"              }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Copy2" ];then
-        echo "  - { key: ${Copy2}action: Copy             }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ResetFontSize" ];then
-        echo "  - { key: ${ResetFontSize}action: ResetFontSize    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$IncreaseFontSize1" ];then
-        echo "  - { key: ${IncreaseFontSize1}action: IncreaseFontSize }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$IncreaseFontSize2" ];then
-        echo "  - { key: ${IncreaseFontSize2}action: IncreaseFontSize }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$DecreaseFontSize" ];then
-        echo "  - { key: ${DecreaseFontSize}action: DecreaseFontSize }" >> "$temp_alacritty_file_path"
-    fi
-
-   echo "# Vi Mode" >> "$temp_alacritty_file_path"
-
-    if [ -n "$ScrollToBottom1" ];then
-        echo "  - { key: ${ScrollToBottom1}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ToggleViMode1" ];then
-        echo "  - { key: ${ToggleViMode1}action: ToggleViMode            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollToBottom2" ];then
-        echo "  - { key: ${ScrollToBottom2}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ToggleViMode2" ];then
-        echo "  - { key: ${ToggleViMode2}mode: Vi, action: ToggleViMode            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollToBottom3" ];then
-        echo "  - { key: ${ScrollToBottom3}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ToggleViMode3" ];then
-        echo "  - { key: ${ToggleViMode3}mode: Vi, action: ToggleViMode            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ClearSelection1" ];then
-        echo "  - { key: ${ClearSelection1}mode: Vi, action: ClearSelection          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollLineUp" ];then
-        echo "  - { key: ${ScrollLineUp}mode: Vi, action: ScrollLineUp            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollLineDown" ];then
-        echo "  - { key: ${ScrollLineDown}mode: Vi, action: ScrollLineDown          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollToTop" ];then
-        echo "  - { key: ${ScrollToTop}mode: Vi, action: ScrollToTop             }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollToBottom4" ];then
-        echo "  - { key: ${ScrollToBottom4}mode: Vi, action: ScrollToBottom          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollPageUp" ];then
-        echo "  - { key: ${ScrollPageUp}mode: Vi, action: ScrollPageUp            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollPageDown" ];then
-        echo "  - { key: ${ScrollPageDown}mode: Vi, action: ScrollPageDown          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollHalfPageUp" ];then
-        echo "  - { key: ${ScrollHalfPageUp}mode: Vi, action: ScrollHalfPageUp        }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ScrollHalfPageDown" ];then
-        echo "  - { key: ${ScrollHalfPageDown}mode: Vi, action: ScrollHalfPageDown      }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Copy3" ];then
-        echo "  - { key: ${Copy3}mode: Vi, action: Copy                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ClearSelection2" ];then
-        echo "  - { key: ${ClearSelection2}mode: Vi, action: ClearSelection          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ToggleNormalSelection" ];then
-        echo "  - { key: ${ToggleNormalSelection}mode: Vi, action: ToggleNormalSelection   }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ToggleLineSelection" ];then
-        echo "  - { key: ${ToggleLineSelection}mode: Vi, action: ToggleLineSelection     }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ToggleBlockSelection" ];then
-        echo "  - { key: ${ToggleBlockSelection}mode: Vi, action: ToggleBlockSelection    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$ToggleSemanticSelection" ];then
-        echo "  - { key: ${ToggleSemanticSelection}mode: Vi, action: ToggleSemanticSelection }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Open" ];then
-        echo "  - { key: ${Open}mode: Vi, action: Open                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Up1" ];then
-        echo "  - { key: ${Up1}mode: Vi, action: Up                      }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Down1" ];then
-        echo "  - { key: ${Down1}mode: Vi, action: Down                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Left1" ];then
-        echo "  - { key: ${Left1}mode: Vi, action: Left                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Right1" ];then
-        echo "  - { key: ${Right1}mode: Vi, action: Right                   }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Up2" ];then
-        echo "  - { key: ${Up2}mode: Vi, action: Up                      }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Down2" ];then
-        echo "  - { key: ${Down2}mode: Vi, action: Down                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Left2" ];then
-        echo "  - { key: ${Left2}mode: Vi, action: Left                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Right2" ];then
-        echo "  - { key: ${Right2}mode: Vi, action: Right                   }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$First" ];then
-        echo "  - { key: ${First}mode: Vi, action: First                   }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Last" ];then
-        echo "  - { key: ${Last}mode: Vi, action: Last                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$FirstOccupied" ];then
-        echo "  - { key: ${FirstOccupied}mode: Vi, action: FirstOccupied           }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$High" ];then
-        echo "  - { key: ${High}mode: Vi, action: High                    }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Middle" ];then
-        echo "  - { key: ${Middle}mode: Vi, action: Middle                  }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Low" ];then
-        echo "  - { key: ${Low}mode: Vi, action: Low                     }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$SemanticLeft" ];then
-        echo "  - { key: ${SemanticLeft}mode: Vi, action: SemanticLeft            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$SemanticRight" ];then
-        echo "  - { key: ${SemanticRight}mode: Vi, action: SemanticRight           }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$SemanticRightEnd" ];then
-        echo "  - { key: ${SemanticRightEnd}mode: Vi, action: SemanticRightEnd        }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$WordLeft" ];then
-        echo "  - { key: ${WordLeft}mode: Vi, action: WordLeft                }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$WordRight" ];then
-        echo "  - { key: ${WordRight}mode: Vi, action: WordRight               }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$WordRightEnd" ];then
-        echo "  - { key: ${WordRightEnd}mode: Vi, action: WordRightEnd            }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$Bracket" ];then
-        echo "  - { key: ${Bracket}mode: Vi, action: Bracket                 }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$SearchForward" ];then
-        echo "  - { key: ${SearchForward}mode: Vi, action: SearchForward           }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$SearchBackward" ];then
-        echo "  - { key: ${SearchBackward}mode: Vi, action: SearchBackward          }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$SearchNext" ];then
-        echo "  - { key: ${SearchNext}mode: Vi, action: SearchNext              }" >> "$temp_alacritty_file_path"
-    fi
-
-    if [ -n "$SearchPrevious" ];then
-        echo "  - { key: ${SearchPrevious}mode: Vi, action: SearchPrevious          }" >> "$temp_alacritty_file_path"
-    fi
+		# --- Mouse Bindings ---
+		bindalacrittycat "mouse"
+		bindalacrittymouse "${Copy1}" "Copy"
+    } > "$temp_alacritty_file_path"
 }
 
 build_conky_tmp_file(){
@@ -2155,8 +2118,12 @@ finalize_it(){
     fi
     #build_alacritty_tmp_file
     if [ -f "${temp_alacritty_file_path}" ];then
-        $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_alacritty_file_path}" "${alacritty_file_path}"
-
+    	if [ "$alacritty_conf_mode" = "toml" ];then
+			alacritty_file_path="${alacritty_file_path}.toml"
+		else
+			alacritty_file_path="${alacritty_file_path}.yml"
+		fi
+        $_SUPERUSER cp -r "${temp_alacritty_file_path}" "${alacritty_file_path}"
         sed_all_back "${alacritty_file_path}"
     fi
     #build_conky_tmp_file
@@ -2175,7 +2142,7 @@ finalize_it(){
     fi
     #build_kitty_tmp_file
     if [ -f "${temp_kittyrc_file_path}" ];then
-        $_SUPERUSER sed -i -e "/## ------ auto edited by shortcuts script ------ ##/,/## ------ end of auto edited by shortcuts script ------ ##/!b;//!d;/## ------ end of auto edited by shortcuts script ------ ##/e cat ${temp_kittyrc_file_path}" "${kittyrc_file_path}"
+        $_SUPERUSER cp -r "${temp_kittyrc_file_path}" "${kittyrc_file_path}"
         sed_all_back "${kittyrc_file_path}"
     fi
     #build_mpv_tmp_file
@@ -2264,6 +2231,8 @@ finalize_it(){
     if [ -f "${temp_welcome_shortcut_file_path}" ];then
     	cat "${temp_welcome_shortcut_file_path}" | $_SUPERUSER tee "${welcome_shortcut_file_path}" >/dev/null 2>&1
     fi
-    
-    rm -rdf "$temp_shortcuts_path"
+}
+
+clean_it_up(){
+	rm -rdf "$temp_shortcuts_path"
 }

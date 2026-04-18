@@ -148,11 +148,8 @@ Updating_Distro(){
 				else
 					continue	# Skip dirs that no are homes
 				fi
-    			f="${d}/${usr_flag_setup_path}"
     			if [ "$skel_modified" = true ];then
-    				if my-superuser ls -A "${f}" >/dev/null 2>&1;then
-						my-superuser rm -f "${f}"
-					fi
+    				my-superuser rm -f "${d}/${usr_flag_setup_path}"
 				fi
 			done
 		else

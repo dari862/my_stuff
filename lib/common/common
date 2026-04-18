@@ -302,7 +302,7 @@ sed_distro_path_root_var_2_correct_value(){
 	sed_distro_path(){
 		sed_this_distro_path="(((${1:-})))"
 		with_this_distro_path="${2:-}"
-		if grep -rIq "${sed_this_distro_path}" "${__distro_path_system_skel_files}";then
+		if $_SUPERUSER grep -rIq "${sed_this_distro_path}" "${__distro_path_system_skel_files}";then
 			$_SUPERUSER find "${__distro_path_system_skel_files}" -type f -exec sed -i "s|${sed_this_distro_path}|${with_this_distro_path}|g" {} +
 		fi
 	}
@@ -338,6 +338,9 @@ home_dir_has_user(){
 	if id "$user2check" >/dev/null 2>&1;then
 		return 0
 	else
+		return 1
+	fi
+	if [ ! -f "/home/$user2check/${usr_flag_setup_path}" ];then
 		return 1
 	fi
 }

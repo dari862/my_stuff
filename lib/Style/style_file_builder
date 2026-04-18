@@ -337,8 +337,41 @@ generate_kitty(){
 }
 
 generate_alacritty(){
+	alacritty_conf_mode=toml
 	alacritty_theme_path="${CONFIGPATH}/alacritty"
-	( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
+	
+	if [ "$alacritty_conf_mode" = "toml" ];then
+		( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}.toml" "colors.toml" )
+cat << EOFalacritty > "${alacritty_theme_path}"/fonts.toml
+[font]
+size = ${alacritty_size}
+
+[font.bold]
+family = "${alacritty_family}"
+#style = "Bold"
+
+[font.bold_italic]
+family = "${alacritty_family}"
+#style = "Bold Italic"
+
+[font.italic]
+family = "${alacritty_family}"
+#style = "Italic"
+
+[font.normal]
+family = "${alacritty_family}"
+#style = "Regular"
+
+#[font.offset]
+#x = 0
+#y = 0
+
+#[font.glyph_offset]
+#x = 0
+#y = 0
+EOFalacritty
+	else
+		( cd "$alacritty_theme_path" && ln -sf "colorschemes/${_style}.yml" "colors.yml" )
 cat << EOFalacritty > "${alacritty_theme_path}"/fonts.yml
 # Font configuration
 font:
@@ -375,6 +408,7 @@ font:
   #  x: 0
   #  y: 0
 EOFalacritty
+	fi
 }
 
 generate_Xresources(){

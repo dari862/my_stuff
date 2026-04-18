@@ -4,6 +4,7 @@
 import:
   - ~/.config/alacritty/colors.yml
   - ~/.config/alacritty/fonts.yml
+  - ~/.config/alacritty/keybinds.yml
 #
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
@@ -25,7 +26,6 @@ window:
   # The value `0.0` is completely transpartent and '1.0' is opaque.
   opacity: 0.8
   
-  dynamic_title: true
   # Window dimensions (changes require restart)
   #
   # Specified in number of columns/lines, not pixels.
