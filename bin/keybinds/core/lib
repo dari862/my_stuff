@@ -176,10 +176,9 @@ build_alacritty_tmp_file(){
     			alacritty1mousetoml=""
     			alacritty2mousetoml=""
  				alacritty_2_filtered="$(printf "%s" "$1" | tr -d ' ')"
- 				alacrittymousetoml="${alacritty_2_filtered#*,}"      # Remove Everything before the first comma
- 				alacritty1mousetoml="${alacrittymousetoml%%,*}"      # Remove everything after the first comma
- 				alacritty2mousetoml="${alacrittymousetoml#*,}"      # Remove Everything before the first comma
- 				if [ -n "$alacritty1mousetoml" ];then
+ 				alacritty1mousetoml="${alacritty_2_filtered%%,*}"      # Remove everything after the first comma
+ 				alacritty2mousetoml="${alacritty_2_filtered#*,}"      # Remove Everything before the first comma
+ 				if [ -n "$alacritty2mousetoml" ];then
  					alacrittymousetoml="$alacritty1mousetoml + $alacritty2mousetoml"
  				else
  					alacrittymousetoml="$alacritty1mousetoml"
@@ -303,7 +302,7 @@ build_alacritty_tmp_file(){
 		bindalacrittykey "$ScrollLineUp" "ScrollLineUp" "Vi"
 		bindalacrittykey "$ScrollLineDown" "ScrollLineDown" "Vi"
 		bindalacrittykey "$ScrollPageUp" "ScrollPageUp" "Vi"
-		bindalacrittykey "$ScrollPageDown" "ScrollPageDown " "Vi"
+		bindalacrittykey "$ScrollPageDown" "ScrollPageDown" "Vi"
 		bindalacrittykey "$ScrollHalfPageUp" "ScrollHalfPageUp" "Vi"
 		bindalacrittykey "$ScrollHalfPageDown" "ScrollHalfPageDown" "Vi"
 		
