@@ -275,7 +275,7 @@ build_alacritty_tmp_file(){
 	fi
     {
 		# --- Key Bindings ---
-		bindalacrittycat "key"
+		bindalacrittycat "keyboard"
 		# Special case for raw characters
 		bindalacrittychar "$gc" "gc"
 		
