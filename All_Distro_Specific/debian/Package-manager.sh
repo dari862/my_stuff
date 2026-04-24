@@ -121,10 +121,18 @@ add_repo() {
 }
 
 update_linux_kernel(){
-	Package_installer_ "linux-image-$(uname -r)"
+	ARCH="$(uname -m)"
+	case "$ARCH" in
+    	x86_64) picked_ARCH="amd64" ;;
+    	*) 		picked_ARCH="$ARCH" ;;
+	esac
+	
+	Package_installer_ "linux-image-${picked_ARCH}"
+	
 	if command -v dkms >/dev/null 2>&1;then
 		dkms autoinstall
 	fi
+	
 	update-initramfs -u
 }
 
