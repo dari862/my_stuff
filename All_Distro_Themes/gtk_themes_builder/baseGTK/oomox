@@ -1,2 +1,3 @@
 #!/bin/sh
 exit
+"theme_oomox"/change_color.sh --hidpi True --target-dir "$HOME/.themes" --output oomox-themename /tmp/tmpxxxxxxxx --make-opts gtk320 css_cinnamon

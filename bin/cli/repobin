@@ -2,6 +2,7 @@
 # need superuser : use my-superuser
 unalias -a
 set -e
+current_script_name="$(basename "$0")"
 run_reinstall=false
 save_2_config_file=true
 repobinMODE="bin"
@@ -363,7 +364,7 @@ clean_installed() {
 }
 
 print_help() {
-  script_name="$(basename "$0")"
+  script_name="$current_script_name"
   cat <<EOF
 Usage: $0 [OPTIONS] <COMMAND> [ARGS...]
 	
@@ -398,19 +399,34 @@ EOF
 COMMAND="${1:-}"
 shift
 
+if [ -n "${1:-}" ] && [ "${COMMAND}" = "install" ];then
+	case "${1}" in 
+		*/*) repo="${1:-}"
+  			 version="${2:-}"
+  		;;
+		*)      . "$__distro_path_lib"
+				package_details_file_2_source="${__distro_path_root}/lib/$current_script_name/$1"
+				if [ -f "${package_details_file_2_source}" ];then
+					. "${package_details_file_2_source}"
+				else
+					err "failed to install: $1 . does not exit in $current_script_name lib."
+				fi
+			fi
+		;;
+	esac
+fi
+
 case "$COMMAND" in
-  install) [ -z "${1:-}" ] && err "Usage: $(basename "$0") install <user/repo>"
-    repo="${1:-}"
-  	version="${2:-}"
+  install) [ -z "${1:-}" ] && err "Usage: $current_script_name install <user/repo>"
   	[ -n "${config[$repo]:-}" ] && err "repo installed: $repo to reinstall it switch to reinstall arg."
     install_repo
     ;;
   update) run_reinstall=true ; update ;;
   list) list_installed ;;
-  remove) [ -z "${1:-}" ] && err "Usage: $(basename "$0") remove <user/repo>"; remove_installed "$1" ;;
-  info) [ -z "${1:-}" ] && err "Usage: $(basename "$0") info <user/repo>"; info_installed "$1" ;;
+  remove) [ -z "${1:-}" ] && err "Usage: $current_script_name remove <user/repo>"; remove_installed "$1" ;;
+  info) [ -z "${1:-}" ] && err "Usage: $current_script_name info <user/repo>"; info_installed "$1" ;;
   clean) clean_installed ;;
-  reinstall) [ -z "${1:-}" ] && err "Usage: $(basename "$0") reinstall <user/repo>"
+  reinstall) [ -z "${1:-}" ] && err "Usage: $current_script_name reinstall <user/repo>"
     run_reinstall=true
     save_2_config_file=false
     repo="$1"

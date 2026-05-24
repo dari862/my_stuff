@@ -1,2 +1,3 @@
 #!/bin/sh
 exit
+"theme_materia/materia-theme"/change_color.sh --hidpi True --target "$HOME/.themes" --output oomox-themename /tmp/tmpxxxxxxxx
