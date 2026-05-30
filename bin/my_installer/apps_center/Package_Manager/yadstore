@@ -6,8 +6,8 @@ yadstore_dir="$__distro_path_updater/${app_name}"
 
 say "Installing ${app_name}..." 1
 
-say "clone https://github.com/dari862/${app_name}.git"
-super_clone_repo "https://github.com/dari862/${app_name}.git" "${yadstore_dir}"
+say "clone https://${remote_repo_link}/${app_name}.git"
+super_clone_repo "https://${remote_repo_link}/${app_name}.git" "${yadstore_dir}"
 
 generate_never_remove_bin "${yadstore_dir}/gui"
 my-superuser ln -sf "${yadstore_dir}"/tools/yadstoreupdater "$__distro_path_updater"
