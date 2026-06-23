@@ -2,7 +2,7 @@
 set -e  # exit on error and unset variables
 unalias -a
 . "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed openssl || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed openssl || exit 1
 
 # Display usage instructions
 usage() {

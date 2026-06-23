@@ -17,7 +17,7 @@ else
     export ICON_PATH="gtk-fullscreen"
 fi
 
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed yad ffmpeg || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed yad ffmpeg || exit 1
 
 if type xclip >/dev/null 2>&1;then
 	export Xclip_installed=TRUE

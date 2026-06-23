@@ -153,7 +153,7 @@ _prepare_config_dir(){
 }
 
 check_dependency_(){
-	"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed at rofi yad speaker-test || exit 1
+	"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed at rofi yad speaker-test || exit 1
 }
 
 List_Alarms_2_Remove(){

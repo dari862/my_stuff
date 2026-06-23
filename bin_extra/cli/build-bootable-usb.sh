@@ -3,8 +3,7 @@
 . "$__distro_path_lib"
 . "${__distro_path_root}/Distro_Specific/info"
 
-DEPENDENCIES="xz gzip bzip2 jq"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed ${DEPENDENCIES} || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed xz gzip bzip2 jq || exit 1
 
 RC='\033[0m'
 RED='\033[31m'
@@ -46,6 +45,7 @@ choose_iso_source() {
             ;;
     esac
 }
+
 decompress_iso() {
     printf "%b\n" "${YELLOW}Decompressing ISO file...${RC}"
     case "${ISO_ARCHIVE_FORMAT}" in
@@ -65,6 +65,7 @@ decompress_iso() {
     esac
     printf "%b\n" "${GREEN}ISO file decompressed successfully.${RC}"
 }
+
 check_hash() {
     case "${#ISO_CHECKSUM}" in
         32) HASH_ALGO="md5sum";;

@@ -2,19 +2,36 @@
 # need superuser : called by my-superuser
 # work on this : workonthis
 set -e
-exit
-if [ "$(id -u)" -ne 0 ]; then
-    my-superuser $0 "$__distro_path_lib"
-    exit
-fi
 
 __distro_path_lib="${1:-$__distro_path_lib}"
-. "$__distro_path_lib"
-iconstheme_path="${__distro_path_themes}/system-icons"
-current_path="$(dirname "$0")"
+force_update="${2:-false}"
+
+if [ "$force_update" = "--force-update" ];then
+	force_update=true
+fi
+
+current_path="$(dirname "$(realpath "$0")")"
+
+if [ -n "$__distro_path_lib" ];then
+	if [ "$(id -u)" -ne 0 ]; then
+    	my-superuser $0 "$__distro_path_lib" "$force_update"
+    	exit
+	fi
+	. "$__distro_path_lib"
+	iconstheme_path="${__distro_path_themes}/system-icons"
+else
+	iconstheme_path="${current_path}/generated_icons"
+fi
+
 list_of_base_files="$(find "${current_path}/source_base" -type f || :)"
 mkdir -p "${iconstheme_path}"
-for t in ${list_of_base_GTK_theme};do
-	. "$t"
-	mkdir -p "${iconstheme_path}/${base_name}"
+
+for t in ${list_of_base_files};do
+	base_name="$(basename "$t")"
+	icons_output_dir="${iconstheme_path}/${base_name}"
+	if [ -d "$icons_output_dir" ] && [ "$force_update" = false ];then
+		continue
+	fi
+	icons_style_name="$(grep "^ICONS_STYLE=" "$t" | awk -F= '{print $2}')"
+	"${current_path}/baseIcons/${icons_style_name}.sh" -o "${base_name}" -d "${icons_output_dir}" "$t"
 done

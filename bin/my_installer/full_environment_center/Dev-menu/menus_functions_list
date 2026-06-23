@@ -122,13 +122,13 @@ select_dev_storage_menu(){
 		for db in $dbs; do
 			case $db in
 			MySQL)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --container mysql
+				"${__distro_path_installers_and_tweaks}"/my-installer --container mysql
 				;;
 			Redis)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --container redis
+				"${__distro_path_installers_and_tweaks}"/my-installer --container redis
 				;;
 			PostgreSQL)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --container postgres
+				"${__distro_path_installers_and_tweaks}"/my-installer --container postgres
 				;;
 			esac
 		done
@@ -147,28 +147,28 @@ select_dev_language_menu(){
 		for language in $languages; do
 			case $language in
 			Ruby)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed ruby
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed ruby
 				;;
 			Node.js)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed node
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed node
 				;;
 			Go)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed go
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed go
 				;;
 			PHP)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed php
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed php
 				;;
 			Python)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed python
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed python
 				;;
 			Elixir)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed elixir
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed elixir
 				;;
 			Rust)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed rust
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed rust
 				;;
 			Java)
-				"${__distro_path_root}"/bin/not_add_2_path/my-installer --install-needed java
+				"${__distro_path_installers_and_tweaks}"/my-installer --install-needed java
 				;;
 			esac
 		done

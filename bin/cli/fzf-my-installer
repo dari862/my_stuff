@@ -1,7 +1,7 @@
 #!/bin/sh
 . "$__distro_path_lib"
 unalias -a
-picked_package_line="$("${__distro_path_root}"/bin/not_add_2_path/myinstaller_apps_list | fzf --no-preview --prompt="> " --height=50 --reverse --border )"
+picked_package_line="$("${__distro_path_installers_and_tweaks}"/myinstaller_apps_list | fzf --no-preview --prompt="> " --height=50 --reverse --border )"
 
 if [ -n "$picked_package_line" ];then
 	picked_package="$(printf '%s' "$picked_package_line" | awk -F'|' '{print $1}')"

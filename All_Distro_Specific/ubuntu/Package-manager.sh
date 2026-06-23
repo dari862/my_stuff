@@ -9,18 +9,56 @@ if command -v nala >/dev/null 2>&1;then
 else
 	package_manger="apt-get"
 	Package_update_(){
-		kill_package_manager
-		say 'Updating sources...' 1
-		# If no update today exec update
-		if ! [ "$(find /var/cache/apt/pkgcache.bin -mtime 0 2>/dev/null)" ];then
-			# REPOSITORY UPDATE-NOTIFICATION
-			say "Updating package repositoriy..."
-			my-superuser apt-get update
-		else
-			my-superuser killall -9 apt-get  >/dev/null 2>&1 || my-superuser killall -9 apt >/dev/null 2>&1
-			say "Updating package repositoriy..."
-			my-superuser apt-get update
-		fi
+    	stamp_file="/var/lib/apt/periodic/update-success-stamp"
+    	sources_dir="/etc/apt/sources.list.d"
+    	main_sources="/etc/apt/sources.list"
+    	cache_expiry=86400 # 24 hours in seconds
+    	needs_update=false
+	
+    	if lsof /var/lib/apt/lists/lock >/dev/null 2>&1 || lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
+        	say "APT is currently locked by another process. killing apt." 'yellow'
+        	kill_package_manager
+    	fi
+	
+    	if [ ! -f "$stamp_file" ]; then
+        	say "No record of a previous successful update. Update required."
+        	needs_update=true
+    	else
+        	# 3. Check if the last update has expired (older than 24 hours)
+        	current_time=$(date +%s)
+        	last_update=$(stat -c %Y "$stamp_file")
+        	age=$((current_time - last_update))
+        	
+        	if [ $age -gt $cache_expiry ]; then
+            	say "Last update was more than 24 hours ago. Update required." 'yellow'
+            	needs_update=true
+        	fi
+    	fi
+	
+    	# 4. Check if custom repos are newer than the last successful update stamp
+    	if [ "$needs_update" = false ]; then
+        	# -newer checks if any file in sources is newer than the modification time of $stamp_file
+        	# We check both the main file and the contents of the sources.list.d directory
+        	if [ -n "$(find "$main_sources" "$sources_dir" -type f -newer "$stamp_file" 2>/dev/null)" ]; then
+            	say "New or modified repository detected since the last update. Update required." 'yellow'
+            	needs_update=true
+        	fi
+    	fi
+	
+    	# 5. Execute the update if flagged
+    	if [ "$needs_update" = true ]; then
+        	say "Updating APT package lists..." 'yellow'
+        	# -y for non-interactive, output suppression unless errors occur
+        	if my-superuser apt-get update -y -qq; then
+            	say "APT cache successfully updated."
+            	# Explicitly touch the stamp file to ensure it registers now
+            	my-superuser touch "$stamp_file"
+        	else
+            	say "Error: 'apt-get update' failed." 'red'
+        	fi
+    	else
+        	say "APT cache is up to date. Skipping update."
+    	fi
 	}
 fi
 

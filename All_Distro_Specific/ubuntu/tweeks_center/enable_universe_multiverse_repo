@@ -12,9 +12,12 @@ elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and
 	tweek_enabled=false
 else
 	say "enable_universe_multiverse_repo"
-	Package_installer_ software-properties-common
-	enable_repo universe
-	enable_repo multiverse
+	connectiontest 1 || continue
+	clear
+	Package_update_ || continue
+	Package_installer_ software-properties-common || continue
+	enable_repo universe || continue
+	enable_repo multiverse || continue
 			
-	Package_update_
+	Package_update_ || continue
 fi

@@ -6,7 +6,7 @@ usage ()
     exit
 }
 . "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed ffmpeg sox || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed ffmpeg sox || exit 1
 
 if [ "$#" -ne 2 ]
 then

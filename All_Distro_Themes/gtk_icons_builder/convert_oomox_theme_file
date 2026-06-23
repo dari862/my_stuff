@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+
+current_path="$(dirname "$0")"
+
+if [ -d "$HOME/Desktop/workonNow/oomox_files/oomox_gui/colors/zzmyicons" ];then
+	oomox_files_path="$HOME/Desktop/workonNow/oomox_files/oomox_gui/colors/zzmyicons"
+elif [ -d "$HOME/.config/oomox/colors" ];then
+	oomox_files_path="$HOME/.config/oomox/colors"
+else
+	echo "no dir found. "
+	exit
+fi
+
+output_dir="${current_path}/new_source_base"
+
+list_of_base_GTK_theme="$(find "${oomox_files_path}" -type f || :)"
+mkdir -p "${output_dir}"
+
+for t in ${list_of_base_GTK_theme};do
+	. "$t"
+	style_name="${t##*/}"
+	style_path="${output_dir}/${style_name}"
+	tee  "$style_path" <<-EOF >/dev/null 2>&1
+	ICONS_ARCHDROID=${ICONS_ARCHDROID}
+	ICONS_DARK=${ICONS_DARK}
+	ICONS_LIGHT=${ICONS_LIGHT}
+	ICONS_LIGHT_FOLDER=${ICONS_LIGHT_FOLDER}
+	ICONS_MEDIUM=${ICONS_MEDIUM}
+	ICONS_NUMIX_STYLE=${ICONS_NUMIX_STYLE}
+	ICONS_STYLE=${ICONS_STYLE}
+	ICONS_SYMBOLIC_ACTION=${ICONS_SYMBOLIC_ACTION}
+	ICONS_SYMBOLIC_PANEL=${ICONS_SYMBOLIC_PANEL}
+	SURUPLUS_GRADIENT1=${SURUPLUS_GRADIENT1}
+	SURUPLUS_GRADIENT2=${SURUPLUS_GRADIENT2}
+	SURUPLUS_GRADIENT_ENABLED=${SURUPLUS_GRADIENT_ENABLED}
+	EOF
+done

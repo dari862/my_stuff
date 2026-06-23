@@ -2,13 +2,18 @@
 # need superuser : called by my-superuser
 # work on this : workonthis
 set -e
-exit
+
+__distro_path_lib="${1:-$__distro_path_lib}"
+force_update="${2:-false}"
+
+if [ "$force_update" = "--force-update" ];then
+	force_update=true
+fi
 
 current_path="$(dirname "$(realpath "$0")")"
 source_base_path="${current_path}/source_base"
 baseGTK_path="${current_path}/baseGTK"
 
-__distro_path_lib="${1:-$__distro_path_lib}"
 if [ -n "$__distro_path_lib" ];then
 	if [ "$(id -u)" -ne 0 ]; then
     	my-superuser $0 "$__distro_path_lib"
@@ -22,11 +27,13 @@ fi
 
 list_of_base_GTK_theme="$(find "${source_base_path}" -type f || :)"
 mkdir -p "${gtktheme_path}"
+
 for t in ${list_of_base_GTK_theme};do
 	. "$t"
+	base_name="$(basename "$t")"
 	theme_path="${gtktheme_path}/${base_name}"
-	if [ -d "$theme_path" ]
-		rm -rdf "$theme_path"
+	if [ -d "$theme_path" ] && [ "$force_update" = false ];then
+		continue
 	fi
 	mkdir -p "$theme_path"
 	. "$baseGTK_path/$THEME_STYLE"

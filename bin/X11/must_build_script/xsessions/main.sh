@@ -41,7 +41,7 @@ if [ ! -f "$usr_setup_flag_file" ];then
     if [ -x /usr/bin/xdg-user-dirs-update ];then
         /usr/bin/xdg-user-dirs-update
     fi
-    "${__distro_path_root}/bin/not_add_2_path"/set_git_aliases
+    "${__distro_path_installers_and_tweaks}"/set_git_aliases
 fi
 
 case $SHELL in

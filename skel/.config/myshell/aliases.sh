@@ -45,15 +45,16 @@ alias ip="ip -color=auto"
 
 ### LS
 # Alias's for multiple directory listing commands
-alias la='ls -Alh'                # show hidden files
-alias lx='ls -lXBh'               # sort by extension
-alias lk='ls -lSrh'               # sort by size
-alias lc='ls -lcrh'               # sort by change time
-alias lu='ls -lurh'               # sort by access time
-alias lr='ls -lRh'                # recursive ls
-alias lt='ls -ltrh'               # sort by date
-alias lm='ls -alh |more'          # pipe through 'more'
-alias lw='ls -xAh'                # wide listing format
+alias showhiden='ls -Alb'                # show hidden files
+alias la='ls -Al'                # show hidden files
+alias lx='ls -lXB'               # sort by extension
+alias lk='ls -lSr'               # sort by size
+alias lc='ls -lcr'               # sort by change time
+alias lu='ls -lur'               # sort by access time
+alias lr='ls -lR'                # recursive ls
+alias lt='ls -ltr'               # sort by date
+alias lm='ls -al |more'          # pipe through 'more'
+alias lw='ls -xA'                # wide listing format
 alias ll='ls -Fls'                # long listing format
 alias labc='ls -lap'              #alphabetical sort
 alias llf="ls -l | grep -v '^d'"  # files only

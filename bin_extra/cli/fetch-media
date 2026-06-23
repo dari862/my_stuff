@@ -1,9 +1,11 @@
 #!/bin/sh
 set -e
 . "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed "${YTDL}" || exit 1
 
 YTDL="yt-dlp"
+
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed "${YTDL}" || exit 1
+
 RESOLUTION=720
 START=1
 MODE="video"
@@ -46,7 +48,7 @@ while getopts "hAu:n:a:d:r:s:f:" opt; do
 done
 
 if [ "$MODE" = "audio" ];then
-    "${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed ffmpeg || exit 1
+    "${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed ffmpeg || exit 1
 fi
 
 if [ -z "${URL}" ]; then

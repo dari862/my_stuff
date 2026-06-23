@@ -1,5 +1,5 @@
 #!/bin/sh -e
-tweek_as_dependency "Enable_multilib" || continue
+"${__distro_path_installers_and_tweaks}"/my-tweaker --tweek-as-dependency "Enable_multilib" || continue
 devel_pakages='tar tree multitail tldr trash-cli unzip cmake make jq'
 
 say 'Installing devel-pakages ...' 1

@@ -10,6 +10,7 @@ __distro_for_all_path="${__distro_path_system_files}/for_all"
 __distro_path_bin="${__distro_path_system_files}/bin"
 __distro_path_system_skel_files="${__distro_path_system_files}/skel"
 
+__distro_path_installers_and_tweaks="${__distro_path_root}/bin/installers_and_tweaks"
 __distro_path_external="${__distro_path_root}/external"
 __distro_path_updater="${__distro_path_external}/updater"
 __distro_path_downloaded="${__distro_path_external}/downloaded"

@@ -4,7 +4,7 @@
 . "${Distro_config_file}"
 
 
-picked_package_line="$("${__distro_path_root}"/bin/not_add_2_path/myinstaller_apps_list | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -l 10 )"
+picked_package_line="$("${__distro_path_installers_and_tweaks}"/myinstaller_apps_list | rofi -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi -l 10 )"
 
 if [ -n "$picked_package_line" ];then
 	picked_package="$(printf '%s' "$picked_package_line" | awk -F'|' '{print $1}')"

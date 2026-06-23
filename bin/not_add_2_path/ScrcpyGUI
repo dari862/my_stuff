@@ -1,0 +1,886 @@
+#!/bin/python3
+import customtkinter as ctk
+from tkinter import filedialog
+import os
+import subprocess
+import threading
+import re
+from datetime import datetime
+
+class DynamicScrcpyGUI(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("SCRCPY GUI - Master Command Terminal")
+        self.geometry("1340x950")
+        self.minsize(1100, 700)
+        
+        # Native adaptive background colors
+        self.configure(fg_color=("#F4F3F7", "#13101C"))
+
+        # ==========================================
+        # STATE DICTIONARY (LIVE PARAMETERS)
+        # ==========================================
+        self.config_state = {
+            "device_id": "No Device Detected",
+            "connection_type": "USB",
+            "wireless_ip": "",
+            "pairing_ip": "",
+            "pairing_code": "",
+            "capture_source": "SCREEN",
+            "resolution": "Original",
+            "fps": "Auto",
+            "rotation": "0°",
+            "renderer": "Auto",
+            "bitrate": 8,
+            "audio_codec": "Opus",
+            "recording_path": os.path.join(os.path.expanduser("~"), "Videos"),
+            "hid_keyboard": False,
+            "hid_mouse": False,
+            "camera_id": "Auto Select (Recommended)",
+            "camera_codec": "H.264",
+            "aspect_ratio": "16:9",
+            "camera_torch": False,
+            "camera_zoom": 1.0,
+            "flex_display": False,
+            "ratio_lock": False,
+            "desktop_width": 1920,
+            "desktop_height": 1080,
+            "session_behaviors": {
+                "STAY AWAKE (?)": True,
+                "KEEP ACTIVE (?)": True,
+                "SCREEN OFF (?)": False,
+                "FORWARD AUDIO (?)": True,
+                "ALWAYS ON TOP (?)": False,
+                "FULL SCREEN (?)": False,
+                "BORDERLESS (?)": False,
+                "RECORD FEED (?)": False
+            }
+        }
+
+        # --- NEW: LIVE COMMAND PREVIEW BAR AT THE TOP ---
+        self.preview_card = ctk.CTkFrame(self, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        self.preview_card.pack(fill="x", padx=20, pady=(15, 5))
+        
+        lbl_preview_title = ctk.CTkLabel(self.preview_card, text="📋 LIVE SCRCPY COMMAND PREVIEW", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_preview_title.pack(anchor="w", padx=15, pady=(8, 2))
+        
+        self.preview_text = ctk.CTkEntry(self.preview_card, fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), font=("Courier New", 12, "bold"), text_color="#845EF7")
+        self.preview_text.pack(fill="x", padx=15, pady=(0, 10))
+
+        # Create a responsive master scrollable frame to protect low-resolution displays
+        self.scroll_viewport = ctk.CTkScrollableFrame(
+            self, 
+            fg_color="transparent",
+            bg_color="transparent"
+        )
+        self.scroll_viewport.pack(fill="both", expand=True, padx=10, pady=5)
+
+        # Configure balanced horizontal column weights inside the viewport wrapper
+        self.scroll_viewport.columnconfigure(0, weight=1, minsize=320)
+        self.scroll_viewport.columnconfigure(1, weight=2, minsize=640)
+        self.scroll_viewport.columnconfigure(2, weight=1, minsize=320)
+        self.scroll_viewport.rowconfigure(0, weight=1)
+
+        # Dynamic placeholder references for layout changing logic
+        self.current_device_sub_frame = None
+        self.current_engine_sub_frame = None
+
+        # Build Interface
+        self.create_left_column()
+        self.create_center_column()
+        self.create_right_column()
+        
+        # Prime the output terminal feed and kick off ADB synchronization
+        self.log_to_console("⚡ Master Command Engine fully initialized. Live variables linked.")
+        self.refresh_adb_device_data()
+        self.update_live_command_preview()
+
+    # ==========================================
+    # CORE ADB & SCRCPY EXECUTION PIPELINE
+    # ==========================================
+    def build_scrcpy_arguments(self):
+        """Compiles active GUI configurations and maps them to an array of arguments."""
+        scrcpy_args = ["scrcpy"]
+        if self.config_state["device_id"] != "No Device Detected":
+            scrcpy_args.extend(["-s", self.config_state["device_id"]])
+
+        # 1. Parse Capture Source Profiles
+        source = self.config_state["capture_source"]
+        if source == "CAMERA":
+            scrcpy_args.append("--video-source=camera")
+            if "Auto" not in self.config_state["camera_id"]:
+                scrcpy_args.append(f"--camera-id={self.config_state['camera_id']}")
+            scrcpy_args.append(f"--video-codec={self.config_state['camera_codec'].lower()}")
+            if "Original" not in self.config_state["aspect_ratio"]:
+                scrcpy_args.append(f"--camera-ar={self.config_state['aspect_ratio']}")
+            if self.config_state["camera_torch"]:
+                scrcpy_args.append("--camera-fps=30")
+        elif source == "DESKTOP":
+            scrcpy_args.append(f"--create-vdisplay={self.config_state['desktop_width']}x{self.config_state['desktop_height']}")
+
+        # 2. Add General Stream Modifiers
+        if self.config_state["resolution"] != "Original":
+            res_val = self.config_state["resolution"].replace("p", "")
+            scrcpy_args.append(f"-m{res_val}")
+            
+        if self.config_state["fps"] != "Auto":
+            scrcpy_args.append(f"--max-fps={self.config_state['fps']}")
+            
+        if self.config_state["rotation"] != "0°":
+            rot_deg = self.config_state["rotation"].replace("°", "")
+            rot_map = {"90": "1", "180": "2", "270": "3"}
+            scrcpy_args.append(f"--lock-video-orientation={rot_map.get(rot_deg, '0')}")
+
+        scrcpy_args.append(f"-b{self.config_state['bitrate']}M")
+
+        # 3. Handle Native Session Management Rules 
+        rules = self.config_state["session_behaviors"]
+        if rules["STAY AWAKE (?)"]: scrcpy_args.append("-w")
+        if rules["SCREEN OFF (?)"]: scrcpy_args.append("-S")
+        if rules["ALWAYS ON TOP (?)"]: scrcpy_args.append("--always-on-top")
+        if rules["FULL SCREEN (?)"]: scrcpy_args.append("-f")
+        if rules["BORDERLESS (?)"]: scrcpy_args.append("--window-borderless")
+        
+        if rules["FORWARD AUDIO (?)"]:
+            scrcpy_args.append(f"--audio-codec={self.config_state['audio_codec'].lower()}")
+        else:
+            scrcpy_args.append("--no-audio")
+
+        if rules["RECORD FEED (?)"]:
+            # Uses a snapshot generator for path representation previewing
+            timestamp = "YYYYMMDD_HHMMSS"
+            record_file = os.path.join(self.config_state["recording_path"], f"scrcpy_stream_{timestamp}.mp4")
+            scrcpy_args.append(f"-r={record_file}")
+
+        # 4. Input Enhancements (OTG simulation drivers)
+        if self.config_state["hid_keyboard"]: scrcpy_args.append("-K")
+        if self.config_state["hid_mouse"]: scrcpy_args.append("-M")
+
+        return scrcpy_args
+
+    def update_live_command_preview(self):
+        """Updates the command text bar visibility safely stringwise."""
+        args = self.build_scrcpy_arguments()
+        self.preview_text.configure(state="normal")
+        self.preview_text.delete(0, "end")
+        self.preview_text.insert(0, " ".join(args))
+        self.preview_text.configure(state="readonly")
+
+    def run_background_cmd(self, cmd_list, callback=None, log_output=True):
+        """Executes a terminal or shell tool safely inside a worker thread to keep the GUI fluid."""
+        def worker():
+            try:
+                startupinfo = None
+                if os.name == 'nt':
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                
+                result = subprocess.run(
+                    cmd_list, 
+                    stdout=subprocess.PIPE, 
+                    stderr=subprocess.PIPE, 
+                    text=True, 
+                    startupinfo=startupinfo,
+                    timeout=120
+                )
+                if log_output and result.stdout.strip():
+                    self.log_to_console(f"[SHELL OUT] {result.stdout.strip()}")
+                if result.returncode != 0 and result.stderr.strip():
+                    self.log_to_console(f"[SHELL ERR] {result.stderr.strip()}", is_error=True)
+                
+                if callback:
+                    self.after(0, lambda: callback(result.stdout, result.stderr))
+            except Exception as e:
+                self.log_to_console(f"Subprocess runtime error: {str(e)}", is_error=True)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def refresh_adb_device_data(self):
+        """Polls connected hardware via adb, extracts identifiers, and sniffs networking profiles."""
+        self.log_to_console("🔍 Querying ADB subsystem layer for connected targets...")
+        
+        def process_devices(stdout, stderr):
+            lines = stdout.strip().split('\n')
+            devices = [line.split('\t')[0] for line in lines[1:] if line.strip() and '\tdevice' in line]
+            
+            if devices:
+                active_device = devices[0]
+                self.config_state["device_id"] = active_device
+                self.lbl_dev.configure(text=f"{active_device}\nREADY  •  CONNECTED", text_color=("#4A4160", "#4AF2A1"))
+                self.log_to_console(f"Active Device identified -> Host Interface ID: {active_device}")
+                
+                self.run_background_cmd(
+                    ["adb", "-s", active_device, "shell", "ip", "route"], 
+                    callback=process_ip, 
+                    log_output=False
+                )
+            else:
+                self.config_state["device_id"] = "No Device Detected"
+                self.lbl_dev.configure(text="NO DEVICE RUNNING\nCHECK PHYSICAL LINK OR DRIVERS", text_color=("#FF4136", "#FF6B6B"))
+                self.log_to_console("Warning: ADB found no initialized devices. Verify USB Debugging setup.", is_error=True)
+            self.update_live_command_preview()
+
+        def process_ip(stdout, stderr):
+            match = re.search(r'src\s+([\d\.]+)', stdout)
+            if match:
+                ip = match.group(1)
+                self.config_state["wireless_ip"] = f"{ip}:5555"
+                self.log_to_console(f"Target system wireless interface recognized -> {ip}")
+                if hasattr(self, 'ip_entry') and self.ip_entry.winfo_exists():
+                    self.ip_entry.delete(0, "end")
+                    self.ip_entry.insert(0, f"{ip}:5555")
+            else:
+                self.log_to_console("Device has no active WLAN routing assigned. Connect phone to shared WiFi topology.")
+
+        self.run_background_cmd(["adb", "devices"], callback=process_devices, log_output=False)
+
+    def trigger_wireless_connect(self):
+        """Instructs ADB to connect to a target network node address over TCP/IP."""
+        target_ip = self.config_state["wireless_ip"].strip()
+        if not target_ip:
+            self.log_to_console("Error: Please provide a valid address string (IP:PORT).", is_error=True)
+            return
+        
+        self.log_to_console(f"Bridging target link interface context to TCP over port 5555...")
+        self.run_background_cmd(["adb", "tcpip", "5555"], callback=lambda out, err: self.after(1000, lambda: self.run_background_cmd(["adb", "connect", target_ip], callback=lambda o, e: self.refresh_adb_device_data())))
+
+    def trigger_wireless_pairing(self):
+        """Executes modern Android 11+ automated pairing keys."""
+        ip_port = self.config_state["pairing_ip"].strip()
+        code = self.config_state["pairing_code"].strip()
+        if not ip_port or not code:
+            self.log_to_console("Pairing parameters incomplete. Check values.", is_error=True)
+            return
+        self.log_to_console(f"Broadcasting security protocol handshake parameters toward -> {ip_port}")
+        self.run_background_cmd(["adb", "pair", ip_port, code], callback=lambda o, e: self.refresh_adb_device_data())
+
+    def kill_adb_daemon(self):
+        """Restarts the system bridge daemon context to handle communication issues."""
+        self.log_to_console("Killing host ADB daemon instances...")
+        self.run_background_cmd(["adb", "kill-server"], callback=lambda o, e: self.refresh_adb_device_data())
+
+    # ==========================================
+    # FILE UPLOAD LOGIC ENGINE
+    # ==========================================
+    def process_file_upload(self, filepath):
+        """Determines if target payload file is an APK installer or general asset file, then executes push."""
+        filepath = filepath.strip('{} ') 
+        if not filepath or not os.path.exists(filepath):
+            self.log_to_console("File interaction failed: Specified storage path does not exist.", is_error=True)
+            return
+
+        if self.config_state["device_id"] == "No Device Detected":
+            self.log_to_console("Cannot dispatch files: No initialized Android hardware mapped.", is_error=True)
+            return
+
+        filename = os.path.basename(filepath)
+        
+        if filename.lower().endswith(".apk"):
+            self.log_to_console(f"📦 System packaging detected. Initiating background app installation layer for: {filename}")
+            cmd = ["adb", "-s", self.config_state["device_id"], "install", "-r", filepath]
+            
+            def on_install_complete(stdout, stderr):
+                if "Success" in stdout or "Success" in stderr:
+                    self.log_to_console(f"🎉 Success! Package '{filename}' safely installed on target device.")
+                else:
+                    self.log_to_console(f"⚠️ App Installation completed with anomaly status markers.", is_error=True)
+            
+            self.run_background_cmd(cmd, callback=on_install_complete)
+        else:
+            destination = "/sdcard/Download/"
+            self.log_to_console(f"📁 Asset file verified. Dispatched adb push stream for '{filename}' to system repository: {destination}")
+            cmd = ["adb", "-s", self.config_state["device_id"], "push", filepath, destination]
+            
+            def on_push_complete(stdout, stderr):
+                self.log_to_console(f"📤 File allocation synchronized! Transfer for '{filename}' committed to {destination}")
+            
+            self.run_background_cmd(cmd, callback=on_push_complete)
+
+    def manual_file_selector_trigger(self, event=None):
+        """Opens a standard file dialog option when users click inside the payload card container."""
+        chosen_file = filedialog.askopenfilename(title="Select File / Application Package to push to device")
+        if chosen_file:
+            self.process_file_upload(chosen_file)
+
+    def handle_connection_startup(self):
+        """Compiles GUI configurations and maps them seamlessly to an optimized scrcpy statement."""
+        if self.config_state["device_id"] == "No Device Detected":
+            self.log_to_console("Aborting SCRCPY init thread: Target system requires an active device map link.", is_error=True)
+            return
+
+        scrcpy_args = self.build_scrcpy_arguments()
+        
+        # Swaps representative runtime string elements with real hardware timestamp parameters
+        if self.config_state["session_behaviors"]["RECORD FEED (?)"]:
+            real_ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            scrcpy_args = [arg.replace("YYYYMMDD_HHMMSS", real_ts) for arg in scrcpy_args]
+
+        self.log_to_console(f"Launching scrcpy runtime engine context using syntax: {' '.join(scrcpy_args)}")
+        
+        def launch_scrcpy_instance():
+            try:
+                startupinfo = None
+                if os.name == 'nt':
+                    startupinfo = subprocess.STARTUPINFO()
+                    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                proc = subprocess.Popen(scrcpy_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, startupinfo=startupinfo)
+                stdout, stderr = proc.communicate()
+                if stdout.strip(): self.log_to_console(f"[SCRCPY] {stdout.strip()}")
+                if stderr.strip(): self.log_to_console(f"[SCRCPY OUT] {stderr.strip()}")
+            except Exception as e:
+                self.log_to_console(f"Fatal error deploying target screen link: {str(e)}", is_error=True)
+
+        threading.Thread(target=launch_scrcpy_instance, daemon=True).start()
+
+    # ==========================================
+    # GLOBAL THEME & LOGGING VIEWPORT TOOLS
+    # ==========================================
+    def change_theme_mode(self, choice):
+        if choice == "Light Mode":
+            ctk.set_appearance_mode("light")
+        elif choice == "Dark Mode":
+            ctk.set_appearance_mode("dark")
+        else:
+            ctk.set_appearance_mode("system")
+        self.log_to_console(f"Visual engine theme switched to: {choice}")
+
+    def log_to_console(self, text, is_error=False):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        prefix = "[ERROR] " if is_error else "[INFO]  "
+        formatted_msg = f"[{timestamp}] {prefix}{text}\n"
+        
+        self.console_box.configure(state="normal")
+        self.console_box.insert("end", formatted_msg)
+        self.console_box.see("end")
+        self.console_box.configure(state="disabled")
+
+    def clear_console_logs(self):
+        self.console_box.configure(state="normal")
+        self.console_box.delete("1.0", "end")
+        self.console_box.configure(state="disabled")
+        self.log_to_console("Console log display cleared.")
+
+    def save_console_to_file(self):
+        log_content = self.console_box.get("1.0", "end-1c")
+        if not log_content.strip(): return
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("Log Files", "*.log")], title="Save Console Output As...")
+        if file_path:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(log_content)
+            self.log_to_console(f"Logs exported successfully to: {os.path.basename(file_path)}")
+
+    def execute_terminal_command(self, event=None):
+        raw_cmd = self.cmd_entry.get().strip()
+        if not raw_cmd: return
+        self.log_to_console(f"Running custom shell script override argument line: {raw_cmd}")
+        cmd_split = raw_cmd.split(" ")
+        if cmd_split[0].lower() in ["clear", "cls"]:
+            self.clear_console_logs()
+        else:
+            self.run_background_cmd(cmd_split)
+        self.cmd_entry.delete(0, "end")
+
+    def on_shortcut_click(self, key_pressed):
+        self.log_to_console(f"Macro shortcut event triggered: ALT + {key_pressed}")
+        if self.config_state["device_id"] != "No Device Detected":
+            self.run_background_cmd(["adb", "-s", self.config_state["device_id"], "shell", "input", "keyevent", "KEYWORDS_IF_ANY"])
+
+    # ==========================================
+    # GENERIC VARIABLE MUTATION BINDINGS
+    # ==========================================
+    def update_dropdown_state(self, key, value):
+        self.config_state[key] = value
+        self.log_to_console(f"Parameter update tracked: custom config setting [{key}] -> '{value}'")
+        self.update_live_command_preview()
+
+    def update_slider_bitrate(self, value):
+        rounded_val = int(value)
+        self.config_state["bitrate"] = rounded_val
+        self.lbl_bitrate_display.configure(text=f"BITRATE: {rounded_val}M")
+        self.update_live_command_preview()
+
+    def update_slider_zoom(self, value):
+        rounded_val = round(float(value), 1)
+        self.config_state["camera_zoom"] = rounded_val
+        self.lbl_zoom_display.configure(text=f"CAMERA ZOOM LEVEL: {rounded_val}x")
+        self.update_live_command_preview()
+
+    def update_slider_width(self, value):
+        rounded_val = int(value)
+        self.config_state["desktop_width"] = rounded_val
+        self.lbl_width_display.configure(text=f"WIDTH: {rounded_val}px")
+        self.update_live_command_preview()
+
+    def update_slider_height(self, value):
+        rounded_val = int(value)
+        self.config_state["desktop_height"] = rounded_val
+        self.lbl_height_display.configure(text=f"HEIGHT: {rounded_val}px")
+        self.update_live_command_preview()
+
+    def update_switch_state(self, key, variable_ref):
+        bool_val = bool(variable_ref.get())
+        self.config_state[key] = bool_val
+        self.log_to_console(f"Toggle property changed: control state setting [{key}] -> {bool_val}")
+        self.update_live_command_preview()
+
+    def update_behavior_switch(self, behavior_name, switch_widget):
+        is_on = switch_widget.get() == 1
+        self.config_state["session_behaviors"][behavior_name] = is_on
+        self.log_to_console(f"Session profile shift: rule matrix value [{behavior_name}] -> {is_on}")
+        
+        if behavior_name == "FORWARD AUDIO (?)":
+            if is_on: self.audio_codec_frame.pack(fill="x", padx=15, pady=(2, 6), before=self.behavior_rows["ALWAYS ON TOP (?)"])
+            else: self.audio_codec_frame.pack_forget()
+        elif behavior_name == "RECORD FEED (?)":
+            if is_on: self.record_path_frame.pack(fill="x", padx=15, pady=(2, 6), after=self.behavior_rows["RECORD FEED (?)"])
+            else: self.record_path_frame.pack_forget()
+            
+        self.update_live_command_preview()
+
+    def browse_recording_path(self):
+        chosen_dir = filedialog.askdirectory(initialdir=self.config_state["recording_path"], title="Select Recording Destination")
+        if chosen_dir:
+            self.config_state["recording_path"] = chosen_dir
+            display_text = chosen_dir if len(chosen_dir) <= 28 else f"...{chosen_dir[-25:]}"
+            self.lbl_path_value.configure(text=display_text)
+            self.log_to_console(f"Target capture save location modified -> '{chosen_dir}'")
+            self.update_live_command_preview()
+
+    # ==========================================
+    # LEFT COLUMN: DEVICE HUB & THEME CONFIG
+    # ==========================================
+    def create_left_column(self):
+        left_container = ctk.CTkFrame(self.scroll_viewport, fg_color="transparent")
+        left_container.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
+
+        self.hub_card = ctk.CTkFrame(left_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        self.hub_card.pack(fill="x", pady=(0, 15), ipady=10)
+
+        lbl_hub = ctk.CTkLabel(self.hub_card, text="📱 DEVICE HUB", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_hub.pack(anchor="w", padx=15, pady=(10, 5))
+
+        device_box = ctk.CTkFrame(self.hub_card, fg_color=("#F1EFF5", "#1E1A29"), corner_radius=8, border_color=("#D1CDDA", "#342E44"), border_width=1)
+        device_box.pack(fill="x", padx=15, pady=5)
+        
+        btn_refresh = ctk.CTkButton(device_box, text="🔄 REFRESH HARDWARE LINKS", font=("Arial", 10, "bold"), fg_color=("#E2E0E7", "#342E44"), text_color=("#4A4160", "#E3DFFE"), hover_color=("#D1CDDA", "#443C59"), height=24, command=self.refresh_adb_device_data)
+        btn_refresh.pack(fill="x", padx=10, pady=(8, 4))
+
+        self.lbl_dev = ctk.CTkLabel(device_box, text="Scanning for device processes...", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), justify="left")
+        self.lbl_dev.pack(anchor="w", padx=15, pady=(4, 8))
+
+        self.device_tabs = ctk.CTkSegmentedButton(
+            self.hub_card, 
+            values=["USB", "WIRELESS"], 
+            fg_color=("#F1EFF5", "#1E1A29"), 
+            selected_color="#845EF7",
+            unselected_color=("#F1EFF5", "#1E1A29"),
+            text_color=("#4A4160", "#E3DFFE"),
+            command=self.on_device_tab_changed
+        )
+        self.device_tabs.set(self.config_state["connection_type"])
+        self.device_tabs.pack(fill="x", padx=15, pady=10)
+
+        self.device_dynamic_area = ctk.CTkFrame(self.hub_card, fg_color="transparent")
+        self.device_dynamic_area.pack(fill="x", padx=15, pady=5)
+
+        # File Selection Flash Card
+        flash_card = ctk.CTkFrame(left_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1, height=135, cursor="hand2")
+        flash_card.pack(fill="x", pady=(0, 15))
+        flash_card.pack_propagate(False)
+
+        lbl_cloud = ctk.CTkLabel(flash_card, text="📤", font=("Arial", 28), text_color="#845EF7")
+        lbl_cloud.pack(pady=(20, 2))
+        
+        lbl_title = ctk.CTkLabel(flash_card, text="FLASH / PUSH FILES", font=("Arial", 12, "bold"), text_color=("#4A4160", "#E3DFFE"))
+        lbl_title.pack()
+        
+        lbl_subtitle = ctk.CTkLabel(flash_card, text="CLICK TO BROWSE LOCAL FILES", font=("Arial", 9, "bold"), text_color=("#A39FB0", "#7D7591"))
+        lbl_subtitle.pack(pady=(2, 10))
+
+        flash_card.bind("<Button-1>", self.manual_file_selector_trigger)
+        lbl_cloud.bind("<Button-1>", self.manual_file_selector_trigger)
+        lbl_title.bind("<Button-1>", self.manual_file_selector_trigger)
+        lbl_subtitle.bind("<Button-1>", self.manual_file_selector_trigger)
+
+        theme_card = ctk.CTkFrame(left_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        theme_card.pack(fill="x", pady=0, ipady=8)
+        
+        lbl_theme = ctk.CTkLabel(theme_card, text="🎨 VISUAL INTERFACE MODE", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_theme.pack(anchor="w", padx=15, pady=(10, 4))
+        
+        self.theme_menu = ctk.CTkOptionMenu(
+            theme_card, 
+            values=["Light Mode", "Dark Mode", "System Default"], 
+            fg_color=("#F1EFF5", "#1E1A29"), 
+            text_color=("#4A4160", "#E3DFFE"), 
+            button_color=("#F1EFF5", "#1E1A29"), 
+            button_hover_color=("#D1CDDA", "#342E44"),
+            dropdown_fg_color=("#FFFFFF", "#1E1A29"),
+            dropdown_text_color=("#4A4160", "#E3DFFE"),
+            dropdown_hover_color=("#845EF7", "#845EF7"),
+            command=self.change_theme_mode
+        )
+        self.theme_menu.set("Light Mode")
+        self.theme_menu.pack(fill="x", padx=15, pady=4)
+
+        self.on_device_tab_changed(self.config_state["connection_type"])
+
+    def on_device_tab_changed(self, selected_tab):
+        self.config_state["connection_type"] = selected_tab
+        if self.current_device_sub_frame:
+            self.current_device_sub_frame.destroy()
+
+        self.current_device_sub_frame = ctk.CTkFrame(self.device_dynamic_area, fg_color="transparent")
+        self.current_device_sub_frame.pack(fill="x")
+
+        if selected_tab == "USB":
+            lbl_usb_info = ctk.CTkLabel(self.current_device_sub_frame, text="🔌 Physical ADB Bridge Node Active", font=("Arial", 11, "bold"), text_color="#845EF7")
+            lbl_usb_info.pack(anchor="w", pady=5)
+            btn_kill = ctk.CTkButton(self.current_device_sub_frame, text="⚡ KILL ADB DAEMON SERVER", fg_color=("#E2E0E7", "#342E44"), text_color=("#4A4160", "#E3DFFE"), hover_color=("#D1CDDA", "#443C59"), command=self.kill_adb_daemon)
+            btn_kill.pack(fill="x", pady=5)
+
+        elif selected_tab == "WIRELESS":
+            lbl_ip = ctk.CTkLabel(self.current_device_sub_frame, text="IP CONNECT WIRELESS NODE", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+            lbl_ip.pack(anchor="w", pady=(5, 2))
+            
+            self.ip_entry = ctk.CTkEntry(self.current_device_sub_frame, placeholder_text="Extracting IP or input 192.168.x.x:5555", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), text_color=("#4A4160", "#E3DFFE"))
+            self.ip_entry.pack(fill="x", pady=5)
+            if self.config_state["wireless_ip"]:
+                self.ip_entry.insert(0, self.config_state["wireless_ip"])
+            self.ip_entry.bind("<KeyRelease>", lambda e: self.config_state.update({"wireless_ip": self.ip_entry.get()}))
+
+            btn_connect_tcp = ctk.CTkButton(self.current_device_sub_frame, text="CONNECT TO IP", fg_color="#845EF7", text_color="white", hover_color="#7048E8", command=self.trigger_wireless_connect)
+            btn_connect_tcp.pack(fill="x", pady=(2, 10))
+
+            lbl_pair = ctk.CTkLabel(self.current_device_sub_frame, text="2. SECURE PAIR (ANDROID 11+)", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+            lbl_pair.pack(anchor="w", pady=(5, 5))
+
+            pair_inputs = ctk.CTkFrame(self.current_device_sub_frame, fg_color="transparent")
+            pair_inputs.pack(fill="x", pady=5)
+            
+            ent_p_ip = ctk.CTkEntry(pair_inputs, placeholder_text="IP:Port", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), text_color=("#4A4160", "#E3DFFE"), width=115)
+            ent_p_ip.pack(side="left", expand=True, fill="x", padx=(0, 5))
+            ent_p_ip.bind("<KeyRelease>", lambda e: self.config_state.update({"pairing_ip": ent_p_ip.get()}))
+            
+            ent_p_code = ctk.CTkEntry(pair_inputs, placeholder_text="Pairing Code", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), text_color=("#4A4160", "#E3DFFE"), width=115)
+            ent_p_code.pack(side="right", expand=True, fill="x", padx=(5, 0))
+            ent_p_code.bind("<KeyRelease>", lambda e: self.config_state.update({"pairing_code": ent_p_code.get()}))
+
+            btn_pair = ctk.CTkButton(self.current_device_sub_frame, text="START PAIRING HANDSHAKE", fg_color="transparent", border_color=("#D1CDDA", "#342E44"), border_width=1, text_color=("#4A4160", "#E3DFFE"), hover_color=("#F1EFF5", "#342E44"), command=self.trigger_wireless_pairing)
+            btn_pair.pack(fill="x", pady=(5, 0))
+
+    # ==========================================
+    # CENTER COLUMN: ENGINE CONTROL & TERMINAL
+    # ==========================================
+    def create_center_column(self):
+        center_container = ctk.CTkFrame(self.scroll_viewport, fg_color="transparent")
+        center_container.grid(row=0, column=1, padx=15, pady=15, sticky="nsew")
+
+        source_card = ctk.CTkFrame(center_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        source_card.pack(fill="x", pady=(0, 15), ipady=8)
+
+        lbl_src = ctk.CTkLabel(source_card, text="CAPTURE SOURCE", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_src.pack(anchor="w", padx=15, pady=10)
+
+        self.source_tabs = ctk.CTkSegmentedButton(
+            source_card, 
+            values=["SCREEN", "CAMERA", "DESKTOP"], 
+            fg_color=("#F1EFF5", "#1E1A29"), 
+            selected_color="#845EF7",
+            unselected_color=("#F1EFF5", "#1E1A29"),
+            text_color=("#4A4160", "#E3DFFE"),
+            command=self.on_engine_tab_changed
+        )
+        self.source_tabs.set(self.config_state["capture_source"])
+        self.source_tabs.pack(fill="x", padx=15, pady=5)
+
+        self.config_card = ctk.CTkFrame(center_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        self.config_card.pack(fill="x", pady=0)
+
+        self.engine_dynamic_area = ctk.CTkFrame(self.config_card, fg_color="transparent")
+        self.engine_dynamic_area.pack(fill="x", padx=15, pady=(15, 5))
+
+        global_settings_frame = ctk.CTkFrame(self.config_card, fg_color="transparent")
+        global_settings_frame.pack(fill="x", padx=15, pady=(5, 15))
+
+        drop_row = ctk.CTkFrame(global_settings_frame, fg_color="transparent")
+        drop_row.pack(fill="x", pady=10)
+        
+        f_res = ctk.CTkFrame(drop_row, fg_color="transparent")
+        f_res.pack(side="left", expand=True, fill="x", padx=(0,5))
+        ctk.CTkLabel(f_res, text="RESOLUTION", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
+        dp_res = ctk.CTkOptionMenu(f_res, values=["Original", "1080p", "720p"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("resolution", val))
+        dp_res.set(self.config_state["resolution"])
+        dp_res.pack(fill="x", pady=2)
+
+        f_fps = ctk.CTkFrame(drop_row, fg_color="transparent")
+        f_fps.pack(side="left", expand=True, fill="x", padx=5)
+        ctk.CTkLabel(f_fps, text="FPS LIMIT", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
+        dp_fps = ctk.CTkOptionMenu(f_fps, values=["Auto", "60", "90", "120"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("fps", val))
+        dp_fps.set(self.config_state["fps"])
+        dp_fps.pack(fill="x", pady=2)
+
+        f_rot = ctk.CTkFrame(drop_row, fg_color="transparent")
+        f_rot.pack(side="left", expand=True, fill="x", padx=(5,0))
+        ctk.CTkLabel(f_rot, text="ROTATION", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
+        dp_rot = ctk.CTkOptionMenu(f_rot, values=["0°", "90°", "180°", "270°"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("rotation", val))
+        dp_rot.set(self.config_state["rotation"])
+        dp_rot.pack(fill="x", pady=2)
+
+        lbl_render = ctk.CTkLabel(global_settings_frame, text="GRAPHICS RENDER PANEL", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_render.pack(anchor="w", pady=(5,0))
+        dp_render = ctk.CTkOptionMenu(global_settings_frame, values=["Auto", "OpenGL", "Vulkan", "Direct3D"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), width=160, command=lambda val: self.update_dropdown_state("renderer", val))
+        dp_render.set(self.config_state["renderer"])
+        dp_render.pack(anchor="w", pady=2)
+
+        self.lbl_bitrate_display = ctk.CTkLabel(global_settings_frame, text=f"BITRATE: {self.config_state['bitrate']}M", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        self.lbl_bitrate_display.pack(anchor="w", pady=(10,0))
+        sb_bitrate = ctk.CTkSlider(global_settings_frame, from_=1, to=32, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_bitrate)
+        sb_bitrate.set(self.config_state["bitrate"])
+        sb_bitrate.pack(fill="x", pady=5)
+
+        btn_eject = ctk.CTkButton(
+            center_container, 
+            text="▶  START CONNECTION", 
+            fg_color="#845EF7", 
+            hover_color="#7048E8", 
+            text_color="white", 
+            font=("Arial", 14, "bold"), 
+            height=46,
+            command=self.handle_connection_startup
+        )
+        btn_eject.pack(fill="x", pady=(15, 15))
+
+        # --- SYSTEM MONITOR HARDWARE ENGINE ---
+        console_card = ctk.CTkFrame(center_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        console_card.pack(fill="both", expand=True, pady=0)
+        
+        console_header = ctk.CTkFrame(console_card, fg_color="transparent")
+        console_header.pack(fill="x", padx=15, pady=(10, 5))
+        
+        lbl_console = ctk.CTkLabel(console_header, text="💻 SYSTEM CONSOLE MONITOR", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_console.pack(side="left")
+        
+        btn_save_log = ctk.CTkButton(console_header, text="💾 SAVE LOG", font=("Arial", 9, "bold"), fg_color=("#E2E0E7", "#342E44"), hover_color=("#D1CDDA", "#443C59"), text_color=("#4A4160", "#E3DFFE"), width=70, height=22, command=self.save_console_to_file)
+        btn_save_log.pack(side="right", padx=(5, 0))
+        
+        btn_clear_log = ctk.CTkButton(console_header, text="🗑️ CLEAR", font=("Arial", 9, "bold"), fg_color=("#E2E0E7", "#342E44"), hover_color=("#D1CDDA", "#443C59"), text_color=("#4A4160", "#E3DFFE"), width=60, height=22, command=self.clear_console_logs)
+        btn_clear_log.pack(side="right", padx=5)
+
+        self.console_box = ctk.CTkTextbox(console_card, fg_color=("#1E1E24", "#0F0C1B"), text_color=("#39FF14", "#4AF2A1"), font=("Courier New", 12), corner_radius=8, border_width=1, border_color=("#D1CDDA", "#3D354E"), height=220)
+        self.console_box.pack(fill="both", expand=True, padx=15, pady=5)
+        self.console_box.configure(state="disabled")
+        
+        # --- COMMAND ENTRY EXECUTION NODE ---
+        cmd_row = ctk.CTkFrame(console_card, fg_color="transparent")
+        cmd_row.pack(fill="x", padx=15, pady=(5, 15))
+        
+        lbl_prompt = ctk.CTkLabel(cmd_row, text=">_", font=("Courier New", 14, "bold"), text_color="#845EF7")
+        lbl_prompt.pack(side="left", padx=(2, 8))
+        
+        self.cmd_entry = ctk.CTkEntry(cmd_row, placeholder_text="Enter manual adb shell or scrcpy arguments here...", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), font=("Courier New", 12), text_color=("#4A4160", "#E3DFFE"))
+        self.cmd_entry.pack(side="left", fill="x", expand=True)
+        self.cmd_entry.bind("<Return>", self.execute_terminal_command)
+
+        self.on_engine_tab_changed(self.config_state["capture_source"])
+
+    def on_engine_tab_changed(self, selected_tab):
+        self.config_state["capture_source"] = selected_tab
+        if self.current_engine_sub_frame:
+            self.current_engine_sub_frame.destroy()
+
+        self.current_engine_sub_frame = ctk.CTkFrame(self.engine_dynamic_area, fg_color="transparent")
+        self.current_engine_sub_frame.pack(fill="x")
+
+        lbl_title = ctk.CTkLabel(self.current_engine_sub_frame, text=f"⚙️ {selected_tab} ENGINE CONFIGURATION", font=("Arial", 13, "bold"), text_color=("#4A4160", "#E3DFFE"))
+        lbl_title.pack(anchor="w", pady=(0, 10))
+
+        if selected_tab == "SCREEN":
+            input_box = ctk.CTkFrame(self.current_engine_sub_frame, fg_color=("#FFFFFF", "#2A2438"), border_color=("#E2E0E7", "#3D354E"), border_width=1, corner_radius=8)
+            input_box.pack(fill="x", pady=5, ipady=5)
+            
+            lbl_enhancement = ctk.CTkLabel(input_box, text="⌨️ INPUT ENHANCEMENTS", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"))
+            lbl_enhancement.pack(anchor="w", padx=12, pady=(8, 2))
+            lbl_enhancement_sub = ctk.CTkLabel(input_box, text="Control your phone using your computer's Mouse and Keyboard (OTG mode).", font=("Arial", 9), text_color=("#A39FB0", "#7D7591"))
+            lbl_enhancement_sub.pack(anchor="w", padx=12, pady=(0, 5))
+            
+            var_kb = ctk.BooleanVar(value=self.config_state["hid_keyboard"])
+            cb_kb = ctk.CTkCheckBox(input_box, text="HID KEYBOARD", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_kb, command=lambda: self.update_switch_state("hid_keyboard", var_kb))
+            cb_kb.pack(anchor="w", padx=15, pady=4)
+            
+            var_ms = ctk.BooleanVar(value=self.config_state["hid_mouse"])
+            cb_ms = ctk.CTkCheckBox(input_box, text="HID MOUSE", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_ms, command=lambda: self.update_switch_state("hid_mouse", var_ms))
+            cb_ms.pack(anchor="w", padx=15, pady=4)
+
+        elif selected_tab == "CAMERA":
+            cam_box = ctk.CTkFrame(self.current_engine_sub_frame, fg_color="transparent")
+            cam_box.pack(fill="x", pady=5)
+            
+            ctk.CTkLabel(cam_box, text="CAMERA DEVICE ID", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
+            dp_cam = ctk.CTkOptionMenu(cam_box, values=["Auto Select (Recommended)", "0", "1", "2", "3"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("camera_id", val))
+            dp_cam.set(self.config_state["camera_id"])
+            dp_cam.pack(fill="x", pady=(2, 12))
+
+            codec_aspect_row = ctk.CTkFrame(cam_box, fg_color="transparent")
+            codec_aspect_row.pack(fill="x", pady=(0, 12))
+
+            f_codec = ctk.CTkFrame(codec_aspect_row, fg_color="transparent")
+            f_codec.pack(side="left", expand=True, fill="x", padx=(0, 6))
+            ctk.CTkLabel(f_codec, text="CAMERA CODEC", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
+            dp_ccodec = ctk.CTkOptionMenu(f_codec, values=["H.264", "H.265", "AV1"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("camera_codec", val))
+            dp_ccodec.set(self.config_state["camera_codec"])
+            dp_ccodec.pack(fill="x", pady=2)
+
+            f_aspect = ctk.CTkFrame(codec_aspect_row, fg_color="transparent")
+            f_aspect.pack(side="right", expand=True, fill="x", padx=(6, 0))
+            ctk.CTkLabel(f_aspect, text="ASPECT RATIO", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
+            dp_aspect = ctk.CTkOptionMenu(f_aspect, values=["16:9", "4:3", "1:1", "Original Aspect"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("aspect_ratio", val))
+            dp_aspect.set(self.config_state["aspect_ratio"])
+            dp_aspect.pack(fill="x", pady=2)
+
+            torch_box = ctk.CTkFrame(cam_box, fg_color=("#FFFFFF", "#2A2438"), border_color=("#E2E0E7", "#3D354E"), border_width=1, corner_radius=8)
+            torch_box.pack(fill="x", pady=(0, 12), ipady=5)
+            var_torch = ctk.BooleanVar(value=self.config_state["camera_torch"])
+            cb_torch = ctk.CTkCheckBox(torch_box, text="⚡ CAMERA TORCH CONTROLLER (FLASH)", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_torch, command=lambda: self.update_switch_state("camera_torch", var_torch))
+            cb_torch.pack(anchor="w", padx=15, pady=8)
+
+            self.lbl_zoom_display = ctk.CTkLabel(cam_box, text=f"CAMERA ZOOM LEVEL: {self.config_state['camera_zoom']}x", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+            self.lbl_zoom_display.pack(anchor="w")
+            s_zoom = ctk.CTkSlider(cam_box, from_=1.0, to=8.0, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_zoom)
+            s_zoom.set(self.config_state["camera_zoom"])
+            s_zoom.pack(fill="x", pady=4)
+
+        elif selected_tab == "DESKTOP":
+            desk_box = ctk.CTkFrame(self.current_engine_sub_frame, fg_color="transparent")
+            desk_box.pack(fill="x", pady=5)
+
+            vdisp_box = ctk.CTkFrame(desk_box, fg_color=("#FFFFFF", "#2A2438"), border_color=("#E2E0E7", "#3D354E"), border_width=1, corner_radius=8)
+            vdisp_box.pack(fill="x", pady=(0, 15), ipady=5)
+            
+            lbl_vdisp = ctk.CTkLabel(vdisp_box, text="🖥️ VIRTUAL DISPLAY ENGINE", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"))
+            lbl_vdisp.pack(anchor="w", padx=12, pady=(8, 2))
+            lbl_vdisp_sub = ctk.CTkLabel(vdisp_box, text="Configure headless secondary system displays.", font=("Arial", 9), text_color=("#A39FB0", "#7D7591"))
+            lbl_vdisp_sub.pack(anchor="w", padx=12, pady=(0, 5))
+            
+            var_flex = ctk.BooleanVar(value=self.config_state["flex_display"])
+            cb_flex = ctk.CTkCheckBox(vdisp_box, text="FLEX DISPLAY", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_flex, command=lambda: self.update_switch_state("flex_display", var_flex))
+            cb_flex.pack(anchor="w", padx=15, pady=4)
+            
+            var_lock = ctk.BooleanVar(value=self.config_state["ratio_lock"])
+            cb_lock = ctk.CTkCheckBox(vdisp_box, text="RATIO LOCK", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_lock, command=lambda: self.update_switch_state("ratio_lock", var_lock))
+            cb_lock.pack(anchor="w", padx=15, pady=4)
+
+            self.lbl_width_display = ctk.CTkLabel(desk_box, text=f"WIDTH: {self.config_state['desktop_width']}px", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+            self.lbl_width_display.pack(anchor="w")
+            slider_width = ctk.CTkSlider(desk_box, from_=800, to=3840, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_width)
+            slider_width.set(self.config_state["desktop_width"])
+            slider_width.pack(fill="x", pady=(2, 10))
+
+            self.lbl_height_display = ctk.CTkLabel(desk_box, text=f"HEIGHT: {self.config_state['desktop_height']}px", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+            self.lbl_height_display.pack(anchor="w")
+            slider_height = ctk.CTkSlider(desk_box, from_=600, to=2160, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_height)
+            slider_height.set(self.config_state["desktop_height"])
+            slider_height.pack(fill="x", pady=(2, 10))
+        self.update_live_command_preview()
+
+    # ==========================================
+    # RIGHT COLUMN: RULES & MACRO SHORTCUT HOOKS
+    # ==========================================
+    def create_right_column(self):
+        right_container = ctk.CTkFrame(self.scroll_viewport, fg_color="transparent")
+        right_container.grid(row=0, column=2, padx=15, pady=15, sticky="nsew")
+
+        behavior_card = ctk.CTkFrame(right_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        behavior_card.pack(fill="x", pady=(0, 15), ipady=10)
+
+        lbl_session = ctk.CTkLabel(behavior_card, text="⚙️ SESSION BEHAVIOR", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_session.pack(anchor="w", padx=15, pady=10)
+
+        self.audio_codec_frame = ctk.CTkFrame(behavior_card, fg_color="transparent")
+        ctk.CTkLabel(self.audio_codec_frame, text="AUDIO CODEC", font=("Arial", 10, "bold"), text_color="#845EF7").pack(side="left", padx=(20, 0))
+        self.drop_codec = ctk.CTkOptionMenu(self.audio_codec_frame, values=["Opus", "AAC", "RAW"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), width=95, height=22, command=lambda val: self.update_dropdown_state("audio_codec", val))
+        self.drop_codec.set(self.config_state["audio_codec"])
+        self.drop_codec.pack(side="right")
+
+        # Configured frame box for path management components
+        self.record_path_frame = ctk.CTkFrame(behavior_card, fg_color=("#F1EFF5", "#1E1A29"), corner_radius=6, border_color=("#D1CDDA", "#342E44"), border_width=1, height=32)
+        self.record_path_frame.pack_propagate(False)
+        
+        trunc_init_path = self.config_state["recording_path"] if len(self.config_state["recording_path"]) <= 28 else f"...{self.config_state['recording_path'][-25:]}"
+        self.lbl_path_value = ctk.CTkLabel(self.record_path_frame, text=trunc_init_path, font=("Arial", 10, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        self.lbl_path_value.pack(side="left", padx=10)
+        
+        btn_browse = ctk.CTkButton(self.record_path_frame, text="BROWSE", font=("Arial", 9, "bold"), fg_color=("#E2E0E7", "#342E44"), hover_color=("#D1CDDA", "#443C59"), text_color=("#4A4160", "#E3DFFE"), width=65, height=22, command=self.browse_recording_path)
+        btn_browse.pack(side="right", padx=5)
+
+        self.behavior_rows = {}
+        
+        for text, default_on in self.config_state["session_behaviors"].items():
+            row = ctk.CTkFrame(behavior_card, fg_color="transparent")
+            row.pack(fill="x", padx=15, pady=5)
+            self.behavior_rows[text] = row
+            
+            ctk.CTkLabel(row, text=text, font=("Arial", 11), text_color=("#4A4160", "#E3DFFE")).pack(side="left")
+            
+            sw = ctk.CTkSwitch(row, text="", progress_color="#845EF7", button_color="#845EF7")
+            if default_on: 
+                sw.select()
+            sw.configure(command=lambda t=text, s=sw: self.update_behavior_switch(t, s))
+            sw.pack(side="right")
+
+        # --- PACK POSITION MANAGEMENT MARGIN RULES ---
+        if self.config_state["session_behaviors"]["FORWARD AUDIO (?)"]:
+            self.audio_codec_frame.pack(fill="x", padx=15, pady=(2, 6), before=self.behavior_rows["ALWAYS ON TOP (?)"])
+            
+        # MODIFIED: Places recording target options frame panel row directly *AFTER* the record switch
+        if self.config_state["session_behaviors"]["RECORD FEED (?)"]:
+            self.record_path_frame.pack(fill="x", padx=15, pady=(2, 6), after=self.behavior_rows["RECORD FEED (?)"])
+
+        shortcuts_card = ctk.CTkFrame(right_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        shortcuts_card.pack(fill="x", pady=0, ipady=10)
+
+        lbl_shortcuts = ctk.CTkLabel(shortcuts_card, text="⌨️ SHORTCUTS (ALT +)", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
+        lbl_shortcuts.pack(anchor="w", padx=15, pady=10)
+
+        grid_frame = ctk.CTkFrame(shortcuts_card, fg_color="transparent")
+        grid_frame.pack(fill="x", padx=15, pady=5)
+        grid_frame.columnconfigure((0, 1, 2, 3), weight=1)
+
+        shortcut_items = [
+            {"icon": "⛶", "key": "F"}, {"icon": "🏠", "key": "H"}, 
+            {"icon": "❬", "key": "B"}, {"icon": "☰", "key": "S"},
+            {"icon": "⏻", "key": "P"}, {"icon": "⟳", "key": "R"}, 
+            {"icon": "📋", "key": "V"}, {"icon": "👁", "key": "O"}
+        ]
+
+        for index, item in enumerate(shortcut_items):
+            r = index // 4
+            c = index % 4
+            
+            item_box = ctk.CTkFrame(grid_frame, fg_color="transparent")
+            item_box.grid(row=r, column=c, padx=4, pady=8, sticky="nsew")
+            
+            lbl_icon = ctk.CTkLabel(item_box, text=item["icon"], font=("Arial", 16), text_color=("#4A4160", "#E3DFFE"))
+            lbl_icon.pack()
+            
+            btn_key = ctk.CTkButton(
+                item_box, 
+                text=item["key"], 
+                font=("Arial", 10, "bold"), 
+                text_color=("#5A5568", "#E3DFFE"),
+                fg_color=("#F1EFF5", "#1E1A29"), 
+                hover_color=("#D1CDDA", "#342E44"),
+                border_color=("#D1CDDA", "#342E44"),
+                border_width=1,
+                corner_radius=4, 
+                width=26, 
+                height=22,
+                command=lambda k=item["key"]: self.on_shortcut_click(k)
+            )
+            btn_key.pack(pady=(4, 0))
+
+
+if __name__ == "__main__":
+    app = DynamicScrcpyGUI()
+    app.mainloop()

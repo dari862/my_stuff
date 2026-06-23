@@ -3,10 +3,10 @@
 
 app_name="noisetorch"
 if check_system_ready_file "Distrobox_ready";then
-	Distrobox_package_installer_ ${app_name} || continue		
+	Distrobox_package_installer_ "${app_name}" || continue		
 else
 	say "Installing ${app_name}..." 1
-	repobin --root install noisetorch || failed_to_run "failed to run ${app_name} ."
+	repobin --root install "${app_name}" || failed_to_run "failed to run ${app_name} ."
 	my-superuser setcap 'CAP_SYS_RESOURCE=+ep' "${__distro_path_downloaded}/noisetorch"
 	generate_applicationsdotdesktop_link "noisetorch"
 fi	

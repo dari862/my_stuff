@@ -188,8 +188,9 @@ copy_all__application_link_in_dir(){
 
 generate_applicationsdotdesktop_link(){
 	__application_name="${1:-}"
-	__application_command="${2:-}"
-	__Categories="${3:-}"
+	__application_command="${2:-$__application_name}"
+	__application_desktop_name="$(printf "${__application_name}" | sed "s/ /_/g" || printf "$__application_name")"
+	__Categories="${3:-$__application_desktop_name}"
 	if [ "$(id -u)" -eq 0 ];then
 		_SUPERUSER=""
 	else
@@ -201,6 +202,7 @@ generate_applicationsdotdesktop_link(){
 			_SUPERUSER="doas"
 		fi
 	fi
+		
     if [ -f "${__distro_path_root}/applications_extra/${__application_name}.desktop" ];then
     	$_SUPERUSER cp -r "${__distro_path_root}/applications_extra/${__application_name}.desktop" "${__distro_path_neverremove}/applications/${__application_name}.desktop"
     	if grep -q "(((__distro_path_root)))" "${__distro_path_neverremove}/applications/${__application_name}.desktop";then
@@ -208,13 +210,6 @@ generate_applicationsdotdesktop_link(){
     	fi
     	$_SUPERUSER ln -sf "${__distro_path_neverremove}/applications/${__application_name}.desktop" "/usr/share/applications"
     else
-    	if [ -n "$__application_command" ];then
-    		__Categories="${__Categories};"
-    	fi
-    	if [ -n "$__application_name" ];then
-    		__application_desktop_name="$(printf "${__application_name}" | sed "s/ /_/g" || printf "$__application_name")"
-    	fi
-    	[ -z "$__application_command" ] && __application_command="${__application_name}"
     	$_SUPERUSER tee "${__distro_path_neverremove}/applications/${__application_desktop_name}.desktop" <<- EOF >/dev/null 2>&1
     	[Desktop Entry]
 		Name=${__application_name}
@@ -223,12 +218,32 @@ generate_applicationsdotdesktop_link(){
 		Terminal=false
 		Type=Application
 		Icon=flatpak
-		Categories=GTK;${Categories}
+		Categories=GTK;${__Categories}
 		MimeType=text/html;text/xml;application/xhtml_xml;
 		StartupNotify=true
 		EOF
     	$_SUPERUSER ln -sf "${__distro_path_neverremove}/applications/${__application_name}.desktop" "/usr/share/applications"
     fi
+}
+
+generate_userlevel_applicationsdotdesktop_link(){
+	__application_name="${1:-}"
+	__application_command="${2:-$__application_name}"
+	__application_desktop_name="$(printf "${__application_name}" | sed "s/ /_/g" || printf "$__application_name")"
+	__Categories="${3:-$__application_desktop_name}"
+	
+    tee "$HOME/.local/share/applications/${__application_desktop_name}.desktop" <<- EOF >/dev/null 2>&1
+    [Desktop Entry]
+	Name=${__application_name}
+	Comment=${__application_name}
+	Exec=${__application_command}
+	Terminal=false
+	Type=Application
+	Icon=flatpak
+	Categories=GTK;${__Categories}
+	MimeType=text/html;text/xml;application/xhtml_xml;
+	StartupNotify=true
+	EOF
 }
 
 generate_applicationsdotdesktop_4_xsessions(){

@@ -3,6 +3,6 @@
 app_name="zellij"
 __choice=""
 say "Installing ${app_name}..." 1
-repobin --root install zellij || failed_to_run "failed to run ${app_name} ."
+repobin --root install "${app_name}" || failed_to_run "failed to run ${app_name} ."
 
 copy_from_extra_skel ".config/zellij" || continue

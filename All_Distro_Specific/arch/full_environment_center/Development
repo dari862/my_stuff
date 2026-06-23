@@ -1,6 +1,6 @@
 #!/bin/sh
 # need superuser : called by my-installer
-tweek_as_dependency "Enable_multilib" || continue
+"${__distro_path_installers_and_tweaks}"/my-tweaker --tweek-as-dependency "Enable_multilib" || continue
 
 app_name="Development Environment"
 

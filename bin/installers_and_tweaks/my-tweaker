@@ -1,0 +1,176 @@
+#!/bin/sh
+# need superuser : var (_SUPERUSER)
+#    my-installer: a script to install Debian packages in a popup terminal window.
+# # distobox enter gaming -- "pacman -Qi package 1>/dev/null || echo yes"
+
+. "$__distro_path_lib"
+HELP='my-tweaker: a script to install Debian packages in a popup terminal window.
+
+Usage:  my-tweaker --tweek tweek_name
+
+    -h --help                   show this message and exit
+    --tweek   a script to run Debian Tweeks in a popup terminal window.
+'
+if [ "$(id -u)" -eq 0 ];then
+	_SUPERUSER=""
+else
+	_SUPERUSER="my-superuser"
+fi
+
+check_tweek=false
+
+# if help option anywhere in args, output $HELP and exit immediately
+for i in "$@"
+do
+    case "$i" in
+    -h|--help)
+        echo "$HELP"
+        exit 0
+    ;;
+    esac
+done
+
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+
+option="${1-}"
+shift 1
+file_name_="${1-}"
+
+. "${__distro_path_root}/lib/common/repo"
+. "${__distro_path_root}/lib/common/DB"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
+. "${__distro_path_root}/lib/common/common"
+. "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+. "${__distro_path_root}/lib/common/system_ready"
+
+tweek_as_dependency(){
+	dependency_name="${1-}"
+	dependency_opt="${2-}"
+	dependency_location="$(grep -r "^${dependency_name}$" "${tweeks_db_path}" || :)"
+	if [ -n "$dependency_location" ];then
+		dependency_location="$(find "${__distro_path_root}/bin/my_installer/tweeks_center/" "${__distro_path_root}/Distro_Specific/tweeks_center/" -type f -name "${dependency_name}" )"
+		. "${dependency_location}" "${dependency_opt}"
+		remove_from_db "${dependency_name}" || continue
+		. "${pipemenu_builder}/my-tweeks-pipemenu.sh" || continue
+	fi
+}
+
+__run_(){
+	__file_location="$(find ${_files_path} -type f -name ${file_name_})"
+	[ ! -f "${__file_location}" ] && say "can not find (${file_name_})." && say 'Hit any key to exit...' 'pause' && exit 1
+
+	while true; do # do it until the package is successfully installed or user wants to exit
+		if [ "$TRYAGAIN" ];then # previous try failed
+			say
+			say "There was a problem installing ${file_name_}."
+			say
+			prompt '  Hit any key to try again, or "q" to quit...' Q && break
+		fi
+		TRYAGAIN=true
+		
+		clear
+		say
+		say "ENABLE ${file_name_}."
+		say '------------------------'
+		say "This script will enable ${file_name_}."
+		say
+		prompt '  Run the tweek now?' || break
+
+		${_SUPERUSER} true || continue
+		
+		say
+		
+		keep_superuser &
+		
+		clear
+		
+		tweek_title="$(echo ${file_name_} | sed 's/_/ /g')"
+		say "running tweek: ${tweek_title} ..." 1
+		
+		. "${__file_location}"
+		
+		remove_from_db "${file_name_}" || continue
+		. "${pipemenu_builder}/my-tweeks-pipemenu.sh" || continue
+
+		end_superuser || continue
+		
+		say
+		say
+		say "${file_name_} has been enabled successfully."
+		say
+		
+		say 'Hit any key to exit...' 'pause'
+		break
+	done
+}
+
+remove_from_db(){
+	file_to_remove="${1-}"
+	${_SUPERUSER} sed -i "/^${file_to_remove}$/d" "${tweeks_db_path}" || :
+}
+
+
+show_help(){
+    echo "$0: no such option $option" >&2
+    echo
+    echo "#################################################"
+    echo
+    echo "$HELP"
+    exit
+}
+
+_files_path="${_TWEEKS_LIBDIR} ${_TWEEKS_EXTRA_LIBDIR}"
+
+case $option in
+		--build-db)
+			say "Build DB for tweeks."
+			
+			[ -f "${tweeks_db_path}" ] && $_SUPERUSER rm -rf "${tweeks_db_path}"
+			$_SUPERUSER touch "${tweeks_db_path}"
+		
+			find ${_files_path} -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
+				tweek_basename="$(basename "$tweek")"
+				check_tweek=true
+				tweek_enabled=false
+				. "${tweek}" # here if tweek are enabled tweek_enabled var will become true
+				if [ "$tweek_enabled" = "false" ];then
+					echo "$tweek_basename" | $_SUPERUSER tee -a "${tweeks_db_path}" >/dev/null 2>&1
+					say "$tweek_basename are disabled." "yellow"
+				else
+					say "$tweek_basename are enabled."
+				fi
+			done
+			say "Running script for creating preferences pipemenu."
+			. "${pipemenu_builder}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run build_pipemenu/my-tweeks-pipemenu.sh"
+		;;
+		--check)
+			__file_location="$(find ${_files_path} -type f -name "${file_name_}")"
+			if grep -rq "${file_name_}" "${tweeks_db_path}";then
+				check_tweek=true
+				tweek_enabled=false
+				. "${__file_location}" # here if tweek are enabled tweek_enabled var will become true
+				if [ "$tweek_enabled" = "false" ];then
+					echo "$file_name_" | $_SUPERUSER tee -a "${tweeks_db_path}" >/dev/null 2>&1
+				fi
+				say "$file_name_ are disabled." "yellow"
+			else
+				say "$file_name_ are enabled."
+			fi
+		;;
+		--tweek) 
+			if grep -rq "${file_name_}" "${tweeks_db_path}";then
+				__run_
+			else
+				say
+				say "${file_name_} already enabled."
+				say
+				say 'Hit any key to exit...' 'pause'
+			fi
+		;;
+		--tweek-as-dependency)
+			tweek_as_dependency "${file_name_}"
+		;;
+		*) show_help;;
+esac
+
+exit 0

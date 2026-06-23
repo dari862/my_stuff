@@ -9,7 +9,7 @@ __tlp_version_="$(tlp-stat -s | head -1)"
 
 . "${__distro_path_root}/lib/languages/tlp/yadtlp_configdescriptions"
 
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed tlp || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed tlp || exit 1
 
 if [ -f "$__config_path" ];then
 	source <(sed '/^# /d;/^#!/d;s/#//g' "$__config_path")

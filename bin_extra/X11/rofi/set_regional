@@ -40,7 +40,7 @@ change_timezone() {
 	if [ -n "${res}" ];then
 		TIMEZONE="${res}"
 		
-		"${__distro_path_root}/bin/not_add_2_path"/my-fix --time-zone "${TIMEZONE}" >/dev/null 2>&1
+		"${__distro_path_installers_and_tweaks}"/my-fix --time-zone "${TIMEZONE}" >/dev/null 2>&1
 	fi
 }
 

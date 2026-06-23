@@ -32,7 +32,7 @@ case "${__mode}" in
 esac
 
 . "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed mpv jq sed grep ${whatmenu2use} || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed mpv jq sed grep ${whatmenu2use} || exit 1
 . "${__distro_path_root}/lib/common/WM"
 
 if [ "$whatmenu2use" = "rofi" ];then

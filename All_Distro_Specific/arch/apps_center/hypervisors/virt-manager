@@ -1,6 +1,6 @@
 #!/bin/sh -e
 # need superuser : called by my-installer
-tweek_as_dependency "Enable_IOMMU_support" || continue
+"${__distro_path_installers_and_tweaks}"/my-tweaker --tweek-as-dependency "Enable_IOMMU_support" || continue
 
 app_name="virt-manager"
 extra_apps_="qemu-emulators-full swtpm qemu-desktop libvirt dmidecode dnsmasq iptables-nft "

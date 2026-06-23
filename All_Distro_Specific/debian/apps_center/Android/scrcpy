@@ -1,0 +1,5 @@
+#!/bin/sh
+# need superuser : called by my-installer
+app_name="scrcpy"
+say "Installing ${app_name}..." 1
+repobin --root install "${app_name}" || failed_to_run "failed to run ${app_name} ."

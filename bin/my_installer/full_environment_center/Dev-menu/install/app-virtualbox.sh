@@ -3,4 +3,4 @@
 # See https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox#1-overview
 # for a guide on how to run Ubuntu inside it.
 
-"${__distro_path_root}"/bin/not_add_2_path/my-installer-installer --install-needed virtualbox
+"${__distro_path_installers_and_tweaks}"/my-installer --install-needed virtualbox

@@ -1,0 +1,239 @@
+#!/bin/python3
+import os
+import subprocess
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import customtkinter as ctk
+
+ctk.set_appearance_mode("System")
+ctk.set_default_color_theme("blue")
+
+class LinuxImageProcessor(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        
+        self.title("Linux ImageMagick CLI Processor")
+        self.geometry("800x630")
+        
+        self.file_list = []
+        self.setup_ui()
+        
+    def setup_ui(self):
+        # --- File Selection Area ---
+        self.top_frame = ctk.CTkFrame(self)
+        self.top_frame.pack(fill="x", padx=20, pady=15)
+        
+        self.browse_btn = ctk.CTkButton(self.top_frame, text="Browse / Add Files", command=self.browse_files)
+        self.browse_btn.pack(side="left", padx=10, pady=10, expand=True, fill="x")
+        
+        self.clear_btn = ctk.CTkButton(self.top_frame, text="Clear List", fg_color="gray", hover_color="darkgray", command=self.clear_list)
+        self.clear_btn.pack(side="right", padx=10, pady=10, expand=True, fill="x")
+        
+        # --- File List Box ---
+        self.list_frame = ctk.CTkFrame(self, height=100)
+        self.list_frame.pack(fill="x", padx=20, pady=5)
+        self.list_frame.pack_propagate(False)
+        
+        self.file_textbox = ctk.CTkTextbox(self.list_frame, height=90)
+        self.file_textbox.pack(fill="both", expand=True, padx=5, pady=5)
+        self.file_textbox.insert("0.0", "No files selected.")
+        self.file_textbox.configure(state="disabled")
+
+        # --- Options Area ---
+        self.options_frame = ctk.CTkScrollableFrame(self, label_text="Processing Options", height=280)
+        self.options_frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        self.options_frame.grid_columnconfigure((0, 1), weight=1)
+        
+        # 1. Output Format
+        ctk.CTkLabel(self.options_frame, text="Output Format:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
+        self.format_var = ctk.StringVar(value="Keep Original")
+        formats = ["Keep Original", "JPEG", "PNG", "WEBP", "HEIF", "BMP", "AVIF", "JXL", "PDF", "TIFF", "GIF"]
+        self.format_menu = ctk.CTkOptionMenu(self.options_frame, values=formats, variable=self.format_var)
+        self.format_menu.grid(row=0, column=1, sticky="ew", padx=10, pady=5)
+        
+        # 2. Compression Quality
+        ctk.CTkLabel(self.options_frame, text="Quality (Lossy compression 1-100):").grid(row=1, column=0, sticky="w", padx=10, pady=5)
+        self.quality_slider = ctk.CTkSlider(self.options_frame, from_=1, to=100, number_of_steps=100)
+        self.quality_slider.set(85)
+        self.quality_slider.grid(row=1, column=1, sticky="ew", padx=10, pady=5)
+        
+        # 3. Alpha Layer Color
+        ctk.CTkLabel(self.options_frame, text="Alpha Background Color (e.g., white, #FFFFFF):").grid(row=2, column=0, sticky="w", padx=10, pady=5)
+        self.alpha_color_entry = ctk.CTkEntry(self.options_frame, placeholder_text="None (Keep Transparent)")
+        self.alpha_color_entry.grid(row=2, column=1, sticky="ew", padx=10, pady=5)
+        
+        # 4. SVG/PDF Density / DPI
+        ctk.CTkLabel(self.options_frame, text="SVG/PDF Input Density (DPI):").grid(row=3, column=0, sticky="w", padx=10, pady=5)
+        self.dpi_entry = ctk.CTkEntry(self.options_frame, placeholder_text="150")
+        self.dpi_entry.insert(0, "150")
+        self.dpi_entry.grid(row=3, column=1, sticky="ew", padx=10, pady=5)
+        
+        # 5. Resize Options
+        ctk.CTkLabel(self.options_frame, text="Resize (Width x Height or Ratio like 50%):").grid(row=4, column=0, sticky="w", padx=10, pady=5)
+        self.resize_entry = ctk.CTkEntry(self.options_frame, placeholder_text="e.g., 1920x1080 or 50%")
+        self.resize_entry.grid(row=4, column=1, sticky="ew", padx=10, pady=5)
+        
+        # 6. Animation Explode
+        self.explode_var = ctk.BooleanVar(value=False)
+        self.explode_check = ctk.CTkCheckBox(self.options_frame, text="Extract Animation Frames (GIF/WEBP to PNGs)", variable=self.explode_var)
+        self.explode_check.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
+        # --- Action Buttons ---
+        self.btn_frame = ctk.CTkFrame(self)
+        self.btn_frame.pack(fill="x", padx=20, pady=15)
+        
+        self.paste_btn = ctk.CTkButton(self.btn_frame, text="Paste Clipboard Path / Image", command=self.paste_from_linux_clipboard, fg_color="green", hover_color="darkgreen")
+        self.paste_btn.pack(side="left", padx=10, expand=True, fill="x")
+        
+        self.process_btn = ctk.CTkButton(self.btn_frame, text="Process Batch (Run Magick CLI)", command=self.process_images, font=("Arial", 14, "bold"))
+        self.process_btn.pack(side="right", padx=10, expand=True, fill="x")
+
+    def browse_files(self):
+        files = filedialog.askopenfilenames(title="Select Images")
+        if files:
+            self.add_files(files)
+
+    def add_files(self, files):
+        for f in files:
+            if os.path.exists(f) and f not in self.file_list:
+                self.file_list.append(f)
+        self.update_textbox()
+
+    def clear_list(self):
+        self.file_list = []
+        self.update_textbox()
+
+    def update_textbox(self):
+        self.file_textbox.configure(state="normal")
+        self.file_textbox.delete("0.0", "end")
+        if self.file_list:
+            self.file_textbox.insert("0.0", "\n".join(self.file_list))
+        else:
+            self.file_textbox.insert("0.0", "No files selected.")
+        self.file_textbox.configure(state="disabled")
+
+    def get_linux_clipboard_text(self):
+        """Native Linux check for copied text paths (Supports X11 & Wayland)"""
+        try:
+            # Try xclip first (X11)
+            if subprocess.run(["which", "xclip"], capture_output=True).returncode == 0:
+                res = subprocess.run(["xclip", "-selection", "clipboard", "-o"], capture_output=True, text=True)
+                return res.stdout.strip()
+            # Fallback to wl-paste (Wayland)
+            elif subprocess.run(["which", "wl-paste"], capture_output=True).returncode == 0:
+                res = subprocess.run(["wl-paste", "--type", "text/plain"], capture_output=True, text=True)
+                return res.stdout.strip()
+        except Exception:
+            pass
+        return ""
+
+    def paste_from_linux_clipboard(self):
+        # 1. Check if clipboard contains a textual file path
+        cb_text = self.get_linux_clipboard_text()
+        
+        # Clean potential file:// URI prefixes or quotes added by file managers
+        if cb_text.startswith("file://"):
+            cb_text = cb_text.replace("file://", "")
+        if cb_text.startswith("'") or cb_text.startswith('"'):
+            cb_text = cb_text[1:-1]
+
+        if cb_text and os.path.exists(cb_text):
+            self.add_files([cb_text])
+            return
+
+        # 2. Fallback: Save raw image payload from clipboard directly via xclip/wl-paste
+        temp_path = os.path.join(os.getcwd(), "linux_clipboard_temp.png")
+        try:
+            if subprocess.run(["which", "xclip"], capture_output=True).returncode == 0:
+                # Check if an image target exists in xclip selection
+                targets = subprocess.run(["xclip", "-selection", "clipboard", "-t", "TARGETS", "-o"], capture_output=True, text=True).stdout
+                if "image" in targets:
+                    with open(temp_path, "wb") as f:
+                        subprocess.run(["xclip", "-selection", "clipboard", "-t", "image/png", "-o"], stdout=f)
+                    self.add_files([temp_path])
+                    messagebox.showinfo("Success", "Grabbed clipboard image raw payload as 'linux_clipboard_temp.png'")
+                    return
+            elif subprocess.run(["which", "wl-paste"], capture_output=True).returncode == 0:
+                # Wayland fallback for raw images
+                with open(temp_path, "wb") as f:
+                    res = subprocess.run(["wl-paste", "--type", "image/png"], stdout=f)
+                if res.returncode == 0 and os.path.getsize(temp_path) > 0:
+                    self.add_files([temp_path])
+                    messagebox.showinfo("Success", "Grabbed Wayland clipboard image as 'linux_clipboard_temp.png'")
+                    return
+        except Exception as e:
+            print(f"Clipboard extraction fallback failed: {e}")
+
+        messagebox.showwarning("Clipboard Empty", "No valid image data or file path found in Linux clipboard.")
+
+    def process_images(self):
+        if not self.file_list:
+            messagebox.showwarning("No Files", "Please select or paste files to process first.")
+            return
+        
+        out_dir = filedialog.askdirectory(title="Select Output Directory")
+        if not out_dir:
+            return
+
+        success_count = 0
+        
+        for file_path in self.file_list:
+            try:
+                base_name = os.path.splitext(os.path.basename(file_path))[0]
+                target_fmt = self.format_var.get()
+                
+                if target_fmt == "Keep Original":
+                    ext = os.path.splitext(file_path)[1].lower()
+                else:
+                    ext = f".{target_fmt.lower()}"
+
+                # Build native Linux ImageMagick v7 'magick' array command
+                cmd = ["magick"]
+                
+                # Input density (Crucial to define BEFORE loading SVG/PDF vectors)
+                dpi_val = self.dpi_entry.get().strip()
+                if dpi_val.isdigit():
+                    cmd.extend(["-density", dpi_val])
+                
+                cmd.append(file_path)
+                
+                # Alpha background modification
+                alpha_color = self.alpha_color_entry.get().strip()
+                if alpha_color:
+                    cmd.extend(["-background", alpha_color, "-alpha", "remove", "-alpha", "off"])
+
+                # Scaling options
+                resize_input = self.resize_entry.get().strip()
+                if resize_input:
+                    cmd.extend(["-resize", resize_input])
+
+                # Compression Quality
+                quality_val = str(int(self.quality_slider.get()))
+                cmd.extend(["-quality", quality_val])
+
+                # Output/Scene frames layout conversion
+                if self.explode_var.get() and ext in ['.gif', '.webp']:
+                    out_path = os.path.join(out_dir, f"{base_name}_frame_%d.png")
+                else:
+                    out_path = os.path.join(out_dir, f"{base_name}{ext}")
+
+                cmd.append(out_path)
+
+                # Execute inside shell execution container safely
+                result = subprocess.run(cmd, capture_output=True, text=True)
+                
+                if result.returncode == 0:
+                    success_count += 1
+                else:
+                    print(f"Linux ImageMagick error on {file_path}: {result.stderr}")
+
+            except Exception as e:
+                print(f"Subprocess system command failed on {file_path}: {e}")
+                
+        messagebox.showinfo("Finished", f"Successfully processed {success_count} of {len(self.file_list)} files.")
+        self.clear_list()
+
+if __name__ == "__main__":
+    app = LinuxImageProcessor()
+    app.mainloop()

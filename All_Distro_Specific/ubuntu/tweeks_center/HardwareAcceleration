@@ -33,8 +33,11 @@ else
 	fi
 
 	say "Installing Packages..."
-	Package_installer_ "$Packages_2_install"
-
+	connectiontest 1 || continue
+	clear
+	Package_update_ || continue
+	Package_installer_ "$Packages_2_install" || continue
+	
 	if [ "$(lspci | grep -i nvidia | grep VGA -c)" != "0" ];then
 		ENV_FILE="/etc/environment"
 		# Remove old entries if they exist

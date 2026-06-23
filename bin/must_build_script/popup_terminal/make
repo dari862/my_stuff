@@ -8,4 +8,7 @@ for term in kitty alacritty terminator urxvt;do
 	command -v "$term" > /dev/null 2>&1 && terminal="$term" && break
 done
 
-ln -sf "${popup_terminal_make_path}/$terminal" "${target_path}"
+
+cat "head.sh" "${popup_terminal_make_path}/${terminal}.sh" "tail.sh" | tee "$target_path" >/dev/null 2>&1
+
+chmod +x "$target_path"

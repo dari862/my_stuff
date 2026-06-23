@@ -12,10 +12,13 @@ elif [ "$1" = "--is-enable" ] || [ "$check_tweek" = "true" ];then # disabled and
 	tweek_enabled=false
 else
 	say "Adding backports repo"
-	Package_installer_ software-properties-common
-	enable_repo backports
+	connectiontest 1 || continue
+	clear
+	Package_update_ || continue
+	Package_installer_ software-properties-common || continue
+	enable_repo backports || continue
 		
-	Package_update_
+	Package_update_ || continue
 	${_SUPERUSER} ln -s ${__distro_path_root}/Distro_Specific/tweeks_center/Extra/backports_install ${__distro_path_root}/system_files/bin
 	command -v bash >/dev/null 2>&1 && ${_SUPERUSER} ln -s "${__distro_path_disabled_completion}"/bash/backports_install_auto_completion "${__distro_path_enabled_completion}"/bash
 	command -v zsh >/dev/null 2>&1 && ${_SUPERUSER} ln -s "${__distro_path_disabled_completion}"/zsh/backports_install_auto_completion "${__distro_path_enabled_completion}"/zsh

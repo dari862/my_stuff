@@ -1,0 +1,6 @@
+#!/bin/sh
+# Install vim and add localsend distro
+
+app_name="handy"
+say "Installing ${app_name}..." 1
+repobin --root install "${app_name}" || failed_to_run "failed to run ${app_name} ."

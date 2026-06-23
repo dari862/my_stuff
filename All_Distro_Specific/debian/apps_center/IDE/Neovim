@@ -7,11 +7,11 @@ __choice="$(head -c1)"
 stty icanon echo
 
 Title="Neovim"
-app_name="nvim"
+app_name="neovim"
 extra_apps_="cmake ripgrep fd-find python3-venv luarocks golang-go shellcheck $clip_manager_package_name"
 
 say "Installing ${Title} updater and installer..." 1
-repobin --root install neovim || failed_to_run "failed to run ${app_name} ."
+repobin --root install "${app_name}" || failed_to_run "failed to run ${app_name} ."
 
 say 'Installing extra packages...' 1
 Package_installer_ "${extra_apps_}" || continue

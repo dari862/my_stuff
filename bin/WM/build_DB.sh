@@ -82,23 +82,10 @@ build_gaming_db() {
 }
 
 build_tweeks_db() {
-	say "Build DB for tweeks."
-	
-	check_tweek=true
-	
-	[ -f "${tweeks_db_path}" ] && $_SUPERUSER rm -rf "${tweeks_db_path}"
-	$_SUPERUSER touch "${tweeks_db_path}"
-
-	find "${_TWEEKS_LIBDIR}" "${_TWEEKS_EXTRA_LIBDIR}" -mindepth 1 -maxdepth 1 -type f | while read -r tweek;do
-		tweek_enabled=false
-		tweek_basename="$(basename "$tweek")"
-		. "${tweek}"
-		if [ "$tweek_enabled" = false ];then
-			echo "$tweek_basename" | $_SUPERUSER tee -a "${tweeks_db_path}" >/dev/null 2>&1
-		else
-			echo "$tweek_basename are enabled." 
-		fi
-	done
+	if [ ! -d "${pipemenu_output_dir}" ];then
+		$_SUPERUSER mkdir -p "${pipemenu_output_dir}"
+	fi
+	"${__distro_path_installers_and_tweaks}"/my-tweaker --build-db
 }
 
 build_full_environment_db() {
@@ -168,7 +155,9 @@ build_chroots_deploy_db() {
 # Build all databases except the styles database
 build_all_db_except_style_db() {
 	$_SUPERUSER mkdir -p "${db_dir}"
-
+	if [ ! -d "${pipemenu_output_dir}" ];then
+		$_SUPERUSER mkdir -p "${pipemenu_output_dir}"
+	fi
 	[ ! -f "${tweeks_db_path}" ] && build_tweeks_db
 	[ ! -f "${full_environment_db_path}" ] && build_full_environment_db
 	[ ! -d "${apps_db_path}" ] && build_apps_db
@@ -220,9 +209,6 @@ build_pipemenu(){
 	
 	say "Running script for creating full_environment pipemenu."
 	. "${pipemenu_builder}"/full_environment-pipemenu.sh || failed_to_run "failed to run build_pipemenu/full_environment-pipemenu.sh"
-	
-	say "Running script for creating preferences pipemenu."
-	. "${pipemenu_builder}"/my-tweeks-pipemenu.sh || failed_to_run "failed to run build_pipemenu/my-tweeks-pipemenu.sh"
 	
 	say "Running script for creating install pipemenu."
 	. "${pipemenu_builder}"/my-install-pipemenu.sh|| failed_to_run "failed to run build_pipemenu/my-install-pipemenu.sh"

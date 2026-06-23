@@ -668,7 +668,7 @@ show_im "installing update-notification"
 "${__distro_path_root}"/bin/WM/update-notification -I "$__distro_path_lib"
 
 show_im "Generate lightdm.conf."
-"${__distro_path_root}"/bin/not_add_2_path/setLightdmGreeter --initial-step "$__distro_path_lib" "$switch_default_xsession_to"
+"${__distro_path_installers_and_tweaks}"/setLightdmGreeter --initial-step "$__distro_path_lib" "$switch_default_xsession_to"
 
 show_im "Adding themes"
 mkdir -p /usr/share/themes

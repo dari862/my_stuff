@@ -19,7 +19,7 @@
 # On Debian systems make sure 'at' is installed with --no-install-recommends.
 
 . "$__distro_path_lib"
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed at speaker-test notify-send || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed at speaker-test notify-send || exit 1
 
 # help
 unalias -a

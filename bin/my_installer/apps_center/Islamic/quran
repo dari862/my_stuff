@@ -1,4 +1,4 @@
 #!/bin/sh
 app_name="quran"
 say "Installing ${app_name}..." 1
-repobin --root install quran || failed_to_run "failed to run ${app_name} ."
+repobin --root install "${app_name}" || failed_to_run "failed to run ${app_name} ."

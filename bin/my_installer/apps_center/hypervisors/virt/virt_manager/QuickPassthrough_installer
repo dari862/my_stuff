@@ -3,8 +3,9 @@
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
+app_name2="quickpassthrough"
 say "Installing quickpassthrough..." 1
-repobin --root install quickpassthrough || failed_to_run "failed to run ${app_name} ."
+repobin --root install "${app_name2}" || failed_to_run "failed to run ${app_name2} ."
 say 
 say "quickpassthrough add for enabling GPU passthrough at OS level not at virt-manager level."
 remove_never_remove_bin "QuickPassthrough_installer" || :

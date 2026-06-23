@@ -1,0 +1,243 @@
+#!/bin/python3
+import os
+import glob
+import tkinter as tk
+from tkinter import ttk
+import pygame
+
+# ==============================================================================
+# CONFIGURATION: Set your custom audio directory path here.
+# Use "." for the current folder, or an absolute path like "/home/user/Music"
+# ==============================================================================
+AUDIO_DIRECTORY = os.path.expanduser("~/Music")
+# ==============================================================================
+
+class DynamicSoundscapePlayer:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Ambient Soundscape Mixer")
+        self.root.geometry("520x600")
+        self.root.resizable(False, False)
+
+        # Initialize pygame mixer
+        pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
+
+        # Separated storage to avoid data mutation / attribute crashes
+        self.ui_tracks = {}     
+        self.audio_tracks = {}  
+        
+        self.is_playing = False
+        self.current_theme = "dark"  # Default theme
+
+        # Define color palettes
+        self.themes = {
+            "dark": {
+                "bg": "#1a202c",       
+                "card": "#2d3748",     
+                "text": "#ffffff",     
+                "subtext": "#e2e8f0",  
+                "accent": "#4fd1c5",   
+                "btn_hover": "#38b2ac"
+            },
+            "light": {
+                "bg": "#f7fafc",       
+                "card": "#edf2f7",     
+                "text": "#1a202c",     
+                "subtext": "#4a5568",  
+                "accent": "#319795",   
+                "btn_hover": "#2c7a7b"
+            }
+        }
+
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+        
+        # Build layout
+        self.create_top_bar()
+        self.create_widgets()
+        
+        # Initial style application & scan
+        self.update_theme_styles()
+        self.scan_and_load_audio()
+
+    def create_top_bar(self):
+        """Creates the utility section at the very top for path and theme toggling."""
+        self.top_utility_frame = ttk.Frame(self.root, padding=(15, 10, 15, 5))
+        self.top_utility_frame.pack(fill="x")
+
+        # Resolve the variable path to an absolute path for clear UI display
+        target_dir = os.path.abspath(AUDIO_DIRECTORY)
+        display_path = f"📁 Scan Folder: ...{target_dir[-40:]}" if len(target_dir) > 40 else f"📁 Folder: {target_dir}"
+        
+        self.path_lbl = ttk.Label(self.top_utility_frame, text=display_path, font=("Helvetica", 9, "italic"))
+        self.path_lbl.pack(side="left")
+
+        # Theme Toggle Button
+        self.theme_btn = ttk.Button(
+            self.top_utility_frame, 
+            text="☀️ Light Mode", 
+            command=self.toggle_theme, 
+            width=12
+        )
+        self.theme_btn.pack(side="right")
+
+    def create_widgets(self):
+        """Builds the primary mixing UI elements."""
+        # Header Section
+        self.header_frame = ttk.Frame(self.root, padding=(15, 5, 15, 10))
+        self.header_frame.pack(fill="x")
+
+        self.title_lbl = ttk.Label(self.header_frame, text="🎧 Soundscape Mixer", font=("Helvetica", 15, "bold"))
+        self.title_lbl.pack(side="left")
+
+        self.master_btn = ttk.Button(self.header_frame, text="▶ Play All", command=self.toggle_playback, width=12)
+        self.master_btn.pack(side="right")
+
+        self.separator = ttk.Separator(self.root, orient="horizontal")
+        self.separator.pack(fill="x", padx=15, pady=5)
+
+        # Scrollable Audio List Container
+        self.canvas = tk.Canvas(self.root, bd=0, highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw", width=490)
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True, padx=(15, 0), pady=10)
+        self.scrollbar.pack(side="right", fill="y", padx=(0, 10), pady=10)
+
+    def update_theme_styles(self):
+        """Applies configuration changes depending on light or dark selection."""
+        colors = self.themes[self.current_theme]
+        
+        self.root.configure(bg=colors["bg"])
+        self.canvas.configure(bg=colors["bg"])
+
+        self.style.configure("TFrame", background=colors["bg"])
+        self.style.configure("Card.TFrame", background=colors["card"], relief="flat")
+        
+        self.style.configure("TLabel", background=colors["bg"], foreground=colors["subtext"])
+        self.path_lbl.configure(background=colors["bg"], foreground=colors["subtext"])
+        self.title_lbl.configure(background=colors["bg"], foreground=colors["text"])
+        self.style.configure("Track.TLabel", background=colors["card"], foreground=colors["text"], font=("Helvetica", 11, "bold"))
+
+        self.style.configure("Main.TButton", font=("Helvetica", 11, "bold"), background=colors["accent"], foreground=colors["bg"])
+        self.style.map("Main.TButton", background=[("active", colors["btn_hover"])])
+        self.master_btn.configure(style="Main.TButton")
+
+        self.style.configure("Util.TButton", font=("Helvetica", 9), background=colors["card"], foreground=colors["text"])
+        self.style.map("Util.TButton", background=[("active", colors["accent"])], foreground=[("active", colors["bg"])])
+        self.theme_btn.configure(style="Util.TButton")
+
+        for row_frame, lbl in self.ui_tracks.values():
+            if row_frame.winfo_exists():
+                row_frame.configure(style="Card.TFrame")
+            if lbl.winfo_exists():
+                lbl.configure(style="Track.TLabel")
+
+    def toggle_theme(self):
+        if self.current_theme == "dark":
+            self.current_theme = "light"
+            self.theme_btn.configure(text="🌙 Dark Mode")
+        else:
+            self.current_theme = "dark"
+            self.theme_btn.configure(text="☀️ Light Mode")
+        self.update_theme_styles()
+
+    def scan_and_load_audio(self):
+        """Scans the configured folder variable and populates UI rows."""
+        extensions = ('*.mp3', '*.wav', '*.ogg')
+        audio_files = []
+        
+        # Pull path directly from the configuration variable at the top
+        target_dir = os.path.abspath(AUDIO_DIRECTORY)
+        
+        for ext in extensions:
+            audio_files.extend(glob.glob(os.path.join(target_dir, ext)))
+
+        audio_files.sort()
+
+        if not audio_files:
+            no_file_lbl = ttk.Label(
+                self.scrollable_frame, 
+                text=f"No audio files found (.mp3, .wav, .ogg) in:\n{target_dir}\n\nUpdate AUDIO_DIRECTORY at the top of the script!",
+                justify="center", font=("Helvetica", 10, "italic")
+            )
+            no_file_lbl.pack(pady=50)
+            self.master_btn.configure(state="disabled")
+            return
+
+        for index, file_path in enumerate(audio_files):
+            filename = os.path.basename(file_path)
+            display_name = os.path.splitext(filename)[0].replace("_", " ").title()
+
+            row_frame = ttk.Frame(self.scrollable_frame, style="Card.TFrame", padding=5)
+            row_frame.pack(fill="x", pady=5, ipady=2)
+
+            lbl = ttk.Label(row_frame, text=display_name, style="Track.TLabel")
+            lbl.pack(side="left", padx=15)
+
+            volume_var = tk.DoubleVar(value=0.5)
+            slider = ttk.Scale(
+                row_frame,
+                from_=0.0,
+                to=1.0,
+                orient="horizontal",
+                variable=volume_var,
+                length=180,
+                command=lambda val, name=display_name: self.update_volume(name, val)
+            )
+            slider.pack(side="right", padx=15, pady=5)
+
+            try:
+                sound_obj = pygame.mixer.Sound(file_path)
+                channel_obj = pygame.mixer.Channel(index)
+
+                self.ui_tracks[display_name] = (row_frame, lbl)
+                self.audio_tracks[display_name] = {
+                    "sound": sound_obj,
+                    "channel": channel_obj,
+                }
+                channel_obj.set_volume(volume_var.get())
+
+            except Exception as e:
+                print(f"Error loading {filename}: {e}")
+                lbl.configure(text=f"{display_name} (Error Loading)", foreground="#fc8181")
+                slider.configure(state="disabled")
+
+    def update_volume(self, name, value):
+        if name in self.audio_tracks:
+            self.audio_tracks[name]["channel"].set_volume(float(value))
+
+    def toggle_playback(self):
+        if not self.audio_tracks:
+            return
+
+        if not self.is_playing:
+            for data in self.audio_tracks.values():
+                data["channel"].play(data["sound"], loops=-1)
+            self.master_btn.configure(text="⏸ Pause All")
+            self.is_playing = True
+        else:
+            for data in self.audio_tracks.values():
+                data["channel"].stop()
+            self.master_btn.configure(text="▶ Play All")
+            self.is_playing = False
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = DynamicSoundscapePlayer(root)
+
+    def on_closing():
+        pygame.mixer.quit()
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    root.mainloop()

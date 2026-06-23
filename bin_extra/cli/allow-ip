@@ -4,7 +4,7 @@ set -eu
 
 . "$__distro_path_lib"
 
-"${__distro_path_root}/bin/not_add_2_path"/check_4_dependencies_if_installed grep ip cut getopt getent || exit 1
+"${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed grep ip cut getopt getent || exit 1
 
 show_error() {
     printf "\033[0;91mError: %s\033[0m\n" "$1" >&2
