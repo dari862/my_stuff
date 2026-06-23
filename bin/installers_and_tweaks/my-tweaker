@@ -36,7 +36,7 @@ option="${1-}"
 shift 1
 file_name_="${1-}"
 
-. "${__distro_path_root}/lib/common/repo"
+. "${__distro_path_neverremove}/repo"
 . "${__distro_path_root}/lib/common/DB"
 . "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 . "${__distro_path_root}/lib/common/common"

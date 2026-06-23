@@ -1,4 +1,0 @@
-#!/bin/sh
-remote_repo_link="github.com/dari862"
-pre_remote_repo_raw_link="raw.githubusercontent.com/dari862"
-post_remote_repo_raw_link="main"

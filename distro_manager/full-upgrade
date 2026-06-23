@@ -18,7 +18,7 @@ elif [ "$__opt" = "--packages-only" ] || [ "$__opt" = "-p" ];then
 fi
 
 . "$__distro_path_lib"
-. "${__distro_path_root}/lib/common/repo"
+. "${__distro_path_neverremove}/repo"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 
