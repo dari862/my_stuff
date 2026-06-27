@@ -28,25 +28,25 @@ if [ "$__mode" = "rofi" ]; then
 fi
 
 get_uuid() {
-	if my-superuser blkid "$1" | grep -q "PTUUID=";then
-    	my-superuser blkid "$1" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p'
+	if my-superuser blkid "$1" >/dev/null 2>1;then
+    	my-superuser blkid "$1" | sed -n 's/.* UUID="\([^"]*\)".*/\1/p'
 	else
 		ls -l /dev/disk/by-uuid/ | grep "${1##*/}" | awk '{print $9}'
 	fi
 }
 
 get_fs_type() {
-	if my-superuser blkid "$1" | grep -q "PTTYPE=";then
-    	my-superuser blkid "$1" | sed -n 's/.*TYPE="\([^"]*\)".*/\1/p'
+	if my-superuser blkid "$1" >/dev/null 2>1;then
+    	my-superuser blkid "$1" | sed -n 's/.* TYPE="\([^"]*\)".*/\1/p'
 	else
-		df -T | grep /dev/sda | awk '{print $2}'
+		df -T | grep "$1" | awk '{print $2}'
 	fi
 }
 
 Parse_arguments(){
 	arg="${1:-}"
 	case "$arg" in
-	--dry-run)
+	--dry-run|--dry|-d)
 		dry_run=true
 		;;
 	'') : ;;
@@ -72,8 +72,7 @@ fill_unmounted_devices_var(){
 }
 
 get_uuid_and_fs_type(){
-	device_path=$(awk '{print $1}' <<< "$selected_line")
-
+	device_path=$(printf "%s" "$selected_line" | awk '{print $1}')
 	if [ -z "$device_path" ] || [ ! -b "$device_path" ]; then
 		show_em "❌ Invalid selection or device not found."
 	fi

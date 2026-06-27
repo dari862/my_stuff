@@ -1,6 +1,12 @@
 #!/bin/sh -e
 # need superuser : called by my-installer
+if ! command -v tweek_as_dependency >/dev/null 2>&1;then # needed for my_stuff_installer
+	tweek_as_dependency(){
+		"${__distro_path_installers_and_tweaks}"/my-tweaker --tweek-as-dependency "$1" "$2"
+	}
+fi
 tweek_as_dependency "Enable_multilib" || continue
+
 LIBVA_DIR="$HOME/.local/share/linutil/libva"
 MPV_CONF="$HOME/.config/mpv/mpv.conf"
 app_name="GPU Drivers"

@@ -1,7 +1,39 @@
 #!/bin/bash
 # need superuser : called by popup_terminal
 unalias -a
-__mounter(){
+. "$__distro_path_lib"
+. "${__distro_path_root}/lib/common/WM"
+. "${Distro_config_file}"
+. "${__distro_path_root}/lib/un_mount"
+
+RASI="$HOME/.config/rofi/$ROFI_STYLE/massage.rasi"
+
+msg() {
+    notify-send "${1:-}" "${2:-}"
+}
+
+error() {
+    rofi -e "${*}" -theme "${RASI}"
+    return 1
+}
+
+rofi_menu(){
+	rofi -p "${1:-}" -no-config -no-lazy-grab -dmenu -r -i -l 20 -theme "$HOME/.config/rofi/$ROFI_STYLE"/runner.rasi
+}
+
+getmountpath(){
+	if (( udisks )); then
+		return
+	fi
+	mountdir="$(find /mnt /media /mount /home -maxdepth 1 -type d 2>/dev/null | rofi_menu "Mount this drive where?")"
+	test -n "$mountdir"
+	if [ ! -d "$mountdir" ]; then
+		mkdiryn=$(printf "No\\nYes" | rofi_menu "$mountdir does not exist. Create it?")
+		[ "$mkdiryn" = "Yes" ] && (mkdir -p "$mountdir" || popup_terminal --superuser "mkdir -p \"$mountdir\"")
+	fi
+}
+
+rofi_mounter(){
 	# Mounts Android Phones and USB drives (encrypted or not). This script will
 	# replace the older `dmenumount` which had extra steps and couldn't handle
 	# encrypted drives.
@@ -30,7 +62,7 @@ __mounter(){
 	# Get all LUKS drives
 	allluks="$(echo "$lsblkoutput" | grep crypto_LUKS)"
 	# Get a list of the LUKS drive UUIDs already decrypted.
-	decrypted="$(find /dev/disk/by-id/dm-uuid-CRYPT-LUKS2-* | sed "s|.*LUKS2-||;s|-.*||")"
+	decrypted="$(find /dev/disk/by-id/dm-uuid-CRYPT-LUKS2-* 2>/dev/null | sed "s|.*LUKS2-||;s|-.*||")"
 	# Functioning for formatting drives correctly for dmenu:
 	filter() { sed "s/ /:/g" | awk -F':' '$7==""{printf "%s%s (%s) %s\n",$1,$3,$5,$6}' ; }
 	
@@ -56,43 +88,35 @@ __mounter(){
 	test -n "$alldrives"
 	
 	# Feed all found drives to dmenu and get user choice.
-	chosen="$(echo "$alldrives" | rofi -dmenu -p "Mount which drive?" -i)"
-	
-	# Function for prompting user for a mountpoint.
-	getmount(){
-		mp="$(find /mnt /media /mount /home -maxdepth 1 -type d 2>/dev/null | rofi -dmenu -i -p "Mount this drive where?")"
-		test -n "$mp"
-		if [ ! -d "$mp" ]; then
-			mkdiryn=$(printf "No\\nYes" | rofi -dmenu -i -p "$mp does not exist. Create it?")
-			[ "$mkdiryn" = "Yes" ] && (mkdir -p "$mp" || popup_terminal --superuser "mkdir -p \"$mp\"")
-		fi
-	}
+	chosen="$(echo "$alldrives" | rofi_menu "Mount which drive?")"
+
 	driveicon="${chosen:0:1}"
 	drivepath="${chosen:1}"
 	drivepath="${drivepath%% *}"
 		
-	getmount
+	getmountpath
+
+	[ "$driveicon" = "📱" ] && msg "❗Note" "Remember to allow file access on your phone now."
 	
 	case "$driveicon" in
 		💾)
-			./un_mount -m "$drivepath" "$mp"
-			notify-send "💾Drive Mounted." "$drivepath mounted to $mp."
+			action_mount "$drivepath"
+			msg "💾Drive Mounted." "$drivepath mounted to $mountdir."
 			;;
 	
 		🔒)
-			./un_mount -m "$drivepath" "$mp"
-			notify-send "🔓Decrypted drive Mounted." "$drivepath decrypted and mounted to $mp."
+			action_mount "$drivepath"
+			msg "🔓Decrypted drive Mounted." "$drivepath decrypted and mounted to $mountdir."
 			;;
 	
 		📱)
-			notify-send "❗Note" "Remember to allow file access on your phone now."
-			./un_mount -m "$drivepath" "$mp"
-			notify-send "🤖 Android Mounted." "Android device mounted to $mp."
+			action_mount"$drivepath"
+			msg "🤖 Android Mounted." "Android device mounted to $mountdir."
 			;;
 	esac
 }
 
-__unmounter(){
+rofi_unmounter(){
 	set -e
 	# Unmount USB drives or Android phones. Replaces the older `dmenuumount`. Fewer
 	# prompt and also de-decrypts LUKS drives that are unmounted.
@@ -105,21 +129,21 @@ __unmounter(){
 	
 	test -n "$allunmountable"
 	
-	u_chosen="$(echo "$allunmountable" | rofi -dmenu -i -p "Unmount which drive?")"
+	u_chosen="$(echo "$allunmountable" | rofi_menu "Unmount which drive?")"
 	u_chosen="${u_chosen%% *}"
 	u_chosen="${u_chosen:1}"
 	u_driveicon="${u_chosen:0:1}"
 	test -n "$u_chosen"
 	drive2unmount="$(printf '%s\n' "$u_lsblkoutput" | grep -F -- "$u_chosen" | awk '{print $1}')"
-	if ./un_mount -u "$drive2unmount";then
-		notify-send "Device unmounted." "$drive2unmount has been unmounted."
-		[ "$(lsblk -drno TYPE "$drive2unmount" 2>/dev/null)" = "crypto_LUKS" ] && notify-send "🔒Device dencryption closed." "Drive is now securely locked again."
+	if action_unmount "$drive2unmount";then
+		msg "Device unmounted." "$drive2unmount has been unmounted."
+		[ "$(lsblk -drno TYPE "$drive2unmount" 2>/dev/null)" = "crypto_LUKS" ] && msg "🔒Device dencryption closed." "Drive is now securely locked again."
 	fi
 }
 
-what2do="$(printf "Mount drives\nUnmount drives" | rofi -dmenu -i -p "What do you want to do?")"
+what2do="$(printf "Mount drives\nUnmount drives" | rofi_menu "What do you want to do?")"
 
 case "$what2do" in
-	Mount*)   __mounter;;
-	Unmount*) __unmounter;;
+	Mount*)   rofi_mounter;;
+	Unmount*) rofi_unmounter;;
 esac

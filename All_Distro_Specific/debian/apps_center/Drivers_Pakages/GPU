@@ -1,5 +1,15 @@
 #!/bin/sh
 # need superuser : called by my-installer
+if ! command -v tweek_as_dependency >/dev/null 2>&1;then # needed for my_stuff_installer
+	tweek_as_dependency(){
+		"${__distro_path_installers_and_tweaks}"/my-tweaker --tweek-as-dependency "$1" "$2"
+	}
+fi
+
+tweek_as_dependency "Adding_contrib" "skip_update" || failed_but_continue "Adding_contrib tweek"
+tweek_as_dependency "Adding_nonfree_repo" "skip_update" || failed_but_continue "Adding_nonfree_repo tweek"
+tweek_as_dependency "Adding_nonfree_firmware_repo" "skip_update" || failed_but_continue "Adding_nonfree_firmware_repo tweek"
+
 app_name="GPU Drivers"
 if [ -z "$machine_type_are" ];then
 	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
@@ -10,10 +20,6 @@ if [ "$(id -u)" -eq 0 ];then
 else
 	_SUPERUSER="my-superuser"
 fi
-
-tweek_as_dependency "Adding_contrib" "skip_update" || failed_but_continue "Adding_contrib tweek"
-tweek_as_dependency "Adding_nonfree_repo" "skip_update" || failed_but_continue "Adding_nonfree_repo tweek"
-tweek_as_dependency "Adding_nonfree_firmware_repo" "skip_update" || failed_but_continue "Adding_nonfree_firmware_repo tweek"
 
 Package_update_
 
@@ -61,11 +67,11 @@ install_nvidia_drivers(){
 		install_cuda_=false
 		install_kernel_open_dkms_=false
 		prompt '  do you want to add Cuda Support?' && install_cuda_=true
-		prompt 'do you want to install opensource nvidia-kernel?' && install_kernel_open_dkms_=true
+		#prompt 'do you want to install opensource nvidia-kernel?' && install_kernel_open_dkms_=true
 	fi
 	
-	[ "$install_cuda_" = true ] && _cuda_="cuda" || _cuda_=""
-	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-kernel-open-dkms" || _kernel_open_dkms_="nvidia-dkms"
+	[ "$install_cuda_" = true ] && _cuda_="nvidia-cuda-toolkit" || _cuda_=""
+	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-kernel-open-dkms" || _kernel_open_dkms_="nvidia-kernel-dkms"
 	
 	Packages_2_install="$Packages_2_install nvidia-driver $_kernel_open_dkms_ $_cuda_ linux-headers-$(uname -r) dkms firmware-misc-nonfree nvidia-vulkan-common xserver-xorg-video-nvidia" || continue
 }

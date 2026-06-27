@@ -1,5 +1,11 @@
 #!/bin/sh
 # need superuser : called by my-installer
+if ! command -v tweek_as_dependency >/dev/null 2>&1;then # needed for my_stuff_installer
+	tweek_as_dependency(){
+		"${__distro_path_installers_and_tweaks}"/my-tweaker --tweek-as-dependency "$1" "$2"
+	}
+fi
+
 tweek_as_dependency "enable_universe_multiverse" || continue
 app_name="GPU Drivers"
 if [ -z "$machine_type_are" ];then
@@ -62,7 +68,7 @@ install_nvidia_drivers(){
 	fi
 	
 	[ "$install_cuda_" = true ] && _cuda_="nvidia-cuda-toolkit" || _cuda_=""
-	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-dkms" || _kernel_open_dkms_=""
+	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-driver-*-open nvidia-dkms-*-open" || _kernel_open_dkms_=""
 	
 	Packages_2_install="$Packages_2_install nvidia-driver nvidia-utils nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_" || continue
 }

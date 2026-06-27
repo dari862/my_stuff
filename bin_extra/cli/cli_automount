@@ -18,12 +18,14 @@ fill_unmounted_devices_var
 for dev in ${unmounted_devices};do
 	size=$(lsblk -nbo SIZE "$dev" | head -n1)
 	size_gb=$((size / 1024 / 1024 / 1024))
-	printf "%s (%s GB)\n" "$dev" "$size_gb"
+	if ! command -v fzf >/dev/null 2>&1; then
+		printf "%s (%s GB)\n" "$dev" "$size_gb"
+	fi
 done
 
 selected_line=""
 if command -v fzf >/dev/null 2>&1; then
-	selected_line=$(printf '%s\n' "${unmounted_devices}" | fzf --prompt="Select device to mount: ")
+	selected_line=$(printf '%s\n' ${unmounted_devices} | fzf --prompt="Select device to mount: ")
 else
 	show_m "📦 Select device to mount:"
 	i=1

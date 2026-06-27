@@ -62,7 +62,7 @@ need_logout(){
 
 update_pipemenu(){
 	which_pipemenu_2_update=${1:-}
-	${_SUPERUSER} "${__distro_path_root}/bin/X11/pipemenu/generate_pipemenu/${which_pipemenu_2_update}"
+	. "${__distro_path_root}/bin/X11/pipemenu/generate_pipemenu/${which_pipemenu_2_update}"
 }
 
 install_as_dependency(){

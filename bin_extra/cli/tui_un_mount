@@ -2,103 +2,53 @@
 # need superuser : called by un_mount
 
 unalias -a
-set -e
+set -u
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
-unset GREP_OPTIONS
+. "${__distro_path_root}/lib/un_mount"
 
-EXIT_CONFIG=78
-EXIT_CMDNOTFOUND=127
+# Backwards compat
+[[ -n "$default_mount_options" ]] && mount_options="$default_mount_options"
+(( ${#exclude[@]} == 0 )) && exclude=("${blacklist[@]}")
+# }}}
 
-if ! . "$script_config_path" >/dev/null 2>&1; then
-    printf '%s\n' "un_mount: Failed to source configuration file."
-    exit $EXIT_CONFIG
-fi
-
-if (( udisks )); then
-	if type -p udisksctl >/dev/null 2>&1; then
-    	udisks=1
-	else
-    	printf '%s\n' "un_mount: 'udisksctl': command not found"
-    	udisks=0
-	fi
-else
-	udisks=0
-fi
-
-if ! type -p lsblk >/dev/null 2>&1; then
-    printf '%s\n' "un_mount: 'lsblk': command not found"
-    exit $EXIT_CMDNOTFOUND
-fi
-
+# {{{ ··· PRINTING FUNCTIONS
 if (( colourize )); then
     if tput setaf 0 >/dev/null 2>&1; then
-        ALL_OFF="$(tput sgr0)"
-        BOLD="$(tput bold)"
-        BLUE="${BOLD}$(tput setaf 4)"
-        GREEN="${BOLD}$(tput setaf 2)"
-        RED="${BOLD}$(tput setaf 1)"
+        declare -r ALL_OFF="$(tput sgr0)"
+        declare -r BOLD="$(tput bold)"
+        declare -r BLUE="${BOLD}$(tput setaf 4)"
+        declare -r GREEN="${BOLD}$(tput setaf 2)"
+        declare -r RED="${BOLD}$(tput setaf 1)"
     else
-        ALL_OFF="\e[1;0m"
-        BOLD="\e[1;1m"
-        BLUE="${BOLD}\e[1;34m"
-        GREEN="${BOLD}\e[1;32m"
-        RED="${BOLD}\e[1;31m"
+        declare -r ALL_OFF="\e[1;0m"
+        declare -r BOLD="\e[1;1m"
+        declare -r BLUE="${BOLD}\e[1;34m"
+        declare -r GREEN="${BOLD}\e[1;32m"
+        declare -r RED="${BOLD}\e[1;31m"
     fi
 else
-    ALL_OFF=""
-    BOLD=""
-    BLUE=""
-    GREEN=""
-    RED=""
+    declare -r ALL_OFF="" BOLD="" BLUE="" GREEN="" RED=""
 fi
-ARROW="==>"
-
-info_fstype() {
-    lsblk -drno FSTYPE "$1" 2>/dev/null
-}
+declare -r ARROW="==>"
 
 msg() {
     printf '\n%b\n\n' "${GREEN}${ARROW}${ALL_OFF}${BOLD} ${*}${ALL_OFF}" >&2
 }
+
 error() {
     printf '\n%b\n\n' "${RED}${ARROW}${BOLD} ERROR: ${*}${ALL_OFF}" >&2
     enter_to_continue
 }
+
 enter_to_continue() {
     printf '\n'
     read -r -e -p "Press [${BLUE}enter${ALL_OFF}] to continue: "
 }
-
 invalid_command() {
     printf '\n'
     error "Invalid command. See the help menu."
 }
-
-info_type() {
-    lsblk -drno TYPE "$1" 2>/dev/null
-}
-
-info_uuid() {
-    lsblk -drno UUID "$1" 2>/dev/null
-}
-
-info_mountpath() {
-    findmnt -no TARGET "$1" 2>/dev/null
-}
-
-check_device() {
-    if [[ ! -b "$1" ]]; then
-        error "$1 is no longer available."
-        return 1
-    fi
-}
-
-check_mounted() {
-    findmnt -no TARGET "$1" >/dev/null 2>&1
-}
-
-(( ${#exclude[@]} == 0 )) && exclude=("${blacklist[@]}")
 
 print_commands() {
     printf '\n\n'
@@ -109,16 +59,6 @@ print_commands() {
     printf '%s' "        ${BLUE}o${ALL_OFF}: open"
     printf '%s' "        ${BLUE}u${ALL_OFF}: unmount"
     printf '\n\n'
-    printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
-    printf '%s' "           ${BLUE}a${ALL_OFF}: unmount all"
-    printf '%s' "        ${BLUE}q${ALL_OFF}: quit"
-    printf '%s' "        ${BLUE}?${ALL_OFF}: help"
-    printf '\n\n'
-}
-
-print_main_commands() {
-    printf '\n\n'
-    print_separator_commands
     printf '%s' " ${BLUE}[Enter]${ALL_OFF}: refresh"
     printf '%s' "           ${BLUE}a${ALL_OFF}: unmount all"
     printf '%s' "        ${BLUE}q${ALL_OFF}: quit"
@@ -317,33 +257,10 @@ print_device() {
 }
 # }}}
 
-action_info() {
-    check_device "$1" || return 1
-    if (( udisks )); then
-        udisksctl info -b "$1" | less
-    else
-        lsblk -po NAME,FSTYPE,SIZE,FSUSE%,MOUNTPOINT "$1" | less
-    fi
-}
-
-action_open() {
-    check_device "$1" || return 1
-    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
-        luks_child="$(get_luks_child "$1")"
-        if [[ ! -b "$luks_child" ]]; then
-            action_mount "$1" || return 1
-        fi
-        action_open "$luks_child"
-        return $?
-    elif ! check_mounted "$1"; then
-        action_mount "$1" || return 1
-    fi
-    msg "Opening $1 ..."
-    filemanager "$(info_mountpath "$1")" || enter_to_continue
-}
-
 # {{{ ··· INFORMATION RETRIEVAL
 
+# Returns 0 (ie, success) if the device is registered as a removable device in
+# the kernel. Otherwise it returns 1.
 check_removable() {
     [[ "$(lsblk -drno RM "$1")" == "1" ]]
 }
@@ -352,18 +269,37 @@ info_fslabel() {
     lsblk -drno LABEL "$1" 2>/dev/null
 }
 
+info_mountpath() {
+    findmnt -no TARGET "$1" 2>/dev/null
+}
 info_partlabel() {
     lsblk -drno PARTLABEL "$1" 2>/dev/null
 }
 info_size() {
     lsblk -drno SIZE "$1" 2>/dev/null
 }
-
+info_type() {
+    lsblk -drno TYPE "$1" 2>/dev/null
+}
+info_uuid() {
+    lsblk -drno UUID "$1" 2>/dev/null
+}
 info_used() {
     lsblk -drno FSUSE% "$1" 2>/dev/null
 }
 
 # }}}
+
+getmountpath(){
+	read -r -e -p "Choose the mountpoint directory: " mountdir
+    [[ -z "$mountdir" ]] && return 1
+    if [[ ! -e "$mountdir" ]]; then
+        if ! mkdir -p "$mountdir"; then
+            error "'$mountdir': Could not make directory."
+            return 1
+        fi
+    fi
+}
 
 # {{{ ··· MENU FUNCTIONS
 list_devices() {
@@ -384,7 +320,8 @@ list_devices() {
         # Hide excluded devices.
         for string in "${exclude[@]}"; do
             lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID "$devname" \
-                | grep -E "$string" >/dev/null 2>&1 || continue 2
+                | grep -E "$string" >/dev/null 2>&1
+            (( $? )) || continue 2
         done
 
         # Sort devices into arrays removable, internal, and optical.
@@ -463,7 +400,6 @@ list_devices() {
 }
 
 submenu() {
-	is_mounted=0
     # Make sure device is still valid.
     check_device "$devname" || return 1
 
@@ -477,7 +413,8 @@ submenu() {
     local used="$(info_used "$devname")"
     local uuid="$(info_uuid "$devname")"
 
-    check_mounted "$devname" && is_mounted=1
+    local -i mounted=0
+    check_mounted "$devname" && mounted=1
 
     # Display the user interface.
     clear
@@ -499,7 +436,7 @@ submenu() {
         (( !unlocked )) && printf '%s\n' "encrypted"
     else
         printf '%s' " mounted   : "
-        if (( is_mounted )); then
+        if (( mounted )); then
             printf '%s\n' "${GREEN}yes${ALL_OFF}"
             printf '%s\n' " mountpath : $(info_mountpath "$devname")"
         else
@@ -509,7 +446,7 @@ submenu() {
     printf '%s\n' " fstype    : $fstype"
     printf '%s\n' " uuid      : $uuid"
     printf '%s\n' " size      : $size"
-    (( is_mounted )) && printf '%s\n' " used      : $used"
+    (( mounted )) && printf '%s\n' " used      : $used"
     if (( show_commands == 1 )); then
         printf '\n'
         print_submenu_commands
@@ -518,30 +455,29 @@ submenu() {
     print_separator
 
     # Receive user input.
+    local -i retval
     if ! read -r -e -p "${BOLD}Command:${ALL_OFF} " action; then
         # Exit on ctrl-d.
         printf '\n'
         exit 0
     fi
     case "$action" in
-        "e") un_mount -e "$devname" && return 1 || true;;
-        "i") action_info "$devname" && return 1  || true;;
-        "m") un_mount -m "$devname" && return 1 || true;;
-        "o") action_open "$devname" && return 1 || true;;
-        "u") un_mount -u "$devname" && return 1 || true;;
+        "e") action_eject "$devname" || true;;
+        "i") action_info "$devname" || true;;
+        "m") action_mount "$devname" || true;;
+        "o") action_open "$devname" || true;;
+        "u") action_unmount "$devname" || true;;
         "b") return 1;;
         ""|"r") return 0;;
         "q") exit;;
         "?") print_help_submenu; return 0;;
-        "1") un_mount -1 "$devname"; return 1;;
-        "2") msg "Opening luks volume ..."
-        	un_mount -2 "$devname"; return 1;;
-        "3") msg "Closing luks volume ..."
-        	un_mount -3 "$devname"; return 1;;
+        "1") get_luks_header_information; return 0;;
+        "2") action_unlock "$devname"; return 1;;
+        "3") action_lock "$devname"; return 1;;
         "4")
             if (( custom4_show )); then
                 msg "Running custom command: $custom4_desc ..."
-                un_mount -4 "$devname"
+                custom4_command "$devname"
                 enter_to_continue
             else
                 invalid_command
@@ -550,7 +486,7 @@ submenu() {
         "5")
             if (( custom5_show )); then
                 msg "Running custom command: $custom5_desc ..."
-                un_mount -5 "$devname"
+                custom5_command "$devname"
                 enter_to_continue
             else
                 invalid_command
@@ -559,7 +495,7 @@ submenu() {
         "6")
             if (( custom6_show )); then
                 msg "Running custom command: $custom6_desc ..."
-                un_mount -6 "$devname"
+                custom6_command "$devname"
                 enter_to_continue
             else
                 invalid_command
@@ -602,11 +538,11 @@ select_action() {
 
             letter="${action: -1}"
             case "$letter" in
-                "e") echo yesyes && sleep 2 && un_mount -e "$devname";;
+                "e") action_eject "$devname";;
                 "i") action_info "$devname";;
-                "m") un_mount -m "$devname";;
+                "m") action_mount "$devname";;
                 "o") action_open "$devname";;
-                "u") un_mount -u "$devname";;
+                "u") action_unmount "$devname";;
                  *)  return 1;;
             esac
             return 0
@@ -626,7 +562,7 @@ select_action() {
                 [[ "$unmount" != "y" ]] && [[ "$unmount" != "Y" ]] && return 0
                 clear
                 for devname in "${mounted[@]}"; do
-                    un_mount -u "$devname" || continue
+                    action_unmount "$devname" || continue
                 done
                 enter_to_continue
                 return 1;;
@@ -646,6 +582,6 @@ declare -a mounted=()
 
 while true; do
     list_devices
-    (( show_commands )) && print_main_commands
+    (( show_commands )) && print_commands
     select_action
 done

@@ -1,0 +1,361 @@
+#!/bin/bash
+
+declare -ri EXIT_CMDNOTFOUND=127
+declare -ri EXIT_CONFIG=78
+declare CONFIG_FILE="${script_config_path}/un_mount.conf"
+
+# {{{ ··· CONFIGURATION
+# Make sure that user defined options will not interfere with grep.
+unset GREP_OPTIONS
+
+# Set defaults.
+declare udisks="auto"
+declare mount_options=""
+declare -i show_internal=1
+declare -i show_removable=1
+declare -i show_optical=1
+declare -i show_commands=1
+declare -i colourize=1
+declare -i pretty=1
+declare -i custom4_show=0
+declare -i custom5_show=0
+declare -i custom6_show=0
+declare custom4_desc=""
+declare custom5_desc=""
+declare custom6_desc=""
+declare -i run_post_mount=0
+declare -i run_post_unmount=0
+declare -a exclude=()
+
+# Backwards compat
+declare default_mount_options=""
+declare -a blacklist=()
+
+declare mountdir=""
+
+if [[ ! -e "$CONFIG_FILE" ]]; then
+	create_conf_file
+fi
+
+if ! . "$CONFIG_FILE"; then
+	printf '%s\n' "un_mount: Failed to source configuration file."
+	exit $EXIT_CONFIG
+fi
+
+if [[ "$udisks" != 0 ]]; then
+    if type -p udisksctl >/dev/null 2>&1; then
+        [[ "$udisks" == "auto" ]] && udisks=1
+    elif [[ "$udisks" == "auto" ]]; then
+        udisks=0
+    else
+        printf '%s\n' "un_mount: 'udisksctl': command not found"
+        exit $EXIT_CMDNOTFOUND
+    fi
+fi
+
+if ! type -p lsblk >/dev/null 2>&1; then
+    printf '%s\n' "un_mount: 'lsblk': command not found"
+    exit $EXIT_CMDNOTFOUND
+fi
+
+post_mount() {
+    error "No 'post_mount' command specified in un_mount configuration file."
+    return 1
+}
+
+post_unmount() {
+    error "No 'post_unmount' command specified in un_mount configuration file."
+    return 1
+}
+
+create_conf_file(){
+	tee "${CONFIG_FILE}" <<-'EOF' >>/dev/null 2>&1
+	#
+	# un_mount.conf
+	#
+	
+	# Set whether to or not to use udisksctl. The default is to autodetect whether
+	# it is available. This can be '0', '1', or 'auto'.
+	#udisks='auto'
+	
+	# Set which sections to show in the output. These can be '0' or '1'.
+	#show_internal='1'
+	#show_removable='1'
+	#show_optical='1'
+	#show_commands='1'
+	
+	# Set whether to colourize the output. This can be '0' or '1'.
+	#colourize='1'
+	
+	# Set whether to use unicode for pretty layout. This can be '0' or '1'.
+	#pretty='1'
+	
+	# Set default mount options. The default is to pass no options.
+	#mount_options='--options nosuid,noexec,noatime'
+	
+	# Set devices to exclude. Any device whose "lsblk -P" output contains a string
+	# listed here will be hidden. The following key-value-pairs are printed:
+	# lsblk -dPno NAME,TYPE,FSTYPE,LABEL,MOUNTPOINT,PARTLABEL,UUID [device_name]
+	# The strings are matched using "grep -E" regular expression.
+	#exclude=()
+	
+	###
+	### This example will match any device with "Photosmart" in any field.
+	### exclude=( 'Photosmart' )
+	###
+	### This example will match the device found at /dev/sda1.
+	### exclude=( 'NAME="sda1"' )
+	###
+	### This example will match /dev/sda1, /dev/sda2 and /dev/sda3.
+	### exclude=( 'NAME="sda[1-3]"' )
+	###
+	### This example matches several different devices. Note that the array can be
+	### split over multiple lines for convenience.
+	### exclude=( 'FSTYPE="ext3"' )
+	### exclude+=( 'LABEL="secret"' )
+	### exclude+=( 'MOUNTPOINT="/"' )
+	### exclude+=( 'UUID="0c4d6d9c-87a2-4579-b2ae-35b0790c718a"' )
+	###
+	
+	# Set filemanager command to use when performing the "open" command. The mount
+	# point is passed as the first argument. The default is to open the directory
+	# within your terminal.
+	
+	# Uncomment this example to launch a graphical file manager.
+	#filemanager() {
+	#   /usr/bin/nautilus "$1" & >/dev/null 2>&1
+	#}
+	
+	# Uncomment this example to launch midnight commander in a new window.
+	#filemanager() {
+	#   /usr/bin/uxterm -wf -e /usr/bin/mc "$1" & >/dev/null 2>&1
+	#}
+	
+	# Set custom commands. Set "customX_show" to '0' to disable or '1' to enable.
+	# If enabled, the custom commands will be shown in the device sub-menu. The
+	# description and command functions can be set to anything you desire. The
+	# device name (e.g. /dev/sdb1) is passed as the first and only argument.
+	# A maximum of 3 custom actions are configurable.
+	
+	#custom4_show='0'
+	#custom4_desc='changeme'
+	#custom4_command() {
+	#    sudo mount --options remount,ro "$1" "/mnt/${1##*/}"
+	#}
+	
+	#custom5_show='0'
+	#custom5_desc='changeme'
+	#custom5_command() {
+	#
+	#}
+	
+	#custom6_show='0'
+	#custom6_desc='changeme'
+	#custom6_command() {
+	#
+	#}
+	
+	# Set custom commands to be run automatically after mounting or unmounting.
+	# post_mount is run immediately after a successful mount operation, and
+	# post_unmount is run immediately after a successful unmount operation.
+	
+	# Set "run_post_mount" to '0' to disable or '1' to enable.
+	#run_post_mount='0'
+	
+	#post_mount() {
+	#
+	#}
+	
+	# Set "run_post_unmount" to '0' to disable or '1' to enable.
+	#run_post_unmount='0'
+	
+	#post_unmount() {
+	#
+	#}
+	EOF
+}
+
+# Returns 0 (ie, success) if the device still exists. Otherwise it returns 1.
+check_device() {
+    if [[ ! -b "$1" ]]; then
+        error "$1 is no longer available."
+        return 1
+    fi
+}
+
+info_fstype() {
+    lsblk -drno FSTYPE "$1" 2>/dev/null
+}
+
+get_luks_child() {
+    local uuid="$(info_uuid "$1")"
+    printf '%s' "/dev/mapper/luks-$uuid"
+}
+
+# Returns 0 (ie, success) if the device is mounted. Otherwise it returns 1.
+check_mounted() {
+    findmnt -no TARGET "$1" >/dev/null 2>&1
+}
+
+filemanager() {
+    ( cd "$1" && "$SHELL" )
+}
+
+action_open() {
+    check_device "$1" || return 1
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ ! -b "$luks_child" ]]; then
+            action_mount "$1" || return 1
+        fi
+        action_open "$luks_child"
+        return $?
+    elif ! check_mounted "$1"; then
+        action_mount "$1" || return 1
+    fi
+    msg "Opening $1 ..."
+    filemanager "$(info_mountpath "$1")" || enter_to_continue
+}
+
+action_info() {
+    check_device "$1" || return 1
+    if (( udisks )); then
+        udisksctl info -b "$devname" | less
+    else
+        lsblk -po NAME,FSTYPE,SIZE,FSUSE%,MOUNTPOINT "$1" | less
+    fi
+}
+
+action_eject() {
+    check_device "$1" || exit 1
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        action_unmount "$1" || exit 1
+    else
+        check_mounted "$1" && action_unmount "$1"
+    fi
+
+    local -i retval=0
+    if ! check_mounted "$1"; then
+        msg "Ejecting $1 ..."
+        device_type=$(info_type "$1")
+        if (( udisks )) && [[ "$device_type" != "rom" ]]; then
+            udisksctl power-off -b "$1"
+            retval=$?
+        else
+            my-superuser eject "$1"
+            retval=$?
+        fi
+        if (( retval == 0 )); then
+            # Give the device some time to eject.
+            sleep 1.5s
+        else
+            enter_to_continue
+        fi
+    fi
+}
+
+__mount() {
+    msg "Mounting $1 ..."
+    if [ -z "$2" ]; then
+        udisksctl mount $mount_options --block-device "$1"
+    else
+        my-superuser mount $mount_options "$1" "$2"
+    fi
+}
+
+action_mount() {
+    check_device "$1" || exit 1
+    if check_mounted "$1"; then
+        error "$1 is already mounted."
+        exit 1
+    fi
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ ! -b "$luks_child" ]]; then
+            action_unlock "$1" || exit 1
+        fi
+        action_mount "$luks_child"
+        exit $?
+    fi
+
+	getmountpath
+	
+    if __mount "$1" "$mountdir"; then
+        msg "$1 mounted successfully."
+        (( run_post_mount )) && "No 'post_mount' command specified in un_mount configuration file."
+        sleep 0.1s
+        exit 0
+    fi
+    error "$1 could not be mounted."
+    exit 1
+}
+
+__unmount() {
+    msg "Unmounting $1 ..."
+    if (( udisks )); then
+        udisksctl unmount --block-device "$1"
+    else
+        my-superuser umount "$1"
+    fi
+}
+
+action_unmount() {
+    check_device "$1" || return 1
+
+    if [[ "$(info_fstype "$1")" == "crypto_LUKS" ]]; then
+        luks_child="$(get_luks_child "$1")"
+        if [[ -b "$luks_child" ]]; then
+            if check_mounted "$luks_child"; then
+                action_unmount "$luks_child" || exit 1
+            fi
+            action_lock "$1" || exit 1
+        fi
+        exit $?
+    fi
+
+    if ! check_mounted "$1"; then
+        error "$1 is already unmounted."
+        exit 1
+    fi
+
+    if __unmount "$1"; then
+        msg "$1 unmounted successfully."
+        (( run_post_unmount )) && "No 'post_unmount' command specified in un_mount configuration file."
+        sleep 0.1s
+        exit 0
+    fi
+    error "$1 could not be unmounted."
+    exit 1
+}
+
+get_luks_header_information() {
+    my-superuser sh -c "cryptsetup luksDump '$1' | less"
+}
+
+action_unlock() {
+    local -i retval=0
+    if (( udisks )); then
+        udisksctl unlock --block-device "$1"
+        retval=$?
+    else
+        my-superuser cryptsetup open --type luks -v "$1" "luks-${1##*/}"
+        retval=$?
+    fi
+    (( retval != 0 )) && enter_to_continue
+    return $retval
+}
+
+action_lock() {
+    local -i retval=0
+    if (( udisks )); then
+        udisksctl lock --block-device "$1"
+        retval=$?
+    else
+        my-superuser cryptsetup close --type luks "$1"
+        retval=$?
+    fi
+    (( retval != 0 )) && enter_to_continue
+    return $retval
+}
