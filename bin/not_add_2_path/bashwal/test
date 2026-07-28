@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+set -e
+org_my_wallpapers_dir="$HOME/Desktop/Theme_Stuff/my_wallpapers"
+run_all=true
+
+
+run_main=true
+run_extra=true
+
+dark_theme=true
+light_theme=true
+
+light_mode=true
+
+run_saturate_values=true
+run_contrast_values=true
+
+first_script="palette_extractor.py"
+second_script="bashwal"
+
+first_saturate_value1="-1"
+second_saturate_value1="1"
+first_contrast_value1="1"
+second_contrast_value1="20"
+
+first_saturate_value2="-0.9"
+second_saturate_value2="0.8"
+first_contrast_value2="1.6"
+second_contrast_value2="18.3"
+
+create_wall() {
+    if [ ! -d "${my_wallpapers_dir}" ]; then
+        mkdir -p "${my_wallpapers_dir}"
+        
+        # Link files
+        for w in "${org_my_wallpapers_dir}"/*; do
+            [ -e "$w" ] || continue
+            ln -sf "$w" "${my_wallpapers_dir}/"
+        done
+        
+        # Sequentially rename links
+        local i=1
+        for lw in "${my_wallpapers_dir}"/*; do
+            [ -e "$lw" ] || continue
+            local ext="${lw##*.}"
+            mv "$lw" "${my_wallpapers_dir}/${i}.${ext}"
+            ((i++))
+        done
+    fi
+}
+
+run_script(){
+	mkdir -p "${output_dir}"
+	run_variant() {
+    	local suffix="$1"; shift
+    	local full_output_path="${output_dir}/${output_file}_${cols16_mode}${suffix}"
+    	if [ ! -f "${full_output_path}" ];then
+        	"./${script_name}" -i "$w" -o "${full_output_path}" --cols16 "${cols16_mode}" "$@"
+        fi
+    }
+    
+    run_variant_extra() {
+    	local extra_suffix="$1"
+    	if [ "${extra_suffix}" = "light" ] && [ "$light_mode" = true ];then
+    		extra_command="-l"
+    		extra_massage="_l"
+    	else
+    		extra_command=""
+    		extra_massage=""
+    	fi
+    	
+    	if [ "$run_saturate_values" = true ];then
+    		run_variant "_s${first_saturate_value}${extra_massage}"  --saturate ${first_saturate_value} ${extra_command}
+			run_variant "_s${second_saturate_value}${extra_massage}" --saturate ${second_saturate_value} ${extra_command}
+		fi
+		
+		if [ "$run_contrast_values" = true ];then
+			run_variant "_c${first_contrast_value}${extra_massage}"  --contrast ${first_contrast_value} ${extra_command}
+			run_variant "_c${second_contrast_value}${extra_massage}" --contrast ${second_contrast_value} ${extra_command}
+		fi
+		
+		if [ "$run_saturate_values" = true ] && [ "$run_contrast_values" = true ];then
+			run_variant "_s${first_saturate_value}_c${first_contrast_value}${extra_massage}"   --saturate ${first_saturate_value} --contrast ${first_contrast_value} ${extra_command}
+			run_variant "_s${first_saturate_value}_c${second_contrast_value}${extra_massage}"  --saturate ${first_saturate_value} --contrast ${second_contrast_value} ${extra_command}
+			run_variant "_s${second_saturate_value}_c${first_contrast_value}${extra_massage}"  --saturate ${second_saturate_value}  --contrast ${first_contrast_value} ${extra_command}
+			run_variant "_s${second_saturate_value}_c${second_contrast_value}${extra_massage}" --saturate ${second_saturate_value}  --contrast ${second_contrast_value} ${extra_command}
+		fi
+    }
+    
+	for w in "$my_wallpapers_dir"/*;do
+		output_file="$(basename "$w")"
+	    for cols16_mode in "darken" "lighten"; do
+	    	if [ "$run_main" = true ];then
+	    		if [ "$dark_theme" = true ];then
+					run_variant ""
+				fi
+				if [ "$light_theme" = true ];then
+					run_variant "_l"           -l
+				fi
+			fi
+			
+			if [ "$run_extra" = true ] && [ "$dark_theme" = true ];then
+				run_variant_extra
+			fi
+			
+			if [ "$run_extra" = true ] && [ "$light_theme" = true ];then	
+				run_variant_extra "light"
+			fi
+		done
+	done
+}
+
+run_script_with_arg(){
+	script_name="${1:-}"
+	first_saturate_value="${2:-}"
+	second_saturate_value="${3:-}"
+	first_contrast_value="${4:-}"
+	second_contrast_value="${5:-}"
+	output_dir="${6:-}"
+	if [ -f "$script_name" ];then		
+		run_script
+	fi
+}
+
+script_dir="$(dirname "$(realpath "$0")")"
+my_wallpapers_dir="$script_dir/my_wallpapers"
+create_wall
+
+output_dir1="${script_dir}/output_${first_script}"
+output_dir2="${script_dir}/output_${second_script}"
+
+if [ "$run_all" = true ] ;then 
+	run_main=true
+	run_extra=true
+	
+	dark_theme=true
+	light_theme=true
+	
+	light_mode=true
+
+	run_saturate_values=true
+	run_contrast_values=true
+
+fi
+
+if [ "$run_main" = false ] && [ "$run_extra" = false ] ;then 
+	echo "you can not set run_main and run_extra to false ."
+	exit
+fi
+
+if [ "$dark_theme" = false ] && [ "$light_theme" = false ] ;then 
+	echo "you can not set dark_theme and light_theme to false ."
+	exit 1
+fi
+
+script_name=""
+first_saturate_value=""
+second_saturate_value=""
+first_contrast_value=""
+second_contrast_value=""
+output_dir=""
+	
+run_script_with_arg "${first_script}" "${first_saturate_value1}" "${second_saturate_value1}" "${first_contrast_value1}" "${second_contrast_value1}" "${output_dir1}"
+run_script_with_arg "${first_script}" "${first_saturate_value2}" "${second_saturate_value2}" "${first_contrast_value2}" "${second_contrast_value2}" "${output_dir1}"
+
+run_script_with_arg "${second_script}" "${first_saturate_value1}" "${second_saturate_value1}" "${first_contrast_value1}" "${second_contrast_value1}" "${output_dir2}"
+run_script_with_arg "${second_script}" "${first_saturate_value2}" "${second_saturate_value2}" "${first_contrast_value2}" "${second_contrast_value2}" "${output_dir2}"
+
+if [ -d "${output_dir1}" ] && [ -d "${output_dir2}" ];then
+	diff -rq "${script_dir}/output_${first_script}" "${script_dir}/output_${second_script}" || :
+fi
+	
+echo "done"
+	

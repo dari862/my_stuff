@@ -134,7 +134,7 @@ mime_preview() {
 	(application/font*,0 | application/*opentype,0 | font/sfnt,0)  # .ttf, .otf
 		generate_cache "$1"
 		[ -f "$CACHE.png" ] \
-			|| convert -size "800x800" "xc:#000000" -fill "#ffffff" \
+			|| magick -size "800x800" "xc:#000000" -fill "#ffffff" \
 				-pointsize "72" -font "$1" -gravity center -annotate +0+0 \
 				"ABCDEFGHIJKLM\nNOPQRSTUVWXYZ\nabcdefghijklm\nnopqrstuvwxyz\n1234567890\n!@#$\%^&*,.;:\n_-=+'\"|\\(){}[]" \
 				"$CACHE.png"

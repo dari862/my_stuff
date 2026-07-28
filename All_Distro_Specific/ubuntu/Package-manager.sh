@@ -6,6 +6,7 @@ if command -v nala >/dev/null 2>&1;then
 		kill_package_manager
 		my-superuser nala update
 	}
+	apt_get_extra_arg=""
 else
 	package_manger="apt-get"
 	Package_update_(){
@@ -49,7 +50,7 @@ else
     	if [ "$needs_update" = true ]; then
         	say "Updating APT package lists..." 'yellow'
         	# -y for non-interactive, output suppression unless errors occur
-        	if my-superuser apt-get update -y -qq; then
+        	if my-superuser apt-get ${apt_get_extra_arg} update -y -qq; then
             	say "APT cache successfully updated."
             	# Explicitly touch the stamp file to ensure it registers now
             	my-superuser touch "$stamp_file"
@@ -60,19 +61,20 @@ else
         	say "APT cache is up to date. Skipping update."
     	fi
 	}
+	apt_get_extra_arg="-o Dpkg::Progress-Fancy='1' -o APT::Keep-Fds='1'"
 fi
 
 Package_installer_(){
-	my-superuser ${package_manger} install -y $@
+	my-superuser ${package_manger} ${apt_get_extra_arg} install -y $@
 }
 
 full_upgrade_(){
 	say 'Full upgrade your system...' 1
-	my-superuser ${package_manger} -y full-upgrade
+	my-superuser ${package_manger} ${apt_get_extra_arg} -y full-upgrade
 }
 
 Packages_upgrade_(){
-	if my-superuser ${package_manger} -y upgrade;then
+	if my-superuser ${package_manger} ${apt_get_extra_arg} -y upgrade;then
 		exit
 	else
 		exit 1
@@ -125,8 +127,8 @@ Upgradeable_Packages_list_(){
 	
 install_deb(){
 	deb_name="${1-}"
-	my-superuser dpkg -i ${deb_name} || my-superuser apt install -y ${deb_name} || continue
-	my-superuser apt-get install -y -f || continue
+	my-superuser dpkg -i ${deb_name} || my-superuser apt-get ${apt_get_extra_arg} install -y ${deb_name} || continue
+	my-superuser apt-get ${apt_get_extra_arg} install -y -f || continue
 }
 
 Package_cleanup() {

@@ -4,6 +4,7 @@ set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/WM"
 . "${__distro_path_root}/lib/common/openbox"
+. "${__distro_path_root}/lib/dynamic_theme"
 
 . "${Distro_config_file}"
 
@@ -36,7 +37,6 @@ else
 fi
 
 _style="dynamic"
-dynamic_theme_scripts_dir="${__distro_path_root}/lib/Dynamic"
 temp_theme_file_dir="/tmp/$USER/theme_color_builder_output"
 themes_builder_output_dir="${temp_theme_file_dir}/templates"
 
@@ -63,7 +63,7 @@ if [ "$current_mode_are" = "dynamic" ];then
 	dunstify -u normal --replace=699 -i "${__distro_path_all_distro_themes}/icons/channelmixer.svg" "Applying Style : ${_style}"
 elif [ "$current_mode_are" = "generate" ];then
 	sourced_file="at theme_color_file_builder"
-	. "${dynamic_theme_scripts_dir}/theme_color_file_builder"
+	theme_color_file_builder
 fi
 
 . "$HOME/.config/blob/${_panel_name_}/${_style}/style.conf"
@@ -75,10 +75,8 @@ sourced_file="at style_setter"
 
 setbg -r || show_em "failed to run setbg -r"
 
-sourced_file="at gtk_theme_builder"
-. "${dynamic_theme_scripts_dir}/gtk_theme_builder"
 sourced_file="at themes_builder"
-. "${dynamic_theme_scripts_dir}/themes_builder"
+themes_builder
 sourced_file=""
 
 "${__distro_path_root}"/bin/X11/WM/panel_launcher || show_em "failed to run panel_launcher"

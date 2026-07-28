@@ -1,22 +1,140 @@
 #!/bin/python3
-import customtkinter as ctk
-from tkinter import filedialog
+import tkinter as tk
+from tkinter import filedialog, ttk
 import os
 import subprocess
 import threading
 import re
 from datetime import datetime
 
-class DynamicScrcpyGUI(ctk.CTk):
+
+# ==========================================
+# THEME COLOR DEFINITIONS
+# ==========================================
+THEMES = {
+    "light": {
+        "bg": "#F4F3F7", "card_bg": "#FFFFFF", "card_border": "#E2E0E7",
+        "input_bg": "#F1EFF5", "input_border": "#D1CDDA", "input_hover": "#D1CDDA",
+        "text_primary": "#4A4160", "text_secondary": "#5A5568", "text_muted": "#A39FB0",
+        "text_light": "#E3DFFE", "accent": "#845EF7", "accent_hover": "#7048E8",
+        "btn_sec_bg": "#E2E0E7", "btn_sec_hover": "#D1CDDA",
+        "console_bg": "#1E1E24", "console_text": "#39FF14", "console_border": "#D1CDDA",
+        "segment_bg": "#F1EFF5", "segment_text": "#4A4160",
+        "error_text": "#FF4136", "success_text": "#4AF2A1",
+        "check_active": "#845EF7", "check_fg": "#FFFFFF",
+        "dropdown_bg": "#FFFFFF", "dropdown_hover": "#845EF7",
+        "trough": "#D1CDDA",
+    },
+    "dark": {
+        "bg": "#13101C", "card_bg": "#2A2438", "card_border": "#3D354E",
+        "input_bg": "#1E1A29", "input_border": "#342E44", "input_hover": "#443C59",
+        "text_primary": "#E3DFFE", "text_secondary": "#C3BCDB", "text_muted": "#7D7591",
+        "text_light": "#E3DFFE", "accent": "#845EF7", "accent_hover": "#7048E8",
+        "btn_sec_bg": "#342E44", "btn_sec_hover": "#443C59",
+        "console_bg": "#0F0C1B", "console_text": "#4AF2A1", "console_border": "#3D354E",
+        "segment_bg": "#1E1A29", "segment_text": "#E3DFFE",
+        "error_text": "#FF6B6B", "success_text": "#4AF2A1",
+        "check_active": "#845EF7", "check_fg": "#FFFFFF",
+        "dropdown_bg": "#1E1A29", "dropdown_hover": "#845EF7",
+        "trough": "#342E44",
+    }
+}
+
+
+class ScrollableFrame(tk.Frame):
+    """Pure tkinter scrollable frame using Canvas."""
+    def __init__(self, parent, **kwargs):
+        super().__init__(parent, **kwargs)
+        self.canvas = tk.Canvas(self, highlightthickness=0, bd=0)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.inner_frame = tk.Frame(self.canvas)
+        self.inner_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self._canvas_window = self.canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+        self.canvas.bind("<Enter>", self._bind_wheel)
+        self.canvas.bind("<Leave>", self._unbind_wheel)
+
+    def _bind_wheel(self, e):
+        self.canvas.bind_all("<MouseWheel>", lambda ev: self.canvas.yview_scroll(int(-ev.delta / 120), "units"))
+        self.canvas.bind_all("<Button-4>", lambda ev: self.canvas.yview_scroll(-1, "units"))
+        self.canvas.bind_all("<Button-5>", lambda ev: self.canvas.yview_scroll(1, "units"))
+
+    def _unbind_wheel(self, e):
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.bind_all("<Button-4>", lambda ev: None)
+        self.canvas.bind_all("<Button-5>", lambda ev: None)
+
+    def columnconfigure(self, *args, **kwargs):
+        self.inner_frame.columnconfigure(*args, **kwargs)
+
+    def rowconfigure(self, *args, **kwargs):
+        self.inner_frame.rowconfigure(*args, **kwargs)
+
+    def grid(self, *args, **kwargs):
+        raise AttributeError("Use inner_frame.grid() directly on ScrollableFrame.inner_frame")
+
+    def update_width(self):
+        self.canvas.itemconfig(self._canvas_window, width=self.canvas.winfo_width())
+
+
+class SegmentedButton(tk.Frame):
+    """Custom segmented button control mimicking CTkSegmentedButton."""
+    def __init__(self, parent, values=None, command=None, **kwargs):
+        self._theme = kwargs.pop("_theme", None)
+        self._font = kwargs.pop("_font", ("Arial", 10, "bold"))
+        bg = self._theme["segment_bg"] if self._theme else "#F1EFF5"
+        super().__init__(parent, bg=bg, bd=0, highlightthickness=0)
+        self.values = values or []
+        self.command = command
+        self.buttons = []
+        self.selected_value = None
+        for val in self.values:
+            btn = tk.Button(self, text=val, font=self._font, relief="flat", bd=0, cursor="hand2",
+                            command=lambda v=val: self._on_click(v))
+            btn.pack(side="left", fill="both", expand=True, ipady=4)
+            self.buttons.append(btn)
+        if self.values:
+            self.set(self.values[0])
+
+    def _on_click(self, value):
+        self.set(value)
+        if self.command:
+            self.command(value)
+
+    def set(self, value):
+        self.selected_value = value
+        if not self._theme:
+            return
+        for btn, val in zip(self.buttons, self.values):
+            if val == value:
+                btn.configure(bg=self._theme["accent"], fg="#FFFFFF",
+                              activebackground=self._theme["accent"], activeforeground="#FFFFFF")
+            else:
+                btn.configure(bg=self._theme["segment_bg"], fg=self._theme["segment_text"],
+                              activebackground=self._theme["segment_bg"], activeforeground=self._theme["segment_text"])
+
+    def get(self):
+        return self.selected_value
+
+    def refresh_theme(self, theme):
+        self._theme = theme
+        self.configure(bg=theme["segment_bg"])
+        self.set(self.selected_value)
+
+
+class DynamicScrcpyGUI(tk.Tk):
     def __init__(self):
         super().__init__()
+        self.current_theme_name = "dark"
+        self.t = THEMES[self.current_theme_name]
+        self._themed_widgets = []
 
         self.title("SCRCPY GUI - Master Command Terminal")
         self.geometry("1340x950")
         self.minsize(1100, 700)
-        
-        # Native adaptive background colors
-        self.configure(fg_color=("#F4F3F7", "#13101C"))
+        self.configure(bg=self.t["bg"])
 
         # ==========================================
         # STATE DICTIONARY (LIVE PARAMETERS)
@@ -58,54 +176,188 @@ class DynamicScrcpyGUI(ctk.CTk):
             }
         }
 
-        # --- NEW: LIVE COMMAND PREVIEW BAR AT THE TOP ---
-        self.preview_card = ctk.CTkFrame(self, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
+        # --- LIVE COMMAND PREVIEW BAR ---
+        self.preview_card = tk.Frame(self, bg=self.t["card_bg"], highlightbackground=self.t["card_border"], highlightthickness=1)
+        self._make_rounded(self.preview_card, 12)
         self.preview_card.pack(fill="x", padx=20, pady=(15, 5))
-        
-        lbl_preview_title = ctk.CTkLabel(self.preview_card, text="📋 LIVE SCRCPY COMMAND PREVIEW", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
+
+        lbl_preview_title = tk.Label(self.preview_card, text="📋 LIVE SCRCPY COMMAND PREVIEW",
+                                     font=("Arial", 11, "bold"), bg=self.t["card_bg"], fg=self.t["text_secondary"])
         lbl_preview_title.pack(anchor="w", padx=15, pady=(8, 2))
-        
-        self.preview_text = ctk.CTkEntry(self.preview_card, fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), font=("Courier New", 12, "bold"), text_color="#845EF7")
-        self.preview_text.pack(fill="x", padx=15, pady=(0, 10))
 
-        # Create a responsive master scrollable frame to protect low-resolution displays
-        self.scroll_viewport = ctk.CTkScrollableFrame(
-            self, 
-            fg_color="transparent",
-            bg_color="transparent"
-        )
+        preview_frame = tk.Frame(self.preview_card, bg=self.t["input_bg"], highlightbackground=self.t["input_border"], highlightthickness=1)
+        preview_frame.pack(fill="x", padx=15, pady=(0, 10))
+        self.preview_text = tk.Entry(preview_frame, font=("Courier New", 12, "bold"), fg="#845EF7",
+                                     bg=self.t["input_bg"], bd=0, highlightthickness=0, readonlybackground=self.t["input_bg"],
+                                     insertbackground="#845EF7")
+        self.preview_text.pack(fill="x", padx=8, pady=6)
+        self.preview_text.configure(state="readonly")
+
+        # --- SCROLLABLE VIEWPORT ---
+        self.scroll_viewport = ScrollableFrame(self, bg=self.t["bg"])
         self.scroll_viewport.pack(fill="both", expand=True, padx=10, pady=5)
-
-        # Configure balanced horizontal column weights inside the viewport wrapper
         self.scroll_viewport.columnconfigure(0, weight=1, minsize=320)
         self.scroll_viewport.columnconfigure(1, weight=2, minsize=640)
         self.scroll_viewport.columnconfigure(2, weight=1, minsize=320)
         self.scroll_viewport.rowconfigure(0, weight=1)
+        self.bind("<Configure>", lambda e: self.scroll_viewport.update_width())
 
-        # Dynamic placeholder references for layout changing logic
         self.current_device_sub_frame = None
         self.current_engine_sub_frame = None
 
-        # Build Interface
         self.create_left_column()
         self.create_center_column()
         self.create_right_column()
-        
-        # Prime the output terminal feed and kick off ADB synchronization
+
         self.log_to_console("⚡ Master Command Engine fully initialized. Live variables linked.")
         self.refresh_adb_device_data()
         self.update_live_command_preview()
 
     # ==========================================
+    # HELPER: ROUNDED-LOOK FRAMES
+    # ==========================================
+    def _make_rounded(self, widget, radius=12):
+        widget._border_radius = radius
+
+    def _create_card(self, parent, **kwargs):
+        card = tk.Frame(parent, bg=self.t["card_bg"], highlightbackground=self.t["card_border"], highlightthickness=1)
+        self._make_rounded(card, 12)
+        card.pack(**kwargs)
+        return card
+
+    def _create_input(self, parent, placeholder="", **kwargs):
+        frame = tk.Frame(parent, bg=self.t["input_bg"], highlightbackground=self.t["input_border"], highlightthickness=1)
+        self._make_rounded(frame, 6)
+        frame.pack(**kwargs)
+        entry = tk.Entry(frame, font=("Arial", 10), fg=self.t["text_primary"], bg=self.t["input_bg"],
+                         bd=0, highlightthickness=0, insertbackground=self.t["text_primary"])
+        if placeholder:
+            entry.insert(0, placeholder)
+            entry.configure(fg=self.t["text_muted"])
+            entry.bind("<FocusIn>", lambda e, e_ref=entry, ph=placeholder: self._clear_placeholder(e_ref, ph))
+            entry.bind("<FocusOut>", lambda e, e_ref=entry, ph=placeholder: self._restore_placeholder(e_ref, ph))
+        entry.pack(fill="x", padx=8, pady=6)
+        return frame, entry
+
+    def _clear_placeholder(self, entry, placeholder):
+        if entry.get() == placeholder:
+            entry.delete(0, "end")
+            entry.configure(fg=self.t["text_primary"])
+
+    def _restore_placeholder(self, entry, placeholder):
+        if not entry.get().strip():
+            entry.insert(0, placeholder)
+            entry.configure(fg=self.t["text_muted"])
+
+    def _make_button(self, parent, text, command, accent=False, small=False, **kwargs):
+        if accent:
+            bg, fg, hover = self.t["accent"], "#FFFFFF", self.t["accent_hover"]
+        elif small:
+            bg, fg, hover = self.t["btn_sec_bg"], self.t["text_primary"], self.t["btn_sec_hover"]
+        else:
+            bg, fg, hover = self.t["btn_sec_bg"], self.t["text_primary"], self.t["btn_sec_hover"]
+        font = ("Arial", 9, "bold") if small else ("Arial", 10, "bold")
+        h = 1
+        btn = tk.Button(parent, text=text, font=font, bg=bg, fg=fg, activebackground=hover,
+                        activeforeground=fg, relief="flat", bd=0, cursor="hand2", height=h, command=command)
+        btn.pack(**kwargs)
+        btn._hover_bg = hover
+        btn._normal_bg = bg
+        btn.bind("<Enter>", lambda e, b=btn: b.configure(bg=b._hover_bg))
+        btn.bind("<Leave>", lambda e, b=btn: b.configure(bg=b._normal_bg))
+        return btn
+
+    def _make_label(self, parent, text, secondary=False, muted=False, small=False, **kwargs):
+        if muted:
+            fg = self.t["text_muted"]
+            font = ("Arial", 9)
+        elif secondary:
+            fg = self.t["text_secondary"]
+            font = ("Arial", 11, "bold") if not small else ("Arial", 10, "bold")
+        else:
+            fg = self.t["text_primary"]
+            font = ("Arial", 11, "bold") if not small else ("Arial", 10, "bold")
+        lbl = tk.Label(parent, text=text, font=font, bg=parent.cget("bg"), fg=fg)
+        lbl.pack(**kwargs)
+        return lbl
+
+    def _make_checkbox(self, parent, text, variable, command=None, **kwargs):
+        cb = tk.Checkbutton(parent, text=text, variable=variable, command=command,
+                            font=("Arial", 11, "bold"), bg=parent.cget("bg"), fg=self.t["text_primary"],
+                            selectcolor=self.t["check_active"], activebackground=parent.cget("bg"),
+                            activeforeground=self.t["text_primary"], cursor="hand2", bd=0, highlightthickness=0)
+        cb.pack(**kwargs)
+        return cb
+
+    def _make_switch(self, parent, command=None, initial=False, **kwargs):
+        var = tk.IntVar(value=1 if initial else 0)
+        frame = tk.Frame(parent, bg=self.t["trough"], width=40, height=22, cursor="hand2", bd=0, highlightthickness=0)
+        self._make_rounded(frame, 11)
+        frame.pack(**kwargs)
+        frame.pack_propagate(False)
+        indicator = tk.Frame(frame, bg="#FFFFFF", width=18, height=18, bd=0, highlightthickness=0)
+        self._make_rounded(indicator, 9)
+        indicator.place(x=2 if initial else 20, y=2)
+
+        def toggle(e=None):
+            new_val = 1 - var.get()
+            var.set(new_val)
+            if new_val:
+                frame.configure(bg=self.t["check_active"])
+                indicator.place(x=2, y=2)
+            else:
+                frame.configure(bg=self.t["trough"])
+                indicator.place(x=20, y=2)
+            if command:
+                command()
+
+        if initial:
+            frame.configure(bg=self.t["check_active"])
+        frame.bind("<Button-1>", toggle)
+        indicator.bind("<Button-1>", toggle)
+        frame._var = var
+        frame._toggle = toggle
+        return frame
+
+    def _make_dropdown(self, parent, values, default, command, width=None, **kwargs):
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("Custom.TCombobox", fieldbackground=self.t["input_bg"], background=self.t["input_bg"],
+                         foreground=self.t["text_primary"], arrowcolor=self.t["text_primary"],
+                         bordercolor=self.t["input_border"], lightcolor=self.t["input_border"],
+                         darkcolor=self.t["input_border"])
+        style.map("Custom.TCombobox", fieldbackground=[("readonly", self.t["input_bg"])],
+                  foreground=[("readonly", self.t["text_primary"])])
+        style.configure("Custom.TCombobox.Listbox", background=self.t["dropdown_bg"],
+                         foreground=self.t["text_primary"], selectbackground=self.t["dropdown_hover"],
+                         selectforeground="#FFFFFF")
+
+        var = tk.StringVar(value=default)
+        cb = ttk.Combobox(parent, values=values, textvariable=var, state="readonly",
+                          style="Custom.TCombobox", width=width)
+        cb.pack(**kwargs)
+        cb.bind("<<ComboboxSelected>>", lambda e: command(var.get()))
+        return cb
+
+    def _make_slider(self, parent, from_, to, initial, command, **kwargs):
+        frame = tk.Frame(parent, bg=parent.cget("bg"), bd=0, highlightthickness=0)
+        frame.pack(**kwargs)
+        slider = tk.Scale(frame, from_=from_, to=to, orient="horizontal", bg=parent.cget("bg"),
+                          fg=self.t["text_secondary"], troughcolor=self.t["trough"],
+                          activebackground=self.t["accent"], highlightthickness=0, bd=0, sliderrelief="flat",
+                          showvalue=False, command=command)
+        slider.set(initial)
+        slider.pack(fill="x")
+        return slider
+
+    # ==========================================
     # CORE ADB & SCRCPY EXECUTION PIPELINE
     # ==========================================
     def build_scrcpy_arguments(self):
-        """Compiles active GUI configurations and maps them to an array of arguments."""
         scrcpy_args = ["scrcpy"]
         if self.config_state["device_id"] != "No Device Detected":
             scrcpy_args.extend(["-s", self.config_state["device_id"]])
 
-        # 1. Parse Capture Source Profiles
         source = self.config_state["capture_source"]
         if source == "CAMERA":
             scrcpy_args.append("--video-source=camera")
@@ -119,14 +371,13 @@ class DynamicScrcpyGUI(ctk.CTk):
         elif source == "DESKTOP":
             scrcpy_args.append(f"--create-vdisplay={self.config_state['desktop_width']}x{self.config_state['desktop_height']}")
 
-        # 2. Add General Stream Modifiers
         if self.config_state["resolution"] != "Original":
             res_val = self.config_state["resolution"].replace("p", "")
             scrcpy_args.append(f"-m{res_val}")
-            
+
         if self.config_state["fps"] != "Auto":
             scrcpy_args.append(f"--max-fps={self.config_state['fps']}")
-            
+
         if self.config_state["rotation"] != "0°":
             rot_deg = self.config_state["rotation"].replace("°", "")
             rot_map = {"90": "1", "180": "2", "270": "3"}
@@ -134,33 +385,29 @@ class DynamicScrcpyGUI(ctk.CTk):
 
         scrcpy_args.append(f"-b{self.config_state['bitrate']}M")
 
-        # 3. Handle Native Session Management Rules 
         rules = self.config_state["session_behaviors"]
         if rules["STAY AWAKE (?)"]: scrcpy_args.append("-w")
         if rules["SCREEN OFF (?)"]: scrcpy_args.append("-S")
         if rules["ALWAYS ON TOP (?)"]: scrcpy_args.append("--always-on-top")
         if rules["FULL SCREEN (?)"]: scrcpy_args.append("-f")
         if rules["BORDERLESS (?)"]: scrcpy_args.append("--window-borderless")
-        
+
         if rules["FORWARD AUDIO (?)"]:
             scrcpy_args.append(f"--audio-codec={self.config_state['audio_codec'].lower()}")
         else:
             scrcpy_args.append("--no-audio")
 
         if rules["RECORD FEED (?)"]:
-            # Uses a snapshot generator for path representation previewing
             timestamp = "YYYYMMDD_HHMMSS"
             record_file = os.path.join(self.config_state["recording_path"], f"scrcpy_stream_{timestamp}.mp4")
             scrcpy_args.append(f"-r={record_file}")
 
-        # 4. Input Enhancements (OTG simulation drivers)
         if self.config_state["hid_keyboard"]: scrcpy_args.append("-K")
         if self.config_state["hid_mouse"]: scrcpy_args.append("-M")
 
         return scrcpy_args
 
     def update_live_command_preview(self):
-        """Updates the command text bar visibility safely stringwise."""
         args = self.build_scrcpy_arguments()
         self.preview_text.configure(state="normal")
         self.preview_text.delete(0, "end")
@@ -168,56 +415,40 @@ class DynamicScrcpyGUI(ctk.CTk):
         self.preview_text.configure(state="readonly")
 
     def run_background_cmd(self, cmd_list, callback=None, log_output=True):
-        """Executes a terminal or shell tool safely inside a worker thread to keep the GUI fluid."""
         def worker():
             try:
                 startupinfo = None
                 if os.name == 'nt':
                     startupinfo = subprocess.STARTUPINFO()
                     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                
-                result = subprocess.run(
-                    cmd_list, 
-                    stdout=subprocess.PIPE, 
-                    stderr=subprocess.PIPE, 
-                    text=True, 
-                    startupinfo=startupinfo,
-                    timeout=120
-                )
+                result = subprocess.run(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                                        startupinfo=startupinfo, timeout=120)
                 if log_output and result.stdout.strip():
                     self.log_to_console(f"[SHELL OUT] {result.stdout.strip()}")
                 if result.returncode != 0 and result.stderr.strip():
                     self.log_to_console(f"[SHELL ERR] {result.stderr.strip()}", is_error=True)
-                
                 if callback:
                     self.after(0, lambda: callback(result.stdout, result.stderr))
             except Exception as e:
                 self.log_to_console(f"Subprocess runtime error: {str(e)}", is_error=True)
-
         threading.Thread(target=worker, daemon=True).start()
 
     def refresh_adb_device_data(self):
-        """Polls connected hardware via adb, extracts identifiers, and sniffs networking profiles."""
         self.log_to_console("🔍 Querying ADB subsystem layer for connected targets...")
-        
+
         def process_devices(stdout, stderr):
             lines = stdout.strip().split('\n')
             devices = [line.split('\t')[0] for line in lines[1:] if line.strip() and '\tdevice' in line]
-            
             if devices:
                 active_device = devices[0]
                 self.config_state["device_id"] = active_device
-                self.lbl_dev.configure(text=f"{active_device}\nREADY  •  CONNECTED", text_color=("#4A4160", "#4AF2A1"))
+                self.lbl_dev.configure(text=f"{active_device}\nREADY  •  CONNECTED", fg=self.t["success_text"])
                 self.log_to_console(f"Active Device identified -> Host Interface ID: {active_device}")
-                
-                self.run_background_cmd(
-                    ["adb", "-s", active_device, "shell", "ip", "route"], 
-                    callback=process_ip, 
-                    log_output=False
-                )
+                self.run_background_cmd(["adb", "-s", active_device, "shell", "ip", "route"],
+                                        callback=process_ip, log_output=False)
             else:
                 self.config_state["device_id"] = "No Device Detected"
-                self.lbl_dev.configure(text="NO DEVICE RUNNING\nCHECK PHYSICAL LINK OR DRIVERS", text_color=("#FF4136", "#FF6B6B"))
+                self.lbl_dev.configure(text="NO DEVICE RUNNING\nCHECK PHYSICAL LINK OR DRIVERS", fg=self.t["error_text"])
                 self.log_to_console("Warning: ADB found no initialized devices. Verify USB Debugging setup.", is_error=True)
             self.update_live_command_preview()
 
@@ -236,17 +467,16 @@ class DynamicScrcpyGUI(ctk.CTk):
         self.run_background_cmd(["adb", "devices"], callback=process_devices, log_output=False)
 
     def trigger_wireless_connect(self):
-        """Instructs ADB to connect to a target network node address over TCP/IP."""
         target_ip = self.config_state["wireless_ip"].strip()
         if not target_ip:
             self.log_to_console("Error: Please provide a valid address string (IP:PORT).", is_error=True)
             return
-        
         self.log_to_console(f"Bridging target link interface context to TCP over port 5555...")
-        self.run_background_cmd(["adb", "tcpip", "5555"], callback=lambda out, err: self.after(1000, lambda: self.run_background_cmd(["adb", "connect", target_ip], callback=lambda o, e: self.refresh_adb_device_data())))
+        self.run_background_cmd(["adb", "tcpip", "5555"],
+                                callback=lambda out, err: self.after(1000, lambda: self.run_background_cmd(
+                                    ["adb", "connect", target_ip], callback=lambda o, e: self.refresh_adb_device_data())))
 
     def trigger_wireless_pairing(self):
-        """Executes modern Android 11+ automated pairing keys."""
         ip_port = self.config_state["pairing_ip"].strip()
         code = self.config_state["pairing_code"].strip()
         if not ip_port or not code:
@@ -256,7 +486,6 @@ class DynamicScrcpyGUI(ctk.CTk):
         self.run_background_cmd(["adb", "pair", ip_port, code], callback=lambda o, e: self.refresh_adb_device_data())
 
     def kill_adb_daemon(self):
-        """Restarts the system bridge daemon context to handle communication issues."""
         self.log_to_console("Killing host ADB daemon instances...")
         self.run_background_cmd(["adb", "kill-server"], callback=lambda o, e: self.refresh_adb_device_data())
 
@@ -264,60 +493,50 @@ class DynamicScrcpyGUI(ctk.CTk):
     # FILE UPLOAD LOGIC ENGINE
     # ==========================================
     def process_file_upload(self, filepath):
-        """Determines if target payload file is an APK installer or general asset file, then executes push."""
-        filepath = filepath.strip('{} ') 
+        filepath = filepath.strip('{} ')
         if not filepath or not os.path.exists(filepath):
             self.log_to_console("File interaction failed: Specified storage path does not exist.", is_error=True)
             return
-
         if self.config_state["device_id"] == "No Device Detected":
             self.log_to_console("Cannot dispatch files: No initialized Android hardware mapped.", is_error=True)
             return
-
         filename = os.path.basename(filepath)
-        
         if filename.lower().endswith(".apk"):
             self.log_to_console(f"📦 System packaging detected. Initiating background app installation layer for: {filename}")
             cmd = ["adb", "-s", self.config_state["device_id"], "install", "-r", filepath]
-            
+
             def on_install_complete(stdout, stderr):
                 if "Success" in stdout or "Success" in stderr:
                     self.log_to_console(f"🎉 Success! Package '{filename}' safely installed on target device.")
                 else:
                     self.log_to_console(f"⚠️ App Installation completed with anomaly status markers.", is_error=True)
-            
+
             self.run_background_cmd(cmd, callback=on_install_complete)
         else:
             destination = "/sdcard/Download/"
             self.log_to_console(f"📁 Asset file verified. Dispatched adb push stream for '{filename}' to system repository: {destination}")
             cmd = ["adb", "-s", self.config_state["device_id"], "push", filepath, destination]
-            
+
             def on_push_complete(stdout, stderr):
                 self.log_to_console(f"📤 File allocation synchronized! Transfer for '{filename}' committed to {destination}")
-            
+
             self.run_background_cmd(cmd, callback=on_push_complete)
 
     def manual_file_selector_trigger(self, event=None):
-        """Opens a standard file dialog option when users click inside the payload card container."""
         chosen_file = filedialog.askopenfilename(title="Select File / Application Package to push to device")
         if chosen_file:
             self.process_file_upload(chosen_file)
 
     def handle_connection_startup(self):
-        """Compiles GUI configurations and maps them seamlessly to an optimized scrcpy statement."""
         if self.config_state["device_id"] == "No Device Detected":
             self.log_to_console("Aborting SCRCPY init thread: Target system requires an active device map link.", is_error=True)
             return
-
         scrcpy_args = self.build_scrcpy_arguments()
-        
-        # Swaps representative runtime string elements with real hardware timestamp parameters
         if self.config_state["session_behaviors"]["RECORD FEED (?)"]:
             real_ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             scrcpy_args = [arg.replace("YYYYMMDD_HHMMSS", real_ts) for arg in scrcpy_args]
-
         self.log_to_console(f"Launching scrcpy runtime engine context using syntax: {' '.join(scrcpy_args)}")
-        
+
         def launch_scrcpy_instance():
             try:
                 startupinfo = None
@@ -338,18 +557,22 @@ class DynamicScrcpyGUI(ctk.CTk):
     # ==========================================
     def change_theme_mode(self, choice):
         if choice == "Light Mode":
-            ctk.set_appearance_mode("light")
+            self.current_theme_name = "light"
         elif choice == "Dark Mode":
-            ctk.set_appearance_mode("dark")
+            self.current_theme_name = "dark"
         else:
-            ctk.set_appearance_mode("system")
+            self.current_theme_name = "dark"
+        self.t = THEMES[self.current_theme_name]
+        self._apply_theme()
         self.log_to_console(f"Visual engine theme switched to: {choice}")
+
+    def _apply_theme(self):
+        self.configure(bg=self.t["bg"])
 
     def log_to_console(self, text, is_error=False):
         timestamp = datetime.now().strftime("%H:%M:%S")
         prefix = "[ERROR] " if is_error else "[INFO]  "
         formatted_msg = f"[{timestamp}] {prefix}{text}\n"
-        
         self.console_box.configure(state="normal")
         self.console_box.insert("end", formatted_msg)
         self.console_box.see("end")
@@ -395,7 +618,7 @@ class DynamicScrcpyGUI(ctk.CTk):
         self.update_live_command_preview()
 
     def update_slider_bitrate(self, value):
-        rounded_val = int(value)
+        rounded_val = int(float(value))
         self.config_state["bitrate"] = rounded_val
         self.lbl_bitrate_display.configure(text=f"BITRATE: {rounded_val}M")
         self.update_live_command_preview()
@@ -407,13 +630,13 @@ class DynamicScrcpyGUI(ctk.CTk):
         self.update_live_command_preview()
 
     def update_slider_width(self, value):
-        rounded_val = int(value)
+        rounded_val = int(float(value))
         self.config_state["desktop_width"] = rounded_val
         self.lbl_width_display.configure(text=f"WIDTH: {rounded_val}px")
         self.update_live_command_preview()
 
     def update_slider_height(self, value):
-        rounded_val = int(value)
+        rounded_val = int(float(value))
         self.config_state["desktop_height"] = rounded_val
         self.lbl_height_display.configure(text=f"HEIGHT: {rounded_val}px")
         self.update_live_command_preview()
@@ -425,17 +648,20 @@ class DynamicScrcpyGUI(ctk.CTk):
         self.update_live_command_preview()
 
     def update_behavior_switch(self, behavior_name, switch_widget):
-        is_on = switch_widget.get() == 1
+        is_on = switch_widget._var.get() == 1
         self.config_state["session_behaviors"][behavior_name] = is_on
         self.log_to_console(f"Session profile shift: rule matrix value [{behavior_name}] -> {is_on}")
-        
+
         if behavior_name == "FORWARD AUDIO (?)":
-            if is_on: self.audio_codec_frame.pack(fill="x", padx=15, pady=(2, 6), before=self.behavior_rows["ALWAYS ON TOP (?)"])
-            else: self.audio_codec_frame.pack_forget()
+            if is_on:
+                self.audio_codec_frame.pack(fill="x", padx=15, pady=(2, 6), before=self.behavior_rows["ALWAYS ON TOP (?)"])
+            else:
+                self.audio_codec_frame.pack_forget()
         elif behavior_name == "RECORD FEED (?)":
-            if is_on: self.record_path_frame.pack(fill="x", padx=15, pady=(2, 6), after=self.behavior_rows["RECORD FEED (?)"])
-            else: self.record_path_frame.pack_forget()
-            
+            if is_on:
+                self.record_path_frame.pack(fill="x", padx=15, pady=(2, 6), after=self.behavior_rows["RECORD FEED (?)"])
+            else:
+                self.record_path_frame.pack_forget()
         self.update_live_command_preview()
 
     def browse_recording_path(self):
@@ -451,78 +677,60 @@ class DynamicScrcpyGUI(ctk.CTk):
     # LEFT COLUMN: DEVICE HUB & THEME CONFIG
     # ==========================================
     def create_left_column(self):
-        left_container = ctk.CTkFrame(self.scroll_viewport, fg_color="transparent")
+        left_container = tk.Frame(self.scroll_viewport.inner_frame, bg=self.t["bg"], bd=0, highlightthickness=0)
         left_container.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
 
-        self.hub_card = ctk.CTkFrame(left_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
-        self.hub_card.pack(fill="x", pady=(0, 15), ipady=10)
+        # --- HUB CARD ---
+        self.hub_card = self._create_card(left_container, fill="x", pady=(0, 15), ipady=10)
+        self._make_label(self.hub_card, "📱 DEVICE HUB", secondary=True, anchor="w", padx=15, pady=(10, 5))
 
-        lbl_hub = ctk.CTkLabel(self.hub_card, text="📱 DEVICE HUB", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        lbl_hub.pack(anchor="w", padx=15, pady=(10, 5))
-
-        device_box = ctk.CTkFrame(self.hub_card, fg_color=("#F1EFF5", "#1E1A29"), corner_radius=8, border_color=("#D1CDDA", "#342E44"), border_width=1)
+        device_box = tk.Frame(self.hub_card, bg=self.t["input_bg"], highlightbackground=self.t["input_border"], highlightthickness=1)
+        self._make_rounded(device_box, 8)
         device_box.pack(fill="x", padx=15, pady=5)
-        
-        btn_refresh = ctk.CTkButton(device_box, text="🔄 REFRESH HARDWARE LINKS", font=("Arial", 10, "bold"), fg_color=("#E2E0E7", "#342E44"), text_color=("#4A4160", "#E3DFFE"), hover_color=("#D1CDDA", "#443C59"), height=24, command=self.refresh_adb_device_data)
-        btn_refresh.pack(fill="x", padx=10, pady=(8, 4))
 
-        self.lbl_dev = ctk.CTkLabel(device_box, text="Scanning for device processes...", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), justify="left")
+        btn_refresh = tk.Button(device_box, text="🔄 REFRESH HARDWARE LINKS", font=("Arial", 10, "bold"),
+                                bg=self.t["btn_sec_bg"], fg=self.t["text_primary"],
+                                activebackground=self.t["btn_sec_hover"], activeforeground=self.t["text_primary"],
+                                relief="flat", bd=0, cursor="hand2", height=2, command=self.refresh_adb_device_data)
+        btn_refresh.pack(fill="x", padx=10, pady=(8, 4))
+        btn_refresh.bind("<Enter>", lambda e: btn_refresh.configure(bg=self.t["btn_sec_hover"]))
+        btn_refresh.bind("<Leave>", lambda e: btn_refresh.configure(bg=self.t["btn_sec_bg"]))
+
+        self.lbl_dev = tk.Label(device_box, text="Scanning for device processes...", font=("Arial", 11, "bold"),
+                                bg=self.t["input_bg"], fg=self.t["text_primary"], justify="left")
         self.lbl_dev.pack(anchor="w", padx=15, pady=(4, 8))
 
-        self.device_tabs = ctk.CTkSegmentedButton(
-            self.hub_card, 
-            values=["USB", "WIRELESS"], 
-            fg_color=("#F1EFF5", "#1E1A29"), 
-            selected_color="#845EF7",
-            unselected_color=("#F1EFF5", "#1E1A29"),
-            text_color=("#4A4160", "#E3DFFE"),
-            command=self.on_device_tab_changed
-        )
+        self.device_tabs = SegmentedButton(self.hub_card, values=["USB", "WIRELESS"], _theme=self.t,
+                                           command=self.on_device_tab_changed)
         self.device_tabs.set(self.config_state["connection_type"])
         self.device_tabs.pack(fill="x", padx=15, pady=10)
 
-        self.device_dynamic_area = ctk.CTkFrame(self.hub_card, fg_color="transparent")
+        self.device_dynamic_area = tk.Frame(self.hub_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         self.device_dynamic_area.pack(fill="x", padx=15, pady=5)
 
-        # File Selection Flash Card
-        flash_card = ctk.CTkFrame(left_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1, height=135, cursor="hand2")
+        # --- FLASH CARD ---
+        flash_card = tk.Frame(left_container, bg=self.t["card_bg"], highlightbackground=self.t["card_border"], highlightthickness=1, height=135, cursor="hand2")
+        self._make_rounded(flash_card, 12)
         flash_card.pack(fill="x", pady=(0, 15))
         flash_card.pack_propagate(False)
 
-        lbl_cloud = ctk.CTkLabel(flash_card, text="📤", font=("Arial", 28), text_color="#845EF7")
+        lbl_cloud = tk.Label(flash_card, text="📤", font=("Arial", 28), bg=self.t["card_bg"], fg="#845EF7")
         lbl_cloud.pack(pady=(20, 2))
-        
-        lbl_title = ctk.CTkLabel(flash_card, text="FLASH / PUSH FILES", font=("Arial", 12, "bold"), text_color=("#4A4160", "#E3DFFE"))
+        lbl_title = tk.Label(flash_card, text="FLASH / PUSH FILES", font=("Arial", 12, "bold"),
+                             bg=self.t["card_bg"], fg=self.t["text_primary"])
         lbl_title.pack()
-        
-        lbl_subtitle = ctk.CTkLabel(flash_card, text="CLICK TO BROWSE LOCAL FILES", font=("Arial", 9, "bold"), text_color=("#A39FB0", "#7D7591"))
+        lbl_subtitle = tk.Label(flash_card, text="CLICK TO BROWSE LOCAL FILES", font=("Arial", 9, "bold"),
+                                bg=self.t["card_bg"], fg=self.t["text_muted"])
         lbl_subtitle.pack(pady=(2, 10))
 
-        flash_card.bind("<Button-1>", self.manual_file_selector_trigger)
-        lbl_cloud.bind("<Button-1>", self.manual_file_selector_trigger)
-        lbl_title.bind("<Button-1>", self.manual_file_selector_trigger)
-        lbl_subtitle.bind("<Button-1>", self.manual_file_selector_trigger)
+        for w in [flash_card, lbl_cloud, lbl_title, lbl_subtitle]:
+            w.bind("<Button-1>", self.manual_file_selector_trigger)
 
-        theme_card = ctk.CTkFrame(left_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
-        theme_card.pack(fill="x", pady=0, ipady=8)
-        
-        lbl_theme = ctk.CTkLabel(theme_card, text="🎨 VISUAL INTERFACE MODE", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        lbl_theme.pack(anchor="w", padx=15, pady=(10, 4))
-        
-        self.theme_menu = ctk.CTkOptionMenu(
-            theme_card, 
-            values=["Light Mode", "Dark Mode", "System Default"], 
-            fg_color=("#F1EFF5", "#1E1A29"), 
-            text_color=("#4A4160", "#E3DFFE"), 
-            button_color=("#F1EFF5", "#1E1A29"), 
-            button_hover_color=("#D1CDDA", "#342E44"),
-            dropdown_fg_color=("#FFFFFF", "#1E1A29"),
-            dropdown_text_color=("#4A4160", "#E3DFFE"),
-            dropdown_hover_color=("#845EF7", "#845EF7"),
-            command=self.change_theme_mode
-        )
-        self.theme_menu.set("Light Mode")
-        self.theme_menu.pack(fill="x", padx=15, pady=4)
+        # --- THEME CARD ---
+        theme_card = self._create_card(left_container, fill="x", pady=0, ipady=8)
+        self._make_label(theme_card, "🎨 VISUAL INTERFACE MODE", secondary=True, anchor="w", padx=15, pady=(10, 4))
+        self.theme_menu = self._make_dropdown(theme_card, ["Light Mode", "Dark Mode", "System Default"],
+                                              "Dark Mode", self.change_theme_mode, fill="x", padx=15, pady=4)
 
         self.on_device_tab_changed(self.config_state["connection_type"])
 
@@ -531,156 +739,163 @@ class DynamicScrcpyGUI(ctk.CTk):
         if self.current_device_sub_frame:
             self.current_device_sub_frame.destroy()
 
-        self.current_device_sub_frame = ctk.CTkFrame(self.device_dynamic_area, fg_color="transparent")
+        self.current_device_sub_frame = tk.Frame(self.device_dynamic_area, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         self.current_device_sub_frame.pack(fill="x")
 
         if selected_tab == "USB":
-            lbl_usb_info = ctk.CTkLabel(self.current_device_sub_frame, text="🔌 Physical ADB Bridge Node Active", font=("Arial", 11, "bold"), text_color="#845EF7")
+            lbl_usb_info = tk.Label(self.current_device_sub_frame, text="🔌 Physical ADB Bridge Node Active",
+                                    font=("Arial", 11, "bold"), bg=self.t["card_bg"], fg="#845EF7")
             lbl_usb_info.pack(anchor="w", pady=5)
-            btn_kill = ctk.CTkButton(self.current_device_sub_frame, text="⚡ KILL ADB DAEMON SERVER", fg_color=("#E2E0E7", "#342E44"), text_color=("#4A4160", "#E3DFFE"), hover_color=("#D1CDDA", "#443C59"), command=self.kill_adb_daemon)
-            btn_kill.pack(fill="x", pady=5)
+            self._make_button(self.current_device_sub_frame, "⚡ KILL ADB DAEMON SERVER", self.kill_adb_daemon,
+                              fill="x", pady=5)
 
         elif selected_tab == "WIRELESS":
-            lbl_ip = ctk.CTkLabel(self.current_device_sub_frame, text="IP CONNECT WIRELESS NODE", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
-            lbl_ip.pack(anchor="w", pady=(5, 2))
-            
-            self.ip_entry = ctk.CTkEntry(self.current_device_sub_frame, placeholder_text="Extracting IP or input 192.168.x.x:5555", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), text_color=("#4A4160", "#E3DFFE"))
-            self.ip_entry.pack(fill="x", pady=5)
+            self._make_label(self.current_device_sub_frame, "IP CONNECT WIRELESS NODE", secondary=True,
+                             anchor="w", pady=(5, 2))
+            ip_frame = tk.Frame(self.current_device_sub_frame, bg=self.t["input_bg"],
+                                highlightbackground=self.t["input_border"], highlightthickness=1)
+            self._make_rounded(ip_frame, 6)
+            ip_frame.pack(fill="x", pady=5)
+            self.ip_entry = tk.Entry(ip_frame, font=("Arial", 10), fg=self.t["text_primary"], bg=self.t["input_bg"],
+                                     bd=0, highlightthickness=0, insertbackground=self.t["text_primary"])
+            self.ip_entry.pack(fill="x", padx=8, pady=6)
             if self.config_state["wireless_ip"]:
                 self.ip_entry.insert(0, self.config_state["wireless_ip"])
             self.ip_entry.bind("<KeyRelease>", lambda e: self.config_state.update({"wireless_ip": self.ip_entry.get()}))
 
-            btn_connect_tcp = ctk.CTkButton(self.current_device_sub_frame, text="CONNECT TO IP", fg_color="#845EF7", text_color="white", hover_color="#7048E8", command=self.trigger_wireless_connect)
-            btn_connect_tcp.pack(fill="x", pady=(2, 10))
+            btn_connect = tk.Button(self.current_device_sub_frame, text="CONNECT TO IP", font=("Arial", 10, "bold"),
+                                    bg=self.t["accent"], fg="#FFFFFF", activebackground=self.t["accent_hover"],
+                                    activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2",
+                                    command=self.trigger_wireless_connect)
+            btn_connect.pack(fill="x", pady=(2, 10))
+            btn_connect.bind("<Enter>", lambda e: btn_connect.configure(bg=self.t["accent_hover"]))
+            btn_connect.bind("<Leave>", lambda e: btn_connect.configure(bg=self.t["accent"]))
 
-            lbl_pair = ctk.CTkLabel(self.current_device_sub_frame, text="2. SECURE PAIR (ANDROID 11+)", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
-            lbl_pair.pack(anchor="w", pady=(5, 5))
+            self._make_label(self.current_device_sub_frame, "2. SECURE PAIR (ANDROID 11+)", secondary=True,
+                             anchor="w", pady=(5, 5))
 
-            pair_inputs = ctk.CTkFrame(self.current_device_sub_frame, fg_color="transparent")
+            pair_inputs = tk.Frame(self.current_device_sub_frame, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             pair_inputs.pack(fill="x", pady=5)
-            
-            ent_p_ip = ctk.CTkEntry(pair_inputs, placeholder_text="IP:Port", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), text_color=("#4A4160", "#E3DFFE"), width=115)
-            ent_p_ip.pack(side="left", expand=True, fill="x", padx=(0, 5))
+
+            ent_p_ip_frame = tk.Frame(pair_inputs, bg=self.t["input_bg"],
+                                      highlightbackground=self.t["input_border"], highlightthickness=1)
+            ent_p_ip_frame.pack(side="left", expand=True, fill="x", padx=(0, 5))
+            ent_p_ip = tk.Entry(ent_p_ip_frame, font=("Arial", 10), fg=self.t["text_primary"], bg=self.t["input_bg"],
+                                bd=0, highlightthickness=0, insertbackground=self.t["text_primary"])
+            ent_p_ip.pack(fill="x", padx=8, pady=6)
             ent_p_ip.bind("<KeyRelease>", lambda e: self.config_state.update({"pairing_ip": ent_p_ip.get()}))
-            
-            ent_p_code = ctk.CTkEntry(pair_inputs, placeholder_text="Pairing Code", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), text_color=("#4A4160", "#E3DFFE"), width=115)
-            ent_p_code.pack(side="right", expand=True, fill="x", padx=(5, 0))
+
+            ent_p_code_frame = tk.Frame(pair_inputs, bg=self.t["input_bg"],
+                                        highlightbackground=self.t["input_border"], highlightthickness=1)
+            ent_p_code_frame.pack(side="right", expand=True, fill="x", padx=(5, 0))
+            ent_p_code = tk.Entry(ent_p_code_frame, font=("Arial", 10), fg=self.t["text_primary"], bg=self.t["input_bg"],
+                                  bd=0, highlightthickness=0, insertbackground=self.t["text_primary"])
+            ent_p_code.pack(fill="x", padx=8, pady=6)
             ent_p_code.bind("<KeyRelease>", lambda e: self.config_state.update({"pairing_code": ent_p_code.get()}))
 
-            btn_pair = ctk.CTkButton(self.current_device_sub_frame, text="START PAIRING HANDSHAKE", fg_color="transparent", border_color=("#D1CDDA", "#342E44"), border_width=1, text_color=("#4A4160", "#E3DFFE"), hover_color=("#F1EFF5", "#342E44"), command=self.trigger_wireless_pairing)
+            btn_pair = tk.Button(self.current_device_sub_frame, text="START PAIRING HANDSHAKE",
+                                 font=("Arial", 10, "bold"), bg=self.t["card_bg"], fg=self.t["text_primary"],
+                                 activebackground=self.t["btn_sec_hover"], activeforeground=self.t["text_primary"],
+                                 relief="flat", bd=0, cursor="hand2", highlightbackground=self.t["input_border"],
+                                 highlightthickness=1, command=self.trigger_wireless_pairing)
             btn_pair.pack(fill="x", pady=(5, 0))
+            btn_pair.bind("<Enter>", lambda e: btn_pair.configure(bg=self.t["btn_sec_hover"]))
+            btn_pair.bind("<Leave>", lambda e: btn_pair.configure(bg=self.t["card_bg"]))
 
     # ==========================================
     # CENTER COLUMN: ENGINE CONTROL & TERMINAL
     # ==========================================
     def create_center_column(self):
-        center_container = ctk.CTkFrame(self.scroll_viewport, fg_color="transparent")
+        center_container = tk.Frame(self.scroll_viewport.inner_frame, bg=self.t["bg"], bd=0, highlightthickness=0)
         center_container.grid(row=0, column=1, padx=15, pady=15, sticky="nsew")
 
-        source_card = ctk.CTkFrame(center_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
-        source_card.pack(fill="x", pady=(0, 15), ipady=8)
-
-        lbl_src = ctk.CTkLabel(source_card, text="CAPTURE SOURCE", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        lbl_src.pack(anchor="w", padx=15, pady=10)
-
-        self.source_tabs = ctk.CTkSegmentedButton(
-            source_card, 
-            values=["SCREEN", "CAMERA", "DESKTOP"], 
-            fg_color=("#F1EFF5", "#1E1A29"), 
-            selected_color="#845EF7",
-            unselected_color=("#F1EFF5", "#1E1A29"),
-            text_color=("#4A4160", "#E3DFFE"),
-            command=self.on_engine_tab_changed
-        )
+        # --- SOURCE CARD ---
+        source_card = self._create_card(center_container, fill="x", pady=(0, 15), ipady=8)
+        self._make_label(source_card, "CAPTURE SOURCE", secondary=True, anchor="w", padx=15, pady=10)
+        self.source_tabs = SegmentedButton(source_card, values=["SCREEN", "CAMERA", "DESKTOP"], _theme=self.t,
+                                           command=self.on_engine_tab_changed)
         self.source_tabs.set(self.config_state["capture_source"])
         self.source_tabs.pack(fill="x", padx=15, pady=5)
 
-        self.config_card = ctk.CTkFrame(center_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
-        self.config_card.pack(fill="x", pady=0)
-
-        self.engine_dynamic_area = ctk.CTkFrame(self.config_card, fg_color="transparent")
+        # --- CONFIG CARD ---
+        self.config_card = self._create_card(center_container, fill="x")
+        self.engine_dynamic_area = tk.Frame(self.config_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         self.engine_dynamic_area.pack(fill="x", padx=15, pady=(15, 5))
 
-        global_settings_frame = ctk.CTkFrame(self.config_card, fg_color="transparent")
+        global_settings_frame = tk.Frame(self.config_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         global_settings_frame.pack(fill="x", padx=15, pady=(5, 15))
 
-        drop_row = ctk.CTkFrame(global_settings_frame, fg_color="transparent")
+        drop_row = tk.Frame(global_settings_frame, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         drop_row.pack(fill="x", pady=10)
-        
-        f_res = ctk.CTkFrame(drop_row, fg_color="transparent")
-        f_res.pack(side="left", expand=True, fill="x", padx=(0,5))
-        ctk.CTkLabel(f_res, text="RESOLUTION", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
-        dp_res = ctk.CTkOptionMenu(f_res, values=["Original", "1080p", "720p"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("resolution", val))
-        dp_res.set(self.config_state["resolution"])
-        dp_res.pack(fill="x", pady=2)
 
-        f_fps = ctk.CTkFrame(drop_row, fg_color="transparent")
+        f_res = tk.Frame(drop_row, bg=self.t["card_bg"], bd=0, highlightthickness=0)
+        f_res.pack(side="left", expand=True, fill="x", padx=(0, 5))
+        self._make_label(f_res, "RESOLUTION", secondary=True, anchor="w")
+        self._make_dropdown(f_res, ["Original", "1080p", "720p"], self.config_state["resolution"],
+                            lambda val: self.update_dropdown_state("resolution", val), fill="x", pady=2)
+
+        f_fps = tk.Frame(drop_row, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         f_fps.pack(side="left", expand=True, fill="x", padx=5)
-        ctk.CTkLabel(f_fps, text="FPS LIMIT", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
-        dp_fps = ctk.CTkOptionMenu(f_fps, values=["Auto", "60", "90", "120"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("fps", val))
-        dp_fps.set(self.config_state["fps"])
-        dp_fps.pack(fill="x", pady=2)
+        self._make_label(f_fps, "FPS LIMIT", secondary=True, anchor="w")
+        self._make_dropdown(f_fps, ["Auto", "60", "90", "120"], self.config_state["fps"],
+                            lambda val: self.update_dropdown_state("fps", val), fill="x", pady=2)
 
-        f_rot = ctk.CTkFrame(drop_row, fg_color="transparent")
-        f_rot.pack(side="left", expand=True, fill="x", padx=(5,0))
-        ctk.CTkLabel(f_rot, text="ROTATION", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
-        dp_rot = ctk.CTkOptionMenu(f_rot, values=["0°", "90°", "180°", "270°"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("rotation", val))
-        dp_rot.set(self.config_state["rotation"])
-        dp_rot.pack(fill="x", pady=2)
+        f_rot = tk.Frame(drop_row, bg=self.t["card_bg"], bd=0, highlightthickness=0)
+        f_rot.pack(side="left", expand=True, fill="x", padx=(5, 0))
+        self._make_label(f_rot, "ROTATION", secondary=True, anchor="w")
+        self._make_dropdown(f_rot, ["0°", "90°", "180°", "270°"], self.config_state["rotation"],
+                            lambda val: self.update_dropdown_state("rotation", val), fill="x", pady=2)
 
-        lbl_render = ctk.CTkLabel(global_settings_frame, text="GRAPHICS RENDER PANEL", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        lbl_render.pack(anchor="w", pady=(5,0))
-        dp_render = ctk.CTkOptionMenu(global_settings_frame, values=["Auto", "OpenGL", "Vulkan", "Direct3D"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), width=160, command=lambda val: self.update_dropdown_state("renderer", val))
-        dp_render.set(self.config_state["renderer"])
-        dp_render.pack(anchor="w", pady=2)
+        self._make_label(global_settings_frame, "GRAPHICS RENDER PANEL", secondary=True, anchor="w", pady=(5, 0))
+        self._make_dropdown(global_settings_frame, ["Auto", "OpenGL", "Vulkan", "Direct3D"], self.config_state["renderer"],
+                            lambda val: self.update_dropdown_state("renderer", val), width=18, anchor="w", pady=2)
 
-        self.lbl_bitrate_display = ctk.CTkLabel(global_settings_frame, text=f"BITRATE: {self.config_state['bitrate']}M", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        self.lbl_bitrate_display.pack(anchor="w", pady=(10,0))
-        sb_bitrate = ctk.CTkSlider(global_settings_frame, from_=1, to=32, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_bitrate)
-        sb_bitrate.set(self.config_state["bitrate"])
-        sb_bitrate.pack(fill="x", pady=5)
+        self.lbl_bitrate_display = self._make_label(global_settings_frame, f"BITRATE: {self.config_state['bitrate']}M",
+                                                    secondary=True, anchor="w", pady=(10, 0))
+        self._make_slider(global_settings_frame, 1, 32, self.config_state["bitrate"], self.update_slider_bitrate,
+                          fill="x", pady=5)
 
-        btn_eject = ctk.CTkButton(
-            center_container, 
-            text="▶  START CONNECTION", 
-            fg_color="#845EF7", 
-            hover_color="#7048E8", 
-            text_color="white", 
-            font=("Arial", 14, "bold"), 
-            height=46,
-            command=self.handle_connection_startup
-        )
+        # --- START BUTTON ---
+        btn_eject = tk.Button(center_container, text="▶  START CONNECTION", font=("Arial", 14, "bold"),
+                              bg=self.t["accent"], fg="#FFFFFF", activebackground=self.t["accent_hover"],
+                              activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", height=2,
+                              command=self.handle_connection_startup)
         btn_eject.pack(fill="x", pady=(15, 15))
+        btn_eject.bind("<Enter>", lambda e: btn_eject.configure(bg=self.t["accent_hover"]))
+        btn_eject.bind("<Leave>", lambda e: btn_eject.configure(bg=self.t["accent"]))
 
-        # --- SYSTEM MONITOR HARDWARE ENGINE ---
-        console_card = ctk.CTkFrame(center_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
-        console_card.pack(fill="both", expand=True, pady=0)
-        
-        console_header = ctk.CTkFrame(console_card, fg_color="transparent")
+        # --- CONSOLE CARD ---
+        console_card = self._create_card(center_container, fill="both", expand=True)
+        console_header = tk.Frame(console_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         console_header.pack(fill="x", padx=15, pady=(10, 5))
-        
-        lbl_console = ctk.CTkLabel(console_header, text="💻 SYSTEM CONSOLE MONITOR", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        lbl_console.pack(side="left")
-        
-        btn_save_log = ctk.CTkButton(console_header, text="💾 SAVE LOG", font=("Arial", 9, "bold"), fg_color=("#E2E0E7", "#342E44"), hover_color=("#D1CDDA", "#443C59"), text_color=("#4A4160", "#E3DFFE"), width=70, height=22, command=self.save_console_to_file)
-        btn_save_log.pack(side="right", padx=(5, 0))
-        
-        btn_clear_log = ctk.CTkButton(console_header, text="🗑️ CLEAR", font=("Arial", 9, "bold"), fg_color=("#E2E0E7", "#342E44"), hover_color=("#D1CDDA", "#443C59"), text_color=("#4A4160", "#E3DFFE"), width=60, height=22, command=self.clear_console_logs)
-        btn_clear_log.pack(side="right", padx=5)
 
-        self.console_box = ctk.CTkTextbox(console_card, fg_color=("#1E1E24", "#0F0C1B"), text_color=("#39FF14", "#4AF2A1"), font=("Courier New", 12), corner_radius=8, border_width=1, border_color=("#D1CDDA", "#3D354E"), height=220)
-        self.console_box.pack(fill="both", expand=True, padx=15, pady=5)
+        self._make_label(console_header, "💻 SYSTEM CONSOLE MONITOR", secondary=True, side="left")
+        self._make_button(console_header, "💾 SAVE LOG", self.save_console_to_file, small=True, side="right", padx=(5, 0))
+        self._make_button(console_header, "🗑️ CLEAR", self.clear_console_logs, small=True, side="right", padx=5)
+
+        console_frame = tk.Frame(console_card, bg=self.t["console_bg"],
+                                 highlightbackground=self.t["console_border"], highlightthickness=1)
+        self._make_rounded(console_frame, 8)
+        console_frame.pack(fill="both", expand=True, padx=15, pady=5)
+        self.console_box = tk.Text(console_frame, bg=self.t["console_bg"], fg=self.t["console_text"],
+                                   font=("Courier New", 12), bd=0, highlightthickness=0, wrap="word", height=10)
+        self.console_box.pack(fill="both", expand=True, padx=6, pady=6)
         self.console_box.configure(state="disabled")
-        
-        # --- COMMAND ENTRY EXECUTION NODE ---
-        cmd_row = ctk.CTkFrame(console_card, fg_color="transparent")
+
+        cmd_row = tk.Frame(console_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         cmd_row.pack(fill="x", padx=15, pady=(5, 15))
-        
-        lbl_prompt = ctk.CTkLabel(cmd_row, text=">_", font=("Courier New", 14, "bold"), text_color="#845EF7")
+
+        lbl_prompt = tk.Label(cmd_row, text=">_", font=("Courier New", 14, "bold"),
+                              bg=self.t["card_bg"], fg="#845EF7")
         lbl_prompt.pack(side="left", padx=(2, 8))
-        
-        self.cmd_entry = ctk.CTkEntry(cmd_row, placeholder_text="Enter manual adb shell or scrcpy arguments here...", fg_color=("#F1EFF5", "#1E1A29"), border_color=("#D1CDDA", "#342E44"), font=("Courier New", 12), text_color=("#4A4160", "#E3DFFE"))
-        self.cmd_entry.pack(side="left", fill="x", expand=True)
+
+        cmd_entry_frame = tk.Frame(cmd_row, bg=self.t["input_bg"],
+                                   highlightbackground=self.t["input_border"], highlightthickness=1)
+        cmd_entry_frame.pack(side="left", fill="x", expand=True)
+        self.cmd_entry = tk.Entry(cmd_entry_frame, font=("Courier New", 12), fg=self.t["text_primary"],
+                                  bg=self.t["input_bg"], bd=0, highlightthickness=0,
+                                  insertbackground=self.t["text_primary"])
+        self.cmd_entry.pack(fill="x", padx=8, pady=6)
         self.cmd_entry.bind("<Return>", self.execute_terminal_command)
 
         self.on_engine_tab_changed(self.config_state["capture_source"])
@@ -690,195 +905,198 @@ class DynamicScrcpyGUI(ctk.CTk):
         if self.current_engine_sub_frame:
             self.current_engine_sub_frame.destroy()
 
-        self.current_engine_sub_frame = ctk.CTkFrame(self.engine_dynamic_area, fg_color="transparent")
+        self.current_engine_sub_frame = tk.Frame(self.engine_dynamic_area, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         self.current_engine_sub_frame.pack(fill="x")
 
-        lbl_title = ctk.CTkLabel(self.current_engine_sub_frame, text=f"⚙️ {selected_tab} ENGINE CONFIGURATION", font=("Arial", 13, "bold"), text_color=("#4A4160", "#E3DFFE"))
-        lbl_title.pack(anchor="w", pady=(0, 10))
+        self._make_label(self.current_engine_sub_frame, f"⚙️ {selected_tab} ENGINE CONFIGURATION",
+                         anchor="w", pady=(0, 10))
 
         if selected_tab == "SCREEN":
-            input_box = ctk.CTkFrame(self.current_engine_sub_frame, fg_color=("#FFFFFF", "#2A2438"), border_color=("#E2E0E7", "#3D354E"), border_width=1, corner_radius=8)
+            input_box = tk.Frame(self.current_engine_sub_frame, bg=self.t["card_bg"],
+                                 highlightbackground=self.t["card_border"], highlightthickness=1)
+            self._make_rounded(input_box, 8)
             input_box.pack(fill="x", pady=5, ipady=5)
-            
-            lbl_enhancement = ctk.CTkLabel(input_box, text="⌨️ INPUT ENHANCEMENTS", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"))
-            lbl_enhancement.pack(anchor="w", padx=12, pady=(8, 2))
-            lbl_enhancement_sub = ctk.CTkLabel(input_box, text="Control your phone using your computer's Mouse and Keyboard (OTG mode).", font=("Arial", 9), text_color=("#A39FB0", "#7D7591"))
-            lbl_enhancement_sub.pack(anchor="w", padx=12, pady=(0, 5))
-            
-            var_kb = ctk.BooleanVar(value=self.config_state["hid_keyboard"])
-            cb_kb = ctk.CTkCheckBox(input_box, text="HID KEYBOARD", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_kb, command=lambda: self.update_switch_state("hid_keyboard", var_kb))
-            cb_kb.pack(anchor="w", padx=15, pady=4)
-            
-            var_ms = ctk.BooleanVar(value=self.config_state["hid_mouse"])
-            cb_ms = ctk.CTkCheckBox(input_box, text="HID MOUSE", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_ms, command=lambda: self.update_switch_state("hid_mouse", var_ms))
-            cb_ms.pack(anchor="w", padx=15, pady=4)
+
+            self._make_label(input_box, "⌨️ INPUT ENHANCEMENTS", anchor="w", padx=12, pady=(8, 2))
+            self._make_label(input_box, "Control your phone using your computer's Mouse and Keyboard (OTG mode).",
+                             muted=True, anchor="w", padx=12, pady=(0, 5))
+
+            var_kb = tk.BooleanVar(value=self.config_state["hid_keyboard"])
+            self._make_checkbox(input_box, "HID KEYBOARD", var_kb,
+                                command=lambda: self.update_switch_state("hid_keyboard", var_kb),
+                                anchor="w", padx=15, pady=4)
+
+            var_ms = tk.BooleanVar(value=self.config_state["hid_mouse"])
+            self._make_checkbox(input_box, "HID MOUSE", var_ms,
+                                command=lambda: self.update_switch_state("hid_mouse", var_ms),
+                                anchor="w", padx=15, pady=4)
 
         elif selected_tab == "CAMERA":
-            cam_box = ctk.CTkFrame(self.current_engine_sub_frame, fg_color="transparent")
+            cam_box = tk.Frame(self.current_engine_sub_frame, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             cam_box.pack(fill="x", pady=5)
-            
-            ctk.CTkLabel(cam_box, text="CAMERA DEVICE ID", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
-            dp_cam = ctk.CTkOptionMenu(cam_box, values=["Auto Select (Recommended)", "0", "1", "2", "3"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("camera_id", val))
-            dp_cam.set(self.config_state["camera_id"])
-            dp_cam.pack(fill="x", pady=(2, 12))
 
-            codec_aspect_row = ctk.CTkFrame(cam_box, fg_color="transparent")
+            self._make_label(cam_box, "CAMERA DEVICE ID", secondary=True, anchor="w")
+            self._make_dropdown(cam_box, ["Auto Select (Recommended)", "0", "1", "2", "3"],
+                                self.config_state["camera_id"],
+                                lambda val: self.update_dropdown_state("camera_id", val),
+                                fill="x", pady=(2, 12))
+
+            codec_aspect_row = tk.Frame(cam_box, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             codec_aspect_row.pack(fill="x", pady=(0, 12))
 
-            f_codec = ctk.CTkFrame(codec_aspect_row, fg_color="transparent")
+            f_codec = tk.Frame(codec_aspect_row, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             f_codec.pack(side="left", expand=True, fill="x", padx=(0, 6))
-            ctk.CTkLabel(f_codec, text="CAMERA CODEC", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
-            dp_ccodec = ctk.CTkOptionMenu(f_codec, values=["H.264", "H.265", "AV1"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("camera_codec", val))
-            dp_ccodec.set(self.config_state["camera_codec"])
-            dp_ccodec.pack(fill="x", pady=2)
+            self._make_label(f_codec, "CAMERA CODEC", secondary=True, anchor="w")
+            self._make_dropdown(f_codec, ["H.264", "H.265", "AV1"], self.config_state["camera_codec"],
+                                lambda val: self.update_dropdown_state("camera_codec", val),
+                                fill="x", pady=2)
 
-            f_aspect = ctk.CTkFrame(codec_aspect_row, fg_color="transparent")
+            f_aspect = tk.Frame(codec_aspect_row, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             f_aspect.pack(side="right", expand=True, fill="x", padx=(6, 0))
-            ctk.CTkLabel(f_aspect, text="ASPECT RATIO", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB")).pack(anchor="w")
-            dp_aspect = ctk.CTkOptionMenu(f_aspect, values=["16:9", "4:3", "1:1", "Original Aspect"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), button_hover_color=("#D1CDDA", "#342E44"), command=lambda val: self.update_dropdown_state("aspect_ratio", val))
-            dp_aspect.set(self.config_state["aspect_ratio"])
-            dp_aspect.pack(fill="x", pady=2)
+            self._make_label(f_aspect, "ASPECT RATIO", secondary=True, anchor="w")
+            self._make_dropdown(f_aspect, ["16:9", "4:3", "1:1", "Original Aspect"],
+                                self.config_state["aspect_ratio"],
+                                lambda val: self.update_dropdown_state("aspect_ratio", val),
+                                fill="x", pady=2)
 
-            torch_box = ctk.CTkFrame(cam_box, fg_color=("#FFFFFF", "#2A2438"), border_color=("#E2E0E7", "#3D354E"), border_width=1, corner_radius=8)
+            torch_box = tk.Frame(cam_box, bg=self.t["card_bg"],
+                                 highlightbackground=self.t["card_border"], highlightthickness=1)
+            self._make_rounded(torch_box, 8)
             torch_box.pack(fill="x", pady=(0, 12), ipady=5)
-            var_torch = ctk.BooleanVar(value=self.config_state["camera_torch"])
-            cb_torch = ctk.CTkCheckBox(torch_box, text="⚡ CAMERA TORCH CONTROLLER (FLASH)", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_torch, command=lambda: self.update_switch_state("camera_torch", var_torch))
-            cb_torch.pack(anchor="w", padx=15, pady=8)
+            var_torch = tk.BooleanVar(value=self.config_state["camera_torch"])
+            self._make_checkbox(torch_box, "⚡ CAMERA TORCH CONTROLLER (FLASH)", var_torch,
+                                command=lambda: self.update_switch_state("camera_torch", var_torch),
+                                anchor="w", padx=15, pady=8)
 
-            self.lbl_zoom_display = ctk.CTkLabel(cam_box, text=f"CAMERA ZOOM LEVEL: {self.config_state['camera_zoom']}x", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
-            self.lbl_zoom_display.pack(anchor="w")
-            s_zoom = ctk.CTkSlider(cam_box, from_=1.0, to=8.0, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_zoom)
-            s_zoom.set(self.config_state["camera_zoom"])
-            s_zoom.pack(fill="x", pady=4)
+            self.lbl_zoom_display = self._make_label(cam_box, f"CAMERA ZOOM LEVEL: {self.config_state['camera_zoom']}x",
+                                                     secondary=True, anchor="w")
+            self._make_slider(cam_box, 1.0, 8.0, self.config_state["camera_zoom"], self.update_slider_zoom,
+                              fill="x", pady=4)
 
         elif selected_tab == "DESKTOP":
-            desk_box = ctk.CTkFrame(self.current_engine_sub_frame, fg_color="transparent")
+            desk_box = tk.Frame(self.current_engine_sub_frame, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             desk_box.pack(fill="x", pady=5)
 
-            vdisp_box = ctk.CTkFrame(desk_box, fg_color=("#FFFFFF", "#2A2438"), border_color=("#E2E0E7", "#3D354E"), border_width=1, corner_radius=8)
+            vdisp_box = tk.Frame(desk_box, bg=self.t["card_bg"],
+                                 highlightbackground=self.t["card_border"], highlightthickness=1)
+            self._make_rounded(vdisp_box, 8)
             vdisp_box.pack(fill="x", pady=(0, 15), ipady=5)
-            
-            lbl_vdisp = ctk.CTkLabel(vdisp_box, text="🖥️ VIRTUAL DISPLAY ENGINE", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"))
-            lbl_vdisp.pack(anchor="w", padx=12, pady=(8, 2))
-            lbl_vdisp_sub = ctk.CTkLabel(vdisp_box, text="Configure headless secondary system displays.", font=("Arial", 9), text_color=("#A39FB0", "#7D7591"))
-            lbl_vdisp_sub.pack(anchor="w", padx=12, pady=(0, 5))
-            
-            var_flex = ctk.BooleanVar(value=self.config_state["flex_display"])
-            cb_flex = ctk.CTkCheckBox(vdisp_box, text="FLEX DISPLAY", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_flex, command=lambda: self.update_switch_state("flex_display", var_flex))
-            cb_flex.pack(anchor="w", padx=15, pady=4)
-            
-            var_lock = ctk.BooleanVar(value=self.config_state["ratio_lock"])
-            cb_lock = ctk.CTkCheckBox(vdisp_box, text="RATIO LOCK", font=("Arial", 11, "bold"), text_color=("#4A4160", "#E3DFFE"), fg_color="#845EF7", border_color=("#D1CDDA", "#342E44"), checkmark_color="#FFFFFF", variable=var_lock, command=lambda: self.update_switch_state("ratio_lock", var_lock))
-            cb_lock.pack(anchor="w", padx=15, pady=4)
 
-            self.lbl_width_display = ctk.CTkLabel(desk_box, text=f"WIDTH: {self.config_state['desktop_width']}px", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
-            self.lbl_width_display.pack(anchor="w")
-            slider_width = ctk.CTkSlider(desk_box, from_=800, to=3840, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_width)
-            slider_width.set(self.config_state["desktop_width"])
-            slider_width.pack(fill="x", pady=(2, 10))
+            self._make_label(vdisp_box, "🖥️ VIRTUAL DISPLAY ENGINE", anchor="w", padx=12, pady=(8, 2))
+            self._make_label(vdisp_box, "Configure headless secondary system displays.",
+                             muted=True, anchor="w", padx=12, pady=(0, 5))
 
-            self.lbl_height_display = ctk.CTkLabel(desk_box, text=f"HEIGHT: {self.config_state['desktop_height']}px", font=("Arial", 11, "bold"), text_color=("#5A5568", "#C3BCDB"))
-            self.lbl_height_display.pack(anchor="w")
-            slider_height = ctk.CTkSlider(desk_box, from_=600, to=2160, button_color="#845EF7", progress_color="#845EF7", command=self.update_slider_height)
-            slider_height.set(self.config_state["desktop_height"])
-            slider_height.pack(fill="x", pady=(2, 10))
+            var_flex = tk.BooleanVar(value=self.config_state["flex_display"])
+            self._make_checkbox(vdisp_box, "FLEX DISPLAY", var_flex,
+                                command=lambda: self.update_switch_state("flex_display", var_flex),
+                                anchor="w", padx=15, pady=4)
+
+            var_lock = tk.BooleanVar(value=self.config_state["ratio_lock"])
+            self._make_checkbox(vdisp_box, "RATIO LOCK", var_lock,
+                                command=lambda: self.update_switch_state("ratio_lock", var_lock),
+                                anchor="w", padx=15, pady=4)
+
+            self.lbl_width_display = self._make_label(desk_box, f"WIDTH: {self.config_state['desktop_width']}px",
+                                                      secondary=True, anchor="w")
+            self._make_slider(desk_box, 800, 3840, self.config_state["desktop_width"], self.update_slider_width,
+                              fill="x", pady=(2, 10))
+
+            self.lbl_height_display = self._make_label(desk_box, f"HEIGHT: {self.config_state['desktop_height']}px",
+                                                       secondary=True, anchor="w")
+            self._make_slider(desk_box, 600, 2160, self.config_state["desktop_height"], self.update_slider_height,
+                              fill="x", pady=(2, 10))
         self.update_live_command_preview()
 
     # ==========================================
     # RIGHT COLUMN: RULES & MACRO SHORTCUT HOOKS
     # ==========================================
     def create_right_column(self):
-        right_container = ctk.CTkFrame(self.scroll_viewport, fg_color="transparent")
+        right_container = tk.Frame(self.scroll_viewport.inner_frame, bg=self.t["bg"], bd=0, highlightthickness=0)
         right_container.grid(row=0, column=2, padx=15, pady=15, sticky="nsew")
 
-        behavior_card = ctk.CTkFrame(right_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
-        behavior_card.pack(fill="x", pady=(0, 15), ipady=10)
+        behavior_card = self._create_card(right_container, fill="x", pady=(0, 15), ipady=10)
+        self._make_label(behavior_card, "⚙️ SESSION BEHAVIOR", secondary=True, anchor="w", padx=15, pady=10)
 
-        lbl_session = ctk.CTkLabel(behavior_card, text="⚙️ SESSION BEHAVIOR", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        lbl_session.pack(anchor="w", padx=15, pady=10)
+        self.audio_codec_frame = tk.Frame(behavior_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
+        tk.Label(self.audio_codec_frame, text="AUDIO CODEC", font=("Arial", 10, "bold"),
+                 bg=self.t["card_bg"], fg="#845EF7").pack(side="left", padx=(20, 0))
+        self._make_dropdown(self.audio_codec_frame, ["Opus", "AAC", "RAW"], self.config_state["audio_codec"],
+                            lambda val: self.update_dropdown_state("audio_codec", val), width=10, side="right")
 
-        self.audio_codec_frame = ctk.CTkFrame(behavior_card, fg_color="transparent")
-        ctk.CTkLabel(self.audio_codec_frame, text="AUDIO CODEC", font=("Arial", 10, "bold"), text_color="#845EF7").pack(side="left", padx=(20, 0))
-        self.drop_codec = ctk.CTkOptionMenu(self.audio_codec_frame, values=["Opus", "AAC", "RAW"], fg_color=("#F1EFF5", "#1E1A29"), text_color=("#4A4160", "#E3DFFE"), button_color=("#F1EFF5", "#1E1A29"), width=95, height=22, command=lambda val: self.update_dropdown_state("audio_codec", val))
-        self.drop_codec.set(self.config_state["audio_codec"])
-        self.drop_codec.pack(side="right")
-
-        # Configured frame box for path management components
-        self.record_path_frame = ctk.CTkFrame(behavior_card, fg_color=("#F1EFF5", "#1E1A29"), corner_radius=6, border_color=("#D1CDDA", "#342E44"), border_width=1, height=32)
+        self.record_path_frame = tk.Frame(behavior_card, bg=self.t["input_bg"],
+                                          highlightbackground=self.t["input_border"], highlightthickness=1, height=32)
+        self._make_rounded(self.record_path_frame, 6)
         self.record_path_frame.pack_propagate(False)
-        
-        trunc_init_path = self.config_state["recording_path"] if len(self.config_state["recording_path"]) <= 28 else f"...{self.config_state['recording_path'][-25:]}"
-        self.lbl_path_value = ctk.CTkLabel(self.record_path_frame, text=trunc_init_path, font=("Arial", 10, "bold"), text_color=("#5A5568", "#C3BCDB"))
+
+        trunc_init_path = self.config_state["recording_path"] if len(
+            self.config_state["recording_path"]) <= 28 else f"...{self.config_state['recording_path'][-25:]}"
+        self.lbl_path_value = tk.Label(self.record_path_frame, text=trunc_init_path, font=("Arial", 10, "bold"),
+                                       bg=self.t["input_bg"], fg=self.t["text_secondary"])
         self.lbl_path_value.pack(side="left", padx=10)
-        
-        btn_browse = ctk.CTkButton(self.record_path_frame, text="BROWSE", font=("Arial", 9, "bold"), fg_color=("#E2E0E7", "#342E44"), hover_color=("#D1CDDA", "#443C59"), text_color=("#4A4160", "#E3DFFE"), width=65, height=22, command=self.browse_recording_path)
+        btn_browse = tk.Button(self.record_path_frame, text="BROWSE", font=("Arial", 9, "bold"),
+                               bg=self.t["btn_sec_bg"], fg=self.t["text_primary"],
+                               activebackground=self.t["btn_sec_hover"], activeforeground=self.t["text_primary"],
+                               relief="flat", bd=0, cursor="hand2", width=8, command=self.browse_recording_path)
         btn_browse.pack(side="right", padx=5)
+        btn_browse.bind("<Enter>", lambda e: btn_browse.configure(bg=self.t["btn_sec_hover"]))
+        btn_browse.bind("<Leave>", lambda e: btn_browse.configure(bg=self.t["btn_sec_bg"]))
 
         self.behavior_rows = {}
-        
         for text, default_on in self.config_state["session_behaviors"].items():
-            row = ctk.CTkFrame(behavior_card, fg_color="transparent")
+            row = tk.Frame(behavior_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             row.pack(fill="x", padx=15, pady=5)
             self.behavior_rows[text] = row
-            
-            ctk.CTkLabel(row, text=text, font=("Arial", 11), text_color=("#4A4160", "#E3DFFE")).pack(side="left")
-            
-            sw = ctk.CTkSwitch(row, text="", progress_color="#845EF7", button_color="#845EF7")
-            if default_on: 
-                sw.select()
-            sw.configure(command=lambda t=text, s=sw: self.update_behavior_switch(t, s))
+            tk.Label(row, text=text, font=("Arial", 11), bg=self.t["card_bg"],
+                     fg=self.t["text_primary"]).pack(side="left")
+            sw = self._make_switch(row, initial=default_on,
+                                   command=lambda t=text, s=None: self._delayed_switch_update(t, row))
             sw.pack(side="right")
 
-        # --- PACK POSITION MANAGEMENT MARGIN RULES ---
         if self.config_state["session_behaviors"]["FORWARD AUDIO (?)"]:
             self.audio_codec_frame.pack(fill="x", padx=15, pady=(2, 6), before=self.behavior_rows["ALWAYS ON TOP (?)"])
-            
-        # MODIFIED: Places recording target options frame panel row directly *AFTER* the record switch
         if self.config_state["session_behaviors"]["RECORD FEED (?)"]:
             self.record_path_frame.pack(fill="x", padx=15, pady=(2, 6), after=self.behavior_rows["RECORD FEED (?)"])
 
-        shortcuts_card = ctk.CTkFrame(right_container, fg_color=("#FFFFFF", "#2A2438"), corner_radius=12, border_color=("#E2E0E7", "#3D354E"), border_width=1)
-        shortcuts_card.pack(fill="x", pady=0, ipady=10)
+        # --- SHORTCUTS CARD ---
+        shortcuts_card = self._create_card(right_container, fill="x", ipady=10)
+        self._make_label(shortcuts_card, "⌨️ SHORTCUTS (ALT +)", secondary=True, anchor="w", padx=15, pady=10)
 
-        lbl_shortcuts = ctk.CTkLabel(shortcuts_card, text="⌨️ SHORTCUTS (ALT +)", font=("Arial", 12, "bold"), text_color=("#5A5568", "#C3BCDB"))
-        lbl_shortcuts.pack(anchor="w", padx=15, pady=10)
-
-        grid_frame = ctk.CTkFrame(shortcuts_card, fg_color="transparent")
+        grid_frame = tk.Frame(shortcuts_card, bg=self.t["card_bg"], bd=0, highlightthickness=0)
         grid_frame.pack(fill="x", padx=15, pady=5)
-        grid_frame.columnconfigure((0, 1, 2, 3), weight=1)
+        for i in range(4):
+            grid_frame.columnconfigure(i, weight=1)
 
         shortcut_items = [
-            {"icon": "⛶", "key": "F"}, {"icon": "🏠", "key": "H"}, 
+            {"icon": "⛶", "key": "F"}, {"icon": "🏠", "key": "H"},
             {"icon": "❬", "key": "B"}, {"icon": "☰", "key": "S"},
-            {"icon": "⏻", "key": "P"}, {"icon": "⟳", "key": "R"}, 
+            {"icon": "⏻", "key": "P"}, {"icon": "⟳", "key": "R"},
             {"icon": "📋", "key": "V"}, {"icon": "👁", "key": "O"}
         ]
 
         for index, item in enumerate(shortcut_items):
             r = index // 4
             c = index % 4
-            
-            item_box = ctk.CTkFrame(grid_frame, fg_color="transparent")
+            item_box = tk.Frame(grid_frame, bg=self.t["card_bg"], bd=0, highlightthickness=0)
             item_box.grid(row=r, column=c, padx=4, pady=8, sticky="nsew")
-            
-            lbl_icon = ctk.CTkLabel(item_box, text=item["icon"], font=("Arial", 16), text_color=("#4A4160", "#E3DFFE"))
-            lbl_icon.pack()
-            
-            btn_key = ctk.CTkButton(
-                item_box, 
-                text=item["key"], 
-                font=("Arial", 10, "bold"), 
-                text_color=("#5A5568", "#E3DFFE"),
-                fg_color=("#F1EFF5", "#1E1A29"), 
-                hover_color=("#D1CDDA", "#342E44"),
-                border_color=("#D1CDDA", "#342E44"),
-                border_width=1,
-                corner_radius=4, 
-                width=26, 
-                height=22,
-                command=lambda k=item["key"]: self.on_shortcut_click(k)
-            )
+
+            tk.Label(item_box, text=item["icon"], font=("Arial", 16),
+                     bg=self.t["card_bg"], fg=self.t["text_primary"]).pack()
+
+            btn_key = tk.Button(item_box, text=item["key"], font=("Arial", 10, "bold"),
+                                fg=self.t["text_secondary"], bg=self.t["input_bg"],
+                                activebackground=self.t["input_hover"], activeforeground=self.t["text_secondary"],
+                                relief="flat", bd=0, highlightbackground=self.t["input_border"],
+                                highlightthickness=1, width=3, height=1,
+                                command=lambda k=item["key"]: self.on_shortcut_click(k))
             btn_key.pack(pady=(4, 0))
+            btn_key.bind("<Enter>", lambda e, b=btn_key: b.configure(bg=self.t["input_hover"]))
+            btn_key.bind("<Leave>", lambda e, b=btn_key: b.configure(bg=self.t["input_bg"]))
+
+    def _delayed_switch_update(self, behavior_name, row_frame):
+        for child in row_frame.winfo_children():
+            if isinstance(child, tk.Frame) and hasattr(child, '_var'):
+                self.update_behavior_switch(behavior_name, child)
+                break
 
 
 if __name__ == "__main__":

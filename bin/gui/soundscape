@@ -3,7 +3,7 @@ import os
 import glob
 import tkinter as tk
 from tkinter import ttk
-import pygame
+import subprocess
 
 # ==============================================================================
 # CONFIGURATION: Set your custom audio directory path here.
@@ -18,9 +18,6 @@ class DynamicSoundscapePlayer:
         self.root.title("Ambient Soundscape Mixer")
         self.root.geometry("520x600")
         self.root.resizable(False, False)
-
-        # Initialize pygame mixer
-        pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
 
         # Separated storage to avoid data mutation / attribute crashes
         self.ui_tracks = {}     
@@ -65,14 +62,12 @@ class DynamicSoundscapePlayer:
         self.top_utility_frame = ttk.Frame(self.root, padding=(15, 10, 15, 5))
         self.top_utility_frame.pack(fill="x")
 
-        # Resolve the variable path to an absolute path for clear UI display
         target_dir = os.path.abspath(AUDIO_DIRECTORY)
         display_path = f"📁 Scan Folder: ...{target_dir[-40:]}" if len(target_dir) > 40 else f"📁 Folder: {target_dir}"
         
         self.path_lbl = ttk.Label(self.top_utility_frame, text=display_path, font=("Helvetica", 9, "italic"))
         self.path_lbl.pack(side="left")
 
-        # Theme Toggle Button
         self.theme_btn = ttk.Button(
             self.top_utility_frame, 
             text="☀️ Light Mode", 
@@ -83,7 +78,6 @@ class DynamicSoundscapePlayer:
 
     def create_widgets(self):
         """Builds the primary mixing UI elements."""
-        # Header Section
         self.header_frame = ttk.Frame(self.root, padding=(15, 5, 15, 10))
         self.header_frame.pack(fill="x")
 
@@ -125,7 +119,13 @@ class DynamicSoundscapePlayer:
         self.style.configure("TLabel", background=colors["bg"], foreground=colors["subtext"])
         self.path_lbl.configure(background=colors["bg"], foreground=colors["subtext"])
         self.title_lbl.configure(background=colors["bg"], foreground=colors["text"])
-        self.style.configure("Track.TLabel", background=colors["card"], foreground=colors["text"], font=("Helvetica", 11, "bold"))
+        
+        # Style for our clickable track buttons
+        self.style.configure("Track.TButton", font=("Helvetica", 11, "bold"), background=colors["card"], foreground=colors["text"])
+        self.style.map("Track.TButton", background=[("active", colors["btn_hover"])])
+        
+        # Style for an actively playing track button
+        self.style.configure("PlayingTrack.TButton", font=("Helvetica", 11, "bold"), background=colors["accent"], foreground=colors["bg"])
 
         self.style.configure("Main.TButton", font=("Helvetica", 11, "bold"), background=colors["accent"], foreground=colors["bg"])
         self.style.map("Main.TButton", background=[("active", colors["btn_hover"])])
@@ -135,11 +135,15 @@ class DynamicSoundscapePlayer:
         self.style.map("Util.TButton", background=[("active", colors["accent"])], foreground=[("active", colors["bg"])])
         self.theme_btn.configure(style="Util.TButton")
 
-        for row_frame, lbl in self.ui_tracks.values():
+        # Dynamic UI updates for existing tracks
+        for name, (row_frame, btn) in self.ui_tracks.items():
             if row_frame.winfo_exists():
                 row_frame.configure(style="Card.TFrame")
-            if lbl.winfo_exists():
-                lbl.configure(style="Track.TLabel")
+            if btn.winfo_exists():
+                if self.audio_tracks[name]["is_playing"]:
+                    btn.configure(style="PlayingTrack.TButton")
+                else:
+                    btn.configure(style="Track.TButton")
 
     def toggle_theme(self):
         if self.current_theme == "dark":
@@ -154,8 +158,6 @@ class DynamicSoundscapePlayer:
         """Scans the configured folder variable and populates UI rows."""
         extensions = ('*.mp3', '*.wav', '*.ogg')
         audio_files = []
-        
-        # Pull path directly from the configuration variable at the top
         target_dir = os.path.abspath(AUDIO_DIRECTORY)
         
         for ext in extensions:
@@ -180,14 +182,20 @@ class DynamicSoundscapePlayer:
             row_frame = ttk.Frame(self.scrollable_frame, style="Card.TFrame", padding=5)
             row_frame.pack(fill="x", pady=5, ipady=2)
 
-            lbl = ttk.Label(row_frame, text=display_name, style="Track.TLabel")
-            lbl.pack(side="left", padx=15)
+            # Turned the label into a clickable ttk.Button
+            btn = ttk.Button(
+                row_frame, 
+                text=f"▶ {display_name}", 
+                style="Track.TButton",
+                command=lambda name=display_name: self.toggle_individual_track(name)
+            )
+            btn.pack(side="left", padx=10)
 
-            volume_var = tk.DoubleVar(value=0.5)
+            volume_var = tk.DoubleVar(value=50.0)
             slider = ttk.Scale(
                 row_frame,
                 from_=0.0,
-                to=1.0,
+                to=100.0,
                 orient="horizontal",
                 variable=volume_var,
                 length=180,
@@ -195,40 +203,91 @@ class DynamicSoundscapePlayer:
             )
             slider.pack(side="right", padx=15, pady=5)
 
-            try:
-                sound_obj = pygame.mixer.Sound(file_path)
-                channel_obj = pygame.mixer.Channel(index)
-
-                self.ui_tracks[display_name] = (row_frame, lbl)
-                self.audio_tracks[display_name] = {
-                    "sound": sound_obj,
-                    "channel": channel_obj,
-                }
-                channel_obj.set_volume(volume_var.get())
-
-            except Exception as e:
-                print(f"Error loading {filename}: {e}")
-                lbl.configure(text=f"{display_name} (Error Loading)", foreground="#fc8181")
-                slider.configure(state="disabled")
+            self.ui_tracks[display_name] = (row_frame, btn)
+            self.audio_tracks[display_name] = {
+                "file_path": file_path,
+                "process": None,
+                "volume": volume_var.get(),
+                "is_playing": False
+            }
 
     def update_volume(self, name, value):
         if name in self.audio_tracks:
-            self.audio_tracks[name]["channel"].set_volume(float(value))
+            v_val = float(value)
+            self.audio_tracks[name]["volume"] = v_val
+            track = self.audio_tracks[name]
+            
+            # Restart seamlessly if it's currently actively playing
+            if track["is_playing"] and track["process"] and track["process"].poll() is None:
+                self.stop_track(name)
+                self.start_track(name)
+
+    def start_track(self, name):
+        track = self.audio_tracks[name]
+        cmd = [
+            "ffplay", "-nodisp", "-autoexit", "-loop", "0", 
+            "-volume", str(int(track["volume"])), track["file_path"]
+        ]
+        try:
+            track["process"] = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            track["is_playing"] = True
+            
+            # Update individual button UI to show it's playing
+            _, btn = self.ui_tracks[name]
+            btn.configure(style="PlayingTrack.TButton", text=f"⏸ {name}")
+        except FileNotFoundError:
+            print("Error: 'ffplay' is not installed or not in PATH. Please install ffmpeg.")
+
+    def stop_track(self, name):
+        track = self.audio_tracks[name]
+        if track["process"]:
+            try:
+                track["process"].terminate()
+                track["process"].wait(timeout=0.2)
+            except Exception:
+                pass
+            track["process"] = None
+        
+        track["is_playing"] = False
+        # Revert individual button UI to default style
+        _, btn = self.ui_tracks[name]
+        btn.configure(style="Track.TButton", text=f"▶ {name}")
+
+    def toggle_individual_track(self, name):
+        """Plays or stops an individual track when its button is clicked."""
+        if self.audio_tracks[name]["is_playing"]:
+            self.stop_track(name)
+        else:
+            self.start_track(name)
+            
+        # Keep master play/pause button label aligned with overall mixing environment
+        any_playing = any(t["is_playing"] for t in self.audio_tracks.values())
+        if any_playing:
+            self.master_btn.configure(text="⏸ Pause All")
+            self.is_playing = True
+        else:
+            self.master_btn.configure(text="▶ Play All")
+            self.is_playing = False
 
     def toggle_playback(self):
         if not self.audio_tracks:
             return
 
         if not self.is_playing:
-            for data in self.audio_tracks.values():
-                data["channel"].play(data["sound"], loops=-1)
+            for name in self.audio_tracks:
+                if not self.audio_tracks[name]["is_playing"]:
+                    self.start_track(name)
             self.master_btn.configure(text="⏸ Pause All")
             self.is_playing = True
         else:
-            for data in self.audio_tracks.values():
-                data["channel"].stop()
+            for name in self.audio_tracks:
+                self.stop_track(name)
             self.master_btn.configure(text="▶ Play All")
             self.is_playing = False
+
+    def cleanup(self):
+        for name in self.audio_tracks:
+            self.stop_track(name)
 
 
 if __name__ == "__main__":
@@ -236,7 +295,7 @@ if __name__ == "__main__":
     app = DynamicSoundscapePlayer(root)
 
     def on_closing():
-        pygame.mixer.quit()
+        app.cleanup()
         root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", on_closing)

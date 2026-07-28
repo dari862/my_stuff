@@ -33,5 +33,6 @@ for t in ${list_of_base_files};do
 		continue
 	fi
 	icons_style_name="$(grep "^ICONS_STYLE=" "$t" | awk -F= '{print $2}')"
-	"${current_path}/baseIcons/${icons_style_name}.sh" -o "${base_name}" -d "${icons_output_dir}" "$t"
+	echo "building ${base_name}"
+	"${current_path}/baseIcons/theme_builder.sh" "${icons_style_name}" "${base_name}" "${icons_output_dir}" "$t"
 done

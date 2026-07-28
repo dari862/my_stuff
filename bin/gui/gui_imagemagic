@@ -2,92 +2,138 @@
 import os
 import subprocess
 import tkinter as tk
-from tkinter import filedialog, messagebox
-import customtkinter as ctk
+from tkinter import filedialog, messagebox, ttk
 
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
-
-class LinuxImageProcessor(ctk.CTk):
+class LinuxImageProcessor(tk.Tk):
     def __init__(self):
         super().__init__()
         
         self.title("Linux ImageMagick CLI Processor")
-        self.geometry("800x630")
+        self.geometry("800x650")
+        self.configure(bg="#f5f6f8")  # Clean, soft background gray
         
         self.file_list = []
+        
+        # Configure a modern, clean theme via Ttk
+        self.setup_styles()
         self.setup_ui()
+        
+    def setup_styles(self):
+        """Configures built-in Ttk styles to mock a modern UI."""
+        self.style = ttk.Style()
+        self.style.theme_use("clam")  # Best foundation theme for flat styling
+        
+        # Global Frame Style
+        self.style.configure(".", font=("Helvetica", 10))
+        self.style.configure("TFrame", background="#f5f6f8")
+        self.style.configure("TLabelframe", background="#f5f6f8", background_color="#f5f6f8")
+        self.style.configure("TLabelframe.Label", font=("Helvetica", 11, "bold"), background="#f5f6f8", foreground="#2c3e50")
+        
+        # Label Style
+        self.style.configure("TLabel", background="#f5f6f8", foreground="#333333")
+        
+        # Flat Button Style
+        self.style.configure("TButton", font=("Helvetica", 10, "bold"), padding=8, relief="flat", background="#3498db", foreground="white")
+        self.style.map("TButton", background=[("active", "#2980b9")])
+        
+        # Accent/Action Button Styling
+        self.style.configure("Clear.TButton", background="#95a5a6")
+        self.style.map("Clear.TButton", background=[("active", "#7f8c8d")])
+        
+        self.style.configure("Paste.TButton", background="#2ecc71")
+        self.style.map("Paste.TButton", background=[("active", "#27ae60")])
+        
+        self.style.configure("Process.TButton", background="#e67e22", font=("Helvetica", 12, "bold"))
+        self.style.map("Process.TButton", background=[("active", "#d35400")])
         
     def setup_ui(self):
         # --- File Selection Area ---
-        self.top_frame = ctk.CTkFrame(self)
+        self.top_frame = ttk.Frame(self)
         self.top_frame.pack(fill="x", padx=20, pady=15)
         
-        self.browse_btn = ctk.CTkButton(self.top_frame, text="Browse / Add Files", command=self.browse_files)
-        self.browse_btn.pack(side="left", padx=10, pady=10, expand=True, fill="x")
+        self.browse_btn = ttk.Button(self.top_frame, text="Browse / Add Files", command=self.browse_files)
+        self.browse_btn.pack(side="left", padx=5, expand=True, fill="x")
         
-        self.clear_btn = ctk.CTkButton(self.top_frame, text="Clear List", fg_color="gray", hover_color="darkgray", command=self.clear_list)
-        self.clear_btn.pack(side="right", padx=10, pady=10, expand=True, fill="x")
+        self.clear_btn = ttk.Button(self.top_frame, text="Clear List", style="Clear.TButton", command=self.clear_list)
+        self.clear_btn.pack(side="right", padx=5, expand=True, fill="x")
         
         # --- File List Box ---
-        self.list_frame = ctk.CTkFrame(self, height=100)
+        self.list_frame = ttk.Frame(self)
         self.list_frame.pack(fill="x", padx=20, pady=5)
-        self.list_frame.pack_propagate(False)
         
-        self.file_textbox = ctk.CTkTextbox(self.list_frame, height=90)
+        # Standard Tk Text widget with flat styling
+        self.file_textbox = tk.Text(self.list_frame, height=5, font=("Helvetica", 10), relief="flat", bd=1, highlightthickness=1, highlightcolor="#bdc3c7", bg="white")
         self.file_textbox.pack(fill="both", expand=True, padx=5, pady=5)
-        self.file_textbox.insert("0.0", "No files selected.")
+        
+        # Scrollbar for file textbox
+        self.scrollbar = ttk.Scrollbar(self.file_textbox, command=self.file_textbox.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.file_textbox.config(yscrollcommand=self.scrollbar.set)
+        
+        self.file_textbox.insert("1.0", "No files selected.")
         self.file_textbox.configure(state="disabled")
 
-        # --- Options Area ---
-        self.options_frame = ctk.CTkScrollableFrame(self, label_text="Processing Options", height=280)
+        # --- Options Area (Replacing ScrollableFrame with Canvas layout for pure Python) ---
+        self.options_frame = ttk.LabelFrame(self, text=" Processing Options ")
         self.options_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
-        self.options_frame.grid_columnconfigure((0, 1), weight=1)
+        # Canvas & Scrollbar context for custom scroll dynamic
+        canvas = tk.Canvas(self.options_frame, borderwidth=0, highlightthickness=0, bg="#f5f6f8")
+        scrollbar = ttk.Scrollbar(self.options_frame, orient="vertical", command=canvas.yview)
+        self.scrollable_inner = ttk.Frame(canvas)
+        
+        self.scrollable_inner.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=self.scrollable_inner, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+        scrollbar.pack(side="right", fill="y")
+        
+        self.scrollable_inner.grid_columnconfigure((0, 1), weight=1, minsize=350)
         
         # 1. Output Format
-        ctk.CTkLabel(self.options_frame, text="Output Format:").grid(row=0, column=0, sticky="w", padx=10, pady=5)
-        self.format_var = ctk.StringVar(value="Keep Original")
+        ttk.Label(self.scrollable_inner, text="Output Format:").grid(row=0, column=0, sticky="w", padx=10, pady=8)
+        self.format_var = tk.StringVar(value="Keep Original")
         formats = ["Keep Original", "JPEG", "PNG", "WEBP", "HEIF", "BMP", "AVIF", "JXL", "PDF", "TIFF", "GIF"]
-        self.format_menu = ctk.CTkOptionMenu(self.options_frame, values=formats, variable=self.format_var)
-        self.format_menu.grid(row=0, column=1, sticky="ew", padx=10, pady=5)
+        self.format_menu = ttk.OptionMenu(self.scrollable_inner, self.format_var, formats[0], *formats)
+        self.format_menu.grid(row=0, column=1, sticky="ew", padx=10, pady=8)
         
         # 2. Compression Quality
-        ctk.CTkLabel(self.options_frame, text="Quality (Lossy compression 1-100):").grid(row=1, column=0, sticky="w", padx=10, pady=5)
-        self.quality_slider = ctk.CTkSlider(self.options_frame, from_=1, to=100, number_of_steps=100)
+        ttk.Label(self.scrollable_inner, text="Quality (Lossy compression 1-100):").grid(row=1, column=0, sticky="w", padx=10, pady=8)
+        self.quality_slider = ttk.Scale(self.scrollable_inner, from_=1, to=100, orient="horizontal")
         self.quality_slider.set(85)
-        self.quality_slider.grid(row=1, column=1, sticky="ew", padx=10, pady=5)
+        self.quality_slider.grid(row=1, column=1, sticky="ew", padx=10, pady=8)
         
         # 3. Alpha Layer Color
-        ctk.CTkLabel(self.options_frame, text="Alpha Background Color (e.g., white, #FFFFFF):").grid(row=2, column=0, sticky="w", padx=10, pady=5)
-        self.alpha_color_entry = ctk.CTkEntry(self.options_frame, placeholder_text="None (Keep Transparent)")
-        self.alpha_color_entry.grid(row=2, column=1, sticky="ew", padx=10, pady=5)
+        ttk.Label(self.scrollable_inner, text="Alpha Background Color (e.g., white, #FFFFFF):").grid(row=2, column=0, sticky="w", padx=10, pady=8)
+        self.alpha_color_entry = ttk.Entry(self.scrollable_inner)
+        self.alpha_color_entry.grid(row=2, column=1, sticky="ew", padx=10, pady=8)
         
         # 4. SVG/PDF Density / DPI
-        ctk.CTkLabel(self.options_frame, text="SVG/PDF Input Density (DPI):").grid(row=3, column=0, sticky="w", padx=10, pady=5)
-        self.dpi_entry = ctk.CTkEntry(self.options_frame, placeholder_text="150")
+        ttk.Label(self.scrollable_inner, text="SVG/PDF Input Density (DPI):").grid(row=3, column=0, sticky="w", padx=10, pady=8)
+        self.dpi_entry = ttk.Entry(self.scrollable_inner)
         self.dpi_entry.insert(0, "150")
-        self.dpi_entry.grid(row=3, column=1, sticky="ew", padx=10, pady=5)
+        self.dpi_entry.grid(row=3, column=1, sticky="ew", padx=10, pady=8)
         
         # 5. Resize Options
-        ctk.CTkLabel(self.options_frame, text="Resize (Width x Height or Ratio like 50%):").grid(row=4, column=0, sticky="w", padx=10, pady=5)
-        self.resize_entry = ctk.CTkEntry(self.options_frame, placeholder_text="e.g., 1920x1080 or 50%")
-        self.resize_entry.grid(row=4, column=1, sticky="ew", padx=10, pady=5)
+        ttk.Label(self.scrollable_inner, text="Resize (Width x Height or Ratio like 50%):").grid(row=4, column=0, sticky="w", padx=10, pady=8)
+        self.resize_entry = ttk.Entry(self.scrollable_inner)
+        self.resize_entry.grid(row=4, column=1, sticky="ew", padx=10, pady=8)
         
         # 6. Animation Explode
-        self.explode_var = ctk.BooleanVar(value=False)
-        self.explode_check = ctk.CTkCheckBox(self.options_frame, text="Extract Animation Frames (GIF/WEBP to PNGs)", variable=self.explode_var)
-        self.explode_check.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+        self.explode_var = tk.BooleanVar(value=False)
+        self.explode_check = ttk.Checkbutton(self.scrollable_inner, text="Extract Animation Frames (GIF/WEBP to PNGs)", variable=self.explode_var)
+        self.explode_check.grid(row=5, column=0, columnspan=2, sticky="w", padx=10, pady=12)
 
         # --- Action Buttons ---
-        self.btn_frame = ctk.CTkFrame(self)
+        self.btn_frame = ttk.Frame(self)
         self.btn_frame.pack(fill="x", padx=20, pady=15)
         
-        self.paste_btn = ctk.CTkButton(self.btn_frame, text="Paste Clipboard Path / Image", command=self.paste_from_linux_clipboard, fg_color="green", hover_color="darkgreen")
-        self.paste_btn.pack(side="left", padx=10, expand=True, fill="x")
+        self.paste_btn = ttk.Button(self.btn_frame, text="Paste Clipboard Path / Image", style="Paste.TButton", command=self.paste_from_linux_clipboard)
+        self.paste_btn.pack(side="left", padx=5, expand=True, fill="x")
         
-        self.process_btn = ctk.CTkButton(self.btn_frame, text="Process Batch (Run Magick CLI)", command=self.process_images, font=("Arial", 14, "bold"))
-        self.process_btn.pack(side="right", padx=10, expand=True, fill="x")
+        self.process_btn = ttk.Button(self.btn_frame, text="Process Batch (Run Magick)", style="Process.TButton", command=self.process_images)
+        self.process_btn.pack(side="right", padx=5, expand=True, fill="x")
 
     def browse_files(self):
         files = filedialog.askopenfilenames(title="Select Images")
@@ -106,21 +152,18 @@ class LinuxImageProcessor(ctk.CTk):
 
     def update_textbox(self):
         self.file_textbox.configure(state="normal")
-        self.file_textbox.delete("0.0", "end")
+        self.file_textbox.delete("1.0", "end")
         if self.file_list:
-            self.file_textbox.insert("0.0", "\n".join(self.file_list))
+            self.file_textbox.insert("1.0", "\n".join(self.file_list))
         else:
-            self.file_textbox.insert("0.0", "No files selected.")
+            self.file_textbox.insert("1.0", "No files selected.")
         self.file_textbox.configure(state="disabled")
 
     def get_linux_clipboard_text(self):
-        """Native Linux check for copied text paths (Supports X11 & Wayland)"""
         try:
-            # Try xclip first (X11)
             if subprocess.run(["which", "xclip"], capture_output=True).returncode == 0:
                 res = subprocess.run(["xclip", "-selection", "clipboard", "-o"], capture_output=True, text=True)
                 return res.stdout.strip()
-            # Fallback to wl-paste (Wayland)
             elif subprocess.run(["which", "wl-paste"], capture_output=True).returncode == 0:
                 res = subprocess.run(["wl-paste", "--type", "text/plain"], capture_output=True, text=True)
                 return res.stdout.strip()
@@ -129,10 +172,7 @@ class LinuxImageProcessor(ctk.CTk):
         return ""
 
     def paste_from_linux_clipboard(self):
-        # 1. Check if clipboard contains a textual file path
         cb_text = self.get_linux_clipboard_text()
-        
-        # Clean potential file:// URI prefixes or quotes added by file managers
         if cb_text.startswith("file://"):
             cb_text = cb_text.replace("file://", "")
         if cb_text.startswith("'") or cb_text.startswith('"'):
@@ -142,11 +182,9 @@ class LinuxImageProcessor(ctk.CTk):
             self.add_files([cb_text])
             return
 
-        # 2. Fallback: Save raw image payload from clipboard directly via xclip/wl-paste
         temp_path = os.path.join(os.getcwd(), "linux_clipboard_temp.png")
         try:
             if subprocess.run(["which", "xclip"], capture_output=True).returncode == 0:
-                # Check if an image target exists in xclip selection
                 targets = subprocess.run(["xclip", "-selection", "clipboard", "-t", "TARGETS", "-o"], capture_output=True, text=True).stdout
                 if "image" in targets:
                     with open(temp_path, "wb") as f:
@@ -155,7 +193,6 @@ class LinuxImageProcessor(ctk.CTk):
                     messagebox.showinfo("Success", "Grabbed clipboard image raw payload as 'linux_clipboard_temp.png'")
                     return
             elif subprocess.run(["which", "wl-paste"], capture_output=True).returncode == 0:
-                # Wayland fallback for raw images
                 with open(temp_path, "wb") as f:
                     res = subprocess.run(["wl-paste", "--type", "image/png"], stdout=f)
                 if res.returncode == 0 and os.path.getsize(temp_path) > 0:
@@ -177,7 +214,6 @@ class LinuxImageProcessor(ctk.CTk):
             return
 
         success_count = 0
-        
         for file_path in self.file_list:
             try:
                 base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -188,39 +224,31 @@ class LinuxImageProcessor(ctk.CTk):
                 else:
                     ext = f".{target_fmt.lower()}"
 
-                # Build native Linux ImageMagick v7 'magick' array command
                 cmd = ["magick"]
                 
-                # Input density (Crucial to define BEFORE loading SVG/PDF vectors)
                 dpi_val = self.dpi_entry.get().strip()
                 if dpi_val.isdigit():
                     cmd.extend(["-density", dpi_val])
                 
                 cmd.append(file_path)
                 
-                # Alpha background modification
                 alpha_color = self.alpha_color_entry.get().strip()
                 if alpha_color:
                     cmd.extend(["-background", alpha_color, "-alpha", "remove", "-alpha", "off"])
 
-                # Scaling options
                 resize_input = self.resize_entry.get().strip()
                 if resize_input:
                     cmd.extend(["-resize", resize_input])
 
-                # Compression Quality
                 quality_val = str(int(self.quality_slider.get()))
                 cmd.extend(["-quality", quality_val])
 
-                # Output/Scene frames layout conversion
                 if self.explode_var.get() and ext in ['.gif', '.webp']:
                     out_path = os.path.join(out_dir, f"{base_name}_frame_%d.png")
                 else:
                     out_path = os.path.join(out_dir, f"{base_name}{ext}")
 
                 cmd.append(out_path)
-
-                # Execute inside shell execution container safely
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 
                 if result.returncode == 0:

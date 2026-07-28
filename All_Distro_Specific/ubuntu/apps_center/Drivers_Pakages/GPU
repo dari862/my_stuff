@@ -7,6 +7,7 @@ if ! command -v tweek_as_dependency >/dev/null 2>&1;then # needed for my_stuff_i
 fi
 
 tweek_as_dependency "enable_universe_multiverse" || continue
+
 app_name="GPU Drivers"
 if [ -z "$machine_type_are" ];then
 	machine_type_are="$(cat "${__distro_path_neverremove}/machine_type")"
@@ -17,6 +18,8 @@ if [ "$(id -u)" -eq 0 ];then
 else
 	_SUPERUSER="my-superuser"
 fi
+
+Package_update_
 
 add_nvidia=false
 add_amd=false
@@ -33,6 +36,17 @@ fi
 if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
 	add_intel=true
 fi
+
+all_available_kernel=""
+
+list_available_kernel(){
+	installed_versions=$(dpkg-query -W -f='${Package}\n' 'linux-image-[0-9]*' 2>/dev/null | \
+        	grep -v -E '(-cloud|-aws|-azure|-gcp|-kvm|-virtual|-unsigned)' | \
+        	sed 's/linux-image-//')
+    for version in ${installed_versions}; do
+        all_available_kernel="${all_available_kernel} linux-headers-$version"
+    done
+}
 
 generate_X11_intel_conf(){
 	${_SUPERUSER} mkdir -p /etc/X11/xorg.conf.d/
@@ -70,7 +84,8 @@ install_nvidia_drivers(){
 	[ "$install_cuda_" = true ] && _cuda_="nvidia-cuda-toolkit" || _cuda_=""
 	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-driver-*-open nvidia-dkms-*-open" || _kernel_open_dkms_=""
 	
-	Packages_2_install="$Packages_2_install nvidia-driver nvidia-utils nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_" || continue
+	list_available_kernel
+	Packages_2_install="$Packages_2_install nvidia-driver nvidia-utils nvidia-smi nvidia-settings $_kernel_open_dkms_ $_cuda_ ${all_available_kernel}" || continue
 }
 
 update_initramfs_now(){
@@ -105,7 +120,7 @@ fi
 if [ "$add_nvidia" = true ];then
 	update_initramfs_now
 	if ! ls /dev/nvidia* >/dev/null 2>&1;then
-		${_SUPERUSER} nvidia-smi >/dev/null 2>&1
+		${_SUPERUSER} nvidia-smi >/dev/null 2>&1 || failed_to_run "failed to run nvidia-smi"
 	fi
 fi
 

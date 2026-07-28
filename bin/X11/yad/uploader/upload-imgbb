@@ -30,6 +30,12 @@ unalias -a
 . "$__distro_path_lib"
 "${__distro_path_installers_and_tweaks}"/check_4_dependencies_if_installed yad jq xdotool convert || exit 1
 
+magick_version=$(magick -version | head -n1 | awk '{print $3}' | awk -F. '{print $1}')
+if [ "$magick_version" -le 6 ];then
+	magick_cmd=""
+else
+	magick_cmd="magick"
+fi
 export API_URL="https://api.imgbb.com/"   # used by run_browser()
 #@#export BL_YAD_INCLUDES='/usr/lib/bunsen/common/yad-includes'
 export IMG_VIEWER   # used by show_image()
@@ -330,7 +336,7 @@ set -x # needed so progress bar shows
         eval "${resize_cmd}" 2>&1 > "${temp_file}" | yad --progress --pulsate --auto-close \
             --progress-text="${message}" \
             --undecorated --on-top --sticky --center \
-            --borders=20 --button='Cancel':'/bin/bash -c "killall convert"' 2>/dev/null
+            --borders=20 --button='Cancel':'/bin/bash -c "killall magick"' 2>/dev/null
 set +x
         resize_err=$(cat "${temp_file}")  # used by calling function
 
@@ -350,7 +356,7 @@ function watermark_thumb() {    # add watermark to thumbnail if uploaded image h
     # generate watermark image
     magick  -background transparent -fill red -size 160x60 label:'UPLOAD\n     DELETED' "${delete_text}"
     # overlay thumbnail with watermark
-    composite -dissolve 50% -gravity west "${delete_text}" "${thumb_tempfile}" "${thumb_tempfile}"
+    "${magick_cmd}" composite -dissolve 50% -gravity west "${delete_text}" "${thumb_tempfile}" "${thumb_tempfile}"
 
     rm -f "${delete_text}"
 }

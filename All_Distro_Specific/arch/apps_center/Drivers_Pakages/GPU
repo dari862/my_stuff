@@ -36,6 +36,17 @@ if [ "$(lspci | grep -i intel | grep VGA -c)" != "0" ];then
 	add_intel=true
 fi
 
+all_available_kernel=""
+
+list_available_kernel(){
+	installed_kernels=$("$PACKAGER" -Q | grep -E '^linux(| |-rt|-rt-lts|-hardened|-zen|-lts)[^-headers]' | cut -d ' ' -f 1)
+    for kernel in $installed_kernels; do
+        header="${kernel}-headers"
+        say "adding headers for $kernel to installation list..."
+        all_available_kernel="$all_available_kernel $header"
+    done
+}
+
 generate_X11_intel_conf(){
 	${_SUPERUSER} mkdir -p /etc/X11/xorg.conf.d/
 	${_SUPERUSER} tee /etc/X11/xorg.conf.d/20-intel.conf <<- EOF > /dev/null
@@ -97,12 +108,9 @@ install_nvidia_drivers(){
 	[ "$install_kernel_open_dkms_" = true ] && _kernel_open_dkms_="nvidia-dkms" || _kernel_open_dkms_=""
 	
 	installation_list="$installation_list base-devel dkms ninja meson git"
-    installed_kernels=$("$PACKAGER" -Q | grep -E '^linux(| |-rt|-rt-lts|-hardened|-zen|-lts)[^-headers]' | cut -d ' ' -f 1)
-    for kernel in $installed_kernels; do
-        header="${kernel}-headers"
-        say "adding headers for $kernel to installation list..."
-        installation_list="$installation_list $header"
-    done
+    
+    list_available_kernel
+    installation_list="${installation_list} ${all_available_kernel}"
     
 	# Refer https://wiki.archlinux.org/title/NVIDIA for open-dkms or dkms driver selection
     if [ "$install_kernel_open_dkms_" = true ]; then
@@ -158,7 +166,7 @@ fi
 if [ "$add_nvidia" = true ];then
 	update_initramfs_now
 	if ! ls /dev/nvidia* >/dev/null 2>&1;then
-		${_SUPERUSER} nvidia-smi >/dev/null 2>&1
+		${_SUPERUSER} nvidia-smi >/dev/null 2>&1 || failed_to_run "failed to run nvidia-smi"
 	fi
 fi
 

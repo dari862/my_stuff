@@ -44,7 +44,6 @@ get_fs_type() {
 }
 
 Parse_arguments(){
-	arg="${1:-}"
 	case "$arg" in
 	--dry-run|--dry|-d)
 		dry_run=true
@@ -54,10 +53,11 @@ Parse_arguments(){
 		show_em "❌ Unknown option: $arg"
 	;;
 	esac
+	echo "dry_run = $dry_run"
 }
 
 fill_unmounted_devices_var(){
-	_devices="$(lsblk -lnpo NAME,TYPE | awk '$2 == "disk" {print $1}' | grep -v "zram" || :)"
+	_devices="$(lsblk -lnpo NAME,TYPE,SIZE | grep -v "M$" | grep -v "K$" | grep -v "zram" | awk '$2 == "part" {print $1}' || :)"
 	mount_output="$(my-superuser mount)"
 	for dev in ${_devices};do
 		if ! printf "%s\n" "$mount_output" | grep -q "$dev";then
@@ -71,8 +71,18 @@ fill_unmounted_devices_var(){
 	fi
 }
 
+print_unmounted_devices(){
+	i=1
+	for dev in ${unmounted_devices};do
+		size=$(lsblk -nbo SIZE "$dev" | head -n1)
+		size_gb=$((size / 1024 / 1024 / 1024))
+		show_m "  [$i] $dev	($size_gb GB)"
+		i=$((i + 1))
+	done
+}
+
 get_uuid_and_fs_type(){
-	device_path=$(printf "%s" "$selected_line" | awk '{print $1}')
+	device_path="${selected_line}"
 	if [ -z "$device_path" ] || [ ! -b "$device_path" ]; then
 		show_em "❌ Invalid selection or device not found."
 	fi
@@ -113,7 +123,7 @@ run_automount(){
 		exit 0
 	fi
 
-	mkdir -p "$mount_path"
+	my-superuser mkdir -p "$mount_path"
 
 	backup_file="/etc/fstab.backup.$(date +%F-%H%M%S)"
 	my-superuser cp /etc/fstab "$backup_file"

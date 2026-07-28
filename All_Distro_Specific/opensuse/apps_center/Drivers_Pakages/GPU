@@ -107,7 +107,7 @@ fi
 if [ "$add_nvidia" = true ];then
 	update_initramfs_now
 	if ! ls /dev/nvidia* >/dev/null 2>&1;then
-		${_SUPERUSER} nvidia-smi >/dev/null 2>&1
+		${_SUPERUSER} nvidia-smi >/dev/null 2>&1 || failed_to_run "failed to run nvidia-smi"
 	fi
 fi
 

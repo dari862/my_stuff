@@ -432,8 +432,15 @@ generate_qrcode(){
     else
         ssid_and_security="WIFI:S:$ssid;T:$(nmcli dev wifi show-password | grep -oP '(?<=Security: ).*' | head -1);P:$password;;"
     fi
+
+	magick_version=$(magick -version | head -n1 | awk '{print $3}' | awk -F. '{print $1}')
+	if [ "$magick_version" -le 6 ];then
+		magick_cmd=""
+	else
+		magick_cmd="magick"
+	fi
     qrencode -t PNG -l H -s 10 -m 3 -o "${QR_IMAGE}/rofi_wifi_qr.png" "$ssid_and_security"
-    read IMG_WIDTH IMG_HEIGHT < <(identify -format "%w %h" "${QR_IMAGE}/rofi_wifi_qr.png")
+    read IMG_WIDTH IMG_HEIGHT < <("${magick_cmd}" identify -format "%w %h" "${QR_IMAGE}/rofi_wifi_qr.png")
     rofi_cmd_qrcode
     share_wifi_pass
 }
