@@ -161,8 +161,7 @@ darken_color() {
     read -r r g b < <(hex_to_rgb "$1")
     # Convert amount (e.g., 0.2) to a percentage multiplier (e.g., 20)
     # This strips the "0." and treats it as an integer percentage
-    local amount_pct
-    amount_pct="$((10#${2//./}))"
+    local amount_pct=$(awk "BEGIN {print $2 * 100}")
 
     # Apply the formula: r = r * (100 - amount_pct) / 100
     r=$(( r * (100 - amount_pct) / 100 ))
@@ -175,8 +174,7 @@ darken_color() {
 lighten_color() {
     local r g b
     read -r r g b < <(hex_to_rgb "$1")
-    local amount_pct
-    amount_pct="$((10#${2//./}))"
+    local amount_pct=$(awk "BEGIN {print $2 * 100}")
 
     # Apply the formula: r = r + (255 - r) * amount_pct / 100
     r=$(( r + (255 - r) * amount_pct / 100 ))
@@ -186,111 +184,270 @@ lighten_color() {
     rgb_to_hex "$r" "$g" "$b"
 }
 
+# Set saturation of a hex color to specific amount
+rgb_to_hls() {
+    local r=$1 g=$2 b=$3
+
+    awk -v r="$r" -v g="$g" -v b="$b" '
+    BEGIN {
+        maxc = r
+        if (g > maxc) maxc = g
+        if (b > maxc) maxc = b
+        
+        minc = r
+        if (g < minc) minc = g
+        if (b < minc) minc = b
+        
+        l = (minc + maxc) / 2.0
+        
+        if (minc == maxc) {
+            s = 0.0
+            h = 0.0
+        } else {
+            if (l <= 0.5)
+                s = (maxc - minc) / (maxc + minc)
+            else
+                s = (maxc - minc) / (2.0 - maxc - minc)
+            
+            # Match Python exact variable steps to avoid float ULP differences
+            rc = (maxc - r) / (maxc - minc)
+            gc = (maxc - g) / (maxc - minc)
+            bc = (maxc - b) / (maxc - minc)
+            
+            if (r == maxc)
+                h = bc - gc
+            else if (g == maxc)
+                h = 2.0 + rc - bc
+            else
+                h = 4.0 + gc - rc
+            
+            # Replicate Pythons (h / 6.0) % 1.0 perfectly
+            h = h / 6.0
+            h = h - int(h)
+            if (h < 0) h += 1.0
+        }
+        
+        # Python colorsys returns (h, l, s)
+        printf "%.17g %.17g %.17g\n", h, l, s
+    }'
+}
+
+hls_to_rgb() {
+    local h=$1 l=$2 s=$3
+
+    awk -v h="$h" -v l="$l" -v s="$s" '
+    function v(m1, m2, h) {
+        if (h < 0) h += 1
+        if (h > 1) h -= 1
+
+        if (h < 1.0/6.0)
+            return m1 + (m2 - m1) * h * 6
+        if (h < 0.5)
+            return m2
+        if (h < 2.0/3.0)
+            return m1 + (m2 - m1) * (2.0/3.0 - h) * 6
+        return m1
+    }
+
+    BEGIN {
+        if (s == 0) {
+            r = g = b = l
+        } else {
+            if (l <= 0.5)
+                m2 = l * (1 + s)
+            else
+                m2 = l + s - l * s
+
+            m1 = 2 * l - m2
+
+            r = v(m1, m2, h + 1.0/3.0)
+            g = v(m1, m2, h)
+            b = v(m1, m2, h - 1.0/3.0)
+        }
+
+        printf "%.17g %.17g %.17g\n", r, g, b
+    }'
+}
+
 saturate_color() {
     local r g b
     read -r r g b < <(hex_to_rgb "$1")
+    local amount=$2
+    local h l s
 
-    read -r r g b < <(
-        awk -v r="$r" -v g="$g" -v b="$b" \
-            -v sat="$2" -v add="$SATURATE_VALUE" '
-        function hue2rgb(m1,m2,h) {
-            if (h < 0) h += 1
-            if (h > 1) h -= 1
+    r=$(awk -v x="$r" 'BEGIN{printf "%.17g", x/255}')
+    g=$(awk -v x="$g" 'BEGIN{printf "%.17g", x/255}')
+    b=$(awk -v x="$b" 'BEGIN{printf "%.17g", x/255}')
 
-            if (h < 1.0/6.0)
-                return m1 + (m2-m1)*h*6
-            if (h < 0.5)
-                return m2
-            if (h < 2.0/3.0)
-                return m1 + (m2-m1)*(2.0/3.0-h)*6
-            return m1
-        }
+    read -r h l s < <(rgb_to_hls "$r" "$g" "$b")
 
-        BEGIN {
-            # Normalize
-            r /= 255
-            g /= 255
-            b /= 255
+    s=$amount
 
-            # RGB -> HLS
-            maxc = r
-            if (g > maxc) maxc = g
-            if (b > maxc) maxc = b
+    read -r r g b < <(hls_to_rgb "$h" "$l" "$s")
 
-            minc = r
-            if (g < minc) minc = g
-            if (b < minc) minc = b
-
-            l = (minc + maxc) / 2
-
-            if (minc == maxc) {
-                h = 0
-                s = 0
-            } else {
-                if (l <= 0.5)
-                    s = (maxc-minc)/(maxc+minc)
-                else
-                    s = (maxc-minc)/(2-maxc-minc)
-
-                rc = (maxc-r)/(maxc-minc)
-                gc = (maxc-g)/(maxc-minc)
-                bc = (maxc-b)/(maxc-minc)
-
-                if (r == maxc)
-                    h = bc-gc
-                else if (g == maxc)
-                    h = 2+rc-bc
-                else
-                    h = 4+gc-rc
-
-                h /= 6
-                h -= int(h)
-                if (h < 0) h += 1
-            }
-
-            # Saturation adjustment
-            if (sat != "")
-                s = sat
-            else {
-                s += add
-                if (s > 1) s = 1
-                if (s < -1) s = -1
-            }
-
-            # HLS -> RGB
-            if (s == 0) {
-                r = g = b = l
-            } else {
-                if (l <= 0.5)
-                    m2 = l * (1+s)
-                else
-                    m2 = l + s - l*s
-
-                m1 = 2*l - m2
-
-                r = hue2rgb(m1,m2,h+1.0/3.0)
-                g = hue2rgb(m1,m2,h)
-                b = hue2rgb(m1,m2,h-1.0/3.0)
-            }
-
-            printf "%d %d %d\n", r*255, g*255, b*255
-        }'
-    )
+    r=$(awk -v x="$r" 'BEGIN{printf "%d", x*255}')
+    g=$(awk -v x="$g" 'BEGIN{printf "%d", x*255}')
+    b=$(awk -v x="$b" 'BEGIN{printf "%d", x*255}')
 
     rgb_to_hex "$r" "$g" "$b"
+}
+
+# Shade colors (darken) for 16 color scheme
+shade_darken() {
+    local i
+    for ((i=1;i<=6;i++)); do
+        raw_colors[$i]="$(darken_color "${raw_colors[$i]}" 0.25)"
+    done    
+}
+
+# Shade colors (lighten) for 16 color scheme
+shade_lighten() {
+    local i
+    for ((i=1;i<=6;i++)); do
+        raw_colors[$((i+8))]="$(lighten_color "${raw_colors[$i]}" 0.25)"
+    done
+    if [[ "$LIGHT_THEME" -eq 0 ]]; then
+    	for ((i=9;i<=14;i++)); do
+        	raw_colors[$i]="$(saturate_color "${raw_colors[$i]}" 0.40)"
+    	done
+    fi
+}
+
+# Apply 16 color shading
+shade_16() {
+    if [[ -n "$COLS16_METHOD" ]]; then
+        if [[ "$LIGHT_THEME" -eq 1 ]]; then
+            raw_colors[7]=$(darken_color "${raw_colors[0]}" 0.50)
+            raw_colors[8]=$(darken_color "${raw_colors[0]}" 0.25)
+            raw_colors[15]=$(darken_color "${raw_colors[0]}" 0.75)
+        else
+            raw_colors[7]="$(lighten_color "${raw_colors[0]}" 0.55)"
+    		raw_colors[7]="$(saturate_color "${raw_colors[7]}" 0.05)"
+    		raw_colors[8]="$(lighten_color "${raw_colors[0]}" 0.35)"
+    		raw_colors[8]="$(saturate_color "${raw_colors[8]}" 0.10)"
+    		raw_colors[15]="$(lighten_color "${raw_colors[0]}" 0.75)"
+        fi
+        
+        if [[ "$COLS16_METHOD" == "lighten" || "$COLS16_METHOD" == "dual" ]]; then
+            shade_lighten
+        fi
+        if [[ "$COLS16_METHOD" == "darken" || "$COLS16_METHOD" == "dual" ]]; then
+            shade_darken
+        fi
+    fi
+}
+
+# Generic color adjustment
+generic_adjust() {
+	local raw=()
+    if [[ "$LIGHT_THEME" -eq 1 ]]; then
+    	raw=("${raw_colors[@]}")
+    	raw_colors=()
+    	raw_colors+=("${raw[0]}")
+    	for i in {8..15}; do
+        	raw_colors+=("${raw[$i]}")
+    	done
+    	
+    	for i in {8..14}; do
+        	raw_colors+=("${raw[$i]}")
+    	done
+    	
+    	raw_colors[0]=$(lighten_color "${raw_colors[0]}" 0.95)
+    	if [[ -n "$COLS16_METHOD" ]]; then
+        	shade_16
+    	else
+        	raw_colors[7]=$(darken_color "${raw_colors[0]}" 0.75)
+        	raw_colors[8]=$(darken_color "${raw_colors[0]}" 0.25)
+        	raw_colors[15]=${raw_colors[7]}
+    	fi
+    else
+    	raw+=("${raw_colors[0]}")
+    	local i
+    	for ((i=8;i<16;i++)); do
+        	raw+=("${raw_colors[$i]}")
+    	done
+    	for ((i=8;i<${#raw_colors[@]}-1;i++)); do
+        	raw+=("${raw_colors[$i]}")
+    	done
+    	raw_colors=("${raw[@]}")
+    	if [[ "${raw_colors[0]:1:1}" != "0" ]]; then
+        	raw_colors[0]="$(darken_color "${raw_colors[0]}" 0.40)"
+    	fi
+    	local saturate_more=0
+    	[[ "${raw_colors[0]:1:1}" == "0" ]] && saturate_more=1
+    	[[ "${raw_colors[0]:3:1}" == "0" ]] && saturate_more=1
+    	[[ "${raw_colors[0]:5:1}" == "0" ]] && saturate_more=1
+    	if (( saturate_more )); then
+        	raw_colors[0]="$(lighten_color "${raw_colors[0]}" 0.03)"
+        	raw_colors[0]="$(saturate_color "${raw_colors[0]}" 0.40)"
+    	fi
+    	if [[ -n "$COLS16_METHOD" ]]; then
+        	shade_16
+    	else
+        	raw_colors[7]="$(lighten_color "${raw_colors[0]}" 0.75)"
+        	raw_colors[8]="$(lighten_color "${raw_colors[0]}" 0.35)"
+        	raw_colors[8]="$(saturate_color "${raw_colors[8]}" 0.10)"
+        	raw_colors[15]="${raw_colors[7]}"
+    	fi
+    fi
+}
+
+#################################################################################################
+#################################################################################################
+#################################################################################################
+
+add_saturation() {
+    local r g b h l s
+    read -r r g b < <(hex_to_rgb "$1")
+	local amount=${2:-$SATURATE_VALUE}
+	
+    r=$(awk -v x="$r" 'BEGIN{printf "%.17g", x/255}')
+    g=$(awk -v x="$g" 'BEGIN{printf "%.17g", x/255}')
+    b=$(awk -v x="$b" 'BEGIN{printf "%.17g", x/255}')
+
+    read -r h l s < <(rgb_to_hls "$r" "$g" "$b")
+
+    s=$(awk -v s="$s" -v a="$amount" 'BEGIN{
+        s += a
+        if (s > 1) s = 1
+        if (s < -1) s = -1
+        printf "%.17g", s
+    }')
+
+    read -r r g b < <(hls_to_rgb "$h" "$l" "$s")
+
+    r=$(awk -v x="$r" 'BEGIN{printf "%d", x*255}')
+    g=$(awk -v x="$g" 'BEGIN{printf "%d", x*255}')
+    b=$(awk -v x="$b" 'BEGIN{printf "%d", x*255}')
+
+    rgb_to_hex "$r" "$g" "$b"
+}
+
+# Saturate all colors
+saturate_colors() {
+    local filtered_colors=()
+    filtered_colors=("${main_colors[@]}")
+    for i in "${!main_colors[@]}"; do
+        if [[ "$i" -ne 7 && "$i" -ne 15 ]]; then
+            filtered_colors[$i]=$(add_saturation "${main_colors[$i]}")
+        fi
+    done
+    main_colors=("${filtered_colors[@]}")
 }
 
 #################################################################################################
 #################################################################################################
 #################################################################################################
 # Ensure contrast against background
-hsv_to_rgb() {
-    awk -v h="$1" -v s="$2" -v v="$3" '
+hsv_to_normalized_rgb() {
+    local h=$1 s=$2 v=$3
+
+    awk -v h="$h" -v s="$s" -v v="$v" '
     BEGIN {
         if (s == 0) {
             r = g = b = v
         } else {
-            h = h - int(h)
+            h = h - int(h)      # wrap h into [0,1)
             if (h < 0) h += 1
 
             h *= 6
@@ -318,34 +475,21 @@ hsv_to_rgb() {
             }
         }
 
-        printf "#%02x%02x%02x\n", r * 255, g * 255, b * 255
+        printf "%.17g %.17g %.17g\n", r, g, b
     }'
 }
 
-rgb_to_hsv() {
-    awk -v hex="$1" '
-    function h2d(str,    out, i, c, val) {
-        out = 0
-        str = toupper(str)
-        for (i = 1; i <= length(str); i++) {
-            c = substr(str, i, 1)
-            if (c ~ /[0-9]/)
-                val = c + 0
-            else if (c ~ /[A-F]/)
-                val = index("ABCDEF", c) + 9
-            else
-                val = 0
-            out = out * 16 + val
-        }
-        return out
-    }
+hsv_to_rgb() {
+	read -r r g b < <(hsv_to_normalized_rgb "$@")
+	mawk -v r="$r" -v g="$g" -v b="$b" 'BEGIN {printf "#%02x%02x%02x\n", r * 255, g * 255, b * 255}'
+}
 
+rgb_float_to_hsv() {
+    mawk '
     BEGIN {
-        gsub(/^#/, "", hex)
-
-        r = sprintf("%.3f", h2d(substr(hex, 1, 2)) / 255.0) + 0
-        g = sprintf("%.3f", h2d(substr(hex, 3, 2)) / 255.0) + 0
-        b = sprintf("%.3f", h2d(substr(hex, 5, 2)) / 255.0) + 0
+        r = ARGV[1] + 0
+        g = ARGV[2] + 0
+        b = ARGV[3] + 0
 
         max = r
         if (g > max) max = g
@@ -384,7 +528,41 @@ rgb_to_hsv() {
             h -= 1
 
         printf "%.17g %.17g %.17g\n", h, s, v
+    }' "$@"
+}
+
+hex_to_rgb_float() {
+    awk -v hex="$1" '
+    # mawk requires functions to be defined OUTSIDE of the BEGIN block
+    function h2d(str,    out, i, c, val) {
+        out = 0
+        str = toupper(str)
+        for (i = 1; i <= length(str); i++) {
+            c = substr(str, i, 1)
+            if (c ~ /[0-9]/) val = c + 0
+            else if (c ~ /[A-F]/) val = index("ABCDEF", c) + 9
+            else val = 0
+            out = out * 16 + val
+        }
+        return out + 0
+    }
+    BEGIN {
+        # Strip the leading "#" if it exists
+        gsub(/^#/, "", hex)
+        
+        # Parse hex, divide by 255, and truncate to exactly 3 decimal places
+        r = sprintf("%.3f", h2d(substr(hex, 1, 2)) / 255.0)
+        g = sprintf("%.3f", h2d(substr(hex, 3, 2)) / 255.0)
+        b = sprintf("%.3f", h2d(substr(hex, 5, 2)) / 255.0)
+        
+        # Print space-separated, exactly matching the Python f-string output
+        print r, g, b
     }'
+}
+
+rgb_to_hsv(){
+	read -r r g b < <(hex_to_rgb_float "$1")
+	rgb_float_to_hsv "$r" "$g" "$b"
 }
 
 w3_luminance() {
@@ -433,13 +611,16 @@ binary_luminance_adjust() {
 
     for ((i=0; i<10; i++)); do
 
-		read -r s v < <(awk -v s1="$s_min" -v s2="$s_max" -v v1="$v_min" -v v2="$v_max" 'BEGIN {printf "%.20g %.20g\n", (s1+s2)/2, (v1+v2)/2}')
-        
+        s=$(awk -v OFMT="%.20g" -v a="$s_min" -v b="$s_max" 'BEGIN{print (a+b)/2}')
+        v=$(awk -v OFMT="%.20g" -v a="$v_min" -v b="$v_max" 'BEGIN{print (a+b)/2}')
+
         rgb=$(hsv_to_rgb "$hue" "$s" "$v")
 
         lum=$(w3_luminance "$rgb")
 
-        if awk -v a="$lum" -v b="$luminance_desired" 'BEGIN{exit !(a>=b)}';then
+        if awk -v a="$lum" -v b="$luminance_desired" \
+            'BEGIN{exit !(a>=b)}'
+        then
             s_min="$s"
             v_max="$v"
         else
@@ -451,7 +632,7 @@ binary_luminance_adjust() {
     hsv_to_rgb "$hue" "$s" "$v"
 }
 
-adjust_contrast() {
+ensure_contrast() {
     local colors=("${main_colors[@]}")
     local background_color
     local background_luminance
@@ -467,11 +648,13 @@ adjust_contrast() {
     fi
 
 	if ! awk -v OFMT="%.16g" -v c="$CONTRAST_VALUE" 'BEGIN { exit !(c+0==c) }'; then
+    	printf '%s\n' "${colors[@]}"
     	return
 	fi
 	
     # Outside useful range
     if ! awk -v OFMT="%.16g" -v l="$luminance_desired" 'BEGIN{exit !(l < 0.99 && l > 0.01)}';then
+    	printf '%s\n' "${colors[@]}"
     	return
 	fi
 
@@ -507,20 +690,13 @@ adjust_contrast() {
         fi
     done
 
-    main_colors=("${colors[@]}")
+    printf '%s\n' "${colors[@]}"
 }
 
-#################################################################################################
-#################################################################################################
-#################################################################################################
-
-saturate_all_colors() {
-	local colors=("${main_colors[@]}")
-	for i in "${!colors[@]}"; do
-       	if [[ "$i" -ne 7 && "$i" -ne 15 ]]; then
-           	main_colors[$i]=$(saturate_color "${colors[$i]}")
-       	fi
-    done
+adjust_contrast(){
+	local filtered_colors=()
+    mapfile -t filtered_colors < <(ensure_contrast)
+    main_colors=("${filtered_colors[@]}")
 }
 
 #################################################################################################
@@ -529,16 +705,19 @@ saturate_all_colors() {
 
 # Generate colors trying different ImageMagick commands
 gen_colors() {
-    local max_color_count=35
-    local color_count=16
-    local temp_output=""
+    local beginning_color_count=16
+    local iteration_count=20
+    local max_color_count=$((beginning_color_count + iteration_count - 1))
+    local color_count
+    local temp_output
     local hex_colors=()
-    
-    local temp_resized="/tmp/resized_${base}.miff"
-    magick "${INPUT_IMAGE}[0]" -resize 25% "mpc:$temp_resized"
-    
-    for (( color_count; color_count<=max_color_count; color_count++ )); do # iteration count 20
-        mapfile -t hex_colors < <(magick "mpc:$temp_resized" -colors "$color_count" -unique-colors txt:- | grep -oiE '#[0-9A-F]{6}')
+    for ((color_count=beginning_color_count;
+          color_count<beginning_color_count+iteration_count;
+          color_count++))
+    do
+        temp_output="$(magick "${INPUT_IMAGE}[0]" -resize 25% -colors "$color_count" -unique-colors txt:- 2>&1)" \
+            || die "ImageMagick error."
+        mapfile -t hex_colors < <(grep -oiE '#[0-9A-F]{6}' <<<"$temp_output")
         if (( ${#hex_colors[@]} >= 16 )); then
             break
         fi
@@ -550,91 +729,29 @@ gen_colors() {
     done
     (( ${#hex_colors[@]} == 0 )) && \
         die "Failed to generate palette from image."
-    
-    local c
-    filtered_colors=()
-    for c in "${hex_colors[@]}"; do
-        [[ "$c" == "# Image" ]] && continue
-    	filtered_colors+=("$c")
-    done
-    
-	local normal_mode_colors=()
-    local light_mode_colors=()
-    
-    # light theme
-    light_mode_colors+=("${filtered_colors[0]}")
-    for i in {8..15}; do
-       	light_mode_colors+=("${filtered_colors[$i]}")
-    done
-    	
-    for i in {8..14}; do
-       	light_mode_colors+=("${filtered_colors[$i]}")
-    done
-    	
-    light_mode_colors[0]=$(lighten_color "${light_mode_colors[0]}" 0.95)
-    light_mode_colors[7]=$(darken_color "${light_mode_colors[0]}" 0.50)
-	light_mode_colors[8]=$(darken_color "${light_mode_colors[0]}" 0.25)
-	light_mode_colors[15]=$(darken_color "${light_mode_colors[0]}" 0.75)
-
-    {
-    	printf 'light_mode_colors=('
-    	printf '"%s" ' "${light_mode_colors[@]}"
-    	printf ')\n'
-	} > "$cache_file"
-    
-    # normal theme
-    normal_mode_colors+=("${filtered_colors[0]}")
-    local i
-    for ((i=8;i<16;i++)); do
-       	normal_mode_colors+=("${filtered_colors[$i]}")
-    done
-    for ((i=8;i<${#filtered_colors[@]}-1;i++)); do
-       	normal_mode_colors+=("${filtered_colors[$i]}")
-    done
-    if [[ "${normal_mode_colors[0]:1:1}" != "0" ]]; then
-       	normal_mode_colors[0]="$(darken_color "${normal_mode_colors[0]}" 0.40)"
-    fi
-    local saturate_more=0
-    [[ "${normal_mode_colors[0]:1:1}" == "0" ]] && saturate_more=1
-    [[ "${normal_mode_colors[0]:3:1}" == "0" ]] && saturate_more=1
-    [[ "${normal_mode_colors[0]:5:1}" == "0" ]] && saturate_more=1
-    if (( saturate_more )); then
-       	normal_mode_colors[0]="$(lighten_color "${normal_mode_colors[0]}" 0.03)"
-      	normal_mode_colors[0]="$(saturate_color "${normal_mode_colors[0]}" 0.40)"
-    fi
-    normal_mode_colors[7]="$(lighten_color "${normal_mode_colors[0]}" 0.55)"
-	normal_mode_colors[7]="$(saturate_color "${normal_mode_colors[7]}" 0.05)"
-	normal_mode_colors[8]="$(lighten_color "${normal_mode_colors[0]}" 0.35)"
- 	normal_mode_colors[8]="$(saturate_color "${normal_mode_colors[8]}" 0.10)"
-	normal_mode_colors[15]="$(lighten_color "${normal_mode_colors[0]}" 0.75)"
-	
-	{
-    	printf 'normal_mode_colors=('
-    	printf '"%s" ' "${normal_mode_colors[@]}"
-    	printf ')\n'
-	} >> "$cache_file"
+    raw_colors=("${hex_colors[@]}")
 }
 
-apply_cols16_method(){
-	if [[ "$COLS16_METHOD" == "lighten" || "$COLS16_METHOD" == "dual" ]]; then
-		#Shade colors (lighten) for 16 color scheme
-		local i
-    	for ((i=1;i<=6;i++)); do
-        	main_colors[$((i+8))]="$(lighten_color "${main_colors[$i]}" 0.25)"
+# Get colorscheme from image
+getwal() {
+	local filtered_colors=()
+    local c h
+	if [ -f "$cache_file" ];then
+		source "$cache_file"
+		for h in "${raw_colors[@]}"; do
+        	filtered_colors+=("#${h}")
     	done
-    	if [[ "$LIGHT_THEME" -eq 0 ]]; then
-    		for ((i=9;i<=14;i++)); do
-        		main_colors[$i]="$(saturate_color "${main_colors[$i]}" 0.40)"
-    		done
-    	fi
-	fi
-	if [[ "$COLS16_METHOD" == "darken" || "$COLS16_METHOD" == "dual" ]]; then
-		#Shade colors (darken) for 16 color scheme
-		local i
-    	for ((i=1;i<=6;i++)); do
-        	main_colors[$i]="$(darken_color "${main_colors[$i]}" 0.25)"
-    	done 
-	fi
+	else
+    	gen_colors
+    	for c in "${raw_colors[@]}"; do
+        	[[ "$c" == "# Image" ]] && continue
+        	filtered_colors+=("$c")
+    	done
+    	echo "raw_colors=(${filtered_colors[@]})" | sed 's/#//g' > "$cache_file"
+    fi
+    raw_colors=("${filtered_colors[@]}")
+    generic_adjust
+    main_colors=("${raw_colors[@]}")
 }
 
 # Main color generation function
@@ -652,27 +769,12 @@ getcolors() {
     	sub_log_info "${light_theme_massage}"
     fi
     
-    local light_mode_colors=()
-	local normal_mode_colors=()
-	
-	if [ ! -f "$cache_file" ];then		
-		gen_colors
-    fi
-    
-    source "$cache_file"
-    
-    if [[ "$LIGHT_THEME" -eq 1 ]]; then
-    	main_colors=("${light_mode_colors[@]}")
-    else
-    	main_colors=("${normal_mode_colors[@]}")
-    fi
-    
-    apply_cols16_method
+    getwal
     
     # Saturate colors
     if [[ -n "$SATURATE_VALUE" ]]; then
     	log_info "Adding saturation."
-    	saturate_all_colors
+    	saturate_colors
     fi
     
     # Ensure contrast
