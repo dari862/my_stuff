@@ -2,11 +2,15 @@
 set -e
 
 current_path="$(dirname "$0")"
+path_to_my_oomox_files="$HOME/Desktop/workon/oomox_files"
 
-if [ -d "$HOME/Desktop/workonNow/oomox_files" ];then
-	oomox_files_path="$HOME/Desktop/workonNow/oomox_files/oomox_gui/colors/zzmyicons"
+if [ -d "$path_to_my_oomox_files/oomox_gui/colors/zzmyicons" ];then
+	oomox_files_path="$path_to_my_oomox_files/oomox_gui/colors/zzmyicons"
+elif [ -d "$HOME/.config/oomox/colors" ];then
+	oomox_files_path="$HOME/.config/oomox/colors"
 else
-	oomox_files_path="$HOME/.config/oomox/colors/zzmyicons"
+	echo "no dir found. "
+	exit
 fi
 
 list_of_base_GTK_theme="$(find "${current_path}/source_base" -type f || :)"

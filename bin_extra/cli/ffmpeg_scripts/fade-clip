@@ -6,7 +6,7 @@
 #===============================================================================
 
 # dependencies:
-# ffmpeg bc
+# ffmpeg
 
 #===============================================================================
 # script usage
@@ -92,7 +92,7 @@ fi
 fade_v () {
     echo '+ Getting video duration' && \
     video_dur=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${infile}" | cut -d\. -f1)
-    vid_offset=$(echo "${video_dur}-${dur:=${duration_default}}" | bc -l)
+    vid_offset=$(awk -v v="${video_dur}" -v d="${dur:=${duration_default}}" 'BEGIN { print v - d }')
     ffmpeg \
     -hide_banner \
     -stats -v panic \
@@ -113,7 +113,7 @@ fade_v () {
 fade_va () {
     echo '+ Getting video duration' && \
     video_dur=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${infile}" | cut -d\. -f1)
-    vid_offset=$(echo "${video_dur}-${dur:=${duration_default}}" | bc -l)
+    vid_offset=$(awk -v v="${video_dur}" -v d="${dur:=${duration_default}}" 'BEGIN { print v - d }')
     ffmpeg \
     -hide_banner \
     -stats -v panic \

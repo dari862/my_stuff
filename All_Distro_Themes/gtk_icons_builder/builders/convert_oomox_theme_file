@@ -2,9 +2,10 @@
 set -e
 
 current_path="$(dirname "$0")"
+path_to_my_oomox_files="$HOME/Desktop/workon/oomox_files"
 
-if [ -d "$HOME/Desktop/workonNow/oomox_files/oomox_gui/colors/zzmyicons" ];then
-	oomox_files_path="$HOME/Desktop/workonNow/oomox_files/oomox_gui/colors/zzmyicons"
+if [ -d "$path_to_my_oomox_files/oomox_gui/colors/zzmyicons" ];then
+	oomox_files_path="$path_to_my_oomox_files/oomox_gui/colors/zzmyicons"
 elif [ -d "$HOME/.config/oomox/colors" ];then
 	oomox_files_path="$HOME/.config/oomox/colors"
 else
@@ -12,7 +13,11 @@ else
 	exit
 fi
 
-output_dir="${current_path}/new_source_base"
+if [ -d "${current_path}"/../"${output_dir_name}" ];then
+	output_dir="${current_path}/source_base"
+else
+	output_dir="${current_path}"/../"${output_dir_name}"
+fi
 
 list_of_base_GTK_theme="$(find "${oomox_files_path}" -type f || :)"
 mkdir -p "${output_dir}"
@@ -36,3 +41,5 @@ for t in ${list_of_base_GTK_theme};do
 	SURUPLUS_GRADIENT_ENABLED=${SURUPLUS_GRADIENT_ENABLED}
 	EOF
 done
+
+echo "Done Done Done"

@@ -1,4 +1,5 @@
 #!/bin/python3
+# work on this : improve it
 import tkinter as tk
 from tkinter import filedialog, ttk
 import os

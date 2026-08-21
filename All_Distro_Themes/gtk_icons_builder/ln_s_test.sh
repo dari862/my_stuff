@@ -1,0 +1,1 @@
+/usr/share/my_stuff/All_Distro_Themes/gtk_icons_builder/test.sh

@@ -45,7 +45,7 @@ function scan_input {
     ASPECTRATIO="$(echo "${vstring}" | sed -n "s/^display_aspect_ratio=\(.*\)$/\1/p")"
   fi
   if ! [[ -v FPS ]];then
-    FPS="$(echo "${vstring}" | sed -n "s/^r_frame_rate=\(.*\)$/\1/p" | bc -l)"
+    FPS=$(awk -F'[=/]' '$1 == "r_frame_rate" { print ($3 ? $2 / $3 : $2) }' <<< "${vstring}")
   fi
   if ! [[ -v SCODEC ]];then
     SCODEC="$(echo "${sstring}" | sed -n "s/^codec_name=\(.*\)$/\1/p")"
@@ -113,7 +113,7 @@ if ! [[ -v IN ]] || ! [[ -v OUT ]];then
 fi
 
 if ! [[ -v LENGTH ]] && ! [[ -v END ]];then
-  LENGTH="$(echo "${DURATION} - ${START}" | bc -l)"
+  LENGTH=$(awk -v d="$DURATION" -v s="$START" 'BEGIN { print d - s }')
 fi
 
 make_clip

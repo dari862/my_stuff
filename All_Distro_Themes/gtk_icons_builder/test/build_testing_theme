@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+current_path="$(dirname "$(realpath "$0")")"
+do_to_themes(){
+	picked_theme="${1:-}"
+	new_theme_name="${picked_theme}1"
+	cd "$HOME/generated_icons/${new_theme_name}"
+	mkdir -p "$HOME/.icons/${new_theme_name}"
+	for L in *;do
+		if [ -L "$L" ];then
+			mv "$L" "$HOME/.icons/${new_theme_name}"
+		fi
+	done
+	mv "$HOME/generated_icons/${new_theme_name}"/index.theme "$HOME/.icons/${new_theme_name}"
+	sleep 1
+	cd "$HOME/generated_icons/${new_theme_name}"
+	d=""
+	for d in *;do
+		mkdir -p "/home/dari/.icons/${new_theme_name}/$d"
+		cd "$HOME/generated_icons/${new_theme_name}/$d"
+		for d2 in *;do
+			ln -sf "$HOME/generated_icons/${new_theme_name}/$d/$d2" "/home/dari/.icons/${new_theme_name}/$d"
+		done
+	done
+	cp -r "$HOME/.icons/${new_theme_name}" "$HOME/.icons/${picked_theme}2"
+	sed -i "s/^Name=.*/Name=${picked_theme}2/g" "$HOME/.icons/${picked_theme}2/index.theme"
+	cp -r "$HOME/.icons/${new_theme_name}" "$HOME/.icons/${picked_theme}3"
+	sed -i "s/^Name=.*/Name=${picked_theme}3/g" "$HOME/.icons/${picked_theme}3/index.theme"
+	cp -r "$HOME/.icons/${new_theme_name}" "$HOME/.icons/${picked_theme}4"
+	sed -i "s/^Name=.*/Name=${picked_theme}4/g" "$HOME/.icons/${picked_theme}4/index.theme"
+	cp -r "$HOME/.icons/${new_theme_name}" "$HOME/.icons/${picked_theme}5"
+	sed -i "s/^Name=.*/Name=${picked_theme}5/g" "$HOME/.icons/${picked_theme}5/index.theme"
+	cp -r "$HOME/.icons/${new_theme_name}" "$HOME/.icons/${picked_theme}6"
+	sed -i "s/^Name=.*/Name=${picked_theme}6/g" "$HOME/.icons/${picked_theme}6/index.theme"
+}
+
+cd "${current_path}/source_base"
+find "${current_path}/source_base" -type f ! -name "Arc-Circle" ! -name "Vimix-White" -delete
+"${current_path}"/builder
+sleep 2
+mv "${current_path}"/generated_icons "$HOME"
+
+do_to_themes "Arc-Circle"
+do_to_themes "Vimix-White"
+
+rm -rdf "${current_path}/source_base"

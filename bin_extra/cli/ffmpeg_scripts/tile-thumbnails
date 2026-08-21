@@ -6,7 +6,7 @@
 #===============================================================================
 
 # dependencies:
-# ffmpeg ffprobe awk bc
+# ffmpeg ffprobe awk
 
 #===============================================================================
 # script usage
@@ -108,7 +108,7 @@ else
    tile_w=$(echo "${tile}" | awk -F'x' '{print $1}')
    tile_h=$(echo "${tile}" | awk -F'x' '{print $2}')
    # title sum
-   tile_sum=$(echo "${tile_w} * ${tile_h}" | bc)
+   tile_sum=$(awk -v w="${tile_w}" -v h="${tile_h}" 'BEGIN { print w * h }')
 fi
 
 # defaults
@@ -135,7 +135,7 @@ pts=$(printf "%s %s\n" "${seek}" | awk '{
 outfile_default="${infile_name}-tile-$(date +'%Y-%m-%d_%H-%M-%S').png"
 
 # duration * fps / number of tiles
-frames=$(echo "${duration} * ${fps} / ${tile_sum:=${tile_default}}" | bc)
+frames=$(awk -v d="${duration}" -v f="${fps}" -v s="${tile_sum:=${tile_default}}" 'BEGIN { print (s != 0 ? (d * f) / s : 0) }')
 
 
 #===============================================================================

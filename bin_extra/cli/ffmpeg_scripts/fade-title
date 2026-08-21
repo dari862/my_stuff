@@ -6,7 +6,7 @@
 #===============================================================================
 
 # dependencies:
-# ffmpeg file awk grep bc cut tail
+# ffmpeg file awk grep cut tail
 
 #===============================================================================
 # script usage
@@ -117,7 +117,7 @@ done
 
 # video duration and video offset minus 1 second for fade out
 video_dur=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${infile}" | cut -d\. -f1)
-vid_offset=$(echo "${video_dur}-${dur:=${duration_default}}" | bc -l)
+vid_offset=$(awk -v v="${video_dur}" -v d="${dur:=${duration_default}}" 'BEGIN { print v - d }')
 
 # video height
 video_size=$(ffprobe -v error -show_entries stream=height -of default=noprint_wrappers=1:nokey=1 "${infile}")
@@ -144,16 +144,12 @@ fi
 # calculate drawbox and drawtext size based on video height
 case "${video_size}" in
     1080) # 1080 height
-    drawbox_height=$(echo "${video_size}/13.4" | bc)
-    drawtext_size=$(echo "${drawbox_height}/2" | bc)
+    drawbox_height=$(awk -v s="${video_size}" 'BEGIN { print s / 13.4 }')
+    drawtext_size=$(awk -v h="${drawbox_height}" 'BEGIN { print h / 2 }')
     ;;
-    720) # 720 height
-    drawbox_height=$(echo "${video_size}/9" | bc)
-    drawtext_size=$(echo "${drawbox_height}/2" | bc)
-    ;;
-    *) # all other heights
-    drawbox_height=$(echo "${video_size}/9" | bc)
-    drawtext_size=$(echo "${drawbox_height}/2" | bc)
+    720 | *) # 720 and all other heights
+    drawbox_height=$(awk -v s="${video_size}" 'BEGIN { print s / 9 }')
+    drawtext_size=$(awk -v h="${drawbox_height}" 'BEGIN { print h / 2 }')
     ;;
 esac
 

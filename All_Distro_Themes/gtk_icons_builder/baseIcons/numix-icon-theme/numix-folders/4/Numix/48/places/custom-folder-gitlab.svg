@@ -1,9 +1,9 @@
 <svg version="1.1" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
  <g transform="translate(0,-1004.3622)">
-  <path d="m6.9 1013.36h34.2c0.9 0 1.9 1 1.9 2v4c0 1.108-0.847 2-1.9 2h-34.2c-1.053 0-1.9-0.892-1.9-2v-6z" style="fill:replacecolour2"/>
-  <path d="m5 1014.36c0-2 0-3 1.818-3h6.364c1.818 0 1.818 1 1.818 3z" style="fill:replacecolour2"/>
+  <path d="m6.9 1013.36h34.2c0.9 0 1.9 1 1.9 2v4c0 1.108-0.847 2-1.9 2h-34.2c-1.053 0-1.9-0.892-1.9-2v-6z" style="fill:#replacecolour2"/>
+  <path d="m5 1014.36c0-2 0-3 1.818-3h6.364c1.818 0 1.818 1 1.818 3z" style="fill:#replacecolour2"/>
   <path d="m5 1017.36v5h38v-5z" style="opacity:.03"/>
-  <rect x="3" y="1019.36" width="42" height="25" rx="2" style="fill:replacecolour1"/>
+  <rect x="3" y="1019.36" width="42" height="25" rx="2" style="fill:#replacecolour1"/>
   <path d="m15 1013.36v1h1.906 24.19c0.9 0 1.906 1 1.906 2v-1c0-1-1.01-2-1.906-2h-24.19z" style="opacity:.05"/>
   <path d="m6.813 1011.36c-1.818 0-1.813 1-1.813 3h0.031c0.053-1.311 0.309-2 1.781-2h6.375c1.472 0 1.728 0.689 1.781 2h0.031c0-2 6e-3 -3-1.813-3h-6.375z" style="opacity:.05"/>
   <path d="m5 1019.36c-1.108 0-2 0.892-2 2v1c0-1.108 0.892-2 2-2h38c1.108 0 2 0.892 2 2v-1c0-1.108-0.892-2-2-2h-38z" style="fill:#fff;opacity:.1"/>

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-org_my_wallpapers_dir="$HOME/Desktop/Theme_Stuff/my_wallpapers"
+org_my_wallpapers_dir="$HOME/Desktop/my_wallpapers"
 run_all=true
 
 
@@ -18,10 +18,10 @@ run_contrast_values=true
 first_script="palette_extractor.py"
 second_script="bashwal"
 
-first_saturate_value1="-1"
-second_saturate_value1="1"
-first_contrast_value1="1"
-second_contrast_value1="20"
+first_saturate_value1="-0.8"
+second_saturate_value1="0.7"
+first_contrast_value1="2.9"
+second_contrast_value1="16.7"
 
 first_saturate_value2="-0.9"
 second_saturate_value2="0.8"

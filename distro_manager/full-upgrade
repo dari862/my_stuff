@@ -23,7 +23,7 @@ fi
 . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
 
 export PATH="${__distro_path_root}/system_files/bin:${__distro_path_root}/bin/status:$PATH" 
-Theme_repo_name="Theme_Stuff"
+Wallpaper_repo_name="Theme_Stuff"
 
 update_full_upgrade_script(){
 	if [ "${skip_internet_check}" = true ];then
@@ -162,12 +162,12 @@ Updating_Distro(){
 }
 
 Updating_Themes(){
-	cd "${__distro_path_root}/${Theme_repo_name}"
-	my-superuser git remote set-url origin "https://${remote_repo_link}/${Theme_repo_name}.git" >/dev/null 2>&1
+	cd "${__distro_path_themes}/${Wallpaper_repo_name}"
+	my-superuser git remote set-url origin "https://${remote_repo_link}/${Wallpaper_repo_name}.git" >/dev/null 2>&1
 	if __upgrade_current_repo_;then
-		print_GREEN "${Theme_repo_name} is up to date." 
+		print_GREEN "${Wallpaper_repo_name} is up to date." 
 	else
-		print_RED "Updating ${Theme_repo_name} Failed... "
+		print_RED "Updating ${Wallpaper_repo_name} Failed... "
 	fi
 }
 

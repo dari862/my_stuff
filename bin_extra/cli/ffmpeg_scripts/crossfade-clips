@@ -75,9 +75,9 @@ clip1_name="${clip1_nopath%.*}"
 clip1_dur=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$clip1" | cut -d\. -f1)
 clip2_dur=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$clip2" | cut -d\. -f1)
 
-# clip1 use the bc command to remove 1 second from length of clip for cross fade
-clip1_offset=$(echo "${clip1_dur}-1" | bc -l)
-clip2_offset=$(echo "${clip2_dur}-1" | bc -l)
+# clip1 use the awk command to remove 1 second from length of clip for cross fade
+clip1_offset=$(awk -v d="${clip1_dur}" 'BEGIN { print d - 1 }')
+clip2_offset=$(awk -v d="${clip2_dur}" 'BEGIN { print d - 1 }')
 
 # variables
 outfile_default="${clip1_name}-xfade-$(date +'%Y-%m-%d_%H-%M-%S').mp4"

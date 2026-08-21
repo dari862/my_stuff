@@ -31,6 +31,8 @@ copy_files_theme(){
 	
 	cp -r "icons_suruplus_aspromauros/suru-plus-aspromauros/Suru++-Asprómauros" "${out_put_dir}"
 	
+	cp -r "${current_path}/theme_builder.sh" "$out_put_dir"
+	
 	cd "$out_put_dir"
 }
 
@@ -117,3 +119,5 @@ targets=(Suru++/apps/16
 replacing_gradient_colors
 find ${targets[@]} -type f -name '*.svg' -exec sed -i'' \
 	-e 's/currentColor/replacecolour_gradient/g' '{}' \;
+
+echo "done done done"

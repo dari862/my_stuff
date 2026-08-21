@@ -5,7 +5,7 @@
  <path d="m 3.2 3.2 5.6 0 0 0.8 -5.6 0 z" style="fill:#ccc"/>
  <path d="m 12 6 0 1 -2 0 c 0 -0.547 -0.39 -1 -1 -1 z" transform="scale(0.8,0.8)" style="fill:#f8f8f8;fill-opacity:1;stroke:none"/>
  <path transform="scale(0.8,0.8)" d="m 11 6 0 1 -1 0 c 0 -0.547 -0.39 -1 -1 -1 z" style="fill:#ccc;fill-opacity:1;stroke:none"/>
- <path d="m 0.8 2.4 0 4 11.2 0 0 -4 z" style="fill:replacecolour2;fill-opacity:1;stroke:none"/>
- <path d="m 2.4 2.4 c 0 -0.4 0 -0.8 0.582 -0.8 l 2.036 0 c 0.582 0 0.582 0.4 0.582 0.8 z" style="fill:replacecolour2;fill-opacity:1;stroke:none"/>
- <path d="m 0 5.6 12.8 0 l -0.8 5.6 -11.2 0 z" style="fill:replacecolour1;fill-opacity:1;stroke:none"/>
+ <path d="m 0.8 2.4 0 4 11.2 0 0 -4 z" style="fill:#replacecolour2;fill-opacity:1;stroke:none"/>
+ <path d="m 2.4 2.4 c 0 -0.4 0 -0.8 0.582 -0.8 l 2.036 0 c 0.582 0 0.582 0.4 0.582 0.8 z" style="fill:#replacecolour2;fill-opacity:1;stroke:none"/>
+ <path d="m 0 5.6 12.8 0 l -0.8 5.6 -11.2 0 z" style="fill:#replaceiconsviewcolourmain;fill-opacity:1;stroke:none"/>
 </svg>

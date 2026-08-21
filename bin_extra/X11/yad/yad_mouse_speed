@@ -11,7 +11,7 @@ if [ ! -f "${HOME_mouse_speed_conf}" ];then
 fi
 . "$HOME_mouse_speed_conf"
 
-MOUSE_DECELERATION=$(echo "scale=1; $MOUSE_DECELERATION * 100 / $CURRENTSPEED" | bc)
+MOUSE_DECELERATION=$(awk 'BEGIN {printf "%.1f\n", ('"$MOUSE_DECELERATION"' * 100 / '"$CURRENTSPEED"')}')
 
 __run_(){
 	output_of_yad="$@"

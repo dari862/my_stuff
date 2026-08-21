@@ -6,7 +6,7 @@
 #===============================================================================
 
 # dependencies:
-# ffmpeg ffprobe cut bc
+# ffmpeg ffprobe cut
 
 #===============================================================================
 # script usage
@@ -128,7 +128,7 @@ dp="$((position+duration))"
 
 # fade default
 fade_default='0.2'
-fade_end="$(echo "${dp}" - "${fade:=${fade_default}}" | bc)"
+fade_end=$(awk -v dp="${dp}" -v f="${fade:=${fade_default}}" 'BEGIN { print dp - f }')
 
 # pip padding
 margin_default='20'

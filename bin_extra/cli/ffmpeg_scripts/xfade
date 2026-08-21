@@ -6,7 +6,7 @@
 #===============================================================================
 
 # dependencies:
-# ffmpeg ffprobe bc
+# ffmpeg ffprobe
 
 #===============================================================================
 # script usage
@@ -90,7 +90,7 @@ transition_default='fade'
 outfile_default="${clip1_name}-xfade-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 
 # offset and duration options not set
-if [ -z "${offset}" ];then
+if [ -z "${offset}" ]; then
     # clip 1 duration to calculate default transition offset
     clip1_dur=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${clip1}")
     
@@ -98,14 +98,14 @@ if [ -z "${offset}" ];then
     clip1_time=$(printf "%.1f\n" "${clip1_dur}")
     
     # clip1 duration minus duration default and 0.1 seconds which is needed for the transition
-    offset_default=$(echo "${clip1_time}" - "${dur:=${duration_default}}" - 0.1 | bc -l)
+    offset_default=$(awk -v t="${clip1_time}" -v d="${dur:=${duration_default}}" 'BEGIN { print t - d - 0.1 }')
     
     # audio trim default match offset default
-    audio_trim_default=$(echo "${clip1_time}" - 0.1 | bc -l)
+    audio_trim_default=$(awk -v t="${clip1_time}" 'BEGIN { print t - 0.1 }')
 else
     # offset and duration options set
     # trim audio to match length of the duration and offset
-    audio_trim=$(echo "${dur} + ${offset}" | bc -l)
+    audio_trim=$(awk -v d="${dur}" -v o="${offset}" 'BEGIN { print d + o }')
 fi
 
 
