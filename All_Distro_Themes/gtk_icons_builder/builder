@@ -1,5 +1,6 @@
 #!/bin/sh
 # need superuser : called by my-superuser
+
 set -e
 
 __distro_path_lib="${1:-$__distro_path_lib}"
@@ -21,16 +22,13 @@ if [ -n "$__distro_path_lib" ];then
     	exit
 	fi
 	. "$__distro_path_lib"
-	iconstheme_path="${__distro_path_themes}/system-icons"
-elif [ -d "${__distro_path_themes}" ] && [ -d "${generated_dir}" ];then
-	if [ "$(id -u)" -ne 0 ]; then
-    	my-superuser $0 "$__distro_path_lib" "$force_update"
-    	exit
+	universal_icons_dir="${__distro_path_themes}/system-icons"
+	if [ -d "${__distro_path_themes}" ] && [ -d "${generated_dir}" ];then
+		iconstheme_path="${generated_dir}"
+		mv_generated_icons=true
+	else
+		iconstheme_path="${__distro_path_themes}/system-icons"
 	fi
-	. "$__distro_path_lib"
-	universal_icons_dir="${__distro_path_themes}/system-themes"
-	iconstheme_path="${generated_dir}"
-	mv_generated_icons=true
 else
 	iconstheme_path="${current_path}/generated_icons"
 fi

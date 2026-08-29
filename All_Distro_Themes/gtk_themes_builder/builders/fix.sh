@@ -16,11 +16,15 @@ copy_files_theme(){
 	cp -r "theme_materia/materia-theme" "$out_put_dir"
 	cd "$out_put_dir"
 	mkdir -p "materia"
-	for tm in src meson_options.txt meson.build;do
-		mv "materia-theme/${tm}" "materia"
-	done
+	mv "materia-theme/src" "materia"
 	rm -rdf "materia-theme"
-	
+	find . -type f \( \
+    	-name '*.meson*' -o \
+    	-name 'meson.build' -o \
+    	-name 'meson_options.txt' -o \
+    	-name 'render-asset.sh' -o \
+    	-name 'render-assets.sh' \
+	\) -delete
 	cd "$plugins_path"
 	cp -r "theme_oomox" "$out_put_dir"
 	cd "$out_put_dir"
