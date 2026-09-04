@@ -21,90 +21,469 @@ fi
 
 list_of_base_GTK_theme="$(find "${oomox_files_path}" -type f || :)"
 
-add_new_var_value_if_empty(){
-	new_value=""
-	if [ -z "${2:-}" ]; then
-		new_value="${3:-}"
+clamp()
+{
+    val=$1
+
+    if [ "$val" -lt 0 ]; then
+        printf '%s\n' 0
+        return
+    fi
+
+    if [ "$val" -gt 255 ]; then
+        printf '%s\n' 255
+        return
+    fi
+
+    printf '%d\n' "$val"
+}
+
+hex_channel()
+{
+    printf '%d\n' "0x$1"
+}
+
+darker_channel()
+{
+    value=$(hex_channel "$1")
+    delta=${2:-10}
+
+    clamp $((value - delta))
+}
+
+mix_channel()
+{
+    value1=$(hex_channel "$1")
+    value2=$(hex_channel "$2")
+    ratio=${3:-0.5}
+
+    awk -v v1="$value1" -v v2="$value2" -v r="$ratio" '
+        BEGIN {
+            result = v1 * r + v2 * (1 - r)
+
+            if (result < 0) {
+                result = 0
+            }
+
+            if (result > 255) {
+                result = 255
+            }
+
+            printf "%d\n", result
+        }
+    '
+}
+
+valid_hex_color()
+{
+    hex=$1
+
+    if [ "${#hex}" -ne 6 ]; then
+        return 1
+    fi
+
+    case $hex in
+        *[!0123456789abcdefABCDEF]*)
+            return 1
+            ;;
+    esac
+
+    return 0
+}
+
+darker()
+{
+    hex=${1#\#}
+    delta=${2:-10}
+
+    if ! valid_hex_color "$hex"; then
+        printf 'darker: invalid color: %s\n' "$1" >&2
+        return 2
+    fi
+
+    r=$(hex_channel "${hex%${hex#??}}")
+    rest=${hex#??}
+
+    g=$(hex_channel "${rest%${rest#??}}")
+    b=$(hex_channel "${rest#??}")
+
+    printf '%02x%02x%02x\n' \
+        "$(clamp $((r - delta)))" \
+        "$(clamp $((g - delta)))" \
+        "$(clamp $((b - delta)))"
+}
+
+mix()
+{
+    hex1=${1#\#}
+    hex2=${2#\#}
+    ratio=${3:-0.5}
+
+    if ! valid_hex_color "$hex1"; then
+        printf 'mix: invalid first color: %s\n' "$1" >&2
+        return 2
+    fi
+
+    if ! valid_hex_color "$hex2"; then
+        printf 'mix: invalid second color: %s\n' "$2" >&2
+        return 2
+    fi
+
+    r1=$(hex_channel "${hex1%${hex1#??}}")
+    rest1=${hex1#??}
+    g1=$(hex_channel "${rest1%${rest1#??}}")
+    b1=$(hex_channel "${rest1#??}")
+
+    r2=$(hex_channel "${hex2%${hex2#??}}")
+    rest2=${hex2#??}
+    g2=$(hex_channel "${rest2%${rest2#??}}")
+    b2=$(hex_channel "${rest2#??}")
+
+    awk \
+        -v r1="$r1" \
+        -v g1="$g1" \
+        -v b1="$b1" \
+        -v r2="$r2" \
+        -v g2="$g2" \
+        -v b2="$b2" \
+        -v ratio="$ratio" '
+        BEGIN {
+            r = r1 * ratio + r2 * (1 - ratio)
+            g = g1 * ratio + g2 * (1 - ratio)
+            b = b1 * ratio + b2 * (1 - ratio)
+
+            printf "%02x%02x%02x\n", r, g, b
+        }
+    '
+}
+
+is_dark()
+{
+    hex=${1#\#}
+
+    if ! valid_hex_color "$hex"; then
+        return 2
+    fi
+
+    r=$(hex_channel "${hex%${hex#??}}")
+    rest=${hex#??}
+
+    g=$(hex_channel "${rest%${rest#??}}")
+    b=$(hex_channel "${rest#??}")
+
+    if [ $((299 * r + 587 * g + 114 * b)) -lt 128000 ]; then
+        return 0
+    fi
+
+    return 1
+}
+
+materia_theme(){
+    HDR_BG=${HDR_BG-$MENU_BG}
+    HDR_FG=${HDR_FG-$MENU_FG}
+    MATERIA_VIEW=${MATERIA_VIEW-$TXT_BG}
+    MATERIA_SURFACE=${MATERIA_SURFACE-$BTN_BG}
+    GNOME_SHELL_PANEL_OPACITY=${GNOME_SHELL_PANEL_OPACITY-0.6}
+    MATERIA_PANEL_OPACITY=${MATERIA_PANEL_OPACITY-$GNOME_SHELL_PANEL_OPACITY}
+    
+    OPTION_GTK2_HIDPI=$(echo "${OPTION_GTK2_HIDPI:-True}" | tr '[:upper:]' '[:lower:]')
+    
+    MATERIA_STYLE_COMPACT=$(printf '%s' "${MATERIA_STYLE_COMPACT:-false}" | tr '[:upper:]' '[:lower:]')
+    MATERIA_COLOR_VARIANT=$(printf '%s' "${MATERIA_COLOR_VARIANT:-}" | tr '[:upper:]' '[:lower:]')
+    
+    SPACING=${SPACING-3}
+    ROUNDNESS=${ROUNDNESS-4}
+    MATERIA_SELECTION_OPACITY=${MATERIA_SELECTION_OPACITY-0.32}
+    
+    INACTIVE_FG=$(mix "$FG" "$BG" 0.75)
+    INACTIVE_MATERIA_VIEW=$(mix "$MATERIA_VIEW" "$BG" 0.60)
+    
+    TERMINAL_COLOR4=${TERMINAL_COLOR4:-1E88E5}
+    TERMINAL_COLOR5=${TERMINAL_COLOR5:-E040FB}
+    TERMINAL_COLOR9=${TERMINAL_COLOR9:-DD2C00}
+    TERMINAL_COLOR10=${TERMINAL_COLOR10:-00C853}
+    TERMINAL_COLOR11=${TERMINAL_COLOR11:-FF6D00}
+    TERMINAL_COLOR12=${TERMINAL_COLOR12:-66BB6A}
+    if [ -z "$MATERIA_COLOR_VARIANT" ]; then
+        if is_dark "$BG"; then
+            MATERIA_COLOR_VARIANT="dark"
+        elif is_dark "$HDR_BG"; then
+            MATERIA_COLOR_VARIANT="default"
+        else
+            MATERIA_COLOR_VARIANT="light"
+        fi
+    fi
+    
+    BG2="$(darker $BG)"
+    SEL_BG2="$(darker "$SEL_BG" -20)"
+	HDR_BG2="$(darker "$HDR_BG" 10)"
+	HDR_BG3="$(darker "$HDR_BG" 20)"
+	
+	if [ "$OPTION_GTK2_HIDPI" = "true" ]; then
+		zoom="2"
+	else
+		zoom="1"
 	fi
-	echo "${1:-}=${new_value}" >> "$style_path"
+
+    SEL_BG_new1="#$SEL_BG"
+    if [ "$MATERIA_COLOR_VARIANT" != "dark" ]; then
+    			WHITE_COLOR_PLACEHOLDER="#$MATERIA_SURFACE"
+                SEL_BG_new2="#$SEL_BG"
+                FG_new1="#$FG"
+                FG_new2="#$FG"
+                BG_new1="#$BG"
+                HDR_BG_new1="#$HDR_BG"
+                HDR_BG2_new1="#$HDR_BG2"
+                INACTIVE_FG_new1="#$INACTIVE_FG"
+                HDR_BG_new2="#$HDR_BG"
+                HDR_BG2_new2="#$HDR_BG2"
+                HDR_FG_new1="#$HDR_FG"
+                INACTIVE_FG_new2="#$INACTIVE_FG"
+                FG_new3="#eeeeee"
+                BG_new2="#121212"
+                MATERIA_SURFACE_new1="#2e2e2e"
+                MATERIA_VIEW_new1="#1e1e1e"
+                HDR_BG_new3="#272727"
+                HDR_BG2_new3="#1e1e1e"
+                HDR_FG_new2="#e4e4e4"
+                INACTIVE_FG_new3="#a7a7a7"
+    else
+   				WHITE_COLOR_PLACEHOLDER="#$FG"
+                SEL_BG_new2="#1967d2"
+                FG_new1="#000000"
+                FG_new2="#212121"
+                BG_new1="#f9f9f9"
+                HDR_BG_new1="#424242"
+                HDR_BG2_new1="#303030"
+                INACTIVE_FG_new1="#c1c1c1"
+                HDR_BG_new2="#f0f0f0"
+                HDR_BG2_new2="#ebebeb"
+                HDR_FG_new1="#1d1d1d"
+                INACTIVE_FG_new2="#565656"                
+                FG_new3="#$FG"
+                BG_new2="#$BG"
+                MATERIA_SURFACE_new1="#$MATERIA_SURFACE"
+                MATERIA_VIEW_new1="#$MATERIA_VIEW"
+                HDR_BG_new3="#$HDR_BG"
+                HDR_BG2_new3="#$HDR_BG2"
+                HDR_FG_new2="#$HDR_FG"
+                INACTIVE_FG_new3="#$INACTIVE_FG"
+    fi
+    
+    BG="#$BG"
+	MATERIA_VIEW="#$MATERIA_VIEW"
+	MATERIA_SURFACE="#$MATERIA_SURFACE"
+	FG="#$FG"
+	SEL_BG="#$SEL_BG"
+	HDR_BG="#$HDR_BG"
+	HDR_BG2="#$HDR_BG2"
+	HDR_BG3="#$HDR_BG3"
+	HDR_FG="#$HDR_FG"
+	INACTIVE_MATERIA_VIEW="#$INACTIVE_MATERIA_VIEW"
+	TERMINAL_COLOR4="#$TERMINAL_COLOR4"
+	TERMINAL_COLOR5="#$TERMINAL_COLOR5"
+	TERMINAL_COLOR9="#$TERMINAL_COLOR9"
+	TERMINAL_COLOR10="#$TERMINAL_COLOR10"
+	TERMINAL_COLOR11="#$TERMINAL_COLOR11"
+	TERMINAL_COLOR12="#$TERMINAL_COLOR12"
+	tee -a "$style_path" <<-EOF >/dev/null 2>&1
+	OUTPUT_THEME_NAME="$OUTPUT_THEME_NAME"
+	BG="$BG"
+	MATERIA_VIEW="$MATERIA_VIEW"
+	MATERIA_SURFACE="$MATERIA_SURFACE"
+	FG="$FG"
+	SEL_BG="$SEL_BG"
+	HDR_BG="$HDR_BG"
+	HDR_BG2="$HDR_BG2"
+	HDR_BG3="$HDR_BG3"
+	HDR_FG="$HDR_FG"
+	SEL_BG_new1="$SEL_BG_new1"
+	SEL_BG_new2="$SEL_BG_new2"
+	FG_new1="$FG_new1"
+	FG_new2="$FG_new2"
+	BG_new1="$BG_new1"
+	WHITE_COLOR_PLACEHOLDER="$WHITE_COLOR_PLACEHOLDER"
+	HDR_BG_new1="$HDR_BG_new1"
+	HDR_BG2_new1="$HDR_BG2_new1"
+	INACTIVE_FG_new1="$INACTIVE_FG_new1"
+	HDR_BG_new2="$HDR_BG_new2"
+	HDR_BG2_new2="$HDR_BG2_new2"
+	HDR_FG_new1="$HDR_FG_new1"
+	INACTIVE_FG_new2="$INACTIVE_FG_new2"
+	WHITE_COLOR_PLACEHOLDER="$WHITE_COLOR_PLACEHOLDER"
+	FG_new3="$FG_new3"
+	BG_new2="$BG_new2"
+	MATERIA_SURFACE_new1="$MATERIA_SURFACE_new1"
+	MATERIA_VIEW_new1="$MATERIA_VIEW_new1"
+	HDR_BG_new3="$HDR_BG_new3"
+	HDR_BG2_new3="$HDR_BG2_new3"
+	HDR_FG_new2="$HDR_FG_new2"
+	INACTIVE_FG_new3="$INACTIVE_FG_new3"
+	SPACING="$SPACING"
+	INACTIVE_MATERIA_VIEW="$INACTIVE_MATERIA_VIEW"
+	TERMINAL_COLOR4="$TERMINAL_COLOR4"
+	TERMINAL_COLOR5="$TERMINAL_COLOR5"
+	TERMINAL_COLOR9="$TERMINAL_COLOR9"
+	TERMINAL_COLOR10="$TERMINAL_COLOR10"
+	TERMINAL_COLOR11="$TERMINAL_COLOR11"
+	TERMINAL_COLOR12="$TERMINAL_COLOR12"
+	MATERIA_SELECTION_OPACITY="$MATERIA_SELECTION_OPACITY"
+	MATERIA_PANEL_OPACITY="$MATERIA_PANEL_OPACITY"
+	OPTION_GTK2_HIDPI="$OPTION_GTK2_HIDPI"
+	zoom="$zoom"
+	ROUNDNESS="$ROUNDNESS"
+	MATERIA_COLOR_VARIANT="$MATERIA_COLOR_VARIANT"
+	MATERIA_STYLE_COMPACT="$MATERIA_STYLE_COMPACT"
+	EOF
+}
+
+oomox_theme(){
+    HDR_BG=${HDR_BG-$MENU_BG}
+    HDR_FG=${HDR_FG-$MENU_FG}
+    ACCENT_BG=${ACCENT_BG-$SEL_BG}
+    HDR_BTN_BG=${HDR_BTN_BG-$BTN_BG}
+    HDR_BTN_FG=${HDR_BTN_FG-$BTN_FG}
+    WM_BORDER_FOCUS=${WM_BORDER_FOCUS-$SEL_BG}
+    WM_BORDER_UNFOCUS=${WM_BORDER_UNFOCUS-$HDR_BG}
+    
+    GTK3_GENERATE_DARK=$(echo "${GTK3_GENERATE_DARK:-True}" | tr '[:upper:]' '[:lower:]')
+    OPTION_GTK2_HIDPI=$(echo "${OPTION_GTK2_HIDPI:-True}" | tr '[:upper:]' '[:lower:]')
+    UNITY_DEFAULT_LAUNCHER_STYLE=$(echo "${UNITY_DEFAULT_LAUNCHER_STYLE:-False}" | tr '[:upper:]' '[:lower:]')
+    
+    SPACING=${SPACING-3}
+    GRADIENT=${GRADIENT-0}
+    ROUNDNESS=${ROUNDNESS-2}
+    CINNAMON_OPACITY=${CINNAMON_OPACITY-1}
+    ROUNDNESS_GTK2_HIDPI=$(( ROUNDNESS * 2 ))
+    
+    if [ "$(awk "BEGIN {print ($GRADIENT < 2)}")" -eq 1 ];then
+		GTK2_GRAD=$(awk "BEGIN {printf \"%.2f\", $GRADIENT/2}")
+    else
+        GTK2_GRAD=1
+    fi
+	
+    GTK2_GRAD_TOP=$(awk -v g="$GTK2_GRAD" 'BEGIN {print 1 + g}')
+    GTK2_GRAD_BOTTOM=$(awk -v g="$GTK2_GRAD" 'BEGIN {print 1 - g}')
+
+    OUTLINE_WIDTH=${OUTLINE_WIDTH-1}
+    BTN_OUTLINE_WIDTH=${BTN_OUTLINE_WIDTH-1}
+    BTN_OUTLINE_OFFSET=${BTN_OUTLINE_OFFSET--3}
+    
+    INACTIVE_FG=$(mix "$FG" "$BG" 0.75)
+    INACTIVE_HDR_FG=$(mix "$HDR_FG" "$HDR_BG" 0.75)
+    INACTIVE_TXT_FG=$(mix "$TXT_FG" "$TXT_BG" 0.75)
+    
+    light_folder_base_fallback="$(darker "$SEL_BG" -10)"
+    medium_base_fallback="$(darker "$SEL_BG" 37)"
+    dark_stroke_fallback="$(darker "$SEL_BG" 50)"
+    
+    ICONS_LIGHT_FOLDER="${ICONS_LIGHT_FOLDER-$light_folder_base_fallback}"
+    ICONS_LIGHT="${ICONS_LIGHT-$SEL_BG}"
+    ICONS_MEDIUM="${ICONS_MEDIUM-$medium_base_fallback}"
+    ICONS_DARK="${ICONS_DARK-$dark_stroke_fallback}"
+    
+    CARET1_FG="${CARET1_FG-$TXT_FG}"
+    CARET2_FG="${CARET2_FG-$TXT_FG}"
+    CARET_SIZE="${CARET_SIZE-0.04}"
+    
+    TERMINAL_BACKGROUND=${TERMINAL_BACKGROUND:-$SEL_FG}
+    TERMINAL_COLOR4=${TERMINAL_COLOR4:-3f51b5}
+    TERMINAL_COLOR9=${TERMINAL_COLOR9:-f44336}
+    TERMINAL_COLOR10=${TERMINAL_COLOR10:-4caf50}
+    TERMINAL_COLOR11=${TERMINAL_COLOR11:-ef6c00}
+    TERMINAL_COLOR12=${TERMINAL_COLOR12:-03a9f4}
+    
+	tee -a "$style_path" <<-EOF >/dev/null 2>&1
+	OUTPUT_THEME_NAME="$OUTPUT_THEME_NAME"
+	BG="$BG"
+	FG="$FG"
+	SEL_BG="$SEL_BG"
+	SEL_FG="$SEL_FG"
+	ACCENT_BG="$ACCENT_BG"
+	TXT_BG="$TXT_BG"
+	TXT_FG="$TXT_FG"
+	HDR_BG="$HDR_BG"
+	HDR_FG="$HDR_FG"
+	BTN_BG="$BTN_BG"
+	BTN_FG="$BTN_FG"
+	HDR_BTN_BG="$HDR_BTN_BG"
+	HDR_BTN_FG="$HDR_BTN_FG"
+	WM_BORDER_FOCUS="$WM_BORDER_FOCUS"
+	WM_BORDER_UNFOCUS="$WM_BORDER_UNFOCUS"
+	ROUNDNESS="$ROUNDNESS"
+	ROUNDNESS_GTK2_HIDPI="$ROUNDNESS_GTK2_HIDPI"
+	OUTLINE_WIDTH="$OUTLINE_WIDTH"
+	BTN_OUTLINE_WIDTH="$BTN_OUTLINE_WIDTH"
+	BTN_OUTLINE_OFFSET="$BTN_OUTLINE_OFFSET"
+	SPACING="$SPACING"
+	GRADIENT="$GRADIENT"
+	GTK2_GRAD_TOP="$GTK2_GRAD_TOP"
+	GTK2_GRAD_BOTTOM="$GTK2_GRAD_BOTTOM"
+	CINNAMON_OPACITY="$CINNAMON_OPACITY"
+	INACTIVE_FG="$INACTIVE_FG"
+	INACTIVE_TXT_FG="$INACTIVE_TXT_FG"
+	INACTIVE_HDR_FG="$INACTIVE_HDR_FG"
+	ICONS_DARK="$ICONS_DARK"
+	ICONS_MEDIUM="$ICONS_MEDIUM"
+	ICONS_LIGHT="$ICONS_LIGHT"
+	ICONS_LIGHT_FOLDER="$ICONS_LIGHT_FOLDER"
+	CARET1_FG="$CARET1_FG"
+	CARET2_FG="$CARET2_FG"
+	CARET_SIZE="$CARET_SIZE"
+	TERMINAL_BACKGROUND="$TERMINAL_BACKGROUND"
+	TERMINAL_COLOR4="$TERMINAL_COLOR4"
+	TERMINAL_COLOR9="$TERMINAL_COLOR9"
+	TERMINAL_COLOR10="$TERMINAL_COLOR10"
+	TERMINAL_COLOR11="$TERMINAL_COLOR11"
+	TERMINAL_COLOR12="$TERMINAL_COLOR12"
+	
+	GTK3_GENERATE_DARK="$GTK3_GENERATE_DARK"
+	OPTION_GTK2_HIDPI="$OPTION_GTK2_HIDPI"
+	UNITY_DEFAULT_LAUNCHER_STYLE="$UNITY_DEFAULT_LAUNCHER_STYLE"
+	EOF
 }
 
 mkdir -p "${output_dir}"
 
 for t in ${list_of_base_GTK_theme};do
+	unset \
+    HDR_BG HDR_FG \
+    MATERIA_VIEW MATERIA_SURFACE \
+    GNOME_SHELL_PANEL_OPACITY MATERIA_PANEL_OPACITY \
+    MATERIA_STYLE_COMPACT MATERIA_COLOR_VARIANT \
+    SPACING ROUNDNESS MATERIA_SELECTION_OPACITY \
+    INACTIVE_FG INACTIVE_MATERIA_VIEW \
+    TERMINAL_COLOR4 TERMINAL_COLOR5 TERMINAL_COLOR9 \
+    TERMINAL_COLOR10 TERMINAL_COLOR11 TERMINAL_COLOR12 \
+    ACCENT_BG HDR_BTN_BG HDR_BTN_FG \
+    WM_BORDER_FOCUS WM_BORDER_UNFOCUS \
+    GTK3_GENERATE_DARK OPTION_GTK2_HIDPI \
+    UNITY_DEFAULT_LAUNCHER_STYLE GRADIENT \
+    CINNAMON_OPACITY ROUNDNESS_GTK2_HIDPI \
+    OUTLINE_WIDTH BTN_OUTLINE_WIDTH BTN_OUTLINE_OFFSET \
+    INACTIVE_HDR_FG INACTIVE_TXT_FG \
+    ICONS_LIGHT_FOLDER ICONS_LIGHT ICONS_MEDIUM ICONS_DARK \
+    CARET1_FG CARET2_FG CARET_SIZE TERMINAL_BACKGROUND
+    
 	. "$t"
 	style_name="${t##*/}"
 	style_path="${output_dir}/${style_name}"
-
-	tee -a "$style_path" <<-EOF >/dev/null 2>&1
-	ACCENT_BG="$ACCENT_BG"
-	BG="$BG"
-	BTN_BG="$BTN_BG"
-	BTN_FG="$BTN_FG"
-	BTN_OUTLINE_OFFSET="$BTN_OUTLINE_OFFSET"
-	BTN_OUTLINE_WIDTH="$BTN_OUTLINE_WIDTH"
-	CARET1_FG="$CARET1_FG"
-	CARET2_FG="$CARET2_FG"
-	CARET_SIZE="$CARET_SIZE"
-	CINNAMON_OPACITY="$CINNAMON_OPACITY"
-	FG="$FG"
-	GRADIENT="$GRADIENT"
-	GTK3_GENERATE_DARK="$GTK3_GENERATE_DARK"
-	HDR_BG="$HDR_BG"
-	HDR_BTN_BG="$HDR_BTN_BG"
-	HDR_BTN_FG="$HDR_BTN_FG"
-	HDR_FG="$HDR_FG"
-	ICONS_DARK="$ICONS_DARK"
-	ICONS_LIGHT="$ICONS_LIGHT"
-	ICONS_LIGHT_FOLDER="$ICONS_LIGHT_FOLDER"
-	ICONS_MEDIUM="$ICONS_MEDIUM"
-	MATERIA_PANEL_OPACITY="$MATERIA_PANEL_OPACITY"
-	MATERIA_SELECTION_OPACITY="$MATERIA_SELECTION_OPACITY"
-	MATERIA_STYLE_COMPACT="$MATERIA_STYLE_COMPACT"
-	MENU_BG="$MENU_BG"
-	MENU_FG="$MENU_FG"
-	NAME="$NAME"
-	OUTLINE_WIDTH="$OUTLINE_WIDTH"
-	ROUNDNESS="$ROUNDNESS"
-	SEL_BG="$SEL_BG"
-	SEL_FG="$SEL_FG"
-	SPACING="$SPACING"
-	TXT_BG="$TXT_BG"
-	TXT_FG="$TXT_FG"
-	UNITY_DEFAULT_LAUNCHER_STYLE="$UNITY_DEFAULT_LAUNCHER_STYLE"
-	WM_BORDER_FOCUS="$WM_BORDER_FOCUS"
-	WM_BORDER_UNFOCUS="$WM_BORDER_UNFOCUS"
-	THEME_STYLE="$THEME_STYLE"
-	EOF
-	
-	add_new_var_value_if_empty "SPOTIFY_PROTO_BG" "$SPOTIFY_PROTO_BG" "373E4D"
-	add_new_var_value_if_empty "SPOTIFY_PROTO_FG" "$SPOTIFY_PROTO_FG" "F9F9F9"
-	add_new_var_value_if_empty "SPOTIFY_PROTO_SEL" "$SPOTIFY_PROTO_SEL" "63C5EA"
-	add_new_var_value_if_empty "TERMINAL_ACCENT_COLOR" "$TERMINAL_ACCENT_COLOR" "63C5EA"
-	add_new_var_value_if_empty "TERMINAL_BACKGROUND" "$TERMINAL_BACKGROUND" "373E4D"
-	add_new_var_value_if_empty "TERMINAL_BASE_TEMPLATE" "$TERMINAL_BASE_TEMPLATE" "monovedek"
-	add_new_var_value_if_empty "TERMINAL_COLOR0" "$TERMINAL_COLOR0" "293e2c"
-	add_new_var_value_if_empty "TERMINAL_COLOR1" "$TERMINAL_COLOR1" "d000ae"
-	add_new_var_value_if_empty "TERMINAL_COLOR10" "$TERMINAL_COLOR10" "a3c596"
-	add_new_var_value_if_empty "TERMINAL_COLOR11" "$TERMINAL_COLOR11" "e19f94"
-	add_new_var_value_if_empty "TERMINAL_COLOR12" "$TERMINAL_COLOR12" "8347ff"
-	add_new_var_value_if_empty "TERMINAL_COLOR13" "$TERMINAL_COLOR13" "bc47ff"
-	add_new_var_value_if_empty "TERMINAL_COLOR14" "$TERMINAL_COLOR14" "63c5ea"
-	add_new_var_value_if_empty "TERMINAL_COLOR15" "$TERMINAL_COLOR15" "ffffff"
-	add_new_var_value_if_empty "TERMINAL_COLOR2" "$TERMINAL_COLOR2" "93b44b"
-	add_new_var_value_if_empty "TERMINAL_COLOR3" "$TERMINAL_COLOR3" "d0834b"
-	add_new_var_value_if_empty "TERMINAL_COLOR4" "$TERMINAL_COLOR4" "7400ff"
-	add_new_var_value_if_empty "TERMINAL_COLOR5" "$TERMINAL_COLOR5" "d000ff"
-	add_new_var_value_if_empty "TERMINAL_COLOR6" "$TERMINAL_COLOR6" "1ab4f7"
-	add_new_var_value_if_empty "TERMINAL_COLOR7" "$TERMINAL_COLOR7" "c5c7c2"
-	add_new_var_value_if_empty "TERMINAL_COLOR8" "$TERMINAL_COLOR8" "6f9283"
-	add_new_var_value_if_empty "TERMINAL_COLOR9" "$TERMINAL_COLOR9" "e147bc"
-	add_new_var_value_if_empty "TERMINAL_CURSOR" "$TERMINAL_CURSOR" "b36aff"
-	add_new_var_value_if_empty "TERMINAL_FOREGROUND" "$TERMINAL_FOREGROUND" "F9F9F9"
-	add_new_var_value_if_empty "TERMINAL_THEME_ACCURACY" "$TERMINAL_THEME_ACCURACY" "128"
-	add_new_var_value_if_empty "TERMINAL_THEME_AUTO_BGFG" "$TERMINAL_THEME_AUTO_BGFG" "True"
-	add_new_var_value_if_empty "TERMINAL_THEME_EXTEND_PALETTE" "$TERMINAL_THEME_EXTEND_PALETTE" "False"
-	add_new_var_value_if_empty "TERMINAL_THEME_MODE" "$TERMINAL_THEME_MODE" "auto"
+	OUTPUT_THEME_NAME="$style_name"
+	echo "THEME_STYLE=\"$THEME_STYLE\"" > "$style_path"
+	case "$THEME_STYLE" in
+    	materia)
+        	materia_theme
+        	;;
+    	oomox)
+        	oomox_theme
+        	;;
+    	arc)
+        	# No builder defined yet
+        	;;
+    	*)
+        	error_m "Unknown theme style: $style_name"
+        	;;
+	esac
 done
 
 echo "Done Done Done"

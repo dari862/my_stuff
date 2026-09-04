@@ -168,13 +168,15 @@ update_linux_kernel(){
     	*) 		picked_ARCH="$ARCH" ;;
 	esac
 	
-	Package_installer_ "linux-image-${picked_ARCH}"
+	latest_kernel="$(apt-cache search 'linux-headers-[0-9]' | awk '{print $1}' | grep -vE "cloud|common|\-rt" | sort -Vr | head -n1)"
+	
+	Package_installer_ "linux-image-${picked_ARCH} linux-headers-${picked_ARCH}"
 	
 	if command -v dkms >/dev/null 2>&1;then
-		dkms autoinstall
+		my-superuser dkms autoinstall
 	fi
 	
-	update-initramfs -u
+	my-superuser update-initramfs -u
 }
 
 kill_package_manager(){

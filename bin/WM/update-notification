@@ -68,7 +68,7 @@ interactive_upgrade() {
 	read pause
 	printf ""
 	
-	if Packages_upgrade_;then
+	if full-upgrade -p;then
 		printf "" | $_SUPERUSER tee "${updates_file}" > /dev/null 2>&1
 		printf "" | $_SUPERUSER tee "${updates_count_file}" > /dev/null 2>&1
 		printf ""
@@ -76,6 +76,7 @@ interactive_upgrade() {
 		read pause
 		exit
 	else
+		printf "Update Failed!"
 		read pause 
 		exit 1
 	fi

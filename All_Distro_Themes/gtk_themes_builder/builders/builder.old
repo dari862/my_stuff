@@ -1,0 +1,62 @@
+#!/bin/sh
+# need superuser : called by my-superuser
+# work on this : workonthis
+set -e
+
+__distro_path_lib="${1:-$__distro_path_lib}"
+force_update="${2:-false}"
+
+if [ "$force_update" = "--force-update" ];then
+	force_update=true
+fi
+
+mv_generated_theme=false
+current_path="$(dirname "$(realpath "$0")")"
+source_base_path="${current_path}/source_base"
+generated_dir="${current_path}/generated_themes"
+universal_theme_dir=""
+
+if [ -n "$__distro_path_lib" ];then
+	if [ "$(id -u)" -ne 0 ]; then
+    	my-superuser $0 "$__distro_path_lib" "$force_update"
+    	exit
+	fi
+	. "$__distro_path_lib"
+	universal_theme_dir="${__distro_path_themes}/system-themes"
+	if [ -d "${__distro_path_themes}" ] && [ -d "${generated_dir}" ];then
+		themes_path="${generated_dir}"
+		mv_generated_theme=true
+	else
+		themes_path="${universal_theme_dir}"
+	fi
+else
+	themes_path="${generated_dir}"
+fi
+
+if [ ! -d "${source_base_path}" ];then
+	echo "source_base for gtk themes does not exit at ${source_base_path}." >&2
+	exit
+fi
+
+list_of_base_files="$(find "${current_path}/source_base" -type f)"
+mkdir -p "${themes_path}"
+
+echo "building All GTK themes."
+
+for theme_file in ${list_of_base_files};do
+	output_theme_name="$(basename "$theme_file")"
+	themes_output_dir="${themes_path}/${output_theme_name}"
+	if [ -d "$themes_output_dir" ] && [ "$force_update" = false ];then
+		continue
+	fi
+	themes_style_name="$(grep "^THEME_STYLE=" "$theme_file" | awk -F= '{print $2}' | sed 's/"//g')"			  
+	"${current_path}/baseGTK/theme_builder.sh" "${current_path}/baseGTK" "${themes_style_name}" "${output_theme_name}" "${themes_output_dir}" "$theme_file"
+done
+
+if [ "$mv_generated_theme" = true ];then
+	echo "Moving ${generated_dir}/* to ${universal_theme_dir}"
+	mv "${generated_dir}"/* "${universal_theme_dir}"
+	rm -rdf "${generated_dir}"
+fi
+
+echo "Done building All GTK themes."

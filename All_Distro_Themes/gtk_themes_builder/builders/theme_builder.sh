@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# remov bc inkscape optipng rsvg-convert sass dep
+# remove sass glib-compile-resources sassc dep
 set -ueo pipefail
 
 # --- Inputs ---
@@ -9,7 +9,6 @@ output_theme_name="${3:-}"
 themes_output_dir="${4:-$HOME/.themes}"
 theme_file="${5:-}"
 
-OPTION_GTK2_HIDPI="${OPTION_GTK2_HIDPI-true}"
 OUTPUT_THEME_NAME="$output_theme_name"
 DEST_PATH="$themes_output_dir"
 SRC_PATH="$(readlink -f "$(dirname "$0")")/${themes_style_name}"
@@ -46,310 +45,142 @@ check_var() {
     fi
 }
 
-clamp()
-{
-    val=$1
-
-    if [ "$val" -lt 0 ]; then
-        printf '%s\n' 0
-        return
-    fi
-
-    if [ "$val" -gt 255 ]; then
-        printf '%s\n' 255
-        return
-    fi
-
-    printf '%d\n' "$val"
-}
-
-hex_channel()
-{
-    printf '%d\n' "0x$1"
-}
-
-darker_channel()
-{
-    value=$(hex_channel "$1")
-    delta=${2:-10}
-
-    clamp $((value - delta))
-}
-
-mix_channel()
-{
-    value1=$(hex_channel "$1")
-    value2=$(hex_channel "$2")
-    ratio=${3:-0.5}
-
-    awk -v v1="$value1" -v v2="$value2" -v r="$ratio" '
-        BEGIN {
-            result = v1 * r + v2 * (1 - r)
-
-            if (result < 0) {
-                result = 0
-            }
-
-            if (result > 255) {
-                result = 255
-            }
-
-            printf "%d\n", result
-        }
-    '
-}
-
-valid_hex_color()
-{
-    hex=$1
-
-    if [ "${#hex}" -ne 6 ]; then
-        return 1
-    fi
-
-    case $hex in
-        *[!0123456789abcdefABCDEF]*)
-            return 1
-            ;;
-    esac
-
-    return 0
-}
-
-darker()
-{
-    hex=${1#\#}
-    delta=${2:-10}
-
-    if ! valid_hex_color "$hex"; then
-        printf 'darker: invalid color: %s\n' "$1" >&2
-        return 2
-    fi
-
-    r=$(hex_channel "${hex%${hex#??}}")
-    rest=${hex#??}
-
-    g=$(hex_channel "${rest%${rest#??}}")
-    b=$(hex_channel "${rest#??}")
-
-    printf '%02x%02x%02x\n' \
-        "$(clamp $((r - delta)))" \
-        "$(clamp $((g - delta)))" \
-        "$(clamp $((b - delta)))"
-}
-
-mix()
-{
-    hex1=${1#\#}
-    hex2=${2#\#}
-    ratio=${3:-0.5}
-
-    if ! valid_hex_color "$hex1"; then
-        printf 'mix: invalid first color: %s\n' "$1" >&2
-        return 2
-    fi
-
-    if ! valid_hex_color "$hex2"; then
-        printf 'mix: invalid second color: %s\n' "$2" >&2
-        return 2
-    fi
-
-    r1=$(hex_channel "${hex1%${hex1#??}}")
-    rest1=${hex1#??}
-    g1=$(hex_channel "${rest1%${rest1#??}}")
-    b1=$(hex_channel "${rest1#??}")
-
-    r2=$(hex_channel "${hex2%${hex2#??}}")
-    rest2=${hex2#??}
-    g2=$(hex_channel "${rest2%${rest2#??}}")
-    b2=$(hex_channel "${rest2#??}")
-
-    awk \
-        -v r1="$r1" \
-        -v g1="$g1" \
-        -v b1="$b1" \
-        -v r2="$r2" \
-        -v g2="$g2" \
-        -v b2="$b2" \
-        -v ratio="$ratio" '
-        BEGIN {
-            r = r1 * ratio + r2 * (1 - ratio)
-            g = g1 * ratio + g2 * (1 - ratio)
-            b = b1 * ratio + b2 * (1 - ratio)
-
-            printf "%02x%02x%02x\n", r, g, b
-        }
-    '
-}
-
-is_dark()
-{
-    hex=${1#\#}
-
-    if ! valid_hex_color "$hex"; then
-        return 2
-    fi
-
-    r=$(hex_channel "${hex%${hex#??}}")
-    rest=${hex#??}
-
-    g=$(hex_channel "${rest%${rest#??}}")
-    b=$(hex_channel "${rest#??}")
-
-    if [ $((299 * r + 587 * g + 114 * b)) -lt 128000 ]; then
-        return 0
-    fi
-
-    return 1
-}
-
 validate_paths() {
     if [[ "$SRC_PATH" == "$DEST_PATH" ]]; then
         error_m "can't do that (Source and Destination paths are identical)"
     fi
 }
 
+render_svg() {
+    local ZOOM="$1"
+    local OUTPUT="$2"
+    local SRC="$3"
+
+    sub_info_m "Rendering '$OUTPUT'"
+
+    rsvg-convert \
+        --x-zoom="$ZOOM" \
+        --y-zoom="$ZOOM" \
+        -o "$assets_dir/${OUTPUT}.png" \
+        "$assets_dir/${SRC}.svg"
+}
+
 convert_2_png(){
 	local src_file
 	local assets_dir
-
-	if "$inkscape" --help | grep -q -- "--export-filename"; then
-		export_file_option="--export-filename"
-   	elif "$inkscape" --help | grep -q -- "--export-file"; then
-		export_file_option="--export-file"
-    elif "$inkscape" --help | grep -q -- "--export-png"; then
-		export_file_option="--export-png"
-    fi
-
-    render_svg() {
-    	local id="$1"
-    	local dpi="$2"
-    	local output="$3"
-    	local src="$4"
-	
-    	sub_info_m "Rendering '$output'"
-	
-    	"$inkscape" \
-        	--export-id="$id" \
-        	--export-id-only \
-        	"$export_file_option=${output}.svg" \
-        	"$src" >/dev/null
-	}
+	local dpi_value=96
+	local hidpi_value=192
     
     render_gtk2_asset() {
-        render_svg "$i" 192 "$assets_dir/$i" "$src_file"    
+        local dpi="${1:-}"
+        local i
+        for i in $(find "${assets_dir}" -type f -name "*.svg"); do
+        	i="$(basename "$i")"
+    		i="${i%.*}"
+        	render_svg "${zoom}" "${i}" "${i}"
+    	done
     }
 	
 	render_gtk3_asset() {
-		local i="${1:-}"
-		render_svg "$i" 96 "assets/$i" "assets.svg"
+		local i
+        for i in $(find "${assets_dir}" -type f -name "*.svg"); do
+        	i="$(basename "$i")"
+    		i="${i%.*}"
+			render_svg "1" "${i}" "${i}"
+        	render_svg "2" "${i}@2" "${i}"
+    	done
 	}
 	local asset
 	
 	info_m "Rendering GTK 2 assets"
-	  
     cd "$tmp_dir/src/gtk-2.0"
-	src_file="assets.svg"
     assets_dir="assets"
     # Render light assets
-    while IFS= read -r asset; do
-        render_gtk2_asset "$asset"
-    done < assets.txt
-
+    render_gtk2_asset
+    
     # Render dark assets when requested
     if [[ "$MATERIA_COLOR_VARIANT" == "dark" ]]; then
-    	src_file="assets-dark.svg"
         assets_dir="assets-dark"
-		while IFS= read -r asset; do
-        	render_gtk2_asset "$asset"
-        done < assets.txt
+    	render_gtk2_asset
     fi
     
     info_m "Rendering GTK 3 assets"
     cd "$tmp_dir/src/gtk-3.0"
-    while IFS= read -r asset; do
-        render_gtk3_asset "$asset"
-    done < assets.txt
+    assets_dir="assets"
+    render_gtk3_asset
 }
 
 render_assets() {
-    info_m "Rendering assets"
-	PATHLIST2=("$tmp_dir/src/gtk-2.0/assets.svg" "$tmp_dir/src/gtk-2.0/assets-dark.svg" "$tmp_dir/src/gtk-3.0/assets.svg")
-    info_m "Converting theme into template"
-    if [[ "$MATERIA_COLOR_VARIANT" != "dark" ]]; then
-    	for FILEPATH in ${PATHLIST2[@]}; do
-            sed -i'' \
-                -e '/color-surface/{n;s/#ffffff/%MATERIA_SURFACE%/g}' \
-                -e '/color-base/{n;s/#ffffff/%MATERIA_VIEW%/g}' \
-                -e 's/#8ab4f8/%SEL_BG%/g' \
-                -e 's/#1967d2/%SEL_BG%/g' \
-                -e 's/#000000/%FG%/g' \
-                -e 's/#212121/%FG%/g' \
-                -e 's/#f9f9f9/%BG%/g' \
-                -e 's/#ffffff/%MATERIA_SURFACE%/g' \
-                -e 's/#ffffff/%MATERIA_VIEW%/g' \
-                -e 's/#424242/%HDR_BG%/g' \
-                -e 's/#303030/%HDR_BG2%/g' \
-                -e 's/#ffffff/%HDR_FG%/g' \
-                -e 's/#c1c1c1/%INACTIVE_FG%/g' \
-                -e 's/#f0f0f0/%HDR_BG%/g' \
-                -e 's/#ebebeb/%HDR_BG2%/g' \
-                -e 's/#1d1d1d/%HDR_FG%/g' \
-                -e 's/#565656/%INACTIVE_FG%/g' \
-                -e 's/Materia/%OUTPUT_THEME_NAME%/g' \
-                "${FILEPATH}"
-        done
-    else
-    	for FILEPATH in ${PATHLIST2[@]}; do
-            sed -i'' \
-                -e 's/#8ab4f8/%SEL_BG%/g' \
-                -e 's/#ffffff/%FG%/g' \
-                -e 's/#eeeeee/%FG%/g' \
-                -e 's/#121212/%BG%/g' \
-                -e 's/#2e2e2e/%MATERIA_SURFACE%/g' \
-                -e 's/#1e1e1e/%MATERIA_VIEW%/g' \
-                -e 's/#272727/%HDR_BG%/g' \
-                -e 's/#1e1e1e/%HDR_BG2%/g' \
-                -e 's/#e4e4e4/%HDR_FG%/g' \
-                -e 's/#a7a7a7/%INACTIVE_FG%/g' \
-                -e 's/Materia/%OUTPUT_THEME_NAME%/g' \
-                "${FILEPATH}"
-        done
-    fi
-
+	info_m "Rendering assets"
+    local -a PATHLIST=(
+        './src/_theme-color.scss'
+        './src/chrome'
+        './src/cinnamon'
+        './src/cinnamon/assets'
+        './src/gnome-shell'
+        './src/gtk-2.0/gtkrc'
+        './src/gtk-2.0/gtkrc-dark'
+        './src/gtk-2.0/gtkrc-light'
+        './src/metacity-1'
+        './src/unity'
+        './src/xfwm4'
+        './src/gtk-2.0/assets'
+		'./src/gtk-2.0/assets-dark'
+		'./src/gtk-3.0/assets'
+    )
+    
     info_m "Filling the template with the new colorscheme"
-    for FILEPATH in ${PATHLIST2[@]}; do
-        sed -i'' \
-            -e 's/%BG%/#'"$BG"'/g' \
-            -e 's/%BG2%/#'"$BG2"'/g' \
-            -e 's/%FG%/#'"$FG"'/g' \
-            -e 's/%SEL_BG%/#'"$SEL_BG"'/g' \
-            -e 's/%SEL_BG2%/#'"$SEL_BG2"'/g' \
-            -e 's/%MATERIA_VIEW%/#'"$MATERIA_VIEW"'/g' \
-            -e 's/%HDR_BG%/#'"$HDR_BG"'/g' \
-            -e 's/%HDR_BG2%/#'"$HDR_BG2"'/g' \
-            -e 's/%HDR_BG3%/#'"$HDR_BG3"'/g' \
-            -e 's/%HDR_FG%/#'"$HDR_FG"'/g' \
-            -e 's/%MATERIA_SURFACE%/#'"$MATERIA_SURFACE"'/g' \
-            -e 's/%SPACING%/'"$SPACING"'/g' \
-            -e 's/%INACTIVE_FG%/#'"$INACTIVE_FG"'/g' \
-            -e 's/%INACTIVE_MATERIA_VIEW%/#'"$INACTIVE_MATERIA_VIEW"'/g' \
-            -e 's/%TERMINAL_COLOR4%/#'"$TERMINAL_COLOR4"'/g' \
-            -e 's/%TERMINAL_COLOR5%/#'"$TERMINAL_COLOR5"'/g' \
-            -e 's/%TERMINAL_COLOR9%/#'"$TERMINAL_COLOR9"'/g' \
-            -e 's/%TERMINAL_COLOR10%/#'"$TERMINAL_COLOR10"'/g' \
-            -e 's/%TERMINAL_COLOR11%/#'"$TERMINAL_COLOR11"'/g' \
-            -e 's/%TERMINAL_COLOR12%/#'"$TERMINAL_COLOR12"'/g' \
-            -e 's/%MATERIA_SELECTION_OPACITY%/'"$MATERIA_SELECTION_OPACITY"'/g' \
-            -e 's/%MATERIA_PANEL_OPACITY%/'"$MATERIA_PANEL_OPACITY"'/g' \
-            -e 's/%OUTPUT_THEME_NAME%/'"$OUTPUT_THEME_NAME"'/g' \
-            "${FILEPATH}"
+    for FILEPATH in "${PATHLIST[@]}"; do
+        find "$FILEPATH" -type f -not -name '_color-palette.scss' -exec sed -i'' \
+            -e "s/%BG%/$BG/g" \
+            -e "s/%MATERIA_VIEW%/$MATERIA_VIEW/g" \
+            -e "s/%MATERIA_SURFACE%/$MATERIA_SURFACE/g" \
+            -e "s/%FG%/$FG/g" \
+            -e "s/%SEL_BG%/$SEL_BG/g" \
+            -e "s/%HDR_BG%/$HDR_BG/g" \
+            -e "s/%HDR_BG2%/$HDR_BG2/g" \
+            -e "s/%HDR_BG3%/$HDR_BG3/g" \
+            -e "s/%HDR_FG%/$HDR_FG/g" \
+            -e "s/%SEL_BG_new1%/$SEL_BG_new1/g" \
+            -e "s/%SEL_BG_new2%/$SEL_BG_new2/g" \
+            -e "s/%FG_new1%/$FG_new1/g" \
+            -e "s/%FG_new2%/$FG_new2/g" \
+            -e "s/%BG_new1%/$BG_new1/g" \
+            -e "s/%WHITE_COLOR_PLACEHOLDER%/$WHITE_COLOR_PLACEHOLDER/g" \
+            -e "s/%HDR_BG_new1%/$HDR_BG_new1/g" \
+            -e "s/%HDR_BG2_new1%/$HDR_BG2_new1/g" \
+            -e "s/%INACTIVE_FG_new1%/$INACTIVE_FG_new1/g" \
+            -e "s/%HDR_BG_new2%/$HDR_BG_new2/g" \
+            -e "s/%HDR_BG2_new2%/$HDR_BG2_new2/g" \
+            -e "s/%HDR_FG_new1%/$HDR_FG_new1/g" \
+            -e "s/%INACTIVE_FG_new2%/$INACTIVE_FG_new2/g" \
+            -e "s/%WHITE_COLOR_PLACEHOLDER%/$WHITE_COLOR_PLACEHOLDER/g" \
+            -e "s/%FG_new3%/$FG_new3/g" \
+            -e "s/%BG_new2%/$BG_new2/g" \
+            -e "s/%MATERIA_SURFACE_new1%/$MATERIA_SURFACE_new1/g" \
+            -e "s/%MATERIA_VIEW_new1%/$MATERIA_VIEW_new1/g" \
+            -e "s/%HDR_BG_new3%/$HDR_BG_new3/g" \
+            -e "s/%HDR_BG2_new3%/$HDR_BG2_new3/g" \
+            -e "s/%HDR_FG_new2%/$HDR_FG_new2/g" \
+            -e "s/%INACTIVE_FG_new3%/$INACTIVE_FG_new3/g" \
+            -e "s/%SPACING%/$SPACING/g" \
+			-e "s/%INACTIVE_MATERIA_VIEW%/$INACTIVE_MATERIA_VIEW/g" \
+            -e "s/%TERMINAL_COLOR4%/$TERMINAL_COLOR4/g" \
+            -e "s/%TERMINAL_COLOR5%/$TERMINAL_COLOR5/g" \
+            -e "s/%TERMINAL_COLOR9%/$TERMINAL_COLOR9/g" \
+            -e "s/%TERMINAL_COLOR10%/$TERMINAL_COLOR10/g" \
+            -e "s/%TERMINAL_COLOR11%/$TERMINAL_COLOR11/g" \
+            -e "s/%TERMINAL_COLOR12%/$TERMINAL_COLOR12/g" \
+            -e "s/%MATERIA_SELECTION_OPACITY%/$MATERIA_SELECTION_OPACITY/g" \
+            -e "s/%MATERIA_PANEL_OPACITY%/$MATERIA_PANEL_OPACITY/g" \
+            -e "s/%OUTPUT_THEME_NAME%/$OUTPUT_THEME_NAME/g" \
+            {} \; ;
     done
     
     convert_2_png
 }
 
-build_theme(){
+build_css_materia_theme(){
 	local THEME_NAME="${THEME_NAME:-Materia}"
 	
 	# Optional overrides:
@@ -762,166 +593,20 @@ build_theme(){
 
 buid_materia_theme(){
     validate_paths
-
-    inkscape="$(command -v inkscape)" || inkscape=""
-    optipng="$(command -v optipng)" || optipng=""
-        
-    if [[ -z "$inkscape" ]]; then
-		error_m "'inkscape' needs to be installed to generate the PNG."
-    fi
-    
-    if [[ -z "$optipng" ]]; then
-         sub_info_m "'optipng' is not installed; skipping PNG optimization"
-    fi
-      
-    local -a PATHLIST=(
-        './src/_theme-color.scss'
-        './src/chrome'
-        './src/cinnamon'
-        './src/cinnamon/assets'
-        './src/gnome-shell'
-        './src/gtk-2.0/gtkrc'
-        './src/gtk-2.0/gtkrc-dark'
-        './src/gtk-2.0/gtkrc-light'
-        './src/metacity-1'
-        './src/unity'
-        './src/xfwm4'
-    )
-    
-    # Migration variables:
-    HDR_BG=${HDR_BG-$MENU_BG}
-    HDR_FG=${HDR_FG-$MENU_FG}
-    MATERIA_VIEW=${MATERIA_VIEW-$TXT_BG}
-    MATERIA_SURFACE=${MATERIA_SURFACE-$BTN_BG}
-    GNOME_SHELL_PANEL_OPACITY=${GNOME_SHELL_PANEL_OPACITY-0.6}
-    MATERIA_PANEL_OPACITY=${MATERIA_PANEL_OPACITY-$GNOME_SHELL_PANEL_OPACITY}
-    
-    MATERIA_STYLE_COMPACT=$(tr '[:upper:]' '[:lower:]' <<< "${MATERIA_STYLE_COMPACT-false}")
-    MATERIA_COLOR_VARIANT=$(tr '[:upper:]' '[:lower:]' <<< "${MATERIA_COLOR_VARIANT:-}")
-    
-    SPACING=${SPACING-3}
-    ROUNDNESS=${ROUNDNESS-4}
-    MATERIA_SELECTION_OPACITY=${MATERIA_SELECTION_OPACITY-0.32}
-    
-    INACTIVE_FG=$(mix "$FG" "$BG" 0.75)
-    INACTIVE_MATERIA_VIEW=$(mix "$MATERIA_VIEW" "$BG" 0.60)
-    
-    TERMINAL_COLOR4=${TERMINAL_COLOR4:-1E88E5}
-    TERMINAL_COLOR5=${TERMINAL_COLOR5:-E040FB}
-    TERMINAL_COLOR9=${TERMINAL_COLOR9:-DD2C00}
-    TERMINAL_COLOR10=${TERMINAL_COLOR10:-00C853}
-    TERMINAL_COLOR11=${TERMINAL_COLOR11:-FF6D00}
-    TERMINAL_COLOR12=${TERMINAL_COLOR12:-66BB6A}
     
     sub_info_m "Copying temp theme to tmp_dir"
     cp -r "$SRC_PATH/"* "$tmp_dir/"
     cd "$tmp_dir"
-    
-    # Autodetection of color variant
-    if [[ -z "$MATERIA_COLOR_VARIANT" ]]; then
-        if is_dark "$BG"; then
-            sub_info_m "Dark background color detected. Setting color variant to dark"
-            MATERIA_COLOR_VARIANT="dark"
-        elif is_dark "$HDR_BG"; then
-            sub_info_m "Dark headerbar background color detected. Setting color variant to default"
-            MATERIA_COLOR_VARIANT="default"
-        else
-            sub_info_m "Light background color detected. Setting color variant to light"
-            MATERIA_COLOR_VARIANT="light"
-        fi
-    fi
-    
-    BG2="$(darker $BG)"
-    SEL_BG2="$(darker "$SEL_BG" -20)"
-	HDR_BG2="$(darker "$HDR_BG" 10)"
-	HDR_BG3="$(darker "$HDR_BG" 20)"
-	
-    info_m "Converting theme into template"
-    for FILEPATH in "${PATHLIST[@]}"; do
-        if [[ "$MATERIA_COLOR_VARIANT" != "dark" ]]; then
-            find "$FILEPATH" -type f -not -name '_color-palette.scss' -exec sed -i'' \
-                -e '/color-surface/{n;s/#ffffff/%MATERIA_SURFACE%/g}' \
-                -e '/color-base/{n;s/#ffffff/%MATERIA_VIEW%/g}' \
-                -e 's/#8ab4f8/%SEL_BG%/g' \
-                -e 's/#1967d2/%SEL_BG%/g' \
-                -e 's/#000000/%FG%/g' \
-                -e 's/#212121/%FG%/g' \
-                -e 's/#f9f9f9/%BG%/g' \
-                -e 's/#ffffff/%MATERIA_SURFACE%/g' \
-                -e 's/#ffffff/%MATERIA_VIEW%/g' \
-                -e 's/#424242/%HDR_BG%/g' \
-                -e 's/#303030/%HDR_BG2%/g' \
-                -e 's/#ffffff/%HDR_FG%/g' \
-                -e 's/#c1c1c1/%INACTIVE_FG%/g' \
-                -e 's/#f0f0f0/%HDR_BG%/g' \
-                -e 's/#ebebeb/%HDR_BG2%/g' \
-                -e 's/#1d1d1d/%HDR_FG%/g' \
-                -e 's/#565656/%INACTIVE_FG%/g' \
-                -e 's/Materia/%OUTPUT_THEME_NAME%/g' \
-                {} \; ;
-        else
-            find "$FILEPATH" -type f -not -name '_color-palette.scss' -exec sed -i'' \
-                -e 's/#8ab4f8/%SEL_BG%/g' \
-                -e 's/#ffffff/%FG%/g' \
-                -e 's/#eeeeee/%FG%/g' \
-                -e 's/#121212/%BG%/g' \
-                -e 's/#2e2e2e/%MATERIA_SURFACE%/g' \
-                -e 's/#1e1e1e/%MATERIA_VIEW%/g' \
-                -e 's/#272727/%HDR_BG%/g' \
-                -e 's/#1e1e1e/%HDR_BG2%/g' \
-                -e 's/#e4e4e4/%HDR_FG%/g' \
-                -e 's/#a7a7a7/%INACTIVE_FG%/g' \
-                -e 's/Materia/%OUTPUT_THEME_NAME%/g' \
-                {} \; ;
-        fi
-    done
-    
     sed -i -e 's/^$corner-radius: .px/$corner-radius: '"$ROUNDNESS"'px/g' ./src/_theme.scss
-    
-    if [[ "${DEBUG:-}" ]]; then
-        sub_info_m "You can debug TEMP DIR: $tmp_dir, press [Enter] when finished"
-        read -r
-    fi
-    
-    mv ./src/_theme-color.template.scss ./src/_theme-color.scss
-    
-    info_m "Filling the template with the new colorscheme"
-    for FILEPATH in "${PATHLIST[@]}"; do
-        find "$FILEPATH" -type f -exec sed -i'' \
-            -e 's/%BG%/#'"$BG"'/g' \
-            -e 's/%BG2%/#'"$BG2"'/g' \
-            -e 's/%FG%/#'"$FG"'/g' \
-            -e 's/%SEL_BG%/#'"$SEL_BG"'/g' \
-            -e 's/%SEL_BG2%/#'"$SEL_BG2"'/g' \
-            -e 's/%MATERIA_VIEW%/#'"$MATERIA_VIEW"'/g' \
-            -e 's/%HDR_BG%/#'"$HDR_BG"'/g' \
-            -e 's/%HDR_BG2%/#'"$HDR_BG2"'/g' \
-            -e 's/%HDR_BG3%/#'"$HDR_BG3"'/g' \
-            -e 's/%HDR_FG%/#'"$HDR_FG"'/g' \
-            -e 's/%MATERIA_SURFACE%/#'"$MATERIA_SURFACE"'/g' \
-            -e 's/%SPACING%/'"$SPACING"'/g' \
-            -e 's/%INACTIVE_FG%/#'"$INACTIVE_FG"'/g' \
-            -e 's/%INACTIVE_MATERIA_VIEW%/#'"$INACTIVE_MATERIA_VIEW"'/g' \
-            -e 's/%TERMINAL_COLOR4%/#'"$TERMINAL_COLOR4"'/g' \
-            -e 's/%TERMINAL_COLOR5%/#'"$TERMINAL_COLOR5"'/g' \
-            -e 's/%TERMINAL_COLOR9%/#'"$TERMINAL_COLOR9"'/g' \
-            -e 's/%TERMINAL_COLOR10%/#'"$TERMINAL_COLOR10"'/g' \
-            -e 's/%TERMINAL_COLOR11%/#'"$TERMINAL_COLOR11"'/g' \
-            -e 's/%TERMINAL_COLOR12%/#'"$TERMINAL_COLOR12"'/g' \
-            -e 's/%MATERIA_SELECTION_OPACITY%/'"$MATERIA_SELECTION_OPACITY"'/g' \
-            -e 's/%MATERIA_PANEL_OPACITY%/'"$MATERIA_PANEL_OPACITY"'/g' \
-            -e 's/%OUTPUT_THEME_NAME%/'"$OUTPUT_THEME_NAME"'/g' \
-            {} \; ;
-    done
     
     if [[ "$OPTION_GTK2_HIDPI" == "true" ]]; then
         mv ./src/gtk-2.0/main.rc.hidpi ./src/gtk-2.0/main.rc
     fi
 
     render_assets    
-    #build_theme
+    build_css_materia_theme
     
-    local GENERATED_PATH="$tmp_dir/src"
+    local GENERATED_PATH="$tmp_dir/share/themes/Materia"
     if [[ -d "$DEST_PATH" ]]; then
         rm -r "$DEST_PATH"
     elif [[ ! -d "$(dirname "$DEST_PATH")" ]]; then
@@ -932,6 +617,52 @@ buid_materia_theme(){
     done_m "The theme was successfully installed to '$DEST_PATH'"
     exit 0
 }
+
+build_css_oomox_theme() {
+    if [[ ${GTK3_GENERATE_DARK} != "true" ]] ; then
+        rm -f ./gtk-3.0/scss/gtk-dark.scss
+        rm -f ./gtk-3.20/scss/gtk-dark.scss
+    fi
+
+    if [[ ${OPTION_GTK2_HIDPI} == "true" ]] ; then
+        mv ./gtk-2.0/gtkrc.hidpi ./gtk-2.0/gtkrc
+    fi
+
+    if [[ ${UNITY_DEFAULT_LAUNCHER_STYLE} == "true" ]] ; then
+        rm -f ./unity/launcher*.svg
+    fi
+
+    compile_gtk() {
+        local dir="$1"
+        local scss="$dir/scss"
+        local dist="$dir/dist"
+
+        rm -rf "$dist" "$dir/gtk.gresource"
+        mkdir -p "$dist"
+
+        sassc -I "$scss" "$scss/gtk.scss" "$dist/gtk.css"
+
+        if [[ -f "$scss/gtk-dark.scss" ]]; then
+            sassc -I "$scss" "$scss/gtk-dark.scss" "$dist/gtk-dark.css"
+        else
+            cp "$dist/gtk.css" "$dist/gtk-dark.css"
+        fi
+
+        glib-compile-resources \
+            --sourcedir="$dir" \
+            "$dir/gtk.gresource.xml"
+    }
+
+    compile_gtk ./gtk-3.20
+    compile_gtk ./gtk-3.0
+
+    sassc -I ./cinnamon/scss \
+        ./cinnamon/scss/cinnamon.scss \
+        ./cinnamon/cinnamon.css
+
+    rm -fr ./Makefile ./gtk-3.*/scss
+}
+
 
 buid_oomox_theme(){
     validate_paths
@@ -955,72 +686,7 @@ buid_oomox_theme(){
         './gtk-3.20/thumbnail.svg'
         './metacity-1/thumbnail.svg'
     )
-    
-    HDR_BG=${HDR_BG-$MENU_BG}
-    HDR_FG=${HDR_FG-$MENU_FG}
-    ACCENT_BG=${ACCENT_BG-$SEL_BG}
-    HDR_BTN_BG=${HDR_BTN_BG-$BTN_BG}
-    HDR_BTN_FG=${HDR_BTN_FG-$BTN_FG}
-    WM_BORDER_FOCUS=${WM_BORDER_FOCUS-$SEL_BG}
-    WM_BORDER_UNFOCUS=${WM_BORDER_UNFOCUS-$HDR_BG}
-    
-    GTK3_GENERATE_DARK=$(echo "${GTK3_GENERATE_DARK-True}" | tr '[:upper:]' '[:lower:]')
-    UNITY_DEFAULT_LAUNCHER_STYLE=$(echo "${UNITY_DEFAULT_LAUNCHER_STYLE-False}" | tr '[:upper:]' '[:lower:]')
-    
-    SPACING=${SPACING-3}
-    GRADIENT=${GRADIENT-0}
-    ROUNDNESS=${ROUNDNESS-2}
-    CINNAMON_OPACITY=${CINNAMON_OPACITY-1}
-    ROUNDNESS_GTK2_HIDPI=$(( ROUNDNESS * 2 ))
-    
-    local GTK2_GRAD
-    if [ "$(echo "$GRADIENT < 2" | bc)" ]; then
-        GTK2_GRAD=$(echo "scale=2; $GRADIENT/2" | bc)
-    else
-        GTK2_GRAD=1
-    fi
-    local GTK2_GRAD_1 GTK2_GRAD_2
-    GTK2_GRAD_1=$(echo "1+$GTK2_GRAD" | bc)
-    GTK2_GRAD_2=$(echo "1-$GTK2_GRAD" | bc)
-    
-    local GTK2_GRAD_TOP GTK2_GRAD_BOTTOM
-    if expr "$GTK2_GRAD_1" : '-\?[0-9]\+$' >/dev/null; then
-        GTK2_GRAD_TOP="$GTK2_GRAD_1".0
-        GTK2_GRAD_BOTTOM="$GTK2_GRAD_2".0
-    else
-        GTK2_GRAD_TOP=$GTK2_GRAD_1
-        GTK2_GRAD_BOTTOM=$GTK2_GRAD_2
-    fi
-    
-    OUTLINE_WIDTH=${OUTLINE_WIDTH-1}
-    BTN_OUTLINE_WIDTH=${BTN_OUTLINE_WIDTH-1}
-    BTN_OUTLINE_OFFSET=${BTN_OUTLINE_OFFSET--3}
-    
-    INACTIVE_FG=$(mix "$FG" "$BG" 0.75)
-    INACTIVE_HDR_FG=$(mix "$HDR_FG" "$HDR_BG" 0.75)
-    INACTIVE_TXT_FG=$(mix "$TXT_FG" "$TXT_BG" 0.75)
-    
-    local light_folder_base_fallback medium_base_fallback dark_stroke_fallback
-    light_folder_base_fallback="$(darker "$SEL_BG" -10)"
-    medium_base_fallback="$(darker "$SEL_BG" 37)"
-    dark_stroke_fallback="$(darker "$SEL_BG" 50)"
-    
-    ICONS_LIGHT_FOLDER="${ICONS_LIGHT_FOLDER-$light_folder_base_fallback}"
-    ICONS_LIGHT="${ICONS_LIGHT-$SEL_BG}"
-    ICONS_MEDIUM="${ICONS_MEDIUM-$medium_base_fallback}"
-    ICONS_DARK="${ICONS_DARK-$dark_stroke_fallback}"
-    
-    CARET1_FG="${CARET1_FG-$TXT_FG}"
-    CARET2_FG="${CARET2_FG-$TXT_FG}"
-    CARET_SIZE="${CARET_SIZE-0.04}"
-    
-    TERMINAL_BACKGROUND=${TERMINAL_BACKGROUND:-$SEL_FG}
-    TERMINAL_COLOR4=${TERMINAL_COLOR4:-3f51b5}
-    TERMINAL_COLOR9=${TERMINAL_COLOR9:-f44336}
-    TERMINAL_COLOR10=${TERMINAL_COLOR10:-4caf50}
-    TERMINAL_COLOR11=${TERMINAL_COLOR11:-ef6c00}
-    TERMINAL_COLOR12=${TERMINAL_COLOR12:-03a9f4}
-        
+
     rm -fr "${DEST_PATH}/"{assets,cinnamon,gtk-2.0,gtk-3.0,gtk-3.20,index.theme,metacity-1,openbox-3,unity,xfwm4}
     mkdir -p "$DEST_PATH"
     sub_info_m "Building theme at $DEST_PATH"
@@ -1077,23 +743,10 @@ buid_oomox_theme(){
             {} \; ;
     done
     
-    if [[ ${GTK3_GENERATE_DARK} != "true" ]] ; then
-        [[ -f ./gtk-3.0/scss/gtk-dark.scss ]] && rm ./gtk-3.0/scss/gtk-dark.scss
-        [[ -f ./gtk-3.20/scss/gtk-dark.scss ]] && rm ./gtk-3.20/scss/gtk-dark.scss
-    fi
-    if [[ ${OPTION_GTK2_HIDPI} == "true" ]] ; then
-        mv ./gtk-2.0/gtkrc.hidpi ./gtk-2.0/gtkrc
-    fi
-    if [[ ${UNITY_DEFAULT_LAUNCHER_STYLE} == "true" ]] ; then
-        rm ./unity/launcher*.svg
-    fi
-    
-    env MAKEFLAGS= make --jobs="$(nproc)" gtk320 css_cinnamon gtk3
-    rm -fr ./Makefile gtk-3.*/scss
+    build_css_oomox_theme 
     
 	for FILEPATH in "${SVG_PREVIEWS[@]}"; do
 		if [[ -f "$FILEPATH" ]]; then
-			#magick "$FILEPATH" "${FILEPATH%.svg}.png"
 			rsvg-convert --format=png -o "$(sed -e 's/svg$/png/' <<< "${FILEPATH}")" "${FILEPATH}"
 			rm "$FILEPATH"
 		fi
@@ -1102,12 +755,12 @@ buid_oomox_theme(){
     done_m "Oomox theme built successfully"
     exit 0
 }
-
+ 
 # --- Initialization & Validation ---
-check_var "output_theme_name" "$output_theme_name"
+check_var "OUTPUT_THEME_NAME" "$OUTPUT_THEME_NAME"
 check_var "theme_file" "$theme_file"
 
-info_m "building ${output_theme_name}"
+info_m "building ${OUTPUT_THEME_NAME}"
 source "$theme_file"
 
 # --- Theme Processing Styles ---

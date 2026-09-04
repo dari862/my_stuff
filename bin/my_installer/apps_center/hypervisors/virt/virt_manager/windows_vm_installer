@@ -5,6 +5,7 @@ set -e
 . "$__distro_path_lib"
 . "${__distro_path_root}/lib/common/common"
 . "${__distro_path_root}/lib/common/VM"
+. "${__distro_path_root}/lib/common/my_installer_and_DB_dir"
 
 OS="windows"
 I18N="English International"
@@ -57,201 +58,10 @@ req_dir_path="${VM_PATH_Builder}/req_dir"
 iso_download_link=""
 
 vmbuildpoolname="vmbuildpool"
+QEMU_URI="qemu:///system"
 
 export LIBVIRT_DEFAULT_URI=qemu:///system
 export LC_ALL=en_US.UTF-8
-
-user_agent1="Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0"
-user_agent2="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-
-        
-handle_url_error() {
-	error_code="$1"
-	fatal_error_action=2
-	case "$error_code" in
-		6) say "Failed to resolve Microsoft servers! Is there an Internet connection? Exiting..." 'red' ; return "$fatal_error_action" ;;
-		7) say "Failed to contact Microsoft servers! Is there an Internet connection or is the server down?" 'red' ;;
-		8) say "Microsoft servers returned a malformed HTTP response!" 'red' ;;
-		22) say "Microsoft servers returned a failing HTTP status code!" 'red' ;;
-		23) say "Failed at writing Windows media to disk! Out of disk space or permission error? Exiting..." 'red' ; return "$fatal_error_action" ;;
-		26) say "Ran out of memory during download! Exiting..." 'red' ; return "$fatal_error_action" ;;
-		36) say "Failed to continue earlier download!" 'red' ;;
-		63) say "Microsoft servers returned an unexpectedly large response!" 'red' ;;
-			# POSIX defines exit statuses 1-125 as usable by us
-			# https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_08_02
-			$((error_code <= 125)))
-			# Must be some other server or network error (possibly with this specific request/file)
-			# This is when accounting for all possible errors in the curl manual assuming a correctly formed curl command and an HTTP(S) request, using only the curl features we're using, and a sane build
-			say "Miscellaneous server or network error!" 'red' ;;
-			# Exit statuses are undefined by POSIX beyond this point
-		*)
-		case "$(kill -l "$error_code")" in
-			# Signals defined to exist by POSIX:
-			# https://pubs.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html
-			INT) say "$__url_handler_command was interrupted!" 'red' ;;
-			# There could be other signals but these are most common
-			SEGV | ABRT ) say "$__url_handler_command crashed! Failed exploitation attempt? Please report any core dumps to $__url_handler_command developers. Exiting..." 'red' ; return "$fatal_error_action" ;;
-			*) say "$__url_handler_command terminated due to a fatal signal!" 'red';;
-		esac
-	esac
-	return 1
-}
-        
-if command -v "curl" >/dev/null 2>/dev/null;then
-	__url_handler_command=curl
-	
-    run_url_handling_command() {
-        mode="$1"
-        shift
-        
-        base_curl(){
-            curl --fail --proto '=https' --tlsv1.2 --http1.1 "$@"
-        }
-        
-        case "$mode" in
-            check_url_1m) base_curl --silent --header 'Accept:' --max-filesize 1M --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-            check_url_100k_discard) base_curl --silent --header 'Accept:' --max-filesize 100K --output /dev/null --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-            check_url_100k) base_curl --silent --max-filesize 100K --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-            referer_fetch) referer="$1" ; shift ; base_curl --silent --referer "$referer" --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-            resolve_final_url) base_curl --silent --location --head --write-out '%{url_effective}' --output /dev/null --user-agent "$user_agent2" "$@" ;;
-            download_iso) output_path="$1" ; shift ;base_curl --progress-bar --location --continue-at - --output "$output_path" --user-agent "$user_agent2" "$@" ;;
-            *) say "Unknown mode: $mode" 'red' ; return 1 ;;
-        esac
-    }
-elif command -v "wget" >/dev/null 2>/dev/null;then
-    __url_handler_command=wget
-    
-    run_url_handling_command() {
-    	mode="$1"
-    	shift
-		
-    	base_wget() {
-        	wget --quiet --no-check-certificate "$@"
-    	}
-    
-    	case "$mode" in
-        	check_url_1m) base_wget --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-        	check_url_100k_discard) base_wget --output-document=/dev/null --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-        	check_url_100k) base_wget --max-filesize=100K --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-        	referer_fetch) referer="$1" ; shift ; base_wget --referer="$referer" --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
-        	resolve_final_url) base_wget --max-redirect=10 --server-response --spider --user-agent "$user_agent2" "$@" 2>&1 | grep -i "Location:" | tail -1 | awk '{print $2}' || ( handle_url_error $? ; return $? ) ;;
-        	download_iso) output_path="$1" ; shift ; base_wget --progress=bar:force --continue --output-document="$output_path" --user-agent="$user_agent2" "$@" ;;
-        	*) say "Unknown mode: $mode" 'red' ; return 1 ;;
-    	esac
-	}
-fi
-
-GET_WINDOWS_ISO_URL() {
-    session_id=""
-    iso_download_page_html=""
-    product_edition_id=""
-    language_skuid_table_json=""
-    sku_id=""
-    iso_download_link_json=""
-
-    say "Downloading Windows ${RELEASE} (${I18N})"
-    # This function is adapted from the Mido project:
-    # https://github.com/ElliotKillick/Mido
-    # Download newer consumer Windows versions from behind gated Microsoft API
-
-    url="https://www.microsoft.com/en-us/software-download/windows$RELEASE"
-    case "$RELEASE" in
-        10) url="${url}ISO";;
-    esac
-
-    session_id="$(cat /proc/sys/kernel/random/uuid)"
-
-    # Get product edition ID for latest release of given Windows version
-    # Product edition ID: This specifies both the Windows release (e.g. 22H2) and edition ("multi-edition" is default, either Home/Pro/Edu/etc., we select "Pro" in the answer files) in one number
-    # This is the *only* request we make that Fido doesn't. Fido manually maintains a list of all the Windows release/edition product edition IDs in its script (see: $WindowsVersions array). This is helpful for downloading older releases (e.g. Windows 10 1909, 21H1, etc.) but we always want to get the newest release which is why we get this value dynamically
-    # Also, keeping a "$WindowsVersions" array like Fido does would be way too much of a maintenance burden
-    # Remove "Accept" header that url_handling_command sends by default
-    say " - Parsing download page: ${url}"
-    iso_download_page_html="$(run_url_handling_command check_url_1m "$url")"
-    
-    say " - Getting Product edition ID: "
-    # tr: Filter for only numerics to prevent HTTP parameter injection
-    # head -c was recently added to POSIX: https://austingroupbugs.net/view.php?id=407
-    product_edition_id="$(echo "$iso_download_page_html" | grep -Eo '<option value="[0-9]+">Windows' | cut -d '"' -f 2 | head -n 1 | tr -cd '0-9' | head -c 16)"
-    echo "$product_edition_id"
-
-    say " - Permit Session ID: $session_id"
-    # Permit Session ID
-    # "org_id" is always the same value
-    vlscppe_microsoft_url="https://vlscppe.microsoft.com/tags?org_id=y6jn8c31&session_id=$session_id"
-    run_url_handling_command check_url_100k_discard "$vlscppe_microsoft_url"
-
-    profile="606624d44113"
-
-    say " - Getting language SKU ID: "
-    # Get language -> skuID association table
-    language_skuID_url="https://www.microsoft.com/software-download-connector/api/getskuinformationbyproductedition?profile=${profile}&ProductEditionId=${product_edition_id}&SKU=undefined&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}"
-    language_skuid_table_json="$(run_url_handling_command check_url_100k "$language_skuID_url")"
-    
-    sku_id="$(echo "${language_skuid_table_json}" | jq -r '.Skus[] | select(.LocalizedLanguage=="'"${I18N}"'" or .Language=="'"${I18N}"'").Id')"
-    echo "$sku_id"
-
-    say " - Getting ISO download link..."
-    # Get ISO download link
-    # If any request is going to be blocked by Microsoft it's always this last one (the previous requests always seem to succeed)
-    # --referer: Required by Microsoft servers to allow request
-    Microsoft_url_2_download_link="https://www.microsoft.com/software-download-connector/api/GetProductDownloadLinksBySku?profile=${profile}&productEditionId=undefined&SKU=${sku_id}&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}"
-    iso_download_link_json="$(run_url_handling_command referer_fetch "$url" "$Microsoft_url_2_download_link")"
-
-    failed=0
-
-    if [ -z "$iso_download_link_json" ]; then
-        # This should only happen if there's been some change to how this API works
-        say " - Microsoft servers gave us an empty response to our request for an automated download." 'red'
-        failed=1
-    elif echo "$iso_download_link_json" | grep -q "Sentinel marked this request as rejected."; then
-        say " - WARNING! Microsoft blocked the automated download request based on your IP address." 'red'
-        failed=1
-    fi
-
-    if [ "${failed}" -eq 1 ]; then
-        say "   Manually download the Windows ${RELEASE} ISO using a web browser from: ${url}" 'red'
-        say "   Save the downloaded ISO to: $WINDOWS_ISO_DIR" 'red'
-        say "   Continuing with the VM creation process..." 'red'
-        return 1
-    fi
-
-    # Filter for 64-bit ISO download URL
-    iso_download_link="$(echo "${iso_download_link_json}" | jq -r '.ProductDownloadOptions[].Uri' | grep x64)"
-
-    if [ -z "$iso_download_link" ]; then
-        # This should only happen if there's been some change to the download endpoint web address
-        say " - Microsoft servers gave us no download link to our request for an automated download. Please manually download this ISO in a web browser: $url" 'red'
-        return 1
-    fi
-}
-
-download_windows_iso() {
-    say " - Download ISO"
-    say " - URL: ${iso_download_link%%\?*}"
-    say " - Resolving redirect URL"
-    REDIRECT_URL=$(run_url_handling_command resolve_final_url "$iso_download_link")
-    if [ "${REDIRECT_URL}" != "${iso_download_link}" ]; then
-        say " - Setting iso_download_link to redirected url."
-        iso_download_link="${REDIRECT_URL}"
-    fi
-    say " - Final URL resolved"
-    say " - Downloading ${FILE_NAME} to ${WINDOWS_ISO_DIR} ."
-    if ! run_url_handling_command download_iso "${WINDOWS_ISO_DIR}/${FILE_NAME}" "$iso_download_link"; then
-        say "ERROR! Failed to download ${iso_download_link} with $__url_handler_command ." 'red'
-        rm -f "${WINDOWS_ISO_DIR}/${FILE_NAME}"
-    fi
-    say " - Done Downloading ${FILE_NAME}." 'green'
-}
-
-get_windows() {
-	if [ -f "${WINDOWS_ISO_PATH}" ];then
-        return
-    fi
-    say " Downloading Windows ${RELEASE} iso!"
-    GET_WINDOWS_ISO_URL
-    download_windows_iso
-}
 
 generate_autounattend_xml() {
     if [ -f "${unattended_files_dir}/autounattend.xml" ];then
@@ -1319,18 +1129,35 @@ EOF
     sed -i "s/{passwd}/${passwd}/g" "${unattended_files_dir}/autounattend.xml"
 }
 
-download_file(){
-    url="${1:-}"
-    path="${2:-}"
-    newname="${3:-}"
-    massage="${4:-}"
-    if [ -f "${path}/${newname}" ];then
-        return
-    fi
-    say "$massage"
-    curl -fSLo "$path/${newname}" "${url}" --progress-bar
-}
-
+if command -v "curl" >/dev/null 2>/dev/null;then
+	__url_handler_command=curl  
+	download_file(){
+    	url="${1:-}"
+    	path="${2:-}"
+    	newname="${3:-}"
+    	massage="${4:-}"
+    	if [ -f "${path}/${newname}" ];then
+        	return
+    	fi
+    	say "$massage"
+    	curl -fSLo "$path/${newname}" "${url}" --progress-bar
+	}
+	
+elif command -v "wget" >/dev/null 2>/dev/null;then
+    __url_handler_command=wget   
+	download_file(){
+    	url="${1:-}"
+    	path="${2:-}"
+    	newname="${3:-}"
+    	massage="${4:-}"
+    	if [ -f "${path}/${newname}" ];then
+        	return
+    	fi
+    	say "$massage"
+    	curl -fSLo "$path/${newname}" "${url}" --progress-bar
+	}
+fi
+ 
 Downloading_Virtual_drivers() {
     download_file "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/${VIRTIO_FILE}" "${VIRTIO_DIR}" "${VIRTIO_FILE}" "Downloading VirtIO drivers..."
     download_file https://www.spice-space.org/download/windows/spice-webdavd/spice-webdavd-x64-latest.msi "${unattended_files_dir}" "spice-webdavd-x64.msi" "Downloading Spice drivers (webdavd)..."
@@ -1357,14 +1184,16 @@ req_apps_4_vm(){
     if [ -f "${req_dir_path}/req_4_vm" ];then
         return
     fi
+    
     say " Running req_4_vm!"
 	if command -v pacman >/dev/null 2>&1;then
-        app_name="freerdp cdrtools"
+        apps_name="freerdp cdrtools"
     else
-    	app_name="freerdp3-x11 mkisofs"
+    	apps_name="freerdp3-x11 mkisofs"
     fi
-    Package_update_
-    Package_installer_ "${apps_name}"
+    . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
+    Package_update_ || say "failed to run Package_update_" 'red'
+    Package_installer_ "${apps_name}" || say "failed to run Package_installer_ ${apps_name}" 'red'
     say " ✔  Done req_4_vm!" 'green'
     touch "${req_dir_path}/req_4_vm"
 }
@@ -1374,32 +1203,32 @@ generate_storage_pool_and_vm_disk(){
         return
     fi
     
-    if ! virsh pool-list --all 2>/dev/null | grep -qw "$vmbuildpoolname"; then
+    if ! virsh -c "$QEMU_URI" pool-list --all 2>/dev/null | grep -qw "$vmbuildpoolname"; then
         say "Generate new temp pool at: $ROOT_VM_PATH_Builder" 'green'
-        virsh pool-define-as --name "$vmbuildpoolname" --type dir --target "$ROOT_VM_PATH_Builder"
+        virsh -c "$QEMU_URI" pool-define-as --name "$vmbuildpoolname" --type dir --target "$ROOT_VM_PATH_Builder"
         say "start new temp pool." 'green'
-        virsh pool-start "$vmbuildpoolname"
+        virsh -c "$QEMU_URI" pool-start "$vmbuildpoolname"
         say "autostart new temp pool." 'green'
-        virsh pool-autostart "$vmbuildpoolname"
+        virsh -c "$QEMU_URI" pool-autostart "$vmbuildpoolname"
     fi
 
-    if ! virsh pool-list --all | grep -w "default" | grep -wq "active";then
+    if ! virsh -c "$QEMU_URI" pool-list --all | grep -w "default" | grep -wq "active";then
         say "start default pool." 'green'
-        virsh pool-start default
+        virsh -c "$QEMU_URI" pool-start default || say "failed to run virsh -c $QEMU_URI pool-start default" 'red'
     fi
     
-    if ! virsh pool-list --all | grep -w "default" | grep -wq "yes";then
+    if ! virsh -c "$QEMU_URI" pool-list --all | grep -w "default" | grep -wq "yes";then
         say "autostart default pool." 'green'
-        virsh pool-autostart default
+        virsh -c "$QEMU_URI" pool-autostart default || say "failed to run virsh -c $QEMU_URI pool-autostart default" 'red'
     fi
 
     say " Generate Virtaul disk!"
-    virsh vol-create-as default "${virt_storage_name}" "$disk_size" --format qcow2
+    virsh -c "$QEMU_URI" vol-create-as default "${virt_storage_name}" "$disk_size" --format qcow2 || say "failed to run virsh -c $QEMU_URI vol-create-as default ${virt_storage_name} $disk_size --format qcow2" 'red'
 	say " Virtaul disk created!" 'green'
 }
 
 generate_vm(){
-    if virsh list --all 2>/dev/null | grep -wq "$VM_NAME"; then
+    if virsh -c "$QEMU_URI" list --all 2>/dev/null | grep -wq "$VM_NAME"; then
         return
     fi
 tee "${VM_XML}" << EOF >/dev/null 2>&1
@@ -1520,17 +1349,17 @@ tee "${VM_XML}" << EOF >/dev/null 2>&1
 </domain>
 EOF
     say "Generating VM!" 'green'
-    virsh define "${VM_XML}"
+    virsh -c "$QEMU_URI" define "${VM_XML}"
     say " ✔  Done generating VM!" 'green'
 }
 
 run_vm(){
-	if virsh list --state-running --name 2>/dev/null | grep -wq "$VM_NAME" || [ -f "${req_dir_path}/run_vm" ]; then
+	if virsh -c "$QEMU_URI" list --state-running --name 2>/dev/null | grep -wq "$VM_NAME" || [ -f "${req_dir_path}/run_vm" ]; then
         return
     fi
     say " Running run_vm!"
-    virsh autostart "${VM_NAME}"
-    virsh start "${VM_NAME}"
+    virsh -c "$QEMU_URI" autostart "${VM_NAME}"
+    virsh -c "$QEMU_URI" start "${VM_NAME}"
     say " ✔  Done run_vm!" 'green'
     touch "${req_dir_path}/run_vm"
 }
@@ -1541,7 +1370,7 @@ running_winapps(){
     fi
     say " Waiting for VM to finish installing."
     while true;do
-        if virsh list --state-shutoff --name 2>/dev/null | grep -Fxq -- "$VM_NAME"; then
+        if virsh -c "$QEMU_URI" list --state-shutoff --name 2>/dev/null | grep -Fxq -- "$VM_NAME"; then
             touch "${req_dir_path}/finished_installing"
             break
         elif [ -f "${req_dir_path}/finished_installing" ];then
@@ -1561,20 +1390,20 @@ running_winapps(){
 clean_up(){
     say " Waiting for VM to finish shutdowning."
     while true;do
-        if virsh list --state-shutoff --name 2>/dev/null | grep -Fxq -- "$VM_NAME"; then
+        if virsh -c "$QEMU_URI" list --state-shutoff --name 2>/dev/null | grep -Fxq -- "$VM_NAME"; then
             break
         else
-            virsh shutdown "$VM_NAME"
+            virsh -c "$QEMU_URI" shutdown "$VM_NAME"
             sleep 5
         fi
     done
 
     say " Running clean_up."
-    for iso in $(virsh domblklist "$VM_NAME" | grep "\.iso$" | awk '{print $1}');do
-        virsh detach-disk "$VM_NAME" "$iso" --config
+    for iso in $(virsh -c "$QEMU_URI" domblklist "$VM_NAME" | grep "\.iso$" | awk '{print $1}');do
+        virsh -c "$QEMU_URI" detach-disk "$VM_NAME" "$iso" --config
     done
-    virsh pool-destroy "$vmbuildpoolname"
-    virsh pool-undefine "$vmbuildpoolname"
+    virsh -c "$QEMU_URI" pool-destroy "$vmbuildpoolname"
+    virsh -c "$QEMU_URI" pool-undefine "$vmbuildpoolname"
     rm -rdf "${ROOT_VM_PATH_Builder}"
     say " ✔  Done clean_up." 'green'
 }
@@ -1584,8 +1413,9 @@ mkdir -p "${unattended_files_dir}"
 mkdir -p "${req_dir_path}"
 
 req_apps_4_vm
-req_4_vm
-get_windows
+if [ ! -f "${WINDOWS_ISO_PATH}" ];then
+	"$virt_manager_script_path"/get_windows_iso "$__url_handler_command" "${WINDOWS_ISO_PATH}" "$I18N"
+fi
 Downloading_Virtual_drivers
 generate_autounattend_xml
 unattended_windows

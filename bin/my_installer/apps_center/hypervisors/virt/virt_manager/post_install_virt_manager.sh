@@ -42,6 +42,14 @@ if [ -n "$(echo "$test_qemu" | grep 'QEMU: Checking for device assignment IOMMU 
 	exit 1
 fi
 
+if ! virsh pool-list --all | grep -w "default" | grep -wq "active";then
+	my-superuser virsh pool-start default
+fi
+
+if ! virsh pool-list --all | grep -w "default" | grep -wq "yes";then
+	my-superuser virsh pool-autostart default
+fi
+
 interface_name="$(my-superuser nmcli device status | awk '{print $1}' | head -2 | tail -1 )"
 my-superuser virsh net-start default
 my-superuser virsh net-autostart default

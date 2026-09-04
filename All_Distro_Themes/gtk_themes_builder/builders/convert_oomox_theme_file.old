@@ -1,0 +1,110 @@
+#!/bin/sh
+set -e
+
+current_path="$(dirname "$0")"
+path_to_my_oomox_files="$HOME/Desktop/workon/oomox_files"
+output_dir_name="source_base"
+if [ -d "$path_to_my_oomox_files/oomox_gui/colors/zzmythemes" ];then
+	oomox_files_path="$path_to_my_oomox_files/oomox_gui/colors/zzmythemes"
+elif [ -d "$HOME/.config/oomox/colors/zzmythemes" ];then
+	oomox_files_path="$HOME/.config/oomox/colors/zzmythemes"
+else
+	echo "no dir found. "
+	exit
+fi
+
+if [ -d "${current_path}"/../"${output_dir_name}" ];then
+	output_dir="${current_path}/source_base"
+else
+	output_dir="${current_path}"/../"${output_dir_name}"
+fi
+
+list_of_base_GTK_theme="$(find "${oomox_files_path}" -type f || :)"
+
+add_new_var_value_if_empty(){
+	new_value=""
+	if [ -z "${2:-}" ]; then
+		new_value="${3:-}"
+	fi
+	echo "${1:-}=${new_value}" >> "$style_path"
+}
+
+mkdir -p "${output_dir}"
+
+for t in ${list_of_base_GTK_theme};do
+	. "$t"
+	style_name="${t##*/}"
+	style_path="${output_dir}/${style_name}"
+
+	tee -a "$style_path" <<-EOF >/dev/null 2>&1
+	ACCENT_BG="$ACCENT_BG"
+	BG="$BG"
+	BTN_BG="$BTN_BG"
+	BTN_FG="$BTN_FG"
+	BTN_OUTLINE_OFFSET="$BTN_OUTLINE_OFFSET"
+	BTN_OUTLINE_WIDTH="$BTN_OUTLINE_WIDTH"
+	CARET1_FG="$CARET1_FG"
+	CARET2_FG="$CARET2_FG"
+	CARET_SIZE="$CARET_SIZE"
+	CINNAMON_OPACITY="$CINNAMON_OPACITY"
+	FG="$FG"
+	GRADIENT="$GRADIENT"
+	GTK3_GENERATE_DARK="$GTK3_GENERATE_DARK"
+	HDR_BG="$HDR_BG"
+	HDR_BTN_BG="$HDR_BTN_BG"
+	HDR_BTN_FG="$HDR_BTN_FG"
+	HDR_FG="$HDR_FG"
+	ICONS_DARK="$ICONS_DARK"
+	ICONS_LIGHT="$ICONS_LIGHT"
+	ICONS_LIGHT_FOLDER="$ICONS_LIGHT_FOLDER"
+	ICONS_MEDIUM="$ICONS_MEDIUM"
+	MATERIA_PANEL_OPACITY="$MATERIA_PANEL_OPACITY"
+	MATERIA_SELECTION_OPACITY="$MATERIA_SELECTION_OPACITY"
+	MATERIA_STYLE_COMPACT="$MATERIA_STYLE_COMPACT"
+	MENU_BG="$MENU_BG"
+	MENU_FG="$MENU_FG"
+	NAME="$NAME"
+	OUTLINE_WIDTH="$OUTLINE_WIDTH"
+	ROUNDNESS="$ROUNDNESS"
+	SEL_BG="$SEL_BG"
+	SEL_FG="$SEL_FG"
+	SPACING="$SPACING"
+	TXT_BG="$TXT_BG"
+	TXT_FG="$TXT_FG"
+	UNITY_DEFAULT_LAUNCHER_STYLE="$UNITY_DEFAULT_LAUNCHER_STYLE"
+	WM_BORDER_FOCUS="$WM_BORDER_FOCUS"
+	WM_BORDER_UNFOCUS="$WM_BORDER_UNFOCUS"
+	THEME_STYLE="$THEME_STYLE"
+	EOF
+	
+	add_new_var_value_if_empty "SPOTIFY_PROTO_BG" "$SPOTIFY_PROTO_BG" "373E4D"
+	add_new_var_value_if_empty "SPOTIFY_PROTO_FG" "$SPOTIFY_PROTO_FG" "F9F9F9"
+	add_new_var_value_if_empty "SPOTIFY_PROTO_SEL" "$SPOTIFY_PROTO_SEL" "63C5EA"
+	add_new_var_value_if_empty "TERMINAL_ACCENT_COLOR" "$TERMINAL_ACCENT_COLOR" "63C5EA"
+	add_new_var_value_if_empty "TERMINAL_BACKGROUND" "$TERMINAL_BACKGROUND" "373E4D"
+	add_new_var_value_if_empty "TERMINAL_BASE_TEMPLATE" "$TERMINAL_BASE_TEMPLATE" "monovedek"
+	add_new_var_value_if_empty "TERMINAL_COLOR0" "$TERMINAL_COLOR0" "293e2c"
+	add_new_var_value_if_empty "TERMINAL_COLOR1" "$TERMINAL_COLOR1" "d000ae"
+	add_new_var_value_if_empty "TERMINAL_COLOR10" "$TERMINAL_COLOR10" "a3c596"
+	add_new_var_value_if_empty "TERMINAL_COLOR11" "$TERMINAL_COLOR11" "e19f94"
+	add_new_var_value_if_empty "TERMINAL_COLOR12" "$TERMINAL_COLOR12" "8347ff"
+	add_new_var_value_if_empty "TERMINAL_COLOR13" "$TERMINAL_COLOR13" "bc47ff"
+	add_new_var_value_if_empty "TERMINAL_COLOR14" "$TERMINAL_COLOR14" "63c5ea"
+	add_new_var_value_if_empty "TERMINAL_COLOR15" "$TERMINAL_COLOR15" "ffffff"
+	add_new_var_value_if_empty "TERMINAL_COLOR2" "$TERMINAL_COLOR2" "93b44b"
+	add_new_var_value_if_empty "TERMINAL_COLOR3" "$TERMINAL_COLOR3" "d0834b"
+	add_new_var_value_if_empty "TERMINAL_COLOR4" "$TERMINAL_COLOR4" "7400ff"
+	add_new_var_value_if_empty "TERMINAL_COLOR5" "$TERMINAL_COLOR5" "d000ff"
+	add_new_var_value_if_empty "TERMINAL_COLOR6" "$TERMINAL_COLOR6" "1ab4f7"
+	add_new_var_value_if_empty "TERMINAL_COLOR7" "$TERMINAL_COLOR7" "c5c7c2"
+	add_new_var_value_if_empty "TERMINAL_COLOR8" "$TERMINAL_COLOR8" "6f9283"
+	add_new_var_value_if_empty "TERMINAL_COLOR9" "$TERMINAL_COLOR9" "e147bc"
+	add_new_var_value_if_empty "TERMINAL_CURSOR" "$TERMINAL_CURSOR" "b36aff"
+	add_new_var_value_if_empty "TERMINAL_FOREGROUND" "$TERMINAL_FOREGROUND" "F9F9F9"
+	add_new_var_value_if_empty "TERMINAL_THEME_ACCURACY" "$TERMINAL_THEME_ACCURACY" "128"
+	add_new_var_value_if_empty "TERMINAL_THEME_AUTO_BGFG" "$TERMINAL_THEME_AUTO_BGFG" "True"
+	add_new_var_value_if_empty "TERMINAL_THEME_EXTEND_PALETTE" "$TERMINAL_THEME_EXTEND_PALETTE" "False"
+	add_new_var_value_if_empty "TERMINAL_THEME_MODE" "$TERMINAL_THEME_MODE" "auto"
+done
+
+echo "Done Done Done"

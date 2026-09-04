@@ -3,6 +3,11 @@
 # work on this : workonthis
 set -e
 
+if ! command -v rsvg-convert >/dev/null 2>&1; then # sudo apt install -y librsvg2-bin
+	printf '%b' "\n\033[1;97;41m ERROR \033[0m \033[1;31m'rsvg-convert' needs to be installed to generate the PNG.\033[0m\n\n" >&2
+    exit 1
+fi 
+
 __distro_path_lib="${1:-$__distro_path_lib}"
 force_update="${2:-false}"
 

@@ -1,0 +1,251 @@
+#!/bin/sh
+# work on this : workonthis
+__url_handler_command="${1:-}"
+WINDOWS_ISO_PATH="${2:-windows-11.iso}"
+I18N="${3:-}"
+if [ -z "$I18N" ];then
+	I18N="English International"
+fi
+
+FILE_NAME="$(basename "$WINDOWS_ISO_PATH")"
+WINDOWS_ISO_DIR="$(dirname "$WINDOWS_ISO_PATH")"
+OS="${FILE_NAME%%-*}"
+RELEASE="${FILE_NAME#*-}"
+RELEASE="${RELEASE%%.*}"
+os_name="${OS}-${RELEASE}"
+
+user_agent1="Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0"
+user_agent2="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+
+if [ -z "$__distro_path_lib" ];then
+	say() {
+		message="${1-}"
+		mode="${2-}"
+		width=$(tput cols 2>/dev/tty)
+		
+		if [ "${mode}" = 'red' ];then
+			color="31"
+			mode="${3:-}"
+		elif [ "${mode}" = 'yellow' ];then
+			color="33"
+			mode="${3:-}"
+		elif [ "${mode}" = 'green' ];then
+			color="32"
+			mode="${3:-}"
+		else
+			color="32"
+		fi
+		
+		printf '%b' "\\033[1;${color}m${message}\\033[0m\n" | fold -s -w $((width - 3)) | sed 's/^/  /' # wraps text nicely and adds two leading spaces
+	
+    	case "$mode" in
+    		pause)
+    			stty -icanon -echo time 0 min 1
+				head -c1 >/dev/null
+				stty icanon echo
+    			;;
+    		''|*[!0-9.]*)  # Anything other than digits or a single decimal point is invalid
+        		:
+        		;;
+    		*)
+        		sleep "${mode}"
+        		;;
+		esac
+	}
+else
+	. "$__distro_path_lib"
+	. "${__distro_path_root}/lib/common/common"
+fi
+
+if [ -z "$__url_handler_command" ];then
+	if command -v "curl" >/dev/null 2>/dev/null;then
+		__url_handler_command=curl
+	
+	elif command -v "wget" >/dev/null 2>/dev/null;then
+		__url_handler_command=wget
+	fi
+fi
+
+if [ "$__url_handler_command" = "curl" ];then
+    run_url_handling_command() {
+        mode="$1"
+        shift
+        
+        base_curl(){
+            curl --fail --proto '=https' --tlsv1.2 --http1.1 "$@"
+        }
+        
+        case "$mode" in
+            check_url_1m) base_curl --silent --header 'Accept:' --max-filesize 1M --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            check_url_100k_discard) base_curl --silent --header 'Accept:' --max-filesize 100K --output /dev/null --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            check_url_100k) base_curl --silent --max-filesize 100K --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            referer_fetch) referer="$1" ; shift ; base_curl --silent --referer "$referer" --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+            resolve_final_url) base_curl --silent --location --head --write-out '%{url_effective}' --output /dev/null --user-agent "$user_agent2" "$@" ;;
+            download_iso) output_path="$1" ; shift ;base_curl --progress-bar --location --continue-at - --output "$output_path" --user-agent "$user_agent2" "$@" ;;
+            *) say "Unknown mode: $mode" 'red' ; return 1 ;;
+        esac
+    }
+elif [ "$__url_handler_command" = "wget" ];then
+    
+    run_url_handling_command() {
+    	mode="$1"
+    	shift
+		
+    	base_wget() {
+        	wget --quiet --no-check-certificate "$@"
+    	}
+    
+    	case "$mode" in
+        	check_url_1m) base_wget --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	check_url_100k_discard) base_wget --output-document=/dev/null --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	check_url_100k) base_wget --max-filesize=100K --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	referer_fetch) referer="$1" ; shift ; base_wget --referer="$referer" --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
+        	resolve_final_url) base_wget --max-redirect=10 --server-response --spider --user-agent "$user_agent2" "$@" 2>&1 | grep -i "Location:" | tail -1 | awk '{print $2}' || ( handle_url_error $? ; return $? ) ;;
+        	download_iso) output_path="$1" ; shift ; base_wget --progress=bar:force --continue --output-document="$output_path" --user-agent="$user_agent2" "$@" ;;
+        	*) say "Unknown mode: $mode" 'red' ; return 1 ;;
+    	esac
+	}
+fi
+      
+handle_url_error() {
+	error_code="$1"
+	fatal_error_action=2
+	case "$error_code" in
+		6) say "Failed to resolve Microsoft servers! Is there an Internet connection? Exiting..." 'red' ; return "$fatal_error_action" ;;
+		7) say "Failed to contact Microsoft servers! Is there an Internet connection or is the server down?" 'red' ;;
+		8) say "Microsoft servers returned a malformed HTTP response!" 'red' ;;
+		22) say "Microsoft servers returned a failing HTTP status code!" 'red' ;;
+		23) say "Failed at writing Windows media to disk! Out of disk space or permission error? Exiting..." 'red' ; return "$fatal_error_action" ;;
+		26) say "Ran out of memory during download! Exiting..." 'red' ; return "$fatal_error_action" ;;
+		36) say "Failed to continue earlier download!" 'red' ;;
+		63) say "Microsoft servers returned an unexpectedly large response!" 'red' ;;
+			# POSIX defines exit statuses 1-125 as usable by us
+			# https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_08_02
+			$((error_code <= 125)))
+			# Must be some other server or network error (possibly with this specific request/file)
+			# This is when accounting for all possible errors in the curl manual assuming a correctly formed curl command and an HTTP(S) request, using only the curl features we're using, and a sane build
+			say "Miscellaneous server or network error!" 'red' ;;
+			# Exit statuses are undefined by POSIX beyond this point
+		*)
+		case "$(kill -l "$error_code")" in
+			# Signals defined to exist by POSIX:
+			# https://pubs.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html
+			INT) say "$__url_handler_command was interrupted!" 'red' ;;
+			# There could be other signals but these are most common
+			SEGV | ABRT ) say "$__url_handler_command crashed! Failed exploitation attempt? Please report any core dumps to $__url_handler_command developers. Exiting..." 'red' ; return "$fatal_error_action" ;;
+			*) say "$__url_handler_command terminated due to a fatal signal!" 'red';;
+		esac
+	esac
+	return 1
+}
+
+GET_WINDOWS_ISO_URL() {
+    session_id=""
+    iso_download_page_html=""
+    product_edition_id=""
+    language_skuid_table_json=""
+    sku_id=""
+    iso_download_link_json=""
+
+    say "Downloading Windows ${RELEASE} (${I18N})"
+    # This function is adapted from the Mido project:
+    # https://github.com/ElliotKillick/Mido
+    # Download newer consumer Windows versions from behind gated Microsoft API
+
+    url="https://www.microsoft.com/en-us/software-download/windows$RELEASE"
+    case "$RELEASE" in
+        10) url="${url}ISO";;
+    esac
+
+    session_id="$(cat /proc/sys/kernel/random/uuid)"
+
+    # Get product edition ID for latest release of given Windows version
+    # Product edition ID: This specifies both the Windows release (e.g. 22H2) and edition ("multi-edition" is default, either Home/Pro/Edu/etc., we select "Pro" in the answer files) in one number
+    # This is the *only* request we make that Fido doesn't. Fido manually maintains a list of all the Windows release/edition product edition IDs in its script (see: $WindowsVersions array). This is helpful for downloading older releases (e.g. Windows 10 1909, 21H1, etc.) but we always want to get the newest release which is why we get this value dynamically
+    # Also, keeping a "$WindowsVersions" array like Fido does would be way too much of a maintenance burden
+    # Remove "Accept" header that url_handling_command sends by default
+    say " - Parsing download page: ${url}"
+    iso_download_page_html="$(run_url_handling_command check_url_1m "$url")"
+    
+    say " - Getting Product edition ID: "
+    # tr: Filter for only numerics to prevent HTTP parameter injection
+    # head -c was recently added to POSIX: https://austingroupbugs.net/view.php?id=407
+    product_edition_id="$(echo "$iso_download_page_html" | grep -Eo '<option value="[0-9]+">Windows' | cut -d '"' -f 2 | head -n 1 | tr -cd '0-9' | head -c 16)"
+    echo "$product_edition_id"
+
+    say " - Permit Session ID: $session_id"
+    # Permit Session ID
+    # "org_id" is always the same value
+    vlscppe_microsoft_url="https://vlscppe.microsoft.com/tags?org_id=y6jn8c31&session_id=$session_id"
+    run_url_handling_command check_url_100k_discard "$vlscppe_microsoft_url"
+
+    profile="606624d44113"
+
+    say " - Getting language SKU ID: "
+    # Get language -> skuID association table
+    language_skuID_url="https://www.microsoft.com/software-download-connector/api/getskuinformationbyproductedition?profile=${profile}&ProductEditionId=${product_edition_id}&SKU=undefined&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}"
+    language_skuid_table_json="$(run_url_handling_command check_url_100k "$language_skuID_url")"
+    
+    sku_id="$(echo "${language_skuid_table_json}" | jq -r '.Skus[] | select(.LocalizedLanguage=="'"${I18N}"'" or .Language=="'"${I18N}"'").Id')"
+    echo "$sku_id"
+
+    say " - Getting ISO download link..."
+    # Get ISO download link
+    # If any request is going to be blocked by Microsoft it's always this last one (the previous requests always seem to succeed)
+    # --referer: Required by Microsoft servers to allow request
+    Microsoft_url_2_download_link="https://www.microsoft.com/software-download-connector/api/GetProductDownloadLinksBySku?profile=${profile}&productEditionId=undefined&SKU=${sku_id}&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}"
+    iso_download_link_json="$(run_url_handling_command referer_fetch "$url" "$Microsoft_url_2_download_link")"
+
+    failed=0
+
+    if [ -z "$iso_download_link_json" ]; then
+        # This should only happen if there's been some change to how this API works
+        say " - Microsoft servers gave us an empty response to our request for an automated download." 'red'
+        failed=1
+    elif echo "$iso_download_link_json" | grep -q "Sentinel marked this request as rejected."; then
+        say " - WARNING! Microsoft blocked the automated download request based on your IP address." 'red'
+        failed=1
+    fi
+
+    if [ "${failed}" -eq 1 ]; then
+        say "   Manually download the Windows ${RELEASE} ISO using a web browser from: ${url}" 'red'
+        say "   Save the downloaded ISO to: $WINDOWS_ISO_DIR" 'red'
+        say "   Continuing with the VM creation process..." 'red'
+        return 1
+    fi
+
+    # Filter for 64-bit ISO download URL
+    iso_download_link="$(echo "${iso_download_link_json}" | jq -r '.ProductDownloadOptions[].Uri' | grep x64)"
+
+    if [ -z "$iso_download_link" ]; then
+        # This should only happen if there's been some change to the download endpoint web address
+        say " - Microsoft servers gave us no download link to our request for an automated download. Please manually download this ISO in a web browser: $url" 'red'
+        return 1
+    fi
+}
+
+download_windows_iso() {
+    say " - Download ISO"
+    say " - URL: ${iso_download_link%%\?*}"
+    say " - Resolving redirect URL"
+    REDIRECT_URL=$(run_url_handling_command resolve_final_url "$iso_download_link")
+    if [ "${REDIRECT_URL}" != "${iso_download_link}" ]; then
+        say " - Setting iso_download_link to redirected url."
+        iso_download_link="${REDIRECT_URL}"
+    fi
+    say " - Final URL resolved"
+    say " - Downloading ${FILE_NAME} to ${WINDOWS_ISO_DIR} ."
+    if ! run_url_handling_command download_iso "${WINDOWS_ISO_PATH}" "$iso_download_link"; then
+        say "ERROR! Failed to download ${iso_download_link} with $__url_handler_command ." 'red'
+        rm -f "${WINDOWS_ISO_PATH}"
+    fi
+    say " - Done Downloading ${FILE_NAME}." 'green'
+}
+
+if [ -f "${WINDOWS_ISO_PATH}" ];then
+	exit
+fi
+
+say " Downloading Windows ${RELEASE} iso!"
+GET_WINDOWS_ISO_URL
+download_windows_iso
