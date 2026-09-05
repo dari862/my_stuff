@@ -6,11 +6,11 @@ set -e
 
 _SUPERUSER="my-superuser"
 
-BIN_PATH="${__distro_path_neverremove}/bin"
-APP_PATH="${__distro_path_neverremove}/applications"
+BIN_PATH="${__distro_path_neverremove}/autoinstalledvm/bin"
+APP_PATH="${__distro_path_neverremove}/autoinstalledvm/applications"
 TARGET_APPDATA_PATH="${__distro_path_neverremove}/autoinstalledvm"
 
-TEMP_PATH="$(mktemp -d /tmp/install_autoinstalledvm_XXXXXX)"
+TEMP_PATH="/var/tmp/install_winapps"
 TEMP_BIN_PATH="${TEMP_PATH}/bin"
 TEMP_APP_PATH="${TEMP_PATH}/applications"
 TEMP_TARGET_APPDATA_PATH="${TEMP_PATH}/autoinstalledvm"
@@ -68,6 +68,15 @@ FREERDP_COMMAND=""
 
 export LIBVIRT_DEFAULT_URI=qemu:///system
 
+cleanup() {
+	ls /tmp/ | grep -q "com.freerdp.client.cliprdr" || return
+    for d in /tmp/com.freerdp.client.cliprdr.*; do
+        fusermount -uz "$d" 2>/dev/null || umount -l "$d" 2>/dev/null
+        rm -rfd "$d"
+    done
+}
+trap cleanup EXIT INT TERM
+
 # Name: 'waFixScale'
 # Role: Since FreeRDP only supports '/scale' values of 100, 140 or 180, find the closest supported argument to the user's configuration.
 waFixScale() {
@@ -118,8 +127,8 @@ waLoadConfig() {
     
     if [ ! -f "$CONFIG_PATH" ]; then
         say " Creating ${CONFIG_NAME}!"
-        mkdir -p "$CONFIG_DIR_PATH"
-        chmod 700 "$CONFIG_DIR_PATH"
+        mkdir -p "$CONFIG_DIR_PATH" || failed_to_run "failed to run mkdir -p $CONFIG_DIR_PATH"
+        chmod 700 "$CONFIG_DIR_PATH" || failed_to_run "failed to run chmod 700 $CONFIG_DIR_PATH"
 		tee "$CONFIG_PATH" << EOF >/dev/null 2>&1
 ##################################
 #   WINAPPS CONFIGURATION FILE   #
@@ -258,15 +267,15 @@ BOOT_TIMEOUT="${BOOT_TIMEOUT}"
 # DEFAULT VALUE: 'on'
 HIDEF="${HIDEF}"
 EOF
-        chmod 600 "$CONFIG_PATH"
+        chmod 600 "$CONFIG_PATH" || failed_to_run "failed to run chmod 600 $CONFIG_DIR_PATH"
         say " ✔  Done creating ${CONFIG_NAME}" 'green'
     else
-        sed -i "s/^RDP_IP=.*/RDP_IP=${VM_IP}/g" "$CONFIG_PATH"
-        sed -i "s/^VM_NAME=.*/VM_NAME=${VM_NAME}/g" "$CONFIG_PATH"
+        sed -i "s/^RDP_IP=.*/RDP_IP=${VM_IP}/g" "$CONFIG_PATH" || failed_to_run "failed to run sed RDP_IP in $CONFIG_PATH"
+        sed -i "s/^VM_NAME=.*/VM_NAME=${VM_NAME}/g" "$CONFIG_PATH" || failed_to_run "failed to run sed VM_NAME in $CONFIG_PATH"
     fi
 
     say "Attempting to load WinApps configuration file... " 'yellow'
-    source "$CONFIG_PATH"
+    source "$CONFIG_PATH" || failed_to_run "failed to run source $CONFIG_PATH"
     
     # Print feedback.
     say "Done!" 'green'
@@ -529,7 +538,6 @@ waConfigureOfficiallySupported() {
 
     sed -i 's/\r$//' "${DETECTED_FILE_PATH}"
     source "$DETECTED_FILE_PATH"
-
     length_of_arrays="$((${#NAMES[@]} - 1 ))"
     for (( index=0; index<=length_of_arrays; index++ )); do
         FULL_NAME="${NAMES[$index]}"
@@ -548,9 +556,7 @@ MIME_TYPES="${TARGET_APPDATA_PATH}/apps/$appNAME/icon.svg"
 EOF
         echo "$base64_ICON" | base64 --decode | tee "${TEMP_TARGET_APPDATA_PATH}/apps/$appNAME/icon.svg" >/dev/null 2>&1
     done
-    
     cd "${TEMP_TARGET_APPDATA_PATH}/apps"
-    
     for OSA in *; do
         APP_NAME="$(basename "$OSA")"
         waConfigureApp "$APP_NAME" 
@@ -561,18 +567,17 @@ waInstall() {
     say "Installing WinApps."
     waCheckVMRunning
     waLoadConfig
-    waFixScale
+    waFixScale || failed_to_run "failed to run waFixScale"
     
     if [[ -n $RDP_FLAGS ]]; then
         FREERDP_COMMAND="${FREERDP_COMMAND} ${RDP_FLAGS}"
     fi
     
     FREERDP_COMMAND="${FREERDP_BIN} ${FREERDP_COMMAND}"
-
-    waCheckRDPAccess
-    waConfigureWindows
-    waConfigureOfficiallySupported
-    waEnsureOnPath
+    waCheckRDPAccess || failed_to_run "failed to run waCheckRDPAccess"
+    waConfigureWindows || failed_to_run "failed to run waConfigureWindows"
+    waConfigureOfficiallySupported || failed_to_run "failed to run waConfigureOfficiallySupported"
+    waEnsureOnPath || failed_to_run "failed to run waEnsureOnPath"
 }
 
 waEnsureOnPath() {
@@ -586,7 +591,8 @@ waEnsureOnPath() {
 }
 
 generate_winapps_script() {
-    tee "${TEMP_BIN_PATH}/winapps" << EOF > /dev/null 2>&1
+	win_app_script_path="${TEMP_BIN_PATH}/winapps"
+    tee "${win_app_script_path}" << EOF > /dev/null 2>&1
 #!/usr/bin/env bash
 export LIBVIRT_DEFAULT_URI=qemu:///system
 
@@ -642,6 +648,9 @@ RDP_TIMEOUT=${RDP_TIMEOUT}
 APP_SCAN_TIMEOUT=${APP_SCAN_TIMEOUT}
 BOOT_TIMEOUT=${BOOT_TIMEOUT}
 HIDEF="${HIDEF}"
+EOF
+
+    tee -a "${win_app_script_path}" << 'EOF' > /dev/null 2>&1
 
 # OTHER
 FREERDP_PID=-1
@@ -658,119 +667,119 @@ trap waCleanUp SIGINT
 # Role: Clean up remains prior to exit.
 waCleanUp() {
     # Kill FreeRDP.
-    [ "\$FREERDP_PID" -gt 0 ] && kill -9 "\$FREERDP_PID" >/dev/null 2>&1
+    [ "$FREERDP_PID" -gt 0 ] && kill -9 "$FREERDP_PID" >/dev/null 2>&1
 
     # Remove '.cproc' file.
-    [ -f "\${USER_APPDATA_PATH}/FreeRDP_Process_\${FREERDP_PID}.cproc" ] && rm "\${USER_APPDATA_PATH}/FreeRDP_Process_\${FREERDP_PID}.cproc" >/dev/null 2>&1
+    [ -f "${USER_APPDATA_PATH}/FreeRDP_Process_${FREERDP_PID}.cproc" ] && rm "${USER_APPDATA_PATH}/FreeRDP_Process_${FREERDP_PID}.cproc" >/dev/null 2>&1
 
     # Terminate script.
     exit 1
 }
 
 send_notification_error(){
-	local expire_time="\${1:-8000}"
-	local notification_massage="\${2:-}"
-	notify-send --expire-time=\${expire_time} --icon="dialog-error" --app-name="WinApps" --urgency="low" "WinApps" "\${notification_massage}"
+	local expire_time="${1:-8000}"
+	local notification_massage="${2:-}"
+	notify-send --expire-time=${expire_time} --icon="dialog-error" --app-name="WinApps" --urgency="low" "WinApps" "${notification_massage}"
 }
 
 send_notification_info(){
-	local expire_time="\${1:-4000}"
-	local notification_massage="\${2:-}"
-	notify-send --expire-time=\${expire_time} --icon="dialog-info" --app-name="WinApps" --urgency="low" "WinApps" "\${notification_massage}"
+	local expire_time="${1:-4000}"
+	local notification_massage="${2:-}"
+	notify-send --expire-time=${expire_time} --icon="dialog-info" --app-name="WinApps" --urgency="low" "WinApps" "${notification_massage}"
 }
 
 send_notification_other(){
-	local expire_time="\${1:-8000}"
-	local custom_icon="\${2:-info}"
-	local notification_massage="\${3:-}"
-	notify-send --expire-time=\${expire_time} --icon="\${custom_icon}" --app-name="WinApps" --urgency="low" "WinApps" "\${notification_massage}"
+	local expire_time="${1:-8000}"
+	local custom_icon="${2:-info}"
+	local notification_massage="${3:-}"
+	notify-send --expire-time=${expire_time} --icon="${custom_icon}" --app-name="WinApps" --urgency="low" "WinApps" "${notification_massage}"
 }
 
 # Name: 'waThrowExit'
 # Role: Throw an error message and exit the script.
 function waThrowExit() {
     # Declare variables.
-    local ERR_CODE="\$1"
+    local ERR_CODE="$1"
 
     # Throw error.
-    case "\$ERR_CODE" in
-    "\$EC_MISSING_FREERDP")
+    case "$ERR_CODE" in
+    "$EC_MISSING_FREERDP")
         dprint "ERROR: FREERDP VERSION 3 IS NOT INSTALLED. EXITING."
         send_notification_error "8000" "FreeRDP version 3 is not installed."
         ;;
-    "\$EC_NOT_IN_GROUP")
+    "$EC_NOT_IN_GROUP")
         dprint "ERROR: USER NOT PART OF REQUIRED GROUPS. EXITING."
-        send_notification_error "8000" "The user \$(whoami) is not part of the required groups.
+        send_notification_error "8000" "The user $(whoami) is not part of the required groups.
 Please run:
-    sudo usermod -a -G libvirt \$(whoami)
-    sudo usermod -a -G kvm \$(whoami)"
+    sudo usermod -a -G libvirt $(whoami)
+    sudo usermod -a -G kvm $(whoami)"
         ;;
-    "\$EC_FAIL_START")
+    "$EC_FAIL_START")
         dprint "ERROR: WINDOWS FAILED TO START. EXITING."
         send_notification_error "8000" "Windows failed to start."
         ;;
-    "\$EC_FAIL_RESUME")
+    "$EC_FAIL_RESUME")
         dprint "ERROR: WINDOWS FAILED TO RESUME. EXITING."
         send_notification_error "8000" "Windows failed to resume."
         ;;
-    "\$EC_FAIL_DESTROY")
+    "$EC_FAIL_DESTROY")
         dprint "ERROR: FAILED TO FORCE STOP WINDOWS. EXITING."
         send_notification_error "8000" "Failed to forcibly stop Windows."
         ;;
-    "\$EC_SD_TIMEOUT")
+    "$EC_SD_TIMEOUT")
         dprint "ERROR: WINDOWS TOOK TOO LONG TO SHUT DOWN. EXITING."
         send_notification_error "8000" "Windows took too long to shut down."
         ;;
-    "\$EC_DIE_TIMEOUT")
+    "$EC_DIE_TIMEOUT")
         dprint "ERROR: WINDOWS TOOK TOO LONG TO DIE. EXITING."
         send_notification_error "8000" "Windows took too long to die."
         ;;
-    "\$EC_RESTART_TIMEOUT")
+    "$EC_RESTART_TIMEOUT")
         dprint "ERROR: WINDOWS TOOK TOO LONG TO RESTART. EXITING."
         send_notification_error "8000" "Windows took too long to restart."
         ;;
-    "\$EC_NOT_EXIST")
+    "$EC_NOT_EXIST")
         dprint "ERROR: WINDOWS NONEXISTENT. EXITING."
-        send_notification_error "8000" "Windows VM named '\${VM_NAME}' does not exist."
+        send_notification_error "8000" "Windows VM named '${VM_NAME}' does not exist."
         ;;
-    "\$EC_UNKNOWN")
+    "$EC_UNKNOWN")
         dprint "ERROR: UNKNOWN CONTAINER ERROR. EXITING."
         send_notification_error "8000" "Unknown Windows container error."
         ;;
-    "\$EC_NO_IP")
+    "$EC_NO_IP")
         dprint "ERROR: WINDOWS UNREACHABLE. EXITING."
         send_notification_error "8000" "Windows is unreachable.\nPlease ensure Windows is assigned an IP address."
         ;;
-    "\$EC_BAD_PORT")
+    "$EC_BAD_PORT")
         dprint "ERROR: RDP PORT CLOSED. EXITING."
-        send_notification_error "8000" "The Windows RDP port '\${RDP_PORT}' is closed.\nPlease ensure Remote Desktop is correctly configured on Windows."
+        send_notification_error "8000" "The Windows RDP port '${RDP_PORT}' is closed.\nPlease ensure Remote Desktop is correctly configured on Windows."
         ;;
-    "\$EC_UNSUPPORTED_APP")
+    "$EC_UNSUPPORTED_APP")
         dprint "ERROR: APPLICATION NOT FOUND. EXITING."
         send_notification_error "8000" "Application not found.\nPlease ensure the program is correctly configured as an officially supported application."
         ;;
-    "\$EC_INVALID_FLAVOR")
+    "$EC_INVALID_FLAVOR")
         dprint "ERROR: INVALID FLAVOR. EXITING."
         send_notification_error "8000" "Invalid WinApps flavor.\nPlease ensure 'docker', 'podman' or 'libvirt' are specified as the flavor in the WinApps configuration file."
         ;;
     esac
 
     # Terminate the script.
-    exit "\$ERR_CODE"
+    exit "$ERR_CODE"
 }
 
 # Name: 'dprint'
 # Role: Conditionally print debug messages to a log file, creating it if it does not exist.
 function dprint() {
-    [ "\$DEBUG" = "true" ] && echo "[\$(date)-\$RUNID] \$1" >>"\$LOG_PATH"
+    [ "$DEBUG" = "true" ] && echo "[$(date)-$RUNID] $1" >>"$LOG_PATH"
 }
 # Name: 'waFixRemovableMedia'
 # Role: If REMOVABLE_MEDIA is empty, default to /run/media (udisks default) and show a warning.
 function waFixRemovableMedia() {
-    if [ -z "\$REMOVABLE_MEDIA" ]; then
+    if [ -z "$REMOVABLE_MEDIA" ]; then
         REMOVABLE_MEDIA="/run/media"  # Default for udisks
-        dprint "NOTICE: Using default REMOVABLE_MEDIA: \$REMOVABLE_MEDIA"
-        send_notification_other "3000" "drive-removable-media" "Using default removable media path: \$REMOVABLE_MEDIA"
+        dprint "NOTICE: Using default REMOVABLE_MEDIA: $REMOVABLE_MEDIA"
+        send_notification_other "3000" "drive-removable-media" "Using default removable media path: $REMOVABLE_MEDIA"
     fi
 }
 # Name: 'waFixScale'
@@ -783,27 +792,27 @@ function waFixScale() {
     local VALID_SCALE_3=180
 
     # Check for an unsupported value.
-    if [ "\$RDP_SCALE" != "\$VALID_SCALE_1" ] && [ "\$RDP_SCALE" != "\$VALID_SCALE_2" ] && [ "\$RDP_SCALE" != "\$VALID_SCALE_3" ]; then
+    if [ "$RDP_SCALE" != "$VALID_SCALE_1" ] && [ "$RDP_SCALE" != "$VALID_SCALE_2" ] && [ "$RDP_SCALE" != "$VALID_SCALE_3" ]; then
         # Save the unsupported scale.
-        OLD_SCALE="\$RDP_SCALE"
+        OLD_SCALE="$RDP_SCALE"
 
         # Calculate the absolute differences.
-        local DIFF_1=\$(( RDP_SCALE > VALID_SCALE_1 ? RDP_SCALE - VALID_SCALE_1 : VALID_SCALE_1 - RDP_SCALE ))
-        local DIFF_2=\$(( RDP_SCALE > VALID_SCALE_2 ? RDP_SCALE - VALID_SCALE_2 : VALID_SCALE_2 - RDP_SCALE ))
-        local DIFF_3=\$(( RDP_SCALE > VALID_SCALE_3 ? RDP_SCALE - VALID_SCALE_3 : VALID_SCALE_3 - RDP_SCALE ))
+        local DIFF_1=$(( RDP_SCALE > VALID_SCALE_1 ? RDP_SCALE - VALID_SCALE_1 : VALID_SCALE_1 - RDP_SCALE ))
+        local DIFF_2=$(( RDP_SCALE > VALID_SCALE_2 ? RDP_SCALE - VALID_SCALE_2 : VALID_SCALE_2 - RDP_SCALE ))
+        local DIFF_3=$(( RDP_SCALE > VALID_SCALE_3 ? RDP_SCALE - VALID_SCALE_3 : VALID_SCALE_3 - RDP_SCALE ))
 
         # Set the final scale to the valid scale value with the smallest absolute difference.
         if (( DIFF_1 <= DIFF_2 && DIFF_1 <= DIFF_3 )); then
-            RDP_SCALE="\$VALID_SCALE_1"
+            RDP_SCALE="$VALID_SCALE_1"
         elif (( DIFF_2 <= DIFF_1 && DIFF_2 <= DIFF_3 )); then
-            RDP_SCALE="\$VALID_SCALE_2"
+            RDP_SCALE="$VALID_SCALE_2"
         else
-            RDP_SCALE="\$VALID_SCALE_3"
+            RDP_SCALE="$VALID_SCALE_3"
         fi
 
         # Print feedback.
-        dprint "WARNING: Unsupported RDP_SCALE value '\${OLD_SCALE}'. Defaulting to '\${RDP_SCALE}'."
-        send_notification_error "4000" "Unsupported RDP_SCALE value '\${OLD_SCALE}'.\nDefaulting to '\${RDP_SCALE}'."
+        dprint "WARNING: Unsupported RDP_SCALE value '${OLD_SCALE}'. Defaulting to '${RDP_SCALE}'."
+        send_notification_error "4000" "Unsupported RDP_SCALE value '${OLD_SCALE}'.\nDefaulting to '${RDP_SCALE}'."
     fi
 }
 
@@ -811,7 +820,7 @@ function waFixScale() {
 # Role: Load the variables within the WinApps configuration file.
 function waLoadConfig() {
     # Load WinApps configuration file.
-    if [ ! -f "\$CONFIG_PATH" ]; then
+    if [ ! -f "$CONFIG_PATH" ]; then
         mkdir -p "$CONFIG_DIR_PATH"
         chmod 700 "$CONFIG_DIR_PATH"
 		tee "$CONFIG_PATH" << EOFCONF >/dev/null 2>&1
@@ -826,16 +835,16 @@ function waLoadConfig() {
 # - All characters following a '#' are ignored.
 
 # [WINDOWS USERNAME]
-RDP_USER="\$RDP_USER"
+RDP_USER="$RDP_USER"
 
 # [WINDOWS PASSWORD]
 # NOTES:
 # - If using FreeRDP v3.9.0 or greater, you *have* to set a password
-RDP_PASS="\$RDP_PASS"
+RDP_PASS="$RDP_PASS"
 
 # [WINDOWS DOMAIN]
 # DEFAULT VALUE: '' (BLANK)
-RDP_DOMAIN="\${RDP_DOMAIN}"
+RDP_DOMAIN="${RDP_DOMAIN}"
 
 # [WINDOWS IPV4 ADDRESS]
 # NOTES:
@@ -844,14 +853,14 @@ RDP_DOMAIN="\${RDP_DOMAIN}"
 # - 'docker': '127.0.0.1'
 # - 'podman': '127.0.0.1'
 # - 'libvirt': '' (BLANK)
-RDP_IP="\${RDP_IP}"
+RDP_IP="${RDP_IP}"
 
 # [VM NAME]
 # NOTES:
 # - Only applicable when using 'libvirt'
 # - The libvirt VM name must match so that WinApps can determine VM IP, start the VM, etc.
 # DEFAULT VALUE: 'RDPWindows'
-VM_NAME="\${VM_NAME}"
+VM_NAME="${VM_NAME}"
 
 # [DISPLAY SCALING FACTOR]
 # NOTES:
@@ -862,7 +871,7 @@ VM_NAME="\${VM_NAME}"
 # - '100'
 # - '140'
 # - '180'
-RDP_SCALE="\${RDP_SCALE}"
+RDP_SCALE="${RDP_SCALE}"
 
 # [MOUNTING REMOVABLE PATHS FOR FILES]
 # NOTES:
@@ -871,7 +880,7 @@ RDP_SCALE="\${RDP_SCALE}"
 # ATTENTION: The Filesystem Hierarchy Standard (FHS) recommends /media instead. Verify your system's configuration.
 # - To manually mount devices, you may optionally use /mnt.
 # REFERENCE: https://wiki.archlinux.org/title/Udisks#Mount_to_/media
-REMOVABLE_MEDIA="\${REMOVABLE_MEDIA}"
+REMOVABLE_MEDIA="${REMOVABLE_MEDIA}"
 
 # [ADDITIONAL FREERDP FLAGS & ARGUMENTS]
 # NOTES:
@@ -879,7 +888,7 @@ REMOVABLE_MEDIA="\${REMOVABLE_MEDIA}"
 #   If this does not work or if it does not work without the flag, you can try adding /nsc and /gfx.
 # DEFAULT VALUE: '/cert:tofu /sound /microphone +home-drive'
 # VALID VALUES: See https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-RDP_FLAGS="\${RDP_FLAGS}"
+RDP_FLAGS="${RDP_FLAGS}"
 
 # [DEBUG WINAPPS]
 # NOTES:
@@ -888,7 +897,7 @@ RDP_FLAGS="\${RDP_FLAGS}"
 # VALID VALUES:
 # - 'true'
 # - 'false'
-DEBUG="\${DEBUG}"
+DEBUG="${DEBUG}"
 
 # [AUTOMATICALLY PAUSE WINDOWS]
 # NOTES:
@@ -897,7 +906,7 @@ DEBUG="\${DEBUG}"
 # VALID VALUES:
 # - 'on'
 # - 'off'
-AUTOPAUSE="\${AUTOPAUSE}"
+AUTOPAUSE="${AUTOPAUSE}"
 
 # [AUTOMATICALLY PAUSE WINDOWS TIMEOUT]
 # NOTES:
@@ -908,14 +917,14 @@ AUTOPAUSE="\${AUTOPAUSE}"
 # - Source: https://techcommunity.microsoft.com/t5/security-compliance-and-identity/terminal-services-remoteapp-8482-session-termination-logic/ba-p/246566
 # DEFAULT VALUE: '300'
 # VALID VALUES: >=20
-AUTOPAUSE_TIME="\${AUTOPAUSE_TIME}"
+AUTOPAUSE_TIME="${AUTOPAUSE_TIME}"
 
 # [FREERDP BIN]
 # NOTES:
 # - WinApps will attempt to automatically detect the correct command to use for your system.
 # DEFAULT VALUE: '' (BLANK)
 # VALID VALUES: The command required to run FreeRDPv3 on your system (e.g., 'xfreerdp', 'xfreerdp3', etc.).
-FREERDP_BIN="\${FREERDP_BIN}"
+FREERDP_BIN="${FREERDP_BIN}"
 
 # [TIMEOUTS]
 # NOTES:
@@ -927,46 +936,46 @@ FREERDP_BIN="\${FREERDP_BIN}"
 # - The maximum time (in seconds) to wait when checking if the RDP port on Windows is open.
 # - Corresponding error: "NETWORK CONFIGURATION ERROR" (exit status 13).
 # DEFAULT VALUE: '5'
-PORT_TIMEOUT="\${PORT_TIMEOUT}"
+PORT_TIMEOUT="${PORT_TIMEOUT}"
 
 # RDP CONNECTION TEST
 # - The maximum time (in seconds) to wait when testing the initial RDP connection to Windows.
 # - Corresponding error: "REMOTE DESKTOP PROTOCOL FAILURE" (exit status 14).
 # DEFAULT VALUE: '30'
-RDP_TIMEOUT="\${RDP_TIMEOUT}"
+RDP_TIMEOUT="${RDP_TIMEOUT}"
 
 # APPLICATION SCAN
 # - The maximum time (in seconds) to wait for the script that scans for installed applications on Windows to complete.
 # - Corresponding error: "APPLICATION QUERY FAILURE" (exit status 15).
 # DEFAULT VALUE: '60'
-APP_SCAN_TIMEOUT="\${APP_SCAN_TIMEOUT}"
+APP_SCAN_TIMEOUT="${APP_SCAN_TIMEOUT}"
 
 # WINDOWS BOOT
 # - The maximum time (in seconds) to wait for the Windows VM to boot if it is not running, before attempting to launch an application.
 # DEFAULT VALUE: '120'
-BOOT_TIMEOUT="\${BOOT_TIMEOUT}"
+BOOT_TIMEOUT="${BOOT_TIMEOUT}"
 
 # FREERDP RAIL HIDEF
 # - This option controls the value of the \`hidef\` option passed to the /app parameter of the FreeRDP command.
 # - Setting this option to 'off' may resolve window misalignment issues related to maximized windows.
 # DEFAULT VALUE: 'on'
-HIDEF="\${HIDEF}"
+HIDEF="${HIDEF}"
 EOFCONF
-        chmod 600 "\$CONFIG_PATH"
+        chmod 600 "$CONFIG_PATH"
     fi
 	
-	source "\$CONFIG_PATH"
+	source "$CONFIG_PATH"
 	
-    # Update \$RDP_SCALE.
+    # Update $RDP_SCALE.
     waFixScale
-    # Update when \$REMOVABLE_MEDIA is null
+    # Update when $REMOVABLE_MEDIA is null
     waFixRemovableMedia
-    # Update \$AUTOPAUSE_TIME.
+    # Update $AUTOPAUSE_TIME.
     # RemoteApp RDP sessions take, at minimum, 20 seconds to be terminated by the Windows server.
     # Hence, subtract 20 from the timeout specified by the user, as a 'built in' timeout of 20 seconds will occur.
     # Source: https://techcommunity.microsoft.com/t5/security-compliance-and-identity/terminal-services-remoteapp-8482-session-termination-logic/ba-p/246566
-    AUTOPAUSE_TIME=\$((AUTOPAUSE_TIME - 20))
-    AUTOPAUSE_TIME=\$((AUTOPAUSE_TIME < 0 ? 0 : AUTOPAUSE_TIME))
+    AUTOPAUSE_TIME=$((AUTOPAUSE_TIME - 20))
+    AUTOPAUSE_TIME=$((AUTOPAUSE_TIME < 0 ? 0 : AUTOPAUSE_TIME))
 }
 
 # Name: 'waLastRun'
@@ -977,33 +986,33 @@ function waLastRun() {
     local CURR_RUN_UNIX_TIME=0
 
     # Store the time this script was run last as a unix timestamp.
-    if [ -f "\$LASTRUN_PATH" ]; then
-        LAST_RUN_UNIX_TIME=\$(stat -t -c %Y "\$LASTRUN_PATH")
-        dprint "LAST_RUN: \${LAST_RUN_UNIX_TIME}"
+    if [ -f "$LASTRUN_PATH" ]; then
+        LAST_RUN_UNIX_TIME=$(stat -t -c %Y "$LASTRUN_PATH")
+        dprint "LAST_RUN: ${LAST_RUN_UNIX_TIME}"
     fi
 
     # Update the file modification time with the current time.
-    touch "\$LASTRUN_PATH"
-    CURR_RUN_UNIX_TIME=\$(stat -t -c %Y "\$LASTRUN_PATH")
-    dprint "THIS_RUN: \${CURR_RUN_UNIX_TIME}"
+    touch "$LASTRUN_PATH"
+    CURR_RUN_UNIX_TIME=$(stat -t -c %Y "$LASTRUN_PATH")
+    dprint "THIS_RUN: ${CURR_RUN_UNIX_TIME}"
 }
 
 # Name: 'waGetFreeRDPCommand'
 # Role: Determine the correct FreeRDP command to use.
 function waGetFreeRDPCommand() {
-    if ! command -v "\${FREERDP_BIN}" >/dev/null 2>&1; then
+    if ! command -v "${FREERDP_BIN}" >/dev/null 2>&1; then
         echo -e "Please install 'FreeRDP' version 3 to proceed."
         exit 1
     fi
 
-    dprint "Using FreeRDP command '\${FREERDP_BIN}'."
+    dprint "Using FreeRDP command '${FREERDP_BIN}'."
 
     # Append additional flags or parameters to FreeRDP.
     # These additional flags are loaded prior in 'waLoadConfig'.
-    if [[ -n \$RDP_FLAGS ]];then
-        FREERDP_COMMAND="\${FREERDP_BIN} \${RDP_FLAGS}"
+    if [[ -n $RDP_FLAGS ]];then
+        FREERDP_COMMAND="${FREERDP_BIN} ${RDP_FLAGS}"
     else
-    	FREERDP_COMMAND="\${FREERDP_BIN}"
+    	FREERDP_COMMAND="${FREERDP_BIN}"
     fi
 }
 
@@ -1012,11 +1021,11 @@ function waGetFreeRDPCommand() {
 function waCheckGroupMembership() {
     # Identify groups the current user belongs to.
     # shellcheck disable=SC2155 # Silence warnings regarding masking return values through simultaneous declaration and assignment.
-    local USER_GROUPS=\$(id -nG "\$(whoami)")
+    local USER_GROUPS=$(id -nG "$(whoami)")
 
-    if ! echo "\$USER_GROUPS" | grep -qE '\b(libvirt|libvirtd)\b' || \\
-       ! echo "\$USER_GROUPS" | grep -qE '\bkvm\b'; then
-        waThrowExit "\$EC_NOT_IN_GROUP"
+    if ! echo "$USER_GROUPS" | grep -qE '\b(libvirt|libvirtd)\b' || \
+       ! echo "$USER_GROUPS" | grep -qE '\bkvm\b'; then
+        waThrowExit "$EC_NOT_IN_GROUP"
     fi
 }
 
@@ -1033,90 +1042,90 @@ function waCheckVMRunning() {
 
     # Attempt to run the Windows virtual machine.
     # Note: States 'running' and 'idle' do not require intervention, and are not checked for.
-    if virsh list --all --name | grep -Fxq -- "\$VM_NAME"; then
-        if virsh list --state-shutoff --name | grep -Fxq -- "\$VM_NAME"; then
+    if virsh list --all --name | grep -Fxq -- "$VM_NAME"; then
+        if virsh list --state-shutoff --name | grep -Fxq -- "$VM_NAME"; then
             dprint "WINDOWS SHUT OFF. BOOTING WINDOWS."
             send_notification_info "4000" "Booting Windows."
             NEEDED_BOOT=true
-            virsh start "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_START
-            if virsh list --state-paused --name | grep -Fxq -- "\$VM_NAME"; then
+            virsh start "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_START
+            if virsh list --state-paused --name | grep -Fxq -- "$VM_NAME"; then
                 dprint "WINDOWS PAUSED. RESUMING WINDOWS."
                 send_notification_info "4000" "Resuming Windows."
-                virsh resume "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_RESUME
+                virsh resume "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_RESUME
             fi
-        elif virsh list --state-paused --name | grep -Fxq -- "\$VM_NAME"; then
+        elif virsh list --state-paused --name | grep -Fxq -- "$VM_NAME"; then
             dprint "WINDOWS PAUSED. RESUMING WINDOWS."
             send_notification_info "4000" "Resuming Windows."
-            virsh resume "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_RESUME
-        elif virsh list --state-other --name | grep -Fxq -- "\$VM_NAME"; then
-            if virsh domstate "\$VM_NAME" | grep -Fxq "in shutdown"; then
+            virsh resume "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_RESUME
+        elif virsh list --state-other --name | grep -Fxq -- "$VM_NAME"; then
+            if virsh domstate "$VM_NAME" | grep -Fxq "in shutdown"; then
                 dprint "WINDOWS SHUTTING DOWN. WAITING."
                 send_notification_info "4000" "Windows is currently shutting down.\nIt will automatically restart once the shutdown process is complete."
-                EXIT_STATUS=\$EC_SD_TIMEOUT
+                EXIT_STATUS=$EC_SD_TIMEOUT
                 while (( TIME_ELAPSED < TIME_LIMIT )); do
-                    if (virsh list --state-shutoff --name | grep -Fxq -- "\$VM_NAME"); then
+                    if (virsh list --state-shutoff --name | grep -Fxq -- "$VM_NAME"); then
                         EXIT_STATUS=0
                         dprint "WINDOWS SHUT OFF. BOOTING WINDOWS."
                         send_notification_info "4000" "Booting Windows."
-                        virsh start "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_START
+                        virsh start "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_START
                         NEEDED_BOOT=true
                         break
                     fi
-                    sleep \$TIME_INTERVAL
-                    TIME_ELAPSED=\$((TIME_ELAPSED + TIME_INTERVAL))
+                    sleep $TIME_INTERVAL
+                    TIME_ELAPSED=$((TIME_ELAPSED + TIME_INTERVAL))
                 done
-            elif virsh domstate "\$VM_NAME" | grep -Fxq "crashed"; then
+            elif virsh domstate "$VM_NAME" | grep -Fxq "crashed"; then
                 dprint "WINDOWS CRASHED. DESTROYING WINDOWS."
                 send_notification_info "4000" "Windows experienced an unexpected crash.\nAttempting to restart Windows."
-                virsh destroy "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_DESTROY
-                if [ "\$EXIT_STATUS" -eq 0 ]; then
+                virsh destroy "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_DESTROY
+                if [ "$EXIT_STATUS" -eq 0 ]; then
                     dprint "WINDOWS DESTROYED. BOOTING WINDOWS."
                     send_notification_info "4000" "Booting Windows."
-                    virsh start "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_START
+                    virsh start "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_START
                     NEEDED_BOOT=true
                 fi
-            elif virsh domstate "\$VM_NAME" | grep -Fxq "dying"; then
+            elif virsh domstate "$VM_NAME" | grep -Fxq "dying"; then
                 dprint "WINDOWS DYING. WAITING."
                 send_notification_info "4000" "Windows is currently shutting down unexpectedly.\nIt will try to restart once the shutdown process finishes."
-                EXIT_STATUS=\$EC_DIE_TIMEOUT
+                EXIT_STATUS=$EC_DIE_TIMEOUT
                 while (( TIME_ELAPSED < TIME_LIMIT )); do
-                    if virsh domstate "\$VM_NAME" | grep -Fxq "crashed"; then
+                    if virsh domstate "$VM_NAME" | grep -Fxq "crashed"; then
                         EXIT_STATUS=0
                         dprint "WINDOWS CRASHED. DESTROYING WINDOWS."
                         send_notification_info "4000" "Windows experienced an unexpected crash.\nAttempting to restart Windows."
-                        virsh destroy "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_DESTROY
-                        if [ "\$EXIT_STATUS" -eq 0 ]; then
+                        virsh destroy "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_DESTROY
+                        if [ "$EXIT_STATUS" -eq 0 ]; then
                             dprint "WINDOWS DESTROYED. BOOTING WINDOWS."
                             send_notification_info "4000" "Booting Windows."
-                            virsh start "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_START
+                            virsh start "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_START
                             NEEDED_BOOT=true
                         fi
                         break
-                    elif virsh list --state-shutoff --name | grep -Fxq -- "\$VM_NAME"; then
+                    elif virsh list --state-shutoff --name | grep -Fxq -- "$VM_NAME"; then
                         EXIT_STATUS=0
                         dprint "WINDOWS SHUT OFF. BOOTING WINDOWS."
                         send_notification_info "4000" "Booting Windows."
-                        virsh start "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_START
+                        virsh start "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_START
                         NEEDED_BOOT=true
                         break
                     fi
-                    sleep \$TIME_INTERVAL
-                    TIME_ELAPSED=\$((TIME_ELAPSED + TIME_INTERVAL))
+                    sleep $TIME_INTERVAL
+                    TIME_ELAPSED=$((TIME_ELAPSED + TIME_INTERVAL))
                 done
-            elif virsh domstate "\$VM_NAME" | grep -Fxq "pmsuspended" ; then
+            elif virsh domstate "$VM_NAME" | grep -Fxq "pmsuspended" ; then
                 dprint "WINDOWS SUSPENDED. RESUMING WINDOWS."
-                virsh resume "\$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=\$EC_FAIL_RESUME
+                virsh resume "$VM_NAME" >/dev/null 2>&1 || EXIT_STATUS=$EC_FAIL_RESUME
             fi
         fi
     else
-        EXIT_STATUS=\$EC_NOT_EXIST
+        EXIT_STATUS=$EC_NOT_EXIST
     fi
 
     # Handle non-zero exit statuses.
-    [ "\$EXIT_STATUS" -ne 0 ] && waThrowExit "\$EXIT_STATUS"
+    [ "$EXIT_STATUS" -ne 0 ] && waThrowExit "$EXIT_STATUS"
 
     # Wait for VM to be fully ready
-    if [[ "\$NEEDED_BOOT" == "true" ]]; then
+    if [[ "$NEEDED_BOOT" == "true" ]]; then
         dprint "WAITING FOR VM TO BE FULLY READY..."
         send_notification_info "4000" "Waiting for Windows to be ready..."
 
@@ -1124,13 +1133,13 @@ function waCheckVMRunning() {
 
         while (( TIME_ELAPSED < BOOT_TIMEOUT )); do
             # Check if VM is running
-            if (virsh list --state-running --name | grep -Fxq -- "\$VM_NAME"); then
+            if (virsh list --state-running --name | grep -Fxq -- "$VM_NAME"); then
                 # Try to connect to RDP port to verify it's ready
-                if timeout 1 bash -c ">/dev/tcp/\$RDP_IP/\$RDP_PORT" 2>/dev/null; then
+                if timeout 1 bash -c ">/dev/tcp/$RDP_IP/$RDP_PORT" 2>/dev/null; then
                     dprint "VM IS READY"
                     send_notification_info "4000" "Windows is ready."
                     # Add a delay after Windows is ready
-                    if [ "\$NEEDED_BOOT" = "true" ]; then
+                    if [ "$NEEDED_BOOT" = "true" ]; then
                         sleep 10
                     fi
                     break
@@ -1138,11 +1147,11 @@ function waCheckVMRunning() {
             fi
 
             sleep 5
-            TIME_ELAPSED=\$((TIME_ELAPSED + 5))
+            TIME_ELAPSED=$((TIME_ELAPSED + 5))
 
             # Show progress every 30 seconds
             if (( TIME_ELAPSED % 30 == 0 )); then
-                send_notification_info "4000" "Still waiting for Windows to be ready... (\$TIME_ELAPSED seconds elapsed)"
+                send_notification_info "4000" "Still waiting for Windows to be ready... ($TIME_ELAPSED seconds elapsed)"
             fi
         done
 
@@ -1150,7 +1159,7 @@ function waCheckVMRunning() {
         if (( TIME_ELAPSED >= BOOT_TIMEOUT )); then
             dprint "TIMEOUT WAITING FOR VM TO BE READY"
             send_notification_info "4000" "Timeout waiting for Windows to be ready. Please try again."
-            waThrowExit \$EC_FAIL_START
+            waThrowExit $EC_FAIL_START
         fi
     fi
 }
@@ -1165,24 +1174,24 @@ function waCheckPortOpen() {
     local TIME_INTERVAL=5
 
     # Obtain Windows VM IP Address
-    if [ -z "\$RDP_IP" ]; then
-        VM_MAC=\$(virsh domiflist "\$VM_NAME" | grep -oE "([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})") # VM MAC address.
+    if [ -z "$RDP_IP" ]; then
+        VM_MAC=$(virsh domiflist "$VM_NAME" | grep -oE "([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})") # VM MAC address.
 
         while (( TIME_ELAPSED < TIME_LIMIT )); do
-            if [ "\$TIME_ELAPSED" -eq "\$TIME_INTERVAL" ]; then
+            if [ "$TIME_ELAPSED" -eq "$TIME_INTERVAL" ]; then
                 send_notification_info "4000" "Requesting Windows IP address..."
             fi
-            RDP_IP=\$(ip neigh show | grep "\$VM_MAC" | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}") # VM IP address.
-            [ -n "\$RDP_IP" ] && break
-            sleep \$TIME_INTERVAL
-            TIME_ELAPSED=\$((TIME_ELAPSED + TIME_INTERVAL))
+            RDP_IP=$(ip neigh show | grep "$VM_MAC" | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}") # VM IP address.
+            [ -n "$RDP_IP" ] && break
+            sleep $TIME_INTERVAL
+            TIME_ELAPSED=$((TIME_ELAPSED + TIME_INTERVAL))
         done
 
-        [ -z "\$RDP_IP" ] && waThrowExit "\$EC_NO_IP"
+        [ -z "$RDP_IP" ] && waThrowExit "$EC_NO_IP"
     fi
 
     # Check for an open RDP port.
-    timeout 10 bash -c "</dev/tcp/\$RDP_IP/\$RDP_PORT" >/dev/null 2>&1 || waThrowExit "\$EC_BAD_PORT"
+    timeout 10 bash -c "</dev/tcp/$RDP_IP/$RDP_PORT" >/dev/null 2>&1 || waThrowExit "$EC_BAD_PORT"
 }
 
 # Name: 'waRunCommand'
@@ -1193,86 +1202,86 @@ function waRunCommand() {
     local FILE_PATH=""
 
     # Run option.
-    if [ "\$1" = "windows" ]; then
+    if [ "$1" = "windows" ]; then
         # Update timeout (since there is no 'in-built' 20 second delay for full RDP sessions post-logout).
-        AUTOPAUSE_TIME=\$((AUTOPAUSE_TIME + 20))
+        AUTOPAUSE_TIME=$((AUTOPAUSE_TIME + 20))
 
         # Open Windows RDP session.
         dprint "WINDOWS"
-        \$FREERDP_COMMAND \\
-            /cert:ignore \\
-            /d:"\$RDP_DOMAIN" \\
-            /u:"\$RDP_USER" \\
-            /p:"\$RDP_PASS" \\
-            /scale:"\$RDP_SCALE" \\
-            +auto-reconnect \\
-            +dynamic-resolution \\
-            /wm-class:"Microsoft Windows" \\
-            /t:"Windows RDP Session [\$RDP_IP]" \\
-            /v:"\$RDP_IP" >/dev/null 2>&1 &
+        $FREERDP_COMMAND \
+            /cert:ignore \
+            /d:"$RDP_DOMAIN" \
+            /u:"$RDP_USER" \
+            /p:"$RDP_PASS" \
+            /scale:"$RDP_SCALE" \
+            +auto-reconnect \
+            +dynamic-resolution \
+            /wm-class:"Microsoft Windows" \
+            /t:"Windows RDP Session [$RDP_IP]" \
+            /v:"$RDP_IP" >/dev/null 2>&1 &
 
         # Capture the process ID.
-        FREERDP_PID=\$!
+        FREERDP_PID=$!
     else
-        if [ -e "\${TARGET_APPDATA_PATH}/apps/\${1}/info" ]; then
+        if [ -e "${TARGET_APPDATA_PATH}/apps/${1}/info" ]; then
             # shellcheck source=/dev/null # Exclude this file from being checked by ShellCheck.
-            source "\${TARGET_APPDATA_PATH}/apps/\${1}/info"
-            ICON="\${TARGET_APPDATA_PATH}/apps/\${1}/icon.svg"
+            source "${TARGET_APPDATA_PATH}/apps/${1}/info"
+            ICON="${TARGET_APPDATA_PATH}/apps/${1}/icon.svg"
         else
-            waThrowExit "\$EC_UNSUPPORTED_APP"
+            waThrowExit "$EC_UNSUPPORTED_APP"
         fi
 
         # Check if a file path was specified, and pass this to the application.
-        if [ -z "\$2" ]; then
+        if [ -z "$2" ]; then
             # No file path specified.
-            \$FREERDP_COMMAND \\
-                /cert:ignore \\
-                /d:"\$RDP_DOMAIN" \\
-                /u:"\$RDP_USER" \\
-                /p:"\$RDP_PASS" \\
-                /scale:"\$RDP_SCALE" \\
-                +auto-reconnect \\
-                /wm-class:"\$FULL_NAME" \\
-                /app:program:"\$WIN_EXECUTABLE",hidef:"\$HIDEF",icon:"\$ICON",name:"\$FULL_NAME" \\
-                /v:"\$RDP_IP" >/dev/null 2>&1 &
+            $FREERDP_COMMAND \
+                /cert:ignore \
+                /d:"$RDP_DOMAIN" \
+                /u:"$RDP_USER" \
+                /p:"$RDP_PASS" \
+                /scale:"$RDP_SCALE" \
+                +auto-reconnect \
+                /wm-class:"$FULL_NAME" \
+                /app:program:"$WIN_EXECUTABLE",hidef:"$HIDEF",icon:"$ICON",name:"$FULL_NAME" \
+                /v:"$RDP_IP" >/dev/null 2>&1 &
 
             # Capture the process ID.
-            FREERDP_PID=\$!
+            FREERDP_PID=$!
         else
             # Convert path from UNIX to Windows style.
-            FILE_PATH=\$(echo "\$2" | sed \\
-                -e 's|^'"\${HOME}"'|\\\\\\\\tsclient\\\\home|' \\
-                -e 's|^'"\${REMOVABLE_MEDIA}"'|\\\\\\\\tsclient\\\\media|' \\
-                -e 's|/|\\\\|g')
-            dprint "UNIX_FILE_PATH: \${2}"
-            dprint "WINDOWS_FILE_PATH: \${FILE_PATH}"
+            FILE_PATH=$(echo "$2" | sed \
+                -e 's|^'"${HOME}"'|\\\\tsclient\\home|' \
+                -e 's|^'"${REMOVABLE_MEDIA}"'|\\\\tsclient\\media|' \
+                -e 's|/|\\|g')
+            dprint "UNIX_FILE_PATH: ${2}"
+            dprint "WINDOWS_FILE_PATH: ${FILE_PATH}"
 
-            \$FREERDP_COMMAND \\
-                /cert:ignore \\
-                /d:"\$RDP_DOMAIN" \\
-                /u:"\$RDP_USER" \\
-                /p:"\$RDP_PASS" \\
-                /scale:"\$RDP_SCALE" \\
-                +auto-reconnect \\
-                /drive:media,"\$REMOVABLE_MEDIA" \\
-                /wm-class:"\$FULL_NAME" \\
-                /app:program:"\$WIN_EXECUTABLE",hidef:"\$HIDEF",icon:"\$ICON",name:"\$FULL_NAME",cmd:\""\$FILE_PATH"\" \\
-                /v:"\$RDP_IP" >/dev/null 2>&1 &
+            $FREERDP_COMMAND \
+                /cert:ignore \
+                /d:"$RDP_DOMAIN" \
+                /u:"$RDP_USER" \
+                /p:"$RDP_PASS" \
+                /scale:"$RDP_SCALE" \
+                +auto-reconnect \
+                /drive:media,"$REMOVABLE_MEDIA" \
+                /wm-class:"$FULL_NAME" \
+                /app:program:"$WIN_EXECUTABLE",hidef:"$HIDEF",icon:"$ICON",name:"$FULL_NAME",cmd:\""$FILE_PATH"\" \
+                /v:"$RDP_IP" >/dev/null 2>&1 &
 
             # Capture the process ID.
-            FREERDP_PID=\$!
+            FREERDP_PID=$!
         fi
     fi
 
-    if [ "\$FREERDP_PID" -ne -1 ]; then
+    if [ "$FREERDP_PID" -ne -1 ]; then
         # generate a file with the process ID.
-        touch "\${USER_APPDATA_PATH}/FreeRDP_Process_\${FREERDP_PID}.cproc"
+        touch "${USER_APPDATA_PATH}/FreeRDP_Process_${FREERDP_PID}.cproc"
 
         # Wait for the process to terminate.
-        wait \$FREERDP_PID
+        wait $FREERDP_PID
 
         # Remove the file with the process ID.
-        rm "\${USER_APPDATA_PATH}/FreeRDP_Process_\${FREERDP_PID}.cproc" >/dev/null 2>&1
+        rm "${USER_APPDATA_PATH}/FreeRDP_Process_${FREERDP_PID}.cproc" >/dev/null 2>&1
     fi
 }
 
@@ -1286,23 +1295,23 @@ function waCheckIdle() {
 
     # Prevent 'autopause' functionality with unsupported Windows backends.
         # Check if there are no WinApps-related FreeRDP processes running.
-        if ! ls "\${USER_APPDATA_PATH}"/FreeRDP_Process_*.cproc >/dev/null 2>&1; then
+        if ! ls "${USER_APPDATA_PATH}"/FreeRDP_Process_*.cproc >/dev/null 2>&1; then
             SUSPEND_WINDOWS=1
             while (( TIME_ELAPSED < AUTOPAUSE_TIME )); do
-                if ls "\${USER_APPDATA_PATH}"/FreeRDP_Process_*.cproc >/dev/null 2>&1; then
+                if ls "${USER_APPDATA_PATH}"/FreeRDP_Process_*.cproc >/dev/null 2>&1; then
                     SUSPEND_WINDOWS=0
                     break
                 fi
-                sleep \$TIME_INTERVAL
-                TIME_ELAPSED=\$((TIME_ELAPSED + TIME_INTERVAL))
+                sleep $TIME_INTERVAL
+                TIME_ELAPSED=$((TIME_ELAPSED + TIME_INTERVAL))
             done
         fi
 
         # Hibernate/Pause Windows.
-        if [ "\$SUSPEND_WINDOWS" -eq 1 ]; then
-            dprint "IDLE FOR \${AUTOPAUSE_TIME} SECONDS. SUSPENDING WINDOWS."
+        if [ "$SUSPEND_WINDOWS" -eq 1 ]; then
+            dprint "IDLE FOR ${AUTOPAUSE_TIME} SECONDS. SUSPENDING WINDOWS."
             send_notification_other "8000" "info" "Pausing Windows due to inactivity."
-            virsh suspend "\$VM_NAME" >/dev/null 2>&1
+            virsh suspend "$VM_NAME" >/dev/null 2>&1
         fi
 }
 
@@ -1316,28 +1325,28 @@ function waTimeSync() {
     local EXPECTED_UPTIME=0
     local UPTIME_DIFF=0
 
-    CURRENT_TIME=\$(date +%s)
-    CURRENT_UPTIME=\$(awk '{print int(\$1)}' /proc/uptime)
+    CURRENT_TIME=$(date +%s)
+    CURRENT_UPTIME=$(awk '{print int($1)}' /proc/uptime)
 
     # Read stored values if file exists
-    if [ -f "\$SLEEP_DETECT_PATH" ]; then
-        STORED_TIME=\$(head -n1 "\$SLEEP_DETECT_PATH" 2>/dev/null || echo 0)
-        STORED_UPTIME=\$(tail -n1 "\$SLEEP_DETECT_PATH" 2>/dev/null || echo 0)
+    if [ -f "$SLEEP_DETECT_PATH" ]; then
+        STORED_TIME=$(head -n1 "$SLEEP_DETECT_PATH" 2>/dev/null || echo 0)
+        STORED_UPTIME=$(tail -n1 "$SLEEP_DETECT_PATH" 2>/dev/null || echo 0)
     fi
 
-    if [ "\$STORED_TIME" -gt 0 ] && [ "\$STORED_UPTIME" -gt 0 ]; then
+    if [ "$STORED_TIME" -gt 0 ] && [ "$STORED_UPTIME" -gt 0 ]; then
         # Calculate what uptime should be now
-        EXPECTED_UPTIME=\$((STORED_UPTIME + CURRENT_TIME - STORED_TIME))
-        UPTIME_DIFF=\$((EXPECTED_UPTIME - CURRENT_UPTIME))
+        EXPECTED_UPTIME=$((STORED_UPTIME + CURRENT_TIME - STORED_TIME))
+        UPTIME_DIFF=$((EXPECTED_UPTIME - CURRENT_UPTIME))
 
-        dprint "UPTIME_DIFF: \${UPTIME_DIFF} seconds"
+        dprint "UPTIME_DIFF: ${UPTIME_DIFF} seconds"
 
         # If uptime is significantly less than expected, system likely slept
-        if [[ "\$UPTIME_DIFF" -gt 30 && ! -f "\$SLEEP_MARKER" ]]; then
-            dprint "DETECTED SLEEP/WAKE CYCLE (uptime gap: \${UPTIME_DIFF}s). CREATING SLEEP MARKER TO SYNC WINDOWS TIME."
+        if [[ "$UPTIME_DIFF" -gt 30 && ! -f "$SLEEP_MARKER" ]]; then
+            dprint "DETECTED SLEEP/WAKE CYCLE (uptime gap: ${UPTIME_DIFF}s). CREATING SLEEP MARKER TO SYNC WINDOWS TIME."
 
             # generate sleep marker which will be monitored by Windows VM to trigger time sync
-            touch "\$SLEEP_MARKER"
+            touch "$SLEEP_MARKER"
 
             dprint "GENERATED SLEEP MARKER"
         fi
@@ -1345,18 +1354,18 @@ function waTimeSync() {
 
     # Store current values
     {
-        echo "\$CURRENT_TIME"
-        echo "\$CURRENT_UPTIME"
-    } > "\$SLEEP_DETECT_PATH"
+        echo "$CURRENT_TIME"
+        echo "$CURRENT_UPTIME"
+    } > "$SLEEP_DETECT_PATH"
 }
 
 ### MAIN LOGIC ###
 #set -x # Enable for debugging.
-mkdir -p "\${USER_APPDATA_PATH}"
+mkdir -p "${USER_APPDATA_PATH}"
 dprint "START"
-dprint "SCRIPT_DIR: \$(basename "\${BASH_SOURCE[0]}")"
-dprint "SCRIPT_ARGS: \${*}"
-dprint "HOME_DIR: \${HOME}"
+dprint "SCRIPT_DIR: $(basename "${BASH_SOURCE[0]}")"
+dprint "SCRIPT_ARGS: ${*}"
+dprint "HOME_DIR: ${HOME}"
 waLastRun
 waLoadConfig
 waGetFreeRDPCommand
@@ -1364,9 +1373,9 @@ waCheckGroupMembership
 waCheckVMRunning
 waCheckPortOpen
 waTimeSync
-waRunCommand "\$@"
+waRunCommand "$@"
 
-if [[ "\$AUTOPAUSE" == "on" ]]; then
+if [[ "$AUTOPAUSE" == "on" ]]; then
     waCheckIdle
 fi
 
@@ -1721,44 +1730,49 @@ move_2_correct_location(){
     $_SUPERUSER mkdir -p "$APP_PATH"
     $_SUPERUSER mkdir -p "${TARGET_APPDATA_PATH}"
     
-    $_SUPERUSER chown -R root:root "$TEMP_PATH"
+    $_SUPERUSER chown -R root:root "$TEMP_PATH"/*
     
-    $_SUPERUSER cp -rf "$TEMP_BIN_PATH"/* "$BIN_PATH"
-    $_SUPERUSER cp -rf "$TEMP_APP_PATH"/* "$APP_PATH"
-    $_SUPERUSER cp -rf "$TEMP_TARGET_APPDATA_PATH"/* "${TARGET_APPDATA_PATH}"
+    $_SUPERUSER cp -rf "$TEMP_BIN_PATH"/. "$BIN_PATH"
+    $_SUPERUSER cp -rf "$TEMP_APP_PATH"/. "$APP_PATH"
+    $_SUPERUSER cp -rf "$TEMP_TARGET_APPDATA_PATH"/. "${TARGET_APPDATA_PATH}"
 	
-	$_SUPERUSER ln -sf "$BIN_PATH"/* "${__distro_path_bin}"
-	$_SUPERUSER ln -sf "$APP_PATH"/* "/usr/share/applications"
+	$_SUPERUSER ln -sf "$BIN_PATH"/. "${__distro_path_bin}"
+	$_SUPERUSER ln -sf "$APP_PATH"/. "/usr/share/applications"
 	
     $_SUPERUSER rm -rdf "$TEMP_PATH"
 }
 
-waCheckScriptDependencies
-
-mkdir -p "${TEMP_PATH}"
-mkdir -p "${TEMP_BIN_PATH}"
-mkdir -p "${TEMP_APP_PATH}"
-mkdir -p "${TEMP_TARGET_APPDATA_PATH}/apps"
-mkdir -p "${TEMP_TARGET_APPDATA_PATH}/icons"
+create_req_dirs(){
+	mkdir -p "${TEMP_PATH}"
+	mkdir -p "${TEMP_BIN_PATH}"
+	mkdir -p "${TEMP_APP_PATH}"
+	mkdir -p "${TEMP_TARGET_APPDATA_PATH}/apps"
+	mkdir -p "${TEMP_TARGET_APPDATA_PATH}/icons"
     
-chmod -R 700 "$TEMP_PATH"
+	chmod -R 700 "$TEMP_PATH"
+}
+
+create_req_dirs || failed_to_run "failed to run create_req_dirs"
+
+waCheckScriptDependencies || failed_to_run "failed to run waCheckScriptDependencies"
 
 if [ ! -f "${TEMP_BIN_PATH}/winapps" ];then
     say "Creating winapps"
-    generate_winapps_script
+    generate_winapps_script || failed_to_run "failed to run generate_winapps_script"
 fi
 if [ ! -f "${TEMP_TARGET_APPDATA_PATH}/icons/windows.svg" ];then
     say "Creating windows.svg"
     windows_base64_ICON="PHN2ZyB2ZXJzaW9uPSIxLjIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDIwNDggMjA0OCIgd2lkdGg9IjIwNDgiIGhlaWdodD0iMjA0OCI+CiAgPHRpdGxlPldpbmRvd3M8L3RpdGxlPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnMSIgeDI9IjEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KC0yMDQ4LC0yMDQ4LDIwNDgsLTIwNDgsMjA0OCwyMDQ4KSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzA2N2NkNiIvPgogICAgICA8c3RvcCBvZmZzZXQ9Ii40IiBzdG9wLWNvbG9yPSIjMGY4NWRhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdhZGNmZiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHBhdGggaWQ9IldpbmRvd3MiIGZpbGw9InVybCgjZzEpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsYXNzPSJzMCIgZD0ibTIyOCAwaDc0NnY5NzRoLTk3NHYtNzQ2YzAtMTI1LjkgMTAyLjEtMjI4IDIyOC0yMjh6bTc0NiAyMDQ4aC03NDZjLTEyNS45IDAtMjI4LTEwMi4xLTIyOC0yMjh2LTc0Nmg5NzR6bTg0Ni0yMDQ4YzEyNS45IDAgMjI4IDEwMi4xIDIyOCAyMjh2NzQ2aC05NzR2LTk3NHptMjI4IDE4MjBjMCAxMjUuOS0xMDIuMSAyMjgtMjI4IDIyOGgtNzQ2di05NzRoOTc0eiIvPgo8L3N2Zz4K"
-    echo "$windows_base64_ICON" | base64 --decode | tee "${TEMP_TARGET_APPDATA_PATH}/icons/windows.svg" >/dev/null 2>&1
+    echo "$windows_base64_ICON" | base64 --decode | tee "${TEMP_TARGET_APPDATA_PATH}/icons/windows.svg" >/dev/null 2>&1 || failed_to_run "failed to run generate windows_base64_ICON"
 fi
 if [ ! -f "$PS_SCRIPT_PATH" ];then
     say "Creating ExtractPrograms.ps1"
-    generate_powershell_script
+    generate_powershell_script || failed_to_run "failed to run generate_powershell_script"
 fi
 
 waInstall
-move_2_correct_location
+
+move_2_correct_location || failed_to_run "failed to run move_2_correct_location"
 
 say "INSTALLATION COMPLETE." 'green'
 exit 0

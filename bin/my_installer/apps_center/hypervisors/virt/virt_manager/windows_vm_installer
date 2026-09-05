@@ -1142,7 +1142,6 @@ if command -v "curl" >/dev/null 2>/dev/null;then
     	say "$massage"
     	curl -fSLo "$path/${newname}" "${url}" --progress-bar
 	}
-	
 elif command -v "wget" >/dev/null 2>/dev/null;then
     __url_handler_command=wget   
 	download_file(){
@@ -1154,7 +1153,7 @@ elif command -v "wget" >/dev/null 2>/dev/null;then
         	return
     	fi
     	say "$massage"
-    	curl -fSLo "$path/${newname}" "${url}" --progress-bar
+    	wget -q  --show-progress -O "$path/${newname}" "${url}" 
 	}
 fi
  
@@ -1176,7 +1175,7 @@ unattended_windows() {
 	if mkisofs -quiet -l -o "${unattended_iso_path}" "${unattended_files_dir}/";then
         say " ✔  Done building unattended.iso !" 'green'
 	else
-		say "failed to run mkisofs" 'red'
+		failed_to_run "failed to run mkisofs"
 	fi
 }
 
@@ -1192,8 +1191,8 @@ req_apps_4_vm(){
     	apps_name="freerdp3-x11 mkisofs"
     fi
     . "${__distro_path_root}/Distro_Specific/Package-manager.sh"
-    Package_update_ || say "failed to run Package_update_" 'red'
-    Package_installer_ "${apps_name}" || say "failed to run Package_installer_ ${apps_name}" 'red'
+    Package_update_ || failed_to_run "failed to run Package_update_"
+    Package_installer_ "${apps_name}" || failed_to_run "failed to run Package_installer_ ${apps_name}"
     say " ✔  Done req_4_vm!" 'green'
     touch "${req_dir_path}/req_4_vm"
 }
@@ -1205,12 +1204,16 @@ generate_storage_pool_and_vm_disk(){
     
     if ! virsh -c "$QEMU_URI" pool-list --all 2>/dev/null | grep -qw "$vmbuildpoolname"; then
         say "Generate new temp pool at: $ROOT_VM_PATH_Builder" 'green'
-        virsh -c "$QEMU_URI" pool-define-as --name "$vmbuildpoolname" --type dir --target "$ROOT_VM_PATH_Builder"
+        virsh -c "$QEMU_URI" pool-define-as --name "$vmbuildpoolname" --type dir --target "$ROOT_VM_PATH_Builder" || say "failed to run virsh -c $QEMU_URI pool-define-as --name default --type dir --target /var/lib/libvirt/images" 'red'
         say "start new temp pool." 'green'
-        virsh -c "$QEMU_URI" pool-start "$vmbuildpoolname"
+        virsh -c "$QEMU_URI" pool-start "$vmbuildpoolname" || say "failed to run virsh -c $QEMU_URI pool-start $vmbuildpoolname" 'red'
         say "autostart new temp pool." 'green'
-        virsh -c "$QEMU_URI" pool-autostart "$vmbuildpoolname"
+        virsh -c "$QEMU_URI" pool-autostart "$vmbuildpoolname" || say "failed to run virsh -c $QEMU_URI pool-autostart $vmbuildpoolname" 'red'
     fi
+
+	if ! virsh -c "$QEMU_URI" pool-list --all | grep -qw "default";then
+		virsh -c "$QEMU_URI" pool-define-as --name default --type dir --target /var/lib/libvirt/images || say "failed to run virsh -c $QEMU_URI pool-define-as --name default --type dir --target /var/lib/libvirt/images" 'red'
+	fi
 
     if ! virsh -c "$QEMU_URI" pool-list --all | grep -w "default" | grep -wq "active";then
         say "start default pool." 'green'
@@ -1221,9 +1224,9 @@ generate_storage_pool_and_vm_disk(){
         say "autostart default pool." 'green'
         virsh -c "$QEMU_URI" pool-autostart default || say "failed to run virsh -c $QEMU_URI pool-autostart default" 'red'
     fi
-
+    
     say " Generate Virtaul disk!"
-    virsh -c "$QEMU_URI" vol-create-as default "${virt_storage_name}" "$disk_size" --format qcow2 || say "failed to run virsh -c $QEMU_URI vol-create-as default ${virt_storage_name} $disk_size --format qcow2" 'red'
+    virsh -c "$QEMU_URI" vol-create-as default "${virt_storage_name}" "$disk_size" --format qcow2 || failed_to_run "failed to run virsh -c $QEMU_URI vol-create-as default ${virt_storage_name} $disk_size --format qcow2"
 	say " Virtaul disk created!" 'green'
 }
 
@@ -1358,8 +1361,13 @@ run_vm(){
         return
     fi
     say " Running run_vm!"
-    virsh -c "$QEMU_URI" autostart "${VM_NAME}"
-    virsh -c "$QEMU_URI" start "${VM_NAME}"
+	if virsh -c "$QEMU_URI" dumpxml "${VM_NAME}" | grep -q "<source network='default'/>"; then
+    	say "Updating ${VM_NAME} network source from default to nwbridge..."
+    	virsh -c "$QEMU_URI" dumpxml "${VM_NAME}" | sed "s/<source network='default'\/>/<source network='nwbridge'\/>/g" | virsh -c "$QEMU_URI" define /dev/stdin
+	fi
+	
+    virsh -c "$QEMU_URI" autostart "${VM_NAME}" || say "failed to run virsh -c $QEMU_URI autostart ${VM_NAME}" 'red'
+    virsh -c "$QEMU_URI" start "${VM_NAME}" || say "failed to run virsh -c $QEMU_URI start ${VM_NAME}" 'red'
     say " ✔  Done run_vm!" 'green'
     touch "${req_dir_path}/run_vm"
 }
@@ -1381,7 +1389,7 @@ running_winapps(){
     done
 
     say " Running install_winapps."
-    "$virt_manager_script_path"/install_winapps.sh
+    "$virt_manager_script_path"/install_winapps.sh || failed_to_run "failed to run install_winapps.sh"
     sleep 10
     say " ✔  Done install_winapps." 'green'
     touch "${req_dir_path}/running_winapps"
@@ -1414,7 +1422,7 @@ mkdir -p "${req_dir_path}"
 
 req_apps_4_vm
 if [ ! -f "${WINDOWS_ISO_PATH}" ];then
-	"$virt_manager_script_path"/get_windows_iso "$__url_handler_command" "${WINDOWS_ISO_PATH}" "$I18N"
+	"$virt_manager_script_path"/get_windows_iso "$__url_handler_command" "${WINDOWS_ISO_PATH}" "$I18N" || failed_to_run "failed to run get_windows_iso"
 fi
 Downloading_Virtual_drivers
 generate_autounattend_xml

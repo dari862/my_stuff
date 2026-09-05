@@ -52,6 +52,13 @@ if [ -z "$__distro_path_lib" ];then
         		;;
 		esac
 	}
+	
+	failed_to_run() {
+    	__message_="${1:-}"
+    	say "$__message_" 'red' 'pause'
+    	exit 1
+	}
+	
 else
 	. "$__distro_path_lib"
 	. "${__distro_path_root}/lib/common/common"
@@ -82,7 +89,7 @@ if [ "$__url_handler_command" = "curl" ];then
             referer_fetch) referer="$1" ; shift ; base_curl --silent --referer "$referer" --user-agent "$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
             resolve_final_url) base_curl --silent --location --head --write-out '%{url_effective}' --output /dev/null --user-agent "$user_agent2" "$@" ;;
             download_iso) output_path="$1" ; shift ;base_curl --progress-bar --location --continue-at - --output "$output_path" --user-agent "$user_agent2" "$@" ;;
-            *) say "Unknown mode: $mode" 'red' ; return 1 ;;
+            *) failed_to_run "Unknown mode: $mode";;
         esac
     }
 elif [ "$__url_handler_command" = "wget" ];then
@@ -102,38 +109,37 @@ elif [ "$__url_handler_command" = "wget" ];then
         	referer_fetch) referer="$1" ; shift ; base_wget --referer="$referer" --user-agent="$user_agent1" "$@" || ( handle_url_error $? ; return $? ) ;;
         	resolve_final_url) base_wget --max-redirect=10 --server-response --spider --user-agent "$user_agent2" "$@" 2>&1 | grep -i "Location:" | tail -1 | awk '{print $2}' || ( handle_url_error $? ; return $? ) ;;
         	download_iso) output_path="$1" ; shift ; base_wget --progress=bar:force --continue --output-document="$output_path" --user-agent="$user_agent2" "$@" ;;
-        	*) say "Unknown mode: $mode" 'red' ; return 1 ;;
+        	*) failed_to_run "Unknown mode: $mode";;
     	esac
 	}
 fi
       
 handle_url_error() {
 	error_code="$1"
-	fatal_error_action=2
 	case "$error_code" in
-		6) say "Failed to resolve Microsoft servers! Is there an Internet connection? Exiting..." 'red' ; return "$fatal_error_action" ;;
-		7) say "Failed to contact Microsoft servers! Is there an Internet connection or is the server down?" 'red' ;;
-		8) say "Microsoft servers returned a malformed HTTP response!" 'red' ;;
-		22) say "Microsoft servers returned a failing HTTP status code!" 'red' ;;
-		23) say "Failed at writing Windows media to disk! Out of disk space or permission error? Exiting..." 'red' ; return "$fatal_error_action" ;;
-		26) say "Ran out of memory during download! Exiting..." 'red' ; return "$fatal_error_action" ;;
-		36) say "Failed to continue earlier download!" 'red' ;;
+		6) failed_to_run "Failed to resolve Microsoft servers! Is there an Internet connection? Exiting...";;
+		7) failed_to_run "Failed to contact Microsoft servers! Is there an Internet connection or is the server down?";;
+		8) failed_to_run "Microsoft servers returned a malformed HTTP response!";;
+		22) failed_to_run "Microsoft servers returned a failing HTTP status code!";;
+		23) failed_to_run "Failed at writing Windows media to disk! Out of disk space or permission error? Exiting...";;
+		26) failed_to_run "Ran out of memory during download! Exiting...";;
+		36) failed_to_run "Failed to continue earlier download!";;
 		63) say "Microsoft servers returned an unexpectedly large response!" 'red' ;;
 			# POSIX defines exit statuses 1-125 as usable by us
 			# https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_08_02
 			$((error_code <= 125)))
 			# Must be some other server or network error (possibly with this specific request/file)
 			# This is when accounting for all possible errors in the curl manual assuming a correctly formed curl command and an HTTP(S) request, using only the curl features we're using, and a sane build
-			say "Miscellaneous server or network error!" 'red' ;;
+			failed_to_run "Miscellaneous server or network error!";;
 			# Exit statuses are undefined by POSIX beyond this point
 		*)
 		case "$(kill -l "$error_code")" in
 			# Signals defined to exist by POSIX:
 			# https://pubs.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html
-			INT) say "$__url_handler_command was interrupted!" 'red' ;;
+			INT) failed_to_run "$__url_handler_command was interrupted!";;
 			# There could be other signals but these are most common
-			SEGV | ABRT ) say "$__url_handler_command crashed! Failed exploitation attempt? Please report any core dumps to $__url_handler_command developers. Exiting..." 'red' ; return "$fatal_error_action" ;;
-			*) say "$__url_handler_command terminated due to a fatal signal!" 'red';;
+			SEGV | ABRT ) failed_to_run "$__url_handler_command crashed! Failed exploitation attempt? Please report any core dumps to $__url_handler_command developers. Exiting...";;
+			*) failed_to_run "$__url_handler_command terminated due to a fatal signal!";;
 		esac
 	esac
 	return 1
@@ -210,8 +216,7 @@ GET_WINDOWS_ISO_URL() {
     if [ "${failed}" -eq 1 ]; then
         say "   Manually download the Windows ${RELEASE} ISO using a web browser from: ${url}" 'red'
         say "   Save the downloaded ISO to: $WINDOWS_ISO_DIR" 'red'
-        say "   Continuing with the VM creation process..." 'red'
-        return 1
+        failed_to_run "   Continuing with the VM creation process..."
     fi
 
     # Filter for 64-bit ISO download URL
@@ -219,8 +224,7 @@ GET_WINDOWS_ISO_URL() {
 
     if [ -z "$iso_download_link" ]; then
         # This should only happen if there's been some change to the download endpoint web address
-        say " - Microsoft servers gave us no download link to our request for an automated download. Please manually download this ISO in a web browser: $url" 'red'
-        return 1
+        failed_to_run " - Microsoft servers gave us no download link to our request for an automated download. Please manually download this ISO in a web browser: $url"
     fi
 }
 
@@ -236,8 +240,8 @@ download_windows_iso() {
     say " - Final URL resolved"
     say " - Downloading ${FILE_NAME} to ${WINDOWS_ISO_DIR} ."
     if ! run_url_handling_command download_iso "${WINDOWS_ISO_PATH}" "$iso_download_link"; then
-        say "ERROR! Failed to download ${iso_download_link} with $__url_handler_command ." 'red'
         rm -f "${WINDOWS_ISO_PATH}"
+        failed_to_run "ERROR! Failed to download ${iso_download_link} with $__url_handler_command ."
     fi
     say " - Done Downloading ${FILE_NAME}." 'green'
 }
